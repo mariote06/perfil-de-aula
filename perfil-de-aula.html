@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{
@@ -160,6 +161,34 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .saved-item .row-actions{display:flex;gap:4px;flex-shrink:0;}
 .saved-item .row-actions button{padding:5px 8px;font-size:12px;}
 .mini-profile{display:block;width:100%;height:16px;margin-top:4px;}
+
+/* ---------- Conta ---------- */
+.user-chip{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;margin-right:6px;}
+.user-chip #userName{color:var(--text);font-weight:600;}
+.badge{background:var(--accent);color:#140B04;border-radius:999px;padding:0 6px;font-size:11px;font-weight:700;margin-left:2px;}
+.hint-line{color:var(--muted);font-size:12px;line-height:1.45;margin:-6px 0 10px;}
+.tag-author{color:var(--muted);font-size:11px;}
+.auth-overlay{position:fixed;inset:0;background:var(--bg);z-index:2600;display:none;align-items:center;justify-content:center;padding:20px;}
+.auth-overlay.active{display:flex;}
+.auth-card{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 24px;}
+.auth-brand{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:700;}
+.auth-sub{color:var(--muted);font-size:13px;margin-bottom:20px;}
+.auth-form{display:flex;flex-direction:column;gap:12px;}
+.auth-form label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:var(--muted);}
+.auth-form input{background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:11px 12px;font-size:15px;}
+.auth-form input:focus{outline:none;border-color:var(--accent);}
+.auth-form button{width:100%;}
+.auth-err{color:#E27070;font-size:13px;min-height:18px;}
+.auth-links{display:flex;justify-content:space-between;gap:10px;font-size:13px;}
+.auth-links a{color:var(--accent);text-decoration:none;}
+.auth-msg{color:var(--text);font-size:14px;line-height:1.5;}
+.auth-msg.small{color:var(--muted);font-size:12px;}
+.admin-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #1B212B;}
+.admin-row .who b{display:block;font-size:14px;}
+.admin-row .who span{color:var(--muted);font-size:12px;}
+.admin-row .state{font-size:12px;font-weight:700;margin-right:8px;}
+.admin-row .state.ok{color:#7FD3A6;}
+.admin-row .state.wait{color:#FFD27A;}
 
 /* ---------- Toast ---------- */
 .toast{
@@ -353,6 +382,10 @@ button:disabled{opacity:.4;cursor:not-allowed;}
       <span>Planeamento de cycling por %FTP</span>
     </div>
     <div class="topbar-actions">
+      <span class="user-chip" id="userChip"><span id="userName">—</span>
+        <button class="small ghost" id="adminBtn" style="display:none">👥 Professores <span class="badge" id="pendingBadge" style="display:none">0</span></button>
+        <button class="small ghost" id="logoutBtn">Sair</button>
+      </span>
       <button class="ghost icon" id="newBtn">＋ Novo treino</button>
       <button class="icon" id="saveBtn">Guardar</button>
       <button class="icon" id="saveCopyBtn">Guardar como cópia</button>
@@ -393,7 +426,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 
       <div class="panel">
         <h2>
-          <span>Biblioteca de aulas <small id="savedCount">0</small></span>
+          <span>As minhas aulas <small id="savedCount">0</small></span>
           <span class="panel-tools">
             <button class="small" id="importBtn" title="Importar aulas de um ficheiro .json">⤒ Importar</button>
             <button class="small" id="exportAllBtn" title="Exportar todas as aulas">⤓ Exportar tudo</button>
@@ -402,6 +435,13 @@ button:disabled{opacity:.4;cursor:not-allowed;}
         <input type="text" class="search" id="savedSearch" placeholder="Procurar aula…">
         <div class="saved-list" id="savedList"></div>
         <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+      </div>
+
+      <div class="panel">
+        <h2>Biblioteca Playlife <small id="sharedCount">0</small></h2>
+        <div class="hint-line">Aulas partilhadas pelos professores. Copia uma para as tuas aulas para a usares ou alterares. Para partilhar uma tua, usa o botão ⇪ nas tuas aulas.</div>
+        <input type="text" class="search" id="sharedSearch" placeholder="Procurar na biblioteca…">
+        <div class="saved-list" id="sharedList"></div>
       </div>
 
       <div class="panel">
@@ -493,6 +533,52 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 
 <div class="toast" id="toast"></div>
 
+<!-- CONTA / LOGIN -->
+<div class="auth-overlay active" id="authOverlay">
+  <div class="auth-card">
+    <div class="auth-brand">Perfil de Aula</div>
+    <div class="auth-sub">Área dos professores · Playlife</div>
+
+    <div id="authLoading" class="auth-msg">A carregar…</div>
+
+    <form id="loginForm" class="auth-form" style="display:none" autocomplete="on">
+      <label>Email<input type="email" id="loginEmail" autocomplete="username" required></label>
+      <label>Palavra-passe<input type="password" id="loginPass" autocomplete="current-password" required></label>
+      <button type="submit" class="primary">Entrar</button>
+      <div class="auth-err" id="loginErr"></div>
+      <div class="auth-links">
+        <a href="#" id="toRegister">Criar conta</a>
+        <a href="#" id="forgotLink">Esqueci-me da palavra-passe</a>
+      </div>
+    </form>
+
+    <form id="registerForm" class="auth-form" style="display:none" autocomplete="on">
+      <label>Nome (como aparece aos alunos)<input type="text" id="regName" maxlength="40" required></label>
+      <label>Email<input type="email" id="regEmail" autocomplete="username" required></label>
+      <label>Palavra-passe (mínimo 6 caracteres)<input type="password" id="regPass" autocomplete="new-password" minlength="6" required></label>
+      <button type="submit" class="primary">Criar conta</button>
+      <div class="auth-err" id="regErr"></div>
+      <div class="auth-links"><a href="#" id="toLogin">Já tenho conta</a></div>
+    </form>
+
+    <div id="pendingBox" class="auth-form" style="display:none">
+      <div class="auth-msg">A tua conta foi criada. <b>Falta o administrador aprovar.</b> Esta página abre sozinha logo que fores aprovado.</div>
+      <div class="auth-msg small" id="pendingEmail"></div>
+      <button type="button" id="pendingLogout">Sair</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN: professores -->
+<div class="modal" id="adminModal">
+  <div class="modal-card">
+    <h3>Professores</h3>
+    <div class="sub">Aprova quem pode usar a app. Quem não estiver aprovado não consegue projetar aulas nem ver a biblioteca.</div>
+    <div id="adminList"></div>
+    <div class="modal-actions"><button class="primary" id="adminClose">Fechar</button></div>
+  </div>
+</div>
+
 <div class="setup-banner" id="setupBanner">
   <div class="setup-card">
     <h3>Configuração necessária</h3>
@@ -524,10 +610,11 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 
   const STORAGE_KEY = 'ptCyclingTreinos';
   const HIST_KEY = 'ptCyclingHistorico';
+  // As aulas e o histórico vivem na conta do professor (Firebase), não neste browser.
   let treinos = [];
-  try{ treinos = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ treinos = []; }
   let historico = [];
-  try{ historico = JSON.parse(localStorage.getItem(HIST_KEY)) || []; }catch(e){ historico = []; }
+  let partilhadas = [];
+  let userUid = null, userNome = '', isAdmin = false;
 
   let current = { id:null, nome:'', blocos:[] };
   let uidCounter = 1;
@@ -572,8 +659,29 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   }
 
   // ---------- persistence ----------
-  function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(treinos)); }
-  function persistHist(){ localStorage.setItem(HIST_KEY, JSON.stringify(historico)); }
+  function clean(o){ return JSON.parse(JSON.stringify(o)); }
+  function toKeyed(list){
+    const out = {};
+    list.forEach((t,i)=>{ if(t && t.id) out[t.id] = Object.assign(clean(t), {ord:i}); });
+    return out;
+  }
+  function fromKeyed(obj){
+    return Object.values(obj || {}).filter(Boolean).sort((a,b)=>(a.ord||0)-(b.ord||0)).map(t=>{
+      const c = Object.assign({}, t); delete c.ord;
+      const arr = (v)=> Array.isArray(v) ? v.filter(Boolean) : Object.values(v || {});
+      if(c.date !== undefined) c.riders = arr(c.riders);   // registo do histórico
+      else c.blocos = arr(c.blocos);                       // aula
+      return c;
+    });
+  }
+  function persist(){
+    if(!fbDb || !userUid) return;
+    fbDb.ref('aulas/' + userUid).set(toKeyed(treinos)).catch(()=> toast('Não consegui guardar. Verifica a internet.'));
+  }
+  function persistHist(){
+    if(!fbDb || !userUid) return;
+    fbDb.ref('historico/' + userUid).set(toKeyed(historico)).catch(()=>{});
+  }
 
   function saveCurrent(asCopy){
     const nome = $('treinoNome').value.trim();
@@ -907,6 +1015,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 
       const actions = document.createElement('div');
       actions.className = 'row-actions';
+      actions.appendChild(makeIconBtn('⇪', ()=> shareTreino(t.id), false, 'Partilhar na Biblioteca Playlife'));
       actions.appendChild(makeIconBtn('⧉', ()=> duplicateTreino(t.id), false, 'Duplicar'));
       actions.appendChild(makeIconBtn('⤓', ()=> exportTreino(t.id), false, 'Exportar .json'));
       actions.appendChild(makeIconBtn('✕', ()=> deleteTreino(t.id), false, 'Apagar'));
@@ -1231,13 +1340,14 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     if(!list.length) return null;
     if(!summaryEntry){
       summaryEntry = { id: uid(), date: new Date().toISOString(), treinoNome: current.nome || 'Aula de cycling', dur: totalDuration(current.blocos), metric: raceMetric, riders: list };
-      historico.push(summaryEntry);
     } else {
       summaryEntry.riders = list;
       summaryEntry.metric = raceMetric;
     }
+    const hi = historico.findIndex(h=> h.id === summaryEntry.id);
+    if(hi >= 0) historico[hi] = summaryEntry; else historico.push(summaryEntry);
     if(historico.length > 200) historico = historico.slice(-200);
-    persistHist();
+    if(fbDb && userUid) fbDb.ref('historico/' + userUid + '/' + summaryEntry.id).set(Object.assign(clean(summaryEntry), {ord: Date.now()})).catch(()=>{});
     renderHistory();
     return summaryEntry;
   }
@@ -1515,13 +1625,274 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   });
   window.addEventListener('beforeunload', ()=>{ if(sessionPin) endSession(); });
 
-  // init
-  if(treinos.length){
-    current = JSON.parse(JSON.stringify(treinos[treinos.length-1]));
-  } else {
-    resetTreino();
+  // ================= BIBLIOTECA PLAYLIFE (partilhada) =================
+  function shareTreino(id){
+    const t = treinos.find(x=>x.id===id);
+    if(!t || !fbDb || !userUid) return;
+    const existing = partilhadas.find(p=> p.origem === id && p.autor === userUid);
+    const msg = existing ? 'Atualizar "' + t.nome + '" na Biblioteca Playlife?' : 'Partilhar "' + t.nome + '" com todos os professores na Biblioteca Playlife?';
+    if(!confirm(msg)) return;
+    const key = existing ? existing.key : fbDb.ref('biblioteca').push().key;
+    fbDb.ref('biblioteca/' + key).set(clean({
+      nome: t.nome, blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, rpm:b.rpm, tecnica:b.tecnica||''})),
+      autor: userUid, autorNome: userNome || '', origem: id, atualizado: Date.now()
+    })).then(()=> toast(existing ? 'Biblioteca atualizada' : 'Aula partilhada na Biblioteca Playlife'))
+      .catch(()=> toast('Não consegui partilhar.'));
   }
-  render();
+
+  function copyShared(key){
+    const p = partilhadas.find(x=>x.key===key);
+    if(!p) return;
+    const copy = { id: uid(), nome: p.nome, blocos: (p.blocos||[]).map(sanitizeBlock) };
+    treinos.push(copy);
+    persist();
+    current = clean(copy);
+    render();
+    toast('Copiada para as tuas aulas');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function deleteShared(key){
+    const p = partilhadas.find(x=>x.key===key);
+    if(!p || !confirm('Retirar "' + p.nome + '" da Biblioteca Playlife? (as cópias dos outros professores mantêm-se)')) return;
+    fbDb.ref('biblioteca/' + key).remove().then(()=> toast('Retirada da biblioteca')).catch(()=> toast('Não consegui retirar.'));
+  }
+
+  function renderShared(){
+    const list = $('sharedList');
+    if(!list) return;
+    const q = ($('sharedSearch').value || '').trim().toLowerCase();
+    $('sharedCount').textContent = partilhadas.length + (partilhadas.length===1?' aula':' aulas');
+    list.innerHTML = '';
+    const items = partilhadas.filter(p=> !q || (p.nome||'').toLowerCase().includes(q) || (p.autorNome||'').toLowerCase().includes(q));
+    if(!items.length){
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = partilhadas.length ? 'Nenhuma aula com esse nome.' : 'Ainda ninguém partilhou aulas.';
+      list.appendChild(empty);
+      return;
+    }
+    items.forEach(p=>{
+      const blocos = p.blocos || [];
+      const row = document.createElement('div');
+      row.className = 'saved-item';
+      const info = document.createElement('div');
+      info.className = 'info';
+      info.title = 'Copiar para as minhas aulas';
+      const b = document.createElement('b'); b.textContent = p.nome;
+      const s = document.createElement('span');
+      s.textContent = blocos.length + ' blocos · ' + fmtTime(totalDuration(blocos)) + ' · por ' + (p.autorNome || 'professor');
+      info.appendChild(b); info.appendChild(s); info.appendChild(miniProfileSvg(blocos));
+      info.addEventListener('click', ()=> copyShared(p.key));
+      const actions = document.createElement('div');
+      actions.className = 'row-actions';
+      actions.appendChild(makeIconBtn('＋ Copiar', ()=> copyShared(p.key), false, 'Copiar para as minhas aulas'));
+      if(p.autor === userUid || isAdmin) actions.appendChild(makeIconBtn('✕', ()=> deleteShared(p.key), false, 'Retirar da biblioteca'));
+      row.appendChild(info); row.appendChild(actions);
+      list.appendChild(row);
+    });
+  }
+
+  // ================= CONTAS =================
+  const auth = firebaseReady ? firebase.auth() : null;
+  let dataRefs = [];
+  let approvedRef = null;
+  let entered = false;
+  let pendingRegName = '';
+
+  function showAuth(view){
+    $('authOverlay').classList.add('active');
+    $('authLoading').style.display = view === 'loading' ? '' : 'none';
+    $('loginForm').style.display = view === 'login' ? '' : 'none';
+    $('registerForm').style.display = view === 'register' ? '' : 'none';
+    $('pendingBox').style.display = view === 'pending' ? '' : 'none';
+  }
+
+  function authErr(e){
+    const c = (e && e.code) || '';
+    if(c.includes('invalid-credential') || c.includes('wrong-password') || c.includes('user-not-found') || c.includes('invalid-login')) return 'Email ou palavra-passe errados.';
+    if(c.includes('email-already-in-use')) return 'Já existe uma conta com este email. Usa "Já tenho conta".';
+    if(c.includes('weak-password')) return 'A palavra-passe tem de ter pelo menos 6 caracteres.';
+    if(c.includes('invalid-email')) return 'Email inválido.';
+    if(c.includes('too-many-requests')) return 'Demasiadas tentativas. Espera uns minutos.';
+    if(c.includes('network')) return 'Sem ligação à internet.';
+    return 'Erro: ' + ((e && e.message) || 'tenta outra vez');
+  }
+
+  function detachData(){
+    dataRefs.forEach(r=> r.off());
+    dataRefs = [];
+    if(approvedRef){ approvedRef.off(); approvedRef = null; }
+    if(adminRefs.length){ adminRefs.forEach(r=>r.off()); adminRefs = []; }
+    entered = false;
+  }
+
+  async function onUser(user){
+    detachData();
+    if(!user){
+      userUid = null; userNome = ''; isAdmin = false;
+      treinos = []; historico = []; partilhadas = [];
+      showAuth('login');
+      return;
+    }
+    showAuth('loading');
+    userUid = user.uid;
+    try{
+      const profRef = fbDb.ref('profiles/' + user.uid);
+      let prof = (await profRef.once('value')).val();
+      if(!prof){
+        prof = { nome: pendingRegName || user.email.split('@')[0], email: user.email, criado: Date.now() };
+        await profRef.set(prof);
+      }
+      pendingRegName = '';
+      userNome = prof.nome || user.email;
+      isAdmin = (await fbDb.ref('admins/' + user.uid).once('value')).val() === true;
+    }catch(e){
+      console.error(e);
+      $('pendingEmail').textContent = 'Erro a ler a conta: ' + (e.message || e);
+    }
+    $('pendingEmail').textContent = 'Conta: ' + user.email;
+    approvedRef = fbDb.ref('approved/' + user.uid);
+    approvedRef.on('value', s=>{
+      if(s.val() === true){ enterApp(); }
+      else if(isAdmin){ approvedRef.set(true); }            // o administrador aprova-se a si próprio
+      else { showAuth('pending'); }
+    }, ()=> showAuth('pending'));
+  }
+
+  function enterApp(){
+    if(entered) return;
+    entered = true;
+    $('authOverlay').classList.remove('active');
+    $('userName').textContent = userNome;
+    $('adminBtn').style.display = isAdmin ? '' : 'none';
+    let first = true;
+    const aulasRef = fbDb.ref('aulas/' + userUid);
+    aulasRef.on('value', s=>{
+      treinos = fromKeyed(s.val());
+      if(first){
+        first = false;
+        offerLocalImport();
+        if(!current.id && treinos.length) current = clean(treinos[treinos.length-1]);
+        render();
+      } else {
+        renderSaved();
+      }
+    });
+    const histRef = fbDb.ref('historico/' + userUid);
+    histRef.on('value', s=>{ historico = fromKeyed(s.val()); renderHistory(); });
+    const libRef = fbDb.ref('biblioteca');
+    libRef.on('value', s=>{
+      const v = s.val() || {};
+      partilhadas = Object.keys(v).map(k=> Object.assign({key:k}, v[k], {blocos: Array.isArray(v[k].blocos) ? v[k].blocos.filter(Boolean) : Object.values(v[k].blocos||{})}))
+        .sort((a,b)=>(b.atualizado||0)-(a.atualizado||0));
+      renderShared();
+    });
+    dataRefs.push(aulasRef, histRef, libRef);
+    if(isAdmin) startAdmin();
+  }
+
+  // aulas que já estavam guardadas neste browser (versão sem contas)
+  function offerLocalImport(){
+    let local = [], localHist = [];
+    try{ local = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){}
+    try{ localHist = JSON.parse(localStorage.getItem(HIST_KEY)) || []; }catch(e){}
+    if(!local.length && !localHist.length) return;
+    if(!confirm('Este computador tem ' + local.length + ' aula(s) e ' + localHist.length + ' registo(s) de histórico guardados de antes. Passar para a tua conta?')) return;
+    const ids = new Set(treinos.map(t=>t.id));
+    local.forEach(t=>{ if(t && t.blocos && !ids.has(t.id)) treinos.push({id: t.id || uid(), nome: t.nome || 'Aula', blocos: t.blocos.map(sanitizeBlock)}); });
+    const hids = new Set(historico.map(h=>h.id));
+    localHist.forEach(h=>{ if(h && !hids.has(h.id)) historico.push(h); });
+    persist(); persistHist();
+    try{ localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(HIST_KEY); }catch(e){}
+    toast('Aulas passadas para a tua conta');
+  }
+
+  // ---------- painel de administrador ----------
+  let adminRefs = [];
+  let adminProfiles = {}, adminApproved = {};
+  function startAdmin(){
+    const pr = fbDb.ref('profiles'), ap = fbDb.ref('approved');
+    pr.on('value', s=>{ adminProfiles = s.val() || {}; renderAdmin(); });
+    ap.on('value', s=>{ adminApproved = s.val() || {}; renderAdmin(); });
+    adminRefs.push(pr, ap);
+  }
+  function renderAdmin(){
+    const ids = Object.keys(adminProfiles);
+    const pending = ids.filter(id=> adminApproved[id] !== true);
+    $('pendingBadge').textContent = pending.length;
+    $('pendingBadge').style.display = pending.length ? '' : 'none';
+    const list = $('adminList');
+    if(!ids.length){ list.innerHTML = '<div class="empty-state">Ainda não há contas.</div>'; return; }
+    list.innerHTML = '';
+    ids.sort((a,b)=> (adminApproved[a]===true) - (adminApproved[b]===true) || (adminProfiles[b].criado||0)-(adminProfiles[a].criado||0)).forEach(id=>{
+      const p = adminProfiles[id] || {};
+      const ok = adminApproved[id] === true;
+      const row = document.createElement('div');
+      row.className = 'admin-row';
+      const who = document.createElement('div');
+      who.className = 'who';
+      const b = document.createElement('b'); b.textContent = p.nome || '—';
+      const s = document.createElement('span'); s.textContent = (p.email || '') + (id === userUid ? ' · tu (administrador)' : '');
+      who.appendChild(b); who.appendChild(s);
+      const right = document.createElement('div');
+      const st = document.createElement('span');
+      st.className = 'state ' + (ok ? 'ok' : 'wait');
+      st.textContent = ok ? 'Aprovado' : 'À espera';
+      right.appendChild(st);
+      if(id !== userUid){
+        const btn = document.createElement('button');
+        btn.className = ok ? 'small' : 'small primary';
+        btn.textContent = ok ? 'Retirar acesso' : 'Aprovar';
+        btn.addEventListener('click', ()=>{
+          if(ok && !confirm('Retirar o acesso a ' + (p.nome||p.email) + '?')) return;
+          fbDb.ref('approved/' + id).set(ok ? null : true).catch(()=> toast('Não consegui alterar.'));
+        });
+        right.appendChild(btn);
+      }
+      row.appendChild(who); row.appendChild(right);
+      list.appendChild(row);
+    });
+  }
+
+  // ---------- eventos das contas ----------
+  $('loginForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    $('loginErr').textContent = '';
+    pendingRegName = '';
+    try{ await auth.signInWithEmailAndPassword($('loginEmail').value.trim(), $('loginPass').value); }
+    catch(err){ $('loginErr').textContent = authErr(err); }
+  });
+  $('registerForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    $('regErr').textContent = '';
+    const nome = $('regName').value.trim();
+    if(!nome){ $('regErr').textContent = 'Escreve o teu nome.'; return; }
+    pendingRegName = nome;
+    try{ await auth.createUserWithEmailAndPassword($('regEmail').value.trim(), $('regPass').value); }
+    catch(err){ $('regErr').textContent = authErr(err); }
+  });
+  $('forgotLink').addEventListener('click', async (e)=>{
+    e.preventDefault();
+    const email = $('loginEmail').value.trim() || prompt('O teu email:');
+    if(!email) return;
+    try{ await auth.sendPasswordResetEmail(email); $('loginErr').textContent = 'Enviámos um email para ' + email + ' com o link para mudar a palavra-passe (vê também o spam).'; }
+    catch(err){ $('loginErr').textContent = authErr(err); }
+  });
+  $('toRegister').addEventListener('click', (e)=>{ e.preventDefault(); $('regEmail').value = $('loginEmail').value; showAuth('register'); });
+  $('toLogin').addEventListener('click', (e)=>{ e.preventDefault(); showAuth('login'); });
+  const doLogout = ()=>{ if(sessionPin) closeLive(); current = {id:null, nome:'', blocos:[]}; auth.signOut(); };
+  $('logoutBtn').addEventListener('click', ()=>{ if(confirm('Sair da conta?')) doLogout(); });
+  $('pendingLogout').addEventListener('click', doLogout);
+  $('adminBtn').addEventListener('click', ()=>{ renderAdmin(); $('adminModal').classList.add('active'); });
+  $('adminClose').addEventListener('click', ()=> $('adminModal').classList.remove('active'));
+  $('adminModal').addEventListener('click', (e)=>{ if(e.target.id==='adminModal') $('adminModal').classList.remove('active'); });
+  $('sharedSearch').addEventListener('input', renderShared);
+
+  // init
+  resetTreino();
+  if(auth){ showAuth('loading'); auth.onAuthStateChanged(onUser); }
+  else { $('authOverlay').classList.remove('active'); $('setupBanner').classList.add('active'); }
 })();
 </script>
 

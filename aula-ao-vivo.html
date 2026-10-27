@@ -15,6 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
 <style>
 :root{
   --bg:#0A0D12; --surface:#12161D; --surface-2:#1B212B; --border:#262D39;
@@ -152,6 +153,34 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
 .finished.active{display:flex;}
 .finished .big{font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,10vw,60px);font-weight:700;}
 .finished .me-grid{width:100%;}
+
+/* ---------- Conta do aluno ---------- */
+.btn-outline{background:transparent;border:1px solid var(--border);color:#fff;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:600;width:100%;max-width:320px;}
+.acct{justify-content:flex-start;padding-top:12px;}
+.acct-top{width:100%;max-width:420px;text-align:left;}
+.acct-p{color:var(--muted);font-size:13px;line-height:1.45;margin:0;}
+.acct-links{display:flex;justify-content:space-between;font-size:13px;}
+.acct-links a{color:var(--accent);text-decoration:none;}
+.acct-line{font-size:13px;color:var(--muted);max-width:320px;line-height:1.4;}
+.acct-line b{color:#7FD3A6;}
+.acct-line a{color:var(--accent);}
+.acct-head{display:flex;justify-content:space-between;align-items:center;text-align:left;}
+.acct-name{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;}
+.ftp-mini{width:76px;background:var(--surface-2);border:1px solid var(--border);color:#fff;border-radius:8px;padding:8px;font-size:16px;font-weight:700;text-align:center;}
+.acct-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px;}
+.acct-stats > div{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 6px;}
+.acct-stats .v{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;}
+.acct-stats .l{font-size:11px;color:var(--muted);}
+.section-t{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;text-align:left;margin:16px 0 8px;}
+.tr-item{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;text-align:left;cursor:pointer;}
+.tr-item b{display:block;font-size:14px;}
+.tr-item span{color:var(--muted);font-size:12px;}
+.tr-item .kj{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;white-space:nowrap;}
+.tr-item .kj small{font-size:12px;color:var(--muted);font-family:'Inter',sans-serif;}
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;margin:10px 0;}
+.chart-wrap svg{width:100%;height:160px;display:block;}
+.chart-legend{display:flex;gap:12px;justify-content:center;font-size:11px;color:var(--muted);margin-top:4px;}
+.chart-legend i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:4px;vertical-align:middle;}
 </style>
 </head>
 <body>
@@ -163,6 +192,51 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
   <input type="tel" id="pinInput" maxlength="4" inputmode="numeric" placeholder="0000" autocomplete="off">
   <button id="joinBtn" class="btn-primary">Continuar</button>
   <div id="joinError" class="err"></div>
+  <button id="accountBtn" class="btn-outline">👤 Entrar na minha conta</button>
+</div>
+
+<!-- CONTA DO ALUNO -->
+<div id="accountScreen" class="screen acct">
+  <div class="acct-top"><button class="btn-link" id="acctBack">← Voltar</button></div>
+
+  <div id="acctAuth" class="form" style="display:none">
+    <h1 id="acctTitle">A minha conta</h1>
+    <p class="acct-p">Com conta, cada aula fica guardada: watts, pontos, gráfico e a tua evolução.</p>
+    <form id="aLogin" class="form">
+      <label>Email<input type="email" id="aLoginEmail" autocomplete="username" required></label>
+      <label>Palavra-passe<input type="password" id="aLoginPass" autocomplete="current-password" required></label>
+      <button type="submit" class="btn-primary">Entrar</button>
+      <div class="err" id="aLoginErr"></div>
+      <div class="acct-links"><a href="#" id="aToReg">Criar conta</a><a href="#" id="aForgot">Esqueci-me da palavra-passe</a></div>
+    </form>
+    <form id="aReg" class="form" style="display:none">
+      <label>Nome (como aparece no ecrã)<input id="aRegName" maxlength="16" required></label>
+      <label>O teu FTP (watts, opcional)<input id="aRegFtp" type="number" inputmode="numeric" min="50" max="600"></label>
+      <label>Email<input type="email" id="aRegEmail" autocomplete="username" required></label>
+      <label>Palavra-passe (mínimo 6 caracteres)<input type="password" id="aRegPass" autocomplete="new-password" minlength="6" required></label>
+      <button type="submit" class="btn-primary">Criar conta</button>
+      <div class="err" id="aRegErr"></div>
+      <div class="acct-links"><a href="#" id="aToLogin">Já tenho conta</a></div>
+    </form>
+  </div>
+
+  <div id="acctArea" style="display:none;width:100%;max-width:420px">
+    <div class="acct-head">
+      <div><div class="acct-name" id="acctName">—</div><div class="hint" id="acctEmail"></div></div>
+      <button class="btn-link" id="acctLogout">Sair</button>
+    </div>
+    <div class="sensor" style="margin:12px 0">
+      <div><div class="s-name">O meu FTP</div><div class="s-status">usado para as tuas zonas em cada aula</div></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input id="acctFtp" type="number" inputmode="numeric" min="50" max="600" class="ftp-mini"><span class="hint">W</span>
+        <button id="acctFtpSave">Guardar</button>
+      </div>
+    </div>
+    <div class="acct-stats" id="acctStats"></div>
+    <div class="section-t">Os meus treinos</div>
+    <div id="treinoList"></div>
+    <div id="treinoDetail" style="display:none"></div>
+  </div>
 </div>
 
 <!-- 2. PERFIL + SENSORES -->
@@ -186,8 +260,11 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
       <div><div class="s-name">♥ Cinta de FC</div><div class="s-status" id="hrStatus">opcional</div></div>
       <button id="hrBtn">Ligar</button>
     </div>
+    <button id="showAllBtn" class="btn-link" style="display:none;text-align:left;padding:0">Não aparece? Mostrar todos os dispositivos Bluetooth</button>
+    <div class="hint" id="bikeHelp">Antes de ligar: pedala um pouco para acordar a consola da bike. Tens de ter o Bluetooth e a Localização do telemóvel ligados.</div>
     <div class="warn" id="btWarn"></div>
   </div>
+  <div class="acct-line" id="acctLine"></div>
   <button id="enterBtn" class="btn-primary">Entrar na aula</button>
   <div id="setupError" class="err"></div>
   <button id="demoBtn" class="btn-link">Experimentar sem bike (modo teste)</button>
@@ -241,6 +318,8 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
         <div><div class="v" id="finZone">0%</div><div class="l">na zona</div></div>
       </div>
       <div class="class-name" style="margin-top:8px;">bom trabalho!</div>
+      <div class="acct-line" id="savedNote"></div>
+      <button class="btn-outline" id="finAccountBtn">📈 Ver os meus treinos</button>
     </div>
 
     <div class="next" id="nextEl"></div>
@@ -312,9 +391,25 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
   const me = { n:'', ftp:null, kj:0, pts:0, sumW:0, as:0, mw:0, iz:0 };
   let demo = false;
 
+  let currentScreen = 'joinScreen';
   function showScreen(id){
-    ['joinScreen','setupScreen'].forEach(s=> $(s).classList.toggle('active', s===id));
+    currentScreen = id;
+    ['joinScreen','setupScreen','accountScreen'].forEach(s=> $(s).classList.toggle('active', s===id));
     $('liveScreen').classList.toggle('active', id==='liveScreen');
+    window.scrollTo(0,0);
+  }
+
+  // série do treino para o gráfico: médias de 5 em 5 segundos
+  const SERIE_STEP = 5;
+  let serie = { w:[], c:[], hr:[] }, bucket = { w:0, c:0, hr:0, n:0 };
+  let savedThisClass = false;
+  function resetSerie(){ serie = { w:[], c:[], hr:[] }; bucket = { w:0, c:0, hr:0, n:0 }; }
+  function addToSerie(w, c, hr){
+    bucket.w += w; bucket.c += c; bucket.hr += hr; bucket.n++;
+    if(bucket.n >= SERIE_STEP){
+      serie.w.push(Math.round(bucket.w/bucket.n)); serie.c.push(Math.round(bucket.c/bucket.n)); serie.hr.push(Math.round(bucket.hr/bucket.n));
+      bucket = { w:0, c:0, hr:0, n:0 };
+    }
   }
 
   // =====================================================================
@@ -400,22 +495,34 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     try{ await subscribe(server, SVC.power, CHR.power, parsePower); source = 'potência'; }catch(e){}
     if(!source){ try{ await subscribe(server, SVC.ftms, CHR.ftms, parseFtms); source = 'FTMS'; }catch(e){} }
     try{ await subscribe(server, SVC.csc, CHR.csc, parseCsc); if(!source) source = 'cadência'; }catch(e){}
-    if(!source) throw new Error('Esta bike não envia dados de potência que a app consiga ler.');
+    if(!source){
+      let list = '';
+      try{ list = (await server.getPrimaryServices()).map(s=>s.uuid.slice(4,8)).join(', '); }catch(e){}
+      try{ device.gatt.disconnect(); }catch(e){}
+      throw new Error('este dispositivo não envia potência' + (list ? ' (serviços: ' + list + ')' : '') + '. Escolhe outro.');
+    }
     S.bikeSource = source;
   }
 
-  async function connectBike(){
+  async function connectBike(showAll){
     if(!hasBluetooth){ showBtWarning(); return; }
     if(S.bikeDev && S.bikeDev.gatt.connected){
       if(!confirm('Desligar a bike ' + (S.bikeName||'') + '?')) return;
       disconnectBike(); return;
     }
     try{
+      try{
+        if(navigator.bluetooth.getAvailability && !(await navigator.bluetooth.getAvailability())){
+          setBikeStatus('o Bluetooth do telemóvel está desligado', false); return;
+        }
+      }catch(e){}
       setBikeStatus('a procurar…', false);
-      const device = await navigator.bluetooth.requestDevice({
-        filters: [{services:[SVC.power]}, {services:[SVC.ftms]}, {services:[SVC.csc]}],
-        optionalServices: [SVC.power, SVC.ftms, SVC.csc, SVC.hr]
-      });
+      const opts = showAll === true
+        ? { acceptAllDevices: true, optionalServices: [SVC.power, SVC.ftms, SVC.csc, SVC.hr] }
+        : { filters: [{services:[SVC.power]}, {services:[SVC.ftms]}, {services:[SVC.csc]},
+                      {namePrefix:'Schwinn'}, {namePrefix:'SCHWINN'}, {namePrefix:'Zone'}, {namePrefix:'4iiii'}, {namePrefix:'Z '}],
+            optionalServices: [SVC.power, SVC.ftms, SVC.csc, SVC.hr] };
+      const device = await navigator.bluetooth.requestDevice(opts);
       S.bikeDev = device; S.bikeName = device.name || 'Bike'; S.wantBike = true; S.crank = null;
       device.addEventListener('gattserverdisconnected', onBikeLost);
       setBikeStatus('a ligar a ' + S.bikeName + '…', false);
@@ -423,9 +530,19 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
       setBikeStatus(S.bikeName + ' ligada', true);
       demo = false;
     }catch(e){
-      if(e && e.name === 'NotFoundError'){ setBikeStatus(S.bikeDev && S.bikeDev.gatt.connected ? S.bikeName + ' ligada' : 'desligada', !!(S.bikeDev && S.bikeDev.gatt.connected)); return; }
       console.error(e);
+      if(bikeConnected()){ setBikeStatus(S.bikeName + ' ligada', true); return; }
+      if(e && e.name === 'NotFoundError'){
+        setBikeStatus(showAll === true ? 'nenhum dispositivo escolhido' : 'bike não encontrada: toca em "Não aparece?" em baixo', false);
+        $('showAllBtn').style.display = '';
+        return;
+      }
+      if(e && (e.name === 'SecurityError' || e.name === 'NotAllowedError')){
+        setBikeStatus('sem permissão: autoriza "Dispositivos próximos" e Localização para o browser nas definições do telemóvel', false);
+        return;
+      }
       setBikeStatus('erro: ' + (e.message || 'não consegui ligar'), false);
+      $('showAllBtn').style.display = '';
     }
   }
 
@@ -554,6 +671,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     dispPower = powerHist.reduce((s,x)=>s+x,0) / powerHist.length;
 
     if(isPlaying() && hasPowerSource()){
+      addToSerie(dispPower, S.cadence, myHr());
       me.kj += w * dt / 1000;
       me.as += dt;
       me.sumW += w * dt;
@@ -595,11 +713,17 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
       pin = p;
       const nameSnap = await fbDb.ref('sessions/' + p + '/treinoNome').once('value');
       $('setupTitle').textContent = nameSnap.val() || 'Aula de cycling';
-      $('nameInput').value = lsGet(LS.name) || '';
-      $('ftpInput').value = lsGet(LS.ftp) || '';
+      $('nameInput').value = (perfil && perfil.nome) || lsGet(LS.name) || '';
+      $('ftpInput').value = (perfil && perfil.ftp) || lsGet(LS.ftp) || '';
+      renderAcctLine();
       showJoinError('');
       showScreen('setupScreen');
       if(!hasBluetooth) showBtWarning();
+      else if(/MiuiBrowser|XiaoMi|SamsungBrowser|OPR\/|HeyTapBrowser|HuaweiBrowser|VivoBrowser|Firefox/i.test(navigator.userAgent)){
+        const w = $('btWarn');
+        w.innerHTML = 'Este browser costuma não encontrar as bikes. Abre este link no <b>Google Chrome</b>.';
+        w.classList.add('active');
+      }
     }catch(e){
       showJoinError('Sem ligação à internet. Tenta outra vez.');
     }finally{
@@ -618,8 +742,15 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     lsSet(LS.name, name);
     if(ftp) lsSet(LS.ftp, String(ftp));
     me.n = name; me.ftp = ftp || null;
+    if(user && fbDb){
+      const upd = {};
+      if(!perfil || perfil.nome !== name) upd.nome = name;
+      if(ftp && (!perfil || perfil.ftp !== ftp)) upd.ftp = ftp;
+      if(Object.keys(upd).length){ fbDb.ref('alunos/' + user.uid + '/perfil').update(upd).catch(()=>{}); perfil = Object.assign({}, perfil, upd); }
+    }
+    resetSerie(); savedThisClass = false; $('savedNote').innerHTML = '';
 
-    riderRef = fbDb.ref('sessions/' + pin + '/riders/' + riderId);
+    riderRef =fbDb.ref('sessions/' + pin + '/riders/' + riderId);
     // se recarregaste a página a meio, continua de onde ficaste
     try{
       const prev = (await riderRef.once('value')).val();
@@ -670,6 +801,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
 
   function endOfSession(){
     pushRider();
+    saveTreino();
     sessionEnded = true;
     if(!state) state = {};
     state = Object.assign({}, state, {status:'finished', blockIndex: blocos.length});
@@ -681,6 +813,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
   }
 
   function leave(){
+    saveTreino();
     if(riderRef && !sessionEnded){ riderRef.update({left:true, w:0, t:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{}); }
     detachListeners();
     stopLoops();
@@ -727,6 +860,10 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
       $('finZone').textContent = me.as ? Math.round(me.iz/me.as*100) + '%' : '0%';
       $('bodyEl').style.background = '#05070A';
       updateMarker(blocos.length, 1);
+      if(!savedThisClass){
+        if(user && !savePending){ savePending = true; setTimeout(saveTreino, 2500); }   // espera pela posição final
+        else if(me.as >= 60) $('savedNote').innerHTML = 'Este treino não fica guardado. <a href="#" id="saveLink">Cria conta ou entra</a> para guardares os próximos.';
+      }
       return;
     }
 
@@ -856,9 +993,10 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
   // ---------- eventos ----------
   $('joinBtn').addEventListener('click', ()=> checkPin($('pinInput').value.trim()));
   $('pinInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') checkPin(e.target.value.trim()); });
-  $('bikeBtn').addEventListener('click', connectBike);
+  $('bikeBtn').addEventListener('click', ()=> connectBike(false));
+  $('showAllBtn').addEventListener('click', ()=> connectBike(true));
   $('hrBtn').addEventListener('click', connectHr);
-  $('chipBike').addEventListener('click', ()=>{ if(!demo) connectBike(); });
+  $('chipBike').addEventListener('click', ()=>{ if(!demo) connectBike(false); });
   $('chipHr').addEventListener('click', connectHr);
   $('enterBtn').addEventListener('click', enterClass);
   $('demoBtn').addEventListener('click', ()=>{
@@ -871,6 +1009,239 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     if(sessionEnded || state && state.status === 'finished' || confirm('Sair da aula?')) leave();
   });
   window.addEventListener('pagehide', ()=>{ pushRider(); });
+
+  // =====================================================================
+  // CONTA DO ALUNO — treinos guardados em alunos/{uid}
+  // =====================================================================
+  const auth = firebaseReady ? firebase.auth() : null;
+  let user = null, perfil = null, savePending = false;
+  let treinosCache = [];
+  let returnTo = 'joinScreen';
+
+  function saveTreino(){
+    savePending = false;
+    if(savedThisClass || !user || !fbDb || !pin || me.as < 60) return;
+    savedThisClass = true;
+    if(bucket.n) { serie.w.push(Math.round(bucket.w/bucket.n)); serie.c.push(Math.round(bucket.c/bucket.n)); serie.hr.push(Math.round(bucket.hr/bucket.n)); bucket = {w:0,c:0,hr:0,n:0}; }
+    const hrVals = serie.hr.filter(x=>x>0);
+    const t = {
+      date: Date.now(), aula: treinoNome || 'Aula de cycling', pin: pin,
+      ftp: me.ftp || null, dur: Math.round(me.as),
+      kj: Math.round(me.kj*10)/10, pts: Math.round(me.pts),
+      aw: me.as ? Math.round(me.sumW/me.as) : 0, mw: Math.round(me.mw),
+      iz: Math.round(me.iz), rank: myRank ? myRank.p : null, turma: myRank ? myRank.n : null,
+      hrAvg: hrVals.length ? Math.round(hrVals.reduce((a,b)=>a+b,0)/hrVals.length) : null,
+      hrMax: hrVals.length ? Math.max(...hrVals) : null,
+      step: SERIE_STEP, w: serie.w, c: serie.c, hr: hrVals.length ? serie.hr : null,
+      blocos: blocos.map(b=>({ftp:b.ftp, d:blockDurationSec(b)}))
+    };
+    const key = new Date().toISOString().slice(0,10) + '_' + pin + '_' + Math.random().toString(36).slice(2,6);
+    fbDb.ref('alunos/' + user.uid + '/treinos/' + key).set(t)
+      .then(()=>{ $('savedNote').innerHTML = '<b>✓ Treino guardado na tua conta</b>'; })
+      .catch(()=>{ savedThisClass = false; $('savedNote').textContent = 'Não consegui guardar o treino (sem internet?).'; });
+  }
+
+  function renderAcctLine(){
+    const el = $('acctLine');
+    if(!el) return;
+    if(user){ el.innerHTML = '<b>✓</b> Sessão iniciada como ' + escapeHtml((perfil && perfil.nome) || user.email) + '. O treino fica guardado na tua conta.'; }
+    else { el.innerHTML = 'Queres guardar este treino? <a href="#" id="setupAcctLink">Entra ou cria conta</a> (opcional).'; }
+  }
+
+  function updateAccountBtn(){
+    $('accountBtn').textContent = user ? '📈 Os meus treinos' : '👤 Entrar na minha conta';
+  }
+
+  function openAccount(){
+    if(currentScreen !== 'accountScreen') returnTo = currentScreen === 'liveScreen' ? 'joinScreen' : currentScreen;
+    showScreen('accountScreen');
+    renderAccount();
+  }
+
+  function aErr(e){
+    const c = (e && e.code) || '';
+    if(c.includes('invalid-credential') || c.includes('wrong-password') || c.includes('user-not-found') || c.includes('invalid-login')) return 'Email ou palavra-passe errados.';
+    if(c.includes('email-already-in-use')) return 'Já existe uma conta com este email. Usa "Já tenho conta".';
+    if(c.includes('weak-password')) return 'A palavra-passe tem de ter pelo menos 6 caracteres.';
+    if(c.includes('invalid-email')) return 'Email inválido.';
+    if(c.includes('too-many-requests')) return 'Demasiadas tentativas. Espera uns minutos.';
+    if(c.includes('network')) return 'Sem ligação à internet.';
+    return 'Erro: ' + ((e && e.message) || 'tenta outra vez');
+  }
+
+  async function renderAccount(){
+    if(!user){
+      $('acctAuth').style.display = ''; $('acctArea').style.display = 'none';
+      return;
+    }
+    $('acctAuth').style.display = 'none'; $('acctArea').style.display = '';
+    $('acctName').textContent = (perfil && perfil.nome) || user.email;
+    $('acctEmail').textContent = user.email;
+    $('acctFtp').value = (perfil && perfil.ftp) || '';
+    $('treinoDetail').style.display = 'none'; $('treinoList').style.display = '';
+    $('treinoList').innerHTML = '<div class="hint">A carregar…</div>';
+    try{
+      const v = (await fbDb.ref('alunos/' + user.uid + '/treinos').once('value')).val() || {};
+      treinosCache = Object.keys(v).map(k=> Object.assign({key:k}, v[k])).sort((a,b)=> (b.date||0)-(a.date||0));
+    }catch(e){ treinosCache = []; $('treinoList').innerHTML = '<div class="err">Não consegui carregar os treinos.</div>'; return; }
+    renderTreinoList();
+  }
+
+  function fmtDate(ts){
+    const d = new Date(ts);
+    return d.toLocaleDateString('pt-PT', {weekday:'short', day:'2-digit', month:'short'}) + ' · ' + d.toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit'});
+  }
+
+  function renderTreinoList(){
+    const n = treinosCache.length;
+    const now = Date.now(), d30 = 30*24*3600*1000;
+    const last30 = treinosCache.filter(t=> now - t.date < d30);
+    $('acctStats').innerHTML =
+      '<div><div class="v">' + n + '</div><div class="l">treinos</div></div>' +
+      '<div><div class="v">' + last30.length + '</div><div class="l">últimos 30 dias</div></div>' +
+      '<div><div class="v">' + Math.round(treinosCache.reduce((s,t)=>s+(t.kj||0),0)) + '</div><div class="l">kJ no total</div></div>';
+    if(!n){ $('treinoList').innerHTML = '<div class="hint" style="text-align:left">Ainda não tens treinos guardados. Entra numa aula com a conta iniciada e a bike ligada: no fim, o treino fica aqui.</div>'; return; }
+    $('treinoList').innerHTML = '';
+    treinosCache.forEach(t=>{
+      const row = document.createElement('div');
+      row.className = 'tr-item';
+      row.innerHTML = '<div><b></b><span></span></div><div class="kj">' + Math.round(t.kj||0) + ' <small>kJ</small></div>';
+      row.querySelector('b').textContent = t.aula || 'Aula';
+      row.querySelector('span').textContent = fmtDate(t.date) + ' · ' + fmtTime(t.dur||0) + ' · ' + (t.aw||0) + ' W méd.';
+      row.addEventListener('click', ()=> showTreino(t.key));
+      $('treinoList').appendChild(row);
+    });
+  }
+
+  function seriesPath(vals, W, H, max){
+    if(!vals || vals.length < 2) return '';
+    const dx = W / (vals.length - 1);
+    return vals.map((v,i)=> (i?'L':'M') + (i*dx).toFixed(1) + ' ' + (H - Math.min(v,max)/max*H).toFixed(1)).join(' ');
+  }
+
+  function showTreino(key){
+    const t = treinosCache.find(x=>x.key===key);
+    if(!t) return;
+    const W = 600, H = 160;
+    const w = Array.isArray(t.w) ? t.w : Object.values(t.w||{});
+    const hr = Array.isArray(t.hr) ? t.hr : Object.values(t.hr||{});
+    const maxW = Math.max(100, ...w) * 1.1;
+    let zonesSvg = '';
+    if(t.ftp){
+      // faixas de zona atrás do gráfico
+      let lo = 0;
+      ZONES.forEach(z=>{
+        const hiW = Math.min(z.max, 200) * t.ftp / 100;
+        const y1 = H - Math.min(hiW, maxW)/maxW*H, y0 = H - Math.min(lo, maxW)/maxW*H;
+        if(y0 > y1) zonesSvg += '<rect x="0" y="' + y1.toFixed(1) + '" width="' + W + '" height="' + (y0-y1).toFixed(1) + '" fill="' + zoneColor(z.css) + '" opacity="0.22"/>';
+        lo = hiW;
+      });
+    }
+    const pw = seriesPath(w, W, H, maxW);
+    const ph = hr.length ? seriesPath(hr, W, H, 200) : '';
+    const pct = t.ftp ? Math.round((t.aw||0)/t.ftp*100) + '%' : '—';
+    const det = $('treinoDetail');
+    det.innerHTML =
+      '<div class="acct-top" style="max-width:none"><button class="btn-link" id="trBack">← Todos os treinos</button></div>' +
+      '<div class="section-t" style="margin-top:4px">' + escapeHtml(t.aula||'Aula') + '</div>' +
+      '<div class="hint" style="text-align:left">' + fmtDate(t.date) + (t.ftp ? ' · FTP ' + t.ftp + ' W' : '') + '</div>' +
+      '<div class="chart-wrap"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' + zonesSvg +
+        (pw ? '<path d="' + pw + ' L' + W + ' ' + H + ' L0 ' + H + ' Z" fill="#E8722C" opacity="0.08"/><path d="' + pw + '" fill="none" stroke="#E8722C" stroke-width="2" vector-effect="non-scaling-stroke"/>' : '') +
+        (ph ? '<path d="' + ph + '" fill="none" stroke="#E27070" stroke-width="1.5" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>' : '') +
+      '</svg><div class="chart-legend"><span><i style="background:#E8722C"></i>potência</span>' + (ph ? '<span><i style="background:#E27070"></i>FC</span>' : '') + (t.ftp ? '<span>faixas = as tuas zonas</span>' : '') + '</div></div>' +
+      '<div class="me-grid">' +
+        '<div><div class="v">' + fmtTime(t.dur||0) + '</div><div class="l">tempo</div></div>' +
+        '<div><div class="v">' + Math.round(t.kj||0) + '</div><div class="l">kJ</div></div>' +
+        '<div><div class="v">' + (t.pts||0) + '</div><div class="l">pontos</div></div>' +
+        '<div><div class="v">' + (t.aw||0) + '</div><div class="l">W médios</div></div>' +
+        '<div><div class="v">' + (t.mw||0) + '</div><div class="l">W máx</div></div>' +
+        '<div><div class="v">' + pct + '</div><div class="l">%FTP médio</div></div>' +
+        '<div><div class="v">' + (t.dur ? Math.round((t.iz||0)/t.dur*100) : 0) + '%</div><div class="l">na zona</div></div>' +
+        '<div><div class="v">' + (t.hrAvg || '—') + '</div><div class="l">FC média</div></div>' +
+        '<div><div class="v">' + (t.rank ? t.rank + 'º/' + t.turma : '—') + '</div><div class="l">posição</div></div>' +
+      '</div>' +
+      '<button class="btn-link" id="trDelete" style="margin-top:16px;color:#E27070">Apagar este treino</button>';
+    $('treinoList').style.display = 'none';
+    $('acctStats').style.display = 'none';
+    det.style.display = '';
+    window.scrollTo(0,0);
+    $('trBack').addEventListener('click', ()=>{ det.style.display = 'none'; $('treinoList').style.display = ''; $('acctStats').style.display = ''; });
+    $('trDelete').addEventListener('click', ()=>{
+      if(!confirm('Apagar este treino?')) return;
+      fbDb.ref('alunos/' + user.uid + '/treinos/' + key).remove().then(()=>{ $('acctStats').style.display = ''; renderAccount(); });
+    });
+  }
+
+  if(auth){
+    auth.onAuthStateChanged(async u=>{
+      user = u; perfil = null;
+      if(u){
+        try{
+          perfil = (await fbDb.ref('alunos/' + u.uid + '/perfil').once('value')).val();
+          if(!perfil && pendingReg){ perfil = pendingReg; await fbDb.ref('alunos/' + u.uid + '/perfil').set(Object.assign({email:u.email}, pendingReg)); }
+        }catch(e){}
+        pendingReg = null;
+        if(perfil && perfil.ftp) lsSet(LS.ftp, String(perfil.ftp));
+        if(perfil && perfil.nome) lsSet(LS.name, perfil.nome);
+      }
+      updateAccountBtn();
+      renderAcctLine();
+      if(currentScreen === 'setupScreen' && perfil){
+        if(perfil.nome) $('nameInput').value = perfil.nome;
+        if(perfil.ftp) $('ftpInput').value = perfil.ftp;
+      }
+      if(currentScreen === 'accountScreen'){
+        if(u && returnTo === 'setupScreen'){ showScreen('setupScreen'); }
+        else renderAccount();
+      }
+    });
+  } else {
+    $('accountBtn').style.display = 'none';
+  }
+  let pendingReg = null;
+
+  $('accountBtn').addEventListener('click', openAccount);
+  $('finAccountBtn').addEventListener('click', ()=>{ leave(); openAccount(); });
+  $('acctBack').addEventListener('click', ()=> showScreen(returnTo || 'joinScreen'));
+  document.addEventListener('click', (e)=>{
+    if(e.target && (e.target.id === 'setupAcctLink' || e.target.id === 'saveLink')){
+      e.preventDefault();
+      if(e.target.id === 'saveLink'){ leave(); }
+      openAccount();
+    }
+  });
+  $('aToReg').addEventListener('click', (e)=>{ e.preventDefault(); $('aLogin').style.display = 'none'; $('aReg').style.display = ''; $('aRegEmail').value = $('aLoginEmail').value; $('aRegName').value = $('nameInput').value || lsGet(LS.name) || ''; $('aRegFtp').value = $('ftpInput').value || lsGet(LS.ftp) || ''; });
+  $('aToLogin').addEventListener('click', (e)=>{ e.preventDefault(); $('aReg').style.display = 'none'; $('aLogin').style.display = ''; });
+  $('aLogin').addEventListener('submit', async (e)=>{
+    e.preventDefault(); $('aLoginErr').textContent = '';
+    try{ await auth.signInWithEmailAndPassword($('aLoginEmail').value.trim(), $('aLoginPass').value); }
+    catch(err){ $('aLoginErr').textContent = aErr(err); }
+  });
+  $('aReg').addEventListener('submit', async (e)=>{
+    e.preventDefault(); $('aRegErr').textContent = '';
+    const nome = $('aRegName').value.trim();
+    const ftp = Math.round(Number($('aRegFtp').value) || 0);
+    if(!nome){ $('aRegErr').textContent = 'Escreve o teu nome.'; return; }
+    pendingReg = { nome: nome, ftp: (ftp >= 50 && ftp <= 600) ? ftp : null, criado: Date.now() };
+    try{ await auth.createUserWithEmailAndPassword($('aRegEmail').value.trim(), $('aRegPass').value); }
+    catch(err){ pendingReg = null; $('aRegErr').textContent = aErr(err); }
+  });
+  $('aForgot').addEventListener('click', async (e)=>{
+    e.preventDefault();
+    const email = $('aLoginEmail').value.trim() || prompt('O teu email:');
+    if(!email) return;
+    try{ await auth.sendPasswordResetEmail(email); $('aLoginErr').textContent = 'Enviámos um email para ' + email + ' para mudares a palavra-passe (vê também o spam).'; }
+    catch(err){ $('aLoginErr').textContent = aErr(err); }
+  });
+  $('acctLogout').addEventListener('click', ()=>{ if(confirm('Sair da conta?')) auth.signOut(); });
+  $('acctFtpSave').addEventListener('click', ()=>{
+    const ftp = Math.round(Number($('acctFtp').value) || 0);
+    if(ftp < 50 || ftp > 600){ alert('O FTP tem de estar entre 50 e 600 W.'); return; }
+    fbDb.ref('alunos/' + user.uid + '/perfil/ftp').set(ftp).then(()=>{
+      perfil = Object.assign({}, perfil, {ftp:ftp}); lsSet(LS.ftp, String(ftp));
+      $('acctFtpSave').textContent = 'Guardado ✓'; setTimeout(()=> $('acctFtpSave').textContent = 'Guardar', 1500);
+    }).catch(()=> alert('Não consegui guardar.'));
+  });
 
   // entra direto com ?pin=XXXX (QR code)
   const urlPin = new URLSearchParams(location.search).get('pin');
