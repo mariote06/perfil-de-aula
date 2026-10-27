@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<title>Aula ao Vivo</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0A0D12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Aula ao Vivo">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<style>
+:root{
+  --bg:#0A0D12; --surface:#12161D; --surface-2:#1B212B; --border:#262D39;
+  --text:#EDEFF2; --muted:#8A93A3;
+  --z0:#5B6472; --z1:#3E8FB0; --z2:#4FA37B; --z3:#D9A441; --z4:#D9713C; --z5:#C24C4C;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
+  min-height:100vh;display:flex;flex-direction:column;overscroll-behavior:none;
+}
+.display{font-family:'Barlow Condensed',sans-serif;}
+
+/* ---------- Join screen ---------- */
+#joinScreen{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;text-align:center;gap:18px;
+}
+#joinScreen h1{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:700;margin:0;}
+#joinScreen p{color:var(--muted);font-size:14px;max-width:280px;margin:0;}
+#pinInput{
+  font-family:'Barlow Condensed',sans-serif;font-size:44px;font-weight:700;
+  letter-spacing:14px;text-align:center;width:220px;padding:14px 10px 14px 24px;
+  background:var(--surface-2);border:1px solid var(--border);color:#fff;border-radius:12px;
+}
+#pinInput:focus{outline:none;border-color:#E8722C;}
+#joinBtn{
+  background:#E8722C;border:none;color:#140B04;font-weight:700;font-size:16px;
+  padding:14px 32px;border-radius:10px;cursor:pointer;width:220px;
+}
+#joinBtn:disabled{opacity:.5;}
+#joinError{color:#E27070;font-size:13px;min-height:18px;}
+
+/* ---------- Live screen ---------- */
+#liveScreen{display:none;flex:1;flex-direction:column;}
+#liveScreen.active{display:flex;}
+
+.progress{height:10px;width:100%;background:#0A0D12;position:relative;flex-shrink:0;}
+.progress-seg{position:absolute;top:0;bottom:0;opacity:.55;}
+.progress-seg.done{opacity:1;}
+.progress-marker{position:absolute;top:0;bottom:0;width:2px;background:#fff;box-shadow:0 0 6px rgba(255,255,255,.8);}
+
+.body{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:20px;transition:background .4s ease;position:relative;
+}
+.class-name{position:absolute;top:16px;left:0;right:0;color:rgba(255,255,255,.4);font-size:12px;}
+.zone{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:clamp(22px,6vw,32px);margin-bottom:4px;}
+.name{color:rgba(255,255,255,.55);font-size:clamp(13px,3.4vw,16px);margin-bottom:6px;font-weight:500;}
+.technique{
+  color:rgba(255,255,255,.85);font-size:clamp(12px,3.2vw,16px);font-weight:600;
+  margin-bottom:20px;padding:5px 14px;border:1px solid rgba(255,255,255,.2);border-radius:999px;display:inline-block;
+}
+.technique:empty{display:none;margin:0;padding:0;border:none;}
+.timer{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(70px,26vw,140px);
+  line-height:1;color:#fff;font-variant-numeric:tabular-nums;
+}
+.metrics{display:flex;gap:30px;margin-top:18px;}
+.metric .v{font-family:'Barlow Condensed',sans-serif;font-size:clamp(24px,7vw,38px);font-weight:700;color:#fff;}
+.metric .l{color:rgba(255,255,255,.55);font-size:12px;margin-top:2px;}
+.next{position:absolute;bottom:20px;left:0;right:0;color:rgba(255,255,255,.6);font-size:13px;padding:0 16px;}
+.next b{color:rgba(255,255,255,.9);}
+
+.leave-btn{
+  position:fixed;top:14px;right:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+  color:#fff;padding:7px 12px;border-radius:8px;font-size:12px;cursor:pointer;
+}
+
+.finished{display:none;flex-direction:column;align-items:center;gap:10px;}
+.finished.active{display:flex;}
+.finished .big{font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,10vw,64px);font-weight:700;}
+</style>
+</head>
+<body>
+
+<div id="joinScreen">
+  <h1>Aula ao Vivo</h1>
+  <p>Insere o PIN de 4 dígitos que está no ecrã da sala para acompanhares o treino em tempo real.</p>
+  <input type="tel" id="pinInput" maxlength="4" inputmode="numeric" placeholder="0000">
+  <button id="joinBtn">Entrar na aula</button>
+  <div id="joinError"></div>
+</div>
+
+<div id="liveScreen">
+  <button class="leave-btn" id="leaveBtn">✕ Sair</button>
+  <div class="progress" id="progress"></div>
+  <div class="body" id="bodyEl">
+    <div class="class-name" id="className"></div>
+    <div id="activeBlock">
+      <div class="zone" id="zoneEl">—</div>
+      <div class="name" id="nameEl">—</div>
+      <div class="technique" id="techEl"></div>
+      <div class="timer" id="timerEl">0:00</div>
+      <div class="metrics">
+        <div class="metric"><div class="v" id="ftpEl">0%</div><div class="l">FTP alvo</div></div>
+        <div class="metric"><div class="v" id="rpmEl">0</div><div class="l">RPM</div></div>
+      </div>
+    </div>
+    <div class="finished" id="finishedEl">
+      <div class="zone">Aula concluída</div>
+      <div class="big" id="totalTimeEl">0:00</div>
+      <div class="name">bom trabalho!</div>
+    </div>
+    <div class="next" id="nextEl"></div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const ZONES = [
+    {name:'Recuperação', max:55,  css:'--z0'},
+    {name:'Resistência', max:75,  css:'--z1'},
+    {name:'Tempo',       max:90,  css:'--z2'},
+    {name:'Limiar',      max:105, css:'--z3'},
+    {name:'VO2máx',      max:120, css:'--z4'},
+    {name:'Anaeróbio',   max:9999,css:'--z5'},
+  ];
+  const rootStyle = getComputedStyle(document.documentElement);
+  function zoneColor(cssVar){ return rootStyle.getPropertyValue(cssVar).trim(); }
+  function getZone(pct){ for(const z of ZONES){ if(pct <= z.max) return z; } return ZONES[ZONES.length-1]; }
+  function fmtTime(totalSec){
+    totalSec = Math.max(0, Math.round(totalSec));
+    const m = Math.floor(totalSec/60), s = totalSec%60;
+    return m + ':' + String(s).padStart(2,'0');
+  }
+  function blockDurationSec(b){ return (b.min||0)*60 + (b.sec||0); }
+  function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
+
+  // Cola aqui a MESMA configuração Firebase usada no ficheiro do instrutor (index.html).
+  const firebaseConfig = {
+    apiKey: "COLA_AQUI",
+    authDomain: "COLA_AQUI",
+    databaseURL: "COLA_AQUI",
+    projectId: "COLA_AQUI",
+    storageBucket: "COLA_AQUI",
+    messagingSenderId: "COLA_AQUI",
+    appId: "COLA_AQUI"
+  };
+  const firebaseReady = firebaseConfig.apiKey !== 'COLA_AQUI' && !!firebaseConfig.databaseURL;
+  let fbDb = null;
+  if(firebaseReady){
+    try{ firebase.initializeApp(firebaseConfig); fbDb = firebase.database(); }
+    catch(e){ console.error('Firebase init falhou', e); }
+  }
+
+  let sessionData = null;
+  let activeRef = null;
+  let tickHandle = null;
+
+  function showError(msg){
+    document.getElementById('joinError').textContent = msg;
+  }
+
+  function join(pin){
+    if(!firebaseReady){ showError('App não configurada. Pede ao instrutor para configurar o Firebase.'); return; }
+    if(!/^\d{4}$/.test(pin)){ showError('Introduz um PIN de 4 dígitos.'); return; }
+    showError('A ligar…');
+    if(activeRef) activeRef.off();
+    activeRef = fbDb.ref('sessions/' + pin);
+    let gotFirst = false;
+    activeRef.on('value', (snap)=>{
+      const val = snap.val();
+      if(!val){
+        if(!gotFirst){ showError('PIN inválido ou a aula ainda não começou.'); }
+        else { showError(''); goToJoin('A aula terminou.'); }
+        return;
+      }
+      gotFirst = true;
+      sessionData = val;
+      enterLive();
+      render();
+    });
+  }
+
+  function goToJoin(msg){
+    stopTick();
+    document.getElementById('liveScreen').classList.remove('active');
+    document.getElementById('joinScreen').style.display = 'flex';
+    if(msg) showError(msg);
+  }
+
+  function enterLive(){
+    document.getElementById('joinScreen').style.display = 'none';
+    document.getElementById('liveScreen').classList.add('active');
+    document.getElementById('className').textContent = sessionData.treinoNome || '';
+    if(!tickHandle){ tickHandle = setInterval(render, 250); }
+  }
+
+  function stopTick(){
+    if(tickHandle){ clearInterval(tickHandle); tickHandle = null; }
+  }
+
+  function computeRemaining(state, blocoDur){
+    if(state.status === 'playing'){
+      const elapsed = (Date.now() - state.startedAt) / 1000;
+      return Math.max(0, state.remainingAtStart - elapsed);
+    }
+    return state.remainingAtStart;
+  }
+
+  function render(){
+    if(!sessionData) return;
+    const blocos = sessionData.blocos || [];
+    const state = sessionData.state || {};
+    buildProgress(blocos);
+
+    if(state.status === 'finished' || state.blockIndex >= blocos.length){
+      document.getElementById('activeBlock').style.display = 'none';
+      document.getElementById('finishedEl').classList.add('active');
+      document.getElementById('nextEl').textContent = '';
+      document.getElementById('totalTimeEl').textContent = fmtTime(
+        blocos.reduce((s,b)=>s+blockDurationSec(b),0)
+      );
+      document.getElementById('bodyEl').style.background = '#05070A';
+      updateMarker(blocos, blocos.length, 1);
+      return;
+    }
+
+    document.getElementById('activeBlock').style.display = '';
+    document.getElementById('finishedEl').classList.remove('active');
+
+    const b = blocos[state.blockIndex];
+    if(!b) return;
+    const zone = getZone(b.ftp);
+    const remaining = computeRemaining(state, blockDurationSec(b));
+
+    document.getElementById('zoneEl').textContent = zone.name;
+    document.getElementById('zoneEl').style.color = zoneColor(zone.css);
+    document.getElementById('nameEl').textContent = b.nome;
+    document.getElementById('techEl').textContent = b.tecnica || '';
+    document.getElementById('timerEl').textContent = fmtTime(remaining);
+    document.getElementById('ftpEl').textContent = b.ftp + '%';
+    document.getElementById('rpmEl').textContent = b.rpm;
+    document.getElementById('bodyEl').style.background =
+      'radial-gradient(circle at 50% 40%, ' + zoneColor(zone.css) + '33, #05070A 70%)';
+
+    const next = blocos[state.blockIndex+1];
+    document.getElementById('nextEl').innerHTML = next
+      ? 'a seguir: <b>' + escapeHtml(next.nome) + '</b> · ' + fmtTime(blockDurationSec(next))
+      : 'último bloco';
+
+    const totalSec = blocos.reduce((s,bb)=>s+blockDurationSec(bb),0) || 1;
+    const elapsedBefore = blocos.slice(0, state.blockIndex).reduce((s,bb)=>s+blockDurationSec(bb),0);
+    const elapsedNow = elapsedBefore + (blockDurationSec(b) - remaining);
+    updateMarker(blocos, state.blockIndex, elapsedNow/totalSec);
+  }
+
+  function buildProgress(blocos){
+    const bar = document.getElementById('progress');
+    if(bar.dataset.built === String(blocos.length)) return;
+    bar.innerHTML = '';
+    bar.dataset.built = String(blocos.length);
+    const totalSec = blocos.reduce((s,b)=>s+blockDurationSec(b),0) || 1;
+    let x = 0;
+    blocos.forEach((b,i)=>{
+      const dur = blockDurationSec(b);
+      const w = (dur/totalSec)*100;
+      const zone = getZone(b.ftp);
+      const seg = document.createElement('div');
+      seg.className = 'progress-seg';
+      seg.style.left = x+'%'; seg.style.width = w+'%'; seg.style.background = zoneColor(zone.css);
+      seg.dataset.idx = i;
+      bar.appendChild(seg);
+      x += w;
+    });
+    const marker = document.createElement('div');
+    marker.className = 'progress-marker';
+    marker.id = 'progMarker';
+    bar.appendChild(marker);
+  }
+
+  function updateMarker(blocos, currentIdx, pct){
+    const marker = document.getElementById('progMarker');
+    if(marker) marker.style.left = Math.min(100, pct*100)+'%';
+    document.querySelectorAll('.progress-seg').forEach(seg=>{
+      seg.classList.toggle('done', Number(seg.dataset.idx) < currentIdx);
+    });
+  }
+
+  document.getElementById('joinBtn').addEventListener('click', ()=> join(document.getElementById('pinInput').value.trim()));
+  document.getElementById('pinInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') join(e.target.value.trim()); });
+  document.getElementById('leaveBtn').addEventListener('click', ()=>{
+    if(activeRef) activeRef.off();
+    goToJoin('');
+    document.getElementById('pinInput').value = '';
+  });
+
+  // auto-join if URL has ?pin=XXXX
+  const params = new URLSearchParams(location.search);
+  const urlPin = params.get('pin');
+  if(urlPin){
+    document.getElementById('pinInput').value = urlPin;
+    join(urlPin);
+  }
+
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  }
+})();
+</script>
+</body>
+</html>

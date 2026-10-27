@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfil de Aula — Cycling</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+:root{
+  --bg:#0A0D12;
+  --surface:#12161D;
+  --surface-2:#1B212B;
+  --border:#262D39;
+  --text:#EDEFF2;
+  --muted:#8A93A3;
+  --muted-2:#5D6675;
+
+  --z0:#5B6472; /* Recuperação */
+  --z1:#3E8FB0; /* Resistência */
+  --z2:#4FA37B; /* Tempo */
+  --z3:#D9A441; /* Limiar */
+  --z4:#D9713C; /* VO2máx */
+  --z5:#C24C4C; /* Anaeróbio */
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',sans-serif;
+  min-height:100vh;
+}
+.display{font-family:'Barlow Condensed',sans-serif;}
+
+/* ---------- App shell ---------- */
+.app{max-width:1180px;margin:0 auto;padding:28px 20px 80px;}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:16px;margin-bottom:28px;flex-wrap:wrap;
+}
+.brand{display:flex;align-items:baseline;gap:10px;}
+.brand h1{
+  font-family:'Barlow Condensed',sans-serif;
+  font-weight:700;font-size:30px;letter-spacing:0.3px;margin:0;
+}
+.brand span{color:var(--muted);font-size:14px;}
+.topbar-actions{display:flex;gap:10px;flex-wrap:wrap;}
+
+button{
+  font-family:'Inter',sans-serif;
+  border:1px solid var(--border);
+  background:var(--surface-2);
+  color:var(--text);
+  padding:10px 16px;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:600;
+  cursor:pointer;
+  transition:border-color .15s ease, background .15s ease;
+}
+button:hover{border-color:#3A4353;}
+button.primary{background:#E8722C;border-color:#E8722C;color:#140B04;}
+button.primary:hover{background:#F0803B;}
+button.ghost{background:transparent;}
+button.icon{padding:8px 10px;font-size:13px;}
+button:disabled{opacity:.4;cursor:not-allowed;}
+
+/* ---------- Layout: builder ---------- */
+.layout{display:grid;grid-template-columns:1.15fr 0.85fr;gap:20px;align-items:start;}
+@media (max-width:880px){.layout{grid-template-columns:1fr;}}
+
+.panel{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:20px;
+}
+.panel h2{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:20px;font-weight:600;margin:0 0 14px;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.panel h2 small{color:var(--muted);font-size:13px;font-family:'Inter',sans-serif;font-weight:500;}
+
+.meta-row{display:flex;gap:10px;margin-bottom:18px;}
+.meta-row input[type=text]{
+  flex:1;background:var(--surface-2);border:1px solid var(--border);
+  color:var(--text);border-radius:8px;padding:10px 12px;font-size:15px;font-weight:600;
+}
+.meta-row input[type=text]:focus{outline:none;border-color:#4A5568;}
+
+/* ---------- Blocks list ---------- */
+.blocks{display:flex;flex-direction:column;gap:10px;margin-bottom:14px;}
+.block{
+  background:var(--surface-2);
+  border:1px solid var(--border);
+  border-left:4px solid var(--z0);
+  border-radius:10px;
+  padding:12px 14px;
+  display:grid;
+  grid-template-columns:1fr auto;
+  gap:10px 14px;
+}
+.block-fields{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:flex-end;}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:11px;color:var(--muted);text-transform:none;}
+.field input{
+  background:var(--surface);border:1px solid var(--border);color:var(--text);
+  border-radius:6px;padding:7px 8px;font-size:14px;width:64px;
+}
+.field.name input{width:150px;}
+.field.technique input{width:220px;}
+.field input:focus{outline:none;border-color:#4A5568;}
+.block-tag{
+  font-family:'Inter',sans-serif;font-size:12px;font-weight:700;
+  padding:3px 9px;border-radius:999px;align-self:flex-end;white-space:nowrap;
+  color:#0A0D12;
+}
+.block-actions{display:flex;flex-direction:column;gap:6px;}
+.block-actions button{padding:5px 8px;font-size:12px;line-height:1;}
+
+.empty-state{
+  color:var(--muted);font-size:14px;text-align:center;padding:32px 10px;
+  border:1px dashed var(--border);border-radius:10px;
+}
+
+.add-row{display:flex;justify-content:flex-start;}
+
+/* ---------- Profile panel ---------- */
+.stats-row{display:flex;gap:22px;margin-bottom:16px;flex-wrap:wrap;}
+.stat .num{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;line-height:1;}
+.stat .lbl{color:var(--muted);font-size:12px;margin-top:2px;}
+.profile-svg-wrap{width:100%;overflow:hidden;border-radius:8px;background:var(--surface-2);border:1px solid var(--border);}
+.legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:14px;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+.legend-dot{width:9px;height:9px;border-radius:50%;}
+
+/* ---------- Saved workouts ---------- */
+.saved-list{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+.saved-item{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface-2);border:1px solid var(--border);border-radius:8px;
+  padding:10px 12px;font-size:14px;
+}
+.saved-item .info{display:flex;flex-direction:column;gap:2px;cursor:pointer;}
+.saved-item .info b{font-size:14px;}
+.saved-item .info span{color:var(--muted);font-size:12px;}
+.saved-item .row-actions{display:flex;gap:6px;}
+
+/* ---------- Live / projection mode ---------- */
+.live-overlay{
+  position:fixed;inset:0;background:#05070A;z-index:1000;
+  display:flex;flex-direction:column;
+  opacity:0;pointer-events:none;transition:opacity .25s ease;
+}
+.live-overlay.active{opacity:1;pointer-events:auto;}
+
+.live-progress{height:14px;width:100%;background:#0A0D12;position:relative;flex-shrink:0;}
+.live-progress-seg{position:absolute;top:0;bottom:0;opacity:.55;}
+.live-progress-seg.done{opacity:1;}
+.live-progress-marker{
+  position:absolute;top:0;bottom:0;width:2px;background:#fff;box-shadow:0 0 8px rgba(255,255,255,.8);
+}
+
+.live-body{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:20px;transition:background .4s ease;position:relative;
+}
+.live-zone{
+  font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:clamp(24px,4vw,40px);
+  letter-spacing:1px;color:rgba(255,255,255,.92);margin-bottom:6px;
+}
+.live-name{color:rgba(255,255,255,.55);font-size:clamp(14px,2vw,18px);margin-bottom:6px;font-weight:500;}
+.live-technique{
+  color:rgba(255,255,255,.85);font-size:clamp(14px,2.2vw,20px);font-weight:600;
+  margin-bottom:24px;padding:6px 16px;border:1px solid rgba(255,255,255,.2);border-radius:999px;
+  display:inline-block;
+}
+.live-technique:empty{display:none;margin:0;padding:0;border:none;}
+.live-timer{
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(90px,20vw,220px);
+  line-height:1;letter-spacing:1px;color:#fff;
+  font-variant-numeric:tabular-nums;
+}
+.live-metrics{display:flex;gap:40px;margin-top:20px;}
+.live-metric .v{font-family:'Barlow Condensed',sans-serif;font-size:clamp(28px,5vw,46px);font-weight:700;color:#fff;}
+.live-metric .l{color:rgba(255,255,255,.55);font-size:13px;margin-top:2px;letter-spacing:.3px;}
+
+.live-next{
+  position:absolute;bottom:26px;left:0;right:0;
+  color:rgba(255,255,255,.6);font-size:14px;
+}
+.live-next b{color:rgba(255,255,255,.9);}
+
+.live-controls{
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:14px;
+  padding:18px;background:#05070A;border-top:1px solid #1B212B;
+}
+.live-controls button{
+  background:var(--surface-2);border:1px solid var(--border);color:#fff;
+  width:52px;height:52px;border-radius:50%;font-size:18px;display:flex;align-items:center;justify-content:center;
+  padding:0;
+}
+.live-controls button.play{width:64px;height:64px;font-size:22px;background:#E8722C;border-color:#E8722C;color:#140B04;}
+.live-controls .exit-btn{
+  position:absolute;top:22px;right:22px;width:auto;height:auto;border-radius:8px;
+  padding:9px 14px;font-size:13px;font-weight:600;
+}
+
+.live-done{display:none;flex-direction:column;align-items:center;gap:10px;}
+.live-done.active{display:flex;}
+.live-done .big{font-family:'Barlow Condensed',sans-serif;font-size:clamp(44px,7vw,80px);font-weight:700;}
+
+/* ---------- live session / PIN / QR ---------- */
+.session-badge{
+  position:absolute;top:22px;left:22px;display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+  border-radius:10px;padding:8px 14px;cursor:pointer;
+}
+.session-badge .pin-lbl{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:.5px;}
+.session-badge .pin-num{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;color:#fff;letter-spacing:2px;}
+.session-badge .hint{font-size:11px;color:rgba(255,255,255,.45);}
+
+.qr-panel{
+  position:absolute;top:74px;left:22px;background:#12161D;border:1px solid #262D39;
+  border-radius:12px;padding:16px;display:none;flex-direction:column;align-items:center;gap:8px;
+}
+.qr-panel.active{display:flex;}
+.qr-panel #qrcode{background:#fff;padding:8px;border-radius:8px;}
+.qr-panel .qr-caption{color:rgba(255,255,255,.6);font-size:12px;text-align:center;max-width:200px;}
+
+.setup-banner{
+  position:fixed;inset:0;background:rgba(5,7,10,.92);z-index:2000;
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.setup-banner.active{display:flex;}
+.setup-card{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:24px;max-width:440px;color:var(--text);
+}
+.setup-card h3{font-family:'Barlow Condensed',sans-serif;font-size:22px;margin:0 0 10px;}
+.setup-card p{font-size:14px;color:var(--muted);line-height:1.5;}
+.setup-card button{margin-top:14px;}
+</style>
+</head>
+<body>
+
+<div class="app" id="builderView">
+  <div class="topbar">
+    <div class="brand">
+      <h1>Perfil de Aula</h1>
+      <span>Planeamento de cycling por %FTP</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="ghost icon" id="newBtn">＋ Novo treino</button>
+      <button class="icon" id="saveBtn">Guardar</button>
+      <button class="primary" id="projectBtn">▶ Projetar aula</button>
+    </div>
+  </div>
+
+  <div class="layout">
+    <!-- LEFT: builder -->
+    <div class="panel">
+      <h2>Blocos <small id="blockCount">0 blocos</small></h2>
+      <div class="meta-row">
+        <input type="text" id="treinoNome" placeholder="Nome da aula (ex: Sprint Interval — Quarta 18h)">
+      </div>
+
+      <div class="blocks" id="blocksList"></div>
+      <div id="emptyState" class="empty-state">Ainda não adicionaste blocos. Começa por um aquecimento.</div>
+
+      <div class="add-row">
+        <button class="icon" id="addBlockBtn">＋ Adicionar bloco</button>
+      </div>
+    </div>
+
+    <!-- RIGHT: profile + library -->
+    <div style="display:flex;flex-direction:column;gap:20px;">
+      <div class="panel">
+        <h2>Perfil da aula</h2>
+        <div class="stats-row">
+          <div class="stat"><div class="num" id="statDuration">0:00</div><div class="lbl">duração total</div></div>
+          <div class="stat"><div class="num" id="statAvgFtp">0%</div><div class="lbl">%FTP médio</div></div>
+          <div class="stat"><div class="num" id="statPeakFtp">0%</div><div class="lbl">pico %FTP</div></div>
+        </div>
+        <div class="profile-svg-wrap">
+          <svg id="profileSvg" viewBox="0 0 1000 180" width="100%" height="180" preserveAspectRatio="none"></svg>
+        </div>
+        <div class="legend" id="legend"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Aulas guardadas <small id="savedCount">0</small></h2>
+        <div class="saved-list" id="savedList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LIVE / PROJECTION MODE -->
+<div class="live-overlay" id="liveOverlay">
+  <button class="exit-btn" id="exitLive">✕ Sair</button>
+
+  <div class="session-badge" id="sessionBadge">
+    <div>
+      <div class="pin-lbl">PIN DA SESSÃO</div>
+      <div class="pin-num" id="pinDisplay">----</div>
+    </div>
+    <div class="hint">toca para QR</div>
+  </div>
+  <div class="qr-panel" id="qrPanel">
+    <div id="qrcode"></div>
+    <div class="qr-caption">Os alunos abrem a app "Aula ao Vivo" e inserem o PIN, ou fazem scan a este código.</div>
+  </div>
+
+  <div class="live-progress" id="liveProgress"></div>
+
+  <div class="live-body" id="liveBody">
+    <div id="liveActive">
+      <div class="live-zone" id="liveZone">—</div>
+      <div class="live-name" id="liveName">—</div>
+      <div class="live-technique" id="liveTechnique"></div>
+      <div class="live-timer" id="liveTimer">0:00</div>
+      <div class="live-metrics">
+        <div class="live-metric"><div class="v" id="liveFtp">0%</div><div class="l">FTP alvo</div></div>
+        <div class="live-metric"><div class="v" id="liveRpm">0</div><div class="l">RPM</div></div>
+      </div>
+    </div>
+    <div class="live-done" id="liveDone">
+      <div class="live-zone">Aula concluída</div>
+      <div class="big" id="liveTotalTime">0:00</div>
+      <div class="live-name">tempo total de treino</div>
+    </div>
+    <div class="live-next" id="liveNext"></div>
+  </div>
+
+  <div class="live-controls" id="liveControls">
+    <button class="icon" id="liveBack" title="Bloco anterior">⏮</button>
+    <button class="play" id="livePlay" title="Play/Pausa">▶</button>
+    <button class="icon" id="liveSkip" title="Bloco seguinte">⏭</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  const ZONES = [
+    {name:'Recuperação', max:55,  css:'--z0'},
+    {name:'Resistência', max:75,  css:'--z1'},
+    {name:'Tempo',       max:90,  css:'--z2'},
+    {name:'Limiar',      max:105, css:'--z3'},
+    {name:'VO2máx',      max:120, css:'--z4'},
+    {name:'Anaeróbio',   max:9999,css:'--z5'},
+  ];
+  const rootStyle = getComputedStyle(document.documentElement);
+  function zoneColor(cssVar){ return rootStyle.getPropertyValue(cssVar).trim(); }
+  function getZone(pct){
+    for(const z of ZONES){ if(pct <= z.max) return z; }
+    return ZONES[ZONES.length-1];
+  }
+
+  const STORAGE_KEY = 'ptCyclingTreinos';
+  let treinos = [];
+  try{ treinos = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ treinos = []; }
+
+  let current = { id:null, nome:'', blocos:[] };
+  let uidCounter = 1;
+  function uid(){ return 'b' + (uidCounter++) + '_' + Date.now().toString(36); }
+
+  function newBlock(overrides){
+    return Object.assign({
+      id: uid(), nome:'Bloco', min:2, sec:0, ftp:70, rpm:85, tecnica:''
+    }, overrides || {});
+  }
+
+  function resetTreino(){
+    current = { id:null, nome:'', blocos:[
+      newBlock({nome:'Aquecimento', min:5, sec:0, ftp:55, rpm:80, tecnica:'Sentado, mãos posição 1'}),
+    ]};
+    render();
+  }
+
+  // ---------- persistence ----------
+  function persist(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(treinos));
+  }
+
+  function saveCurrent(){
+    const nome = document.getElementById('treinoNome').value.trim();
+    if(!nome){ document.getElementById('treinoNome').focus(); return; }
+    current.nome = nome;
+    if(current.blocos.length === 0){ return; }
+    if(!current.id){ current.id = uid(); treinos.push(current); }
+    else{
+      const idx = treinos.findIndex(t=>t.id===current.id);
+      if(idx>=0) treinos[idx] = current; else treinos.push(current);
+    }
+    persist();
+    renderSaved();
+  }
+
+  function loadTreino(id){
+    const t = treinos.find(t=>t.id===id);
+    if(!t) return;
+    current = JSON.parse(JSON.stringify(t));
+    render();
+  }
+
+  function deleteTreino(id){
+    treinos = treinos.filter(t=>t.id!==id);
+    persist();
+    if(current.id === id) resetTreino();
+    renderSaved();
+  }
+
+  // ---------- block mutations ----------
+  function addBlock(){
+    current.blocos.push(newBlock());
+    render();
+  }
+  function removeBlock(id){
+    current.blocos = current.blocos.filter(b=>b.id!==id);
+    render();
+  }
+  function duplicateBlock(id){
+    const i = current.blocos.findIndex(b=>b.id===id);
+    if(i<0) return;
+    const copy = Object.assign({}, current.blocos[i], {id:uid()});
+    current.blocos.splice(i+1, 0, copy);
+    render();
+  }
+  function moveBlock(id, dir){
+    const i = current.blocos.findIndex(b=>b.id===id);
+    const j = i + dir;
+    if(i<0 || j<0 || j>=current.blocos.length) return;
+    const tmp = current.blocos[i];
+    current.blocos[i] = current.blocos[j];
+    current.blocos[j] = tmp;
+    render();
+  }
+  function updateBlockField(id, field, value){
+    const b = current.blocos.find(b=>b.id===id);
+    if(!b) return;
+    if(field==='nome') b.nome = value;
+    else if(field==='tecnica') b.tecnica = value;
+    else b[field] = Math.max(0, Number(value) || 0);
+    renderProfileOnly(); // avoid full re-render / focus loss for text edits
+    updateBlockTag(id);
+  }
+
+  function blockDurationSec(b){ return (b.min||0)*60 + (b.sec||0); }
+  function fmtTime(totalSec){
+    totalSec = Math.max(0, Math.round(totalSec));
+    const m = Math.floor(totalSec/60), s = totalSec%60;
+    return m + ':' + String(s).padStart(2,'0');
+  }
+
+  // ---------- rendering: builder list ----------
+  function render(){
+    document.getElementById('treinoNome').value = current.nome || '';
+    const list = document.getElementById('blocksList');
+    const empty = document.getElementById('emptyState');
+    list.innerHTML = '';
+    document.getElementById('blockCount').textContent = current.blocos.length + (current.blocos.length===1 ? ' bloco' : ' blocos');
+
+    if(current.blocos.length === 0){
+      empty.style.display = 'block';
+    } else {
+      empty.style.display = 'none';
+      current.blocos.forEach((b, idx) => {
+        list.appendChild(renderBlockRow(b, idx));
+      });
+    }
+    renderProfileOnly();
+    renderSaved();
+  }
+
+  function renderBlockRow(b, idx){
+    const zone = getZone(b.ftp);
+    const row = document.createElement('div');
+    row.className = 'block';
+    row.style.borderLeftColor = zoneColor(zone.css);
+    row.dataset.id = b.id;
+
+    const fields = document.createElement('div');
+    fields.className = 'block-fields';
+
+    fields.appendChild(makeField('name', 'Bloco', 'text', b.nome, v=>updateBlockField(b.id,'nome',v)));
+    fields.appendChild(makeField('technique', 'Técnica', 'text', b.tecnica, v=>updateBlockField(b.id,'tecnica',v), 'ex: sentado, em pé, mãos posição 2'));
+    fields.appendChild(makeField('', 'min', 'number', b.min, v=>updateBlockField(b.id,'min',v)));
+    fields.appendChild(makeField('', 'seg', 'number', b.sec, v=>updateBlockField(b.id,'sec',v)));
+    fields.appendChild(makeField('', '%FTP', 'number', b.ftp, v=>updateBlockField(b.id,'ftp',v)));
+    fields.appendChild(makeField('', 'RPM', 'number', b.rpm, v=>updateBlockField(b.id,'rpm',v)));
+
+    const tag = document.createElement('span');
+    tag.className = 'block-tag';
+    tag.id = 'tag_' + b.id;
+    tag.textContent = zone.name;
+    tag.style.background = zoneColor(zone.css);
+    fields.appendChild(tag);
+
+    const actions = document.createElement('div');
+    actions.className = 'block-actions';
+    actions.appendChild(makeIconBtn('↑', ()=>moveBlock(b.id,-1), idx===0));
+    actions.appendChild(makeIconBtn('↓', ()=>moveBlock(b.id,1), idx===current.blocos.length-1));
+    actions.appendChild(makeIconBtn('⧉', ()=>duplicateBlock(b.id), false));
+    actions.appendChild(makeIconBtn('✕', ()=>removeBlock(b.id), false));
+
+    row.appendChild(fields);
+    row.appendChild(actions);
+    return row;
+  }
+
+  function makeField(cls, label, type, value, onInput, placeholder){
+    const wrap = document.createElement('div');
+    wrap.className = 'field' + (cls ? ' '+cls : '');
+    const lbl = document.createElement('label');
+    lbl.textContent = label;
+    const inp = document.createElement('input');
+    inp.type = type;
+    inp.value = value;
+    if(placeholder) inp.placeholder = placeholder;
+    if(type==='number'){ inp.min = 0; }
+    inp.addEventListener('input', ()=> onInput(inp.value));
+    wrap.appendChild(lbl);
+    wrap.appendChild(inp);
+    return wrap;
+  }
+
+  function makeIconBtn(txt, onClick, disabled){
+    const btn = document.createElement('button');
+    btn.className = 'ghost';
+    btn.textContent = txt;
+    btn.disabled = !!disabled;
+    btn.addEventListener('click', onClick);
+    return btn;
+  }
+
+  function updateBlockTag(id){
+    const b = current.blocos.find(b=>b.id===id);
+    if(!b) return;
+    const zone = getZone(b.ftp);
+    const tag = document.getElementById('tag_'+id);
+    if(tag){ tag.textContent = zone.name; tag.style.background = zoneColor(zone.css); }
+    const row = document.querySelector('.block[data-id="'+id+'"]');
+    if(row){ row.style.borderLeftColor = zoneColor(zone.css); }
+  }
+
+  // ---------- profile chart ----------
+  function renderProfileOnly(){
+    const totalSec = current.blocos.reduce((s,b)=>s+blockDurationSec(b),0);
+    const ftps = current.blocos.map(b=>b.ftp);
+    const avgFtp = current.blocos.length ? Math.round(
+      current.blocos.reduce((s,b)=> s + b.ftp * blockDurationSec(b), 0) / (totalSec || 1)
+    ) : 0;
+    const peakFtp = ftps.length ? Math.max(...ftps) : 0;
+
+    document.getElementById('statDuration').textContent = fmtTime(totalSec);
+    document.getElementById('statAvgFtp').textContent = avgFtp + '%';
+    document.getElementById('statPeakFtp').textContent = peakFtp + '%';
+
+    drawProfileSvg('profileSvg', current.blocos, totalSec);
+    renderLegend(current.blocos);
+  }
+
+  function drawProfileSvg(svgId, blocos, totalSec){
+    const svg = document.getElementById(svgId);
+    const W = 1000, H = 180, PADB = 6;
+    svg.innerHTML = '';
+    if(!blocos.length || totalSec<=0) return;
+    const maxFtp = Math.max(150, ...blocos.map(b=>b.ftp));
+    let x = 0;
+    blocos.forEach(b=>{
+      const dur = blockDurationSec(b);
+      const w = (dur/totalSec) * W;
+      const h = Math.max(4, (b.ftp/maxFtp) * (H-PADB-20));
+      const y = H - PADB - h;
+      const zone = getZone(b.ftp);
+      const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
+      rect.setAttribute('x', x.toFixed(2));
+      rect.setAttribute('y', y.toFixed(2));
+      rect.setAttribute('width', Math.max(0, w-1).toFixed(2));
+      rect.setAttribute('height', h.toFixed(2));
+      rect.setAttribute('fill', zoneColor(zone.css));
+      rect.setAttribute('rx', '2');
+      svg.appendChild(rect);
+      x += w;
+    });
+    // baseline
+    const base = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    base.setAttribute('x','0'); base.setAttribute('y', (H-PADB).toFixed(2));
+    base.setAttribute('width', W); base.setAttribute('height','2');
+    base.setAttribute('fill', '#262D39');
+    svg.appendChild(base);
+  }
+
+  function renderLegend(blocos){
+    const used = new Set(blocos.map(b=>getZone(b.ftp).name));
+    const legend = document.getElementById('legend');
+    legend.innerHTML = '';
+    ZONES.forEach(z=>{
+      if(!used.has(z.name)) return;
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      const dot = document.createElement('span');
+      dot.className = 'legend-dot';
+      dot.style.background = zoneColor(z.css);
+      item.appendChild(dot);
+      item.appendChild(document.createTextNode(z.name));
+      legend.appendChild(item);
+    });
+  }
+
+  // ---------- saved list ----------
+  function renderSaved(){
+    const list = document.getElementById('savedList');
+    document.getElementById('savedCount').textContent = treinos.length + (treinos.length===1?' aula':' aulas');
+    list.innerHTML = '';
+    if(treinos.length === 0){
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'Sem aulas guardadas ainda.';
+      list.appendChild(empty);
+      return;
+    }
+    treinos.slice().reverse().forEach(t=>{
+      const totalSec = t.blocos.reduce((s,b)=>s+blockDurationSec(b),0);
+      const row = document.createElement('div');
+      row.className = 'saved-item';
+      const info = document.createElement('div');
+      info.className = 'info';
+      info.innerHTML = '<b></b><span></span>';
+      info.querySelector('b').textContent = t.nome;
+      info.querySelector('span').textContent = t.blocos.length + ' blocos · ' + fmtTime(totalSec);
+      info.addEventListener('click', ()=> loadTreino(t.id));
+
+      const actions = document.createElement('div');
+      actions.className = 'row-actions';
+      const delBtn = makeIconBtn('✕', ()=> deleteTreino(t.id), false);
+      actions.appendChild(delBtn);
+
+      row.appendChild(info);
+      row.appendChild(actions);
+      list.appendChild(row);
+    });
+  }
+
+  // ================= FIREBASE SESSION SYNC =================
+  // Cola aqui a configuração do teu projeto Firebase (Firebase Console > Definições do projeto > Config).
+  // Não é informação secreta — é normal ficar visível no código do lado do cliente.
+  const firebaseConfig = {
+    apiKey: "COLA_AQUI",
+    authDomain: "COLA_AQUI",
+    databaseURL: "COLA_AQUI",
+    projectId: "COLA_AQUI",
+    storageBucket: "COLA_AQUI",
+    messagingSenderId: "COLA_AQUI",
+    appId: "COLA_AQUI"
+  };
+  const firebaseReady = firebaseConfig.apiKey !== 'COLA_AQUI' && !!firebaseConfig.databaseURL;
+  let fbDb = null;
+  if(firebaseReady){
+    try{
+      firebase.initializeApp(firebaseConfig);
+      fbDb = firebase.database();
+    }catch(e){ console.error('Firebase init falhou', e); }
+  }
+
+  let sessionPin = null;
+
+  function genPin(){ return String(Math.floor(1000 + Math.random()*9000)); }
+
+  function sessionRef(pin){ return fbDb.ref('sessions/' + pin); }
+
+  function pushFullSession(pin, blockIndex){
+    const b = current.blocos[blockIndex];
+    sessionRef(pin).set({
+      treinoNome: current.nome || 'Aula de cycling',
+      blocos: current.blocos,
+      state: {
+        blockIndex: blockIndex,
+        status: 'paused',
+        remainingAtStart: blockDurationSec(b),
+        startedAt: Date.now()
+      },
+      updatedAt: Date.now()
+    });
+  }
+
+  function pushState(){
+    if(!fbDb || !sessionPin) return;
+    const b = current.blocos[liveIdx];
+    sessionRef(sessionPin).child('state').set({
+      blockIndex: liveIdx,
+      status: livePlaying ? 'playing' : 'paused',
+      remainingAtStart: liveRemaining,
+      startedAt: Date.now()
+    });
+    sessionRef(sessionPin).child('updatedAt').set(Date.now());
+  }
+
+  function pushFinished(){
+    if(!fbDb || !sessionPin) return;
+    sessionRef(sessionPin).child('state').set({
+      blockIndex: current.blocos.length,
+      status: 'finished',
+      remainingAtStart: 0,
+      startedAt: Date.now()
+    });
+  }
+
+  function endSession(){
+    if(fbDb && sessionPin){ sessionRef(sessionPin).remove(); }
+    sessionPin = null;
+  }
+
+  function renderQr(pin){
+    const el = document.getElementById('qrcode');
+    el.innerHTML = '';
+    const joinUrl = location.href.replace(/[^/]*$/, '') + 'aula-ao-vivo.html?pin=' + pin;
+    if(window.QRCode){
+      new QRCode(el, { text: joinUrl, width: 160, height: 160, colorDark:'#0A0D12', colorLight:'#ffffff' });
+    }
+  }
+
+  // ================= LIVE MODE =================
+  let liveIdx = 0, liveRemaining = 0, liveTimerHandle = null, livePlaying = false, liveElapsedTotal = 0;
+
+  function openLive(){
+    if(current.blocos.length === 0) return;
+    if(!firebaseReady){
+      document.getElementById('setupBanner').classList.add('active');
+      return;
+    }
+    liveIdx = 0;
+    liveElapsedTotal = 0;
+    liveRemaining = blockDurationSec(current.blocos[0]);
+    livePlaying = false;
+    document.getElementById('liveDone').classList.remove('active');
+    document.getElementById('liveActive').style.display = '';
+    document.getElementById('liveControls').style.display = 'flex';
+    buildLiveProgressBar();
+    updateLiveDisplay();
+    document.getElementById('liveOverlay').classList.add('active');
+    document.getElementById('livePlay').textContent = '▶';
+
+    sessionPin = genPin();
+    document.getElementById('pinDisplay').textContent = sessionPin;
+    document.getElementById('qrPanel').classList.remove('active');
+    pushFullSession(sessionPin, 0);
+    renderQr(sessionPin);
+  }
+
+  function closeLive(){
+    document.getElementById('liveOverlay').classList.remove('active');
+    stopTicking();
+    endSession();
+  }
+
+  function buildLiveProgressBar(){
+    const bar = document.getElementById('liveProgress');
+    bar.innerHTML = '';
+    const totalSec = current.blocos.reduce((s,b)=>s+blockDurationSec(b),0) || 1;
+    let x = 0;
+    current.blocos.forEach(b=>{
+      const dur = blockDurationSec(b);
+      const w = (dur/totalSec)*100;
+      const zone = getZone(b.ftp);
+      const seg = document.createElement('div');
+      seg.className = 'live-progress-seg';
+      seg.style.left = x+'%';
+      seg.style.width = w+'%';
+      seg.style.background = zoneColor(zone.css);
+      seg.dataset.idx = current.blocos.indexOf(b);
+      bar.appendChild(seg);
+      x += w;
+    });
+    const marker = document.createElement('div');
+    marker.className = 'live-progress-marker';
+    marker.id = 'liveMarker';
+    bar.appendChild(marker);
+  }
+
+  function updateLiveProgressMarker(){
+    const totalSec = current.blocos.reduce((s,b)=>s+blockDurationSec(b),0) || 1;
+    const pct = Math.min(100, (liveElapsedTotal/totalSec)*100);
+    const marker = document.getElementById('liveMarker');
+    if(marker) marker.style.left = pct+'%';
+    document.querySelectorAll('.live-progress-seg').forEach(seg=>{
+      const idx = Number(seg.dataset.idx);
+      seg.classList.toggle('done', idx < liveIdx);
+    });
+  }
+
+  function updateLiveDisplay(){
+    const b = current.blocos[liveIdx];
+    if(!b) return;
+    const zone = getZone(b.ftp);
+    document.getElementById('liveZone').textContent = zone.name;
+    document.getElementById('liveZone').style.color = zoneColor(zone.css);
+    document.getElementById('liveName').textContent = b.nome;
+    document.getElementById('liveTechnique').textContent = b.tecnica || '';
+    document.getElementById('liveTimer').textContent = fmtTime(liveRemaining);
+    document.getElementById('liveFtp').textContent = b.ftp + '%';
+    document.getElementById('liveRpm').textContent = b.rpm;
+    document.getElementById('liveBody').style.background =
+      'radial-gradient(circle at 50% 40%, ' + zoneColor(zone.css) + '33, #05070A 70%)';
+
+    const next = current.blocos[liveIdx+1];
+    document.getElementById('liveNext').innerHTML = next
+      ? 'a seguir: <b>' + escapeHtml(next.nome) + '</b> · ' + fmtTime(blockDurationSec(next))
+      : 'último bloco';
+
+    updateLiveProgressMarker();
+  }
+
+  function escapeHtml(s){
+    const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+  }
+
+  function stopTicking(){
+    if(liveTimerHandle){ clearInterval(liveTimerHandle); liveTimerHandle = null; }
+    livePlaying = false;
+    document.getElementById('livePlay').textContent = '▶';
+    pushState();
+  }
+
+  function startTicking(){
+    if(liveTimerHandle) return;
+    livePlaying = true;
+    document.getElementById('livePlay').textContent = '❚❚';
+    pushState();
+    liveTimerHandle = setInterval(()=>{
+      liveRemaining -= 0.25;
+      liveElapsedTotal += 0.25;
+      if(liveRemaining <= 0){
+        goToBlock(liveIdx+1);
+      } else {
+        document.getElementById('liveTimer').textContent = fmtTime(liveRemaining);
+        updateLiveProgressMarker();
+      }
+    }, 250);
+  }
+
+  function goToBlock(idx){
+    if(idx >= current.blocos.length){
+      finishLive();
+      return;
+    }
+    if(idx < 0) idx = 0;
+    liveIdx = idx;
+    liveRemaining = blockDurationSec(current.blocos[liveIdx]);
+    updateLiveDisplay();
+    pushState();
+  }
+
+  function finishLive(){
+    stopTicking();
+    document.getElementById('liveActive').style.display = 'none';
+    document.getElementById('liveControls').style.display = 'none';
+    document.getElementById('liveNext').textContent = '';
+    document.getElementById('liveDone').classList.add('active');
+    document.getElementById('liveTotalTime').textContent = fmtTime(
+      current.blocos.reduce((s,b)=>s+blockDurationSec(b),0)
+    );
+    const marker = document.getElementById('liveMarker');
+    if(marker) marker.style.left = '100%';
+    pushFinished();
+  }
+
+  // ---------- wire up ----------
+  document.getElementById('newBtn').addEventListener('click', resetTreino);
+  document.getElementById('saveBtn').addEventListener('click', saveCurrent);
+  document.getElementById('addBlockBtn').addEventListener('click', addBlock);
+  document.getElementById('projectBtn').addEventListener('click', openLive);
+  document.getElementById('exitLive').addEventListener('click', closeLive);
+  document.getElementById('sessionBadge').addEventListener('click', ()=>{
+    document.getElementById('qrPanel').classList.toggle('active');
+  });
+  document.getElementById('setupCloseBtn').addEventListener('click', ()=>{
+    document.getElementById('setupBanner').classList.remove('active');
+  });
+
+  document.getElementById('livePlay').addEventListener('click', ()=>{
+    if(livePlaying) stopTicking(); else startTicking();
+  });
+  document.getElementById('liveSkip').addEventListener('click', ()=>{
+    goToBlock(liveIdx+1);
+    if(livePlaying){ stopTicking(); startTicking(); }
+  });
+  document.getElementById('liveBack').addEventListener('click', ()=>{
+    // restart current block if >3s elapsed, else go to previous block
+    const b = current.blocos[liveIdx];
+    const dur = blockDurationSec(b);
+    if(dur - liveRemaining > 3){ liveRemaining = dur; updateLiveDisplay(); }
+    else{ goToBlock(liveIdx-1); }
+    if(livePlaying){ stopTicking(); startTicking(); }
+  });
+
+  document.addEventListener('keydown', (e)=>{
+    if(!document.getElementById('liveOverlay').classList.contains('active')) return;
+    if(e.code === 'Space'){ e.preventDefault(); if(livePlaying) stopTicking(); else startTicking(); }
+    if(e.code === 'Escape'){ closeLive(); }
+    if(e.code === 'ArrowRight'){ goToBlock(liveIdx+1); }
+    if(e.code === 'ArrowLeft'){ goToBlock(liveIdx-1); }
+  });
+
+  // init
+  if(treinos.length){
+    current = JSON.parse(JSON.stringify(treinos[treinos.length-1]));
+  } else {
+    resetTreino();
+  }
+  render();
+})();
+</script>
+
+<div class="setup-banner" id="setupBanner">
+  <div class="setup-card">
+    <h3>Configuração necessária</h3>
+    <p>Para os alunos se ligarem pela internet, esta app precisa de uma base de dados Firebase gratuita (guarda apenas o PIN e o estado do treino em tempo real).</p>
+    <p>Abre o ficheiro <code>index.html</code> num editor, procura por <code>firebaseConfig</code> perto do fim do ficheiro, e cola a configuração do teu projeto Firebase (ver LEIA-ME.md incluído). Depois volta a publicar no GitHub Pages.</p>
+    <button id="setupCloseBtn">Entendido</button>
+  </div>
+</div>
+
+</body>
+</html>
