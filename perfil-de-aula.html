@@ -18,6 +18,7 @@
   --text:#EDEFF2;
   --muted:#8A93A3;
   --muted-2:#5D6675;
+  --accent:#E8722C;
 
   --z0:#5B6472; /* Recuperação */
   --z1:#3E8FB0; /* Resistência */
@@ -63,10 +64,11 @@ button{
   transition:border-color .15s ease, background .15s ease;
 }
 button:hover{border-color:#3A4353;}
-button.primary{background:#E8722C;border-color:#E8722C;color:#140B04;}
+button.primary{background:var(--accent);border-color:var(--accent);color:#140B04;}
 button.primary:hover{background:#F0803B;}
 button.ghost{background:transparent;}
 button.icon{padding:8px 10px;font-size:13px;}
+button.small{padding:5px 9px;font-size:12px;}
 button:disabled{opacity:.4;cursor:not-allowed;}
 
 /* ---------- Layout: builder ---------- */
@@ -82,9 +84,10 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .panel h2{
   font-family:'Barlow Condensed',sans-serif;
   font-size:20px;font-weight:600;margin:0 0 14px;
-  display:flex;align-items:center;justify-content:space-between;
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
 }
 .panel h2 small{color:var(--muted);font-size:13px;font-family:'Inter',sans-serif;font-weight:500;}
+.panel-tools{display:flex;gap:6px;flex-wrap:wrap;}
 
 .meta-row{display:flex;gap:10px;margin-bottom:18px;}
 .meta-row input[type=text]{
@@ -107,7 +110,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 }
 .block-fields{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:flex-end;}
 .field{display:flex;flex-direction:column;gap:4px;}
-.field label{font-size:11px;color:var(--muted);text-transform:none;}
+.field label{font-size:11px;color:var(--muted);}
 .field input{
   background:var(--surface);border:1px solid var(--border);color:var(--text);
   border-radius:6px;padding:7px 8px;font-size:14px;width:64px;
@@ -116,7 +119,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .field.technique input{width:220px;}
 .field input:focus{outline:none;border-color:#4A5568;}
 .block-tag{
-  font-family:'Inter',sans-serif;font-size:12px;font-weight:700;
+  font-size:12px;font-weight:700;
   padding:3px 9px;border-radius:999px;align-self:flex-end;white-space:nowrap;
   color:#0A0D12;
 }
@@ -124,10 +127,9 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .block-actions button{padding:5px 8px;font-size:12px;line-height:1;}
 
 .empty-state{
-  color:var(--muted);font-size:14px;text-align:center;padding:32px 10px;
+  color:var(--muted);font-size:14px;text-align:center;padding:24px 10px;
   border:1px dashed var(--border);border-radius:10px;
 }
-
 .add-row{display:flex;justify-content:flex-start;}
 
 /* ---------- Profile panel ---------- */
@@ -139,17 +141,48 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
 .legend-dot{width:9px;height:9px;border-radius:50%;}
 
-/* ---------- Saved workouts ---------- */
-.saved-list{display:flex;flex-direction:column;gap:8px;margin-top:6px;}
+/* ---------- Saved workouts / history ---------- */
+.search{
+  width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);
+  border-radius:8px;padding:8px 10px;font-size:13px;margin-bottom:10px;
+}
+.search:focus{outline:none;border-color:#4A5568;}
+.saved-list{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow:auto;}
 .saved-item{
-  display:flex;align-items:center;justify-content:space-between;
+  display:flex;align-items:center;justify-content:space-between;gap:8px;
   background:var(--surface-2);border:1px solid var(--border);border-radius:8px;
   padding:10px 12px;font-size:14px;
 }
-.saved-item .info{display:flex;flex-direction:column;gap:2px;cursor:pointer;}
-.saved-item .info b{font-size:14px;}
+.saved-item.current{border-color:var(--accent);}
+.saved-item .info{display:flex;flex-direction:column;gap:2px;cursor:pointer;min-width:0;flex:1;}
+.saved-item .info b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .saved-item .info span{color:var(--muted);font-size:12px;}
-.saved-item .row-actions{display:flex;gap:6px;}
+.saved-item .row-actions{display:flex;gap:4px;flex-shrink:0;}
+.saved-item .row-actions button{padding:5px 8px;font-size:12px;}
+.mini-profile{display:block;width:100%;height:16px;margin-top:4px;}
+
+/* ---------- Toast ---------- */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#1B212B;border:1px solid #3A4353;color:#fff;padding:10px 18px;border-radius:10px;
+  font-size:14px;opacity:0;pointer-events:none;transition:all .2s ease;z-index:3000;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ---------- Modal ---------- */
+.modal{position:fixed;inset:0;background:rgba(5,7,10,.88);display:none;z-index:2500;align-items:center;justify-content:center;padding:20px;}
+.modal.active{display:flex;}
+.modal-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;max-width:960px;width:100%;max-height:86vh;overflow:auto;}
+.modal-card h3{font-family:'Barlow Condensed',sans-serif;font-size:24px;margin:0 0 4px;}
+.modal-card .sub{color:var(--muted);font-size:13px;margin-bottom:14px;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+
+.sum-table{border-collapse:collapse;width:100%;font-size:14px;}
+.sum-table th{color:var(--muted);font-weight:600;font-size:12px;text-align:right;padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.sum-table th:nth-child(1),.sum-table th:nth-child(2){text-align:left;}
+.sum-table td{padding:7px 10px;text-align:right;border-bottom:1px solid #1B212B;font-variant-numeric:tabular-nums;}
+.sum-table td:nth-child(1),.sum-table td:nth-child(2){text-align:left;}
+.sum-table td:nth-child(2){font-weight:600;}
 
 /* ---------- Live / projection mode ---------- */
 .live-overlay{
@@ -159,16 +192,13 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 }
 .live-overlay.active{opacity:1;pointer-events:auto;}
 
-.live-progress{height:14px;width:100%;background:#0A0D12;position:relative;flex-shrink:0;}
-.live-progress-seg{position:absolute;top:0;bottom:0;opacity:.55;}
-.live-progress-seg.done{opacity:1;}
-.live-progress-marker{
-  position:absolute;top:0;bottom:0;width:2px;background:#fff;box-shadow:0 0 8px rgba(255,255,255,.8);
-}
+.live-profile{height:76px;flex-shrink:0;background:#0A0D12;border-bottom:1px solid #1B212B;position:relative;}
+.live-profile svg{width:100%;height:100%;display:block;}
 
+.live-main{flex:1;display:flex;min-height:0;}
 .live-body{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;padding:20px;transition:background .4s ease;position:relative;
+  text-align:center;padding:20px;transition:background .4s ease;position:relative;min-width:0;
 }
 .live-zone{
   font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:clamp(24px,4vw,40px);
@@ -186,38 +216,105 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   line-height:1;letter-spacing:1px;color:#fff;
   font-variant-numeric:tabular-nums;
 }
+.live-timer.warn{color:#FFD27A;}
 .live-metrics{display:flex;gap:40px;margin-top:20px;}
 .live-metric .v{font-family:'Barlow Condensed',sans-serif;font-size:clamp(28px,5vw,46px);font-weight:700;color:#fff;}
 .live-metric .l{color:rgba(255,255,255,.55);font-size:13px;margin-top:2px;letter-spacing:.3px;}
 
 .live-next{
-  position:absolute;bottom:26px;left:0;right:0;
-  color:rgba(255,255,255,.6);font-size:14px;
+  position:absolute;bottom:22px;left:0;right:0;
+  color:rgba(255,255,255,.6);font-size:15px;padding:0 16px;
 }
 .live-next b{color:rgba(255,255,255,.9);}
+.live-next .next-chip{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+
+/* split view (block + riders) */
+.riders-panel{
+  display:none;flex:1.45;min-width:0;padding:14px 18px 14px;border-left:1px solid #1B212B;
+  flex-direction:column;gap:12px;overflow:hidden;background:#05070A;
+}
+.live-overlay.split .riders-panel{display:flex;}
+.live-overlay.split .live-timer{font-size:clamp(70px,10vw,170px);}
+.live-overlay.split .live-metrics{gap:28px;}
+.live-overlay.finished .riders-panel{display:none !important;}
+
+.rp-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-right:96px;}
+.rp-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;}
+.rp-meta{color:rgba(255,255,255,.6);font-size:14px;white-space:nowrap;}
+.rp-meta b{color:#fff;}
+.rp-empty{color:rgba(255,255,255,.5);font-size:16px;text-align:center;margin:auto;max-width:340px;line-height:1.5;}
+
+.rgrid{flex:1;display:grid;gap:10px;align-content:start;min-height:0;}
+.rtile{
+  border-radius:12px;padding:10px 12px;border:2px solid transparent;
+  background:linear-gradient(160deg,var(--zc-a),#12161D 85%);
+  display:flex;flex-direction:column;gap:3px;min-width:0;font-size:calc(14px * var(--s,1));
+  transition:border-color .3s ease, background .5s ease;
+}
+.rtile.inzone{border-color:var(--zc);}
+.rtile.offline{opacity:.35;filter:grayscale(1);}
+.rt-top{display:flex;gap:8px;align-items:center;font-weight:600;overflow:hidden;}
+.rt-pos{font-family:'Barlow Condensed',sans-serif;font-weight:700;background:rgba(255,255,255,.12);border-radius:6px;padding:0 7px;flex-shrink:0;}
+.rt-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rt-w{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:3em;line-height:1;color:#fff;font-variant-numeric:tabular-nums;}
+.rt-w small{font-size:.38em;color:rgba(255,255,255,.6);margin-left:3px;}
+.rt-sub{display:flex;gap:10px;color:rgba(255,255,255,.75);font-size:.92em;flex-wrap:wrap;}
+.rt-sub .pct{color:var(--zc);font-weight:700;}
+
+.lanes{flex:1;display:flex;flex-direction:column;gap:8px;min-height:0;overflow:hidden;}
+.lane{display:grid;grid-template-columns:46px minmax(90px,190px) 1fr 100px;align-items:center;gap:12px;flex:1;max-height:62px;min-height:24px;}
+.ln-pos{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:26px;text-align:center;}
+.lane.p1 .ln-pos{color:#E8C547;}
+.lane.p2 .ln-pos{color:#C9CED6;}
+.lane.p3 .ln-pos{color:#C88A56;}
+.lane.offline{opacity:.35;}
+.ln-name{font-weight:600;font-size:17px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ln-track{height:62%;min-height:12px;background:#12161D;border-radius:999px;overflow:hidden;}
+.ln-bar{height:100%;border-radius:999px;transition:width .9s ease, background .5s ease;min-width:6px;}
+.ln-val{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:26px;text-align:right;font-variant-numeric:tabular-nums;}
 
 .live-controls{
   flex-shrink:0;display:flex;align-items:center;justify-content:center;gap:14px;
-  padding:18px;background:#05070A;border-top:1px solid #1B212B;
+  padding:14px 18px;background:#05070A;border-top:1px solid #1B212B;position:relative;flex-wrap:wrap;
 }
-.live-controls button{
+.live-controls > .ctrl{
   background:var(--surface-2);border:1px solid var(--border);color:#fff;
   width:52px;height:52px;border-radius:50%;font-size:18px;display:flex;align-items:center;justify-content:center;
   padding:0;
 }
-.live-controls button.play{width:64px;height:64px;font-size:22px;background:#E8722C;border-color:#E8722C;color:#140B04;}
-.live-controls .exit-btn{
-  position:absolute;top:22px;right:22px;width:auto;height:auto;border-radius:8px;
-  padding:9px 14px;font-size:13px;font-weight:600;
+.live-controls > .ctrl.play{width:62px;height:62px;font-size:22px;background:var(--accent);border-color:var(--accent);color:#140B04;}
+.ctrl-group{position:absolute;display:flex;gap:6px;top:50%;transform:translateY(-50%);}
+.ctrl-group.left{left:18px;}
+.ctrl-group.right{right:18px;}
+.ctrl-group button{padding:8px 12px;font-size:13px;border-radius:8px;}
+.ctrl-group button.on{border-color:var(--accent);color:var(--accent);}
+@media (max-width:900px){
+  .ctrl-group{position:static;transform:none;}
 }
 
-.live-done{display:none;flex-direction:column;align-items:center;gap:10px;}
+.exit-btn{
+  position:absolute;top:90px;right:20px;z-index:6;
+  padding:9px 14px;font-size:13px;font-weight:600;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.16);
+}
+
+.live-done{display:none;flex-direction:column;align-items:center;gap:10px;max-height:100%;overflow:auto;width:100%;padding:10px 0 40px;}
 .live-done.active{display:flex;}
 .live-done .big{font-family:'Barlow Condensed',sans-serif;font-size:clamp(44px,7vw,80px);font-weight:700;}
+.podium{display:flex;align-items:flex-end;gap:16px;margin:18px 0 10px;}
+.pod{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:130px;}
+.pod .pn{font-weight:700;font-size:18px;max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.pod .pv{color:rgba(255,255,255,.65);font-size:14px;}
+.pod .step{width:100%;border-radius:10px 10px 0 0;display:flex;align-items:flex-start;justify-content:center;padding-top:8px;
+  font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:700;color:#140B04;}
+.pod.p1 .step{height:120px;background:#E8C547;}
+.pod.p2 .step{height:90px;background:#C9CED6;}
+.pod.p3 .step{height:66px;background:#C88A56;}
+.live-done .sum-wrap{width:min(980px,96%);text-align:left;}
+.live-done .sum-actions{display:flex;gap:8px;justify-content:center;margin-top:8px;}
 
 /* ---------- live session / PIN / QR ---------- */
 .session-badge{
-  position:absolute;top:22px;left:22px;display:flex;align-items:center;gap:10px;
+  position:absolute;top:90px;left:20px;display:flex;align-items:center;gap:10px;z-index:6;
   background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
   border-radius:10px;padding:8px 14px;cursor:pointer;
 }
@@ -226,7 +323,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .session-badge .hint{font-size:11px;color:rgba(255,255,255,.45);}
 
 .qr-panel{
-  position:absolute;top:74px;left:22px;background:#12161D;border:1px solid #262D39;
+  position:absolute;top:146px;left:20px;background:#12161D;border:1px solid #262D39;z-index:6;
   border-radius:12px;padding:16px;display:none;flex-direction:column;align-items:center;gap:8px;
 }
 .qr-panel.active{display:flex;}
@@ -258,6 +355,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     <div class="topbar-actions">
       <button class="ghost icon" id="newBtn">＋ Novo treino</button>
       <button class="icon" id="saveBtn">Guardar</button>
+      <button class="icon" id="saveCopyBtn">Guardar como cópia</button>
       <button class="primary" id="projectBtn">▶ Projetar aula</button>
     </div>
   </div>
@@ -278,7 +376,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
       </div>
     </div>
 
-    <!-- RIGHT: profile + library -->
+    <!-- RIGHT: profile + library + history -->
     <div style="display:flex;flex-direction:column;gap:20px;">
       <div class="panel">
         <h2>Perfil da aula</h2>
@@ -294,8 +392,21 @@ button:disabled{opacity:.4;cursor:not-allowed;}
       </div>
 
       <div class="panel">
-        <h2>Aulas guardadas <small id="savedCount">0</small></h2>
+        <h2>
+          <span>Biblioteca de aulas <small id="savedCount">0</small></span>
+          <span class="panel-tools">
+            <button class="small" id="importBtn" title="Importar aulas de um ficheiro .json">⤒ Importar</button>
+            <button class="small" id="exportAllBtn" title="Exportar todas as aulas">⤓ Exportar tudo</button>
+          </span>
+        </h2>
+        <input type="text" class="search" id="savedSearch" placeholder="Procurar aula…">
         <div class="saved-list" id="savedList"></div>
+        <input type="file" id="importFile" accept=".json,application/json" style="display:none">
+      </div>
+
+      <div class="panel">
+        <h2>Histórico de aulas dadas <small id="histCount">0</small></h2>
+        <div class="saved-list" id="histList"></div>
       </div>
     </div>
   </div>
@@ -303,6 +414,8 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 
 <!-- LIVE / PROJECTION MODE -->
 <div class="live-overlay" id="liveOverlay">
+  <div class="live-profile"><svg id="liveProfileSvg" viewBox="0 0 1000 76" preserveAspectRatio="none"></svg></div>
+
   <button class="exit-btn" id="exitLive">✕ Sair</button>
 
   <div class="session-badge" id="sessionBadge">
@@ -314,34 +427,78 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   </div>
   <div class="qr-panel" id="qrPanel">
     <div id="qrcode"></div>
-    <div class="qr-caption">Os alunos abrem a app "Aula ao Vivo" e inserem o PIN, ou fazem scan a este código.</div>
+    <div class="qr-caption">Abre a câmara do telemóvel e faz scan, ou abre a app "Aula ao Vivo" e insere o PIN.</div>
   </div>
 
-  <div class="live-progress" id="liveProgress"></div>
-
-  <div class="live-body" id="liveBody">
-    <div id="liveActive">
-      <div class="live-zone" id="liveZone">—</div>
-      <div class="live-name" id="liveName">—</div>
-      <div class="live-technique" id="liveTechnique"></div>
-      <div class="live-timer" id="liveTimer">0:00</div>
-      <div class="live-metrics">
-        <div class="live-metric"><div class="v" id="liveFtp">0%</div><div class="l">FTP alvo</div></div>
-        <div class="live-metric"><div class="v" id="liveRpm">0</div><div class="l">RPM</div></div>
+  <div class="live-main">
+    <div class="live-body" id="liveBody">
+      <div id="liveActive">
+        <div class="live-zone" id="liveZone">—</div>
+        <div class="live-name" id="liveName">—</div>
+        <div class="live-technique" id="liveTechnique"></div>
+        <div class="live-timer" id="liveTimer">0:00</div>
+        <div class="live-metrics">
+          <div class="live-metric"><div class="v" id="liveFtp">0%</div><div class="l">FTP alvo</div></div>
+          <div class="live-metric"><div class="v" id="liveRpm">0</div><div class="l">RPM</div></div>
+        </div>
       </div>
+      <div class="live-done" id="liveDone">
+        <div class="live-zone">Aula concluída</div>
+        <div class="big" id="liveTotalTime">0:00</div>
+        <div class="live-name">tempo total de treino</div>
+        <div id="liveSummary" class="sum-wrap"></div>
+      </div>
+      <div class="live-next" id="liveNext"></div>
     </div>
-    <div class="live-done" id="liveDone">
-      <div class="live-zone">Aula concluída</div>
-      <div class="big" id="liveTotalTime">0:00</div>
-      <div class="live-name">tempo total de treino</div>
+
+    <div class="riders-panel" id="ridersPanel">
+      <div class="rp-head">
+        <div class="rp-title" id="rpTitle">Turma</div>
+        <div class="rp-meta" id="rpMeta"></div>
+      </div>
+      <div class="rgrid" id="rgrid"></div>
+      <div class="lanes" id="lanes"></div>
+      <div class="rp-empty" id="rpEmpty">Ainda ninguém ligou a bike.<br>Toca no PIN para mostrar o QR code.</div>
     </div>
-    <div class="live-next" id="liveNext"></div>
   </div>
 
   <div class="live-controls" id="liveControls">
-    <button class="icon" id="liveBack" title="Bloco anterior">⏮</button>
-    <button class="play" id="livePlay" title="Play/Pausa">▶</button>
-    <button class="icon" id="liveSkip" title="Bloco seguinte">⏭</button>
+    <div class="ctrl-group left">
+      <button data-mode="aula" title="Tecla 1">Aula</button>
+      <button data-mode="turma" title="Tecla 2">Turma</button>
+      <button data-mode="corrida" title="Tecla 3">Corrida</button>
+    </div>
+    <button class="ctrl" id="liveBack" title="Bloco anterior">⏮</button>
+    <button class="ctrl play" id="livePlay" title="Play/Pausa">▶</button>
+    <button class="ctrl" id="liveSkip" title="Bloco seguinte">⏭</button>
+    <div class="ctrl-group right">
+      <button id="metricBtn" title="Métrica do ranking (tecla M)">Ranking: Pontos</button>
+      <button id="soundBtn" title="Bip nos últimos 3 segundos de cada bloco">🔔</button>
+    </div>
+  </div>
+</div>
+
+<!-- History modal -->
+<div class="modal" id="histModal">
+  <div class="modal-card">
+    <h3 id="histModalTitle">Aula</h3>
+    <div class="sub" id="histModalSub"></div>
+    <div id="histModalBody"></div>
+    <div class="modal-actions">
+      <button id="histModalCsv">⤓ Exportar CSV</button>
+      <button class="primary" id="histModalClose">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="setup-banner" id="setupBanner">
+  <div class="setup-card">
+    <h3>Configuração necessária</h3>
+    <p>Para os alunos se ligarem pela internet, esta app precisa de uma base de dados Firebase gratuita (guarda apenas a aula, o estado do timer e os dados de pedalada durante a sessão).</p>
+    <p>Abre o ficheiro <code>perfil-de-aula.html</code> num editor, procura por <code>firebaseConfig</code> e cola a configuração do teu projeto Firebase (ver LEIA-ME.md). Faz o mesmo em <code>aula-ao-vivo.html</code> e volta a publicar no GitHub Pages.</p>
+    <button id="setupCloseBtn">Entendido</button>
   </div>
 </div>
 
@@ -363,14 +520,18 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     for(const z of ZONES){ if(pct <= z.max) return z; }
     return ZONES[ZONES.length-1];
   }
+  const $ = (id)=>document.getElementById(id);
 
   const STORAGE_KEY = 'ptCyclingTreinos';
+  const HIST_KEY = 'ptCyclingHistorico';
   let treinos = [];
   try{ treinos = JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }catch(e){ treinos = []; }
+  let historico = [];
+  try{ historico = JSON.parse(localStorage.getItem(HIST_KEY)) || []; }catch(e){ historico = []; }
 
   let current = { id:null, nome:'', blocos:[] };
   let uidCounter = 1;
-  function uid(){ return 'b' + (uidCounter++) + '_' + Date.now().toString(36); }
+  function uid(){ return 'b' + (uidCounter++) + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,5); }
 
   function newBlock(overrides){
     return Object.assign({
@@ -385,23 +546,60 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     render();
   }
 
-  // ---------- persistence ----------
-  function persist(){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(treinos));
+  function toast(msg){
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toast._h);
+    toast._h = setTimeout(()=>t.classList.remove('show'), 2200);
   }
 
-  function saveCurrent(){
-    const nome = document.getElementById('treinoNome').value.trim();
-    if(!nome){ document.getElementById('treinoNome').focus(); return; }
+  function escapeHtml(s){
+    const d = document.createElement('div'); d.textContent = s==null ? '' : String(s); return d.innerHTML;
+  }
+
+  function download(filename, text, mime){
+    const blob = new Blob([text], {type: mime || 'application/octet-stream'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function slug(s){
+    return (s||'aula').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-zA-Z0-9]+/g,'-').replace(/^-|-$/g,'').toLowerCase() || 'aula';
+  }
+
+  // ---------- persistence ----------
+  function persist(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(treinos)); }
+  function persistHist(){ localStorage.setItem(HIST_KEY, JSON.stringify(historico)); }
+
+  function saveCurrent(asCopy){
+    const nome = $('treinoNome').value.trim();
+    if(!nome){ $('treinoNome').focus(); toast('Dá um nome à aula antes de guardar.'); return; }
+    if(current.blocos.length === 0){ toast('A aula não tem blocos.'); return; }
     current.nome = nome;
-    if(current.blocos.length === 0){ return; }
-    if(!current.id){ current.id = uid(); treinos.push(current); }
+    if(asCopy){
+      const copy = JSON.parse(JSON.stringify(current));
+      copy.id = uid();
+      if(copy.nome === nome && treinos.some(t=>t.nome===nome)) copy.nome = nome + ' (cópia)';
+      copy.blocos.forEach(b=> b.id = uid());
+      treinos.push(copy);
+      current = copy;
+      persist(); render();
+      toast('Cópia guardada: ' + copy.nome);
+      return;
+    }
+    if(!current.id){ current.id = uid(); treinos.push(JSON.parse(JSON.stringify(current))); }
     else{
       const idx = treinos.findIndex(t=>t.id===current.id);
-      if(idx>=0) treinos[idx] = current; else treinos.push(current);
+      const snap = JSON.parse(JSON.stringify(current));
+      if(idx>=0) treinos[idx] = snap; else treinos.push(snap);
     }
     persist();
     renderSaved();
+    toast('Aula guardada');
   }
 
   function loadTreino(id){
@@ -409,24 +607,80 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     if(!t) return;
     current = JSON.parse(JSON.stringify(t));
     render();
+    window.scrollTo({top:0, behavior:'smooth'});
   }
 
   function deleteTreino(id){
+    const t = treinos.find(t=>t.id===id);
+    if(!t) return;
+    if(!confirm('Apagar a aula "' + t.nome + '"?')) return;
     treinos = treinos.filter(t=>t.id!==id);
     persist();
-    if(current.id === id) resetTreino();
+    if(current.id === id) current.id = null;
     renderSaved();
   }
 
+  function duplicateTreino(id){
+    const t = treinos.find(t=>t.id===id);
+    if(!t) return;
+    const copy = JSON.parse(JSON.stringify(t));
+    copy.id = uid();
+    copy.nome = t.nome + ' (cópia)';
+    copy.blocos.forEach(b=> b.id = uid());
+    treinos.push(copy);
+    persist();
+    renderSaved();
+    toast('Aula duplicada');
+  }
+
+  function exportTreino(id){
+    const t = treinos.find(t=>t.id===id);
+    if(!t) return;
+    download(slug(t.nome) + '.json', JSON.stringify({app:'perfil-de-aula', versao:2, aulas:[t]}, null, 2), 'application/json');
+  }
+
+  function exportAll(){
+    if(!treinos.length){ toast('Sem aulas para exportar.'); return; }
+    download('aulas-cycling.json', JSON.stringify({app:'perfil-de-aula', versao:2, aulas:treinos}, null, 2), 'application/json');
+  }
+
+  function sanitizeBlock(b){
+    return newBlock({
+      nome: String(b.nome || 'Bloco').slice(0,60),
+      tecnica: String(b.tecnica || '').slice(0,120),
+      min: Math.max(0, Number(b.min)||0),
+      sec: Math.max(0, Math.min(59, Number(b.sec)||0)),
+      ftp: Math.max(0, Number(b.ftp)||0),
+      rpm: Math.max(0, Number(b.rpm)||0),
+    });
+  }
+
+  function importFile(file){
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const data = JSON.parse(reader.result);
+        let list = [];
+        if(Array.isArray(data)) list = data;
+        else if(data && Array.isArray(data.aulas)) list = data.aulas;
+        else if(data && Array.isArray(data.blocos)) list = [data];
+        let n = 0;
+        list.forEach(t=>{
+          if(!t || !Array.isArray(t.blocos) || !t.blocos.length) return;
+          treinos.push({ id: uid(), nome: String(t.nome || 'Aula importada').slice(0,80), blocos: t.blocos.map(sanitizeBlock) });
+          n++;
+        });
+        if(!n){ toast('O ficheiro não tem aulas válidas.'); return; }
+        persist(); renderSaved();
+        toast(n === 1 ? '1 aula importada' : n + ' aulas importadas');
+      }catch(e){ toast('Não consegui ler o ficheiro.'); }
+    };
+    reader.readAsText(file);
+  }
+
   // ---------- block mutations ----------
-  function addBlock(){
-    current.blocos.push(newBlock());
-    render();
-  }
-  function removeBlock(id){
-    current.blocos = current.blocos.filter(b=>b.id!==id);
-    render();
-  }
+  function addBlock(){ current.blocos.push(newBlock()); render(); }
+  function removeBlock(id){ current.blocos = current.blocos.filter(b=>b.id!==id); render(); }
   function duplicateBlock(id){
     const i = current.blocos.findIndex(b=>b.id===id);
     if(i<0) return;
@@ -449,35 +703,37 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     if(field==='nome') b.nome = value;
     else if(field==='tecnica') b.tecnica = value;
     else b[field] = Math.max(0, Number(value) || 0);
-    renderProfileOnly(); // avoid full re-render / focus loss for text edits
+    renderProfileOnly();
     updateBlockTag(id);
   }
 
   function blockDurationSec(b){ return (b.min||0)*60 + (b.sec||0); }
+  function totalDuration(blocos){ return blocos.reduce((s,b)=>s+blockDurationSec(b),0); }
   function fmtTime(totalSec){
     totalSec = Math.max(0, Math.round(totalSec));
-    const m = Math.floor(totalSec/60), s = totalSec%60;
+    const h = Math.floor(totalSec/3600), m = Math.floor((totalSec%3600)/60), s = totalSec%60;
+    if(h) return h + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
     return m + ':' + String(s).padStart(2,'0');
   }
+  function fmtCountdown(sec){ return fmtTime(Math.ceil(Math.max(0, sec) - 0.001)); }
 
   // ---------- rendering: builder list ----------
   function render(){
-    document.getElementById('treinoNome').value = current.nome || '';
-    const list = document.getElementById('blocksList');
-    const empty = document.getElementById('emptyState');
+    $('treinoNome').value = current.nome || '';
+    const list = $('blocksList');
+    const empty = $('emptyState');
     list.innerHTML = '';
-    document.getElementById('blockCount').textContent = current.blocos.length + (current.blocos.length===1 ? ' bloco' : ' blocos');
+    $('blockCount').textContent = current.blocos.length + (current.blocos.length===1 ? ' bloco' : ' blocos');
 
     if(current.blocos.length === 0){
       empty.style.display = 'block';
     } else {
       empty.style.display = 'none';
-      current.blocos.forEach((b, idx) => {
-        list.appendChild(renderBlockRow(b, idx));
-      });
+      current.blocos.forEach((b, idx) => list.appendChild(renderBlockRow(b, idx)));
     }
     renderProfileOnly();
     renderSaved();
+    renderHistory();
   }
 
   function renderBlockRow(b, idx){
@@ -489,7 +745,6 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 
     const fields = document.createElement('div');
     fields.className = 'block-fields';
-
     fields.appendChild(makeField('name', 'Bloco', 'text', b.nome, v=>updateBlockField(b.id,'nome',v)));
     fields.appendChild(makeField('technique', 'Técnica', 'text', b.tecnica, v=>updateBlockField(b.id,'tecnica',v), 'ex: sentado, em pé, mãos posição 2'));
     fields.appendChild(makeField('', 'min', 'number', b.min, v=>updateBlockField(b.id,'min',v)));
@@ -506,10 +761,10 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 
     const actions = document.createElement('div');
     actions.className = 'block-actions';
-    actions.appendChild(makeIconBtn('↑', ()=>moveBlock(b.id,-1), idx===0));
-    actions.appendChild(makeIconBtn('↓', ()=>moveBlock(b.id,1), idx===current.blocos.length-1));
-    actions.appendChild(makeIconBtn('⧉', ()=>duplicateBlock(b.id), false));
-    actions.appendChild(makeIconBtn('✕', ()=>removeBlock(b.id), false));
+    actions.appendChild(makeIconBtn('↑', ()=>moveBlock(b.id,-1), idx===0, 'Subir'));
+    actions.appendChild(makeIconBtn('↓', ()=>moveBlock(b.id,1), idx===current.blocos.length-1, 'Descer'));
+    actions.appendChild(makeIconBtn('⧉', ()=>duplicateBlock(b.id), false, 'Duplicar'));
+    actions.appendChild(makeIconBtn('✕', ()=>removeBlock(b.id), false, 'Apagar'));
 
     row.appendChild(fields);
     row.appendChild(actions);
@@ -532,10 +787,11 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     return wrap;
   }
 
-  function makeIconBtn(txt, onClick, disabled){
+  function makeIconBtn(txt, onClick, disabled, title){
     const btn = document.createElement('button');
     btn.className = 'ghost';
     btn.textContent = txt;
+    if(title) btn.title = title;
     btn.disabled = !!disabled;
     btn.addEventListener('click', onClick);
     return btn;
@@ -545,7 +801,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     const b = current.blocos.find(b=>b.id===id);
     if(!b) return;
     const zone = getZone(b.ftp);
-    const tag = document.getElementById('tag_'+id);
+    const tag = $('tag_'+id);
     if(tag){ tag.textContent = zone.name; tag.style.background = zoneColor(zone.css); }
     const row = document.querySelector('.block[data-id="'+id+'"]');
     if(row){ row.style.borderLeftColor = zoneColor(zone.css); }
@@ -553,32 +809,31 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 
   // ---------- profile chart ----------
   function renderProfileOnly(){
-    const totalSec = current.blocos.reduce((s,b)=>s+blockDurationSec(b),0);
+    const totalSec = totalDuration(current.blocos);
     const ftps = current.blocos.map(b=>b.ftp);
     const avgFtp = current.blocos.length ? Math.round(
       current.blocos.reduce((s,b)=> s + b.ftp * blockDurationSec(b), 0) / (totalSec || 1)
     ) : 0;
     const peakFtp = ftps.length ? Math.max(...ftps) : 0;
 
-    document.getElementById('statDuration').textContent = fmtTime(totalSec);
-    document.getElementById('statAvgFtp').textContent = avgFtp + '%';
-    document.getElementById('statPeakFtp').textContent = peakFtp + '%';
+    $('statDuration').textContent = fmtTime(totalSec);
+    $('statAvgFtp').textContent = avgFtp + '%';
+    $('statPeakFtp').textContent = peakFtp + '%';
 
-    drawProfileSvg('profileSvg', current.blocos, totalSec);
+    drawProfileSvg($('profileSvg'), current.blocos, 1000, 180, 6);
     renderLegend(current.blocos);
   }
 
-  function drawProfileSvg(svgId, blocos, totalSec){
-    const svg = document.getElementById(svgId);
-    const W = 1000, H = 180, PADB = 6;
+  function drawProfileSvg(svg, blocos, W, H, PADB){
     svg.innerHTML = '';
+    const totalSec = totalDuration(blocos);
     if(!blocos.length || totalSec<=0) return;
     const maxFtp = Math.max(150, ...blocos.map(b=>b.ftp));
     let x = 0;
     blocos.forEach(b=>{
       const dur = blockDurationSec(b);
       const w = (dur/totalSec) * W;
-      const h = Math.max(4, (b.ftp/maxFtp) * (H-PADB-20));
+      const h = Math.max(3, (b.ftp/maxFtp) * (H-PADB-Math.min(20,H*0.12)));
       const y = H - PADB - h;
       const zone = getZone(b.ftp);
       const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
@@ -591,17 +846,25 @@ button:disabled{opacity:.4;cursor:not-allowed;}
       svg.appendChild(rect);
       x += w;
     });
-    // baseline
     const base = document.createElementNS('http://www.w3.org/2000/svg','rect');
     base.setAttribute('x','0'); base.setAttribute('y', (H-PADB).toFixed(2));
-    base.setAttribute('width', W); base.setAttribute('height','2');
+    base.setAttribute('width', W); base.setAttribute('height', Math.min(2, PADB));
     base.setAttribute('fill', '#262D39');
     svg.appendChild(base);
   }
 
+  function miniProfileSvg(blocos){
+    const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('viewBox','0 0 300 16');
+    svg.setAttribute('preserveAspectRatio','none');
+    svg.classList.add('mini-profile');
+    drawProfileSvg(svg, blocos, 300, 16, 0);
+    return svg;
+  }
+
   function renderLegend(blocos){
     const used = new Set(blocos.map(b=>getZone(b.ftp).name));
-    const legend = document.getElementById('legend');
+    const legend = $('legend');
     legend.innerHTML = '';
     ZONES.forEach(z=>{
       if(!used.has(z.name)) return;
@@ -616,33 +879,37 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     });
   }
 
-  // ---------- saved list ----------
+  // ---------- library ----------
   function renderSaved(){
-    const list = document.getElementById('savedList');
-    document.getElementById('savedCount').textContent = treinos.length + (treinos.length===1?' aula':' aulas');
+    const list = $('savedList');
+    const q = ($('savedSearch').value || '').trim().toLowerCase();
+    $('savedCount').textContent = treinos.length + (treinos.length===1?' aula':' aulas');
     list.innerHTML = '';
-    if(treinos.length === 0){
+    const items = treinos.slice().reverse().filter(t=> !q || (t.nome||'').toLowerCase().includes(q));
+    if(items.length === 0){
       const empty = document.createElement('div');
       empty.className = 'empty-state';
-      empty.textContent = 'Sem aulas guardadas ainda.';
+      empty.textContent = treinos.length ? 'Nenhuma aula com esse nome.' : 'Sem aulas guardadas ainda.';
       list.appendChild(empty);
       return;
     }
-    treinos.slice().reverse().forEach(t=>{
-      const totalSec = t.blocos.reduce((s,b)=>s+blockDurationSec(b),0);
+    items.forEach(t=>{
+      const totalSec = totalDuration(t.blocos);
       const row = document.createElement('div');
-      row.className = 'saved-item';
+      row.className = 'saved-item' + (t.id === current.id ? ' current' : '');
       const info = document.createElement('div');
       info.className = 'info';
-      info.innerHTML = '<b></b><span></span>';
-      info.querySelector('b').textContent = t.nome;
-      info.querySelector('span').textContent = t.blocos.length + ' blocos · ' + fmtTime(totalSec);
+      info.title = 'Abrir esta aula';
+      const b = document.createElement('b'); b.textContent = t.nome;
+      const s = document.createElement('span'); s.textContent = t.blocos.length + ' blocos · ' + fmtTime(totalSec);
+      info.appendChild(b); info.appendChild(s); info.appendChild(miniProfileSvg(t.blocos));
       info.addEventListener('click', ()=> loadTreino(t.id));
 
       const actions = document.createElement('div');
       actions.className = 'row-actions';
-      const delBtn = makeIconBtn('✕', ()=> deleteTreino(t.id), false);
-      actions.appendChild(delBtn);
+      actions.appendChild(makeIconBtn('⧉', ()=> duplicateTreino(t.id), false, 'Duplicar'));
+      actions.appendChild(makeIconBtn('⤓', ()=> exportTreino(t.id), false, 'Exportar .json'));
+      actions.appendChild(makeIconBtn('✕', ()=> deleteTreino(t.id), false, 'Apagar'));
 
       row.appendChild(info);
       row.appendChild(actions);
@@ -650,17 +917,108 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     });
   }
 
+  // ---------- history ----------
+  function renderHistory(){
+    const list = $('histList');
+    $('histCount').textContent = historico.length;
+    list.innerHTML = '';
+    if(!historico.length){
+      const empty = document.createElement('div');
+      empty.className = 'empty-state';
+      empty.textContent = 'As aulas com alunos ligados aparecem aqui, com o resumo de cada um.';
+      list.appendChild(empty);
+      return;
+    }
+    historico.slice().reverse().forEach(h=>{
+      const row = document.createElement('div');
+      row.className = 'saved-item';
+      const info = document.createElement('div');
+      info.className = 'info';
+      const b = document.createElement('b'); b.textContent = h.treinoNome;
+      const s = document.createElement('span');
+      s.textContent = fmtDate(h.date) + ' · ' + h.riders.length + (h.riders.length===1?' aluno':' alunos');
+      info.appendChild(b); info.appendChild(s);
+      info.addEventListener('click', ()=> openHistModal(h.id));
+      const actions = document.createElement('div');
+      actions.className = 'row-actions';
+      actions.appendChild(makeIconBtn('⤓', ()=> exportHistCsv(h.id), false, 'Exportar CSV'));
+      actions.appendChild(makeIconBtn('✕', ()=>{
+        if(!confirm('Apagar este registo do histórico?')) return;
+        historico = historico.filter(x=>x.id!==h.id); persistHist(); renderHistory();
+      }, false, 'Apagar'));
+      row.appendChild(info); row.appendChild(actions);
+      list.appendChild(row);
+    });
+  }
+
+  function fmtDate(iso){
+    const d = new Date(iso);
+    return d.toLocaleDateString('pt-PT', {day:'2-digit', month:'2-digit', year:'numeric'}) + ' ' +
+           d.toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit'});
+  }
+
+  function riderAvgPct(r){ return r.ftp ? Math.round((r.aw||0) / r.ftp * 100) : null; }
+  function riderZonePct(r){ return r.as ? Math.round((r.iz||0) / r.as * 100) : 0; }
+
+  function summaryTableHtml(entry){
+    const rows = entry.riders.map((r,i)=>{
+      const pct = riderAvgPct(r);
+      return '<tr><td>' + (i+1) + '</td><td>' + escapeHtml(r.n) + '</td>' +
+        '<td>' + Math.round(r.pts||0) + '</td>' +
+        '<td>' + (r.kj||0).toFixed(0) + '</td>' +
+        '<td>' + Math.round(r.aw||0) + '</td>' +
+        '<td>' + (pct==null ? '—' : pct + '%') + '</td>' +
+        '<td>' + Math.round(r.mw||0) + '</td>' +
+        '<td>' + riderZonePct(r) + '%</td>' +
+        '<td>' + fmtTime(r.as||0) + '</td></tr>';
+    }).join('');
+    return '<table class="sum-table"><thead><tr><th>#</th><th>Nome</th><th>Pontos</th><th>kJ</th><th>W médios</th><th>%FTP médio</th><th>W máx</th><th>Na zona</th><th>Tempo</th></tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+
+  function sortRidersBy(list, metric){
+    return list.slice().sort((a,b)=> (metric==='kj' ? (b.kj||0)-(a.kj||0) : (b.pts||0)-(a.pts||0)));
+  }
+
+  let histModalId = null;
+  function openHistModal(id){
+    const h = historico.find(x=>x.id===id);
+    if(!h) return;
+    histModalId = id;
+    $('histModalTitle').textContent = h.treinoNome;
+    $('histModalSub').textContent = fmtDate(h.date) + ' · ' + fmtTime(h.dur || 0) + ' · ' + h.riders.length + ' alunos · ordenado por ' + (h.metric==='kj' ? 'kJ' : 'pontos');
+    $('histModalBody').innerHTML = h.riders.length ? summaryTableHtml(h) : '<div class="empty-state">Sem dados de alunos.</div>';
+    $('histModal').classList.add('active');
+  }
+
+  function exportHistCsv(id){
+    const h = historico.find(x=>x.id===id);
+    if(!h) return;
+    const head = ['Posição','Nome','FTP (W)','Pontos','kJ','Potência média (W)','%FTP médio','Potência máx (W)','Tempo na zona (%)','Tempo ativo'];
+    const lines = [head.join(';')];
+    h.riders.forEach((r,i)=>{
+      const pct = riderAvgPct(r);
+      lines.push([
+        i+1, '"' + String(r.n||'').replace(/"/g,'""') + '"', r.ftp||'', Math.round(r.pts||0),
+        String((r.kj||0).toFixed(1)).replace('.',','), Math.round(r.aw||0), pct==null?'':pct,
+        Math.round(r.mw||0), riderZonePct(r), fmtTime(r.as||0)
+      ].join(';'));
+    });
+    const d = new Date(h.date);
+    const dateStr = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    download(dateStr + '-' + slug(h.treinoNome) + '.csv', '\uFEFF' + lines.join('\r\n'), 'text/csv;charset=utf-8');
+  }
+
   // ================= FIREBASE SESSION SYNC =================
   // Cola aqui a configuração do teu projeto Firebase (Firebase Console > Definições do projeto > Config).
   // Não é informação secreta — é normal ficar visível no código do lado do cliente.
   const firebaseConfig = {
-    apiKey: "COLA_AQUI",
-    authDomain: "COLA_AQUI",
-    databaseURL: "COLA_AQUI",
-    projectId: "COLA_AQUI",
-    storageBucket: "COLA_AQUI",
-    messagingSenderId: "COLA_AQUI",
-    appId: "COLA_AQUI"
+    apiKey: "AIzaSyB-x_wZiztHXuBd4g-YM-G7YvQU89xTFAU",
+    authDomain: "perfil-de-aula.firebaseapp.com",
+    databaseURL: "https://perfil-de-aula-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "perfil-de-aula",
+    storageBucket: "perfil-de-aula.firebasestorage.app",
+    messagingSenderId: "444555432807",
+    appId: "1:444555432807:web:88c6393892794fceaa15c2"
   };
   const firebaseReady = firebaseConfig.apiKey !== 'COLA_AQUI' && !!firebaseConfig.databaseURL;
   let fbDb = null;
@@ -670,47 +1028,41 @@ button:disabled{opacity:.4;cursor:not-allowed;}
       fbDb = firebase.database();
     }catch(e){ console.error('Firebase init falhou', e); }
   }
+  const TS = ()=> firebase.database.ServerValue.TIMESTAMP;
 
   let sessionPin = null;
-
   function genPin(){ return String(Math.floor(1000 + Math.random()*9000)); }
-
   function sessionRef(pin){ return fbDb.ref('sessions/' + pin); }
 
-  function pushFullSession(pin, blockIndex){
-    const b = current.blocos[blockIndex];
-    sessionRef(pin).set({
+  function pushFullSession(pin){
+    const b = current.blocos[0];
+    return sessionRef(pin).set({
       treinoNome: current.nome || 'Aula de cycling',
-      blocos: current.blocos,
-      state: {
-        blockIndex: blockIndex,
-        status: 'paused',
-        remainingAtStart: blockDurationSec(b),
-        startedAt: Date.now()
-      },
-      updatedAt: Date.now()
+      blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, rpm:x.rpm, tecnica:x.tecnica||''})),
+      state: { blockIndex: 0, status: 'paused', remainingAtStart: blockDurationSec(b), startedAt: TS() },
+      raceMetric: raceMetric,
+      createdAt: TS(),
+      updatedAt: TS()
     });
   }
 
   function pushState(){
     if(!fbDb || !sessionPin) return;
-    const b = current.blocos[liveIdx];
-    sessionRef(sessionPin).child('state').set({
-      blockIndex: liveIdx,
-      status: livePlaying ? 'playing' : 'paused',
-      remainingAtStart: liveRemaining,
-      startedAt: Date.now()
+    sessionRef(sessionPin).update({
+      state: {
+        blockIndex: liveIdx,
+        status: livePlaying ? 'playing' : 'paused',
+        remainingAtStart: Math.max(0, liveRemaining),
+        startedAt: TS()
+      },
+      updatedAt: TS()
     });
-    sessionRef(sessionPin).child('updatedAt').set(Date.now());
   }
 
   function pushFinished(){
     if(!fbDb || !sessionPin) return;
     sessionRef(sessionPin).child('state').set({
-      blockIndex: current.blocos.length,
-      status: 'finished',
-      remainingAtStart: 0,
-      startedAt: Date.now()
+      blockIndex: current.blocos.length, status: 'finished', remainingAtStart: 0, startedAt: TS()
     });
   }
 
@@ -720,195 +1072,448 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   }
 
   function renderQr(pin){
-    const el = document.getElementById('qrcode');
+    const el = $('qrcode');
     el.innerHTML = '';
-    const joinUrl = location.href.replace(/[^/]*$/, '') + 'aula-ao-vivo.html?pin=' + pin;
+    const joinUrl = location.href.split('#')[0].split('?')[0].replace(/[^/]*$/, '') + 'aula-ao-vivo.html?pin=' + pin;
     if(window.QRCode){
-      new QRCode(el, { text: joinUrl, width: 160, height: 160, colorDark:'#0A0D12', colorLight:'#ffffff' });
+      new QRCode(el, { text: joinUrl, width: 170, height: 170, colorDark:'#0A0D12', colorLight:'#ffffff' });
     }
+  }
+
+  // ================= RIDERS (alunos ligados) =================
+  let riders = {};
+  let ridersRef = null, offsetRef = null;
+  let serverOffset = 0;
+  let viewMode = 'auto';            // 'auto' | 'aula' | 'turma' | 'corrida'
+  let raceMetric = localStorage.getItem('ptCyclingRaceMetric') || 'pts'; // 'pts' | 'kj'
+  let soundOn = localStorage.getItem('ptCyclingSound') !== '0';
+  let ridersUiHandle = null, rankHandle = null;
+  let summaryEntry = null;
+
+  function serverNow(){ return Date.now() + serverOffset; }
+
+  function startRidersSync(pin){
+    riders = {};
+    ridersRef = sessionRef(pin).child('riders');
+    ridersRef.on('value', s=>{ riders = s.val() || {}; });
+    offsetRef = fbDb.ref('.info/serverTimeOffset');
+    offsetRef.on('value', s=>{ serverOffset = s.val() || 0; });
+    ridersUiHandle = setInterval(renderRiders, 1000);
+    rankHandle = setInterval(pushRanking, 4000);
+    renderRiders();
+  }
+
+  function stopRidersSync(){
+    if(ridersRef) ridersRef.off();
+    if(offsetRef) offsetRef.off();
+    ridersRef = null; offsetRef = null;
+    clearInterval(ridersUiHandle); clearInterval(rankHandle);
+    ridersUiHandle = rankHandle = null;
+  }
+
+  function riderList(){
+    const now = serverNow();
+    return Object.keys(riders).map(id=>{
+      const r = riders[id] || {};
+      const online = !r.left && (now - (r.t||0)) < 15000;
+      return Object.assign({id:id, online:online}, r);
+    });
+  }
+  function ridingRiders(){ return riderList().filter(r=> r.dev || (r.as||0) > 0); }
+  function metricVal(r){ return raceMetric === 'kj' ? (r.kj||0) : (r.pts||0); }
+  function metricFmt(v){ return raceMetric === 'kj' ? v.toFixed(0) : Math.round(v).toString(); }
+  function metricLabel(){ return raceMetric === 'kj' ? 'kJ' : 'pontos'; }
+
+  function effectiveMode(){
+    if(viewMode !== 'auto') return viewMode;
+    return ridingRiders().length ? 'turma' : 'aula';
+  }
+
+  function applyMode(){
+    const mode = effectiveMode();
+    const ov = $('liveOverlay');
+    ov.classList.toggle('split', mode !== 'aula');
+    document.querySelectorAll('.ctrl-group [data-mode]').forEach(btn=>{
+      btn.classList.toggle('on', btn.dataset.mode === mode);
+    });
+    $('metricBtn').textContent = 'Ranking: ' + (raceMetric==='kj' ? 'kJ' : 'Pontos');
+    $('soundBtn').textContent = soundOn ? '🔔' : '🔕';
+    return mode;
+  }
+
+  function renderRiders(){
+    if(!$('liveOverlay').classList.contains('active')) return;
+    const mode = applyMode();
+    if(mode === 'aula') return;
+
+    const list = sortRidersBy(ridingRiders(), raceMetric);
+    const watchers = riderList().filter(r=> !r.dev && !(r.as>0) && r.online).length;
+    const online = list.filter(r=>r.online);
+    const teamTotal = list.reduce((s,r)=> s + metricVal(r), 0);
+    const block = current.blocos[liveIdx];
+    const targetZone = block ? getZone(block.ftp).name : null;
+
+    $('rpTitle').textContent = mode === 'corrida' ? 'Corrida · ' + metricLabel() : 'Turma';
+    $('rpMeta').innerHTML = '<b>' + online.length + '</b> a pedalar' + (watchers ? ' · ' + watchers + ' a acompanhar' : '') +
+      ' · total <b>' + metricFmt(teamTotal) + '</b> ' + metricLabel();
+
+    const grid = $('rgrid'), lanes = $('lanes'), empty = $('rpEmpty');
+    if(!list.length){
+      grid.style.display = 'none'; lanes.style.display = 'none'; empty.style.display = '';
+      return;
+    }
+    empty.style.display = 'none';
+
+    if(mode === 'turma'){
+      lanes.style.display = 'none'; grid.style.display = 'grid';
+      const n = list.length;
+      const panel = $('ridersPanel');
+      const pw = panel.clientWidth || 800, ph = (panel.clientHeight || 600) - 60;
+      // escolhe nº de colunas que maximiza o tamanho dos cartões
+      let best = {cols:1, size:0};
+      for(let cols=1; cols<=Math.min(n,8); cols++){
+        const rows = Math.ceil(n/cols);
+        const w = (pw - (cols-1)*10)/cols, h = (ph - (rows-1)*10)/rows;
+        const size = Math.min(w/1.6, h);
+        if(size > best.size) best = {cols:cols, size:size};
+      }
+      grid.style.gridTemplateColumns = 'repeat(' + best.cols + ', minmax(0,1fr))';
+      grid.style.setProperty('--s', Math.max(0.65, Math.min(1.7, best.size/110)).toFixed(2));
+
+      grid.innerHTML = list.map((r,i)=>{
+        const pct = r.ftp ? Math.round((r.w||0)/r.ftp*100) : null;
+        const z = pct==null ? ZONES[0] : getZone(pct);
+        const zc = zoneColor(z.css);
+        const inZone = r.online && pct!=null && targetZone === z.name && (r.w||0) > 0;
+        return '<div class="rtile' + (r.online ? '' : ' offline') + (inZone ? ' inzone' : '') + '" style="--zc:' + zc + ';--zc-a:' + zc + '55">' +
+          '<div class="rt-top"><span class="rt-pos">' + (i+1) + '</span><span class="rt-name">' + escapeHtml(r.n||'?') + '</span></div>' +
+          '<div class="rt-w">' + (r.online ? Math.round(r.w||0) : '—') + '<small>W</small></div>' +
+          '<div class="rt-sub">' +
+            (pct==null ? '' : '<span class="pct">' + pct + '%</span>') +
+            '<span>' + Math.round(r.c||0) + ' rpm</span>' +
+            (r.hr ? '<span>♥ ' + Math.round(r.hr) + '</span>' : '') +
+            '<span>' + metricFmt(metricVal(r)) + ' ' + (raceMetric==='kj'?'kJ':'pts') + '</span>' +
+          '</div></div>';
+      }).join('');
+    } else {
+      grid.style.display = 'none'; lanes.style.display = 'flex';
+      const max = Math.max(1, ...list.map(metricVal));
+      lanes.innerHTML = list.slice(0, 20).map((r,i)=>{
+        const pct = r.ftp ? Math.round((r.w||0)/r.ftp*100) : null;
+        const zc = zoneColor((pct==null ? ZONES[1] : getZone(pct)).css);
+        const w = (metricVal(r)/max*100).toFixed(1);
+        return '<div class="lane p' + (i+1) + (r.online ? '' : ' offline') + '">' +
+          '<div class="ln-pos">' + (i+1) + '</div>' +
+          '<div class="ln-name">' + escapeHtml(r.n||'?') + '</div>' +
+          '<div class="ln-track"><div class="ln-bar" style="width:' + w + '%;background:' + zc + '"></div></div>' +
+          '<div class="ln-val">' + metricFmt(metricVal(r)) + '</div></div>';
+      }).join('');
+    }
+  }
+
+  function pushRanking(){
+    if(!fbDb || !sessionPin) return;
+    const list = sortRidersBy(ridingRiders(), raceMetric);
+    const rank = {};
+    list.forEach((r,i)=>{ rank[r.id] = {p:i+1, n:list.length}; });
+    sessionRef(sessionPin).child('rank').set(list.length ? rank : null);
+  }
+
+  function buildSummary(){
+    const list = sortRidersBy(ridingRiders().filter(r=> (r.as||0) >= 10), raceMetric).map(r=>({
+      n: r.n || '?', ftp: r.ftp || null, kj: r.kj || 0, pts: r.pts || 0, aw: r.aw || 0, mw: r.mw || 0, iz: r.iz || 0, as: r.as || 0
+    }));
+    return list;
+  }
+
+  function saveSummary(){
+    const list = buildSummary();
+    if(!list.length) return null;
+    if(!summaryEntry){
+      summaryEntry = { id: uid(), date: new Date().toISOString(), treinoNome: current.nome || 'Aula de cycling', dur: totalDuration(current.blocos), metric: raceMetric, riders: list };
+      historico.push(summaryEntry);
+    } else {
+      summaryEntry.riders = list;
+      summaryEntry.metric = raceMetric;
+    }
+    if(historico.length > 200) historico = historico.slice(-200);
+    persistHist();
+    renderHistory();
+    return summaryEntry;
+  }
+
+  function renderLiveSummary(){
+    const wrap = $('liveSummary');
+    const entry = saveSummary();
+    if(!entry){ wrap.innerHTML = ''; return; }
+    const top = entry.riders.slice(0,3);
+    const order = [1,0,2].filter(i=> top[i]);
+    const unit = raceMetric==='kj' ? 'kJ' : 'pontos';
+    const val = (r)=> raceMetric==='kj' ? r.kj.toFixed(0) : Math.round(r.pts);
+    wrap.innerHTML =
+      '<div class="podium" style="justify-content:center">' + order.map(i=>
+        '<div class="pod p' + (i+1) + '"><div class="pn">' + escapeHtml(top[i].n) + '</div><div class="pv">' + val(top[i]) + ' ' + unit + '</div><div class="step">' + (i+1) + '</div></div>'
+      ).join('') + '</div>' +
+      summaryTableHtml(entry) +
+      '<div class="sum-actions"><button id="sumCsvBtn">⤓ Exportar CSV</button></div>';
+    $('sumCsvBtn').addEventListener('click', ()=> exportHistCsv(entry.id));
+  }
+
+  // ================= SOUND =================
+  let audioCtx = null;
+  function beep(freq, dur, vol){
+    if(!soundOn) return;
+    try{
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = 'sine'; o.frequency.value = freq;
+      g.gain.setValueAtTime(vol || 0.25, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(); o.stop(audioCtx.currentTime + dur);
+    }catch(e){}
   }
 
   // ================= LIVE MODE =================
-  let liveIdx = 0, liveRemaining = 0, liveTimerHandle = null, livePlaying = false, liveElapsedTotal = 0;
+  let liveIdx = 0, liveRemaining = 0, liveTimerHandle = null, livePlaying = false;
+  let tickBaseAt = 0, tickBaseRemaining = 0, lastBeepSec = null;
 
   function openLive(){
-    if(current.blocos.length === 0) return;
-    if(!firebaseReady){
-      document.getElementById('setupBanner').classList.add('active');
-      return;
-    }
+    if(current.blocos.length === 0){ toast('Adiciona blocos antes de projetar.'); return; }
+    if(!firebaseReady){ $('setupBanner').classList.add('active'); return; }
     liveIdx = 0;
-    liveElapsedTotal = 0;
     liveRemaining = blockDurationSec(current.blocos[0]);
     livePlaying = false;
-    document.getElementById('liveDone').classList.remove('active');
-    document.getElementById('liveActive').style.display = '';
-    document.getElementById('liveControls').style.display = 'flex';
-    buildLiveProgressBar();
+    summaryEntry = null;
+    viewMode = 'auto';
+    $('liveOverlay').classList.remove('finished');
+    $('liveDone').classList.remove('active');
+    $('liveSummary').innerHTML = '';
+    $('liveActive').style.display = '';
+    $('liveControls').style.display = 'flex';
+    drawLiveProfile();
     updateLiveDisplay();
-    document.getElementById('liveOverlay').classList.add('active');
-    document.getElementById('livePlay').textContent = '▶';
+    $('liveOverlay').classList.add('active');
+    $('livePlay').textContent = '▶';
 
     sessionPin = genPin();
-    document.getElementById('pinDisplay').textContent = sessionPin;
-    document.getElementById('qrPanel').classList.remove('active');
-    pushFullSession(sessionPin, 0);
+    $('pinDisplay').textContent = sessionPin;
+    $('qrPanel').classList.add('active');
+    pushFullSession(sessionPin);
     renderQr(sessionPin);
+    startRidersSync(sessionPin);
+    requestWakeLock();
+    if(document.documentElement.requestFullscreen && !document.fullscreenElement){
+      document.documentElement.requestFullscreen().catch(()=>{});
+    }
   }
 
   function closeLive(){
-    document.getElementById('liveOverlay').classList.remove('active');
-    stopTicking();
+    if(sessionPin && ridingRiders().length) saveSummary();
+    $('liveOverlay').classList.remove('active');
+    clearInterval(liveTimerHandle); liveTimerHandle = null; livePlaying = false;
+    stopRidersSync();
     endSession();
+    releaseWakeLock();
+    if(document.fullscreenElement && document.exitFullscreen){ document.exitFullscreen().catch(()=>{}); }
+    renderHistory();
   }
 
-  function buildLiveProgressBar(){
-    const bar = document.getElementById('liveProgress');
-    bar.innerHTML = '';
-    const totalSec = current.blocos.reduce((s,b)=>s+blockDurationSec(b),0) || 1;
-    let x = 0;
-    current.blocos.forEach(b=>{
-      const dur = blockDurationSec(b);
-      const w = (dur/totalSec)*100;
-      const zone = getZone(b.ftp);
-      const seg = document.createElement('div');
-      seg.className = 'live-progress-seg';
-      seg.style.left = x+'%';
-      seg.style.width = w+'%';
-      seg.style.background = zoneColor(zone.css);
-      seg.dataset.idx = current.blocos.indexOf(b);
-      bar.appendChild(seg);
-      x += w;
-    });
-    const marker = document.createElement('div');
-    marker.className = 'live-progress-marker';
-    marker.id = 'liveMarker';
-    bar.appendChild(marker);
+  // perfil grande no topo da projeção, com a parte já feita destacada
+  let liveShade = null, liveMarkerLine = null;
+  function drawLiveProfile(){
+    const svg = $('liveProfileSvg');
+    drawProfileSvg(svg, current.blocos, 1000, 76, 4);
+    liveShade = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    liveShade.setAttribute('y','0'); liveShade.setAttribute('height','76');
+    liveShade.setAttribute('fill','rgba(5,7,10,0.6)');
+    svg.appendChild(liveShade);
+    liveMarkerLine = document.createElementNS('http://www.w3.org/2000/svg','rect');
+    liveMarkerLine.setAttribute('y','0'); liveMarkerLine.setAttribute('height','76');
+    liveMarkerLine.setAttribute('width','3'); liveMarkerLine.setAttribute('fill','#ffffff');
+    svg.appendChild(liveMarkerLine);
+  }
+
+  function elapsedNow(){
+    const before = current.blocos.slice(0, liveIdx).reduce((s,b)=>s+blockDurationSec(b),0);
+    const b = current.blocos[liveIdx];
+    return before + (b ? blockDurationSec(b) - liveRemaining : 0);
   }
 
   function updateLiveProgressMarker(){
-    const totalSec = current.blocos.reduce((s,b)=>s+blockDurationSec(b),0) || 1;
-    const pct = Math.min(100, (liveElapsedTotal/totalSec)*100);
-    const marker = document.getElementById('liveMarker');
-    if(marker) marker.style.left = pct+'%';
-    document.querySelectorAll('.live-progress-seg').forEach(seg=>{
-      const idx = Number(seg.dataset.idx);
-      seg.classList.toggle('done', idx < liveIdx);
-    });
+    const totalSec = totalDuration(current.blocos) || 1;
+    const x = Math.min(1000, (elapsedNow()/totalSec)*1000);
+    if(liveShade){ liveShade.setAttribute('x', x.toFixed(1)); liveShade.setAttribute('width', Math.max(0, 1000-x).toFixed(1)); }
+    if(liveMarkerLine){ liveMarkerLine.setAttribute('x', Math.max(0, x-1.5).toFixed(1)); }
   }
 
   function updateLiveDisplay(){
     const b = current.blocos[liveIdx];
     if(!b) return;
     const zone = getZone(b.ftp);
-    document.getElementById('liveZone').textContent = zone.name;
-    document.getElementById('liveZone').style.color = zoneColor(zone.css);
-    document.getElementById('liveName').textContent = b.nome;
-    document.getElementById('liveTechnique').textContent = b.tecnica || '';
-    document.getElementById('liveTimer').textContent = fmtTime(liveRemaining);
-    document.getElementById('liveFtp').textContent = b.ftp + '%';
-    document.getElementById('liveRpm').textContent = b.rpm;
-    document.getElementById('liveBody').style.background =
+    $('liveZone').textContent = zone.name;
+    $('liveZone').style.color = zoneColor(zone.css);
+    $('liveName').textContent = b.nome;
+    $('liveTechnique').textContent = b.tecnica || '';
+    updateTimerText();
+    $('liveFtp').textContent = b.ftp + '%';
+    $('liveRpm').textContent = b.rpm;
+    $('liveBody').style.background =
       'radial-gradient(circle at 50% 40%, ' + zoneColor(zone.css) + '33, #05070A 70%)';
 
     const next = current.blocos[liveIdx+1];
-    document.getElementById('liveNext').innerHTML = next
-      ? 'a seguir: <b>' + escapeHtml(next.nome) + '</b> · ' + fmtTime(blockDurationSec(next))
+    $('liveNext').innerHTML = next
+      ? 'a seguir: <span class="next-chip" style="background:' + zoneColor(getZone(next.ftp).css) + '"></span><b>' + escapeHtml(next.nome) + '</b> · ' + next.ftp + '% · ' + fmtTime(blockDurationSec(next))
       : 'último bloco';
 
     updateLiveProgressMarker();
   }
 
-  function escapeHtml(s){
-    const d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+  function updateTimerText(){
+    const t = $('liveTimer');
+    t.textContent = fmtCountdown(liveRemaining);
+    t.classList.toggle('warn', liveRemaining <= 5.0 && liveRemaining > 0);
+  }
+
+  function resetTickBase(){
+    tickBaseAt = performance.now();
+    tickBaseRemaining = liveRemaining;
+    lastBeepSec = null;
   }
 
   function stopTicking(){
     if(liveTimerHandle){ clearInterval(liveTimerHandle); liveTimerHandle = null; }
     livePlaying = false;
-    document.getElementById('livePlay').textContent = '▶';
+    $('livePlay').textContent = '▶';
     pushState();
   }
 
   function startTicking(){
     if(liveTimerHandle) return;
     livePlaying = true;
-    document.getElementById('livePlay').textContent = '❚❚';
+    $('livePlay').textContent = '❚❚';
+    $('qrPanel').classList.remove('active');
+    resetTickBase();
     pushState();
     liveTimerHandle = setInterval(()=>{
-      liveRemaining -= 0.25;
-      liveElapsedTotal += 0.25;
+      liveRemaining = tickBaseRemaining - (performance.now() - tickBaseAt)/1000;
+      const secLeft = Math.ceil(liveRemaining);
+      if(secLeft <= 3 && secLeft >= 1 && secLeft !== lastBeepSec){ lastBeepSec = secLeft; beep(660, 0.12); }
       if(liveRemaining <= 0){
+        beep(990, 0.35, 0.3);
         goToBlock(liveIdx+1);
       } else {
-        document.getElementById('liveTimer').textContent = fmtTime(liveRemaining);
+        updateTimerText();
         updateLiveProgressMarker();
       }
-    }, 250);
+    }, 200);
   }
 
   function goToBlock(idx){
-    if(idx >= current.blocos.length){
-      finishLive();
-      return;
-    }
+    if(idx >= current.blocos.length){ finishLive(); return; }
     if(idx < 0) idx = 0;
     liveIdx = idx;
     liveRemaining = blockDurationSec(current.blocos[liveIdx]);
+    if(livePlaying) resetTickBase();
     updateLiveDisplay();
     pushState();
+    renderRiders();
   }
 
   function finishLive(){
-    stopTicking();
-    document.getElementById('liveActive').style.display = 'none';
-    document.getElementById('liveControls').style.display = 'none';
-    document.getElementById('liveNext').textContent = '';
-    document.getElementById('liveDone').classList.add('active');
-    document.getElementById('liveTotalTime').textContent = fmtTime(
-      current.blocos.reduce((s,b)=>s+blockDurationSec(b),0)
-    );
-    const marker = document.getElementById('liveMarker');
-    if(marker) marker.style.left = '100%';
+    clearInterval(liveTimerHandle); liveTimerHandle = null; livePlaying = false;
+    $('livePlay').textContent = '▶';
+    liveIdx = current.blocos.length - 1; liveRemaining = 0;
+    updateLiveProgressMarker();
+    $('liveOverlay').classList.add('finished');
+    $('liveActive').style.display = 'none';
+    $('liveControls').style.display = 'none';
+    $('liveNext').textContent = '';
+    $('liveDone').classList.add('active');
+    $('liveTotalTime').textContent = fmtTime(totalDuration(current.blocos));
+    $('liveBody').style.background = '#05070A';
     pushFinished();
+    pushRanking();
+    renderLiveSummary();
+    // os telemóveis enviam o último valor até 2 s depois — atualiza o resumo
+    setTimeout(()=>{ if(sessionPin) renderLiveSummary(); }, 3500);
   }
 
-  // ---------- wire up ----------
-  document.getElementById('newBtn').addEventListener('click', resetTreino);
-  document.getElementById('saveBtn').addEventListener('click', saveCurrent);
-  document.getElementById('addBlockBtn').addEventListener('click', addBlock);
-  document.getElementById('projectBtn').addEventListener('click', openLive);
-  document.getElementById('exitLive').addEventListener('click', closeLive);
-  document.getElementById('sessionBadge').addEventListener('click', ()=>{
-    document.getElementById('qrPanel').classList.toggle('active');
-  });
-  document.getElementById('setupCloseBtn').addEventListener('click', ()=>{
-    document.getElementById('setupBanner').classList.remove('active');
+  // ---------- wake lock (ecrã do projetor não adormece) ----------
+  let wakeLock = null;
+  async function requestWakeLock(){
+    try{ if('wakeLock' in navigator){ wakeLock = await navigator.wakeLock.request('screen'); } }catch(e){}
+  }
+  function releaseWakeLock(){ try{ if(wakeLock){ wakeLock.release(); wakeLock = null; } }catch(e){} }
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'visible' && $('liveOverlay').classList.contains('active')) requestWakeLock();
   });
 
-  document.getElementById('livePlay').addEventListener('click', ()=>{
-    if(livePlaying) stopTicking(); else startTicking();
+  // ---------- wire up ----------
+  $('newBtn').addEventListener('click', resetTreino);
+  $('saveBtn').addEventListener('click', ()=> saveCurrent(false));
+  $('saveCopyBtn').addEventListener('click', ()=> saveCurrent(true));
+  $('addBlockBtn').addEventListener('click', addBlock);
+  $('projectBtn').addEventListener('click', openLive);
+  $('exitLive').addEventListener('click', closeLive);
+  $('treinoNome').addEventListener('input', (e)=>{ current.nome = e.target.value; });
+  $('savedSearch').addEventListener('input', renderSaved);
+  $('importBtn').addEventListener('click', ()=> $('importFile').click());
+  $('importFile').addEventListener('change', (e)=>{ if(e.target.files[0]) importFile(e.target.files[0]); e.target.value=''; });
+  $('exportAllBtn').addEventListener('click', exportAll);
+  $('histModalClose').addEventListener('click', ()=> $('histModal').classList.remove('active'));
+  $('histModalCsv').addEventListener('click', ()=>{ if(histModalId) exportHistCsv(histModalId); });
+  $('histModal').addEventListener('click', (e)=>{ if(e.target.id==='histModal') $('histModal').classList.remove('active'); });
+
+  $('sessionBadge').addEventListener('click', ()=> $('qrPanel').classList.toggle('active'));
+  $('setupCloseBtn').addEventListener('click', ()=> $('setupBanner').classList.remove('active'));
+
+  document.querySelectorAll('.ctrl-group [data-mode]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{ viewMode = btn.dataset.mode; renderRiders(); applyMode(); });
   });
-  document.getElementById('liveSkip').addEventListener('click', ()=>{
-    goToBlock(liveIdx+1);
-    if(livePlaying){ stopTicking(); startTicking(); }
+  function toggleMetric(){
+    raceMetric = raceMetric === 'pts' ? 'kj' : 'pts';
+    localStorage.setItem('ptCyclingRaceMetric', raceMetric);
+    if(fbDb && sessionPin) sessionRef(sessionPin).child('raceMetric').set(raceMetric);
+    renderRiders(); applyMode(); pushRanking();
+  }
+  $('metricBtn').addEventListener('click', toggleMetric);
+  $('soundBtn').addEventListener('click', ()=>{
+    soundOn = !soundOn;
+    localStorage.setItem('ptCyclingSound', soundOn ? '1' : '0');
+    applyMode();
+    if(soundOn) beep(880, 0.1);
   });
-  document.getElementById('liveBack').addEventListener('click', ()=>{
-    // restart current block if >3s elapsed, else go to previous block
+
+  $('livePlay').addEventListener('click', ()=>{ if(livePlaying) stopTicking(); else startTicking(); });
+  $('liveSkip').addEventListener('click', ()=> goToBlock(liveIdx+1));
+  $('liveBack').addEventListener('click', ()=>{
+    // recomeça o bloco se já passaram >3 s, senão volta ao anterior
     const b = current.blocos[liveIdx];
     const dur = blockDurationSec(b);
-    if(dur - liveRemaining > 3){ liveRemaining = dur; updateLiveDisplay(); }
-    else{ goToBlock(liveIdx-1); }
-    if(livePlaying){ stopTicking(); startTicking(); }
+    if(dur - liveRemaining > 3){
+      liveRemaining = dur;
+      if(livePlaying) resetTickBase();
+      updateLiveDisplay(); pushState();
+    } else { goToBlock(liveIdx-1); }
   });
 
   document.addEventListener('keydown', (e)=>{
-    if(!document.getElementById('liveOverlay').classList.contains('active')) return;
+    if(!$('liveOverlay').classList.contains('active')) return;
+    if(e.target && e.target.tagName === 'INPUT') return;
+    const done = $('liveOverlay').classList.contains('finished');
+    if(e.code === 'Escape'){ closeLive(); return; }
+    if(done) return;
     if(e.code === 'Space'){ e.preventDefault(); if(livePlaying) stopTicking(); else startTicking(); }
-    if(e.code === 'Escape'){ closeLive(); }
     if(e.code === 'ArrowRight'){ goToBlock(liveIdx+1); }
-    if(e.code === 'ArrowLeft'){ goToBlock(liveIdx-1); }
+    if(e.code === 'ArrowLeft'){ $('liveBack').click(); }
+    if(e.key === '1'){ viewMode = 'aula'; applyMode(); }
+    if(e.key === '2'){ viewMode = 'turma'; renderRiders(); }
+    if(e.key === '3'){ viewMode = 'corrida'; renderRiders(); }
+    if(e.key === 'm' || e.key === 'M'){ toggleMetric(); }
+    if(e.key === 'q' || e.key === 'Q'){ $('qrPanel').classList.toggle('active'); }
   });
+  window.addEventListener('beforeunload', ()=>{ if(sessionPin) endSession(); });
 
   // init
   if(treinos.length){
@@ -920,14 +1525,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 })();
 </script>
 
-<div class="setup-banner" id="setupBanner">
-  <div class="setup-card">
-    <h3>Configuração necessária</h3>
-    <p>Para os alunos se ligarem pela internet, esta app precisa de uma base de dados Firebase gratuita (guarda apenas o PIN e o estado do treino em tempo real).</p>
-    <p>Abre o ficheiro <code>index.html</code> num editor, procura por <code>firebaseConfig</code> perto do fim do ficheiro, e cola a configuração do teu projeto Firebase (ver LEIA-ME.md incluído). Depois volta a publicar no GitHub Pages.</p>
-    <button id="setupCloseBtn">Entendido</button>
-  </div>
-</div>
+
 
 </body>
 </html>

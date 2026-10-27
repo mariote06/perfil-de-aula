@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfil de Aula</title>
+<script>
+  // Quem traz ?pin= (QR code) vai para a app dos alunos; os outros para a app do instrutor.
+  var q = location.search;
+  location.replace((/[?&]pin=/.test(q) ? 'aula-ao-vivo.html' : 'perfil-de-aula.html') + q);
+</script>
+</head>
+<body style="background:#0A0D12;color:#EDEFF2;font-family:sans-serif;padding:24px">
+  <a href="perfil-de-aula.html" style="color:#E8722C">Instrutor</a> · <a href="aula-ao-vivo.html" style="color:#E8722C">Alunos</a>
+</body>
+</html>

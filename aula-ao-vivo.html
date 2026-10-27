@@ -18,108 +18,231 @@
 <style>
 :root{
   --bg:#0A0D12; --surface:#12161D; --surface-2:#1B212B; --border:#262D39;
-  --text:#EDEFF2; --muted:#8A93A3;
+  --text:#EDEFF2; --muted:#8A93A3; --accent:#E8722C; --ok:#4FA37B; --bad:#E27070;
   --z0:#5B6472; --z1:#3E8FB0; --z2:#4FA37B; --z3:#D9A441; --z4:#D9713C; --z5:#C24C4C;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;height:100%;}
 body{
   background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
-  min-height:100vh;display:flex;flex-direction:column;overscroll-behavior:none;
+  min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;overscroll-behavior:none;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
-.display{font-family:'Barlow Condensed',sans-serif;}
+button{font-family:'Inter',sans-serif;cursor:pointer;}
 
-/* ---------- Join screen ---------- */
-#joinScreen{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:24px;text-align:center;gap:18px;
+.screen{
+  flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 20px;text-align:center;gap:16px;
 }
-#joinScreen h1{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:700;margin:0;}
-#joinScreen p{color:var(--muted);font-size:14px;max-width:280px;margin:0;}
+.screen.active{display:flex;}
+.screen h1{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:700;margin:0;}
+.screen p{color:var(--muted);font-size:14px;max-width:300px;margin:0;line-height:1.45;}
+
+/* ---------- Join ---------- */
 #pinInput{
   font-family:'Barlow Condensed',sans-serif;font-size:44px;font-weight:700;
   letter-spacing:14px;text-align:center;width:220px;padding:14px 10px 14px 24px;
   background:var(--surface-2);border:1px solid var(--border);color:#fff;border-radius:12px;
 }
-#pinInput:focus{outline:none;border-color:#E8722C;}
-#joinBtn{
-  background:#E8722C;border:none;color:#140B04;font-weight:700;font-size:16px;
-  padding:14px 32px;border-radius:10px;cursor:pointer;width:220px;
+#pinInput:focus{outline:none;border-color:var(--accent);}
+.btn-primary{
+  background:var(--accent);border:none;color:#140B04;font-weight:700;font-size:16px;
+  padding:14px 32px;border-radius:10px;width:100%;max-width:320px;
 }
-#joinBtn:disabled{opacity:.5;}
-#joinError{color:#E27070;font-size:13px;min-height:18px;}
+.btn-primary:disabled{opacity:.5;}
+.btn-link{background:none;border:none;color:var(--muted);font-size:13px;text-decoration:underline;padding:6px;}
+.err{color:var(--bad);font-size:13px;min-height:18px;}
 
-/* ---------- Live screen ---------- */
-#liveScreen{display:none;flex:1;flex-direction:column;}
+/* ---------- Setup ---------- */
+.form{width:100%;max-width:320px;display:flex;flex-direction:column;gap:12px;text-align:left;}
+.form label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:6px;}
+.form input{
+  background:var(--surface-2);border:1px solid var(--border);color:#fff;border-radius:10px;
+  padding:12px 14px;font-size:17px;font-weight:600;
+}
+.form input:focus{outline:none;border-color:var(--accent);}
+.hint{font-size:12px;color:var(--muted);line-height:1.4;}
+.sensor{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;
+}
+.sensor .s-name{font-weight:600;font-size:14px;}
+.sensor .s-status{font-size:12px;color:var(--muted);margin-top:2px;}
+.sensor .s-status.on{color:var(--ok);}
+.sensor button{
+  background:var(--surface-2);border:1px solid var(--border);color:#fff;border-radius:8px;
+  padding:9px 12px;font-size:13px;font-weight:600;white-space:nowrap;
+}
+.sensor button.on{border-color:var(--ok);color:var(--ok);}
+.warn{
+  font-size:12px;color:#FFD27A;background:rgba(217,164,65,.1);border:1px solid rgba(217,164,65,.35);
+  border-radius:10px;padding:10px 12px;line-height:1.45;text-align:left;display:none;
+}
+.warn.active{display:block;}
+
+/* ---------- Live ---------- */
+#liveScreen{display:none;flex:1;flex-direction:column;min-height:0;}
 #liveScreen.active{display:flex;}
 
 .progress{height:10px;width:100%;background:#0A0D12;position:relative;flex-shrink:0;}
-.progress-seg{position:absolute;top:0;bottom:0;opacity:.55;}
+.progress-seg{position:absolute;top:0;bottom:0;opacity:.5;}
 .progress-seg.done{opacity:1;}
 .progress-marker{position:absolute;top:0;bottom:0;width:2px;background:#fff;box-shadow:0 0 6px rgba(255,255,255,.8);}
 
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px 0;flex-shrink:0;}
+.chips{display:flex;gap:6px;}
+.chip{
+  font-size:12px;padding:5px 9px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+  color:var(--muted);display:flex;align-items:center;gap:5px;
+}
+.chip .dot{width:7px;height:7px;border-radius:50%;background:#5B6472;}
+.chip.on{color:#fff;}
+.chip.on .dot{background:var(--ok);box-shadow:0 0 6px var(--ok);}
+.rank{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#fff;}
+.rank small{font-size:13px;color:var(--muted);font-family:'Inter',sans-serif;font-weight:500;}
+.leave-btn{
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+  color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;
+}
+
 .body{
-  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;padding:20px;transition:background .4s ease;position:relative;
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  text-align:center;padding:10px 16px 14px;transition:background .4s ease;min-height:0;overflow:auto;
 }
-.class-name{position:absolute;top:16px;left:0;right:0;color:rgba(255,255,255,.4);font-size:12px;}
-.zone{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:clamp(22px,6vw,32px);margin-bottom:4px;}
-.name{color:rgba(255,255,255,.55);font-size:clamp(13px,3.4vw,16px);margin-bottom:6px;font-weight:500;}
+.class-name{color:rgba(255,255,255,.4);font-size:12px;margin-bottom:6px;}
+.blockline{font-size:clamp(14px,4vw,18px);color:rgba(255,255,255,.7);}
+.blockline .zone{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.35em;}
 .technique{
-  color:rgba(255,255,255,.85);font-size:clamp(12px,3.2vw,16px);font-weight:600;
-  margin-bottom:20px;padding:5px 14px;border:1px solid rgba(255,255,255,.2);border-radius:999px;display:inline-block;
+  color:rgba(255,255,255,.85);font-size:13px;font-weight:600;margin-top:6px;
+  padding:4px 12px;border:1px solid rgba(255,255,255,.2);border-radius:999px;display:inline-block;
 }
-.technique:empty{display:none;margin:0;padding:0;border:none;}
+.technique:empty{display:none;}
 .timer{
-  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(70px,26vw,140px);
-  line-height:1;color:#fff;font-variant-numeric:tabular-nums;
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(56px,18vw,96px);
+  line-height:1;color:#fff;font-variant-numeric:tabular-nums;margin-top:6px;
 }
-.metrics{display:flex;gap:30px;margin-top:18px;}
-.metric .v{font-family:'Barlow Condensed',sans-serif;font-size:clamp(24px,7vw,38px);font-weight:700;color:#fff;}
-.metric .l{color:rgba(255,255,255,.55);font-size:12px;margin-top:2px;}
-.next{position:absolute;bottom:20px;left:0;right:0;color:rgba(255,255,255,.6);font-size:13px;padding:0 16px;}
+.timer.warn{color:#FFD27A;}
+.target{font-size:14px;color:rgba(255,255,255,.75);margin-top:2px;}
+.target b{color:#fff;}
+
+.me{width:100%;max-width:420px;margin-top:14px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;}
+.me-w{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(64px,22vw,110px);line-height:1;font-variant-numeric:tabular-nums;}
+.me-w small{font-size:.32em;color:rgba(255,255,255,.6);margin-left:4px;}
+.cue{font-weight:700;font-size:15px;margin:4px 0 10px;min-height:20px;}
+.gauge{position:relative;height:16px;background:#12161D;border-radius:999px;overflow:visible;margin:0 6px;}
+.gauge-band{position:absolute;top:0;bottom:0;border-radius:999px;opacity:.85;}
+.gauge-dot{
+  position:absolute;top:50%;width:22px;height:22px;border-radius:50%;background:#fff;border:3px solid #05070A;
+  transform:translate(-50%,-50%);transition:left .5s ease;box-shadow:0 0 8px rgba(255,255,255,.6);
+}
+.gauge-scale{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin:4px 6px 0;}
+.me-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
+.me-grid .v{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:28px;line-height:1.05;font-variant-numeric:tabular-nums;}
+.me-grid .l{font-size:11px;color:rgba(255,255,255,.55);}
+.me-grid .v.ok{color:#7FD3A6;}
+.me-grid .v.low{color:#FFD27A;}
+.me.nosensor .me-w, .me.nosensor .cue, .me.nosensor .gauge, .me.nosensor .gauge-scale{display:none;}
+.nosensor-msg{display:none;font-size:13px;color:var(--muted);line-height:1.45;}
+.me.nosensor .nosensor-msg{display:block;}
+
+.next{margin-top:auto;padding-top:14px;color:rgba(255,255,255,.6);font-size:13px;}
 .next b{color:rgba(255,255,255,.9);}
 
-.leave-btn{
-  position:fixed;top:14px;right:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
-  color:#fff;padding:7px 12px;border-radius:8px;font-size:12px;cursor:pointer;
-}
-
-.finished{display:none;flex-direction:column;align-items:center;gap:10px;}
+.finished{display:none;flex-direction:column;align-items:center;gap:8px;margin-top:20px;width:100%;max-width:420px;}
 .finished.active{display:flex;}
-.finished .big{font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,10vw,64px);font-weight:700;}
+.finished .big{font-family:'Barlow Condensed',sans-serif;font-size:clamp(36px,10vw,60px);font-weight:700;}
+.finished .me-grid{width:100%;}
 </style>
 </head>
 <body>
 
-<div id="joinScreen">
+<!-- 1. PIN -->
+<div id="joinScreen" class="screen active">
   <h1>Aula ao Vivo</h1>
-  <p>Insere o PIN de 4 dígitos que está no ecrã da sala para acompanhares o treino em tempo real.</p>
-  <input type="tel" id="pinInput" maxlength="4" inputmode="numeric" placeholder="0000">
-  <button id="joinBtn">Entrar na aula</button>
-  <div id="joinError"></div>
+  <p>Insere o PIN de 4 dígitos que está no ecrã da sala.</p>
+  <input type="tel" id="pinInput" maxlength="4" inputmode="numeric" placeholder="0000" autocomplete="off">
+  <button id="joinBtn" class="btn-primary">Continuar</button>
+  <div id="joinError" class="err"></div>
 </div>
 
+<!-- 2. PERFIL + SENSORES -->
+<div id="setupScreen" class="screen">
+  <h1 id="setupTitle">Aula</h1>
+  <p>Os teus dados aparecem no ecrã da sala, junto com o resto da turma.</p>
+  <div class="form">
+    <label>Nome (como aparece no ecrã)
+      <input id="nameInput" maxlength="16" autocomplete="nickname" placeholder="ex: Ana R.">
+    </label>
+    <label>O teu FTP (watts)
+      <input id="ftpInput" type="number" inputmode="numeric" min="50" max="600" placeholder="ex: 160">
+    </label>
+    <div class="hint">Não sabes o teu FTP? Começa com 2 × o teu peso (70 kg → 140 W) e o instrutor ajuda a afinar.</div>
+
+    <div class="sensor">
+      <div><div class="s-name">🚲 Bike</div><div class="s-status" id="bikeStatus">desligada</div></div>
+      <button id="bikeBtn">Ligar</button>
+    </div>
+    <div class="sensor">
+      <div><div class="s-name">♥ Cinta de FC</div><div class="s-status" id="hrStatus">opcional</div></div>
+      <button id="hrBtn">Ligar</button>
+    </div>
+    <div class="warn" id="btWarn"></div>
+  </div>
+  <button id="enterBtn" class="btn-primary">Entrar na aula</button>
+  <div id="setupError" class="err"></div>
+  <button id="demoBtn" class="btn-link">Experimentar sem bike (modo teste)</button>
+</div>
+
+<!-- 3. AULA -->
 <div id="liveScreen">
-  <button class="leave-btn" id="leaveBtn">✕ Sair</button>
   <div class="progress" id="progress"></div>
+  <div class="topbar">
+    <div class="chips">
+      <span class="chip" id="chipBike"><span class="dot"></span>Bike</span>
+      <span class="chip" id="chipHr"><span class="dot"></span>FC</span>
+    </div>
+    <div class="rank" id="rankEl"></div>
+    <button class="leave-btn" id="leaveBtn">✕ Sair</button>
+  </div>
   <div class="body" id="bodyEl">
     <div class="class-name" id="className"></div>
-    <div id="activeBlock">
-      <div class="zone" id="zoneEl">—</div>
-      <div class="name" id="nameEl">—</div>
+    <div id="activeBlock" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+      <div class="blockline"><span class="zone" id="zoneEl">—</span> · <span id="nameEl">—</span></div>
       <div class="technique" id="techEl"></div>
       <div class="timer" id="timerEl">0:00</div>
-      <div class="metrics">
-        <div class="metric"><div class="v" id="ftpEl">0%</div><div class="l">FTP alvo</div></div>
-        <div class="metric"><div class="v" id="rpmEl">0</div><div class="l">RPM</div></div>
+      <div class="target" id="targetEl"></div>
+
+      <div class="me" id="meEl">
+        <div class="me-w"><span id="myW">0</span><small>W</small></div>
+        <div class="cue" id="cueEl"></div>
+        <div class="gauge"><div class="gauge-band" id="gBand"></div><div class="gauge-dot" id="gDot"></div></div>
+        <div class="gauge-scale"><span>0%</span><span>50%</span><span>100%</span><span>150%</span></div>
+        <div class="nosensor-msg" id="nosensorMsg">Estás só a acompanhar. Liga a bike (toca em "Bike" lá em cima) para apareceres no ecrã e no ranking.</div>
+        <div class="me-grid">
+          <div><div class="v" id="myPct">—</div><div class="l">%FTP</div></div>
+          <div><div class="v" id="myRpm">—</div><div class="l">RPM</div></div>
+          <div><div class="v" id="myHr">—</div><div class="l">FC</div></div>
+          <div><div class="v" id="myKj">0</div><div class="l">kJ</div></div>
+          <div><div class="v" id="myPts">0</div><div class="l">pontos</div></div>
+          <div><div class="v" id="myZone">0%</div><div class="l">na zona</div></div>
+        </div>
       </div>
     </div>
+
     <div class="finished" id="finishedEl">
-      <div class="zone">Aula concluída</div>
+      <div class="blockline"><span class="zone" id="finTitle">Aula concluída</span></div>
       <div class="big" id="totalTimeEl">0:00</div>
-      <div class="name">bom trabalho!</div>
+      <div class="me-grid">
+        <div><div class="v" id="finKj">0</div><div class="l">kJ</div></div>
+        <div><div class="v" id="finPts">0</div><div class="l">pontos</div></div>
+        <div><div class="v" id="finRank">—</div><div class="l">posição</div></div>
+        <div><div class="v" id="finAw">0</div><div class="l">W médios</div></div>
+        <div><div class="v" id="finMw">0</div><div class="l">W máx</div></div>
+        <div><div class="v" id="finZone">0%</div><div class="l">na zona</div></div>
+      </div>
+      <div class="class-name" style="margin-top:8px;">bom trabalho!</div>
     </div>
+
     <div class="next" id="nextEl"></div>
   </div>
 </div>
@@ -127,6 +250,7 @@ body{
 <script>
 (function(){
   "use strict";
+  const $ = (id)=>document.getElementById(id);
 
   const ZONES = [
     {name:'Recuperação', max:55,  css:'--z0'},
@@ -138,24 +262,30 @@ body{
   ];
   const rootStyle = getComputedStyle(document.documentElement);
   function zoneColor(cssVar){ return rootStyle.getPropertyValue(cssVar).trim(); }
-  function getZone(pct){ for(const z of ZONES){ if(pct <= z.max) return z; } return ZONES[ZONES.length-1]; }
+  function zoneIndex(pct){ for(let i=0;i<ZONES.length;i++){ if(pct <= ZONES[i].max) return i; } return ZONES.length-1; }
+  function getZone(pct){ return ZONES[zoneIndex(pct)]; }
+  function zoneRange(pct){
+    const i = zoneIndex(pct);
+    return { min: i===0 ? 0 : ZONES[i-1].max, max: i===ZONES.length-1 ? 150 : ZONES[i].max };
+  }
   function fmtTime(totalSec){
     totalSec = Math.max(0, Math.round(totalSec));
     const m = Math.floor(totalSec/60), s = totalSec%60;
     return m + ':' + String(s).padStart(2,'0');
   }
+  function fmtCountdown(sec){ return fmtTime(Math.ceil(Math.max(0, sec) - 0.001)); }
   function blockDurationSec(b){ return (b.min||0)*60 + (b.sec||0); }
   function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s||''; return d.innerHTML; }
 
-  // Cola aqui a MESMA configuração Firebase usada no ficheiro do instrutor (index.html).
+  // Cola aqui a MESMA configuração Firebase usada no ficheiro do instrutor (perfil-de-aula.html).
   const firebaseConfig = {
-    apiKey: "COLA_AQUI",
-    authDomain: "COLA_AQUI",
-    databaseURL: "COLA_AQUI",
-    projectId: "COLA_AQUI",
-    storageBucket: "COLA_AQUI",
-    messagingSenderId: "COLA_AQUI",
-    appId: "COLA_AQUI"
+    apiKey: "AIzaSyB-x_wZiztHXuBd4g-YM-G7YvQU89xTFAU",
+    authDomain: "perfil-de-aula.firebaseapp.com",
+    databaseURL: "https://perfil-de-aula-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "perfil-de-aula",
+    storageBucket: "perfil-de-aula.firebasestorage.app",
+    messagingSenderId: "444555432807",
+    appId: "1:444555432807:web:88c6393892794fceaa15c2"
   };
   const firebaseReady = firebaseConfig.apiKey !== 'COLA_AQUI' && !!firebaseConfig.databaseURL;
   let fbDb = null;
@@ -164,122 +294,537 @@ body{
     catch(e){ console.error('Firebase init falhou', e); }
   }
 
-  let sessionData = null;
-  let activeRef = null;
-  let tickHandle = null;
+  // ---------- identidade do aluno (fica guardada neste telemóvel) ----------
+  const LS = { name:'aavNome', ftp:'aavFtp', id:'aavRiderId' };
+  function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
+  function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+  let riderId = lsGet(LS.id);
+  if(!riderId){ riderId = 'r' + Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4); lsSet(LS.id, riderId); }
 
-  function showError(msg){
-    document.getElementById('joinError').textContent = msg;
+  // ---------- estado ----------
+  let pin = null;
+  let blocos = [], state = null, treinoNome = '', serverOffset = 0;
+  let listeners = [];
+  let riderRef = null;
+  let renderHandle = null, sampleHandle = null, pushHandle = null;
+  let sessionEnded = false, hadState = false;
+  let myRank = null;
+  const me = { n:'', ftp:null, kj:0, pts:0, sumW:0, as:0, mw:0, iz:0 };
+  let demo = false;
+
+  function showScreen(id){
+    ['joinScreen','setupScreen'].forEach(s=> $(s).classList.toggle('active', s===id));
+    $('liveScreen').classList.toggle('active', id==='liveScreen');
   }
 
-  function join(pin){
-    if(!firebaseReady){ showError('App não configurada. Pede ao instrutor para configurar o Firebase.'); return; }
-    if(!/^\d{4}$/.test(pin)){ showError('Introduz um PIN de 4 dígitos.'); return; }
-    showError('A ligar…');
-    if(activeRef) activeRef.off();
-    activeRef = fbDb.ref('sessions/' + pin);
-    let gotFirst = false;
-    activeRef.on('value', (snap)=>{
-      const val = snap.val();
-      if(!val){
-        if(!gotFirst){ showError('PIN inválido ou a aula ainda não começou.'); }
-        else { showError(''); goToJoin('A aula terminou.'); }
-        return;
+  // =====================================================================
+  // BLUETOOTH — Schwinn Z Bike (consola Zone + potenciómetro 4iiii)
+  // Tenta, por ordem: Cycling Power (0x1818), FTMS Indoor Bike (0x1826),
+  // Speed & Cadence (0x1816). Cinta de FC: Heart Rate (0x180D).
+  // =====================================================================
+  const SVC = { power:0x1818, ftms:0x1826, csc:0x1816, hr:0x180D };
+  const CHR = { power:0x2A63, ftms:0x2AD2, csc:0x2A5B, hr:0x2A37 };
+
+  const S = {
+    bikeDev:null, hrDev:null, bikeName:'', hrName:'', bikeSource:'',
+    power:0, cadence:0, hr:0, bikeHr:0,
+    lastPowerAt:0, lastCadAt:0, lastHrAt:0, lastBikeHrAt:0,
+    crank:null, wantBike:false, wantHr:false,
+  };
+  const hasBluetooth = !!(navigator.bluetooth && navigator.bluetooth.requestDevice);
+
+  function crankUpdate(revs, evtTime){
+    const now = performance.now();
+    if(S.crank && evtTime !== S.crank.t){
+      const dRev = (revs - S.crank.revs + 65536) % 65536;
+      const dT = ((evtTime - S.crank.t + 65536) % 65536) / 1024;
+      if(dRev > 0 && dT > 0){
+        const cad = dRev / dT * 60;
+        if(cad < 220){ S.cadence = cad; S.lastCadAt = now; }
       }
-      gotFirst = true;
-      sessionData = val;
-      enterLive();
-      render();
-    });
-  }
-
-  function goToJoin(msg){
-    stopTick();
-    document.getElementById('liveScreen').classList.remove('active');
-    document.getElementById('joinScreen').style.display = 'flex';
-    if(msg) showError(msg);
-  }
-
-  function enterLive(){
-    document.getElementById('joinScreen').style.display = 'none';
-    document.getElementById('liveScreen').classList.add('active');
-    document.getElementById('className').textContent = sessionData.treinoNome || '';
-    if(!tickHandle){ tickHandle = setInterval(render, 250); }
-  }
-
-  function stopTick(){
-    if(tickHandle){ clearInterval(tickHandle); tickHandle = null; }
-  }
-
-  function computeRemaining(state, blocoDur){
-    if(state.status === 'playing'){
-      const elapsed = (Date.now() - state.startedAt) / 1000;
-      return Math.max(0, state.remainingAtStart - elapsed);
     }
-    return state.remainingAtStart;
+    if(!S.crank || evtTime !== S.crank.t) S.crank = { revs:revs, t:evtTime };
+  }
+
+  function parsePower(dv){
+    let o = 0;
+    const flags = dv.getUint16(o, true); o += 2;
+    S.power = Math.max(0, dv.getInt16(o, true)); o += 2;
+    S.lastPowerAt = performance.now();
+    if(flags & 0x01) o += 1;           // pedal power balance
+    if(flags & 0x04) o += 2;           // accumulated torque
+    if(flags & 0x10) o += 6;           // wheel revolution data
+    if((flags & 0x20) && dv.byteLength >= o + 4){
+      crankUpdate(dv.getUint16(o, true), dv.getUint16(o+2, true));
+    }
+  }
+
+  function parseFtms(dv){
+    let o = 0;
+    const f = dv.getUint16(o, true); o += 2;
+    if(!(f & 0x0001)) o += 2;          // instantaneous speed (presente quando o bit 0 é 0)
+    if(f & 0x0002) o += 2;             // average speed
+    if(f & 0x0004){ S.cadence = dv.getUint16(o, true) / 2; S.lastCadAt = performance.now(); o += 2; }
+    if(f & 0x0008) o += 2;             // average cadence
+    if(f & 0x0010) o += 3;             // total distance
+    if(f & 0x0020) o += 2;             // resistance level
+    if(f & 0x0040){ S.power = Math.max(0, dv.getInt16(o, true)); S.lastPowerAt = performance.now(); o += 2; }
+    if(f & 0x0080) o += 2;             // average power
+    if(f & 0x0100) o += 5;             // expended energy
+    if((f & 0x0200) && dv.byteLength > o){ S.bikeHr = dv.getUint8(o); S.lastBikeHrAt = performance.now(); o += 1; }
+  }
+
+  function parseCsc(dv){
+    let o = 0;
+    const flags = dv.getUint8(o); o += 1;
+    if(flags & 0x01) o += 6;
+    if((flags & 0x02) && dv.byteLength >= o + 4) crankUpdate(dv.getUint16(o, true), dv.getUint16(o+2, true));
+  }
+
+  function parseHr(dv){
+    const flags = dv.getUint8(0);
+    S.hr = (flags & 0x01) ? dv.getUint16(1, true) : dv.getUint8(1);
+    S.lastHrAt = performance.now();
+  }
+
+  async function subscribe(server, svc, chr, handler){
+    const service = await server.getPrimaryService(svc);
+    const ch = await service.getCharacteristic(chr);
+    ch.addEventListener('characteristicvaluechanged', (e)=>{ try{ handler(e.target.value); }catch(err){} });
+    await ch.startNotifications();
+  }
+
+  async function setupBikeGatt(device){
+    const server = await device.gatt.connect();
+    let source = '';
+    try{ await subscribe(server, SVC.power, CHR.power, parsePower); source = 'potência'; }catch(e){}
+    if(!source){ try{ await subscribe(server, SVC.ftms, CHR.ftms, parseFtms); source = 'FTMS'; }catch(e){} }
+    try{ await subscribe(server, SVC.csc, CHR.csc, parseCsc); if(!source) source = 'cadência'; }catch(e){}
+    if(!source) throw new Error('Esta bike não envia dados de potência que a app consiga ler.');
+    S.bikeSource = source;
+  }
+
+  async function connectBike(){
+    if(!hasBluetooth){ showBtWarning(); return; }
+    if(S.bikeDev && S.bikeDev.gatt.connected){
+      if(!confirm('Desligar a bike ' + (S.bikeName||'') + '?')) return;
+      disconnectBike(); return;
+    }
+    try{
+      setBikeStatus('a procurar…', false);
+      const device = await navigator.bluetooth.requestDevice({
+        filters: [{services:[SVC.power]}, {services:[SVC.ftms]}, {services:[SVC.csc]}],
+        optionalServices: [SVC.power, SVC.ftms, SVC.csc, SVC.hr]
+      });
+      S.bikeDev = device; S.bikeName = device.name || 'Bike'; S.wantBike = true; S.crank = null;
+      device.addEventListener('gattserverdisconnected', onBikeLost);
+      setBikeStatus('a ligar a ' + S.bikeName + '…', false);
+      await setupBikeGatt(device);
+      setBikeStatus(S.bikeName + ' ligada', true);
+      demo = false;
+    }catch(e){
+      if(e && e.name === 'NotFoundError'){ setBikeStatus(S.bikeDev && S.bikeDev.gatt.connected ? S.bikeName + ' ligada' : 'desligada', !!(S.bikeDev && S.bikeDev.gatt.connected)); return; }
+      console.error(e);
+      setBikeStatus('erro: ' + (e.message || 'não consegui ligar'), false);
+    }
+  }
+
+  async function onBikeLost(){
+    setBikeStatus('ligação perdida, a tentar de novo…', false);
+    for(let i=0; i<5 && S.wantBike && S.bikeDev; i++){
+      await new Promise(r=>setTimeout(r, 1500 * (i+1)));
+      try{ await setupBikeGatt(S.bikeDev); setBikeStatus(S.bikeName + ' ligada', true); return; }catch(e){}
+    }
+    if(S.wantBike) setBikeStatus('desligada (toca para voltar a ligar)', false);
+  }
+
+  function disconnectBike(){
+    S.wantBike = false;
+    try{ if(S.bikeDev && S.bikeDev.gatt.connected) S.bikeDev.gatt.disconnect(); }catch(e){}
+    S.bikeDev = null; S.power = 0; S.cadence = 0;
+    setBikeStatus('desligada', false);
+  }
+
+  async function connectHr(){
+    if(!hasBluetooth){ showBtWarning(); return; }
+    if(S.hrDev && S.hrDev.gatt.connected){
+      if(!confirm('Desligar a cinta de FC?')) return;
+      disconnectHr(); return;
+    }
+    try{
+      setHrStatus('a procurar…', false);
+      const device = await navigator.bluetooth.requestDevice({ filters: [{services:[SVC.hr]}] });
+      S.hrDev = device; S.hrName = device.name || 'Cinta'; S.wantHr = true;
+      device.addEventListener('gattserverdisconnected', onHrLost);
+      const server = await device.gatt.connect();
+      await subscribe(server, SVC.hr, CHR.hr, parseHr);
+      setHrStatus(S.hrName + ' ligada', true);
+    }catch(e){
+      if(e && e.name === 'NotFoundError'){ setHrStatus(S.hrDev && S.hrDev.gatt.connected ? S.hrName + ' ligada' : 'opcional', !!(S.hrDev && S.hrDev.gatt.connected)); return; }
+      setHrStatus('erro: ' + (e.message || 'não consegui ligar'), false);
+    }
+  }
+
+  async function onHrLost(){
+    setHrStatus('ligação perdida, a tentar de novo…', false);
+    for(let i=0; i<5 && S.wantHr && S.hrDev; i++){
+      await new Promise(r=>setTimeout(r, 1500 * (i+1)));
+      try{
+        const server = await S.hrDev.gatt.connect();
+        await subscribe(server, SVC.hr, CHR.hr, parseHr);
+        setHrStatus(S.hrName + ' ligada', true); return;
+      }catch(e){}
+    }
+    if(S.wantHr) setHrStatus('desligada', false);
+  }
+
+  function disconnectHr(){
+    S.wantHr = false;
+    try{ if(S.hrDev && S.hrDev.gatt.connected) S.hrDev.gatt.disconnect(); }catch(e){}
+    S.hrDev = null; S.hr = 0;
+    setHrStatus('opcional', false);
+  }
+
+  function bikeConnected(){ return !!(S.bikeDev && S.bikeDev.gatt && S.bikeDev.gatt.connected); }
+  function hrConnected(){ return !!(S.hrDev && S.hrDev.gatt && S.hrDev.gatt.connected); }
+  function hasPowerSource(){ return demo || bikeConnected(); }
+
+  function setBikeStatus(txt, on){
+    $('bikeStatus').textContent = txt; $('bikeStatus').classList.toggle('on', !!on);
+    $('bikeBtn').textContent = on ? 'Ligada ✓' : 'Ligar'; $('bikeBtn').classList.toggle('on', !!on);
+    $('chipBike').classList.toggle('on', !!on || demo);
+  }
+  function setHrStatus(txt, on){
+    $('hrStatus').textContent = txt; $('hrStatus').classList.toggle('on', !!on);
+    $('hrBtn').textContent = on ? 'Ligada ✓' : 'Ligar'; $('hrBtn').classList.toggle('on', !!on);
+    $('chipHr').classList.toggle('on', !!on);
+  }
+
+  function isIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+  function showBtWarning(){
+    const w = $('btWarn');
+    w.innerHTML = isIOS()
+      ? 'O Safari do iPhone não deixa as páginas web usar Bluetooth. Instala a app gratuita <b>Bluefy</b> (App Store), abre lá este link e liga a bike. Também podes entrar só para acompanhar a aula.'
+      : 'Este browser não suporta Bluetooth. No Android abre este link no <b>Google Chrome</b>. Também podes entrar só para acompanhar a aula.';
+    w.classList.add('active');
+  }
+
+  // =====================================================================
+  // AMOSTRAGEM, ACUMULADOS E ENVIO
+  // =====================================================================
+  let lastSampleAt = performance.now();
+  const powerHist = [];
+  let dispPower = 0;
+
+  function currentBlock(){ return state && blocos[state.blockIndex] ? blocos[state.blockIndex] : null; }
+  function isPlaying(){ return !!state && state.status === 'playing' && !sessionEnded && !!currentBlock(); }
+  function myHr(){ return S.hr || S.bikeHr || 0; }
+
+  function inTarget(pct){
+    const b = currentBlock();
+    if(!b) return false;
+    const r = zoneRange(b.ftp);
+    return pct > r.min && pct <= r.max + 0.0001;
+  }
+
+  function genDemo(){
+    const b = currentBlock();
+    const ftp = me.ftp || 150;
+    const target = b ? ftp * b.ftp / 100 : ftp * 0.5;
+    S.power = isPlaying() ? Math.max(0, target * (0.86 + Math.random()*0.24)) : 0;
+    S.cadence = isPlaying() ? Math.max(0, (b ? b.rpm : 80) + (Math.random()*12 - 6)) : 0;
+    S.bikeHr = 95 + (b ? b.ftp : 50) * 0.6 + Math.random()*4;
+    const now = performance.now();
+    S.lastPowerAt = S.lastCadAt = S.lastBikeHrAt = now;
+  }
+
+  function sample(){
+    const now = performance.now();
+    const dt = Math.min(3, (now - lastSampleAt) / 1000);
+    lastSampleAt = now;
+    if(demo) genDemo();
+    // sem dados frescos = parado
+    if(now - S.lastPowerAt > 3000) S.power = 0;
+    if(now - S.lastCadAt > 3000) S.cadence = 0;
+    if(now - S.lastHrAt > 5000) S.hr = 0;
+    if(now - S.lastBikeHrAt > 5000) S.bikeHr = 0;
+
+    const w = S.power;
+    powerHist.push(w); if(powerHist.length > 3) powerHist.shift();
+    dispPower = powerHist.reduce((s,x)=>s+x,0) / powerHist.length;
+
+    if(isPlaying() && hasPowerSource()){
+      me.kj += w * dt / 1000;
+      me.as += dt;
+      me.sumW += w * dt;
+      if(dispPower > me.mw) me.mw = dispPower;
+      if(me.ftp){
+        const pct = w / me.ftp * 100;
+        me.pts += (pct / 100) * dt;
+        if(inTarget(pct)) me.iz += dt;
+      }
+    }
+  }
+
+  function pushRider(){
+    if(!riderRef || sessionEnded) return;
+    riderRef.update({
+      n: me.n, ftp: me.ftp || null,
+      w: Math.round(dispPower), c: Math.round(S.cadence), hr: Math.round(myHr()) || null,
+      kj: Math.round(me.kj * 10) / 10, pts: Math.round(me.pts),
+      aw: me.as ? Math.round(me.sumW / me.as) : 0, mw: Math.round(me.mw),
+      iz: Math.round(me.iz), as: Math.round(me.as),
+      dev: hasPowerSource(), demo: demo || null, left: null,
+      t: firebase.database.ServerValue.TIMESTAMP
+    }).catch(()=>{});
+  }
+
+  // =====================================================================
+  // LIGAÇÃO À AULA
+  // =====================================================================
+  function showJoinError(msg){ $('joinError').textContent = msg; }
+
+  async function checkPin(p){
+    if(!firebaseReady || !fbDb){ showJoinError('App não configurada. Pede ao instrutor para configurar o Firebase.'); return; }
+    if(!/^\d{4}$/.test(p)){ showJoinError('Introduz um PIN de 4 dígitos.'); return; }
+    showJoinError('A ligar…');
+    $('joinBtn').disabled = true;
+    try{
+      const snap = await fbDb.ref('sessions/' + p + '/state').once('value');
+      if(!snap.exists()){ showJoinError('PIN inválido ou a aula ainda não começou.'); return; }
+      pin = p;
+      const nameSnap = await fbDb.ref('sessions/' + p + '/treinoNome').once('value');
+      $('setupTitle').textContent = nameSnap.val() || 'Aula de cycling';
+      $('nameInput').value = lsGet(LS.name) || '';
+      $('ftpInput').value = lsGet(LS.ftp) || '';
+      showJoinError('');
+      showScreen('setupScreen');
+      if(!hasBluetooth) showBtWarning();
+    }catch(e){
+      showJoinError('Sem ligação à internet. Tenta outra vez.');
+    }finally{
+      $('joinBtn').disabled = false;
+    }
+  }
+
+  async function enterClass(){
+    const name = $('nameInput').value.trim();
+    const ftp = Math.round(Number($('ftpInput').value) || 0);
+    if(!name){ $('setupError').textContent = 'Escreve o teu nome.'; $('nameInput').focus(); return; }
+    if(hasPowerSource() && (ftp < 50 || ftp > 600)){
+      $('setupError').textContent = 'Indica o teu FTP (entre 50 e 600 W) para calcular as tuas zonas.'; $('ftpInput').focus(); return;
+    }
+    $('setupError').textContent = '';
+    lsSet(LS.name, name);
+    if(ftp) lsSet(LS.ftp, String(ftp));
+    me.n = name; me.ftp = ftp || null;
+
+    riderRef = fbDb.ref('sessions/' + pin + '/riders/' + riderId);
+    // se recarregaste a página a meio, continua de onde ficaste
+    try{
+      const prev = (await riderRef.once('value')).val();
+      if(prev){
+        me.kj = prev.kj || 0; me.pts = prev.pts || 0; me.as = prev.as || 0; me.iz = prev.iz || 0;
+        me.mw = prev.mw || 0; me.sumW = (prev.aw || 0) * (prev.as || 0);
+      } else {
+        me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = 0;
+      }
+    }catch(e){}
+
+    sessionEnded = false; hadState = false; myRank = null;
+    attachListeners();
+    showScreen('liveScreen');
+    $('chipBike').classList.toggle('on', bikeConnected() || demo);
+    lastSampleAt = performance.now();
+    renderHandle = setInterval(render, 250);
+    sampleHandle = setInterval(sample, 1000);
+    pushHandle = setInterval(pushRider, 2000);
+    pushRider();
+    requestWakeLock();
+    try{ history.replaceState(null, '', location.pathname + '?pin=' + pin); }catch(e){}
+  }
+
+  function attachListeners(){
+    detachListeners();
+    const base = fbDb.ref('sessions/' + pin);
+    const add = (ref, fn)=>{ ref.on('value', fn); listeners.push(ref); };
+    add(fbDb.ref('.info/serverTimeOffset'), s=>{ serverOffset = s.val() || 0; });
+    add(base.child('treinoNome'), s=>{ treinoNome = s.val() || ''; $('className').textContent = treinoNome; });
+    add(base.child('blocos'), s=>{
+      blocos = s.val() || [];
+      if(!Array.isArray(blocos)) blocos = Object.values(blocos);
+      $('progress').dataset.built = '';
+    });
+    add(base.child('state'), s=>{
+      const v = s.val();
+      if(!v){ if(hadState) endOfSession(); return; }
+      hadState = true; state = v;
+    });
+    add(base.child('rank/' + riderId), s=>{ myRank = s.val(); });
+  }
+
+  function detachListeners(){
+    listeners.forEach(r=> r.off());
+    listeners = [];
+  }
+
+  function endOfSession(){
+    pushRider();
+    sessionEnded = true;
+    if(!state) state = {};
+    state = Object.assign({}, state, {status:'finished', blockIndex: blocos.length});
+  }
+
+  function stopLoops(){
+    clearInterval(renderHandle); clearInterval(sampleHandle); clearInterval(pushHandle);
+    renderHandle = sampleHandle = pushHandle = null;
+  }
+
+  function leave(){
+    if(riderRef && !sessionEnded){ riderRef.update({left:true, w:0, t:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{}); }
+    detachListeners();
+    stopLoops();
+    riderRef = null; state = null; blocos = [];
+    demo = false;
+    disconnectBike(); disconnectHr();
+    releaseWakeLock();
+    $('pinInput').value = '';
+    showJoinError('');
+    try{ history.replaceState(null, '', location.pathname); }catch(e){}
+    showScreen('joinScreen');
+  }
+
+  // =====================================================================
+  // ECRÃ
+  // =====================================================================
+  function computeRemaining(st){
+    if(st.status === 'playing'){
+      const elapsed = (Date.now() + serverOffset - (st.startedAt || 0)) / 1000;
+      return Math.max(0, st.remainingAtStart - elapsed);
+    }
+    return st.remainingAtStart || 0;
   }
 
   function render(){
-    if(!sessionData) return;
-    const blocos = sessionData.blocos || [];
-    const state = sessionData.state || {};
-    buildProgress(blocos);
+    if(!state) return;
+    buildProgress();
 
-    if(state.status === 'finished' || state.blockIndex >= blocos.length){
-      document.getElementById('activeBlock').style.display = 'none';
-      document.getElementById('finishedEl').classList.add('active');
-      document.getElementById('nextEl').textContent = '';
-      document.getElementById('totalTimeEl').textContent = fmtTime(
-        blocos.reduce((s,b)=>s+blockDurationSec(b),0)
-      );
-      document.getElementById('bodyEl').style.background = '#05070A';
-      updateMarker(blocos, blocos.length, 1);
+    const finished = sessionEnded || state.status === 'finished' || state.blockIndex >= blocos.length;
+    const rankTxt = myRank ? myRank.p + 'º <small>/ ' + myRank.n + '</small>' : '';
+    $('rankEl').innerHTML = hasPowerSource() ? rankTxt : '';
+
+    if(finished){
+      $('activeBlock').style.display = 'none';
+      $('finishedEl').classList.add('active');
+      $('nextEl').textContent = sessionEnded ? 'O instrutor fechou a aula. Podes sair.' : '';
+      $('finTitle').textContent = 'Aula concluída';
+      $('totalTimeEl').textContent = fmtTime(blocos.reduce((s,b)=>s+blockDurationSec(b),0));
+      $('finKj').textContent = me.kj.toFixed(0);
+      $('finPts').textContent = Math.round(me.pts);
+      $('finRank').textContent = myRank ? myRank.p + 'º/' + myRank.n : '—';
+      $('finAw').textContent = me.as ? Math.round(me.sumW/me.as) : 0;
+      $('finMw').textContent = Math.round(me.mw);
+      $('finZone').textContent = me.as ? Math.round(me.iz/me.as*100) + '%' : '0%';
+      $('bodyEl').style.background = '#05070A';
+      updateMarker(blocos.length, 1);
       return;
     }
 
-    document.getElementById('activeBlock').style.display = '';
-    document.getElementById('finishedEl').classList.remove('active');
+    $('activeBlock').style.display = 'flex';
+    $('finishedEl').classList.remove('active');
 
     const b = blocos[state.blockIndex];
     if(!b) return;
     const zone = getZone(b.ftp);
-    const remaining = computeRemaining(state, blockDurationSec(b));
+    const zc = zoneColor(zone.css);
+    const remaining = computeRemaining(state);
 
-    document.getElementById('zoneEl').textContent = zone.name;
-    document.getElementById('zoneEl').style.color = zoneColor(zone.css);
-    document.getElementById('nameEl').textContent = b.nome;
-    document.getElementById('techEl').textContent = b.tecnica || '';
-    document.getElementById('timerEl').textContent = fmtTime(remaining);
-    document.getElementById('ftpEl').textContent = b.ftp + '%';
-    document.getElementById('rpmEl').textContent = b.rpm;
-    document.getElementById('bodyEl').style.background =
-      'radial-gradient(circle at 50% 40%, ' + zoneColor(zone.css) + '33, #05070A 70%)';
+    $('zoneEl').textContent = zone.name;
+    $('zoneEl').style.color = zc;
+    $('nameEl').textContent = b.nome;
+    $('techEl').textContent = b.tecnica || '';
+    $('timerEl').textContent = state.status === 'paused' && remaining > 0 ? fmtCountdown(remaining) : fmtCountdown(remaining);
+    $('timerEl').classList.toggle('warn', remaining <= 5 && remaining > 0 && state.status === 'playing');
+    $('bodyEl').style.background = 'radial-gradient(circle at 50% 30%, ' + zc + '33, #05070A 70%)';
+
+    const range = zoneRange(b.ftp);
+    if(me.ftp){
+      const lo = Math.round(me.ftp * range.min / 100), hi = Math.round(me.ftp * range.max / 100);
+      $('targetEl').innerHTML = 'Alvo <b>' + lo + '–' + hi + ' W</b> · ' + b.ftp + '% · <b>' + b.rpm + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
+    } else {
+      $('targetEl').innerHTML = 'Alvo <b>' + b.ftp + '% FTP</b> · <b>' + b.rpm + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
+    }
+
+    renderMe(b, range);
 
     const next = blocos[state.blockIndex+1];
-    document.getElementById('nextEl').innerHTML = next
-      ? 'a seguir: <b>' + escapeHtml(next.nome) + '</b> · ' + fmtTime(blockDurationSec(next))
+    $('nextEl').innerHTML = next
+      ? 'a seguir: <b>' + escapeHtml(next.nome) + '</b> · ' + next.ftp + '% · ' + fmtTime(blockDurationSec(next))
       : 'último bloco';
 
     const totalSec = blocos.reduce((s,bb)=>s+blockDurationSec(bb),0) || 1;
     const elapsedBefore = blocos.slice(0, state.blockIndex).reduce((s,bb)=>s+blockDurationSec(bb),0);
-    const elapsedNow = elapsedBefore + (blockDurationSec(b) - remaining);
-    updateMarker(blocos, state.blockIndex, elapsedNow/totalSec);
+    updateMarker(state.blockIndex, (elapsedBefore + (blockDurationSec(b) - remaining)) / totalSec);
   }
 
-  function buildProgress(blocos){
-    const bar = document.getElementById('progress');
-    if(bar.dataset.built === String(blocos.length)) return;
+  function renderMe(b, range){
+    const meEl = $('meEl');
+    const powered = hasPowerSource();
+    meEl.classList.toggle('nosensor', !powered);
+
+    const w = Math.round(dispPower);
+    $('myW').textContent = powered ? w : '—';
+    const hr = Math.round(myHr());
+    $('myHr').textContent = hr ? hr : '—';
+    const cad = Math.round(S.cadence);
+    $('myRpm').textContent = powered ? cad : '—';
+    $('myRpm').className = 'v' + (powered && cad ? (Math.abs(cad - b.rpm) <= 5 ? ' ok' : ' low') : '');
+    $('myKj').textContent = me.kj.toFixed(0);
+    $('myPts').textContent = Math.round(me.pts);
+    $('myZone').textContent = me.as ? Math.round(me.iz/me.as*100) + '%' : '0%';
+
+    $('gBand').style.left = (range.min/150*100) + '%';
+    $('gBand').style.width = ((range.max - range.min)/150*100) + '%';
+    $('gBand').style.background = zoneColor(getZone(b.ftp).css);
+
+    if(!powered || !me.ftp){
+      $('myPct').textContent = '—';
+      $('myPct').className = 'v';
+      $('cueEl').textContent = powered && !me.ftp ? 'Sem FTP: só potência' : '';
+      $('gDot').style.left = '0%';
+      $('myW').style.color = '#fff';
+      return;
+    }
+    const pct = dispPower / me.ftp * 100;
+    const myZone = getZone(pct);
+    $('myW').style.color = w > 0 ? zoneColor(myZone.css) : '#fff';
+    $('myPct').textContent = Math.round(pct) + '%';
+    $('gDot').style.left = Math.min(100, Math.max(0, pct/150*100)) + '%';
+
+    let cue = '', cls = 'v';
+    if(state.status !== 'playing'){ cue = 'À espera do instrutor'; }
+    else if(w === 0){ cue = 'Começa a pedalar'; }
+    else if(pct <= range.min){ cue = '↑ Mais carga'; cls += ' low'; }
+    else if(pct > range.max){ cue = '↓ Alivia um pouco'; cls += ' low'; }
+    else { cue = '✓ Na zona'; cls += ' ok'; }
+    $('cueEl').textContent = cue;
+    $('cueEl').style.color = cue.startsWith('✓') ? '#7FD3A6' : (cue.startsWith('↑') || cue.startsWith('↓') ? '#FFD27A' : 'rgba(255,255,255,.6)');
+    $('myPct').className = cls;
+  }
+
+  function buildProgress(){
+    const bar = $('progress');
+    const key = String(blocos.length) + ':' + blocos.map(b=>blockDurationSec(b)+'/'+b.ftp).join(',');
+    if(bar.dataset.built === key) return;
     bar.innerHTML = '';
-    bar.dataset.built = String(blocos.length);
+    bar.dataset.built = key;
     const totalSec = blocos.reduce((s,b)=>s+blockDurationSec(b),0) || 1;
     let x = 0;
     blocos.forEach((b,i)=>{
-      const dur = blockDurationSec(b);
-      const w = (dur/totalSec)*100;
-      const zone = getZone(b.ftp);
+      const w = (blockDurationSec(b)/totalSec)*100;
       const seg = document.createElement('div');
       seg.className = 'progress-seg';
-      seg.style.left = x+'%'; seg.style.width = w+'%'; seg.style.background = zoneColor(zone.css);
+      seg.style.left = x+'%'; seg.style.width = w+'%'; seg.style.background = zoneColor(getZone(b.ftp).css);
       seg.dataset.idx = i;
       bar.appendChild(seg);
       x += w;
@@ -290,28 +835,48 @@ body{
     bar.appendChild(marker);
   }
 
-  function updateMarker(blocos, currentIdx, pct){
-    const marker = document.getElementById('progMarker');
-    if(marker) marker.style.left = Math.min(100, pct*100)+'%';
+  function updateMarker(currentIdx, pct){
+    const marker = $('progMarker');
+    if(marker) marker.style.left = Math.min(100, Math.max(0, pct*100))+'%';
     document.querySelectorAll('.progress-seg').forEach(seg=>{
       seg.classList.toggle('done', Number(seg.dataset.idx) < currentIdx);
     });
   }
 
-  document.getElementById('joinBtn').addEventListener('click', ()=> join(document.getElementById('pinInput').value.trim()));
-  document.getElementById('pinInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') join(e.target.value.trim()); });
-  document.getElementById('leaveBtn').addEventListener('click', ()=>{
-    if(activeRef) activeRef.off();
-    goToJoin('');
-    document.getElementById('pinInput').value = '';
+  // ---------- ecrã sempre ligado durante a aula ----------
+  let wakeLock = null;
+  async function requestWakeLock(){
+    try{ if('wakeLock' in navigator){ wakeLock = await navigator.wakeLock.request('screen'); } }catch(e){}
+  }
+  function releaseWakeLock(){ try{ if(wakeLock){ wakeLock.release(); wakeLock = null; } }catch(e){} }
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.visibilityState === 'visible' && $('liveScreen').classList.contains('active')) requestWakeLock();
   });
 
-  // auto-join if URL has ?pin=XXXX
-  const params = new URLSearchParams(location.search);
-  const urlPin = params.get('pin');
+  // ---------- eventos ----------
+  $('joinBtn').addEventListener('click', ()=> checkPin($('pinInput').value.trim()));
+  $('pinInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') checkPin(e.target.value.trim()); });
+  $('bikeBtn').addEventListener('click', connectBike);
+  $('hrBtn').addEventListener('click', connectHr);
+  $('chipBike').addEventListener('click', ()=>{ if(!demo) connectBike(); });
+  $('chipHr').addEventListener('click', connectHr);
+  $('enterBtn').addEventListener('click', enterClass);
+  $('demoBtn').addEventListener('click', ()=>{
+    demo = true;
+    if(!$('ftpInput').value) $('ftpInput').value = lsGet(LS.ftp) || 150;
+    setBikeStatus('modo teste (valores simulados)', true);
+    $('bikeBtn').textContent = 'Teste';
+  });
+  $('leaveBtn').addEventListener('click', ()=>{
+    if(sessionEnded || state && state.status === 'finished' || confirm('Sair da aula?')) leave();
+  });
+  window.addEventListener('pagehide', ()=>{ pushRider(); });
+
+  // entra direto com ?pin=XXXX (QR code)
+  const urlPin = new URLSearchParams(location.search).get('pin');
   if(urlPin){
-    document.getElementById('pinInput').value = urlPin;
-    join(urlPin);
+    $('pinInput').value = urlPin;
+    checkPin(urlPin);
   }
 
   if('serviceWorker' in navigator){
