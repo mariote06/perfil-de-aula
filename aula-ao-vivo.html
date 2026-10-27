@@ -178,7 +178,15 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
 .tr-item .kj{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;white-space:nowrap;}
 .tr-item .kj small{font-size:12px;color:var(--muted);font-family:'Inter',sans-serif;}
 .chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;margin:10px 0;}
-.chart-wrap svg{width:100%;height:160px;display:block;}
+.chart-wrap svg{width:100%;height:120px;display:block;}
+.chart-head{display:flex;justify-content:space-between;align-items:baseline;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.chart-head b{color:#fff;}
+.chart-head > b{font-size:14px;}
+.zbar{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:4px 0 10px;background:#12161D;}
+.zrows > div{display:grid;grid-template-columns:auto 1fr auto 44px;gap:8px;align-items:center;font-size:12px;color:var(--muted);text-align:left;padding:3px 0;}
+.zrows i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle;}
+.zrows b{color:#fff;font-variant-numeric:tabular-nums;}
+.zrows > div > span:last-child{text-align:right;}
 .chart-legend{display:flex;gap:12px;justify-content:center;font-size:11px;color:var(--muted);margin-top:4px;}
 .chart-legend i{display:inline-block;width:10px;height:3px;border-radius:2px;margin-right:4px;vertical-align:middle;}
 </style>
@@ -230,6 +238,13 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
       <div style="display:flex;gap:6px;align-items:center">
         <input id="acctFtp" type="number" inputmode="numeric" min="50" max="600" class="ftp-mini"><span class="hint">W</span>
         <button id="acctFtpSave">Guardar</button>
+      </div>
+    </div>
+    <div class="sensor" style="margin:0 0 12px">
+      <div><div class="s-name">FC máxima</div><div class="s-status">para as zonas de FC. Não sabes? 220 − a tua idade</div></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <input id="acctFcmax" type="number" inputmode="numeric" min="120" max="230" class="ftp-mini"><span class="hint">bpm</span>
+        <button id="acctFcmaxSave">Guardar</button>
       </div>
     </div>
     <div class="acct-stats" id="acctStats"></div>
@@ -388,7 +403,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
   let renderHandle = null, sampleHandle = null, pushHandle = null;
   let sessionEnded = false, hadState = false;
   let myRank = null;
-  const me = { n:'', ftp:null, kj:0, pts:0, sumW:0, as:0, mw:0, iz:0 };
+  const me = { n:'', ftp:null, kj:0, pts:0, sumW:0, as:0, mw:0, iz:0, ts:0 };  // as = segundos com potência, ts = segundos gravados (potência ou FC)
   let demo = false;
 
   let currentScreen = 'joinScreen';
@@ -670,8 +685,12 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     powerHist.push(w); if(powerHist.length > 3) powerHist.shift();
     dispPower = powerHist.reduce((s,x)=>s+x,0) / powerHist.length;
 
-    if(isPlaying() && hasPowerSource()){
-      addToSerie(dispPower, S.cadence, myHr());
+    const powered = hasPowerSource();
+    if(isPlaying() && (powered || myHr() > 0)){
+      me.ts += dt;
+      addToSerie(powered ? dispPower : 0, powered ? S.cadence : 0, myHr());
+    }
+    if(isPlaying() && powered){
       me.kj += w * dt / 1000;
       me.as += dt;
       me.sumW += w * dt;
@@ -756,9 +775,9 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
       const prev = (await riderRef.once('value')).val();
       if(prev){
         me.kj = prev.kj || 0; me.pts = prev.pts || 0; me.as = prev.as || 0; me.iz = prev.iz || 0;
-        me.mw = prev.mw || 0; me.sumW = (prev.aw || 0) * (prev.as || 0);
+        me.mw = prev.mw || 0; me.sumW = (prev.aw || 0) * (prev.as || 0); me.ts = prev.as || 0;
       } else {
-        me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = 0;
+        me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = me.ts = 0;
       }
     }catch(e){}
 
@@ -862,7 +881,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
       updateMarker(blocos.length, 1);
       if(!savedThisClass){
         if(user && !savePending){ savePending = true; setTimeout(saveTreino, 2500); }   // espera pela posição final
-        else if(me.as >= 60) $('savedNote').innerHTML = 'Este treino não fica guardado. <a href="#" id="saveLink">Cria conta ou entra</a> para guardares os próximos.';
+        else if(me.ts >= 60) $('savedNote').innerHTML = 'Este treino não fica guardado. <a href="#" id="saveLink">Cria conta ou entra</a> para guardares os próximos.';
       }
       return;
     }
@@ -908,6 +927,12 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     const meEl = $('meEl');
     const powered = hasPowerSource();
     meEl.classList.toggle('nosensor', !powered);
+    if(!powered){
+      $('nosensorMsg').textContent = myHr() > 0
+        ? (user ? 'A gravar a tua frequência cardíaca. Liga a bike (toca em "Bike" lá em cima) para teres também watts e apareceres no ranking.'
+                : 'A medir a tua frequência cardíaca. Entra na tua conta para guardares o treino, e liga a bike para teres watts e ranking.')
+        : 'Estás só a acompanhar. Liga a bike (toca em "Bike" lá em cima) para apareceres no ecrã e no ranking.';
+    }
 
     const w = Math.round(dispPower);
     $('myW').textContent = powered ? w : '—';
@@ -1020,20 +1045,21 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
 
   function saveTreino(){
     savePending = false;
-    if(savedThisClass || !user || !fbDb || !pin || me.as < 60) return;
+    if(savedThisClass || !user || !fbDb || !pin || me.ts < 60) return;
     savedThisClass = true;
     if(bucket.n) { serie.w.push(Math.round(bucket.w/bucket.n)); serie.c.push(Math.round(bucket.c/bucket.n)); serie.hr.push(Math.round(bucket.hr/bucket.n)); bucket = {w:0,c:0,hr:0,n:0}; }
     const hrVals = serie.hr.filter(x=>x>0);
     const t = {
       date: Date.now(), aula: treinoNome || 'Aula de cycling', pin: pin,
-      ftp: me.ftp || null, dur: Math.round(me.as),
+      ftp: me.ftp || null, dur: Math.round(me.ts), as: Math.round(me.as),
       kj: Math.round(me.kj*10)/10, pts: Math.round(me.pts),
       aw: me.as ? Math.round(me.sumW/me.as) : 0, mw: Math.round(me.mw),
       iz: Math.round(me.iz), rank: myRank ? myRank.p : null, turma: myRank ? myRank.n : null,
       hrAvg: hrVals.length ? Math.round(hrVals.reduce((a,b)=>a+b,0)/hrVals.length) : null,
       hrMax: hrVals.length ? Math.max(...hrVals) : null,
-      step: SERIE_STEP, w: serie.w, c: serie.c, hr: hrVals.length ? serie.hr : null,
-      blocos: blocos.map(b=>({ftp:b.ftp, d:blockDurationSec(b)}))
+      step: SERIE_STEP, w: serie.w.some(v=>v>0) ? serie.w : null, c: serie.c.some(v=>v>0) ? serie.c : null, hr: hrVals.length ? serie.hr : null,
+      blocos: blocos.map(b=>({ftp:b.ftp, rpm:b.rpm||0, d:blockDurationSec(b)})),
+      fcMax: (perfil && perfil.fcMax) || null
     };
     const key = new Date().toISOString().slice(0,10) + '_' + pin + '_' + Math.random().toString(36).slice(2,6);
     fbDb.ref('alunos/' + user.uid + '/treinos/' + key).set(t)
@@ -1078,6 +1104,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     $('acctName').textContent = (perfil && perfil.nome) || user.email;
     $('acctEmail').textContent = user.email;
     $('acctFtp').value = (perfil && perfil.ftp) || '';
+    $('acctFcmax').value = (perfil && perfil.fcMax) || '';
     $('treinoDetail').style.display = 'none'; $('treinoList').style.display = '';
     $('treinoList').innerHTML = '<div class="hint">A carregar…</div>';
     try{
@@ -1105,9 +1132,10 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     treinosCache.forEach(t=>{
       const row = document.createElement('div');
       row.className = 'tr-item';
-      row.innerHTML = '<div><b></b><span></span></div><div class="kj">' + Math.round(t.kj||0) + ' <small>kJ</small></div>';
+      const onlyHr = !t.w && t.hrAvg;
+      row.innerHTML = '<div><b></b><span></span></div><div class="kj">' + (onlyHr ? t.hrAvg + ' <small>bpm</small>' : Math.round(t.kj||0) + ' <small>kJ</small>') + '</div>';
       row.querySelector('b').textContent = t.aula || 'Aula';
-      row.querySelector('span').textContent = fmtDate(t.date) + ' · ' + fmtTime(t.dur||0) + ' · ' + (t.aw||0) + ' W méd.';
+      row.querySelector('span').textContent = fmtDate(t.date) + ' · ' + fmtTime(t.dur||0) + (onlyHr ? ' · só FC' : ' · ' + (t.aw||0) + ' W méd.');
       row.addEventListener('click', ()=> showTreino(t.key));
       $('treinoList').appendChild(row);
     });
@@ -1119,47 +1147,111 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     return vals.map((v,i)=> (i?'L':'M') + (i*dx).toFixed(1) + ' ' + (H - Math.min(v,max)/max*H).toFixed(1)).join(' ');
   }
 
+  const HR_ZONES = [ // % da FC máxima
+    {lo:50, hi:60, c:'--z0'}, {lo:60, hi:70, c:'--z1'}, {lo:70, hi:80, c:'--z2'}, {lo:80, hi:90, c:'--z3'}, {lo:90, hi:100, c:'--z5'}
+  ];
+  function arrOf(v){ return Array.isArray(v) ? v : Object.values(v || {}); }
+
+  // um gráfico: linha da série + faixas (bands) + alvo por bloco (target, em degraus)
+  function chartBlock(o){
+    const W = 600, H = 120;
+    const vals = o.vals;
+    if(!vals || vals.length < 2) return '';
+    const max = o.max, min = o.min || 0, span = (max - min) || 1;
+    const y = (v)=> (H - (Math.min(Math.max(v, min), max) - min) / span * H).toFixed(1);
+    let bands = '';
+    (o.bands || []).forEach(b=>{
+      const y1 = y(b.hi), y0 = y(b.lo);
+      if(Number(y0) > Number(y1)) bands += '<rect x="0" y="' + y1 + '" width="' + W + '" height="' + (y0 - y1).toFixed(1) + '" fill="' + zoneColor(b.c) + '" opacity="0.22"/>';
+    });
+    let target = '';
+    if(o.target && o.target.length){
+      const tot = o.target.reduce((s,b)=> s + b.d, 0) || 1;
+      let x = 0, d = '';
+      o.target.forEach((b,i)=>{
+        const x2 = x + b.d / tot * W;
+        d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y(b.v) + ' L' + x2.toFixed(1) + ' ' + y(b.v) + ' ';
+        x = x2;
+      });
+      target = '<path d="' + d + '" fill="none" stroke="#ffffff" stroke-opacity="0.95" stroke-width="2" stroke-dasharray="6 4" vector-effect="non-scaling-stroke"/>';
+    }
+    const dx = W / (vals.length - 1);
+    const line = vals.map((v,i)=> (i ? 'L' : 'M') + (i*dx).toFixed(1) + ' ' + y(v)).join(' ');
+    const avg = Math.round(vals.reduce((a,b)=>a+b,0) / vals.length);
+    const mx = Math.max(...vals);
+    return '<div class="chart-wrap">' +
+      '<div class="chart-head"><b style="color:' + o.color + '">' + o.title + '</b><span>méd. <b>' + avg + '</b> · máx. <b>' + mx + '</b> ' + o.unit + '</span></div>' +
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' + bands +
+        '<path d="' + line + ' L' + W + ' ' + H + ' L0 ' + H + ' Z" fill="' + o.color + '" opacity="0.08"/>' +
+        '<path d="' + line + '" fill="none" stroke="' + o.color + '" stroke-width="1.6" stroke-opacity="0.9" vector-effect="non-scaling-stroke"/>' +
+        target +
+      '</svg>' +
+      '<div class="chart-legend">' + (o.note || '') + (target ? '<span><i style="background:#fff"></i>pedido em cada bloco</span>' : '') + '</div>' +
+    '</div>';
+  }
+
   function showTreino(key){
     const t = treinosCache.find(x=>x.key===key);
     if(!t) return;
-    const W = 600, H = 160;
-    const w = Array.isArray(t.w) ? t.w : Object.values(t.w||{});
-    const hr = Array.isArray(t.hr) ? t.hr : Object.values(t.hr||{});
-    const maxW = Math.max(100, ...w) * 1.1;
-    let zonesSvg = '';
-    if(t.ftp){
-      // faixas de zona atrás do gráfico
-      let lo = 0;
-      ZONES.forEach(z=>{
-        const hiW = Math.min(z.max, 200) * t.ftp / 100;
-        const y1 = H - Math.min(hiW, maxW)/maxW*H, y0 = H - Math.min(lo, maxW)/maxW*H;
-        if(y0 > y1) zonesSvg += '<rect x="0" y="' + y1.toFixed(1) + '" width="' + W + '" height="' + (y0-y1).toFixed(1) + '" fill="' + zoneColor(z.css) + '" opacity="0.22"/>';
-        lo = hiW;
-      });
-    }
-    const pw = seriesPath(w, W, H, maxW);
-    const ph = hr.length ? seriesPath(hr, W, H, 200) : '';
+    const w = arrOf(t.w), cad = arrOf(t.c), hr = arrOf(t.hr).filter(v=>v>0).length ? arrOf(t.hr) : [];
+    const blocosT = arrOf(t.blocos);
+    // só desenha o alvo se o aluno fez (quase) a aula toda
+    const blocTot = blocosT.reduce((s,b)=> s + (b.d||0), 0);
+    const serTot = w.length * (t.step || 5);
+    const alignOk = blocTot > 0 && Math.abs(serTot - blocTot) / blocTot < 0.2;
+
+    const maxW = Math.max(100, ...w, t.ftp ? t.ftp * 1.2 : 0) * 1.08;
+    let lo = 0;
+    const wBands = t.ftp ? ZONES.map(z=>{ const hi = Math.min(z.max, 200) * t.ftp / 100; const b = {lo:lo, hi:hi, c:z.css}; lo = hi; return b; }) : [];
+    const fcMax = t.fcMax || (perfil && perfil.fcMax) || null;
+    const hBands = fcMax ? HR_ZONES.map(z=>({lo: z.lo*fcMax/100, hi: z.hi*fcMax/100, c: z.c})) : [];
+
+    const charts =
+      chartBlock({ title:'Potência', unit:'W', color:'#E8722C', vals:w, max:maxW, bands:wBands,
+        target: (alignOk && t.ftp) ? blocosT.map(b=>({d:b.d, v:b.ftp * t.ftp / 100})) : null,
+        note: t.ftp ? '<span>faixas = as tuas zonas de potência (FTP ' + t.ftp + ' W)</span>' : '' }) +
+      chartBlock({ title:'Cadência', unit:'rpm', color:'#5FB3D9', vals:cad, min:40, max:Math.max(120, ...cad) + 5,
+        target: (alignOk && blocosT.some(b=>b.rpm)) ? blocosT.map(b=>({d:b.d, v:b.rpm || 0})) : null }) +
+      (hr.length ? chartBlock({ title:'Frequência cardíaca', unit:'bpm', color:'#E27070', vals:hr, min:60,
+        max: Math.max(fcMax || 0, ...hr) + 5, bands:hBands,
+        note: fcMax ? '<span>faixas = as tuas zonas de FC (máx. ' + fcMax + ')</span>' : '<span>indica a tua FC máxima na conta para veres as zonas</span>' }) : '');
+
     const pct = t.ftp ? Math.round((t.aw||0)/t.ftp*100) + '%' : '—';
+    const hasW = w.some(v=>v>0);
+    const hrMax = hr.length ? Math.max(...hr) : (t.hrMax || null);
+    const cell = (v,l)=> '<div><div class="v">' + v + '</div><div class="l">' + l + '</div></div>';
+    const stats = hasW
+      ? cell(fmtTime(t.dur||0),'tempo') + cell(Math.round(t.kj||0),'kJ') + cell(t.pts||0,'pontos') +
+        cell(t.aw||0,'W médios') + cell(t.mw||0,'W máx') + cell(pct,'%FTP médio') +
+        cell((t.as||t.dur) ? Math.round((t.iz||0)/(t.as||t.dur)*100) + '%' : '—','na zona') +
+        cell(t.hrAvg || '—','FC média') + cell(t.rank ? t.rank + 'º/' + t.turma : '—','posição')
+      : cell(fmtTime(t.dur||0),'tempo') + cell(t.hrAvg || '—','FC média') + cell(hrMax || '—','FC máx') +
+        (fcMax && t.hrAvg ? cell(Math.round(t.hrAvg/fcMax*100) + '%','% FC máx média') : '');
+
+    // tempo em cada zona de FC
+    let hrZonesHtml = '';
+    if(hr.length && fcMax){
+      const step = t.step || 5;
+      const secs = HR_ZONES.map(()=>0); let below = 0;
+      hr.forEach(v=>{
+        if(!v) return;
+        const p = v / fcMax * 100;
+        const i = HR_ZONES.findIndex(z=> p < z.hi || z.hi === 100);
+        if(p < HR_ZONES[0].lo) below += step; else secs[Math.max(0,i)] += step;
+      });
+      const tot = secs.reduce((a,b)=>a+b,0) + below || 1;
+      hrZonesHtml = '<div class="chart-wrap"><div class="chart-head"><b style="color:#E27070">Tempo nas zonas de FC</b><span>máx. ' + fcMax + ' bpm</span></div>' +
+        '<div class="zbar">' + HR_ZONES.map((z,i)=> secs[i] ? '<div style="flex:' + secs[i] + ';background:' + zoneColor(z.c) + '"></div>' : '').join('') + (below ? '<div style="flex:' + below + ';background:#2A313D"></div>' : '') + '</div>' +
+        '<div class="zrows">' + HR_ZONES.map((z,i)=> '<div><span><i style="background:' + zoneColor(z.c) + '"></i>Z' + (i+1) + '</span><span>' + z.lo + '–' + z.hi + '%</span><b>' + fmtTime(secs[i]) + '</b><span>' + Math.round(secs[i]/tot*100) + '%</span></div>').join('') + '</div></div>';
+    }
+
     const det = $('treinoDetail');
     det.innerHTML =
       '<div class="acct-top" style="max-width:none"><button class="btn-link" id="trBack">← Todos os treinos</button></div>' +
       '<div class="section-t" style="margin-top:4px">' + escapeHtml(t.aula||'Aula') + '</div>' +
-      '<div class="hint" style="text-align:left">' + fmtDate(t.date) + (t.ftp ? ' · FTP ' + t.ftp + ' W' : '') + '</div>' +
-      '<div class="chart-wrap"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' + zonesSvg +
-        (pw ? '<path d="' + pw + ' L' + W + ' ' + H + ' L0 ' + H + ' Z" fill="#E8722C" opacity="0.08"/><path d="' + pw + '" fill="none" stroke="#E8722C" stroke-width="2" vector-effect="non-scaling-stroke"/>' : '') +
-        (ph ? '<path d="' + ph + '" fill="none" stroke="#E27070" stroke-width="1.5" stroke-dasharray="4 3" vector-effect="non-scaling-stroke"/>' : '') +
-      '</svg><div class="chart-legend"><span><i style="background:#E8722C"></i>potência</span>' + (ph ? '<span><i style="background:#E27070"></i>FC</span>' : '') + (t.ftp ? '<span>faixas = as tuas zonas</span>' : '') + '</div></div>' +
-      '<div class="me-grid">' +
-        '<div><div class="v">' + fmtTime(t.dur||0) + '</div><div class="l">tempo</div></div>' +
-        '<div><div class="v">' + Math.round(t.kj||0) + '</div><div class="l">kJ</div></div>' +
-        '<div><div class="v">' + (t.pts||0) + '</div><div class="l">pontos</div></div>' +
-        '<div><div class="v">' + (t.aw||0) + '</div><div class="l">W médios</div></div>' +
-        '<div><div class="v">' + (t.mw||0) + '</div><div class="l">W máx</div></div>' +
-        '<div><div class="v">' + pct + '</div><div class="l">%FTP médio</div></div>' +
-        '<div><div class="v">' + (t.dur ? Math.round((t.iz||0)/t.dur*100) : 0) + '%</div><div class="l">na zona</div></div>' +
-        '<div><div class="v">' + (t.hrAvg || '—') + '</div><div class="l">FC média</div></div>' +
-        '<div><div class="v">' + (t.rank ? t.rank + 'º/' + t.turma : '—') + '</div><div class="l">posição</div></div>' +
-      '</div>' +
+      '<div class="hint" style="text-align:left">' + fmtDate(t.date) + (t.ftp && hasW ? ' · FTP ' + t.ftp + ' W' : '') + (hasW ? '' : ' · só frequência cardíaca') + '</div>' +
+      charts + hrZonesHtml +
+      '<div class="me-grid">' + stats + '</div>' +
       '<button class="btn-link" id="trDelete" style="margin-top:16px;color:#E27070">Apagar este treino</button>';
     $('treinoList').style.display = 'none';
     $('acctStats').style.display = 'none';
@@ -1234,6 +1326,14 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     catch(err){ $('aLoginErr').textContent = aErr(err); }
   });
   $('acctLogout').addEventListener('click', ()=>{ if(confirm('Sair da conta?')) auth.signOut(); });
+  $('acctFcmaxSave').addEventListener('click', ()=>{
+    const v = Math.round(Number($('acctFcmax').value) || 0);
+    if(v < 120 || v > 230){ alert('A FC máxima tem de estar entre 120 e 230 bpm.'); return; }
+    fbDb.ref('alunos/' + user.uid + '/perfil/fcMax').set(v).then(()=>{
+      perfil = Object.assign({}, perfil, {fcMax:v});
+      $('acctFcmaxSave').textContent = 'Guardado ✓'; setTimeout(()=> $('acctFcmaxSave').textContent = 'Guardar', 1500);
+    }).catch(()=> alert('Não consegui guardar.'));
+  });
   $('acctFtpSave').addEventListener('click', ()=>{
     const ftp = Math.round(Number($('acctFtp').value) || 0);
     if(ftp < 50 || ftp > 600){ alert('O FTP tem de estar entre 50 e 600 W.'); return; }
