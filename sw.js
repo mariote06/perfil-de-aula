@@ -1,4 +1,4 @@
-const CACHE_NAME = 'perfil-de-aula-v3';
+const CACHE_NAME = 'perfil-de-aula-v4';
 const SHELL = ['aula-ao-vivo.html', 'perfil-de-aula.html', 'manifest.json', 'manifest-prof.json', 'icon-192.png', 'icon-512.png', 'icon-prof-192.png', 'icon-prof-512.png'];
 
 self.addEventListener('install', (e) => {
