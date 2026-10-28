@@ -205,6 +205,8 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .inf input{background:transparent;border:1px solid transparent;border-bottom-color:var(--border);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:600;text-align:center;width:64px;padding:0 2px;border-radius:4px;}
 .inf input:focus{outline:none;border-color:var(--accent);background:var(--surface-2);}
 .inf.wide input{width:200px;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;padding:6px 4px;}
+.tec-sel{width:200px;}
+.inf.wide #fTec{margin-top:4px;}
 .inf .dur{display:flex;align-items:center;font-family:'Barlow Condensed',sans-serif;font-size:24px;color:var(--muted);}
 .inf .dur input{width:46px;}
 .inf input[type=number]{-moz-appearance:textfield;appearance:textfield;}
@@ -566,6 +568,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   .ed-info{gap:10px 14px;}
   .inf.wide{flex:1 1 100%;}
   .inf.wide input{width:100%;}
+  .inf.wide .tec-sel{width:100%;}
   .ed-nav,.ed-y{display:none;}
   .ed-scroll{border-left:none;-webkit-overflow-scrolling:touch;}
   .ed-track{height:200px;}
@@ -804,7 +807,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       <div class="inf ro"><label>fim</label><div class="val" id="fEnd">0:00</div></div>
       <div class="inf"><label>rpm</label><input type="number" id="fRpm" min="0" max="160"></div>
       <div class="inf"><label>intensidade</label><div class="dur" id="fIntWrap"><input type="number" id="fFtp" min="0" max="250"><span id="fUnit">% FTP</span></div><select id="fZsel" class="zsel" style="display:none"></select><div class="ztag" id="fZone">—</div></div>
-      <div class="inf wide"><label>técnica</label><input type="text" id="fTec" maxlength="80" placeholder="ex: sentado, em pé, mãos posição 2"></div>
+      <div class="inf wide"><label>técnica</label><select id="fTecSel" class="zsel tec-sel"></select><input type="text" id="fTec" maxlength="80" placeholder="escreve a técnica" style="display:none"></div>
     </div>
 
     <div class="zfeel" id="fFeel"></div>
@@ -1086,15 +1089,18 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   let uidCounter = 1;
   function uid(){ return 'b' + (uidCounter++) + '_' + Date.now().toString(36) + Math.random().toString(36).slice(2,5); }
 
+  // técnicas por defeito (podes escolher "Outra…" e escrever a tua)
+  const TECNICAS = ['Plano Sentado', 'Plano em Pé', 'Combinado no Plano', 'Subida Sentada', 'Subida em Pé', 'Combinado na Subida', 'Sprint'];
+  const TEC_OUTRA = '__outra__';
   function newBlock(overrides){
     return Object.assign({
-      id: uid(), nome:'Bloco', min:2, sec:0, ftp:70, rpm:85, tecnica:''
+      id: uid(), nome:'Bloco', min:2, sec:0, ftp:70, rpm:85, tecnica:'Plano Sentado'
     }, overrides || {});
   }
 
   function resetTreino(){
     current = { id:null, nome:'', blocos:[
-      newBlock({nome:'Aquecimento', min:5, sec:0, ftp:55, rpm:80, tecnica:'Sentado, mãos posição 1'}),
+      newBlock({nome:'Aquecimento', min:5, sec:0, ftp:55, rpm:80, tecnica:'Plano Sentado'}),
     ]};
     render();
   }
@@ -1353,7 +1359,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function addZone(zi){
     pushUndo();
     const d = ZONE_DEFAULTS[modoAtual()][zi];
-    const b = newBlock({ nome: zonesOf()[zi].name, min:2, sec:0, ftp:d.ftp, rpm:d.rpm });
+    const last = zi === zonesOf().length - 1 && modoAtual() !== 'fc';   // zona mais alta (Z6) = sprint
+    const b = newBlock({ nome: zonesOf()[zi].name, min:2, sec:0, ftp:d.ftp, rpm:d.rpm, tecnica: last ? 'Sprint' : 'Plano Sentado' });
     insertAt(selIdx >= 0 ? selIdx + 1 : current.blocos.length, b);
     render(); scrollToSel();
   }
@@ -1492,6 +1499,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     const set = (id, v)=>{ const el = $(id); if(document.activeElement !== el) el.value = v; };
     if(!b){
       ['fNome','fMin','fSec','fRpm','fFtp','fTec'].forEach(id=> set(id, ''));
+      $('fTecSel').value = TECNICAS[0]; $('fTec').style.display = 'none';
       $('fFeel').textContent = '';
       $('fStart').textContent = '—'; $('fEnd').textContent = '—'; $('fZone').textContent = '—'; $('fZone').style.background = '';
       return;
@@ -1499,6 +1507,13 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     const start = current.blocos.slice(0, selIdx).reduce((s,x)=> s + blockDurationSec(x), 0);
     set('fNome', b.nome || ''); set('fMin', b.min || 0); set('fSec', b.sec || 0);
     set('fRpm', b.rpm || 0); set('fFtp', b.ftp || 0); set('fTec', b.tecnica || '');
+    const tecChanged = renderInfo._tecId !== b.id; renderInfo._tecId = b.id;
+    if(tecChanged){ $('fTec').value = b.tecnica || ''; }
+    if(tecChanged || (document.activeElement !== $('fTecSel') && document.activeElement !== $('fTec'))){
+      const known = TECNICAS.includes(b.tecnica || '');
+      $('fTecSel').value = known ? b.tecnica : TEC_OUTRA;
+      $('fTec').style.display = known ? 'none' : '';
+    }
     if(modoAtual() === 'zonas' && document.activeElement !== $('fZsel')) $('fZsel').value = String(zoneIdx(b.ftp));
     $('fStart').textContent = fmtTime(start);
     $('fEnd').textContent = fmtTime(start + blockDurationSec(b));
@@ -1533,6 +1548,17 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   const num = (v, lo, hi)=> Math.max(lo, Math.min(hi, Math.round(Number(v) || 0)));
   bindField('fNome', (b,v)=> b.nome = v);
   bindField('fTec',  (b,v)=> b.tecnica = v);
+  $('fTecSel').innerHTML = TECNICAS.map(t=> '<option value="' + t + '">' + t + '</option>').join('') + '<option value="' + TEC_OUTRA + '">✎ Outra (escrever)…</option>';
+  $('fTecSel').addEventListener('change', ()=>{
+    const b = selected(); if(!b) return;
+    const v = $('fTecSel').value;
+    if(v === TEC_OUTRA){
+      $('fTec').style.display = ''; $('fTec').value = TECNICAS.includes(b.tecnica) ? '' : (b.tecnica || '');
+      $('fTec').focus(); return;
+    }
+    pushUndo(); b.tecnica = v; $('fTec').style.display = 'none';
+    renderEditor(); renderProfileOnly();
+  });
   bindField('fMin',  (b,v)=> b.min = num(v, 0, 180));
   bindField('fSec',  (b,v)=> b.sec = num(v, 0, 59));
   bindField('fRpm',  (b,v)=> b.rpm = num(v, 0, 200));
