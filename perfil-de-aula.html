@@ -682,9 +682,43 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .brand .pr-logo span{font-size:inherit;color:inherit;}
 @media (max-width:1450px){.brand>span{display:none;}}
 .pr-logo .pr-sub,.brand .pr-logo .pr-sub{font-style:normal;font-weight:600;font-size:.42em;letter-spacing:3px;color:#E8722C;margin-left:.1em;padding-bottom:.12em;}
+
+/* ---------- Menu inicial e navegação ---------- */
+.main-nav{display:flex;gap:6px;margin:-12px 0 22px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.main-nav::-webkit-scrollbar{display:none;}
+.main-nav button,.main-nav a{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;background:transparent;border:1px solid transparent;color:var(--muted);padding:8px 14px;border-radius:999px;font-size:14px;font-weight:600;text-decoration:none;font-family:'Inter',sans-serif;}
+.main-nav svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+.main-nav button:hover,.main-nav a:hover{color:var(--text);border-color:var(--border);}
+.main-nav button.on{background:var(--surface-2);border-color:var(--border);color:var(--text);}
+body[data-view="home"] [data-sec]:not([data-sec~="home"]),
+body[data-view="plan"] [data-sec]:not([data-sec~="plan"]),
+body[data-view="lib"] [data-sec]:not([data-sec~="lib"]),
+body[data-view="hist"] [data-sec]:not([data-sec~="hist"]){display:none !important;}
+body:not([data-view="plan"]) #newBtn, body:not([data-view="plan"]) #saveBtn, body:not([data-view="plan"]) #saveCopyBtn, body:not([data-view="plan"]) #projectBtn{display:none;}
+body:not([data-view="plan"]) .layout{grid-template-columns:1fr;}
+body[data-view="lib"] .layout > .col-r, body[data-view="hist"] .layout > .col-r{display:grid !important;grid-template-columns:1fr 1fr;align-items:start;}
+@media (max-width:880px){ body[data-view="lib"] .layout > .col-r, body[data-view="hist"] .layout > .col-r{grid-template-columns:1fr;} }
+body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height:none;}
+.home-hero{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;margin:6px 0 22px;}
+.home-hero h2{font-family:'Barlow Condensed',sans-serif;font-size:40px;font-weight:700;margin:0;line-height:1;}
+.home-hero p{color:var(--muted);margin:6px 0 0;font-size:15px;}
+.home-cards{display:grid;grid-template-columns:repeat(4, minmax(0,1fr));gap:16px;}
+@media (max-width:1100px){ .home-cards{grid-template-columns:repeat(2, minmax(0,1fr));} }
+.hcard{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:12px;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:22px 20px 20px;min-height:200px;color:var(--text);overflow:hidden;text-decoration:none;font-family:'Inter',sans-serif;}
+.hcard:hover{border-color:var(--hc);transform:translateY(-2px);}
+.hcard{transition:transform .15s ease, border-color .15s ease;}
+.hcard::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--hc);}
+.hcard .hi{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:color-mix(in srgb, var(--hc) 18%, transparent);color:var(--hc);}
+.hcard .hi svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+.hcard b{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:700;line-height:1;}
+.hcard span{color:var(--muted);font-size:14px;line-height:1.45;}
+.hcard .hstat{margin-top:auto;font-size:13px;color:var(--text);font-weight:600;}
+.home-recent{margin-top:22px;}
+.home-recent .saved-list{max-height:none;}
+@media (max-width:560px){ .home-cards{grid-template-columns:1fr 1fr;gap:10px;} .hcard{min-height:0;padding:16px 14px 14px;gap:8px;} .hcard > span{display:none;} .hcard b{font-size:22px;} .hcard .hi{width:38px;height:38px;} .hcard .hstat{font-size:12px;font-weight:500;color:var(--muted);} .home-hero h2{font-size:32px;} }
 </style>
 </head>
-<body>
+<body data-view="home">
 
 <div class="app" id="builderView">
   <div class="topbar">
@@ -704,8 +738,34 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     </div>
   </div>
 
+  <nav class="main-nav" aria-label="Menu">
+    <button data-go="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/></svg>Início</button>
+    <button data-go="plan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18M5 20v-5h3v5M10.5 20V9h3v11M16 20V4h3v16"/></svg>Planeamento</button>
+    <button data-go="lib"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5v14H4zM10 5h4v14h-4zM15.5 6.2l3.8-1 3 13.6-3.8 1z"/></svg>Biblioteca</button>
+    <button data-go="hist"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>Treinos realizados</button>
+    <a href="aula-ao-vivo.html?livre=1" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9h6l3.5 7.5M9 9 12 16.5h-3M14 6h2.5l-1.5 3"/></svg>Só pedalar</a>
+  </nav>
+
+  <!-- MENU INICIAL -->
+  <div data-sec="home" id="homeSec">
+    <div class="home-hero">
+      <div><h2 id="homeHello">Olá</h2><p>O que vamos fazer hoje?</p></div>
+      <button class="primary" id="homeNewBtn">＋ Nova aula</button>
+    </div>
+    <div class="home-cards">
+      <button class="hcard" data-go="plan" style="--hc:#E8722C"><div class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18M5 20v-5h3v5M10.5 20V9h3v11M16 20V4h3v16"/></svg></div><b>Planeamento</b><span>Constrói a aula bloco a bloco por zonas, %FTP ou %FCmáx, e projeta-a na sala.</span><div class="hstat" id="hsPlan"></div></button>
+      <button class="hcard" data-go="lib" style="--hc:#1FA8F0"><div class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5v14H4zM10 5h4v14h-4zM15.5 6.2l3.8-1 3 13.6-3.8 1z"/></svg></div><b>Biblioteca</b><span>As tuas aulas e as aulas partilhadas pelos professores da Playlife.</span><div class="hstat" id="hsLib"></div></button>
+      <button class="hcard" data-go="hist" style="--hc:#A35CFF"><div class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg></div><b>Treinos realizados</b><span>Aulas dadas com o resumo de cada aluno, e os teus treinos pessoais.</span><div class="hstat" id="hsHist"></div></button>
+      <a class="hcard" href="aula-ao-vivo.html?livre=1" target="_blank" rel="noopener" style="--hc:#3DD45C"><div class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9h6l3.5 7.5M9 9 12 16.5h-3M14 6h2.5l-1.5 3"/></svg></div><b>Só pedalar</b><span>Liga a tua bike e pedala livremente. O treino fica guardado na tua conta.</span><div class="hstat">Abre a app PlayRide ↗</div></a>
+    </div>
+    <div class="panel home-recent">
+      <h2>Últimas aulas <small>toca para abrir no planeamento</small></h2>
+      <div class="saved-list" id="recentList"></div>
+    </div>
+  </div>
+
   <!-- EDITOR DE INTERVALOS -->
-  <div class="panel editor" id="editor">
+  <div class="panel editor" id="editor" data-sec="plan">
     <div class="ed-toolbar">
       <input type="text" id="treinoNome" class="ed-name" placeholder="Nome da aula (ex: Sprint Interval — Quarta 18h)">
       <div class="seg" id="modeSeg" title="Como se constrói esta aula"><button data-m="zonas">Zonas Z1–Z6</button><button data-m="ftp">%FTP Z1–Z6</button><button data-m="fc">%FCmáx Z1–Z5</button></div>
@@ -760,8 +820,8 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     <div class="ed-hint">Toca/clica num intervalo para o editar · arrasta o <b>topo</b> para mudar a intensidade e a <b>borda direita</b> para mudar a duração<span class="kb"> · teclas: ← → selecionar, Delete apagar, Ctrl+C/Ctrl+V copiar/colar, Ctrl+Z desfazer</span></div>
   </div>
 
-  <div class="layout">
-    <div class="panel">
+  <div class="layout" data-sec="plan lib hist">
+    <div class="panel" data-sec="plan">
       <h2>Resumo da aula <small>carga e tempo em cada zona</small></h2>
       <div class="stats-row">
         <div class="stat"><div class="num" id="statDuration">0:00</div><div class="lbl">duração total</div></div>
@@ -772,8 +832,8 @@ button:disabled{opacity:.4;cursor:not-allowed;}
       <div class="zone-time" id="zoneTime"></div>
     </div>
 
-    <div style="display:flex;flex-direction:column;gap:20px;">
-      <div class="panel">
+    <div class="col-r" data-sec="plan lib hist" style="display:flex;flex-direction:column;gap:20px;">
+      <div class="panel" data-sec="plan lib">
         <h2>
           <span>As minhas aulas <small id="savedCount">0</small></span>
           <span class="panel-tools">
@@ -786,16 +846,21 @@ button:disabled{opacity:.4;cursor:not-allowed;}
         <input type="file" id="importFile" accept=".json,application/json" style="display:none">
       </div>
 
-      <div class="panel">
+      <div class="panel" data-sec="lib">
         <h2>Biblioteca Playlife <small id="sharedCount">0</small></h2>
         <div class="hint-line">Aulas partilhadas pelos professores. Copia uma para as tuas aulas para a usares ou alterares. Para partilhar uma tua, usa o botão ⇪ nas tuas aulas.</div>
         <input type="text" class="search" id="sharedSearch" placeholder="Procurar na biblioteca…">
         <div class="saved-list" id="sharedList"></div>
       </div>
 
-      <div class="panel">
-        <h2>Histórico de aulas dadas <small id="histCount">0</small></h2>
+      <div class="panel" data-sec="hist">
+        <h2>Aulas dadas <small id="histCount">0</small></h2>
         <div class="saved-list" id="histList"></div>
+      </div>
+
+      <div class="panel" data-sec="hist">
+        <h2><span>Os meus treinos <small>só pedalar e aulas como aluno</small></span><span class="panel-tools"><a class="small" href="aula-ao-vivo.html?conta=1" target="_blank" rel="noopener" style="color:var(--accent);font-size:13px">ver gráficos ↗</a></span></h2>
+        <div class="saved-list" id="myRidesList"></div>
       </div>
     </div>
   </div>
@@ -2575,6 +2640,8 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     entered = true;
     $('authOverlay').classList.remove('active');
     $('userName').textContent = userNome;
+    let lastView = null; try{ lastView = sessionStorage.getItem('prView'); }catch(e){}
+    setView(lastView || 'home');
     $('adminBtn').style.display = isAdmin ? '' : 'none';
     let first = true;
     const aulasRef = fbDb.ref('aulas/' + userUid);
@@ -2699,15 +2766,102 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   $('adminModal').addEventListener('click', (e)=>{ if(e.target.id==='adminModal') $('adminModal').classList.remove('active'); });
   $('sharedSearch').addEventListener('input', renderShared);
 
+
+  // ================= MENU INICIAL / NAVEGAÇÃO =================
+  let myRidesLoaded = false;
+  function setView(v){
+    if(!['home','plan','lib','hist'].includes(v)) v = 'home';
+    document.body.dataset.view = v;
+    document.querySelectorAll('.main-nav [data-go]').forEach(b=> b.classList.toggle('on', b.dataset.go === v));
+    if(v === 'home') renderHome();
+    if(v === 'hist') loadMyRides();
+    if(v === 'plan') setTimeout(()=>{ try{ render(); }catch(e){} }, 0);   // a linha do tempo mede a largura visível
+    try{ sessionStorage.setItem('prView', v); }catch(e){}
+    window.scrollTo(0, 0);
+  }
+  function renderHome(){
+    const first = (userNome || '').split(' ')[0];
+    $('homeHello').textContent = first ? 'Olá, ' + first : 'Olá';
+    const nAulas = treinos.length, nLib = partilhadas.length, nHist = historico.length;
+    $('hsPlan').textContent = nAulas + (nAulas === 1 ? ' aula guardada' : ' aulas guardadas');
+    $('hsLib').textContent = nLib + (nLib === 1 ? ' aula partilhada' : ' aulas partilhadas');
+    $('hsHist').textContent = nHist + (nHist === 1 ? ' aula dada' : ' aulas dadas');
+    const list = $('recentList');
+    list.innerHTML = '';
+    const recent = treinos.slice(-4).reverse();
+    if(!recent.length){
+      const e = document.createElement('div'); e.className = 'empty-state';
+      e.textContent = 'Ainda não tens aulas guardadas. Carrega em "＋ Nova aula" para começar.';
+      list.appendChild(e); return;
+    }
+    recent.forEach(t=>{
+      const row = document.createElement('div'); row.className = 'saved-item';
+      const info = document.createElement('div'); info.className = 'info';
+      const b = document.createElement('b'); b.textContent = t.nome || 'Aula sem nome';
+      const sp = document.createElement('span');
+      const tot = (t.blocos||[]).reduce((a,x)=> a + (x.min||0)*60 + (x.sec||0), 0);
+      sp.textContent = Math.round(tot/60) + ' min · ' + (t.blocos||[]).length + ' intervalos';
+      info.appendChild(b); info.appendChild(sp);
+      info.addEventListener('click', ()=> loadTreino(t.id));
+      const actions = document.createElement('div'); actions.className = 'row-actions';
+      actions.appendChild(makeIconBtn('▶', ()=>{ loadTreino(t.id); $('projectBtn').click(); }, false, 'Projetar'));
+      row.appendChild(info); row.appendChild(actions);
+      list.appendChild(row);
+    });
+  }
+  async function loadMyRides(){
+    const list = $('myRidesList');
+    if(!list || !fbDb || !userUid || myRidesLoaded) return;
+    myRidesLoaded = true;
+    list.innerHTML = '<div class="empty-state">A carregar…</div>';
+    try{
+      const v = (await fbDb.ref('alunos/' + userUid + '/treinos').once('value')).val() || {};
+      const arr = Object.keys(v).map(k=> v[k]).sort((a,b)=> (b.date||0) - (a.date||0));
+      list.innerHTML = '';
+      if(!arr.length){
+        const e = document.createElement('div'); e.className = 'empty-state';
+        e.textContent = 'Ainda não tens treinos pessoais. Usa "Só pedalar" para pedalares com a tua bike: o treino fica aqui.';
+        list.appendChild(e); return;
+      }
+      arr.forEach(t=>{
+        const row = document.createElement('a'); row.className = 'saved-item';
+        row.href = 'aula-ao-vivo.html?conta=1'; row.target = '_blank'; row.rel = 'noopener'; row.style.textDecoration = 'none'; row.style.color = 'inherit';
+        const info = document.createElement('div'); info.className = 'info';
+        const b = document.createElement('b'); b.textContent = t.aula || 'Treino';
+        const sp = document.createElement('span');
+        const m = Math.round((t.dur||0)/60);
+        sp.textContent = fmtDate(t.date) + ' · ' + m + ' min' + (t.aw ? ' · ' + t.aw + ' W méd.' : (t.hrAvg ? ' · ' + t.hrAvg + ' bpm' : ''));
+        info.appendChild(b); info.appendChild(sp);
+        const kj = document.createElement('div'); kj.style.cssText = 'font-family:Barlow Condensed,sans-serif;font-weight:700;font-size:20px;white-space:nowrap';
+        kj.textContent = Math.round(t.kj||0) + ' kJ';
+        row.appendChild(info); row.appendChild(kj);
+        list.appendChild(row);
+      });
+    }catch(e){
+      list.innerHTML = '<div class="empty-state">Não consegui carregar os teus treinos pessoais.</div>';
+      myRidesLoaded = false;
+    }
+  }
+  document.querySelectorAll('[data-go]').forEach(b=> b.addEventListener('click', ()=> setView(b.dataset.go)));
+  $('homeNewBtn').addEventListener('click', ()=>{ resetTreino(); setView('plan'); });
+  // abrir uma aula leva sempre ao planeamento
+  const _loadTreino = loadTreino;
+  loadTreino = function(id){ setView('plan'); _loadTreino(id); };
+  const _copyShared = copyShared;
+  copyShared = function(key){ _copyShared(key); setView('plan'); };
+  const _renderSaved = renderSaved;
+  renderSaved = function(){ _renderSaved.apply(this, arguments); if(document.body.dataset.view === 'home') renderHome(); };
+  const _renderShared = renderShared;
+  renderShared = function(){ _renderShared.apply(this, arguments); if(document.body.dataset.view === 'home') renderHome(); };
+  const _renderHistory = renderHistory;
+  renderHistory = function(){ _renderHistory.apply(this, arguments); if(document.body.dataset.view === 'home') renderHome(); };
+
   // init
   resetTreino();
   if(auth){ showAuth('loading'); auth.onAuthStateChanged(onUser); }
   else { $('authOverlay').classList.remove('active'); $('setupBanner').classList.add('active'); }
 })();
 </script>
-
-
-
 <script>
 // App instalável (PWA): botão "Instalar app" quando o browser o permite.
 (function(){
@@ -2723,5 +2877,8 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   window.addEventListener('appinstalled', function(){ var b=document.getElementById('installBtn'); if(b) b.remove(); });
 })();
 </script>
+
+
+
 </body>
 </html>

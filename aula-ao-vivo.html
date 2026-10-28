@@ -213,12 +213,61 @@ body:has(#liveScreen.active) .legal{display:none;}
 .pr-logo{display:inline-flex;align-items:flex-end;gap:.32em;font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:800;text-transform:uppercase;letter-spacing:.5px;line-height:.9;margin:0;}
 .pr-logo .pr-mark{width:auto;flex-shrink:0;}
 .pr-logo .pr-sub{font-style:normal;font-weight:600;font-size:.42em;letter-spacing:3px;color:#E8722C;margin-left:.1em;padding-bottom:.12em;}
+
+/* ---------- Menu inicial ---------- */
+.home{justify-content:flex-start;padding-top:max(36px, env(safe-area-inset-top, 0px));}
+.home-hello{color:var(--muted);font-size:14px;margin:-6px 0 4px;min-height:18px;}
+.home-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:420px;}
+.tile{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 14px;color:#fff;min-height:128px;position:relative;overflow:hidden;}
+.tile svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+.tile b{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;line-height:1;}
+.tile span{font-size:12px;color:var(--muted);line-height:1.35;}
+.tile::after{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--tc);}
+.tile:active{transform:scale(.98);}
+.tile.big{grid-column:1 / -1;flex-direction:row;align-items:center;min-height:0;padding:18px 16px;background:linear-gradient(120deg, rgba(232,114,44,.22), var(--surface) 70%);border-color:rgba(232,114,44,.5);}
+.tile.big svg{width:38px;height:38px;color:var(--accent);flex-shrink:0;}
+.tile.big b{font-size:26px;}
+.back-top{align-self:flex-start;}
+.lib-list{display:flex;flex-direction:column;gap:10px;width:100%;max-width:420px;text-align:left;}
+.lib-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;color:#fff;text-align:left;display:flex;flex-direction:column;gap:8px;}
+.lib-item .li-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;}
+.lib-item b{font-size:15px;}
+.lib-item small{color:var(--muted);font-size:12px;white-space:nowrap;}
+.lib-prof{display:flex;align-items:flex-end;gap:1px;height:34px;}
+.lib-prof i{display:block;border-radius:2px 2px 0 0;min-width:2px;}
+.lib-sec{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin:10px 0 0;align-self:flex-start;}
+.solo-ctl{display:none;gap:6px;}
+body.solo .solo-ctl{display:flex;}
+body.solo-livre #progress{display:none;}
+.solo-btn{background:var(--accent);border:none;color:#140B04;font-weight:700;padding:6px 14px;border-radius:8px;font-size:13px;}
+.solo-btn.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff;font-weight:500;}
 </style>
 </head>
 <body>
 
+<!-- 0. MENU INICIAL -->
+<div id="homeScreen" class="screen home active">
+  <h1 class="pr-logo" style="font-size:42px" aria-label="PlayRide"><svg class="pr-mark" height="42" viewBox="0 0 200 130" aria-hidden="true"><g transform="skewX(-14)"><rect x="34" y="96" width="22" height="34" rx="4" fill="#A35CFF"/><rect x="62" y="78" width="22" height="52" rx="4" fill="#1FA8F0"/><rect x="90" y="58" width="22" height="72" rx="4" fill="#3DD45C"/><rect x="118" y="38" width="22" height="92" rx="4" fill="#FFD60A"/><rect x="146" y="16" width="22" height="114" rx="4" fill="#FF8A1F"/><rect x="174" y="0" width="22" height="130" rx="4" fill="#FF3B3B"/></g></svg><span>PlayRide</span></h1>
+  <div class="home-hello" id="homeHello"></div>
+  <div class="home-grid">
+    <button class="tile big" id="tLive" style="--tc:#E8722C"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z" fill="currentColor" stroke="none"/></svg><div><b>Aula ao vivo</b><br><span>Entra na aula da sala com o PIN do ecrã</span></div></button>
+    <button class="tile" id="tFree" style="--tc:#3DD45C"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9h6l3.5 7.5M9 9 12 16.5h-3M14 6h2.5l-1.5 3"/></svg><b>Só pedalar</b><span>Treino livre ao teu ritmo</span></button>
+    <button class="tile" id="tLib" style="--tc:#1FA8F0"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5v14H4zM10 5h4v14h-4zM15.5 6.2l3.8-1 3 13.6-3.8 1z"/></svg><b>Biblioteca</b><span>Treinos guiados para fazeres sozinho</span></button>
+    <button class="tile" id="tHist" style="--tc:#A35CFF;grid-column:1 / -1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg><b>Treinos realizados</b><span id="tHistSub">Gráficos e evolução dos teus treinos</span></button>
+  </div>
+</div>
+
+<!-- BIBLIOTECA (treinos guiados) -->
+<div id="libScreen" class="screen" style="justify-content:flex-start">
+  <button class="btn-link back-top" id="libBack">← Início</button>
+  <h1>Biblioteca</h1>
+  <p>Escolhe um treino. A app guia-te bloco a bloco, com as tuas zonas, sem precisares de estar numa aula.</p>
+  <div class="lib-list" id="libList"></div>
+</div>
+
 <!-- 1. PIN -->
-<div id="joinScreen" class="screen active">
+<div id="joinScreen" class="screen">
+  <button class="btn-link back-top" id="joinBack">← Início</button>
   <h1 class="pr-logo" style="font-size:42px" aria-label="PlayRide"><svg class="pr-mark" height="42" viewBox="0 0 200 130" aria-hidden="true"><g transform="skewX(-14)"><rect x="34" y="96" width="22" height="34" rx="4" fill="#A35CFF"/><rect x="62" y="78" width="22" height="52" rx="4" fill="#1FA8F0"/><rect x="90" y="58" width="22" height="72" rx="4" fill="#3DD45C"/><rect x="118" y="38" width="22" height="92" rx="4" fill="#FFD60A"/><rect x="146" y="16" width="22" height="114" rx="4" fill="#FF8A1F"/><rect x="174" y="0" width="22" height="130" rx="4" fill="#FF3B3B"/></g></svg><span>PlayRide</span></h1>
   <p>Insere o PIN de 4 dígitos que está no ecrã da sala.</p>
   <input type="tel" id="pinInput" maxlength="4" inputmode="numeric" placeholder="0000" autocomplete="off">
@@ -273,7 +322,7 @@ body:has(#liveScreen.active) .legal{display:none;}
       </div>
     </div>
     <div class="acct-stats" id="acctStats"></div>
-    <div class="section-t">Os meus treinos</div>
+    <div class="section-t">Treinos realizados</div>
     <div id="treinoList"></div>
     <div id="treinoDetail" style="display:none"></div>
   </div>
@@ -281,10 +330,11 @@ body:has(#liveScreen.active) .legal{display:none;}
 
 <!-- 2. PERFIL + SENSORES -->
 <div id="setupScreen" class="screen">
+  <button class="btn-link back-top" id="setupBack">← Voltar</button>
   <h1 id="setupTitle">Aula</h1>
-  <p>Os teus dados aparecem no ecrã da sala, junto com o resto da turma.</p>
+  <p id="setupP">Os teus dados aparecem no ecrã da sala, junto com o resto da turma.</p>
   <div class="form">
-    <label>Nome (como aparece no ecrã)
+    <label id="nameLabel">Nome (como aparece no ecrã)
       <input id="nameInput" maxlength="16" autocomplete="nickname" placeholder="ex: Ana R.">
     </label>
     <label id="fcLabel" style="display:none">A tua FC máxima (bpm)
@@ -323,6 +373,7 @@ body:has(#liveScreen.active) .legal{display:none;}
       <span class="chip" id="chipHr"><span class="dot"></span>FC</span>
     </div>
     <div class="rank" id="rankEl"></div>
+    <div class="solo-ctl"><button class="solo-btn" id="soloPlay">▶ Começar</button><button class="solo-btn ghost" id="soloSkip" title="Saltar para o bloco seguinte">⏭</button></div>
     <button class="leave-btn" id="leaveBtn">✕ Sair</button>
   </div>
   <div class="body" id="bodyEl">
@@ -346,7 +397,7 @@ body:has(#liveScreen.active) .legal{display:none;}
           <div><div class="v" id="myHr">—</div><div class="l" id="myHrLbl">FC</div></div>
           <div><div class="v" id="myKj">0</div><div class="l">kJ</div></div>
           <div><div class="v" id="myPts">0</div><div class="l">pontos</div></div>
-          <div><div class="v" id="myZone">0%</div><div class="l">na zona</div></div>
+          <div><div class="v" id="myZone">0%</div><div class="l" id="myZoneLbl">na zona</div></div>
         </div>
       </div>
     </div>
@@ -360,11 +411,12 @@ body:has(#liveScreen.active) .legal{display:none;}
         <div><div class="v" id="finRank">—</div><div class="l">posição</div></div>
         <div><div class="v" id="finAw">0</div><div class="l">W médios</div></div>
         <div><div class="v" id="finMw">0</div><div class="l">W máx</div></div>
-        <div><div class="v" id="finZone">0%</div><div class="l">na zona</div></div>
+        <div><div class="v" id="finZone">0%</div><div class="l" id="finZoneLbl">na zona</div></div>
       </div>
       <div class="class-name" style="margin-top:8px;">bom trabalho!</div>
       <div class="acct-line" id="savedNote"></div>
       <button class="btn-outline" id="finAccountBtn">📈 Ver os meus treinos</button>
+      <button class="btn-primary" id="finHomeBtn" style="display:none;margin-top:8px">Voltar ao início</button>
     </div>
 
     <div class="next" id="nextEl"></div>
@@ -456,10 +508,10 @@ body:has(#liveScreen.active) .legal{display:none;}
   let demo = false;
   me.fc = null;   // FC máxima do aluno
 
-  let currentScreen = 'joinScreen';
+  let currentScreen = 'homeScreen';
   function showScreen(id){
     currentScreen = id;
-    ['joinScreen','setupScreen','accountScreen'].forEach(s=> $(s).classList.toggle('active', s===id));
+    ['homeScreen','libScreen','joinScreen','setupScreen','accountScreen'].forEach(s=> $(s).classList.toggle('active', s===id));
     $('liveScreen').classList.toggle('active', id==='liveScreen');
     window.scrollTo(0,0);
   }
@@ -727,11 +779,20 @@ body:has(#liveScreen.active) .legal{display:none;}
   const powerHist = [];
   let dispPower = 0;
 
-  function currentBlock(){ return state && blocos[state.blockIndex] ? blocos[state.blockIndex] : null; }
+  // treino sozinho: null (aula ao vivo), 'livre' (só pedalar) ou 'guiado' (da biblioteca)
+  let solo = null;
+  const LIVRE_BLOCK = { nome:'Só pedalar', ftp:65, rpm:85, min:0, sec:0 };
+  const soloClock = { acc:0, since:0 };
+  function soloElapsed(){ return soloClock.acc + (soloClock.since ? (Date.now() - soloClock.since)/1000 : 0); }
+  function currentBlock(){
+    if(solo === 'livre') return state && state.status !== 'finished' ? LIVRE_BLOCK : null;
+    return state && blocos[state.blockIndex] ? blocos[state.blockIndex] : null;
+  }
   function isPlaying(){ return !!state && state.status === 'playing' && !sessionEnded && !!currentBlock(); }
   function myHr(){ return S.hr || S.bikeHr || 0; }
 
   function inTarget(pct){
+    if(solo === 'livre') return false;
     const b = currentBlock();
     if(!b) return false;
     const r = zoneRange(b.ftp);
@@ -814,6 +875,9 @@ body:has(#liveScreen.active) .legal{display:none;}
       const snap = await fbDb.ref('sessions/' + p + '/state').once('value');
       if(!snap.exists()){ showJoinError('PIN inválido ou a aula ainda não começou.'); return; }
       pin = p;
+      solo = null;
+      $('nameLabel').style.display = ''; $('enterBtn').textContent = 'Entrar na aula';
+      $('setupP').textContent = 'Os teus dados aparecem no ecrã da sala, junto com o resto da turma.';
       const nameSnap = await fbDb.ref('sessions/' + p + '/treinoNome').once('value');
       $('setupTitle').textContent = nameSnap.val() || 'Aula de cycling';
       $('nameInput').value = (perfil && perfil.nome) || lsGet(LS.name) || '';
@@ -882,6 +946,7 @@ body:has(#liveScreen.active) .legal{display:none;}
     }catch(e){}
 
     sessionEnded = false; hadState = false; myRank = null;
+    $('myZoneLbl').textContent = 'na zona';
     attachListeners();
     showScreen('liveScreen');
     $('chipBike').classList.toggle('on', bikeConnected() || demo);
@@ -939,12 +1004,16 @@ body:has(#liveScreen.active) .legal{display:none;}
     stopLoops();
     riderRef = null; state = null; blocos = [];
     demo = false;
+    const wasSolo = solo; solo = null; soloClock.acc = 0; soloClock.since = 0;
+    document.body.classList.remove('solo','solo-livre');
+    $('finHomeBtn').style.display = 'none';
     disconnectBike(); disconnectHr();
     releaseWakeLock();
     $('pinInput').value = '';
     showJoinError('');
     try{ history.replaceState(null, '', location.pathname); }catch(e){}
-    showScreen('joinScreen');
+    showScreen('homeScreen');
+    renderHome();
   }
 
   // =====================================================================
@@ -960,6 +1029,8 @@ body:has(#liveScreen.active) .legal{display:none;}
 
   function render(){
     if(!state) return;
+    if(solo === 'guiado') soloAdvance();
+    if(solo === 'livre') return renderLivre();
     buildProgress();
 
     const finished = sessionEnded || state.status === 'finished' || state.blockIndex >= blocos.length;
@@ -969,19 +1040,22 @@ body:has(#liveScreen.active) .legal{display:none;}
     if(finished){
       $('activeBlock').style.display = 'none';
       $('finishedEl').classList.add('active');
-      $('nextEl').textContent = sessionEnded ? 'O instrutor fechou a aula. Podes sair.' : '';
-      $('finTitle').textContent = 'Aula concluída';
-      $('totalTimeEl').textContent = fmtTime(blocos.reduce((s,b)=>s+blockDurationSec(b),0));
+      $('nextEl').textContent = solo ? '' : (sessionEnded ? 'O instrutor fechou a aula. Podes sair.' : '');
+      $('finTitle').textContent = solo ? 'Treino concluído' : 'Aula concluída';
+      $('totalTimeEl').textContent = solo ? fmtTime(me.ts) : fmtTime(blocos.reduce((s,b)=>s+blockDurationSec(b),0));
+      $('finZoneLbl').textContent = solo === 'livre' ? 'tempo' : 'na zona';
+      $('finHomeBtn').style.display = solo ? '' : 'none';
+      $('leaveBtn').textContent = '✕ Sair';
       $('finKj').textContent = me.kj.toFixed(0);
       $('finPts').textContent = Math.round(me.pts);
       $('finRank').textContent = myRank ? myRank.p + 'º/' + myRank.n : '—';
       $('finAw').textContent = me.as ? Math.round(me.sumW/me.as) : 0;
       $('finMw').textContent = Math.round(me.mw);
-      $('finZone').textContent = me.as ? Math.round(me.iz/me.as*100) + '%' : '0%';
+      $('finZone').textContent = solo === 'livre' ? fmtTime(me.ts) : (me.as ? Math.round(me.iz/me.as*100) + '%' : '0%');
       $('bodyEl').style.background = '#05070A';
       updateMarker(blocos.length, 1);
       if(!savedThisClass){
-        if(user && !savePending){ savePending = true; setTimeout(saveTreino, 2500); }   // espera pela posição final
+        if(user && !savePending){ savePending = true; setTimeout(saveTreino, solo ? 300 : 2500); }   // espera pela posição final
         else if(me.ts >= 60) $('savedNote').innerHTML = 'Este treino não fica guardado. <a href="#" id="saveLink">Cria conta ou entra</a> para guardares os próximos.';
       }
       return;
@@ -1082,7 +1156,7 @@ body:has(#liveScreen.active) .legal{display:none;}
     $('gDot').style.left = Math.min(100, Math.max(0, pct/150*100)) + '%';
 
     let cue = '', cls = 'v';
-    if(state.status !== 'playing'){ cue = 'À espera do instrutor'; }
+    if(state.status !== 'playing'){ cue = solo ? 'Em pausa · toca em ▶' : 'À espera do instrutor'; }
     else if(w === 0){ cue = 'Começa a pedalar'; }
     else if(pct <= range.min){ cue = '↑ Mais carga'; cls += ' low'; }
     else if(pct > range.max){ cue = '↓ Alivia um pouco'; cls += ' low'; }
@@ -1133,7 +1207,7 @@ body:has(#liveScreen.active) .legal{display:none;}
     $('myPct').textContent = Math.round(pct) + '%';
     $('gDot').style.left = Math.min(100, Math.max(0, (pct - g.min)/(g.max - g.min)*100)) + '%';
     let cue = '', cls = 'v';
-    if(state.status !== 'playing'){ cue = 'À espera do instrutor'; }
+    if(state.status !== 'playing'){ cue = solo ? 'Em pausa · toca em ▶' : 'À espera do instrutor'; }
     else if(pct <= range.min){ cue = '↑ Aumenta o esforço'; cls += ' low'; }
     else if(pct > range.max){ cue = '↓ Alivia um pouco'; cls += ' low'; }
     else { cue = '✓ Na zona'; cls += ' ok'; }
@@ -1191,7 +1265,7 @@ body:has(#liveScreen.active) .legal{display:none;}
   $('hrBtn').addEventListener('click', connectHr);
   $('chipBike').addEventListener('click', ()=>{ if(!demo) connectBike(false); });
   $('chipHr').addEventListener('click', connectHr);
-  $('enterBtn').addEventListener('click', enterClass);
+  $('enterBtn').addEventListener('click', ()=>{ if(solo) startSolo(); else enterClass(); });
   $('demoBtn').addEventListener('click', ()=>{
     demo = true;
     if(!$('ftpInput').value) $('ftpInput').value = lsGet(LS.ftp) || 150;
@@ -1199,6 +1273,11 @@ body:has(#liveScreen.active) .legal{display:none;}
     $('bikeBtn').textContent = 'Teste';
   });
   $('leaveBtn').addEventListener('click', ()=>{
+    if(solo){
+      if(state && state.status === 'finished'){ leave(); return; }
+      if(me.ts < 5 || confirm('Terminar o treino?')) finishSolo();
+      return;
+    }
     if(sessionEnded || state && state.status === 'finished' || confirm('Sair da aula?')) leave();
   });
   window.addEventListener('pagehide', ()=>{ pushRider(); });
@@ -1209,16 +1288,16 @@ body:has(#liveScreen.active) .legal{display:none;}
   const auth = firebaseReady ? firebase.auth() : null;
   let user = null, perfil = null, savePending = false;
   let treinosCache = [];
-  let returnTo = 'joinScreen';
+  let returnTo = 'homeScreen';
 
   function saveTreino(){
     savePending = false;
-    if(savedThisClass || !user || !fbDb || !pin || me.ts < 60) return;
+    if(savedThisClass || !user || !fbDb || (!pin && !solo) || me.ts < 60) return;
     savedThisClass = true;
     if(bucket.n) { serie.w.push(Math.round(bucket.w/bucket.n)); serie.c.push(Math.round(bucket.c/bucket.n)); serie.hr.push(Math.round(bucket.hr/bucket.n)); bucket = {w:0,c:0,hr:0,n:0}; }
     const hrVals = serie.hr.filter(x=>x>0);
     const t = {
-      date: Date.now(), aula: treinoNome || 'Aula de cycling', pin: pin,
+      date: Date.now(), aula: treinoNome || 'Aula de cycling', pin: pin || null, tipo: solo || 'aula',
       ftp: me.ftp || null, dur: Math.round(me.ts), as: Math.round(me.as),
       kj: Math.round(me.kj*10)/10, pts: Math.round(me.pts),
       aw: me.as ? Math.round(me.sumW/me.as) : 0, mw: Math.round(me.mw),
@@ -1230,7 +1309,7 @@ body:has(#liveScreen.active) .legal{display:none;}
       modo: modo,
       fcMax: me.fc || (perfil && perfil.fcMax) || null
     };
-    const key = new Date().toISOString().slice(0,10) + '_' + pin + '_' + Math.random().toString(36).slice(2,6);
+    const key = new Date().toISOString().slice(0,10) + '_' + (pin || solo) + '_' + Math.random().toString(36).slice(2,6);
     fbDb.ref('alunos/' + user.uid + '/treinos/' + key).set(t)
       .then(()=>{ $('savedNote').innerHTML = '<b>✓ Treino guardado na tua conta</b>'; })
       .catch(()=>{ savedThisClass = false; $('savedNote').textContent = 'Não consegui guardar o treino (sem internet?).'; });
@@ -1248,7 +1327,7 @@ body:has(#liveScreen.active) .legal{display:none;}
   }
 
   function openAccount(){
-    if(currentScreen !== 'accountScreen') returnTo = currentScreen === 'liveScreen' ? 'joinScreen' : currentScreen;
+    if(currentScreen !== 'accountScreen') returnTo = currentScreen === 'liveScreen' ? 'homeScreen' : currentScreen;
     showScreen('accountScreen');
     renderAccount();
   }
@@ -1448,6 +1527,7 @@ body:has(#liveScreen.active) .legal{display:none;}
       }
       updateAccountBtn();
       renderAcctLine();
+      renderHome();
       if(currentScreen === 'setupScreen' && perfil){
         if(perfil.nome) $('nameInput').value = perfil.nome;
         if(perfil.ftp) $('ftpInput').value = perfil.ftp;
@@ -1464,7 +1544,7 @@ body:has(#liveScreen.active) .legal{display:none;}
 
   $('accountBtn').addEventListener('click', openAccount);
   $('finAccountBtn').addEventListener('click', ()=>{ leave(); openAccount(); });
-  $('acctBack').addEventListener('click', ()=> showScreen(returnTo || 'joinScreen'));
+  $('acctBack').addEventListener('click', ()=>{ showScreen(returnTo || 'homeScreen'); if(currentScreen === 'homeScreen') renderHome(); });
   document.addEventListener('click', (e)=>{
     if(e.target && (e.target.id === 'setupAcctLink' || e.target.id === 'saveLink')){
       e.preventDefault();
@@ -1513,7 +1593,276 @@ body:has(#liveScreen.active) .legal{display:none;}
     }).catch(()=> alert('Não consegui guardar.'));
   });
 
+
+  // =====================================================================
+  // MENU INICIAL, SÓ PEDALAR E BIBLIOTECA (treino sozinho, sem aula)
+  // =====================================================================
+  const PRESETS = [
+    { nome:'Base aeróbia · 30 min', modo:'ftp', autorNome:'PlayRide', blocos:[
+      {nome:'Aquecimento', min:5, sec:0, ftp:55, rpm:85, tecnica:'sentado, solta as pernas'},
+      {nome:'Ritmo de base', min:10, sec:0, ftp:70, rpm:90, tecnica:'sentado'},
+      {nome:'Subida leve', min:5, sec:0, ftp:80, rpm:75, tecnica:'sentado, mais carga'},
+      {nome:'Ritmo de base', min:6, sec:0, ftp:70, rpm:90, tecnica:''},
+      {nome:'Retorno à calma', min:4, sec:0, ftp:50, rpm:85, tecnica:''} ]},
+    { nome:'Limiar 3 × 6 min · 40 min', modo:'ftp', autorNome:'PlayRide', blocos:[
+      {nome:'Aquecimento', min:5, sec:0, ftp:55, rpm:85, tecnica:''},
+      {nome:'Ativação', min:3, sec:0, ftp:75, rpm:95, tecnica:''},
+      {nome:'Limiar 1', min:6, sec:0, ftp:98, rpm:85, tecnica:'sentado, ritmo constante'},
+      {nome:'Recupera', min:3, sec:0, ftp:55, rpm:90, tecnica:''},
+      {nome:'Limiar 2', min:6, sec:0, ftp:98, rpm:85, tecnica:'sentado, ritmo constante'},
+      {nome:'Recupera', min:3, sec:0, ftp:55, rpm:90, tecnica:''},
+      {nome:'Limiar 3', min:6, sec:0, ftp:98, rpm:85, tecnica:'em pé no último minuto'},
+      {nome:'Retorno à calma', min:8, sec:0, ftp:50, rpm:85, tecnica:''} ]},
+    { nome:'VO2máx 30/30 · 30 min', modo:'ftp', autorNome:'PlayRide', blocos:(function(){
+      const b=[{nome:'Aquecimento', min:8, sec:0, ftp:55, rpm:85, tecnica:''},{nome:'Ativação', min:2, sec:0, ftp:80, rpm:95, tecnica:''}];
+      for(let s=0;s<2;s++){
+        for(let i=0;i<6;i++){ b.push({nome:'Forte', min:0, sec:30, ftp:120, rpm:100, tecnica:'em pé ou sentado, a fundo'}); b.push({nome:'Leve', min:0, sec:30, ftp:50, rpm:90, tecnica:''}); }
+        if(s===0) b.push({nome:'Recupera', min:4, sec:0, ftp:55, rpm:85, tecnica:''});
+      }
+      b.push({nome:'Retorno à calma', min:4, sec:0, ftp:50, rpm:85, tecnica:''});
+      return b; })() },
+    { nome:'Resistência por FC · 35 min', modo:'fc', autorNome:'PlayRide', blocos:[
+      {nome:'Aquecimento', min:6, sec:0, ftp:58, rpm:85, tecnica:''},
+      {nome:'Z2 contínuo', min:12, sec:0, ftp:68, rpm:90, tecnica:'conversa possível'},
+      {nome:'Z3 tempo', min:8, sec:0, ftp:77, rpm:85, tecnica:''},
+      {nome:'Z2 contínuo', min:5, sec:0, ftp:68, rpm:90, tecnica:''},
+      {nome:'Retorno à calma', min:4, sec:0, ftp:55, rpm:85, tecnica:''} ]}
+  ];
+  let libPlaylife = null, libError = false;
+
+  function renderHome(){
+    const nome = (perfil && perfil.nome) || '';
+    $('homeHello').textContent = user ? 'Olá' + (nome ? ', ' + nome : '') + ' 👋' : '';
+    $('tHistSub').textContent = user ? 'Gráficos e evolução dos teus treinos' : 'Entra na tua conta para guardares os treinos';
+  }
+
+  function treinoDur(t){ return (t.blocos||[]).reduce((s,b)=> s + blockDurationSec(b), 0); }
+  function profHtml(t){
+    const tot = treinoDur(t) || 1, m = parseModo(t.modo);
+    return (t.blocos||[]).map(b=>{
+      const Z = m === 'fc' ? ZONES_FC : ZONES;
+      let z = Z[Z.length-1]; for(const zz of Z){ if(b.ftp <= zz.max){ z = zz; break; } }
+      const h = Math.max(12, Math.min(100, (b.ftp||0) / (m === 'fc' ? 100 : 140) * 100));
+      return '<i style="flex:' + (blockDurationSec(b)/tot) + ' 1 0;height:' + h + '%;background:var(' + z.css + ')"></i>';
+    }).join('');
+  }
+  function libItem(t){
+    const el = document.createElement('button');
+    el.className = 'lib-item';
+    const modoTxt = parseModo(t.modo) === 'fc' ? '%FCmáx' : (parseModo(t.modo) === 'zonas' ? 'zonas' : '%FTP');
+    el.innerHTML = '<div class="li-top"><b></b><small>' + fmtTime(treinoDur(t)) + ' · ' + modoTxt + '</small></div><div class="lib-prof">' + profHtml(t) + '</div>';
+    el.querySelector('b').textContent = t.nome || 'Treino';
+    el.addEventListener('click', ()=> openGuided(t));
+    return el;
+  }
+  function renderLib(){
+    const list = $('libList');
+    list.innerHTML = '';
+    const sec = (txt)=>{ const d = document.createElement('div'); d.className = 'lib-sec'; d.textContent = txt; list.appendChild(d); };
+    if(libPlaylife && libPlaylife.length){ sec('Biblioteca Playlife'); libPlaylife.forEach(t=> list.appendChild(libItem(t))); }
+    sec('Treinos PlayRide');
+    PRESETS.forEach(t=> list.appendChild(libItem(t)));
+    if(libPlaylife === null && !libError){ const h = document.createElement('div'); h.className = 'hint'; h.textContent = 'A carregar a Biblioteca Playlife…'; list.insertBefore(h, list.firstChild); }
+  }
+  async function openLib(){
+    showScreen('libScreen');
+    renderLib();
+    if(libPlaylife !== null || !fbDb) return;
+    try{
+      const v = (await fbDb.ref('biblioteca').once('value')).val() || {};
+      libPlaylife = Object.keys(v).map(k=> v[k]).filter(t=> t && t.blocos)
+        .map(t=> Object.assign({}, t, { blocos: Array.isArray(t.blocos) ? t.blocos : Object.values(t.blocos) }))
+        .sort((a,b)=> (b.atualizado||0) - (a.atualizado||0));
+    }catch(e){ libError = true; libPlaylife = []; }
+    if(currentScreen === 'libScreen') renderLib();
+  }
+
+  function configureSetup(title, kind){
+    $('setupTitle').textContent = title;
+    $('setupP').textContent = kind === 'livre' ? 'Liga a bike e pedala ao teu ritmo. No fim, o treino fica guardado na tua conta.'
+      : kind === 'guiado' ? 'A app guia-te bloco a bloco com as tuas zonas. Podes pausar quando quiseres.'
+      : 'Os teus dados aparecem no ecrã da sala, junto com o resto da turma.';
+    $('nameLabel').style.display = kind ? 'none' : '';
+    $('nameInput').value = (perfil && perfil.nome) || lsGet(LS.name) || '';
+    $('ftpInput').value = (perfil && perfil.ftp) || lsGet(LS.ftp) || '';
+    $('fcInput').value = (perfil && perfil.fcMax) || lsGet('aavFcMax') || '';
+    $('fcLabel').style.display = modo === 'fc' ? '' : 'none';
+    $('fcHint').style.display = modo === 'fc' ? '' : 'none';
+    $('ftpLabel').firstChild.textContent = modo === 'fc' ? 'O teu FTP (watts, opcional)' : 'O teu FTP (watts)';
+    $('enterBtn').textContent = kind ? '▶ Começar o treino' : 'Entrar na aula';
+    $('setupError').textContent = '';
+    renderAcctLine();
+    showScreen('setupScreen');
+    if(!hasBluetooth) showBtWarning();
+  }
+  function openLivre(){
+    solo = 'livre'; pin = null; blocos = []; modo = 'ftp'; treinoNome = 'Só pedalar';
+    configureSetup('Só pedalar', 'livre');
+  }
+  function openGuided(t){
+    solo = 'guiado'; pin = null; modo = parseModo(t.modo); treinoNome = t.nome || 'Treino guiado';
+    blocos = (t.blocos||[]).map(b=>({ nome:b.nome||'', min:b.min||0, sec:b.sec||0, ftp:b.ftp||0, rpm:b.rpm||0, tecnica:b.tecnica||'' }))
+      .filter(b=> blockDurationSec(b) > 0);
+    configureSetup(treinoNome, 'guiado');
+  }
+
+  function startSolo(){
+    const ftp = Math.round(Number($('ftpInput').value) || 0);
+    const fcMaxIn = Math.round(Number($('fcInput').value) || 0);
+    if(modo === 'fc' && (fcMaxIn < 100 || fcMaxIn > 230)){
+      $('setupError').textContent = 'Indica a tua FC máxima (entre 100 e 230). Não sabes? 220 − a tua idade.'; $('fcInput').focus(); return;
+    }
+    if(modo !== 'fc' && hasPowerSource() && (ftp < 50 || ftp > 600)){
+      $('setupError').textContent = 'Indica o teu FTP (entre 50 e 600 W) para calcular as tuas zonas.'; $('ftpInput').focus(); return;
+    }
+    if(!hasPowerSource() && !hrConnected()){
+      $('setupError').textContent = 'Liga a bike (ou a cinta de FC) antes de começar. Para experimentar, usa o modo teste.'; return;
+    }
+    $('setupError').textContent = '';
+    if(ftp) lsSet(LS.ftp, String(ftp));
+    me.n = (perfil && perfil.nome) || lsGet(LS.name) || '';
+    me.ftp = (ftp >= 50 && ftp <= 600) ? ftp : null;
+    me.fc = (fcMaxIn >= 100 && fcMaxIn <= 230) ? fcMaxIn : ((perfil && perfil.fcMax) || null);
+    if(me.fc) lsSet('aavFcMax', String(me.fc));
+    if(user && fbDb){
+      const upd = {};
+      if(me.ftp && (!perfil || perfil.ftp !== me.ftp)) upd.ftp = me.ftp;
+      if(me.fc && (!perfil || perfil.fcMax !== me.fc)) upd.fcMax = me.fc;
+      if(Object.keys(upd).length){ fbDb.ref('alunos/' + user.uid + '/perfil').update(upd).catch(()=>{}); perfil = Object.assign({}, perfil, upd); }
+    }
+    if(solo === 'livre' && !hasPowerSource() && hrConnected() && me.fc) modo = 'fc';   // só cinta: o número grande é a FC
+    resetSerie(); savedThisClass = false; $('savedNote').innerHTML = '';
+    me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = me.ts = 0;
+    serverOffset = 0; sessionEnded = false; myRank = null; riderRef = null;
+    soloClock.acc = 0; soloClock.since = 0;
+    if(solo === 'livre') state = { status:'paused', blockIndex:0 };
+    else state = { blockIndex:0, status:'paused', remainingAtStart: blocos.length ? blockDurationSec(blocos[0]) : 0, startedAt:0 };
+    document.body.classList.add('solo');
+    document.body.classList.toggle('solo-livre', solo === 'livre');
+    $('soloSkip').style.display = solo === 'guiado' ? '' : 'none';
+    $('soloPlay').style.display = '';
+    $('myZoneLbl').textContent = solo === 'livre' ? 'W médios' : 'na zona';
+    $('className').textContent = treinoNome;
+    $('progress').dataset.built = '';
+    updateModeLabels();
+    $('leaveBtn').textContent = '✕ Terminar';
+    $('soloPlay').textContent = '▶ Começar';
+    showScreen('liveScreen');
+    $('chipBike').classList.toggle('on', bikeConnected() || demo);
+    lastSampleAt = performance.now();
+    renderHandle = setInterval(render, 250);
+    sampleHandle = setInterval(sample, 1000);
+    requestWakeLock();
+  }
+
+  function soloPlayToggle(){
+    if(!state || state.status === 'finished') return;
+    if(state.status === 'playing'){
+      if(solo === 'livre'){ soloClock.acc = soloElapsed(); soloClock.since = 0; state = { status:'paused', blockIndex:0 }; }
+      else state = Object.assign({}, state, { status:'paused', remainingAtStart: computeRemaining(state) });
+      $('soloPlay').textContent = '▶ Continuar';
+    } else {
+      if(solo === 'livre'){ soloClock.since = Date.now(); state = { status:'playing', blockIndex:0 }; }
+      else state = Object.assign({}, state, { status:'playing', startedAt: Date.now() });
+      $('soloPlay').textContent = '❚❚ Pausa';
+    }
+    render();
+  }
+  function soloGoTo(idx){
+    if(idx >= blocos.length){ finishSolo(); return; }
+    state = { blockIndex: idx, status: state.status, remainingAtStart: blockDurationSec(blocos[idx]), startedAt: Date.now() };
+  }
+  function soloAdvance(){
+    if(!state || state.status !== 'playing') return;
+    if(computeRemaining(state) <= 0) soloGoTo(state.blockIndex + 1);
+  }
+  function finishSolo(){
+    if(!state) return;
+    if(solo === 'livre'){ soloClock.acc = soloElapsed(); soloClock.since = 0; }
+    state = { status:'finished', blockIndex: blocos.length, remainingAtStart:0, startedAt:0 };
+    $('soloPlay').style.display = 'none'; $('soloSkip').style.display = 'none';
+    if(!user && me.ts < 60) $('savedNote').innerHTML = '';
+    render();
+  }
+
+  function renderLivre(){
+    if(state.status === 'finished'){
+      blocos = [];
+      const tmp = solo; // reaproveita o ecrã de fim
+      $('activeBlock').style.display = 'none';
+      $('finishedEl').classList.add('active');
+      $('nextEl').textContent = '';
+      $('finTitle').textContent = 'Treino concluído';
+      $('totalTimeEl').textContent = fmtTime(soloElapsed());
+      $('finKj').textContent = me.kj.toFixed(0);
+      $('finPts').textContent = Math.round(me.pts);
+      $('finRank').textContent = '—';
+      $('finAw').textContent = me.as ? Math.round(me.sumW/me.as) : 0;
+      $('finMw').textContent = Math.round(me.mw);
+      $('finZoneLbl').textContent = 'a gravar';
+      $('finZone').textContent = fmtTime(me.ts);
+      $('finHomeBtn').style.display = '';
+      $('leaveBtn').textContent = '✕ Sair';
+      $('bodyEl').style.background = '#05070A';
+      if(!savedThisClass){
+        if(user && !savePending){ savePending = true; setTimeout(saveTreino, 300); }
+        else if(!user && me.ts >= 60) $('savedNote').innerHTML = 'Este treino não fica guardado. <a href="#" id="saveLink">Cria conta ou entra</a> para guardares os próximos.';
+      }
+      return;
+    }
+    $('activeBlock').style.display = 'flex';
+    $('finishedEl').classList.remove('active');
+    $('rankEl').innerHTML = '';
+    const powered = hasPowerSource();
+    let pct = null;
+    if(modo === 'fc'){ const hr = myHr(); if(hr && me.fc) pct = hr / me.fc * 100; }
+    else if(powered && me.ftp && dispPower > 0) pct = dispPower / me.ftp * 100;
+    const zone = pct !== null ? getZone(pct) : null;
+    const zc = zone ? zoneColor(zone.css) : '#8A93A3';
+    $('zoneEl').textContent = zone ? zone.name : 'Só pedalar';
+    $('zoneEl').style.color = zc;
+    $('nameEl').style.display = 'none'; $('nameSep').style.display = 'none';
+    $('techEl').textContent = '';
+    $('feelEl').textContent = zone ? zone.feel : '';
+    $('timerEl').textContent = fmtTime(soloElapsed());
+    $('timerEl').classList.remove('warn');
+    $('targetEl').innerHTML = state.status === 'playing' ? 'Pedala ao teu ritmo' : 'Em pausa · toca em <b>▶</b> para continuar';
+    $('bodyEl').style.background = 'radial-gradient(circle at 50% 30%, ' + zc + '33, #05070A 70%)';
+    const range = zone ? zoneRange(pct) : {min:0, max:0};
+    if(modo === 'fc') renderMeFc(LIVRE_BLOCK, range); else renderMe(LIVRE_BLOCK, range);
+    $('cueEl').textContent = state.status !== 'playing' ? 'Em pausa' : (zone ? zone.name.split(' ')[0] : (powered && !me.ftp ? 'Sem FTP: só potência' : ''));
+    $('cueEl').style.color = state.status !== 'playing' ? 'rgba(255,255,255,.6)' : zc;
+    $('myPct').className = 'v'; $('myRpm').className = 'v';
+    $('gBand').style.width = '0';
+    $('myZoneLbl').textContent = 'W médios';
+    $('myZone').textContent = me.as ? Math.round(me.sumW/me.as) : 0;
+    $('nextEl').innerHTML = 'Toca em ✕ Terminar quando acabares';
+  }
+
+  $('tLive').addEventListener('click', ()=>{ showScreen('joinScreen'); setTimeout(()=> $('pinInput').focus(), 50); });
+  $('tFree').addEventListener('click', openLivre);
+  $('tLib').addEventListener('click', openLib);
+  $('tHist').addEventListener('click', openAccount);
+  $('joinBack').addEventListener('click', ()=>{ showScreen('homeScreen'); renderHome(); });
+  $('libBack').addEventListener('click', ()=>{ showScreen('homeScreen'); renderHome(); });
+  $('soloPlay').addEventListener('click', soloPlayToggle);
+  $('soloSkip').addEventListener('click', ()=>{ if(state && state.status !== 'finished') soloGoTo(state.blockIndex + 1); render(); });
+  $('finHomeBtn').addEventListener('click', ()=> leave());
+  $('setupBack').addEventListener('click', ()=>{
+    const was = solo; solo = null; pin = null;
+    if(was === 'guiado') openLib();
+    else if(was === 'livre'){ showScreen('homeScreen'); renderHome(); }
+    else showScreen('joinScreen');
+  });
+
   renderIosBoxes();
+  renderHome();
+
+  // atalhos: ?livre=1 (só pedalar), ?biblioteca=1, ?conta=1
+  const qs = new URLSearchParams(location.search);
+  if(qs.get('livre')) openLivre();
+  else if(qs.get('biblioteca')) openLib();
+  else if(qs.get('conta')) openAccount();
 
   // entra direto com ?pin=XXXX (QR code)
   const urlPin = new URLSearchParams(location.search).get('pin');
