@@ -1871,11 +1871,19 @@ body.solo-livre #progress{display:none;}
     checkPin(urlPin);
   }
 
-  if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
-  }
 })();
 </script>
+<script>
+window.PR_INSTALL_CFG = { key:'aluno', name:'PlayRide', icon:'icon-192.png', accent:'#E8722C',
+    skip: function(qs){ return qs.has('pin') || qs.has('livre') || qs.has('conta') || qs.has('biblioteca'); },
+    button: function(){
+      var home = document.getElementById('homeScreen'); if(!home || document.getElementById('installBtn')) return;
+      var x = document.createElement('button'); x.id = 'installBtn'; x.className = 'btn-link'; x.textContent = '⬇ Instalar a app no telemóvel';
+      x.addEventListener('click', function(){ window.PlayRideInstall(); });
+      home.appendChild(x);
+    } };
+</script>
+<script src="instalar.js"></script>
 <div class="legal">© 2026 Mário Teixeira · todos os direitos reservados</div>
 </body>
 </html>
