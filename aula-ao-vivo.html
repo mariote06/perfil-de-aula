@@ -241,6 +241,47 @@ body.solo .solo-ctl{display:flex;}
 body.solo-livre #progress{display:none;}
 .solo-btn{background:var(--accent);border:none;color:#140B04;font-weight:700;padding:6px 14px;border-radius:8px;font-size:13px;}
 .solo-btn.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff;font-weight:500;}
+
+/* ---------- Ficha do aluno ---------- */
+.ficha{max-width:420px;width:100%;text-align:left;display:flex;flex-direction:column;gap:14px;}
+.ficha h1{text-align:left;}
+.f-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px;}
+.f-card h2{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:700;margin:0;}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.f-field{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted);}
+.f-field input,.f-field select{background:var(--surface-2);border:1px solid var(--border);color:#fff;border-radius:10px;padding:11px 12px;font-size:16px;width:100%;box-sizing:border-box;font-family:'Inter',sans-serif;}
+.f-field input:focus,.f-field select:focus{outline:none;border-color:var(--accent);}
+.f-out{display:flex;align-items:baseline;gap:8px;background:var(--surface-2);border-radius:10px;padding:10px 12px;}
+.f-out b{font-family:'Barlow Condensed',sans-serif;font-size:26px;color:#fff;}
+.f-out span{font-size:12px;color:var(--muted);}
+.f-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.f-chips button{background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:8px 12px;font-size:13px;}
+.f-chips button.on{background:rgba(232,114,44,.18);border-color:var(--accent);color:#fff;font-weight:600;}
+.f-q{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;line-height:1.4;padding:8px 0;border-bottom:1px solid var(--border);}
+.f-q:last-child{border-bottom:none;}
+.f-yn{display:flex;gap:4px;flex-shrink:0;}
+.f-yn button{background:var(--surface-2);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 10px;font-size:13px;min-width:46px;}
+.f-yn button.on.sim{background:rgba(255,59,59,.18);border-color:#FF3B3B;color:#fff;}
+.f-yn button.on.nao{background:rgba(61,212,92,.15);border-color:#3DD45C;color:#fff;}
+.f-zones{display:flex;flex-direction:column;gap:4px;font-size:12px;}
+.f-zones div{display:grid;grid-template-columns:14px 1fr auto;gap:8px;align-items:center;color:var(--muted);}
+.f-zones i{width:10px;height:10px;border-radius:3px;display:block;}
+.f-zones b{color:#fff;font-variant-numeric:tabular-nums;}
+.f-check{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.4;color:var(--text);}
+.f-check input{width:20px;height:20px;flex-shrink:0;margin-top:1px;accent-color:var(--accent);}
+.f-note{font-size:12px;color:var(--muted);line-height:1.4;}
+.f-link{background:none;border:none;color:var(--accent);font-size:13px;padding:0;text-decoration:underline;text-align:left;}
+.safety{display:flex;gap:10px;align-items:flex-start;text-align:left;background:rgba(255,59,59,.10);border:1px solid rgba(255,59,59,.45);border-radius:12px;padding:12px;font-size:13px;line-height:1.45;color:#fff;max-width:320px;width:100%;box-sizing:border-box;}
+.safety svg{width:22px;height:22px;flex-shrink:0;color:#FF6B6B;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.safety b{color:#FF8A8A;}
+.ficha .safety{max-width:none;}
+.safety-banner{position:absolute;left:12px;right:12px;top:54px;z-index:30;max-width:none;box-shadow:0 10px 30px rgba(0,0,0,.5);background:#2A1215;display:none;}
+.safety-banner.on{display:flex;}
+.safety-banner button{margin-left:auto;background:none;border:none;color:#fff;font-size:18px;padding:0 4px;align-self:flex-start;}
+.chip.warnchip{color:#FF8A8A;border-color:rgba(255,59,59,.4);}
+#liveScreen{position:relative;}
+.f-alert{display:none;}
+.f-alert.on{display:flex;}
 </style>
 </head>
 <body>
@@ -253,7 +294,102 @@ body.solo-livre #progress{display:none;}
     <button class="tile big" id="tLive" style="--tc:#E8722C"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z" fill="currentColor" stroke="none"/></svg><div><b>Aula ao vivo</b><br><span>Entra na aula da sala com o PIN do ecrã</span></div></button>
     <button class="tile" id="tFree" style="--tc:#3DD45C"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9h6l3.5 7.5M9 9 12 16.5h-3M14 6h2.5l-1.5 3"/></svg><b>Só pedalar</b><span>Treino livre ao teu ritmo</span></button>
     <button class="tile" id="tLib" style="--tc:#1FA8F0"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5v14H4zM10 5h4v14h-4zM15.5 6.2l3.8-1 3 13.6-3.8 1z"/></svg><b>Biblioteca</b><span>Treinos guiados para fazeres sozinho</span></button>
-    <button class="tile" id="tHist" style="--tc:#A35CFF;grid-column:1 / -1"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg><b>Treinos realizados</b><span id="tHistSub">Gráficos e evolução dos teus treinos</span></button>
+    <button class="tile" id="tHist" style="--tc:#A35CFF"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg><b>Treinos realizados</b><span id="tHistSub">Gráficos e evolução dos teus treinos</span></button>
+    <button class="tile" id="tFicha" style="--tc:#FFD60A"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11h6M9 15h6"/></svg><b>A minha ficha</b><span id="tFichaSub">Idade, FCmáx e saúde para treinares em segurança</span></button>
+  </div>
+</div>
+
+
+<!-- FICHA DO ALUNO -->
+<div id="fichaScreen" class="screen acct">
+  <div class="ficha">
+    <button class="btn-link back-top" id="fichaBack" style="padding:6px 0">← Início</button>
+    <h1>A minha ficha</h1>
+    <p class="acct-p">Estes dados ajustam as tuas zonas e ajudam-te a treinar em segurança. Ficam guardados <span id="fichaWhere">neste telemóvel</span>.</p>
+
+    <div class="safety"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17.5v.01"/></svg><div><b>A tua segurança primeiro.</b> Se durante a aula sentires dor no peito, tonturas, falta de ar fora do normal, náuseas ou qualquer desconforto, <b>pára de pedalar</b> e pede ajuda ao professor da aula.</div></div>
+
+    <div class="f-card">
+      <h2>Dados pessoais</h2>
+      <div class="f-row">
+        <label class="f-field">Data de nascimento<input type="date" id="fNasc" max="2020-12-31" min="1920-01-01"></label>
+        <div class="f-field">Idade<div class="f-out"><b id="fIdade">—</b><span>anos</span></div></div>
+      </div>
+      <div class="f-row">
+        <label class="f-field">Peso (kg)<input type="number" id="fPeso" inputmode="decimal" min="30" max="250" step="0.5" placeholder="ex: 70"></label>
+        <label class="f-field">Altura (cm)<input type="number" id="fAltura" inputmode="numeric" min="120" max="230" placeholder="ex: 172"></label>
+      </div>
+    </div>
+
+    <div class="f-card">
+      <h2>Condição física</h2>
+      <div class="f-field">Como te descreves hoje?
+        <div class="f-chips" id="fNivel">
+          <button type="button" data-v="sedentario">Sedentário</button>
+          <button type="button" data-v="iniciado">Iniciado</button>
+          <button type="button" data-v="intermedio">Intermédio</button>
+          <button type="button" data-v="avancado">Avançado</button>
+        </div>
+      </div>
+      <div class="f-field">Quantas vezes treinas por semana?
+        <div class="f-chips" id="fFreq">
+          <button type="button" data-v="0">0</button>
+          <button type="button" data-v="1-2">1–2</button>
+          <button type="button" data-v="3-4">3–4</button>
+          <button type="button" data-v="5+">5 ou mais</button>
+        </div>
+      </div>
+      <div class="f-field">Objetivo principal
+        <div class="f-chips" id="fObj">
+          <button type="button" data-v="saude">Saúde e bem-estar</button>
+          <button type="button" data-v="peso">Perder peso</button>
+          <button type="button" data-v="resistencia">Resistência</button>
+          <button type="button" data-v="performance">Performance / provas</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="f-card">
+      <h2>Frequência cardíaca</h2>
+      <div class="f-row">
+        <div class="f-field">FC máxima estimada<div class="f-out"><b id="fFcEst">—</b><span>bpm</span></div></div>
+        <label class="f-field">FC em repouso (opcional)<input type="number" id="fFcRep" inputmode="numeric" min="35" max="110" placeholder="ex: 62"></label>
+      </div>
+      <label class="f-field">Sabes a tua FC máxima medida? (opcional)<input type="number" id="fFcMed" inputmode="numeric" min="120" max="230" placeholder="Só se fizeste um teste"></label>
+      <div class="f-note">A estimativa usa a fórmula de Tanaka: 208 − 0,7 × idade. Se tiveres um valor medido num teste, usamos esse.</div>
+      <div class="f-zones" id="fZones"></div>
+    </div>
+
+    <div class="f-card">
+      <h2>Potência (FTP)</h2>
+      <label class="f-field">O teu FTP em watts (se souberes)<input type="number" id="fFtp" inputmode="numeric" min="50" max="600" placeholder="ex: 160"></label>
+      <button type="button" class="f-link" id="fFtpEst">Não sei: estimar a partir do peso e da condição física</button>
+      <div class="f-note" id="fFtpNote"></div>
+    </div>
+
+    <div class="f-card">
+      <h2>Questionário de saúde</h2>
+      <div class="f-note">Responde com sinceridade. Serve para saberes se deves falar com um médico antes de fazer exercício intenso.</div>
+      <div id="fParq">
+<div class="f-q"><span>Algum médico já te disse que tens um problema de coração ou de tensão arterial?</span><div class="f-yn" data-q="0"><button type="button" data-v="1" class="sim">Sim</button><button type="button" data-v="0" class="nao">Não</button></div></div>
+<div class="f-q"><span>Sentes dor no peito em repouso, no dia a dia ou quando fazes exercício?</span><div class="f-yn" data-q="1"><button type="button" data-v="1" class="sim">Sim</button><button type="button" data-v="0" class="nao">Não</button></div></div>
+<div class="f-q"><span>Já perdeste o equilíbrio por tonturas ou perdeste a consciência nos últimos 12 meses?</span><div class="f-yn" data-q="2"><button type="button" data-v="1" class="sim">Sim</button><button type="button" data-v="0" class="nao">Não</button></div></div>
+<div class="f-q"><span>Tens alguma doença crónica diagnosticada (além de coração ou tensão)?</span><div class="f-yn" data-q="3"><button type="button" data-v="1" class="sim">Sim</button><button type="button" data-v="0" class="nao">Não</button></div></div>
+<div class="f-q"><span>Tomas medicação para alguma doença crónica (por exemplo, tensão, diabetes, coração)?</span><div class="f-yn" data-q="4"><button type="button" data-v="1" class="sim">Sim</button><button type="button" data-v="0" class="nao">Não</button></div></div>
+<div class="f-q"><span>Tens algum problema nos ossos, articulações ou músculos que possa piorar com o exercício?</span><div class="f-yn" data-q="5"><button type="button" data-v="1" class="sim">Sim</button><button type="button" data-v="0" class="nao">Não</button></div></div>
+<div class="f-q"><span>Estás grávida ou tiveste um bebé nos últimos 6 meses?</span><div class="f-yn" data-q="6"><button type="button" data-v="1" class="sim">Sim</button><button type="button" data-v="0" class="nao">Não</button></div></div>
+<div class="f-q"><span>Algum médico te disse para só fazeres exercício com supervisão médica?</span><div class="f-yn" data-q="7"><button type="button" data-v="1" class="sim">Sim</button><button type="button" data-v="0" class="nao">Não</button></div></div>
+      </div>
+      <div class="safety f-alert" id="fParqAlert"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17.5v.01"/></svg><div>Respondeste <b>Sim</b> a pelo menos uma pergunta. Antes de fazeres aulas intensas, <b>fala com o teu médico</b> e avisa o professor da aula. Pedala sempre com intensidade leve até teres essa indicação.</div></div>
+    </div>
+
+    <div class="f-card">
+      <label class="f-check"><input type="checkbox" id="fDecl"><span>Declaro que as informações são verdadeiras e que vou pedalar de acordo com a minha condição física, parando sempre que sentir desconforto.</span></label>
+      <label class="f-check"><input type="checkbox" id="fRgpd"><span>Autorizo que estes dados fiquem guardados para adaptar as aulas às minhas zonas. Posso apagá-los quando quiser.</span></label>
+      <button class="btn-primary" id="fSave" style="max-width:none">Guardar a minha ficha</button>
+      <div class="err" id="fErr"></div>
+      <button type="button" class="f-link" id="fDelete" style="color:var(--muted);display:none">Apagar a minha ficha</button>
+    </div>
   </div>
 </div>
 
@@ -358,6 +494,8 @@ body.solo-livre #progress{display:none;}
     <div class="hint" id="bikeHelp">Antes de ligar: pedala um pouco para acordar a consola da bike. Tens de ter o Bluetooth e a Localização do telemóvel ligados.</div>
     <div class="warn" id="btWarn"></div>
   </div>
+  <div class="safety" id="setupSafety"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17.5v.01"/></svg><div id="setupSafetyTxt">Se sentires <b>dor no peito, tonturas, falta de ar ou qualquer desconforto</b>, pára de pedalar e pede ajuda ao professor da aula.</div></div>
+  <div class="acct-line" id="fichaLine"></div>
   <div class="acct-line" id="acctLine"></div>
   <button id="enterBtn" class="btn-primary">Entrar na aula</button>
   <div id="setupError" class="err"></div>
@@ -371,11 +509,13 @@ body.solo-livre #progress{display:none;}
     <div class="chips">
       <span class="chip" id="chipBike"><span class="dot"></span>Bike</span>
       <span class="chip" id="chipHr"><span class="dot"></span>FC</span>
+      <button class="chip warnchip" id="chipSafety" aria-label="Aviso de segurança">⚠</button>
     </div>
     <div class="rank" id="rankEl"></div>
     <div class="solo-ctl"><button class="solo-btn" id="soloPlay">▶ Começar</button><button class="solo-btn ghost" id="soloSkip" title="Saltar para o bloco seguinte">⏭</button></div>
     <button class="leave-btn" id="leaveBtn">✕ Sair</button>
   </div>
+  <div class="safety safety-banner" id="safetyBanner" role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17.5v.01"/></svg><div id="safetyBannerTxt">Sentes <b>desconforto, dor no peito, tonturas ou falta de ar</b>? <b>Pára de pedalar</b> e pede ajuda ao professor da aula.</div><button id="safetyClose" aria-label="Fechar aviso">✕</button></div>
   <div class="body" id="bodyEl">
     <div class="class-name" id="className"></div>
     <div id="activeBlock" style="width:100%;display:flex;flex-direction:column;align-items:center;">
@@ -511,7 +651,7 @@ body.solo-livre #progress{display:none;}
   let currentScreen = 'homeScreen';
   function showScreen(id){
     currentScreen = id;
-    ['homeScreen','libScreen','joinScreen','setupScreen','accountScreen'].forEach(s=> $(s).classList.toggle('active', s===id));
+    ['homeScreen','libScreen','fichaScreen','joinScreen','setupScreen','accountScreen'].forEach(s=> $(s).classList.toggle('active', s===id));
     $('liveScreen').classList.toggle('active', id==='liveScreen');
     window.scrollTo(0,0);
   }
@@ -1528,6 +1668,7 @@ body.solo-livre #progress{display:none;}
       updateAccountBtn();
       renderAcctLine();
       renderHome();
+      if(u) loadFichaConta();
       if(currentScreen === 'setupScreen' && perfil){
         if(perfil.nome) $('nameInput').value = perfil.nome;
         if(perfil.ftp) $('ftpInput').value = perfil.ftp;
@@ -1634,6 +1775,10 @@ body.solo-livre #progress{display:none;}
     const nome = (perfil && perfil.nome) || '';
     $('homeHello').textContent = user ? 'Olá' + (nome ? ', ' + nome : '') + ' 👋' : '';
     $('tHistSub').textContent = user ? 'Gráficos e evolução dos teus treinos' : 'Entra na tua conta para guardares os treinos';
+    if(typeof ficha !== 'undefined'){
+      const fc = fichaFcMax(ficha), id = ficha ? idadeDe(ficha.nasc) : null;
+      $('tFichaSub').textContent = ficha ? (id ? id + ' anos' : 'Ficha') + (fc ? ' · FCmáx ' + fc + ' bpm' : '') + (fichaAlerta(ficha) ? ' · ⚠ fala com o médico' : '') : 'Por preencher: idade, FCmáx e saúde';
+    }
   }
 
   function treinoDur(t){ return (t.blocos||[]).reduce((s,b)=> s + blockDurationSec(b), 0); }
@@ -1839,6 +1984,177 @@ body.solo-livre #progress{display:none;}
     $('nextEl').innerHTML = 'Toca em ✕ Terminar quando acabares';
   }
 
+
+  // =====================================================================
+  // FICHA DO ALUNO (idade, FCmáx, condição física, questionário de saúde)
+  // =====================================================================
+  let ficha = null;
+  try{ ficha = JSON.parse(lsGet('prFicha') || 'null'); }catch(e){ ficha = null; }
+  const FTP_WKG = { sedentario:1.5, iniciado:2.0, intermedio:2.6, avancado:3.2 };
+  const FC_Z = [ {n:'Z1 Recuperação', lo:50, hi:60, c:'--z0'}, {n:'Z2 Resistência', lo:60, hi:70, c:'--z1'}, {n:'Z3 Tempo', lo:70, hi:80, c:'--z2'}, {n:'Z4 Limiar', lo:80, hi:90, c:'--z3'}, {n:'Z5 VO2máx', lo:90, hi:100, c:'--z4'} ];
+
+  function idadeDe(nasc){
+    if(!nasc) return null;
+    const d = new Date(nasc + 'T12:00:00'); if(isNaN(d)) return null;
+    const h = new Date(); let a = h.getFullYear() - d.getFullYear();
+    if(h.getMonth() < d.getMonth() || (h.getMonth() === d.getMonth() && h.getDate() < d.getDate())) a--;
+    return (a >= 5 && a <= 105) ? a : null;
+  }
+  function fcEstimada(idade){ return idade ? Math.round(208 - 0.7 * idade) : null; }
+  function fichaFcMax(f){ if(!f) return null; return f.fcMed || fcEstimada(idadeDe(f.nasc)); }
+  function fichaAlerta(f){ return !!(f && f.parq && Object.values(f.parq).some(v => v === 1 || v === '1' || v === true)); }
+
+  function chipVal(id){ const b = $(id).querySelector('button.on'); return b ? b.dataset.v : null; }
+  function setChip(id, v){ $(id).querySelectorAll('button').forEach(b=> b.classList.toggle('on', b.dataset.v === v)); }
+  ['fNivel','fFreq','fObj'].forEach(id=> $(id).addEventListener('click', e=>{ const b = e.target.closest('button'); if(b){ setChip(id, b.dataset.v); fichaPreview(); } }));
+  $('fParq').addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    b.parentNode.querySelectorAll('button').forEach(x=> x.classList.toggle('on', x === b));
+    fichaPreview();
+  });
+
+  function readFichaForm(){
+    const parq = {};
+    $('fParq').querySelectorAll('.f-yn').forEach(g=>{ const on = g.querySelector('button.on'); if(on) parq[g.dataset.q] = Number(on.dataset.v); });
+    const num = (id)=>{ const v = Number($(id).value); return v > 0 ? v : null; };
+    return {
+      nasc: $('fNasc').value || null, peso: num('fPeso'), altura: num('fAltura'),
+      nivel: chipVal('fNivel'), freq: chipVal('fFreq'), objetivo: chipVal('fObj'),
+      fcRep: num('fFcRep'), fcMed: num('fFcMed'), ftp: num('fFtp'), parq: parq,
+      decl: $('fDecl').checked, rgpd: $('fRgpd').checked
+    };
+  }
+
+  function fichaPreview(){
+    const f = readFichaForm();
+    const idade = idadeDe(f.nasc);
+    $('fIdade').textContent = idade || '—';
+    const est = fcEstimada(idade);
+    $('fFcEst').textContent = est || '—';
+    const fcMax = f.fcMed || est;
+    if(fcMax){
+      const rep = f.fcRep && f.fcRep < fcMax ? f.fcRep : null;
+      $('fZones').innerHTML = '<p class="f-note" style="margin:0 0 2px">As tuas zonas de FC' + (f.fcMed ? ' (FCmáx medida)' : '') + ':</p>' + FC_Z.map(z=>{
+        const lo = Math.round(z.lo * fcMax / 100), hi = Math.round(z.hi * fcMax / 100);
+        return '<div><i style="background:var(' + z.c + ')"></i><span>' + z.n + '</span><b>' + lo + '–' + hi + ' bpm</b></div>';
+      }).join('');
+    } else $('fZones').innerHTML = '';
+    $('fParqAlert').classList.toggle('on', fichaAlerta(f));
+  }
+  ['fNasc','fPeso','fAltura','fFcRep','fFcMed','fFtp'].forEach(id=> $(id).addEventListener('input', fichaPreview));
+
+  $('fFtpEst').addEventListener('click', ()=>{
+    const f = readFichaForm();
+    if(!f.peso || !f.nivel){ $('fFtpNote').textContent = 'Indica primeiro o peso e a condição física.'; return; }
+    const est = Math.round(f.peso * FTP_WKG[f.nivel] / 5) * 5;
+    $('fFtp').value = est;
+    $('fFtpNote').textContent = 'Estimativa: ' + FTP_WKG[f.nivel].toString().replace('.', ',') + ' W/kg × ' + f.peso + ' kg ≈ ' + est + ' W. Nas primeiras aulas o professor ajuda a afinar.';
+  });
+
+  function fillFichaForm(f){
+    f = f || {};
+    $('fNasc').value = f.nasc || ''; $('fPeso').value = f.peso || ''; $('fAltura').value = f.altura || '';
+    setChip('fNivel', f.nivel || null); setChip('fFreq', f.freq || null); setChip('fObj', f.objetivo || null);
+    $('fFcRep').value = f.fcRep || ''; $('fFcMed').value = f.fcMed || '';
+    $('fFtp').value = f.ftp || (perfil && perfil.ftp) || lsGet(LS.ftp) || '';
+    $('fParq').querySelectorAll('.f-yn').forEach(g=>{ const v = f.parq ? f.parq[g.dataset.q] : undefined; g.querySelectorAll('button').forEach(b=> b.classList.toggle('on', v !== undefined && Number(b.dataset.v) === Number(v))); });
+    $('fDecl').checked = !!f.decl; $('fRgpd').checked = !!f.rgpd;
+    $('fFtpNote').textContent = ''; $('fErr').textContent = '';
+    $('fDelete').style.display = ficha ? '' : 'none';
+    $('fichaWhere').textContent = user ? 'na tua conta' : 'só neste telemóvel (entra na tua conta para os teres em qualquer lado)';
+    fichaPreview();
+  }
+
+  function openFicha(){ fillFichaForm(ficha); showScreen('fichaScreen'); }
+
+  async function saveFicha(){
+    const f = readFichaForm();
+    $('fErr').textContent = '';
+    if(!f.nasc || !idadeDe(f.nasc)){ $('fErr').textContent = 'Indica a tua data de nascimento.'; $('fNasc').focus(); return; }
+    if(Object.keys(f.parq).length < $('fParq').querySelectorAll('.f-yn').length){ $('fErr').textContent = 'Responde a todas as perguntas do questionário de saúde.'; return; }
+    if(!f.decl || !f.rgpd){ $('fErr').textContent = 'Para guardar, confirma as duas caixas no fim.'; return; }
+    f.atualizado = Date.now();
+    Object.keys(f).forEach(k=>{ if(f[k] === null) delete f[k]; });
+    ficha = f;
+    lsSet('prFicha', JSON.stringify(f));
+    const fcMax = fichaFcMax(f);
+    if(fcMax) lsSet('aavFcMax', String(fcMax));
+    if(f.ftp) lsSet(LS.ftp, String(f.ftp));
+    if(user && fbDb){
+      try{
+        await fbDb.ref('alunos/' + user.uid + '/ficha').set(f);
+        const upd = {};
+        if(fcMax) upd.fcMax = fcMax;
+        if(f.ftp) upd.ftp = f.ftp;
+        if(Object.keys(upd).length){ await fbDb.ref('alunos/' + user.uid + '/perfil').update(upd); perfil = Object.assign({}, perfil, upd); }
+      }catch(e){ $('fErr').textContent = 'Guardado neste telemóvel, mas não na conta (sem internet?).'; renderHome(); return; }
+    }
+    $('fSave').textContent = 'Ficha guardada ✓';
+    setTimeout(()=>{ $('fSave').textContent = 'Guardar a minha ficha'; }, 1800);
+    $('fDelete').style.display = '';
+    renderHome();
+  }
+  async function deleteFicha(){
+    if(!confirm('Apagar a tua ficha? (os treinos guardados mantêm-se)')) return;
+    ficha = null;
+    try{ localStorage.removeItem('prFicha'); }catch(e){}
+    if(user && fbDb){ try{ await fbDb.ref('alunos/' + user.uid + '/ficha').remove(); }catch(e){} }
+    fillFichaForm(null); renderHome();
+  }
+  async function loadFichaConta(){
+    if(!user || !fbDb) return;
+    try{
+      const v = (await fbDb.ref('alunos/' + user.uid + '/ficha').once('value')).val();
+      if(v){ ficha = v; lsSet('prFicha', JSON.stringify(v)); }
+      else if(ficha){ fbDb.ref('alunos/' + user.uid + '/ficha').set(ficha).catch(()=>{}); }   // passa a ficha do telemóvel para a conta
+    }catch(e){}
+    renderHome();
+    if(currentScreen === 'fichaScreen') fillFichaForm(ficha);
+  }
+
+  // texto da ficha e do aviso no ecrã antes de pedalar
+  function setupFichaInfo(){
+    const fc = fichaFcMax(ficha);
+    if(fc && !$('fcInput').value) $('fcInput').value = fc;
+    if(fc) $('fcHint').textContent = 'Pela tua ficha, a tua FC máxima é ' + fc + ' bpm.';
+    else $('fcHint').textContent = 'Esta aula é por frequência cardíaca. Preenche a tua ficha para calcularmos a tua FC máxima pela idade.';
+    if(!ficha){
+      $('fichaLine').innerHTML = 'Ainda não tens ficha. <a href="#" id="fichaLink">Preenche a tua ficha</a> (2 minutos) para treinares com as tuas zonas e em segurança.';
+    } else if(fichaAlerta(ficha)){
+      $('fichaLine').innerHTML = '<span style="color:#FF8A8A">⚠ Na tua ficha indicaste um problema de saúde: pedala com intensidade leve e avisa o professor.</span>';
+    } else $('fichaLine').innerHTML = '';
+    $('setupSafetyTxt').innerHTML = solo
+      ? 'Estás a treinar sozinho. Se sentires <b>dor no peito, tonturas, falta de ar ou qualquer desconforto</b>, pára de pedalar e pede ajuda. Em emergência liga <b>112</b>.'
+      : 'Se sentires <b>dor no peito, tonturas, falta de ar ou qualquer desconforto</b>, pára de pedalar e pede ajuda ao professor da aula.';
+  }
+
+  // aviso durante a aula: aparece ao entrar e sempre que tocas em ⚠
+  let safetyTimer = null;
+  function showSafety(ms){
+    $('safetyBannerTxt').innerHTML = solo
+      ? 'Sentes <b>desconforto, dor no peito, tonturas ou falta de ar</b>? <b>Pára de pedalar</b> e pede ajuda. Em emergência liga <b>112</b>.'
+      : 'Sentes <b>desconforto, dor no peito, tonturas ou falta de ar</b>? <b>Pára de pedalar</b> e pede ajuda ao professor da aula.';
+    $('safetyBanner').classList.add('on');
+    clearTimeout(safetyTimer);
+    if(ms) safetyTimer = setTimeout(()=> $('safetyBanner').classList.remove('on'), ms);
+  }
+  $('chipSafety').addEventListener('click', ()=> showSafety(0));
+  $('safetyClose').addEventListener('click', ()=>{ clearTimeout(safetyTimer); $('safetyBanner').classList.remove('on'); });
+  const _showScreen = showScreen;
+  showScreen = function(id){
+    const was = currentScreen;
+    _showScreen(id);
+    if(id === 'setupScreen') setupFichaInfo();
+    if(id === 'liveScreen' && was !== 'liveScreen') showSafety(12000);
+    if(id !== 'liveScreen'){ clearTimeout(safetyTimer); $('safetyBanner').classList.remove('on'); }
+  };
+
+  $('tFicha').addEventListener('click', openFicha);
+  $('fichaBack').addEventListener('click', ()=>{ showScreen('homeScreen'); renderHome(); });
+  $('fSave').addEventListener('click', saveFicha);
+  $('fDelete').addEventListener('click', deleteFicha);
+  document.addEventListener('click', (e)=>{ if(e.target && e.target.id === 'fichaLink'){ e.preventDefault(); openFicha(); } });
+
   $('tLive').addEventListener('click', ()=>{ showScreen('joinScreen'); setTimeout(()=> $('pinInput').focus(), 50); });
   $('tFree').addEventListener('click', openLivre);
   $('tLib').addEventListener('click', openLib);
@@ -1863,6 +2179,7 @@ body.solo-livre #progress{display:none;}
   if(qs.get('livre')) openLivre();
   else if(qs.get('biblioteca')) openLib();
   else if(qs.get('conta')) openAccount();
+  else if(qs.get('ficha')) openFicha();
 
   // entra direto com ?pin=XXXX (QR code)
   const urlPin = new URLSearchParams(location.search).get('pin');
