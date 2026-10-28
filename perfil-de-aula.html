@@ -721,6 +721,58 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 .home-recent{margin-top:22px;}
 .home-recent .saved-list{max-height:none;}
 @media (max-width:560px){ .home-cards{grid-template-columns:1fr 1fr;gap:10px;} .hcard{min-height:0;padding:16px 14px 14px;gap:8px;} .hcard > span{display:none;} .hcard b{font-size:22px;} .hcard .hi{width:38px;height:38px;} .hcard .hstat{font-size:12px;font-weight:500;color:var(--muted);} .home-hero h2{font-size:32px;} }
+
+/* ---------- Construtor: barra de comandos e botões de zona ---------- */
+.ed-cmd{display:flex;align-items:center;gap:18px 26px;flex-wrap:wrap;background:#0B0E13;border:1px solid var(--border);border-radius:12px;padding:10px 18px;margin-bottom:18px;}
+.ed-clock{display:flex;align-items:flex-start;gap:2px;font-family:'Barlow Condensed',sans-serif;}
+.ed-clock div{display:flex;flex-direction:column;align-items:center;}
+.ed-clock b{font-size:34px;font-weight:600;line-height:1;letter-spacing:1px;color:#fff;font-variant-numeric:tabular-nums;}
+.ed-clock small{font-size:10px;color:var(--muted);font-family:'Inter',sans-serif;margin-top:2px;}
+.ed-clock i{font-style:normal;font-size:30px;line-height:1;color:var(--muted);padding:0 1px;}
+.ed-transport{display:flex;align-items:center;gap:10px;}
+.ed-transport button{background:transparent;border:none;color:#fff;padding:4px;display:grid;place-items:center;}
+.ed-transport button:hover{color:var(--accent);background:transparent;}
+.ed-transport button:disabled{color:#3A4353;}
+.ed-transport svg{width:30px;height:30px;fill:currentColor;}
+.ed-transport .play svg{width:40px;height:40px;fill:none;stroke:currentColor;stroke-width:2;}
+.ed-links{display:flex;gap:2px 14px;flex-wrap:wrap;flex:1;justify-content:center;}
+.ed-links.right{flex:0 0 auto;justify-content:flex-end;}
+.ed-links button{background:transparent;border:none;color:#EDEFF2;font-size:14px;font-weight:600;letter-spacing:.4px;padding:4px 2px;}
+.ed-links button:hover{color:var(--accent);background:transparent;}
+.ed-links button:disabled{color:#5D6675;}
+.zbtns{display:flex;justify-content:center;align-items:flex-start;gap:14px 22px;flex-wrap:wrap;margin:4px 0 20px;}
+.zbtns .gap{width:28px;}
+.zb{background:transparent;border:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:7px;color:var(--text);min-width:64px;}
+.zb:hover{background:transparent;}
+.zb .zb-ring{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--c) 0 var(--p), #2A303B var(--p) 100%);transition:transform .12s ease;}
+.zb:hover .zb-ring{transform:scale(1.07);}
+.zb .zb-core{width:50px;height:50px;border-radius:50%;background:var(--c);display:grid;place-items:center;font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;color:#0A0D12;box-shadow:inset 0 0 0 3px #0B0E13;}
+.zb .zb-core svg{width:26px;height:26px;fill:none;stroke:#0A0D12;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+.zb .zl{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;line-height:1.15;text-align:center;max-width:90px;}
+.zb.tool2 .zb-core{background:#1B212B;box-shadow:inset 0 0 0 2px #3A4353;color:#fff;}
+.zb.tool2 .zb-core svg{stroke:#fff;}
+.zb.tool2 .zb-ring{background:#2A303B;}
+.zb.total .zb-core{background:#0B0E13;color:#fff;font-size:20px;}
+.zb:disabled{opacity:.4;}
+.b-info{position:absolute;bottom:4px;left:6px;right:4px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:600;color:rgba(10,13,18,.78);white-space:nowrap;overflow:hidden;pointer-events:none;}
+.b-info small{font-size:11px;font-weight:500;margin-left:1px;}
+.ed-bar{touch-action:pan-y;}
+.ed-track{user-select:none;-webkit-user-select:none;}
+.ed-bar.sel{touch-action:none;cursor:grab;}
+.ed-bar.dragging{z-index:5;opacity:.85;cursor:grabbing;box-shadow:0 10px 24px rgba(0,0,0,.5);transition:none;}
+.ed-drop{position:absolute;top:0;bottom:0;width:3px;margin-left:-2px;background:#fff;border-radius:2px;box-shadow:0 0 10px rgba(255,255,255,.7);pointer-events:none;z-index:6;}
+@media (max-width:700px){
+  .ed-cmd{padding:10px 12px;gap:10px 16px;justify-content:center;}
+  .ed-clock b{font-size:28px;} .ed-clock i{font-size:24px;}
+  .ed-links,.ed-links.right{flex:1 1 100%;flex-direction:row;flex-wrap:wrap;justify-content:center;gap:2px 12px;}
+  .ed-links button{width:auto;flex:0 0 auto;}
+  .ed-links button{font-size:13px;}
+  .zbtns{gap:12px 10px;}
+  .zbtns .gap{display:none;}
+  .zb{min-width:52px;}
+  .zb .zb-ring{width:50px;height:50px;} .zb .zb-core{width:40px;height:40px;font-size:18px;}
+  .zb .zl{font-size:12px;max-width:70px;}
+}
 </style>
 </head>
 <body data-view="home">
@@ -774,20 +826,34 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     <div class="ed-toolbar">
       <input type="text" id="treinoNome" class="ed-name" placeholder="Nome da aula (ex: Sprint Interval — Quarta 18h)">
       <div class="seg" id="modeSeg" title="Como se constrói esta aula"><button data-m="zonas">Zonas Z1–Z6</button><button data-m="ftp">%FTP Z1–Z6</button><button data-m="fc">%FCmáx Z1–Z5</button></div>
-      <div class="ed-tools">
-        <button class="tool" id="undoBtn" title="Desfazer (Ctrl+Z)">↶ desfazer</button>
-        <button class="tool" id="redoBtn" title="Refazer (Ctrl+Y)">↷ refazer</button>
-        <button class="tool" id="zoomOutBtn" title="Afastar">− zoom</button>
-        <button class="tool" id="zoomInBtn" title="Aproximar">＋ zoom</button>
-        <button class="tool" id="previewBtn" title="Abrir a projeção">▶ pré-visualizar</button>
+    </div>
+
+    <div class="ed-cmd">
+      <div class="ed-clock" title="Início do intervalo selecionado">
+        <div><b id="clkH">00</b><small>hora</small></div><i>:</i>
+        <div><b id="clkM">00</b><small>min</small></div><i>:</i>
+        <div><b id="clkS">00</b><small>seg</small></div>
+      </div>
+      <div class="ed-transport">
+        <button id="trPrev" title="Intervalo anterior" aria-label="Intervalo anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="3" height="16" rx="1"/><path d="M20 4v16L8 12z"/></svg></button>
+        <button id="trPlay" class="play" title="Pré-visualizar a aula" aria-label="Pré-visualizar a aula"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4z" fill="currentColor"/></svg></button>
+        <button id="trNext" title="Intervalo seguinte" aria-label="Intervalo seguinte"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="17" y="4" width="3" height="16" rx="1"/><path d="M4 4v16l12-8z"/></svg></button>
+      </div>
+      <div class="ed-links">
+        <button class="tool" id="undoBtn" title="Desfazer (Ctrl+Z)">desfazer</button>
+        <button class="tool" id="redoBtn" title="Refazer (Ctrl+Y)">refazer</button>
+        <button class="tool" id="zoomInBtn" title="Aproximar">aproximar</button>
+        <button class="tool" id="zoomOutBtn" title="Afastar">afastar</button>
+        <button class="tool" id="splitBtn" title="Divide o intervalo selecionado em duas metades">dividir intervalo</button>
+        <button class="tool" id="previewBtn" title="Abrir a projeção">pré-visualizar</button>
+      </div>
+      <div class="ed-links right">
+        <button class="tool" id="cmdSaveBtn" title="Guardar a aula">guardar aula</button>
         <button class="tool" id="clearBtn" title="Apagar todos os intervalos">limpar tudo</button>
       </div>
     </div>
 
-    <div class="ed-add">
-      <span>adicionar intervalo</span>
-      <div class="zone-dots" id="zoneDots"></div>
-    </div>
+    <div class="zbtns" id="zoneDots"></div>
 
     <div class="ed-actions">
       <button class="act" id="copyBtn">copiar</button>
@@ -1465,7 +1531,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       const c = zoneColor(getZone(b.ftp).css);
       html += '<div class="ed-bar' + (i === selIdx ? ' sel' : '') + '" data-i="' + i + '" style="left:' + x + 'px;width:' + (w - 2) + 'px;height:' + h + 'px;--c:' + c + '">' +
         '<div class="h-top" data-i="' + i + '"></div><div class="h-right" data-i="' + i + '"></div>' +
-        (w > (modoAtual() === 'zonas' ? 24 : 40) ? '<div class="b-lbl">' + intensLabel(b.ftp) + '</div>' : '') + '</div>';
+        (w > (modoAtual() === 'zonas' ? 24 : 40) ? '<div class="b-lbl">' + intensLabel(b.ftp) + '</div>' : '') +
+        (w > 86 && h > 34 ? '<div class="b-info">' + fmtTime(d) + '<small>s</small>&nbsp; ' + (b.rpm||0) + '<small>rpm</small></div>' : '') + '</div>';
       x += d * pps;
     });
     track.innerHTML = html;
@@ -1487,6 +1554,15 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       const lo = i === 0 ? sc.min : ZZ[i-1].max, hi = Math.min(z.max, sc.max);
       return '<div class="ydot" title="' + z.name + '" style="bottom:' + (ftpToY((lo+hi)/2) - 6 + 22) + 'px;background:' + zoneColor(z.css) + '"></div>';
     }).join('');
+
+    // relógio: início do intervalo selecionado; botão T: duração total
+    const st = selIdx > 0 ? current.blocos.slice(0, selIdx).reduce((a,x)=> a + blockDurationSec(x), 0) : 0;
+    $('clkH').textContent = String(Math.floor(st/3600)).padStart(2,'0');
+    $('clkM').textContent = String(Math.floor(st%3600/60)).padStart(2,'0');
+    $('clkS').textContent = String(st%60).padStart(2,'0');
+    if($('zbTotalTxt')) $('zbTotalTxt').textContent = fmtTime(total);
+    $('trPrev').disabled = !(selIdx > 0);
+    $('trNext').disabled = !(selIdx < current.blocos.length - 1);
 
     renderInfo();
     updateActionBtns();
@@ -1577,10 +1653,31 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       drag = { kind: t.classList.contains('h-top') ? 'ftp' : 'dur', i: i, x0: e.clientX, y0: e.clientY,
                ftp0: b.ftp, dur0: blockDurationSec(b), snap: snapshot(), moved: false, pps: pxPerSec() };
       $('edTrack').setPointerCapture(e.pointerId);
+    } else if(t.classList.contains('ed-bar') && (e.pointerType === 'mouse' || t.classList.contains('sel'))){
+      e.preventDefault();
+      // corpo da barra: arrastar para os lados muda a ordem (no telemóvel, primeiro toca para selecionar)
+      const bars = [...$('edTrack').querySelectorAll('.ed-bar')].map(el=> ({ l: el.offsetLeft, w: el.offsetWidth }));
+      drag = { kind: 'move', i: i, x0: e.clientX, moved: false, bars: bars, el: $('edTrack').querySelector('.ed-bar[data-i="' + i + '"]'), to: i };
+      $('edTrack').setPointerCapture(e.pointerId);
     }
   });
   $('edTrack').addEventListener('pointermove', (e)=>{
     if(!drag) return;
+    if(drag.kind === 'move'){
+      const dx = e.clientX - drag.x0;
+      if(!drag.moved && Math.abs(dx) < 6) return;
+      if(!drag.moved){ drag.moved = true; drag.el.classList.add('dragging'); drag.mark = document.createElement('div'); drag.mark.className = 'ed-drop'; $('edTrack').appendChild(drag.mark); }
+      drag.el.style.transform = 'translateX(' + dx + 'px)';
+      const me = drag.bars[drag.i], cx = me.l + me.w / 2 + dx;
+      let to = 0;
+      drag.bars.forEach((bb, k)=>{ if(k !== drag.i && bb.l + bb.w / 2 < cx) to++; });
+      drag.to = to;
+      const others = drag.bars.filter((_, k)=> k !== drag.i);
+      drag.mark.style.left = (to < others.length ? others[to].l : (others.length ? others[others.length-1].l + others[others.length-1].w : 0)) + 'px';
+      const wrap = $('edScroll'), r = wrap.getBoundingClientRect();   // rola sozinho perto das pontas
+      if(e.clientX > r.right - 40) wrap.scrollLeft += 12; else if(e.clientX < r.left + 40) wrap.scrollLeft -= 12;
+      return;
+    }
     const b = current.blocos[drag.i];
     if(drag.kind === 'ftp'){
       const dy = drag.y0 - e.clientY;
@@ -1597,16 +1694,73 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     renderEditor(); renderProfileOnly();
   });
   const endDrag = ()=>{
+    if(drag && drag.kind === 'move'){
+      const d = drag; drag = null;
+      if(d.mark) d.mark.remove();
+      if(d.moved && d.to !== d.i){
+        pushUndo();
+        const [blk] = current.blocos.splice(d.i, 1);
+        current.blocos.splice(d.to, 0, blk);
+        selIdx = d.to;
+        render(); scrollToSel();
+      } else if(d.moved){ renderEditor(); }
+      return;
+    }
     if(drag && drag.moved) pushUndo(drag.snap);
     drag = null;
   };
   $('edTrack').addEventListener('pointerup', endDrag);
   $('edTrack').addEventListener('pointercancel', endDrag);
 
+
+  // botões grandes de zona (com a faixa de intensidade por baixo)
+  const ZONE_RANGE = {
+    ftp: ['0–55%', '56–75%', '76–90%', '91–105%', '106–120%', '>120%'],
+    fc:  ['50–60%', '61–70%', '71–80%', '81–90%', '91–100%'],
+    zonas: ['Recuperação', 'Resistência', 'Tempo', 'Limiar', 'VO2máx', 'Anaeróbio']
+  };
+  const ICON_SPLIT = '<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1"/><path d="M9 7v10M15 7v10"/></svg>';
+  const ICON_COOL = '<svg viewBox="0 0 24 24"><path d="M3 7h6v10H3zM9 11h6v6H9zM15 14h6v3h-6z"/></svg>';
+  const ICON_PLUS = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
+  function renderZoneButtons(m){
+    const Z = zonesOf(m), n = Z.length, R = ZONE_RANGE[m];
+    let h = Z.map((z,i)=>{
+      const c = zoneColor(z.css);
+      return '<button class="zb" data-z="' + i + '" title="Adicionar ' + z.name + '" style="--c:' + c + ';--p:' + Math.round((i+1)/n*100) + '%"><span class="zb-ring"><span class="zb-core">Z' + (i+1) + '</span></span><span class="zl">' + R[i] + '</span></button>';
+    }).join('');
+    h += '<span class="gap"></span>';
+    h += '<button class="zb" id="zbSplit" title="Divide o intervalo selecionado em várias partes iguais" style="--c:#A35CFF;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_SPLIT + '</span></span><span class="zl">Dividir em segmentos</span></button>';
+    h += '<button class="zb" id="zbCool" title="Acrescenta o retorno à calma no fim" style="--c:#1FC8B0;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_COOL + '</span></span><span class="zl">Retorno à calma</span></button>';
+    h += '<span class="gap"></span>';
+    h += '<button class="zb tool2" id="zbImport" title="Importar aulas de um ficheiro .json"><span class="zb-ring"><span class="zb-core">' + ICON_PLUS + '</span></span><span class="zl">Importar</span></button>';
+    h += '<button class="zb tool2 total" id="zbTotal" title="Duração total da aula" tabindex="-1"><span class="zb-ring"><span class="zb-core">T</span></span><span class="zl" id="zbTotalTxt">0:00</span></button>';
+    $('zoneDots').innerHTML = h;
+  }
+  function doSegments(){
+    const b = selected(); if(!b){ toast('Seleciona primeiro um intervalo'); return; }
+    const tot = blockDurationSec(b);
+    const n = Math.round(Number(prompt('Dividir "' + (b.nome || 'intervalo') + '" em quantas partes iguais?', '2')) || 0);
+    if(!n || n < 2) return;
+    if(tot / n < 5){ toast('Intervalo demasiado curto para tantas partes'); return; }
+    pushUndo();
+    const base = Math.floor(tot / n); let rest = tot - base * n;
+    const parts = [];
+    for(let k = 0; k < n; k++){ const d = base + (rest-- > 0 ? 1 : 0); parts.push(Object.assign(clean(b), { id: uid(), min: Math.floor(d/60), sec: d%60 })); }
+    current.blocos.splice(selIdx, 1, ...parts);
+    render();
+  }
+  function doCooldown(){
+    pushUndo();
+    const m = modoAtual();
+    const b = newBlock({ nome: 'Retorno à calma', min: 4, sec: 0, ftp: m === 'fc' ? 55 : (m === 'zonas' ? ZONE_MID[0] : 45), rpm: 80, tecnica: 'Plano Sentado' });
+    current.blocos.push(b); selIdx = current.blocos.length - 1;
+    render(); scrollToSel();
+  }
+
   // botões do editor
   function renderModeUi(){
     const m = modoAtual();
-    $('zoneDots').innerHTML = zonesOf(m).map((z,i)=> '<button class="zdot" data-z="' + i + '" title="Adicionar ' + z.name + '" style="background:' + zoneColor(z.css) + '"></button>').join('');
+    renderZoneButtons(m);
     document.querySelectorAll('#modeSeg button').forEach(bt=> bt.classList.toggle('on', bt.dataset.m === m));
     $('fUnit').textContent = m === 'fc' ? '% FCmáx' : '% FTP';
     $('liveFtpLbl').textContent = m === 'fc' ? 'FC máx alvo' : m === 'zonas' ? 'zona alvo' : 'FTP alvo';
@@ -1646,7 +1800,18 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     renderEditor(); renderProfileOnly();
   });
   document.querySelectorAll('#modeSeg button').forEach(bt=> bt.addEventListener('click', ()=> setModo(bt.dataset.m)));
-  $('zoneDots').addEventListener('click', (e)=>{ const z = e.target.dataset.z; if(z !== undefined) addZone(Number(z)); });
+  $('zoneDots').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button'); if(!btn) return;
+    if(btn.dataset.z !== undefined) addZone(Number(btn.dataset.z));
+    else if(btn.id === 'zbSplit') doSegments();
+    else if(btn.id === 'zbCool') doCooldown();
+    else if(btn.id === 'zbImport') $('importFile').click();
+  });
+  $('splitBtn').addEventListener('click', doHalf);
+  $('cmdSaveBtn').addEventListener('click', ()=> $('saveBtn').click());
+  $('trPrev').addEventListener('click', ()=> select(selIdx - 1));
+  $('trNext').addEventListener('click', ()=> select(selIdx + 1));
+  $('trPlay').addEventListener('click', ()=> $('projectBtn').click());
   $('copyBtn').addEventListener('click', doCopy);
   $('pasteBtn').addEventListener('click', doPaste);
   $('halfBtn').addEventListener('click', doHalf);
