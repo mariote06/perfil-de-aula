@@ -9,6 +9,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="manifest-prof.json">
+<meta name="theme-color" content="#0A0D12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Perfil de Aula">
+<link rel="apple-touch-icon" href="icon-prof-192.png">
 <title>Perfil de Aula — Cycling</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -2696,5 +2703,20 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 
 
 
+<script>
+// App instalável (PWA): botão "Instalar app" quando o browser o permite.
+(function(){
+  if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(function(){}); }
+  var deferred=null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault(); deferred=e;
+    var bar=document.querySelector('.topbar-actions'); if(!bar || document.getElementById('installBtn')) return;
+    var b=document.createElement('button'); b.id='installBtn'; b.className='icon'; b.textContent='⬇ Instalar app';
+    b.addEventListener('click', function(){ deferred.prompt(); deferred.userChoice.finally(function(){ deferred=null; b.remove(); }); });
+    bar.insertBefore(b, bar.firstChild);
+  });
+  window.addEventListener('appinstalled', function(){ var b=document.getElementById('installBtn'); if(b) b.remove(); });
+})();
+</script>
 </body>
 </html>
