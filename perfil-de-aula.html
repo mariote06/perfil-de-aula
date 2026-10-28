@@ -2013,7 +2013,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function renderQr(pin){
     const el = $('qrcode');
     el.innerHTML = '';
-    const joinUrl = location.href.split('#')[0].split('?')[0].replace(/[^/]*$/, '') + 'aula-ao-vivo.html?pin=' + pin;
+    // no endereço PlayRide Coach, o QR leva os alunos para playride.web.app
+    const joinUrl = (location.hostname === 'playride-coach.web.app' ? 'https://playride.web.app/' : location.href.split('#')[0].split('?')[0].replace(/[^/]*$/, '') + 'aula-ao-vivo.html') + '?pin=' + pin;
     if(window.QRCode){
       new QRCode(el, { text: joinUrl, width: 170, height: 170, colorDark:'#0A0D12', colorLight:'#ffffff' });
     }
