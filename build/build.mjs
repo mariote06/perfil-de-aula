@@ -7,7 +7,7 @@ import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync, existsSyn
 import JavaScriptObfuscator from 'javascript-obfuscator';
 
 const PAGES = ['perfil-de-aula.html', 'aula-ao-vivo.html', 'index.html'];
-const COPY = ['sw.js', 'manifest.json', 'manifest-prof.json', 'icon-192.png', 'icon-512.png', 'icon-prof-192.png', 'icon-prof-512.png', 'logo-sala.png', 'logo-parceiro.png'];
+const COPY = ['sw.js', 'manifest.json', 'manifest-prof.json', 'icon-192.png', 'icon-512.png', 'icon-prof-192.png', 'icon-prof-512.png', 'instalar.js', 'logo-sala.png', 'logo-parceiro.png'];
 const OPTIONS = {
   compact: true,
   simplify: true,
