@@ -272,6 +272,8 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .auth-form input{background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:11px 12px;font-size:15px;}
 .auth-form input:focus{outline:none;border-color:var(--accent);}
 .auth-form button{width:100%;}
+.auth-form label.auth-remember{flex-direction:row;align-items:center;gap:9px;font-size:13px;color:var(--text);cursor:pointer;user-select:none;}
+.auth-form label.auth-remember input{width:18px;height:18px;padding:0;margin:0;accent-color:var(--accent);cursor:pointer;}
 .auth-err{color:#E27070;font-size:13px;min-height:18px;}
 .auth-links{display:flex;justify-content:space-between;gap:10px;font-size:13px;}
 .auth-links a{color:var(--accent);text-decoration:none;}
@@ -976,6 +978,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     <form id="loginForm" class="auth-form" style="display:none" autocomplete="on">
       <label>Email<input type="email" id="loginEmail" autocomplete="username" required></label>
       <label>Palavra-passe<input type="password" id="loginPass" autocomplete="current-password" required></label>
+      <label class="auth-remember"><input type="checkbox" id="loginRemember" checked>Lembrar-me neste PC</label>
       <button type="submit" class="primary">Entrar</button>
       <div class="auth-err" id="loginErr"></div>
       <div class="auth-links">
@@ -2738,9 +2741,21 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     e.preventDefault();
     $('loginErr').textContent = '';
     pendingRegName = '';
-    try{ await auth.signInWithEmailAndPassword($('loginEmail').value.trim(), $('loginPass').value); }
+    const remember = $('loginRemember').checked;
+    try{ localStorage.setItem('prCoachRemember', remember ? '1' : '0'); if(remember) localStorage.setItem('prCoachEmail', $('loginEmail').value.trim()); else localStorage.removeItem('prCoachEmail'); }catch(e2){}
+    try{
+      // com a caixa marcada a sessão fica guardada neste PC; sem ela termina ao fechar o browser
+      if(auth.setPersistence && firebase.auth.Auth){ try{ await auth.setPersistence(remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION); }catch(e4){} }
+      await auth.signInWithEmailAndPassword($('loginEmail').value.trim(), $('loginPass').value);
+    }
     catch(err){ $('loginErr').textContent = authErr(err); }
   });
+  try{
+    const rem = localStorage.getItem('prCoachRemember');
+    if(rem === '0') $('loginRemember').checked = false;
+    const em = localStorage.getItem('prCoachEmail');
+    if(em && !$('loginEmail').value) $('loginEmail').value = em;
+  }catch(e3){}
   $('registerForm').addEventListener('submit', async (e)=>{
     e.preventDefault();
     $('regErr').textContent = '';
