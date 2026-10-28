@@ -1,0 +1,7 @@
+{
+  "name": "perfil-de-aula",
+  "private": true,
+  "description": "© 2026 Mário Teixeira. Todos os direitos reservados.",
+  "scripts": { "build": "node build/build.mjs" },
+  "devDependencies": { "javascript-obfuscator": "4.1.1" }
+}

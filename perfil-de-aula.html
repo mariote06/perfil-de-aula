@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+<!--
+  Perfil de Aula / Aula ao Vivo
+  © 2026 Mário Teixeira. Todos os direitos reservados.
+  Este código e a aplicação são propriedade do autor. É proibido copiar, modificar,
+  redistribuir ou usar fora da Playlife Fitness Center sem autorização escrita.
+-->
 <html lang="pt-PT">
 <head>
 <meta charset="UTF-8">
@@ -9,6 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-check-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
 :root{
@@ -269,6 +276,10 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .admin-row .state.ok{color:#7FD3A6;}
 .admin-row .state.wait{color:#FFD27A;}
 
+
+.legal{margin-top:28px;color:var(--muted-2);font-size:11px;line-height:1.5;text-align:center;}
+.auth-legal{color:var(--muted-2);font-size:11px;margin:-14px 0 18px;}
+
 /* ---------- Toast ---------- */
 .toast{
   position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
@@ -335,6 +346,66 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 }
 .live-next b{color:rgba(255,255,255,.9);}
 .live-next .next-chip{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;}
+
+
+/* ---------- projeção: cabeçalho, anel e cartões ---------- */
+.live-head{display:flex;align-items:center;gap:18px;padding:10px 20px;background:linear-gradient(180deg,#0E1219,#0A0D12);border-bottom:1px solid #1B212B;flex-shrink:0;min-height:64px;}
+.lh-logo{height:40px;max-width:170px;object-fit:contain;flex-shrink:0;}
+.lh-title{min-width:0;}
+.lh-class{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;letter-spacing:.4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:34vw;}
+.lh-sub{color:rgba(255,255,255,.5);font-size:13px;}
+.lh-center{flex:1;text-align:center;}
+.lh-block{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.7);padding:4px 14px;border:1px solid #262D39;border-radius:999px;}
+.lh-right{display:flex;align-items:center;gap:18px;}
+.lh-stat{text-align:right;}
+.lh-stat .v{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums;}
+.lh-stat .l{font-size:11px;color:rgba(255,255,255,.45);letter-spacing:.5px;text-transform:uppercase;}
+.live-head .session-badge{position:static;display:block;padding:5px 12px;text-align:center;}
+.live-head .session-badge .pin-num{font-size:22px;line-height:1.05;}
+.live-head .exit-btn{position:static;}
+.qr-panel{top:84px !important;}
+@media (max-width:1100px){ .lh-stat:nth-child(3){display:none;} .lh-class{max-width:24vw;} }
+
+.live-body{overflow:hidden;--zc:#3A4353;}
+.live-body::before{content:'';position:absolute;inset:-15%;pointer-events:none;
+  background:radial-gradient(circle at 50% 46%, color-mix(in srgb,var(--zc) 38%,transparent) 0%, transparent 58%);
+  animation:lbGlow 7s ease-in-out infinite;transition:background .6s ease;}
+.live-body > *{position:relative;}
+@keyframes lbGlow{0%,100%{opacity:.6;transform:scale(1);}50%{opacity:1;transform:scale(1.07);}}
+.live-body.flash::after{content:'';position:absolute;inset:0;background:var(--zc);opacity:0;animation:lbFlash .7s ease-out;pointer-events:none;}
+@keyframes lbFlash{0%{opacity:.45;}100%{opacity:0;}}
+
+.lz-pill{display:inline-block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(26px,3.6vw,46px);letter-spacing:2px;text-transform:uppercase;
+  color:#0A0D12;background:var(--zc);padding:4px 26px;border-radius:12px;box-shadow:0 0 40px color-mix(in srgb,var(--zc) 55%,transparent);margin-bottom:10px;}
+.live-name{color:rgba(255,255,255,.75);font-size:clamp(16px,2vw,22px);font-weight:600;margin-bottom:8px;}
+.live-technique{margin-bottom:14px;}
+
+.ring-wrap{position:relative;width:clamp(240px,40vh,470px);aspect-ratio:1;margin:4px auto 8px;}
+.ring{width:100%;height:100%;transform:rotate(-90deg);overflow:visible;}
+.ring-bg{fill:none;stroke:rgba(255,255,255,.07);stroke-width:9;}
+.ring-fg{fill:none;stroke:var(--zc);stroke-width:9;stroke-linecap:round;stroke-dasharray:565.49;stroke-dashoffset:0;transition:stroke .4s ease;}
+.ring-wrap::before{content:'';position:absolute;inset:6%;border-radius:50%;box-shadow:0 0 60px color-mix(in srgb,var(--zc) 35%,transparent), inset 0 0 40px color-mix(in srgb,var(--zc) 18%,transparent);pointer-events:none;}
+.ring-in{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.ring-wrap .live-timer{font-size:clamp(72px,13vh,170px);}
+.ring-sub{color:rgba(255,255,255,.45);font-size:13px;letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+.live-overlay.split .ring-wrap{width:clamp(210px,34vh,380px);}
+.live-overlay.split .ring-wrap .live-timer{font-size:clamp(60px,10vh,130px);}
+.live-feel{margin:2px 0 14px;}
+
+.live-metrics{gap:14px;margin-top:4px;}
+.live-metric{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.09);border-top:3px solid var(--zc);border-radius:12px;padding:8px 22px 10px;min-width:130px;}
+.live-metric .v{line-height:1.05;}
+.live-metric .l{text-transform:uppercase;font-size:11px;letter-spacing:1px;}
+
+.live-next{position:relative;bottom:auto;left:auto;right:auto;margin-top:18px;display:flex;justify-content:center;}
+.nx-card{display:inline-flex;align-items:center;gap:12px;background:rgba(10,13,18,.75);border:1px solid #262D39;border-left:5px solid var(--nc,#3A4353);border-radius:12px;padding:9px 18px;font-size:16px;backdrop-filter:blur(4px);}
+.nx-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:2px;font-size:15px;color:rgba(255,255,255,.5);text-transform:uppercase;}
+.nx-card b{color:#fff;font-size:18px;}
+.nx-card .nx-meta{color:rgba(255,255,255,.65);}
+.live-body.soon .nx-card{border-color:var(--nc);animation:nxPulse 1s ease-in-out infinite;}
+.live-body.soon .nx-lbl{color:var(--nc);}
+@keyframes nxPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 transparent;}50%{transform:scale(1.05);box-shadow:0 0 30px color-mix(in srgb,var(--nc) 50%,transparent);}}
+.live-next.last .nx-card{border-left-color:#fff;}
 
 /* split view (block + riders) */
 .riders-panel{
@@ -450,6 +521,154 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .setup-card h3{font-family:'Barlow Condensed',sans-serif;font-size:22px;margin:0 0 10px;}
 .setup-card p{font-size:14px;color:var(--muted);line-height:1.5;}
 .setup-card button{margin-top:14px;}
+
+/* ======================= TELEMÓVEL (Android e iPhone) ======================= */
+.ed-bar .h-top,.ed-bar .h-right{touch-action:none;}
+@media (pointer:coarse){
+  .ed-bar .h-top{top:-14px;height:30px;}
+  .ed-bar .h-right{right:-14px;width:30px;}
+  .ed-bar.sel .h-top::after{top:12px;}
+  .ed-bar.sel .h-right::after{left:12px;}
+  .ed-hint .kb{display:none;}
+  .tool,.act,.zdot,.seg button{min-height:40px;}
+}
+@media (max-width:700px){
+  .app{padding:16px max(12px, env(safe-area-inset-right, 0px)) 60px max(12px, env(safe-area-inset-left, 0px));}
+  .topbar{margin-bottom:16px;gap:10px;}
+  .brand{flex-wrap:wrap;gap:2px 10px;}
+  .brand h1{font-size:26px;}
+  .topbar-actions{gap:6px;width:100%;}
+  .topbar-actions > button{flex:1 1 auto;}
+  .user-chip{width:100%;flex-wrap:wrap;}
+  .editor{padding:14px 12px 12px;}
+  .ed-toolbar{gap:10px;margin-bottom:12px;}
+  .ed-name{min-width:0;width:100%;flex:1 1 100%;}
+  #modeSeg{width:100%;display:grid;grid-template-columns:repeat(3,1fr);}
+  #modeSeg button{padding:8px 4px;font-size:12px;line-height:1.2;}
+  .ed-tools{width:100%;justify-content:space-between;}
+  .tool{padding:6px 6px;font-size:12px;}
+  .ed-add{gap:10px;}
+  .ed-add > span{width:100%;text-align:center;font-size:14px;}
+  .zone-dots{gap:14px;}
+  .zdot{width:32px;height:32px;}
+  .ed-actions{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+  .act{min-width:0;padding:9px 4px;font-size:13px;}
+  .ed-info{gap:10px 14px;}
+  .inf.wide{flex:1 1 100%;}
+  .inf.wide input{width:100%;}
+  .ed-nav,.ed-y{display:none;}
+  .ed-scroll{border-left:none;-webkit-overflow-scrolling:touch;}
+  .ed-track{height:200px;}
+  .ed-hint .kb{display:none;}
+  .layout{gap:14px;}
+  .panel{padding:16px 14px;}
+  .stats-row{gap:16px;}
+  .zt-row{grid-template-columns:96px 1fr 44px;font-size:12px;}
+  .saved-item{flex-wrap:wrap;}
+  .saved-item .row-actions{width:100%;justify-content:flex-end;}
+  .modal-card{padding:16px;}
+  .modal-card .sum-table, .sum-wrap{overflow-x:auto;display:block;}
+}
+
+/* projeção no telemóvel em pé */
+@media (max-width:700px) and (orientation:portrait){
+  .live-head{flex-wrap:wrap;gap:6px 10px;padding:calc(8px + env(safe-area-inset-top, 0px)) 12px 8px;min-height:0;}
+  .lh-logo,.lh-sub{display:none;}
+  .lh-title{flex:1 1 0;}
+  .lh-class{font-size:19px;max-width:none;}
+  .lh-center{flex:0 0 auto;order:2;}
+  .lh-block{font-size:12px;padding:2px 9px;letter-spacing:1px;}
+  .lh-right{order:3;flex:1 1 100%;justify-content:space-between;gap:10px;}
+  .lh-stat{text-align:left;}
+  .lh-stat .v{font-size:20px;}
+  .lh-stat:nth-child(3){display:none;}
+  .live-head .session-badge{padding:3px 10px;}
+  .live-head .session-badge .pin-num{font-size:17px;}
+  .live-head .exit-btn{padding:7px 10px;}
+  .qr-panel{top:118px !important;left:12px;}
+  .live-profile{height:42px;}
+  .live-main{flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .live-body{flex:0 0 auto;padding:14px 12px 12px;justify-content:flex-start;min-height:auto;}
+  .live-overlay:not(.split) .live-body{flex:1 0 auto;justify-content:center;}
+  .lz-pill{font-size:22px;padding:2px 16px;letter-spacing:1px;margin-bottom:6px;}
+  .live-name{font-size:15px;margin-bottom:4px;}
+  .live-technique{font-size:13px;padding:4px 12px;margin-bottom:8px;}
+  .ring-wrap,.live-overlay.split .ring-wrap{width:min(62vw,34vh,300px);}
+  .ring-wrap .live-timer,.live-overlay.split .ring-wrap .live-timer{font-size:clamp(48px,17vw,88px);}
+  .ring-sub{font-size:11px;}
+  .live-feel{display:none;}
+  .live-overlay.split .ring-wrap{width:min(46vw,210px);}
+  .live-overlay.split .ring-wrap .live-timer{font-size:clamp(40px,12vw,64px);}
+  .live-overlay.split .ring-sub{display:none;}
+  .live-overlay.split .live-technique{margin-bottom:4px;}
+  .live-metrics{gap:10px;justify-content:center;}
+  .live-overlay.split .live-metrics{display:none;}
+  .live-metric{min-width:0;padding:6px 16px 8px;}
+  .live-metric .v{font-size:26px;}
+  .live-next{margin-top:10px;}
+  .nx-card{font-size:13px;padding:7px 12px;gap:4px 10px;flex-wrap:wrap;justify-content:center;}
+  .nx-card b{font-size:15px;}
+  .nx-lbl{font-size:13px;}
+  .riders-panel{flex:1 0 auto;border-left:none;border-top:1px solid #1B212B;padding:12px;overflow:visible;}
+  .rp-head{padding-right:0;flex-wrap:wrap;}
+  .rp-title{font-size:20px;}
+  .rp-meta{font-size:12px;white-space:normal;}
+  .rgrid{grid-template-columns:repeat(2,minmax(0,1fr)) !important;--s:.78 !important;flex:0 0 auto;}
+  .lanes{flex:0 0 auto;}
+  .lane{grid-template-columns:30px minmax(56px,96px) 1fr 52px;gap:8px;min-height:30px;max-height:40px;}
+  .ln-pos,.ln-val{font-size:19px;}
+  .ln-name{font-size:14px;}
+  .live-controls{gap:8px;padding:8px 10px calc(8px + env(safe-area-inset-bottom, 0px));}
+  .ctrl-group{position:static;transform:none;}
+  .ctrl-group.left{order:1;width:100%;justify-content:center;}
+  .ctrl-group.right{order:5;}
+  #liveBack{order:2;} #livePlay{order:3;} #liveSkip{order:4;}
+  .ctrl-group button{padding:7px 12px;font-size:13px;}
+  .live-controls > .ctrl{width:46px;height:46px;font-size:16px;}
+  .live-controls > .ctrl.play{width:56px;height:56px;}
+  .live-done{padding:6px 0 30px;}
+  .live-done .big{font-size:44px;}
+  .pod{min-width:92px;}
+  .pod .pn{font-size:15px;max-width:110px;}
+  .pod.p1 .step{height:84px;} .pod.p2 .step{height:62px;} .pod.p3 .step{height:46px;}
+  .podium{gap:8px;}
+}
+
+/* projeção no telemóvel deitado */
+@media (max-height:500px) and (orientation:landscape){
+  .live-head{min-height:0;padding:5px max(14px, env(safe-area-inset-right, 0px)) 5px max(14px, env(safe-area-inset-left, 0px));gap:12px;}
+  .lh-logo,.lh-sub,.lh-stat:nth-child(3){display:none;}
+  .lh-class{font-size:18px;}
+  .lh-block{font-size:12px;padding:2px 9px;}
+  .lh-stat .v{font-size:18px;}
+  .lh-stat .l{font-size:9px;}
+  .live-head .session-badge{padding:2px 9px;}
+  .live-head .session-badge .pin-num{font-size:16px;}
+  .live-head .exit-btn{padding:5px 9px;font-size:12px;}
+  .qr-panel{top:60px !important;}
+  .live-profile{height:30px;}
+  .live-body{padding:6px 10px;justify-content:center;}
+  .live-name,.live-technique,.live-feel,.live-metrics{display:none;}
+  .lz-pill{font-size:17px;padding:1px 12px;margin-bottom:4px;letter-spacing:1px;}
+  .ring-wrap,.live-overlay.split .ring-wrap{width:clamp(110px,40vh,210px);margin:0 auto;}
+  .ring-wrap .live-timer,.live-overlay.split .ring-wrap .live-timer{font-size:clamp(34px,12vh,62px);}
+  .ring-sub{display:none;}
+  .live-next{margin-top:6px;}
+  .nx-card{font-size:12px;padding:4px 10px;gap:8px;}
+  .nx-card b{font-size:13px;}
+  .nx-lbl{font-size:11px;}
+  .riders-panel{padding:8px 12px;gap:6px;}
+  .rp-head{padding-right:0;}
+  .rp-title{font-size:18px;}
+  .rgrid{--s:.72 !important;gap:6px;}
+  .lane{min-height:18px;}
+  .live-controls{padding:5px max(10px, env(safe-area-inset-right, 0px)) calc(5px + env(safe-area-inset-bottom, 0px)) max(10px, env(safe-area-inset-left, 0px));gap:8px;}
+  .ctrl-group{position:static;transform:none;}
+  .ctrl-group button{padding:5px 10px;font-size:12px;}
+  .live-controls > .ctrl{width:38px;height:38px;font-size:14px;}
+  .live-controls > .ctrl.play{width:46px;height:46px;font-size:18px;}
+}
+
 </style>
 </head>
 <body>
@@ -525,7 +744,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
       <button class="ed-nav" id="nextSel" title="Intervalo seguinte (→)">›</button>
     </div>
     <div class="ed-empty" id="edEmpty">Ainda não há intervalos. Carrega numa cor em "adicionar intervalo" para começar, por exemplo pelo azul para o aquecimento.</div>
-    <div class="ed-hint">Clica num intervalo para o editar · arrasta o <b>topo</b> para mudar a intensidade e a <b>borda direita</b> para mudar a duração · teclas: ← → selecionar, Delete apagar, Ctrl+C/Ctrl+V copiar/colar, Ctrl+Z desfazer</div>
+    <div class="ed-hint">Toca/clica num intervalo para o editar · arrasta o <b>topo</b> para mudar a intensidade e a <b>borda direita</b> para mudar a duração<span class="kb"> · teclas: ← → selecionar, Delete apagar, Ctrl+C/Ctrl+V copiar/colar, Ctrl+Z desfazer</span></div>
   </div>
 
   <div class="layout">
@@ -567,21 +786,28 @@ button:disabled{opacity:.4;cursor:not-allowed;}
       </div>
     </div>
   </div>
+  <footer class="legal">© 2026 Mário Teixeira. Todos os direitos reservados. Uso exclusivo da Playlife Fitness Center com autorização do autor; é proibido copiar, modificar ou distribuir esta aplicação ou o seu código.</footer>
 </div>
 
 <!-- LIVE / PROJECTION MODE -->
 <div class="live-overlay" id="liveOverlay">
-  <div class="live-profile"><svg id="liveProfileSvg" viewBox="0 0 1000 76" preserveAspectRatio="none"></svg></div>
-
-  <button class="exit-btn" id="exitLive">✕ Sair</button>
-
-  <div class="session-badge" id="sessionBadge">
-    <div>
-      <div class="pin-lbl">PIN DA SESSÃO</div>
-      <div class="pin-num" id="pinDisplay">----</div>
+  <div class="live-head">
+    <img class="lh-logo" id="logoSala" src="logo-sala.png" alt="" onerror="this.style.display='none'">
+    <div class="lh-title"><div class="lh-class" id="lhClass">Aula</div><div class="lh-sub" id="lhSub"></div></div>
+    <div class="lh-center"><div class="lh-block" id="lhBlock">bloco 1 de 1</div></div>
+    <div class="lh-right">
+      <div class="lh-stat"><div class="v" id="lhElapsed">0:00</div><div class="l">decorrido</div></div>
+      <div class="lh-stat"><div class="v" id="lhLeft">0:00</div><div class="l">falta</div></div>
+      <div class="lh-stat"><div class="v" id="lhClock">--:--</div><div class="l">hora</div></div>
+      <div class="session-badge" id="sessionBadge" title="Mostrar / esconder QR code (tecla Q)">
+        <div class="pin-lbl">PIN</div>
+        <div class="pin-num" id="pinDisplay">----</div>
+      </div>
+      <img class="lh-logo" id="logoParceiro" src="logo-parceiro.png" alt="" onerror="this.style.display='none'">
+      <button class="exit-btn" id="exitLive">✕ Sair</button>
     </div>
-    <div class="hint">toca para QR</div>
   </div>
+  <div class="live-profile"><svg id="liveProfileSvg" viewBox="0 0 1000 76" preserveAspectRatio="none"></svg></div>
   <div class="qr-panel" id="qrPanel">
     <div id="qrcode"></div>
     <div class="qr-caption">Abre a câmara do telemóvel e faz scan, ou abre a app "Aula ao Vivo" e insere o PIN.</div>
@@ -590,14 +816,23 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   <div class="live-main">
     <div class="live-body" id="liveBody">
       <div id="liveActive">
-        <div class="live-zone" id="liveZone">—</div>
+        <div class="lz-pill" id="liveZone">—</div>
         <div class="live-name" id="liveName">—</div>
         <div class="live-technique" id="liveTechnique"></div>
+        <div class="ring-wrap">
+          <svg class="ring" viewBox="0 0 200 200" aria-hidden="true">
+            <circle class="ring-bg" cx="100" cy="100" r="90"/>
+            <circle class="ring-fg" id="ringFg" cx="100" cy="100" r="90"/>
+          </svg>
+          <div class="ring-in">
+            <div class="live-timer" id="liveTimer">0:00</div>
+            <div class="ring-sub" id="ringSub">deste bloco</div>
+          </div>
+        </div>
         <div class="live-feel" id="liveFeel"></div>
-        <div class="live-timer" id="liveTimer">0:00</div>
         <div class="live-metrics">
           <div class="live-metric"><div class="v" id="liveFtp">0%</div><div class="l" id="liveFtpLbl">FTP alvo</div></div>
-          <div class="live-metric"><div class="v" id="liveRpm">0</div><div class="l">RPM</div></div>
+          <div class="live-metric"><div class="v" id="liveRpm">0</div><div class="l">RPM alvo</div></div>
         </div>
       </div>
       <div class="live-done" id="liveDone">
@@ -656,6 +891,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   <div class="auth-card">
     <div class="auth-brand">Perfil de Aula</div>
     <div class="auth-sub">Área dos professores · Playlife</div>
+    <div class="auth-legal">© 2026 Mário Teixeira · todos os direitos reservados</div>
 
     <div id="authLoading" class="auth-msg">A carregar…</div>
 
@@ -998,7 +1234,9 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     fc:  [ {ftp:55, rpm:80}, {ftp:65, rpm:90}, {ftp:75, rpm:90}, {ftp:85, rpm:85}, {ftp:95, rpm:100} ],
     zonas: [ {ftp:45, rpm:80}, {ftp:65, rpm:90}, {ftp:83, rpm:90}, {ftp:98, rpm:85}, {ftp:113, rpm:95}, {ftp:130, rpm:105} ]
   };
-  const TRACK_H = 260;
+  let TRACK_H = 260;
+  const isNarrow = ()=> ($('edScroll').clientWidth || 900) < 600;
+  function spanSec(){ const t = totalDuration(current.blocos); return isNarrow() ? Math.max(t + 20, 120) : Math.max(t + 120, 45*60); }
   let selIdx = -1;
   let zoom = 1;
   let clip = null;
@@ -1094,9 +1332,10 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 
   function pxPerSec(){
     const wrap = $('edScroll');
-    const visible = Math.max(300, (wrap.clientWidth || 900) - 8);
-    const span = Math.max(totalDuration(current.blocos) + 120, 45*60);
-    return visible / span * zoom;
+    const visible = Math.max(260, (wrap.clientWidth || 900) - 8);
+    let pps = visible / spanSec();
+    if(isNarrow()) pps = Math.max(pps, 0.5);      // no telemóvel: barras largas que dá para tocar, com scroll lateral
+    return pps * zoom;
   }
 
   function scrollToSel(){
@@ -1114,7 +1353,8 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     const track = $('edTrack'), axis = $('edAxis');
     const pps = pxPerSec();
     const total = totalDuration(current.blocos);
-    const span = Math.max(total + 120, 45*60);
+    const span = spanSec();
+    TRACK_H = track.clientHeight || 260;
     const width = Math.max(($('edScroll').clientWidth || 900) - 8, span * pps);
     track.style.width = width + 'px';
     axis.style.width = width + 'px';
@@ -1632,11 +1872,19 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     messagingSenderId: "444555432807",
     appId: "1:444555432807:web:88c6393892794fceaa15c2"
   };
+  // Firebase App Check: só o site oficial consegue usar esta base de dados (chave reCAPTCHA Enterprise, pública)
+  const APPCHECK_SITE_KEY = '6LdzDQUuAAAAAFSa3xFsdb3hznZUE79mZU2OWLyt';
+  function ativarAppCheck(){
+    if(APPCHECK_SITE_KEY === 'COLA_AQUI' || !firebase.appCheck) return;
+    try{ firebase.appCheck().activate(new firebase.appCheck.ReCaptchaEnterpriseProvider(APPCHECK_SITE_KEY), true); }
+    catch(e){ console.error('App Check falhou', e); }
+  }
   const firebaseReady = firebaseConfig.apiKey !== 'COLA_AQUI' && !!firebaseConfig.databaseURL;
   let fbDb = null;
   if(firebaseReady){
     try{
       firebase.initializeApp(firebaseConfig);
+      ativarAppCheck();
       fbDb = firebase.database();
     }catch(e){ console.error('Firebase init falhou', e); }
   }
@@ -1711,7 +1959,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     ridersRef.on('value', s=>{ riders = s.val() || {}; });
     offsetRef = fbDb.ref('.info/serverTimeOffset');
     offsetRef.on('value', s=>{ serverOffset = s.val() || 0; });
-    ridersUiHandle = setInterval(renderRiders, 1000);
+    ridersUiHandle = setInterval(()=>{ renderRiders(); updateLiveHead(); }, 1000);
     rankHandle = setInterval(pushRanking, 4000);
     renderRiders();
   }
@@ -1908,6 +2156,10 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     $('liveActive').style.display = '';
     $('liveControls').style.display = 'flex';
     drawLiveProfile();
+    liveLastIdx = -1;
+    $('lhClass').textContent = current.nome || 'Aula de cycling';
+    $('lhSub').textContent = (userNome ? userNome + ' · ' : '') + ({zonas:'por zonas', ftp:'por %FTP', fc:'por %FC máx'}[modoAtual()] || '');
+    $('liveBody').classList.remove('soon');
     updateLiveDisplay();
     $('liveOverlay').classList.add('active');
     $('livePlay').textContent = '▶';
@@ -1967,29 +2219,65 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     const b = current.blocos[liveIdx];
     if(!b) return;
     const zone = getZone(b.ftp);
+    const zc = zoneColor(zone.css);
     $('liveZone').textContent = zone.name;
-    $('liveZone').style.color = zoneColor(zone.css);
+    if(liveLastIdx !== liveIdx){                       // mudou de bloco: clarão na cor da zona
+      liveLastIdx = liveIdx;
+      const body = $('liveBody');
+      body.classList.remove('flash'); void body.offsetWidth; body.classList.add('flash');
+    }
     $('liveName').textContent = b.nome;
+    $('liveName').style.display = (b.nome || '').trim() === zone.name ? 'none' : '';   // não repete o nome da zona
     $('liveTechnique').textContent = b.tecnica || '';
     $('liveFeel').textContent = zone.feel || '';
     updateTimerText();
     $('liveFtp').textContent = modoAtual() === 'zonas' ? intensLabel(b.ftp) : b.ftp + '%';
     $('liveRpm').textContent = b.rpm;
-    $('liveBody').style.background =
-      'radial-gradient(circle at 50% 40%, ' + zoneColor(zone.css) + '33, #05070A 70%)';
+    $('liveBody').style.background = '#05070A';
+    $('liveBody').style.setProperty('--zc', zc);
 
     const next = current.blocos[liveIdx+1];
-    $('liveNext').innerHTML = next
-      ? 'a seguir: <span class="next-chip" style="background:' + zoneColor(getZone(next.ftp).css) + '"></span><b>' + escapeHtml(next.nome) + '</b> · ' + ((modoAtual() === 'zonas' && (next.nome||'').startsWith(intensLabel(next.ftp) + ' ')) ? '' : intensLabel(next.ftp) + ' · ') + fmtTime(blockDurationSec(next))
-      : 'último bloco';
+    const ln = $('liveNext');
+    ln.classList.toggle('last', !next);
+    if(next){
+      const nz = zoneColor(getZone(next.ftp).css);
+      $('liveBody').style.setProperty('--nc', nz);
+      const meta = ((modoAtual() === 'zonas' && (next.nome||'').startsWith(intensLabel(next.ftp) + ' ')) ? '' : intensLabel(next.ftp) + ' · ') + fmtTime(blockDurationSec(next)) + (next.rpm ? ' · ' + next.rpm + ' rpm' : '');
+      ln.innerHTML = '<div class="nx-card"><span class="nx-lbl" id="nxLbl">a seguir</span><b>' + escapeHtml(next.nome) + '</b><span class="nx-meta">' + meta + '</span></div>';
+    } else {
+      ln.innerHTML = '<div class="nx-card"><span class="nx-lbl">último bloco</span><b>força até ao fim! 💪</b></div>';
+    }
+    updateLiveHead();
 
     updateLiveProgressMarker();
   }
 
+  let liveLastIdx = -1;
+  const RING_C = 565.49;
   function updateTimerText(){
     const t = $('liveTimer');
     t.textContent = fmtCountdown(liveRemaining);
     t.classList.toggle('warn', liveRemaining <= 5.0 && liveRemaining > 0);
+    const b = current.blocos[liveIdx];
+    const dur = b ? blockDurationSec(b) : 1;
+    const frac = Math.max(0, Math.min(1, 1 - liveRemaining / (dur || 1)));
+    $('ringFg').style.strokeDashoffset = (RING_C * frac).toFixed(1);
+    // últimos 10 s: o "a seguir" pisca e conta
+    const soon = !!current.blocos[liveIdx+1] && liveRemaining <= 10 && liveRemaining > 0 && livePlaying;
+    $('liveBody').classList.toggle('soon', soon);
+    const nl = $('nxLbl');
+    if(nl) nl.textContent = soon ? 'prepara-te · ' + Math.ceil(liveRemaining) : 'a seguir';
+    updateLiveHead();
+  }
+
+  function updateLiveHead(){
+    const tot = totalDuration(current.blocos);
+    const el = Math.max(0, elapsedNow());
+    $('lhElapsed').textContent = fmtTime(el);
+    $('lhLeft').textContent = fmtTime(Math.max(0, tot - el));
+    $('lhBlock').textContent = 'bloco ' + Math.min(liveIdx + 1, current.blocos.length) + ' de ' + current.blocos.length;
+    const d = new Date();
+    $('lhClock').textContent = String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
   }
 
   function resetTickBase(){
@@ -2049,6 +2337,9 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     $('liveDone').classList.add('active');
     $('liveTotalTime').textContent = fmtTime(totalDuration(current.blocos));
     $('liveBody').style.background = '#05070A';
+    $('liveBody').style.setProperty('--zc', '#3A4353');
+    $('liveBody').classList.remove('soon');
+    updateLiveHead();
     pushFinished();
     pushRanking();
     renderLiveSummary();

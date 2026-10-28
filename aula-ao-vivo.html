@@ -1,4 +1,10 @@
 <!DOCTYPE html>
+<!--
+  Perfil de Aula / Aula ao Vivo
+  © 2026 Mário Teixeira. Todos os direitos reservados.
+  Este código e a aplicação são propriedade do autor. É proibido copiar, modificar,
+  redistribuir ou usar fora da Playlife Fitness Center sem autorização escrita.
+-->
 <html lang="pt-PT">
 <head>
 <meta charset="UTF-8">
@@ -16,6 +22,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-check-compat.js"></script>
 <style>
 :root{
   --bg:#0A0D12; --surface:#12161D; --surface-2:#1B212B; --border:#262D39;
@@ -52,6 +59,8 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
 }
 .btn-primary:disabled{opacity:.5;}
 .btn-link{background:none;border:none;color:var(--muted);font-size:13px;text-decoration:underline;padding:6px;}
+.legal{position:fixed;left:0;right:0;bottom:calc(4px + env(safe-area-inset-bottom, 0px));text-align:center;font-size:10px;color:rgba(255,255,255,.28);pointer-events:none;}
+body:has(#liveScreen.active) .legal{display:none;}
 .err{color:var(--bad);font-size:13px;min-height:18px;}
 
 /* ---------- Setup ---------- */
@@ -80,6 +89,16 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
   border-radius:10px;padding:10px 12px;line-height:1.45;text-align:left;display:none;
 }
 .warn.active{display:block;}
+.ios-box{background:rgba(31,168,240,.08);border:1px solid rgba(31,168,240,.4);border-radius:12px;padding:12px 14px;text-align:left;font-size:13px;line-height:1.45;color:var(--text);max-width:340px;width:100%;}
+.warn.ios-box{color:var(--text);}
+.ios-box .ios-t{font-weight:700;font-size:14px;margin-bottom:6px;}
+.ios-box ol{margin:4px 0;padding-left:20px;}
+.ios-box li{margin:3px 0;}
+.ios-box a{color:#5FC4FF;font-weight:600;}
+.ios-url{display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 6px 6px 10px;margin:4px 0 6px;}
+.ios-u{flex:1;font-size:12px;word-break:break-all;color:#fff;}
+.ios-copy{background:var(--accent);border:none;color:#140B04;font-weight:700;border-radius:6px;padding:7px 12px;font-size:13px;white-space:nowrap;}
+.ios-note{color:var(--muted);font-size:12px;margin-top:6px;}
 
 /* ---------- Live ---------- */
 #liveScreen{display:none;flex:1;flex-direction:column;min-height:0;}
@@ -203,6 +222,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
   <button id="joinBtn" class="btn-primary">Continuar</button>
   <div id="joinError" class="err"></div>
   <button id="accountBtn" class="btn-outline">👤 Entrar na minha conta</button>
+  <div class="ios-box" id="iosJoinBox" style="display:none"></div>
 </div>
 
 <!-- CONTA DO ALUNO -->
@@ -305,7 +325,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
   <div class="body" id="bodyEl">
     <div class="class-name" id="className"></div>
     <div id="activeBlock" style="width:100%;display:flex;flex-direction:column;align-items:center;">
-      <div class="blockline"><span class="zone" id="zoneEl">—</span> · <span id="nameEl">—</span></div>
+      <div class="blockline"><span class="zone" id="zoneEl">—</span><span id="nameSep"> · </span><span id="nameEl">—</span></div>
       <div class="technique" id="techEl"></div>
       <div class="feel" id="feelEl"></div>
       <div class="timer" id="timerEl">0:00</div>
@@ -400,10 +420,17 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     messagingSenderId: "444555432807",
     appId: "1:444555432807:web:88c6393892794fceaa15c2"
   };
+  // Firebase App Check: só o site oficial consegue usar esta base de dados (chave reCAPTCHA Enterprise, pública)
+  const APPCHECK_SITE_KEY = '6LdzDQUuAAAAAFSa3xFsdb3hznZUE79mZU2OWLyt';
+  function ativarAppCheck(){
+    if(APPCHECK_SITE_KEY === 'COLA_AQUI' || !firebase.appCheck) return;
+    try{ firebase.appCheck().activate(new firebase.appCheck.ReCaptchaEnterpriseProvider(APPCHECK_SITE_KEY), true); }
+    catch(e){ console.error('App Check falhou', e); }
+  }
   const firebaseReady = firebaseConfig.apiKey !== 'COLA_AQUI' && !!firebaseConfig.databaseURL;
   let fbDb = null;
   if(firebaseReady){
-    try{ firebase.initializeApp(firebaseConfig); fbDb = firebase.database(); }
+    try{ firebase.initializeApp(firebaseConfig); ativarAppCheck(); fbDb = firebase.database(); }
     catch(e){ console.error('Firebase init falhou', e); }
   }
 
@@ -653,11 +680,40 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
   }
 
   function isIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
+  // iPhone sem Bluetooth na web (Safari, Chrome, etc.): explica o Bluefy e dá o endereço pronto a copiar
+  const BLUEFY_STORE = 'https://apps.apple.com/app/id1492822055';
+  function bluefyUrl(){ return location.origin + location.pathname + (pin ? '?pin=' + pin : ''); }
+  function iosBoxHtml(){
+    return '<div class="ios-t">📱 Tens iPhone? Para ligares a bike usa o <b>Bluefy</b></div>' +
+      '<ol>' +
+        '<li>Instala a app gratuita <a href="' + BLUEFY_STORE + '" target="_blank" rel="noopener">Bluefy – Web BLE Browser</a></li>' +
+        '<li>Copia o endereço da aula:</li>' +
+      '</ol>' +
+      '<div class="ios-url"><span class="ios-u">' + escapeHtml(bluefyUrl().replace(/^https?:\/\//,'')) + '</span><button type="button" class="ios-copy">Copiar</button></div>' +
+      '<ol start="3"><li>Abre o Bluefy, cola o endereço na barra de cima' + (pin ? ' e entra (o PIN já vai incluído)' : ' e mete o PIN') + '.</li></ol>' +
+      '<div class="ios-note">No Safari não dá para ligar a bike, mas podes continuar aqui só para acompanhar a aula.</div>';
+  }
+  function renderIosBoxes(){
+    if(!(isIOS() && !hasBluetooth)) return;
+    const j = $('iosJoinBox'); j.innerHTML = iosBoxHtml(); j.style.display = '';
+  }
+  document.addEventListener('click', async (e)=>{
+    if(!e.target.classList || !e.target.classList.contains('ios-copy')) return;
+    const url = bluefyUrl();
+    let ok = false;
+    try{ await navigator.clipboard.writeText(url); ok = true; }catch(err){}
+    if(!ok){
+      try{ const ta = document.createElement('textarea'); ta.value = url; document.body.appendChild(ta); ta.select(); ok = document.execCommand('copy'); ta.remove(); }catch(err){}
+    }
+    if(ok){ e.target.textContent = 'Copiado ✓'; setTimeout(()=> e.target.textContent = 'Copiar', 2000); }
+    else prompt('Copia este endereço:', url);
+  });
   function showBtWarning(){
     const w = $('btWarn');
     w.innerHTML = isIOS()
-      ? 'O Safari do iPhone não deixa as páginas web usar Bluetooth. Instala a app gratuita <b>Bluefy</b> (App Store), abre lá este link e liga a bike. Também podes entrar só para acompanhar a aula.'
+      ? iosBoxHtml()
       : 'Este browser não suporta Bluetooth. No Android abre este link no <b>Google Chrome</b>. Também podes entrar só para acompanhar a aula.';
+    w.classList.toggle('ios-box', isIOS());
     w.classList.add('active');
   }
 
@@ -940,6 +996,8 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     $('zoneEl').textContent = zone.name;
     $('zoneEl').style.color = zc;
     $('nameEl').textContent = b.nome;
+    const sameName = (b.nome || '').trim() === zone.name;   // não repete o nome da zona
+    $('nameEl').style.display = sameName ? 'none' : ''; $('nameSep').style.display = sameName ? 'none' : '';
     $('techEl').textContent = b.tecnica || '';
     $('feelEl').textContent = zone.feel || '';
     $('timerEl').textContent = state.status === 'paused' && remaining > 0 ? fmtCountdown(remaining) : fmtCountdown(remaining);
@@ -1452,6 +1510,8 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     }).catch(()=> alert('Não consegui guardar.'));
   });
 
+  renderIosBoxes();
+
   // entra direto com ?pin=XXXX (QR code)
   const urlPin = new URLSearchParams(location.search).get('pin');
   if(urlPin){
@@ -1464,5 +1524,6 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
   }
 })();
 </script>
+<div class="legal">© 2026 Mário Teixeira · todos os direitos reservados</div>
 </body>
 </html>
