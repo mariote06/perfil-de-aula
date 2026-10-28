@@ -46,7 +46,8 @@ body{
 .display{font-family:'Barlow Condensed',sans-serif;}
 
 /* ---------- App shell ---------- */
-.app{max-width:1180px;margin:0 auto;padding:28px 20px 80px;}
+.app{max-width:none;width:100%;margin:0;padding:24px clamp(16px,2.2vw,40px) 80px;}
+@media (min-width:1500px){.layout{grid-template-columns:minmax(420px,0.8fr) 1.2fr;}}
 .topbar{
   display:flex;align-items:center;justify-content:space-between;
   gap:16px;margin-bottom:28px;flex-wrap:wrap;
