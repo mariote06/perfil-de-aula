@@ -21,12 +21,12 @@
   --muted-2:#5D6675;
   --accent:#E8722C;
 
-  --z0:#5B6472; /* Recuperação */
-  --z1:#3E8FB0; /* Resistência */
-  --z2:#4FA37B; /* Tempo */
-  --z3:#D9A441; /* Limiar */
-  --z4:#D9713C; /* VO2máx */
-  --z5:#C24C4C; /* Anaeróbio */
+  --z0:#A35CFF; /* Recuperação */
+  --z1:#1FA8F0; /* Resistência */
+  --z2:#3DD45C; /* Tempo */
+  --z3:#FFD60A; /* Limiar */
+  --z4:#FF8A1F; /* VO2máx */
+  --z5:#FF3B3B; /* Anaeróbio */
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
@@ -73,7 +73,7 @@ button.small{padding:5px 9px;font-size:12px;}
 button:disabled{opacity:.4;cursor:not-allowed;}
 
 /* ---------- Layout: builder ---------- */
-.layout{display:grid;grid-template-columns:1.15fr 0.85fr;gap:20px;align-items:start;}
+.layout{display:grid;grid-template-columns:0.9fr 1.1fr;gap:20px;align-items:start;}
 @media (max-width:880px){.layout{grid-template-columns:1fr;}}
 
 .panel{
@@ -161,6 +161,85 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .saved-item .row-actions{display:flex;gap:4px;flex-shrink:0;}
 .saved-item .row-actions button{padding:5px 8px;font-size:12px;}
 .mini-profile{display:block;width:100%;height:16px;margin-top:4px;}
+
+
+/* ---------- Editor de intervalos ---------- */
+.editor{margin-bottom:20px;padding:18px 18px 14px;}
+.ed-toolbar{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px;}
+.ed-name{flex:1;min-width:240px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-size:15px;font-weight:600;}
+.ed-name:focus{outline:none;border-color:#4A5568;}
+.ed-tools{display:flex;gap:4px;flex-wrap:wrap;}
+.tool{background:transparent;border:none;color:var(--text);font-size:13px;letter-spacing:.3px;padding:7px 9px;}
+.tool:hover{color:var(--accent);background:transparent;}
+.tool:disabled{color:var(--muted-2);opacity:1;}
+.ed-add{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:14px;flex-wrap:wrap;}
+.ed-add > span{font-size:15px;font-weight:600;}
+.zone-dots{display:flex;gap:12px;}
+.zdot{width:24px;height:24px;border-radius:50%;padding:0;border:2px solid rgba(255,255,255,.12);transition:transform .12s ease;}
+.zdot:hover{transform:scale(1.2);border-color:#fff;}
+.ed-actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.act{min-width:96px;background:var(--accent);border:none;color:#140B04;font-weight:700;border-radius:6px;padding:9px 14px;}
+.act:hover{background:#F0803B;}
+.act:disabled{background:#3A4353;color:#8A93A3;opacity:1;}
+.act.danger{background:#C24C4C;color:#fff;}
+.act.danger:disabled{background:#3A4353;color:#8A93A3;}
+.ed-info{display:flex;justify-content:center;gap:10px 22px;flex-wrap:wrap;margin-bottom:12px;}
+.ed-info.disabled{opacity:.35;pointer-events:none;}
+.inf{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.inf label{font-size:12px;color:var(--muted);letter-spacing:.3px;}
+.inf input{background:transparent;border:1px solid transparent;border-bottom-color:var(--border);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:600;text-align:center;width:64px;padding:0 2px;border-radius:4px;}
+.inf input:focus{outline:none;border-color:var(--accent);background:var(--surface-2);}
+.inf.wide input{width:200px;font-family:'Inter',sans-serif;font-size:15px;font-weight:600;padding:6px 4px;}
+.inf .dur{display:flex;align-items:center;font-family:'Barlow Condensed',sans-serif;font-size:24px;color:var(--muted);}
+.inf .dur input{width:46px;}
+.inf input[type=number]{-moz-appearance:textfield;appearance:textfield;}
+.inf input[type=number]::-webkit-inner-spin-button,.inf input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+#fFtp,#fRpm{width:72px;}
+.inf .val{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:600;color:var(--muted);}
+.ztag{font-size:11px;font-weight:700;color:#0A0D12;padding:1px 8px;border-radius:999px;}
+.ed-tl{display:flex;align-items:stretch;gap:6px;}
+.ed-nav{background:transparent;border:none;color:#fff;font-size:36px;padding:0 6px;align-self:center;line-height:1;}
+.ed-nav:hover{color:var(--accent);background:transparent;}
+.ed-nav:disabled{color:#3A4353;}
+.ed-y{position:relative;width:18px;flex-shrink:0;}
+.ydot{position:absolute;left:3px;width:12px;height:12px;border-radius:50%;}
+.ed-scroll{flex:1;overflow-x:auto;overflow-y:hidden;padding:12px 0 0;border-left:2px solid #3A4353;min-width:0;}
+.ed-track{position:relative;height:260px;}
+.ed-ref{position:absolute;left:0;right:0;height:0;border-top:1px dashed rgba(255,255,255,.06);}
+.ed-ref.ftp100{border-top:1px dashed rgba(255,255,255,.22);}
+.ed-ref.ftp100 span{position:absolute;right:4px;top:-16px;font-size:10px;color:var(--muted);}
+.ed-bar{position:absolute;bottom:0;background:linear-gradient(180deg,var(--c) 0%,var(--c) 35%,color-mix(in srgb,var(--c) 45%,#ffffff) 100%);border-radius:2px 2px 0 0;cursor:pointer;transition:filter .15s ease;}
+.ed-bar:hover{filter:brightness(1.15);}
+.ed-bar.sel{outline:2px solid #fff;outline-offset:1px;z-index:2;filter:brightness(1.1);}
+.ed-bar .h-top{position:absolute;left:0;right:0;top:-5px;height:10px;cursor:ns-resize;}
+.ed-bar .h-right{position:absolute;top:0;bottom:0;right:-5px;width:10px;cursor:ew-resize;z-index:3;}
+.ed-bar.sel .h-top::after{content:'';position:absolute;left:50%;top:3px;width:22px;height:4px;margin-left:-11px;border-radius:2px;background:#fff;}
+.ed-bar.sel .h-right::after{content:'';position:absolute;top:50%;left:3px;height:22px;width:4px;margin-top:-11px;border-radius:2px;background:#fff;}
+.b-lbl{position:absolute;top:4px;left:0;right:0;text-align:center;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;color:rgba(10,13,18,.75);pointer-events:none;}
+.ed-axis{position:relative;height:30px;border-top:2px solid #3A4353;}
+.tick{position:absolute;top:0;width:1px;height:6px;background:#5D6675;}
+.tick.major{height:11px;background:#8A93A3;}
+.tick span{position:absolute;top:13px;left:-20px;width:40px;text-align:center;font-size:11px;color:var(--muted);}
+.ed-empty{text-align:center;color:var(--muted);font-size:13px;margin-top:10px;}
+.ed-hint{text-align:center;color:var(--muted-2);font-size:12px;margin-top:8px;line-height:1.5;}
+.ed-hint b{color:var(--muted);}
+.zone-time{display:flex;flex-direction:column;gap:9px;margin-top:6px;}
+.zt-row{display:grid;grid-template-columns:110px 1fr 52px;gap:10px;align-items:center;font-size:13px;}
+.zt-name{color:var(--muted);white-space:nowrap;}
+.zt-name i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:middle;}
+.zt-bar{height:10px;background:var(--surface-2);border-radius:5px;overflow:hidden;}
+.zt-bar div{height:100%;border-radius:5px;}
+.zt-val{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;}
+
+/* seletor de modo */
+.zfeel{text-align:center;color:var(--muted);font-size:13px;font-style:italic;min-height:18px;margin:-2px 0 10px;}
+.live-feel{color:rgba(255,255,255,.6);font-size:clamp(13px,1.6vw,17px);font-style:italic;margin:-14px 0 20px;max-width:640px;}
+.live-feel:empty{display:none;}
+.zsel{background:var(--surface-2);border:1px solid var(--border);color:#fff;border-radius:8px;padding:7px 8px;font-size:15px;font-weight:600;}
+.seg{display:flex;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:3px;gap:2px;}
+.seg button{background:transparent;border:none;padding:7px 12px;font-size:13px;color:var(--muted);border-radius:6px;}
+.seg button.on{background:var(--accent);color:#140B04;}
+#fUnit{font-size:16px;margin-left:2px;}
 
 /* ---------- Conta ---------- */
 .user-chip{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;margin-right:6px;}
@@ -379,7 +458,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   <div class="topbar">
     <div class="brand">
       <h1>Perfil de Aula</h1>
-      <span>Planeamento de cycling por %FTP</span>
+      <span>Planeamento de cycling por zonas, %FTP ou %FCmáx</span>
     </div>
     <div class="topbar-actions">
       <span class="user-chip" id="userChip"><span id="userName">—</span>
@@ -393,37 +472,75 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     </div>
   </div>
 
-  <div class="layout">
-    <!-- LEFT: builder -->
-    <div class="panel">
-      <h2>Blocos <small id="blockCount">0 blocos</small></h2>
-      <div class="meta-row">
-        <input type="text" id="treinoNome" placeholder="Nome da aula (ex: Sprint Interval — Quarta 18h)">
-      </div>
-
-      <div class="blocks" id="blocksList"></div>
-      <div id="emptyState" class="empty-state">Ainda não adicionaste blocos. Começa por um aquecimento.</div>
-
-      <div class="add-row">
-        <button class="icon" id="addBlockBtn">＋ Adicionar bloco</button>
+  <!-- EDITOR DE INTERVALOS -->
+  <div class="panel editor" id="editor">
+    <div class="ed-toolbar">
+      <input type="text" id="treinoNome" class="ed-name" placeholder="Nome da aula (ex: Sprint Interval — Quarta 18h)">
+      <div class="seg" id="modeSeg" title="Como se constrói esta aula"><button data-m="zonas">Zonas Z1–Z6</button><button data-m="ftp">%FTP Z1–Z6</button><button data-m="fc">%FCmáx Z1–Z5</button></div>
+      <div class="ed-tools">
+        <button class="tool" id="undoBtn" title="Desfazer (Ctrl+Z)">↶ desfazer</button>
+        <button class="tool" id="redoBtn" title="Refazer (Ctrl+Y)">↷ refazer</button>
+        <button class="tool" id="zoomOutBtn" title="Afastar">− zoom</button>
+        <button class="tool" id="zoomInBtn" title="Aproximar">＋ zoom</button>
+        <button class="tool" id="previewBtn" title="Abrir a projeção">▶ pré-visualizar</button>
+        <button class="tool" id="clearBtn" title="Apagar todos os intervalos">limpar tudo</button>
       </div>
     </div>
 
-    <!-- RIGHT: profile + library + history -->
-    <div style="display:flex;flex-direction:column;gap:20px;">
-      <div class="panel">
-        <h2>Perfil da aula</h2>
-        <div class="stats-row">
-          <div class="stat"><div class="num" id="statDuration">0:00</div><div class="lbl">duração total</div></div>
-          <div class="stat"><div class="num" id="statAvgFtp">0%</div><div class="lbl">%FTP médio</div></div>
-          <div class="stat"><div class="num" id="statPeakFtp">0%</div><div class="lbl">pico %FTP</div></div>
-        </div>
-        <div class="profile-svg-wrap">
-          <svg id="profileSvg" viewBox="0 0 1000 180" width="100%" height="180" preserveAspectRatio="none"></svg>
-        </div>
-        <div class="legend" id="legend"></div>
-      </div>
+    <div class="ed-add">
+      <span>adicionar intervalo</span>
+      <div class="zone-dots" id="zoneDots"></div>
+    </div>
 
+    <div class="ed-actions">
+      <button class="act" id="copyBtn">copiar</button>
+      <button class="act" id="pasteBtn">colar</button>
+      <button class="act" id="halfBtn" title="Parte o intervalo em duas metades iguais">50/50</button>
+      <button class="act" id="mergeBtn" title="Junta com o intervalo seguinte">juntar</button>
+      <button class="act" id="dupBtn">duplicar</button>
+      <button class="act" id="moveLBtn" title="Mover para a esquerda">◀ mover</button>
+      <button class="act" id="moveRBtn" title="Mover para a direita">mover ▶</button>
+      <button class="act danger" id="delBtn">apagar</button>
+    </div>
+
+    <div class="ed-info" id="edInfo">
+      <div class="inf wide"><label>intervalo</label><input type="text" id="fNome" maxlength="40"></div>
+      <div class="inf"><label>duração</label><div class="dur"><input type="number" id="fMin" min="0">:<input type="number" id="fSec" min="0" max="59"></div></div>
+      <div class="inf ro"><label>início</label><div class="val" id="fStart">0:00</div></div>
+      <div class="inf ro"><label>fim</label><div class="val" id="fEnd">0:00</div></div>
+      <div class="inf"><label>rpm</label><input type="number" id="fRpm" min="0" max="160"></div>
+      <div class="inf"><label>intensidade</label><div class="dur" id="fIntWrap"><input type="number" id="fFtp" min="0" max="250"><span id="fUnit">% FTP</span></div><select id="fZsel" class="zsel" style="display:none"></select><div class="ztag" id="fZone">—</div></div>
+      <div class="inf wide"><label>técnica</label><input type="text" id="fTec" maxlength="80" placeholder="ex: sentado, em pé, mãos posição 2"></div>
+    </div>
+
+    <div class="zfeel" id="fFeel"></div>
+
+    <div class="ed-tl">
+      <button class="ed-nav" id="prevSel" title="Intervalo anterior (←)">‹</button>
+      <div class="ed-y" id="edY"></div>
+      <div class="ed-scroll" id="edScroll">
+        <div class="ed-track" id="edTrack"></div>
+        <div class="ed-axis" id="edAxis"></div>
+      </div>
+      <button class="ed-nav" id="nextSel" title="Intervalo seguinte (→)">›</button>
+    </div>
+    <div class="ed-empty" id="edEmpty">Ainda não há intervalos. Carrega numa cor em "adicionar intervalo" para começar, por exemplo pelo azul para o aquecimento.</div>
+    <div class="ed-hint">Clica num intervalo para o editar · arrasta o <b>topo</b> para mudar a intensidade e a <b>borda direita</b> para mudar a duração · teclas: ← → selecionar, Delete apagar, Ctrl+C/Ctrl+V copiar/colar, Ctrl+Z desfazer</div>
+  </div>
+
+  <div class="layout">
+    <div class="panel">
+      <h2>Resumo da aula <small>carga e tempo em cada zona</small></h2>
+      <div class="stats-row">
+        <div class="stat"><div class="num" id="statDuration">0:00</div><div class="lbl">duração total</div></div>
+        <div class="stat"><div class="num" id="statTss">0</div><div class="lbl">TSS estimado</div></div>
+        <div class="stat"><div class="num" id="statAvgFtp">0%</div><div class="lbl" id="statAvgLbl">%FTP médio</div></div>
+        <div class="stat"><div class="num" id="statPeakFtp">0%</div><div class="lbl" id="statPeakLbl">pico %FTP</div></div>
+      </div>
+      <div class="zone-time" id="zoneTime"></div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px;">
       <div class="panel">
         <h2>
           <span>As minhas aulas <small id="savedCount">0</small></span>
@@ -476,9 +593,10 @@ button:disabled{opacity:.4;cursor:not-allowed;}
         <div class="live-zone" id="liveZone">—</div>
         <div class="live-name" id="liveName">—</div>
         <div class="live-technique" id="liveTechnique"></div>
+        <div class="live-feel" id="liveFeel"></div>
         <div class="live-timer" id="liveTimer">0:00</div>
         <div class="live-metrics">
-          <div class="live-metric"><div class="v" id="liveFtp">0%</div><div class="l">FTP alvo</div></div>
+          <div class="live-metric"><div class="v" id="liveFtp">0%</div><div class="l" id="liveFtpLbl">FTP alvo</div></div>
           <div class="live-metric"><div class="v" id="liveRpm">0</div><div class="l">RPM</div></div>
         </div>
       </div>
@@ -592,20 +710,51 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 (function(){
   "use strict";
 
+  const F = ["Ritmo muito leve para recuperar as pernas. O coração mal sobe.", "Ritmo de base. Dá para pedalar muito tempo e conversar sem falhas.", "Esforço moderado. Já exige foco e a conversa fica mais curta.", "Ritmo de contrarrelógio. Pernas a arder e respiração muito controlada.", "Esforço muito duro. O coração dispara e as pernas queimam depressa.", "Explosão total: ataques e sprints. O cardio não consegue acompanhar."];  // sensação de cada zona
   const ZONES = [
-    {name:'Recuperação', max:55,  css:'--z0'},
-    {name:'Resistência', max:75,  css:'--z1'},
-    {name:'Tempo',       max:90,  css:'--z2'},
-    {name:'Limiar',      max:105, css:'--z3'},
-    {name:'VO2máx',      max:120, css:'--z4'},
-    {name:'Anaeróbio',   max:9999,css:'--z5'},
+    {name:'Z1 Recuperação', max:55,  css:'--z0', feel:F[0]},
+    {name:'Z2 Resistência', max:75,  css:'--z1', feel:F[1]},
+    {name:'Z3 Tempo',       max:90,  css:'--z2', feel:F[2]},
+    {name:'Z4 Limiar',      max:105, css:'--z3', feel:F[3]},
+    {name:'Z5 VO2máx',      max:120, css:'--z4', feel:F[4]},
+    {name:'Z6 Anaeróbio',   max:9999,css:'--z5', feel:F[5]},
   ];
   const rootStyle = getComputedStyle(document.documentElement);
   function zoneColor(cssVar){ return rootStyle.getPropertyValue(cssVar).trim(); }
-  function getZone(pct){
-    for(const z of ZONES){ if(pct <= z.max) return z; }
-    return ZONES[ZONES.length-1];
+  // zonas de frequência cardíaca (% da FC máxima)
+  const ZONES_FC = [
+    {name:'Z1 Recuperação', max:60,   css:'--z0', feel:F[0]},
+    {name:'Z2 Resistência', max:70,   css:'--z1', feel:F[1]},
+    {name:'Z3 Tempo',       max:80,   css:'--z2', feel:F[2]},
+    {name:'Z4 Limiar',      max:90,   css:'--z3', feel:F[3]},
+    {name:'Z5 VO2máx',      max:9999, css:'--z4', feel:F[4]},
+  ];
+  function modoAtual(){ return (typeof current !== 'undefined' && current && current.modo) || 'ftp'; }
+  function zonesOf(m){ return (m || modoAtual()) === 'fc' ? ZONES_FC : ZONES; }
+  function modoUnit(m){ const k = m || modoAtual(); return k === 'fc' ? '%FCmáx' : k === 'zonas' ? 'zona' : '%FTP'; }
+  // modo "zonas": cada intervalo é uma zona Z1–Z6; guarda-se o meio da zona em %FTP
+  const ZONE_MID = [45, 65, 83, 98, 113, 130];
+  function zoneIdx(v, m){ const Z = zonesOf(m); const z = getZone(v, m); return Z.indexOf(z); }
+  function snapZona(v){ return ZONE_MID[zoneIdx(v, 'ftp')]; }
+  function intensLabel(v, m){ const k = m || modoAtual(); return k === 'zonas' ? 'Z' + (zoneIdx(v, k) + 1) : v + '%'; }
+  function getZone(pct, m){
+    const Z = zonesOf(m);
+    for(const z of Z){ if(pct <= z.max) return z; }
+    return Z[Z.length-1];
   }
+  // escala vertical do gráfico em cada modo
+  function scaleOf(m){ return (m || modoAtual()) === 'fc' ? {min:40, max:100} : {min:0, max:150}; }
+  // conversão aproximada entre %FTP e %FCmáx (só para mudar o modo de uma aula já feita)
+  // conversão zona a zona (mantém a zona e a posição dentro dela)
+  const FTP_B = [[40,55],[55,75],[75,90],[90,105],[105,120]], FC_B = [[50,60],[60,70],[70,80],[80,90],[90,100]];
+  function mapRange(v, from, to){
+    for(let i=0;i<from.length;i++){
+      const [lo,hi] = from[i];
+      if(v <= hi || i === from.length-1){ const f = Math.max(0, Math.min(1, (v - lo) / (hi - lo))); return Math.round(to[i][0] + f * (to[i][1] - to[i][0])); }
+    }
+  }
+  function ftpToFc(v){ return v > 120 ? 98 : mapRange(v, FTP_B, FC_B); }
+  function fcToFtp(v){ return mapRange(v, FC_B, FTP_B); }
   const $ = (id)=>document.getElementById(id);
 
   const STORAGE_KEY = 'ptCyclingTreinos';
@@ -775,7 +924,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
         let n = 0;
         list.forEach(t=>{
           if(!t || !Array.isArray(t.blocos) || !t.blocos.length) return;
-          treinos.push({ id: uid(), nome: String(t.nome || 'Aula importada').slice(0,80), blocos: t.blocos.map(sanitizeBlock) });
+          treinos.push({ id: uid(), nome: String(t.nome || 'Aula importada').slice(0,80), modo: ['fc','zonas'].includes(t.modo) ? t.modo : 'ftp', blocos: t.blocos.map(sanitizeBlock) });
           n++;
         });
         if(!n){ toast('O ficheiro não tem aulas válidas.'); return; }
@@ -825,24 +974,362 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   }
   function fmtCountdown(sec){ return fmtTime(Math.ceil(Math.max(0, sec) - 0.001)); }
 
-  // ---------- rendering: builder list ----------
+  // ---------- rendering ----------
+  let lastCurrent = null;
   function render(){
-    $('treinoNome').value = current.nome || '';
-    const list = $('blocksList');
-    const empty = $('emptyState');
-    list.innerHTML = '';
-    $('blockCount').textContent = current.blocos.length + (current.blocos.length===1 ? ' bloco' : ' blocos');
-
-    if(current.blocos.length === 0){
-      empty.style.display = 'block';
-    } else {
-      empty.style.display = 'none';
-      current.blocos.forEach((b, idx) => list.appendChild(renderBlockRow(b, idx)));
+    if(current !== lastCurrent){   // abriu outra aula: recomeça seleção e histórico de desfazer
+      lastCurrent = current; selIdx = current.blocos.length ? 0 : -1; undoStack = []; redoStack = []; updateUndoBtns();
     }
+    if(document.activeElement !== $('treinoNome')) $('treinoNome').value = current.nome || '';
+    if(typeof renderModeUi === 'function') renderModeUi();
+    if(selIdx >= current.blocos.length) selIdx = current.blocos.length - 1;
+    if(selIdx < 0 && current.blocos.length) selIdx = 0;
+    renderEditor();
     renderProfileOnly();
     renderSaved();
     renderHistory();
   }
+
+  // =====================================================================
+  // EDITOR DE INTERVALOS (linha do tempo)
+  // =====================================================================
+  const ZONE_DEFAULTS = {
+    ftp: [ {ftp:50, rpm:80}, {ftp:65, rpm:90}, {ftp:83, rpm:90}, {ftp:98, rpm:85}, {ftp:113, rpm:95}, {ftp:130, rpm:105} ],
+    fc:  [ {ftp:55, rpm:80}, {ftp:65, rpm:90}, {ftp:75, rpm:90}, {ftp:85, rpm:85}, {ftp:95, rpm:100} ],
+    zonas: [ {ftp:45, rpm:80}, {ftp:65, rpm:90}, {ftp:83, rpm:90}, {ftp:98, rpm:85}, {ftp:113, rpm:95}, {ftp:130, rpm:105} ]
+  };
+  const TRACK_H = 260;
+  let selIdx = -1;
+  let zoom = 1;
+  let clip = null;
+  let undoStack = [], redoStack = [];
+
+  function snapshot(){ return JSON.stringify(current.blocos); }
+  function pushUndo(snap){
+    undoStack.push(snap || snapshot());
+    if(undoStack.length > 100) undoStack.shift();
+    redoStack = [];
+    updateUndoBtns();
+  }
+  function undo(){
+    if(!undoStack.length) return;
+    redoStack.push(snapshot());
+    current.blocos = JSON.parse(undoStack.pop());
+    render(); updateUndoBtns();
+  }
+  function redo(){
+    if(!redoStack.length) return;
+    undoStack.push(snapshot());
+    current.blocos = JSON.parse(redoStack.pop());
+    render(); updateUndoBtns();
+  }
+  function updateUndoBtns(){
+    $('undoBtn').disabled = !undoStack.length;
+    $('redoBtn').disabled = !redoStack.length;
+  }
+
+  function selected(){ return current.blocos[selIdx] || null; }
+  function insertAt(i, b){ current.blocos.splice(i, 0, b); selIdx = i; }
+
+  function addZone(zi){
+    pushUndo();
+    const d = ZONE_DEFAULTS[modoAtual()][zi];
+    const b = newBlock({ nome: zonesOf()[zi].name, min:2, sec:0, ftp:d.ftp, rpm:d.rpm });
+    insertAt(selIdx >= 0 ? selIdx + 1 : current.blocos.length, b);
+    render(); scrollToSel();
+  }
+  function doCopy(){ const b = selected(); if(!b) return; clip = clean(b); toast('Intervalo copiado'); updateActionBtns(); }
+  function doPaste(){
+    if(!clip) return;
+    pushUndo();
+    insertAt(selIdx >= 0 ? selIdx + 1 : current.blocos.length, Object.assign(clean(clip), {id: uid()}));
+    render(); scrollToSel();
+  }
+  function doDup(){ const b = selected(); if(!b) return; pushUndo(); insertAt(selIdx + 1, Object.assign(clean(b), {id: uid()})); render(); }
+  function doHalf(){
+    const b = selected(); if(!b) return;
+    const tot = blockDurationSec(b);
+    if(tot < 10){ toast('Intervalo demasiado curto para dividir'); return; }
+    pushUndo();
+    const a = Math.round(tot/2), c = tot - a;
+    b.min = Math.floor(a/60); b.sec = a%60;
+    insertAt(selIdx + 1, Object.assign(clean(b), {id: uid(), min: Math.floor(c/60), sec: c%60}));
+    selIdx--; render();
+  }
+  function doMerge(){
+    const a = selected(), b = current.blocos[selIdx + 1];
+    if(!a || !b){ toast('Seleciona um intervalo que tenha outro a seguir'); return; }
+    pushUndo();
+    const da = blockDurationSec(a), db = blockDurationSec(b), tot = da + db;
+    a.ftp = Math.round((a.ftp*da + b.ftp*db) / (tot||1));
+    if(modoAtual() === 'zonas') a.ftp = snapZona(a.ftp);
+    a.rpm = Math.round((a.rpm*da + b.rpm*db) / (tot||1));
+    a.min = Math.floor(tot/60); a.sec = tot%60;
+    current.blocos.splice(selIdx + 1, 1);
+    render();
+  }
+  function doMove(dir){
+    const j = selIdx + dir;
+    if(selIdx < 0 || j < 0 || j >= current.blocos.length) return;
+    pushUndo();
+    const t = current.blocos[selIdx]; current.blocos[selIdx] = current.blocos[j]; current.blocos[j] = t;
+    selIdx = j; render(); scrollToSel();
+  }
+  function doDelete(){
+    if(selIdx < 0) return;
+    pushUndo();
+    current.blocos.splice(selIdx, 1);
+    if(selIdx >= current.blocos.length) selIdx = current.blocos.length - 1;
+    render();
+  }
+  function doClear(){
+    if(!current.blocos.length || !confirm('Apagar todos os intervalos desta aula?')) return;
+    pushUndo();
+    current.blocos = []; selIdx = -1; render();
+  }
+  function select(i){
+    if(i < 0 || i >= current.blocos.length) return;
+    selIdx = i; renderEditor(); scrollToSel();
+  }
+
+  function pxPerSec(){
+    const wrap = $('edScroll');
+    const visible = Math.max(300, (wrap.clientWidth || 900) - 8);
+    const span = Math.max(totalDuration(current.blocos) + 120, 45*60);
+    return visible / span * zoom;
+  }
+
+  function scrollToSel(){
+    const el = document.querySelector('.ed-bar.sel');
+    const wrap = $('edScroll');
+    if(!el || !wrap) return;
+    const l = el.offsetLeft, r = l + el.offsetWidth;
+    if(l < wrap.scrollLeft) wrap.scrollLeft = l - 20;
+    else if(r > wrap.scrollLeft + wrap.clientWidth) wrap.scrollLeft = r - wrap.clientWidth + 20;
+  }
+
+  function ftpToY(v){ const sc = scaleOf(); return (Math.min(Math.max(v, sc.min), sc.max) - sc.min) / (sc.max - sc.min) * TRACK_H; }
+
+  function renderEditor(){
+    const track = $('edTrack'), axis = $('edAxis');
+    const pps = pxPerSec();
+    const total = totalDuration(current.blocos);
+    const span = Math.max(total + 120, 45*60);
+    const width = Math.max(($('edScroll').clientWidth || 900) - 8, span * pps);
+    track.style.width = width + 'px';
+    axis.style.width = width + 'px';
+    $('edEmpty').style.display = current.blocos.length ? 'none' : '';
+
+    // linhas de referência (zonas) atrás das barras
+    let html = '';
+    const ZZ = zonesOf();
+    ZZ.forEach((z,i)=>{
+      if(i === ZZ.length - 1) return;
+      html += '<div class="ed-ref" style="bottom:' + ftpToY(z.max) + 'px"></div>';
+    });
+    if(modoAtual() !== 'fc') html += '<div class="ed-ref ftp100" style="bottom:' + ftpToY(100) + 'px"><span>100% FTP</span></div>';
+
+    let x = 0;
+    current.blocos.forEach((b,i)=>{
+      const d = blockDurationSec(b);
+      const w = Math.max(3, d * pps);
+      const h = Math.max(6, ftpToY(b.ftp));
+      const c = zoneColor(getZone(b.ftp).css);
+      html += '<div class="ed-bar' + (i === selIdx ? ' sel' : '') + '" data-i="' + i + '" style="left:' + x + 'px;width:' + (w - 2) + 'px;height:' + h + 'px;--c:' + c + '">' +
+        '<div class="h-top" data-i="' + i + '"></div><div class="h-right" data-i="' + i + '"></div>' +
+        (w > (modoAtual() === 'zonas' ? 24 : 40) ? '<div class="b-lbl">' + intensLabel(b.ftp) + '</div>' : '') + '</div>';
+      x += d * pps;
+    });
+    track.innerHTML = html;
+
+    // régua de tempo: escolhe um passo para as etiquetas ficarem legíveis
+    const steps = [60, 120, 240, 300, 600, 900];
+    const step = steps.find(st => st * pps >= 64) || 1200;
+    const minor = step >= 300 ? 60 : step / 4;
+    let ax = '';
+    for(let t = 0; t * pps <= width; t += minor){
+      const major = Math.round(t) % step === 0;
+      ax += '<div class="tick' + (major ? ' major' : '') + '" style="left:' + (t*pps) + 'px">' + (major ? '<span>' + fmtTime(t) + '</span>' : '') + '</div>';
+    }
+    axis.innerHTML = ax;
+
+    // eixo vertical: pontos das zonas
+    const sc = scaleOf();
+    $('edY').innerHTML = ZZ.map((z,i)=>{
+      const lo = i === 0 ? sc.min : ZZ[i-1].max, hi = Math.min(z.max, sc.max);
+      return '<div class="ydot" title="' + z.name + '" style="bottom:' + (ftpToY((lo+hi)/2) - 6 + 22) + 'px;background:' + zoneColor(z.css) + '"></div>';
+    }).join('');
+
+    renderInfo();
+    updateActionBtns();
+  }
+
+  function renderInfo(){
+    const b = selected();
+    const box = $('edInfo');
+    box.classList.toggle('disabled', !b);
+    const set = (id, v)=>{ const el = $(id); if(document.activeElement !== el) el.value = v; };
+    if(!b){
+      ['fNome','fMin','fSec','fRpm','fFtp','fTec'].forEach(id=> set(id, ''));
+      $('fFeel').textContent = '';
+      $('fStart').textContent = '—'; $('fEnd').textContent = '—'; $('fZone').textContent = '—'; $('fZone').style.background = '';
+      return;
+    }
+    const start = current.blocos.slice(0, selIdx).reduce((s,x)=> s + blockDurationSec(x), 0);
+    set('fNome', b.nome || ''); set('fMin', b.min || 0); set('fSec', b.sec || 0);
+    set('fRpm', b.rpm || 0); set('fFtp', b.ftp || 0); set('fTec', b.tecnica || '');
+    if(modoAtual() === 'zonas' && document.activeElement !== $('fZsel')) $('fZsel').value = String(zoneIdx(b.ftp));
+    $('fStart').textContent = fmtTime(start);
+    $('fEnd').textContent = fmtTime(start + blockDurationSec(b));
+    const z = getZone(b.ftp);
+    $('fZone').textContent = z.name; $('fZone').style.background = zoneColor(z.css);
+    $('fFeel').textContent = z.feel || '';
+  }
+
+  function updateActionBtns(){
+    const has = !!selected();
+    ['copyBtn','halfBtn','dupBtn','delBtn'].forEach(id=> $(id).disabled = !has);
+    $('mergeBtn').disabled = !(has && current.blocos[selIdx+1]);
+    $('moveLBtn').disabled = !(has && selIdx > 0);
+    $('moveRBtn').disabled = !(has && selIdx < current.blocos.length - 1);
+    $('pasteBtn').disabled = !clip;
+    $('prevSel').disabled = !(selIdx > 0);
+    $('nextSel').disabled = !(selIdx < current.blocos.length - 1);
+  }
+
+  // campos do intervalo selecionado
+  let fieldSnap = null;
+  function bindField(id, apply){
+    const el = $(id);
+    el.addEventListener('focus', ()=>{ fieldSnap = snapshot(); });
+    el.addEventListener('input', ()=>{
+      const b = selected(); if(!b) return;
+      if(fieldSnap){ pushUndo(fieldSnap); fieldSnap = null; }
+      apply(b, el.value);
+      renderEditor(); renderProfileOnly();
+    });
+  }
+  const num = (v, lo, hi)=> Math.max(lo, Math.min(hi, Math.round(Number(v) || 0)));
+  bindField('fNome', (b,v)=> b.nome = v);
+  bindField('fTec',  (b,v)=> b.tecnica = v);
+  bindField('fMin',  (b,v)=> b.min = num(v, 0, 180));
+  bindField('fSec',  (b,v)=> b.sec = num(v, 0, 59));
+  bindField('fRpm',  (b,v)=> b.rpm = num(v, 0, 200));
+  bindField('fFtp',  (b,v)=> b.ftp = num(v, 0, 300));
+
+  // arrastar: topo = intensidade, borda direita = duração
+  let drag = null;
+  $('edTrack').addEventListener('pointerdown', (e)=>{
+    const t = e.target;
+    const i = Number(t.dataset.i);
+    if(isNaN(i)) return;
+    if(selIdx !== i){ selIdx = i; renderEditor(); }
+    const b = current.blocos[i];
+    if(t.classList.contains('h-top') || t.classList.contains('h-right')){
+      e.preventDefault();
+      drag = { kind: t.classList.contains('h-top') ? 'ftp' : 'dur', i: i, x0: e.clientX, y0: e.clientY,
+               ftp0: b.ftp, dur0: blockDurationSec(b), snap: snapshot(), moved: false, pps: pxPerSec() };
+      $('edTrack').setPointerCapture(e.pointerId);
+    }
+  });
+  $('edTrack').addEventListener('pointermove', (e)=>{
+    if(!drag) return;
+    const b = current.blocos[drag.i];
+    if(drag.kind === 'ftp'){
+      const dy = drag.y0 - e.clientY;
+      const sc = scaleOf();
+      const lo = modoAtual() === 'fc' ? 45 : 30, hi = modoAtual() === 'fc' ? 100 : 200;
+      b.ftp = Math.max(lo, Math.min(hi, Math.round(drag.ftp0 + dy / TRACK_H * (sc.max - sc.min))));
+      if(modoAtual() === 'zonas') b.ftp = snapZona(b.ftp);
+    } else {
+      const dx = e.clientX - drag.x0;
+      const sec = Math.max(10, Math.round((drag.dur0 + dx / drag.pps) / 5) * 5);
+      b.min = Math.floor(sec/60); b.sec = sec % 60;
+    }
+    drag.moved = true;
+    renderEditor(); renderProfileOnly();
+  });
+  const endDrag = ()=>{
+    if(drag && drag.moved) pushUndo(drag.snap);
+    drag = null;
+  };
+  $('edTrack').addEventListener('pointerup', endDrag);
+  $('edTrack').addEventListener('pointercancel', endDrag);
+
+  // botões do editor
+  function renderModeUi(){
+    const m = modoAtual();
+    $('zoneDots').innerHTML = zonesOf(m).map((z,i)=> '<button class="zdot" data-z="' + i + '" title="Adicionar ' + z.name + '" style="background:' + zoneColor(z.css) + '"></button>').join('');
+    document.querySelectorAll('#modeSeg button').forEach(bt=> bt.classList.toggle('on', bt.dataset.m === m));
+    $('fUnit').textContent = m === 'fc' ? '% FCmáx' : '% FTP';
+    $('liveFtpLbl').textContent = m === 'fc' ? 'FC máx alvo' : m === 'zonas' ? 'zona alvo' : 'FTP alvo';
+    $('fIntWrap').style.display = m === 'zonas' ? 'none' : '';
+    $('fZsel').style.display = m === 'zonas' ? '' : 'none';
+    $('fZsel').innerHTML = ZONES.map((z,i)=> '<option value="' + i + '">' + z.name + '</option>').join('');
+    $('fFtp').max = m === 'fc' ? 100 : 250;
+  }
+  const MODO_NOME = { zonas:'Zonas Z1–Z6', ftp:'%FTP', fc:'%FCmáx' };
+  function setModo(m){
+    const de = modoAtual();
+    if(de === m) return;
+    if(current.blocos.length){
+      const ok = confirm('Mudar esta aula para ' + MODO_NOME[m] + '? As intensidades são convertidas de forma aproximada; confirma-as depois.');
+      if(!ok) return;
+      const oldNames = zonesOf(de).map(z=>z.name).concat(ZONES.map(z=> z.name.replace(/^Z\d /,'')));
+      current.blocos.forEach(b=>{
+        let v = b.ftp;
+        if(de === 'fc') v = fcToFtp(v);          // passa tudo para %FTP
+        if(m === 'fc') v = ftpToFc(v);
+        else if(m === 'zonas') v = snapZona(v);
+        b.ftp = v;
+        if(oldNames.includes(b.nome)) b.nome = getZone(b.ftp, m).name;   // nomes automáticos acompanham a zona
+      });
+    }
+    current.modo = m;
+    undoStack = []; redoStack = []; updateUndoBtns();
+    renderModeUi(); render();
+  }
+  $('fZsel').addEventListener('change', ()=>{
+    const b = selected(); if(!b) return;
+    pushUndo();
+    const i = Number($('fZsel').value);
+    const autoName = ZONES.some(z=> z.name === b.nome || z.name.replace(/^Z\d /,'') === b.nome);
+    b.ftp = ZONE_MID[i];
+    if(autoName) b.nome = ZONES[i].name;
+    renderEditor(); renderProfileOnly();
+  });
+  document.querySelectorAll('#modeSeg button').forEach(bt=> bt.addEventListener('click', ()=> setModo(bt.dataset.m)));
+  $('zoneDots').addEventListener('click', (e)=>{ const z = e.target.dataset.z; if(z !== undefined) addZone(Number(z)); });
+  $('copyBtn').addEventListener('click', doCopy);
+  $('pasteBtn').addEventListener('click', doPaste);
+  $('halfBtn').addEventListener('click', doHalf);
+  $('mergeBtn').addEventListener('click', doMerge);
+  $('dupBtn').addEventListener('click', doDup);
+  $('moveLBtn').addEventListener('click', ()=> doMove(-1));
+  $('moveRBtn').addEventListener('click', ()=> doMove(1));
+  $('delBtn').addEventListener('click', doDelete);
+  $('clearBtn').addEventListener('click', doClear);
+  $('undoBtn').addEventListener('click', undo);
+  $('redoBtn').addEventListener('click', redo);
+  $('zoomInBtn').addEventListener('click', ()=>{ zoom = Math.min(8, zoom * 1.5); renderEditor(); scrollToSel(); });
+  $('zoomOutBtn').addEventListener('click', ()=>{ zoom = Math.max(0.5, zoom / 1.5); renderEditor(); });
+  $('prevSel').addEventListener('click', ()=> select(selIdx - 1));
+  $('nextSel').addEventListener('click', ()=> select(selIdx + 1));
+  $('previewBtn').addEventListener('click', ()=> $('projectBtn').click());
+  window.addEventListener('resize', ()=> renderEditor());
+  document.addEventListener('keydown', (e)=>{
+    if($('liveOverlay').classList.contains('active') || $('authOverlay').classList.contains('active')) return;
+    const tag = (e.target && e.target.tagName) || '';
+    if(tag === 'INPUT' || tag === 'TEXTAREA') return;
+    const mod = e.ctrlKey || e.metaKey;
+    if(mod && (e.key === 'z' || e.key === 'Z')){ e.preventDefault(); if(e.shiftKey) redo(); else undo(); }
+    else if(mod && (e.key === 'y' || e.key === 'Y')){ e.preventDefault(); redo(); }
+    else if(mod && (e.key === 'c' || e.key === 'C')){ doCopy(); }
+    else if(mod && (e.key === 'v' || e.key === 'V')){ doPaste(); }
+    else if(e.key === 'ArrowLeft'){ e.preventDefault(); select(selIdx - 1); }
+    else if(e.key === 'ArrowRight'){ e.preventDefault(); select(selIdx + 1); }
+    else if(e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); doDelete(); }
+  });
 
   function renderBlockRow(b, idx){
     const zone = getZone(b.ftp);
@@ -915,7 +1402,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     if(row){ row.style.borderLeftColor = zoneColor(zone.css); }
   }
 
-  // ---------- profile chart ----------
+  // ---------- resumo da aula ----------
   function renderProfileOnly(){
     const totalSec = totalDuration(current.blocos);
     const ftps = current.blocos.map(b=>b.ftp);
@@ -923,27 +1410,43 @@ button:disabled{opacity:.4;cursor:not-allowed;}
       current.blocos.reduce((s,b)=> s + b.ftp * blockDurationSec(b), 0) / (totalSec || 1)
     ) : 0;
     const peakFtp = ftps.length ? Math.max(...ftps) : 0;
+    // TSS = soma de (duração em horas × IF² × 100), com IF = %FTP / 100
+    const tss = Math.round(current.blocos.reduce((s,b)=> s + blockDurationSec(b)/3600 * Math.pow((b.ftp||0)/100, 2) * 100, 0));
 
     $('statDuration').textContent = fmtTime(totalSec);
-    $('statAvgFtp').textContent = avgFtp + '%';
-    $('statPeakFtp').textContent = peakFtp + '%';
+    const fcMode = modoAtual() === 'fc';
+    $('statTss').textContent = fcMode ? '—' : tss;
+    $('statTss').title = fcMode ? 'O TSS só se calcula em aulas por %FTP' : '';
+    $('statAvgFtp').textContent = modoAtual() === 'zonas' ? intensLabel(avgFtp, 'zonas') : avgFtp + '%';
+    $('statPeakFtp').textContent = modoAtual() === 'zonas' ? intensLabel(peakFtp, 'zonas') : peakFtp + '%';
+    $('statAvgLbl').textContent = fcMode ? '%FCmáx médio' : modoAtual() === 'zonas' ? 'zona média' : '%FTP médio';
+    $('statPeakLbl').textContent = fcMode ? 'pico %FCmáx' : modoAtual() === 'zonas' ? 'zona mais alta' : 'pico %FTP';
 
-    drawProfileSvg($('profileSvg'), current.blocos, 1000, 180, 6);
-    renderLegend(current.blocos);
+    const ZZ = zonesOf();
+    const secsM = ZZ.map(()=>0);
+    current.blocos.forEach(b=>{ secsM[ZZ.indexOf(getZone(b.ftp))] += blockDurationSec(b); });
+    const secs2 = secsM;
+    const mx = Math.max(1, ...secs2);
+    $('zoneTime').innerHTML = ZZ.map((z,i)=>
+      '<div class="zt-row"><span class="zt-name"><i style="background:' + zoneColor(z.css) + '"></i>' + z.name + '</span>' +
+      '<div class="zt-bar"><div style="width:' + (secs2[i]/mx*100).toFixed(1) + '%;background:' + zoneColor(z.css) + '"></div></div>' +
+      '<span class="zt-val">' + fmtTime(secs2[i]) + '</span></div>'
+    ).join('');
   }
 
-  function drawProfileSvg(svg, blocos, W, H, PADB){
+  function drawProfileSvg(svg, blocos, W, H, PADB, m){
     svg.innerHTML = '';
     const totalSec = totalDuration(blocos);
     if(!blocos.length || totalSec<=0) return;
-    const maxFtp = Math.max(150, ...blocos.map(b=>b.ftp));
+    const sc = scaleOf(m || 'ftp');
+    const maxV = Math.max(sc.max, ...blocos.map(b=>b.ftp));
     let x = 0;
     blocos.forEach(b=>{
       const dur = blockDurationSec(b);
       const w = (dur/totalSec) * W;
-      const h = Math.max(3, (b.ftp/maxFtp) * (H-PADB-Math.min(20,H*0.12)));
+      const h = Math.max(3, ((Math.max(b.ftp, sc.min) - sc.min)/(maxV - sc.min)) * (H-PADB-Math.min(20,H*0.12)));
       const y = H - PADB - h;
-      const zone = getZone(b.ftp);
+      const zone = getZone(b.ftp, m || 'ftp');
       const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
       rect.setAttribute('x', x.toFixed(2));
       rect.setAttribute('y', y.toFixed(2));
@@ -961,12 +1464,12 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     svg.appendChild(base);
   }
 
-  function miniProfileSvg(blocos){
+  function miniProfileSvg(blocos, m){
     const svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
     svg.setAttribute('viewBox','0 0 300 16');
     svg.setAttribute('preserveAspectRatio','none');
     svg.classList.add('mini-profile');
-    drawProfileSvg(svg, blocos, 300, 16, 0);
+    drawProfileSvg(svg, blocos, 300, 16, 0, m);
     return svg;
   }
 
@@ -1009,8 +1512,8 @@ button:disabled{opacity:.4;cursor:not-allowed;}
       info.className = 'info';
       info.title = 'Abrir esta aula';
       const b = document.createElement('b'); b.textContent = t.nome;
-      const s = document.createElement('span'); s.textContent = t.blocos.length + ' blocos · ' + fmtTime(totalSec);
-      info.appendChild(b); info.appendChild(s); info.appendChild(miniProfileSvg(t.blocos));
+      const s = document.createElement('span'); s.textContent = t.blocos.length + ' blocos · ' + fmtTime(totalSec) + (t.modo === 'fc' ? ' · %FCmáx' : t.modo === 'zonas' ? ' · zonas' : '');
+      info.appendChild(b); info.appendChild(s); info.appendChild(miniProfileSvg(t.blocos, t.modo));
       info.addEventListener('click', ()=> loadTreino(t.id));
 
       const actions = document.createElement('div');
@@ -1147,6 +1650,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     const b = current.blocos[0];
     return sessionRef(pin).set({
       treinoNome: current.nome || 'Aula de cycling',
+      modo: modoAtual(),
       blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, rpm:x.rpm, tecnica:x.tecnica||''})),
       state: { blockIndex: 0, status: 'paused', remainingAtStart: blockDurationSec(b), startedAt: TS() },
       raceMetric: raceMetric,
@@ -1290,17 +1794,19 @@ button:disabled{opacity:.4;cursor:not-allowed;}
       grid.style.setProperty('--s', Math.max(0.65, Math.min(1.7, best.size/110)).toFixed(2));
 
       grid.innerHTML = list.map((r,i)=>{
-        const pct = r.ftp ? Math.round((r.w||0)/r.ftp*100) : null;
-        const z = pct==null ? ZONES[0] : getZone(pct);
+        const fcMode = modoAtual() === 'fc';
+        const pct = fcMode ? ((r.fc && r.hr) ? Math.round(r.hr/r.fc*100) : null) : (r.ftp ? Math.round((r.w||0)/r.ftp*100) : null);
+        const z = pct==null ? zonesOf()[0] : getZone(pct);
         const zc = zoneColor(z.css);
-        const inZone = r.online && pct!=null && targetZone === z.name && (r.w||0) > 0;
+        const inZone = r.online && pct!=null && targetZone === z.name && (fcMode ? r.hr > 0 : (r.w||0) > 0);
+        const bigFc = fcMode && !(r.w > 0);
         return '<div class="rtile' + (r.online ? '' : ' offline') + (inZone ? ' inzone' : '') + '" style="--zc:' + zc + ';--zc-a:' + zc + '55">' +
           '<div class="rt-top"><span class="rt-pos">' + (i+1) + '</span><span class="rt-name">' + escapeHtml(r.n||'?') + '</span></div>' +
-          '<div class="rt-w">' + (r.online ? Math.round(r.w||0) : '—') + '<small>W</small></div>' +
+          '<div class="rt-w">' + (r.online ? Math.round(bigFc ? (r.hr||0) : (r.w||0)) : '—') + '<small>' + (bigFc ? 'bpm' : 'W') + '</small></div>' +
           '<div class="rt-sub">' +
-            (pct==null ? '' : '<span class="pct">' + pct + '%</span>') +
-            '<span>' + Math.round(r.c||0) + ' rpm</span>' +
-            (r.hr ? '<span>♥ ' + Math.round(r.hr) + '</span>' : '') +
+            (pct==null ? '' : '<span class="pct">' + pct + '%' + (fcMode ? ' FC' : '') + '</span>') +
+            (bigFc ? '' : '<span>' + Math.round(r.c||0) + ' rpm</span>') +
+            (r.hr && !bigFc ? '<span>♥ ' + Math.round(r.hr) + '</span>' : '') +
             '<span>' + metricFmt(metricVal(r)) + ' ' + (raceMetric==='kj'?'kJ':'pts') + '</span>' +
           '</div></div>';
       }).join('');
@@ -1308,8 +1814,8 @@ button:disabled{opacity:.4;cursor:not-allowed;}
       grid.style.display = 'none'; lanes.style.display = 'flex';
       const max = Math.max(1, ...list.map(metricVal));
       lanes.innerHTML = list.slice(0, 20).map((r,i)=>{
-        const pct = r.ftp ? Math.round((r.w||0)/r.ftp*100) : null;
-        const zc = zoneColor((pct==null ? ZONES[1] : getZone(pct)).css);
+        const pct = modoAtual() === 'fc' ? ((r.fc && r.hr) ? Math.round(r.hr/r.fc*100) : null) : (r.ftp ? Math.round((r.w||0)/r.ftp*100) : null);
+        const zc = zoneColor((pct==null ? zonesOf()[1] : getZone(pct)).css);
         const w = (metricVal(r)/max*100).toFixed(1);
         return '<div class="lane p' + (i+1) + (r.online ? '' : ' offline') + '">' +
           '<div class="ln-pos">' + (i+1) + '</div>' +
@@ -1433,7 +1939,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   let liveShade = null, liveMarkerLine = null;
   function drawLiveProfile(){
     const svg = $('liveProfileSvg');
-    drawProfileSvg(svg, current.blocos, 1000, 76, 4);
+    drawProfileSvg(svg, current.blocos, 1000, 76, 4, modoAtual());
     liveShade = document.createElementNS('http://www.w3.org/2000/svg','rect');
     liveShade.setAttribute('y','0'); liveShade.setAttribute('height','76');
     liveShade.setAttribute('fill','rgba(5,7,10,0.6)');
@@ -1465,15 +1971,16 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     $('liveZone').style.color = zoneColor(zone.css);
     $('liveName').textContent = b.nome;
     $('liveTechnique').textContent = b.tecnica || '';
+    $('liveFeel').textContent = zone.feel || '';
     updateTimerText();
-    $('liveFtp').textContent = b.ftp + '%';
+    $('liveFtp').textContent = modoAtual() === 'zonas' ? intensLabel(b.ftp) : b.ftp + '%';
     $('liveRpm').textContent = b.rpm;
     $('liveBody').style.background =
       'radial-gradient(circle at 50% 40%, ' + zoneColor(zone.css) + '33, #05070A 70%)';
 
     const next = current.blocos[liveIdx+1];
     $('liveNext').innerHTML = next
-      ? 'a seguir: <span class="next-chip" style="background:' + zoneColor(getZone(next.ftp).css) + '"></span><b>' + escapeHtml(next.nome) + '</b> · ' + next.ftp + '% · ' + fmtTime(blockDurationSec(next))
+      ? 'a seguir: <span class="next-chip" style="background:' + zoneColor(getZone(next.ftp).css) + '"></span><b>' + escapeHtml(next.nome) + '</b> · ' + ((modoAtual() === 'zonas' && (next.nome||'').startsWith(intensLabel(next.ftp) + ' ')) ? '' : intensLabel(next.ftp) + ' · ') + fmtTime(blockDurationSec(next))
       : 'último bloco';
 
     updateLiveProgressMarker();
@@ -1563,7 +2070,6 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   $('newBtn').addEventListener('click', resetTreino);
   $('saveBtn').addEventListener('click', ()=> saveCurrent(false));
   $('saveCopyBtn').addEventListener('click', ()=> saveCurrent(true));
-  $('addBlockBtn').addEventListener('click', addBlock);
   $('projectBtn').addEventListener('click', openLive);
   $('exitLive').addEventListener('click', closeLive);
   $('treinoNome').addEventListener('input', (e)=>{ current.nome = e.target.value; });
@@ -1634,7 +2140,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
     if(!confirm(msg)) return;
     const key = existing ? existing.key : fbDb.ref('biblioteca').push().key;
     fbDb.ref('biblioteca/' + key).set(clean({
-      nome: t.nome, blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, rpm:b.rpm, tecnica:b.tecnica||''})),
+      nome: t.nome, modo: t.modo || 'ftp', blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, rpm:b.rpm, tecnica:b.tecnica||''})),
       autor: userUid, autorNome: userNome || '', origem: id, atualizado: Date.now()
     })).then(()=> toast(existing ? 'Biblioteca atualizada' : 'Aula partilhada na Biblioteca Playlife'))
       .catch(()=> toast('Não consegui partilhar.'));
@@ -1643,7 +2149,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   function copyShared(key){
     const p = partilhadas.find(x=>x.key===key);
     if(!p) return;
-    const copy = { id: uid(), nome: p.nome, blocos: (p.blocos||[]).map(sanitizeBlock) };
+    const copy = { id: uid(), nome: p.nome, modo: p.modo || 'ftp', blocos: (p.blocos||[]).map(sanitizeBlock) };
     treinos.push(copy);
     persist();
     current = clean(copy);
@@ -1681,8 +2187,8 @@ button:disabled{opacity:.4;cursor:not-allowed;}
       info.title = 'Copiar para as minhas aulas';
       const b = document.createElement('b'); b.textContent = p.nome;
       const s = document.createElement('span');
-      s.textContent = blocos.length + ' blocos · ' + fmtTime(totalDuration(blocos)) + ' · por ' + (p.autorNome || 'professor');
-      info.appendChild(b); info.appendChild(s); info.appendChild(miniProfileSvg(blocos));
+      s.textContent = blocos.length + ' blocos · ' + fmtTime(totalDuration(blocos)) + (p.modo === 'fc' ? ' · %FCmáx' : p.modo === 'zonas' ? ' · zonas' : '') + ' · por ' + (p.autorNome || 'professor');
+      info.appendChild(b); info.appendChild(s); info.appendChild(miniProfileSvg(blocos, p.modo));
       info.addEventListener('click', ()=> copyShared(p.key));
       const actions = document.createElement('div');
       actions.className = 'row-actions';

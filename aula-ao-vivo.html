@@ -20,7 +20,7 @@
 :root{
   --bg:#0A0D12; --surface:#12161D; --surface-2:#1B212B; --border:#262D39;
   --text:#EDEFF2; --muted:#8A93A3; --accent:#E8722C; --ok:#4FA37B; --bad:#E27070;
-  --z0:#5B6472; --z1:#3E8FB0; --z2:#4FA37B; --z3:#D9A441; --z4:#D9713C; --z5:#C24C4C;
+  --z0:#A35CFF; --z1:#1FA8F0; --z2:#3DD45C; --z3:#FFD60A; --z4:#FF8A1F; --z5:#FF3B3B;
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;height:100%;}
@@ -118,6 +118,8 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
   padding:4px 12px;border:1px solid rgba(255,255,255,.2);border-radius:999px;display:inline-block;
 }
 .technique:empty{display:none;}
+.feel{color:rgba(255,255,255,.55);font-size:12px;font-style:italic;margin-top:6px;max-width:320px;line-height:1.35;}
+.feel:empty{display:none;}
 .timer{
   font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(56px,18vw,96px);
   line-height:1;color:#fff;font-variant-numeric:tabular-nums;margin-top:6px;
@@ -262,7 +264,11 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     <label>Nome (como aparece no ecrã)
       <input id="nameInput" maxlength="16" autocomplete="nickname" placeholder="ex: Ana R.">
     </label>
-    <label>O teu FTP (watts)
+    <label id="fcLabel" style="display:none">A tua FC máxima (bpm)
+      <input id="fcInput" type="number" inputmode="numeric" min="100" max="230" placeholder="ex: 185">
+    </label>
+    <div class="hint" id="fcHint" style="display:none">Esta aula é por frequência cardíaca. Não sabes a tua FC máxima? Usa 220 − a tua idade.</div>
+    <label id="ftpLabel">O teu FTP (watts)
       <input id="ftpInput" type="number" inputmode="numeric" min="50" max="600" placeholder="ex: 160">
     </label>
     <div class="hint">Não sabes o teu FTP? Começa com 2 × o teu peso (70 kg → 140 W) e o instrutor ajuda a afinar.</div>
@@ -301,19 +307,20 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     <div id="activeBlock" style="width:100%;display:flex;flex-direction:column;align-items:center;">
       <div class="blockline"><span class="zone" id="zoneEl">—</span> · <span id="nameEl">—</span></div>
       <div class="technique" id="techEl"></div>
+      <div class="feel" id="feelEl"></div>
       <div class="timer" id="timerEl">0:00</div>
       <div class="target" id="targetEl"></div>
 
       <div class="me" id="meEl">
-        <div class="me-w"><span id="myW">0</span><small>W</small></div>
+        <div class="me-w"><span id="myW">0</span><small id="myWUnit">W</small></div>
         <div class="cue" id="cueEl"></div>
         <div class="gauge"><div class="gauge-band" id="gBand"></div><div class="gauge-dot" id="gDot"></div></div>
         <div class="gauge-scale"><span>0%</span><span>50%</span><span>100%</span><span>150%</span></div>
         <div class="nosensor-msg" id="nosensorMsg">Estás só a acompanhar. Liga a bike (toca em "Bike" lá em cima) para apareceres no ecrã e no ranking.</div>
         <div class="me-grid">
-          <div><div class="v" id="myPct">—</div><div class="l">%FTP</div></div>
+          <div><div class="v" id="myPct">—</div><div class="l" id="myPctLbl">%FTP</div></div>
           <div><div class="v" id="myRpm">—</div><div class="l">RPM</div></div>
-          <div><div class="v" id="myHr">—</div><div class="l">FC</div></div>
+          <div><div class="v" id="myHr">—</div><div class="l" id="myHrLbl">FC</div></div>
           <div><div class="v" id="myKj">0</div><div class="l">kJ</div></div>
           <div><div class="v" id="myPts">0</div><div class="l">pontos</div></div>
           <div><div class="v" id="myZone">0%</div><div class="l">na zona</div></div>
@@ -346,21 +353,33 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
   "use strict";
   const $ = (id)=>document.getElementById(id);
 
+  const F = ["Ritmo muito leve para recuperar as pernas. O coração mal sobe.", "Ritmo de base. Dá para pedalar muito tempo e conversar sem falhas.", "Esforço moderado. Já exige foco e a conversa fica mais curta.", "Ritmo de contrarrelógio. Pernas a arder e respiração muito controlada.", "Esforço muito duro. O coração dispara e as pernas queimam depressa.", "Explosão total: ataques e sprints. O cardio não consegue acompanhar."];  // sensação de cada zona
   const ZONES = [
-    {name:'Recuperação', max:55,  css:'--z0'},
-    {name:'Resistência', max:75,  css:'--z1'},
-    {name:'Tempo',       max:90,  css:'--z2'},
-    {name:'Limiar',      max:105, css:'--z3'},
-    {name:'VO2máx',      max:120, css:'--z4'},
-    {name:'Anaeróbio',   max:9999,css:'--z5'},
+    {name:'Z1 Recuperação', max:55,  css:'--z0', feel:F[0]},
+    {name:'Z2 Resistência', max:75,  css:'--z1', feel:F[1]},
+    {name:'Z3 Tempo',       max:90,  css:'--z2', feel:F[2]},
+    {name:'Z4 Limiar',      max:105, css:'--z3', feel:F[3]},
+    {name:'Z5 VO2máx',      max:120, css:'--z4', feel:F[4]},
+    {name:'Z6 Anaeróbio',   max:9999,css:'--z5', feel:F[5]},
   ];
   const rootStyle = getComputedStyle(document.documentElement);
   function zoneColor(cssVar){ return rootStyle.getPropertyValue(cssVar).trim(); }
-  function zoneIndex(pct){ for(let i=0;i<ZONES.length;i++){ if(pct <= ZONES[i].max) return i; } return ZONES.length-1; }
-  function getZone(pct){ return ZONES[zoneIndex(pct)]; }
+  const ZONES_FC = [
+    {name:'Z1 Recuperação', max:60,   css:'--z0', feel:F[0]},
+    {name:'Z2 Resistência', max:70,   css:'--z1', feel:F[1]},
+    {name:'Z3 Tempo',       max:80,   css:'--z2', feel:F[2]},
+    {name:'Z4 Limiar',      max:90,   css:'--z3', feel:F[3]},
+    {name:'Z5 VO2máx',      max:9999, css:'--z4', feel:F[4]},
+  ];
+  let modo = 'ftp';   // vem da aula: 'ftp', 'fc' ou 'zonas' (zonas = %FTP mostrado só pela zona)
+  function parseModo(v){ return v === 'fc' || v === 'zonas' ? v : 'ftp'; }
+  function zonesNow(){ return modo === 'fc' ? ZONES_FC : ZONES; }
+  function zoneIndex(pct){ const Z = zonesNow(); for(let i=0;i<Z.length;i++){ if(pct <= Z[i].max) return i; } return Z.length-1; }
+  function getZone(pct){ return zonesNow()[zoneIndex(pct)]; }
+  function gaugeScale(){ return modo === 'fc' ? {min:40, max:100} : {min:0, max:150}; }
   function zoneRange(pct){
-    const i = zoneIndex(pct);
-    return { min: i===0 ? 0 : ZONES[i-1].max, max: i===ZONES.length-1 ? 150 : ZONES[i].max };
+    const Z = zonesNow(), i = zoneIndex(pct), g = gaugeScale();
+    return { min: i===0 ? (modo === 'fc' ? 50 : 0) : Z[i-1].max, max: i===Z.length-1 ? g.max : Z[i].max };
   }
   function fmtTime(totalSec){
     totalSec = Math.max(0, Math.round(totalSec));
@@ -405,6 +424,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
   let myRank = null;
   const me = { n:'', ftp:null, kj:0, pts:0, sumW:0, as:0, mw:0, iz:0, ts:0 };  // as = segundos com potência, ts = segundos gravados (potência ou FC)
   let demo = false;
+  me.fc = null;   // FC máxima do aluno
 
   let currentScreen = 'joinScreen';
   function showScreen(id){
@@ -665,7 +685,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     const target = b ? ftp * b.ftp / 100 : ftp * 0.5;
     S.power = isPlaying() ? Math.max(0, target * (0.86 + Math.random()*0.24)) : 0;
     S.cadence = isPlaying() ? Math.max(0, (b ? b.rpm : 80) + (Math.random()*12 - 6)) : 0;
-    S.bikeHr = 95 + (b ? b.ftp : 50) * 0.6 + Math.random()*4;
+    S.bikeHr = modo === 'fc' && me.fc && b ? me.fc * b.ftp / 100 * (0.96 + Math.random()*0.08) : 95 + (b ? b.ftp : 50) * 0.6 + Math.random()*4;
     const now = performance.now();
     S.lastPowerAt = S.lastCadAt = S.lastBikeHrAt = now;
   }
@@ -689,13 +709,18 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     if(isPlaying() && (powered || myHr() > 0)){
       me.ts += dt;
       addToSerie(powered ? dispPower : 0, powered ? S.cadence : 0, myHr());
+      if(modo === 'fc' && me.fc && myHr() > 0){
+        const pctFc = myHr() / me.fc * 100;
+        me.pts += (pctFc / 100) * dt;
+        if(inTarget(pctFc)) me.iz += dt;
+      }
     }
     if(isPlaying() && powered){
       me.kj += w * dt / 1000;
       me.as += dt;
       me.sumW += w * dt;
       if(dispPower > me.mw) me.mw = dispPower;
-      if(me.ftp){
+      if(me.ftp && modo !== 'fc'){
         const pct = w / me.ftp * 100;
         me.pts += (pct / 100) * dt;
         if(inTarget(pct)) me.iz += dt;
@@ -706,12 +731,12 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
   function pushRider(){
     if(!riderRef || sessionEnded) return;
     riderRef.update({
-      n: me.n, ftp: me.ftp || null,
+      n: me.n, ftp: me.ftp || null, fc: me.fc || null,
       w: Math.round(dispPower), c: Math.round(S.cadence), hr: Math.round(myHr()) || null,
       kj: Math.round(me.kj * 10) / 10, pts: Math.round(me.pts),
       aw: me.as ? Math.round(me.sumW / me.as) : 0, mw: Math.round(me.mw),
-      iz: Math.round(me.iz), as: Math.round(me.as),
-      dev: hasPowerSource(), demo: demo || null, left: null,
+      iz: Math.round(me.iz), as: Math.round(modo === 'fc' ? me.ts : me.as),
+      dev: hasPowerSource() || (modo === 'fc' && myHr() > 0), demo: demo || null, left: null,
       t: firebase.database.ServerValue.TIMESTAMP
     }).catch(()=>{});
   }
@@ -734,6 +759,11 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
       $('setupTitle').textContent = nameSnap.val() || 'Aula de cycling';
       $('nameInput').value = (perfil && perfil.nome) || lsGet(LS.name) || '';
       $('ftpInput').value = (perfil && perfil.ftp) || lsGet(LS.ftp) || '';
+      modo = parseModo((await fbDb.ref('sessions/' + p + '/modo').once('value')).val());
+      $('fcInput').value = (perfil && perfil.fcMax) || lsGet('aavFcMax') || '';
+      $('fcLabel').style.display = modo === 'fc' ? '' : 'none';
+      $('fcHint').style.display = modo === 'fc' ? '' : 'none';
+      $('ftpLabel').firstChild.textContent = modo === 'fc' ? 'O teu FTP (watts, opcional)' : 'O teu FTP (watts)';
       renderAcctLine();
       showJoinError('');
       showScreen('setupScreen');
@@ -754,13 +784,24 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     const name = $('nameInput').value.trim();
     const ftp = Math.round(Number($('ftpInput').value) || 0);
     if(!name){ $('setupError').textContent = 'Escreve o teu nome.'; $('nameInput').focus(); return; }
-    if(hasPowerSource() && (ftp < 50 || ftp > 600)){
+    const fcMaxIn = Math.round(Number($('fcInput').value) || 0);
+    if(modo === 'fc' && (fcMaxIn < 100 || fcMaxIn > 230)){
+      $('setupError').textContent = 'Indica a tua FC máxima (entre 100 e 230). Não sabes? 220 − a tua idade.'; $('fcInput').focus(); return;
+    }
+    if(modo === 'fc' && !hrConnected() && !demo && !hasPowerSource()){
+      $('setupError').textContent = 'Esta aula é por frequência cardíaca: liga a cinta de FC (ou entra mesmo assim só para acompanhar).';
+      if(!$('enterBtn').dataset.warned){ $('enterBtn').dataset.warned = '1'; return; }
+    }
+    if(modo !== 'fc' && hasPowerSource() && (ftp < 50 || ftp > 600)){
       $('setupError').textContent = 'Indica o teu FTP (entre 50 e 600 W) para calcular as tuas zonas.'; $('ftpInput').focus(); return;
     }
     $('setupError').textContent = '';
     lsSet(LS.name, name);
     if(ftp) lsSet(LS.ftp, String(ftp));
-    me.n = name; me.ftp = ftp || null;
+    me.n = name; me.ftp = (ftp >= 50 && ftp <= 600) ? ftp : null;
+    me.fc = (fcMaxIn >= 100 && fcMaxIn <= 230) ? fcMaxIn : ((perfil && perfil.fcMax) || null);
+    if(me.fc) lsSet('aavFcMax', String(me.fc));
+    if(user && fbDb && me.fc && (!perfil || perfil.fcMax !== me.fc)){ fbDb.ref('alunos/' + user.uid + '/perfil/fcMax').set(me.fc).catch(()=>{}); perfil = Object.assign({}, perfil, {fcMax: me.fc}); }
     if(user && fbDb){
       const upd = {};
       if(!perfil || perfil.nome !== name) upd.nome = name;
@@ -800,6 +841,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     const add = (ref, fn)=>{ ref.on('value', fn); listeners.push(ref); };
     add(fbDb.ref('.info/serverTimeOffset'), s=>{ serverOffset = s.val() || 0; });
     add(base.child('treinoNome'), s=>{ treinoNome = s.val() || ''; $('className').textContent = treinoNome; });
+    add(base.child('modo'), s=>{ modo = parseModo(s.val()); $('progress').dataset.built = ''; updateModeLabels(); });
     add(base.child('blocos'), s=>{
       blocos = s.val() || [];
       if(!Array.isArray(blocos)) blocos = Object.values(blocos);
@@ -899,12 +941,25 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     $('zoneEl').style.color = zc;
     $('nameEl').textContent = b.nome;
     $('techEl').textContent = b.tecnica || '';
+    $('feelEl').textContent = zone.feel || '';
     $('timerEl').textContent = state.status === 'paused' && remaining > 0 ? fmtCountdown(remaining) : fmtCountdown(remaining);
     $('timerEl').classList.toggle('warn', remaining <= 5 && remaining > 0 && state.status === 'playing');
     $('bodyEl').style.background = 'radial-gradient(circle at 50% 30%, ' + zc + '33, #05070A 70%)';
 
     const range = zoneRange(b.ftp);
-    if(me.ftp){
+    if(modo === 'fc'){
+      const pausa = state.status !== 'playing' ? ' · em pausa' : '';
+      if(me.fc){
+        const lo = Math.round(me.fc * range.min / 100), hi = Math.round(me.fc * range.max / 100);
+        $('targetEl').innerHTML = 'Alvo <b>' + lo + '–' + hi + ' bpm</b> · ' + b.ftp + '% FCmáx · <b>' + b.rpm + '</b> RPM' + pausa;
+      } else {
+        $('targetEl').innerHTML = 'Alvo <b>' + b.ftp + '% FCmáx</b> · <b>' + b.rpm + '</b> RPM' + pausa;
+      }
+    } else if(modo === 'zonas'){
+      const zl = zone.name.split(' ')[0];
+      const watts = me.ftp ? ' · <b>' + Math.round(me.ftp * range.min / 100) + '–' + Math.round(me.ftp * range.max / 100) + ' W</b>' : ' · ' + range.min + '–' + Math.min(range.max, 150) + '% FTP';
+      $('targetEl').innerHTML = 'Alvo <b>' + zl + '</b>' + watts + ' · <b>' + b.rpm + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
+    } else if(me.ftp){
       const lo = Math.round(me.ftp * range.min / 100), hi = Math.round(me.ftp * range.max / 100);
       $('targetEl').innerHTML = 'Alvo <b>' + lo + '–' + hi + ' W</b> · ' + b.ftp + '% · <b>' + b.rpm + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
     } else {
@@ -915,7 +970,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
 
     const next = blocos[state.blockIndex+1];
     $('nextEl').innerHTML = next
-      ? 'a seguir: <b>' + escapeHtml(next.nome) + '</b> · ' + next.ftp + '% · ' + fmtTime(blockDurationSec(next))
+      ? 'a seguir: <b>' + escapeHtml(next.nome) + '</b> · ' + (modo === 'zonas' ? ((next.nome||'').startsWith(getZone(next.ftp).name.split(' ')[0] + ' ') ? '' : getZone(next.ftp).name.split(' ')[0] + ' · ') : next.ftp + (modo === 'fc' ? '% FCmáx' : '%') + ' · ') + fmtTime(blockDurationSec(next))
       : 'último bloco';
 
     const totalSec = blocos.reduce((s,bb)=>s+blockDurationSec(bb),0) || 1;
@@ -924,6 +979,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
   }
 
   function renderMe(b, range){
+    if(modo === 'fc') return renderMeFc(b, range);
     const meEl = $('meEl');
     const powered = hasPowerSource();
     meEl.classList.toggle('nosensor', !powered);
@@ -936,6 +992,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
 
     const w = Math.round(dispPower);
     $('myW').textContent = powered ? w : '—';
+    $('myHrLbl').textContent = 'FC';
     const hr = Math.round(myHr());
     $('myHr').textContent = hr ? hr : '—';
     const cad = Math.round(S.cadence);
@@ -945,7 +1002,7 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     $('myPts').textContent = Math.round(me.pts);
     $('myZone').textContent = me.as ? Math.round(me.iz/me.as*100) + '%' : '0%';
 
-    $('gBand').style.left = (range.min/150*100) + '%';
+    $('gBand').style.left = (range.min/150*100) + '%';  // modo FTP
     $('gBand').style.width = ((range.max - range.min)/150*100) + '%';
     $('gBand').style.background = zoneColor(getZone(b.ftp).css);
 
@@ -967,6 +1024,56 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
     if(state.status !== 'playing'){ cue = 'À espera do instrutor'; }
     else if(w === 0){ cue = 'Começa a pedalar'; }
     else if(pct <= range.min){ cue = '↑ Mais carga'; cls += ' low'; }
+    else if(pct > range.max){ cue = '↓ Alivia um pouco'; cls += ' low'; }
+    else { cue = '✓ Na zona'; cls += ' ok'; }
+    $('cueEl').textContent = cue;
+    $('cueEl').style.color = cue.startsWith('✓') ? '#7FD3A6' : (cue.startsWith('↑') || cue.startsWith('↓') ? '#FFD27A' : 'rgba(255,255,255,.6)');
+    $('myPct').className = cls;
+  }
+
+  function updateModeLabels(){
+    const g = gaugeScale();
+    const marks = [g.min, g.min + (g.max-g.min)/3, g.min + 2*(g.max-g.min)/3, g.max].map(v=> Math.round(v) + '%');
+    document.querySelectorAll('.gauge-scale span').forEach((sp,i)=> sp.textContent = marks[i]);
+    $('myPctLbl').textContent = modo === 'fc' ? '%FCmáx' : '%FTP';
+    $('myWUnit').textContent = modo === 'fc' ? 'bpm' : 'W';
+  }
+
+  // aula por frequência cardíaca: o número grande é a FC e a barra segue a %FCmáx
+  function renderMeFc(b, range){
+    const meEl = $('meEl');
+    const hr = Math.round(myHr());
+    const powered = hasPowerSource();
+    meEl.classList.toggle('nosensor', !hr);
+    if(!hr){
+      $('nosensorMsg').textContent = 'Esta aula é por frequência cardíaca. Liga a cinta de FC (toca em "FC" lá em cima) para veres a tua zona e apareceres no ranking.';
+    }
+    const g = gaugeScale();
+    $('myW').textContent = hr || '—';
+    $('myHr').textContent = powered ? Math.round(dispPower) : '—';
+    $('myHrLbl').textContent = 'W';
+    const cad = Math.round(S.cadence);
+    $('myRpm').textContent = powered ? cad : '—';
+    $('myRpm').className = 'v' + (powered && cad ? (Math.abs(cad - b.rpm) <= 5 ? ' ok' : ' low') : '');
+    $('myKj').textContent = me.kj.toFixed(0);
+    $('myPts').textContent = Math.round(me.pts);
+    $('myZone').textContent = me.ts ? Math.round(me.iz/me.ts*100) + '%' : '0%';
+    $('gBand').style.left = ((range.min - g.min)/(g.max - g.min)*100) + '%';
+    $('gBand').style.width = ((range.max - range.min)/(g.max - g.min)*100) + '%';
+    $('gBand').style.background = zoneColor(getZone(b.ftp).css);
+    if(!hr || !me.fc){
+      $('myPct').textContent = '—'; $('myPct').className = 'v';
+      $('cueEl').textContent = hr && !me.fc ? 'Sem FC máxima: só bpm' : '';
+      $('gDot').style.left = '0%'; $('myW').style.color = '#fff';
+      return;
+    }
+    const pct = hr / me.fc * 100;
+    $('myW').style.color = zoneColor(getZone(pct).css);
+    $('myPct').textContent = Math.round(pct) + '%';
+    $('gDot').style.left = Math.min(100, Math.max(0, (pct - g.min)/(g.max - g.min)*100)) + '%';
+    let cue = '', cls = 'v';
+    if(state.status !== 'playing'){ cue = 'À espera do instrutor'; }
+    else if(pct <= range.min){ cue = '↑ Aumenta o esforço'; cls += ' low'; }
     else if(pct > range.max){ cue = '↓ Alivia um pouco'; cls += ' low'; }
     else { cue = '✓ Na zona'; cls += ' ok'; }
     $('cueEl').textContent = cue;
@@ -1059,7 +1166,8 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
       hrMax: hrVals.length ? Math.max(...hrVals) : null,
       step: SERIE_STEP, w: serie.w.some(v=>v>0) ? serie.w : null, c: serie.c.some(v=>v>0) ? serie.c : null, hr: hrVals.length ? serie.hr : null,
       blocos: blocos.map(b=>({ftp:b.ftp, rpm:b.rpm||0, d:blockDurationSec(b)})),
-      fcMax: (perfil && perfil.fcMax) || null
+      modo: modo,
+      fcMax: me.fc || (perfil && perfil.fcMax) || null
     };
     const key = new Date().toISOString().slice(0,10) + '_' + pin + '_' + Math.random().toString(36).slice(2,6);
     fbDb.ref('alunos/' + user.uid + '/treinos/' + key).set(t)
@@ -1208,12 +1316,13 @@ button{font-family:'Inter',sans-serif;cursor:pointer;}
 
     const charts =
       chartBlock({ title:'Potência', unit:'W', color:'#E8722C', vals:w, max:maxW, bands:wBands,
-        target: (alignOk && t.ftp) ? blocosT.map(b=>({d:b.d, v:b.ftp * t.ftp / 100})) : null,
+        target: (alignOk && t.ftp && t.modo !== 'fc') ? blocosT.map(b=>({d:b.d, v:b.ftp * t.ftp / 100})) : null,
         note: t.ftp ? '<span>faixas = as tuas zonas de potência (FTP ' + t.ftp + ' W)</span>' : '' }) +
       chartBlock({ title:'Cadência', unit:'rpm', color:'#5FB3D9', vals:cad, min:40, max:Math.max(120, ...cad) + 5,
         target: (alignOk && blocosT.some(b=>b.rpm)) ? blocosT.map(b=>({d:b.d, v:b.rpm || 0})) : null }) +
       (hr.length ? chartBlock({ title:'Frequência cardíaca', unit:'bpm', color:'#E27070', vals:hr, min:60,
         max: Math.max(fcMax || 0, ...hr) + 5, bands:hBands,
+        target: (alignOk && t.modo === 'fc' && fcMax) ? blocosT.map(b=>({d:b.d, v:b.ftp * fcMax / 100})) : null,
         note: fcMax ? '<span>faixas = as tuas zonas de FC (máx. ' + fcMax + ')</span>' : '<span>indica a tua FC máxima na conta para veres as zonas</span>' }) : '');
 
     const pct = t.ftp ? Math.round((t.aw||0)/t.ftp*100) + '%' : '—';
