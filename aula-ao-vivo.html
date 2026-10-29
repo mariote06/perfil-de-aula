@@ -660,6 +660,13 @@ body.solo-livre #progress{display:none;}
   function zoneIndex(pct){ const Z = zonesNow(); for(let i=0;i<Z.length;i++){ if(pct <= Z[i].max) return i; } return Z.length-1; }
   function getZone(pct){ return zonesNow()[zoneIndex(pct)]; }
   function gaugeScale(){ return modo === 'fc' ? {min:40, max:100} : {min:0, max:180}; }
+  // alvo do intervalo definido pelo professor (0 = vale o intervalo da zona; aulas antigas usam a intensidade)
+  function alvoOf(b){ return !b ? 0 : (b.alvo === undefined || b.alvo === null ? (b.ftp || 0) : (b.alvo || 0)); }
+  function pctTxt(b, range){
+    const a = alvoOf(b); if(a > 0) return a + '%';
+    const lo = (modo !== 'fc' && range.min > 0) ? range.min + 1 : range.min;   // igual ao planeamento: 56–75%, 76–90%…
+    return (range.open ? '> ' + range.min : lo + '–' + range.max) + '%';
+  }
   function zoneRange(pct){
     const Z = zonesNow(), i = zoneIndex(pct), g = gaugeScale();
     const open = i === Z.length - 1;   // última zona (Z7, ou Z5 por FC) não tem teto
@@ -743,8 +750,26 @@ body.solo-livre #progress{display:none;}
   // Tenta, por ordem: Cycling Power (0x1818), FTMS Indoor Bike (0x1826),
   // Speed & Cadence (0x1816). Cinta de FC: Heart Rate (0x180D).
   // =====================================================================
-  const SVC = { power:0x1818, ftms:0x1826, csc:0x1816, hr:0x180D };
-  const CHR = { power:0x2A63, ftms:0x2AD2, csc:0x2A5B, hr:0x2A37 };
+  // UUIDs completos (o Bluefy do iPhone não aceita bem os números curtos)
+  const U = (n)=> '0000' + n.toString(16).padStart(4, '0') + '-0000-1000-8000-00805f9b34fb';
+  const SVC = { power:U(0x1818), ftms:U(0x1826), csc:U(0x1816), hr:U(0x180D) };
+  const CHR = { power:U(0x2A63), ftms:U(0x2AD2), csc:U(0x2A5B), hr:U(0x2A37) };
+  // o iPhone falha muitas vezes a 1.ª ligação: tenta outra vez
+  async function gattConnect(device){
+    let last;
+    for(let i = 0; i < 3; i++){
+      try{ return await device.gatt.connect(); }catch(e){ last = e; await new Promise(r=> setTimeout(r, 700 * (i+1))); }
+    }
+    throw last;
+  }
+  function btErr(stage, e){
+    const n = e && e.name && e.name !== 'Error' ? e.name : '';
+    const m = e && e.message ? e.message : '';
+    const tip = stage === 'ligar'
+      ? 'não consegui ligar. Confirma que a bike não está ligada a outro telemóvel ou app (Zwift, Schwinn…) e tenta outra vez'
+      : (stage === 'dados' ? 'liguei mas não recebo dados. Pedala um pouco e tenta outra vez' : 'não consegui ligar');
+    return 'erro: ' + (m && !/^unknown/i.test(m) ? m : tip) + (n ? ' [' + n + ']' : '');
+  }
 
   const S = {
     bikeDev:null, hrDev:null, bikeName:'', hrName:'', bikeSource:'',
@@ -826,7 +851,7 @@ body.solo-livre #progress{display:none;}
   }
 
   async function setupBikeGatt(device){
-    const server = await device.gatt.connect();
+    const server = await gattConnect(device);
     let source = '';
     try{ await subscribe(server, SVC.power, CHR.power, parsePower); source = 'potência'; }catch(e){}
     if(!source){ try{ await subscribe(server, SVC.ftms, CHR.ftms, parseFtms); source = 'FTMS'; }catch(e){} }
@@ -858,10 +883,12 @@ body.solo-livre #progress{display:none;}
         : { filters: [{services:[SVC.power]}, {services:[SVC.ftms]}, {services:[SVC.csc]},
                       {namePrefix:'Schwinn'}, {namePrefix:'SCHWINN'}, {namePrefix:'Zone'}, {namePrefix:'4iiii'}, {namePrefix:'Z '}],
             optionalServices: [SVC.power, SVC.ftms, SVC.csc, SVC.hr] };
+      var btStage = 'procurar';
       const device = await navigator.bluetooth.requestDevice(opts);
       S.bikeDev = device; S.bikeName = device.name || 'Bike'; S.wantBike = true; S.crank = null;
       device.addEventListener('gattserverdisconnected', onBikeLost);
       setBikeStatus('a ligar a ' + S.bikeName + '…', false);
+      btStage = 'ligar';
       await setupBikeGatt(device);
       setBikeStatus(S.bikeName + ' ligada', true);
       demo = false;
@@ -877,7 +904,7 @@ body.solo-livre #progress{display:none;}
         setBikeStatus('sem permissão: autoriza "Dispositivos próximos" e Localização para o browser nas definições do telemóvel', false);
         return;
       }
-      setBikeStatus('erro: ' + (e.message || 'não consegui ligar'), false);
+      setBikeStatus(btErr(typeof btStage === 'string' ? btStage : '', e), false);
       $('showAllBtn').style.display = '';
     }
   }
@@ -909,12 +936,13 @@ body.solo-livre #progress{display:none;}
       const device = await navigator.bluetooth.requestDevice({ filters: [{services:[SVC.hr]}] });
       S.hrDev = device; S.hrName = device.name || 'Cinta'; S.wantHr = true;
       device.addEventListener('gattserverdisconnected', onHrLost);
-      const server = await device.gatt.connect();
+      const server = await gattConnect(device);
       await subscribe(server, SVC.hr, CHR.hr, parseHr);
       setHrStatus(S.hrName + ' ligada', true);
     }catch(e){
+      console.error(e);
       if(e && e.name === 'NotFoundError'){ setHrStatus(S.hrDev && S.hrDev.gatt.connected ? S.hrName + ' ligada' : 'opcional', !!(S.hrDev && S.hrDev.gatt.connected)); return; }
-      setHrStatus('erro: ' + (e.message || 'não consegui ligar'), false);
+      setHrStatus(btErr('', e), false);
     }
   }
 
@@ -1324,9 +1352,9 @@ body.solo-livre #progress{display:none;}
       const pausa = state.status !== 'playing' ? ' · em pausa' : '';
       if(me.fc){
         const lo = Math.round(me.fc * range.min / 100), hi = Math.round(me.fc * Math.min(range.max, 100) / 100);
-        $('targetEl').innerHTML = 'Alvo <b>' + (range.open ? '≥ ' + lo : lo + '–' + hi) + ' bpm</b> · ' + b.ftp + '% FCmáx · <b>' + rpmTxt(b) + '</b> RPM' + pausa;
+        $('targetEl').innerHTML = 'Alvo <b>' + (range.open ? '≥ ' + lo : lo + '–' + hi) + ' bpm</b> · ' + pctTxt(b, range) + ' FCmáx · <b>' + rpmTxt(b) + '</b> RPM' + pausa;
       } else {
-        $('targetEl').innerHTML = 'Alvo <b>' + b.ftp + '% FCmáx</b> · <b>' + rpmTxt(b) + '</b> RPM' + pausa;
+        $('targetEl').innerHTML = 'Alvo <b>' + pctTxt(b, range) + ' FCmáx</b> · <b>' + rpmTxt(b) + '</b> RPM' + pausa;
       }
     } else if(modo === 'zonas'){
       const zl = zone.name.split(' ')[0];
@@ -1334,9 +1362,9 @@ body.solo-livre #progress{display:none;}
       $('targetEl').innerHTML = 'Alvo <b>' + zl + '</b>' + watts + ' · <b>' + rpmTxt(b) + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
     } else if(me.ftp){
       const lo = Math.round(me.ftp * range.min / 100), hi = Math.round(me.ftp * range.max / 100);
-      $('targetEl').innerHTML = 'Alvo <b>' + (range.open ? '≥ ' + lo : lo + '–' + hi) + ' W</b> · ' + b.ftp + '% · <b>' + rpmTxt(b) + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
+      $('targetEl').innerHTML = 'Alvo <b>' + (range.open ? '≥ ' + lo : lo + '–' + hi) + ' W</b> · ' + pctTxt(b, range) + ' · <b>' + rpmTxt(b) + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
     } else {
-      $('targetEl').innerHTML = 'Alvo <b>' + b.ftp + '% FTP</b> · <b>' + rpmTxt(b) + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
+      $('targetEl').innerHTML = 'Alvo <b>' + pctTxt(b, range) + ' FTP</b> · <b>' + rpmTxt(b) + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
     }
 
     renderMe(b, range);
@@ -1346,7 +1374,7 @@ body.solo-livre #progress{display:none;}
     $('nextEl').innerHTML = next
       ? (next.tipo === 'seg' ? 'a seguir: <b>' + escapeHtml(next.nome || 'Segmento') + '</b> · transição · ' + fmtTime(blockDurationSec(next))
         : next.tipo === 'cool' ? 'a seguir: <b>Retorno à calma</b> · ' + fmtTime(blockDurationSec(next)) :
-        'a seguir: <b>' + escapeHtml(next.nome) + '</b> · ' + (modo === 'zonas' ? ((next.nome||'').startsWith(getZone(next.ftp).name.split(' ')[0] + ' ') ? '' : getZone(next.ftp).name.split(' ')[0] + ' · ') : next.ftp + (modo === 'fc' ? '% FCmáx' : '%') + ' · ') + fmtTime(blockDurationSec(next)) + (next.rpm ? ' · ' + rpmTxt(next) + ' rpm' : ''))
+        'a seguir: <b>' + escapeHtml(next.nome) + '</b> · ' + (modo === 'zonas' ? ((next.nome||'').startsWith(getZone(next.ftp).name.split(' ')[0] + ' ') ? '' : getZone(next.ftp).name.split(' ')[0] + ' · ') : pctTxt(next, zoneRange(next.ftp)) + (modo === 'fc' ? ' FCmáx' : '') + ' · ') + fmtTime(blockDurationSec(next)) + (next.rpm ? ' · ' + rpmTxt(next) + ' rpm' : ''))
       : 'último bloco';
     if(b.tipo === 'seg'){   // no separador de segmento: resumo do segmento que vem a seguir
       const lst = []; for(let k = state.blockIndex + 1; k < blocos.length; k++){ if(blocos[k].tipo === 'seg') break; lst.push(blocos[k]); }

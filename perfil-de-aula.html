@@ -194,6 +194,8 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .ed-toolbar{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px;}
 .ed-name{flex:1;min-width:240px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-size:15px;font-weight:600;}
 .ed-name:focus{outline:none;border-color:#4A5568;}
+.ed-desc{display:block;width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 12px;font:inherit;font-size:14px;line-height:1.45;resize:vertical;min-height:44px;margin:-6px 0 14px;}
+.ed-desc:focus{outline:none;border-color:#4A5568;}
 .ed-tools{display:flex;gap:4px;flex-wrap:wrap;}
 .tool{background:transparent;border:none;color:var(--text);font-size:13px;letter-spacing:.3px;padding:7px 9px;}
 .tool:hover{color:var(--accent);background:transparent;}
@@ -461,6 +463,8 @@ html.live-on,html.live-on body{overflow:hidden !important;}
 .ls-quote{font-size:clamp(20px,3.4vh,42px);font-style:italic;font-weight:500;line-height:1.25;color:rgba(255,255,255,.88);max-width:30em;}
 .ls-quote::before{content:'“';color:#E8722C;font-weight:800;margin-right:.08em;}
 .ls-quote::after{content:'”';color:#E8722C;font-weight:800;margin-left:.04em;}
+.ls-desc{font-size:clamp(15px,2.2vh,26px);line-height:1.4;color:rgba(255,255,255,.7);max-width:42em;white-space:pre-line;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.ls-desc:empty{display:none;}
 .ls-chart{height:clamp(110px,20vh,240px);background:rgba(255,255,255,.03);border:1px solid #1B212B;border-radius:14px;padding:10px 12px 6px;}
 .ls-chart svg{width:100%;height:100%;display:block;}
 .ls-meta{color:rgba(255,255,255,.6);font-size:clamp(15px,2.1vh,24px);}
@@ -974,6 +978,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       <select id="treinoObj" class="ed-obj" title="Objetivo da aula — define a frase motivacional do ecrã inicial"></select>
       <div class="seg" id="modeSeg" title="Como se constrói esta aula"><button data-m="zonas">Zonas Z1–Z7</button><button data-m="ftp">%FTP Z1–Z7</button><button data-m="fc">%FCmáx Z1–Z7</button></div>
     </div>
+    <textarea id="treinoDesc" class="ed-desc" rows="2" maxlength="600" placeholder="Descrição do treino: objetivo, estrutura, notas para os alunos…"></textarea>
 
     <div class="ed-cmd">
       <div class="ed-clock" title="Início do intervalo selecionado">
@@ -1104,6 +1109,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       <div class="ls-obj" id="lsObj">Objetivo</div>
       <div class="ls-name" id="lsName">Aula</div>
       <div class="ls-quote" id="lsQuote"></div>
+      <div class="ls-desc" id="lsDesc"></div>
       <div class="ls-chart"><svg id="lsChart" viewBox="0 0 1000 200" preserveAspectRatio="none"></svg></div>
       <div class="ls-meta" id="lsMeta"></div>
       <div class="ls-go">
@@ -1305,6 +1311,15 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   const ZONE_MID = [45, 65, 83, 98, 113, 135, 170];
   function zoneIdx(v, m){ const Z = zonesOf(m); const z = getZone(v, m); return Z.indexOf(z); }
   function snapZona(v){ return ZONE_MID[zoneIdx(v, 'ftp')]; }
+  // alvo do intervalo: 0 = sem alvo exato, vale o intervalo da zona. Aulas antigas (sem campo) usam a intensidade.
+  function alvoOf(b){ return !b ? 0 : (b.alvo === undefined || b.alvo === null ? (b.ftp || 0) : (b.alvo || 0)); }
+  function lblInt(b, m){
+    const k = m || modoAtual();
+    if(k === 'zonas' || !b || b.tipo) return intensLabel(b ? b.ftp : 0, k);
+    const a = alvoOf(b);
+    return a > 0 ? a + '%' : (ZONE_RANGE[k] || ZONE_RANGE.ftp)[zoneIdx(b.ftp, k)];
+  }
+  function syncAlvo(){ current.blocos.forEach(b=>{ if(b.alvo > 0 && b.alvo !== b.ftp) b.alvo = b.ftp; }); }   // arrastar a barra mexe no alvo
   function intensLabel(v, m){ const k = m || modoAtual(); return k === 'zonas' ? 'Z' + (zoneIdx(v, k) + 1) : v + '%'; }
   function getZone(pct, m){
     const Z = zonesOf(m);
@@ -1343,7 +1358,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   const TEC_OUTRA = '__outra__';
   function newBlock(overrides){
     return Object.assign({
-      id: uid(), nome:'Bloco', min:2, sec:0, ftp:70, rpm:85, tecnica:'Plano Sentado'
+      id: uid(), nome:'Bloco', min:2, sec:0, ftp:70, alvo:0, rpm:85, tecnica:'Plano Sentado'
     }, overrides || {});
   }
 
@@ -1480,6 +1495,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       min: Math.max(0, Number(b.min)||0),
       sec: Math.max(0, Math.min(59, Number(b.sec)||0)),
       ftp: Math.max(0, Number(b.ftp)||0),
+      alvo: (b.alvo === undefined || b.alvo === null) ? Math.max(0, Number(b.ftp)||0) : Math.max(0, Number(b.alvo)||0),
       rpm: Math.max(0, Number(b.rpm)||0),
       rpm2: Math.max(0, Number(b.rpm2)||0) || undefined,
       tipo: (b.tipo === 'seg' || b.tipo === 'cool') ? b.tipo : undefined,
@@ -1555,6 +1571,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       lastCurrent = current; selIdx = current.blocos.length ? 0 : -1; undoStack = []; redoStack = []; updateUndoBtns();
     }
     if(document.activeElement !== $('treinoNome')) $('treinoNome').value = current.nome || '';
+    if(document.activeElement !== $('treinoDesc')) $('treinoDesc').value = current.descricao || '';
     if(typeof renderModeUi === 'function') renderModeUi();
     if(typeof renderObjSelect === 'function') renderObjSelect();
     if(selIdx >= current.blocos.length) selIdx = current.blocos.length - 1;
@@ -1736,6 +1753,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function ftpToY(v){ const sc = scaleOf(); return (Math.min(Math.max(v, sc.min), sc.max) - sc.min) / (sc.max - sc.min) * TRACK_H; }
 
   function renderEditor(){
+    syncAlvo();
     const track = $('edTrack'), axis = $('edAxis');
     const pps = pxPerSec();
     const total = totalDuration(current.blocos);
@@ -1766,7 +1784,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       const c = zoneColor(blkZone(b).css);
       html += '<div class="ed-bar' + (i === selIdx ? ' sel' : '') + (selSet.size > 1 && selSet.has(b.id) && i !== selIdx ? ' msel' : '') + '" data-i="' + i + '" style="left:' + x + 'px;width:' + (w - 2) + 'px;height:' + h + 'px;--c:' + c + '">' +
         '<div class="h-top" data-i="' + i + '"></div><div class="h-right" data-i="' + i + '"></div>' +
-        (w > (modoAtual() === 'zonas' ? 24 : 40) ? '<div class="b-lbl">' + intensLabel(b.ftp) + '</div>' : '') +
+        (w > (modoAtual() === 'zonas' ? 24 : 40) ? '<div class="b-lbl">' + lblInt(b) + '</div>' : '') +
         (w > 86 && h > 34 ? '<div class="b-info">' + fmtTime(d) + '<small>s</small>&nbsp; ' + rpmTxt(b) + '<small>rpm</small></div>' : '') + '</div>';
       x += d * pps;
     });
@@ -1823,7 +1841,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     }
     const start = current.blocos.slice(0, selIdx).reduce((s,x)=> s + blockDurationSec(x), 0);
     set('fNome', b.nome || ''); set('fMin', b.min || 0); set('fSec', b.sec || 0);
-    set('fRpm', b.rpm || 0); set('fRpm2', b.rpm2 || b.rpm || 0); set('fFtp', b.ftp || 0); set('fTec', b.tecnica || '');
+    set('fRpm', b.rpm || 0); set('fRpm2', b.rpm2 || b.rpm || 0); set('fFtp', alvoOf(b)); set('fTec', b.tecnica || '');
     const tecChanged = renderInfo._tecId !== b.id; renderInfo._tecId = b.id;
     if(tecChanged){ $('fTec').value = b.tecnica || ''; }
     if(tecChanged || (document.activeElement !== $('fTecSel') && document.activeElement !== $('fTec'))){
@@ -1900,12 +1918,12 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   // com vários selecionados, rpm e intensidade mudam em todos
   function applyToOthers(field){
     const b = selected(); if(!b || !multi()) return;
-    selIdxs().forEach(k=>{ const x = current.blocos[k]; if(x !== b){ x[field] = b[field]; if(field === 'rpm' && (!x.rpm2 || x.rpm2 < x.rpm)) x.rpm2 = x.rpm; } });
+    selIdxs().forEach(k=>{ const x = current.blocos[k]; if(x !== b){ x[field] = b[field]; if(field === 'ftp') x.alvo = b.alvo; if(field === 'rpm' && (!x.rpm2 || x.rpm2 < x.rpm)) x.rpm2 = x.rpm; } });
     renderEditor(); renderProfileOnly();
   }
   ['fRpm','fRpm2','fFtp'].forEach(id=> $(id).addEventListener('input', ()=> applyToOthers(id === 'fRpm' ? 'rpm' : id === 'fRpm2' ? 'rpm2' : 'ftp')));
   $('fRpm2').addEventListener('change', ()=>{ const b = selected(); if(b && b.rpm2 && b.rpm2 < b.rpm){ b.rpm2 = b.rpm; renderEditor(); } });
-  bindField('fFtp',  (b,v)=> b.ftp = num(v, 0, 300));
+  bindField('fFtp',  (b,v)=>{ const n = num(v, 0, 300); b.alvo = n; if(n > 0) b.ftp = n; });   // 0 = alvo é o intervalo da zona
 
   // arrastar: topo = intensidade, borda direita = duração
   let drag = null;
@@ -2080,7 +2098,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       (list.length ? segChartSvg(list, 1000, 120) : '') +
       list.slice(0, 7).map(x=>{
         const z = blkZone(x);
-        return '<div class="sp-row"><span class="zp" style="background:' + zoneColor(z.css) + '">' + (x.tipo ? z.name : (modoAtual() === 'zonas' ? z.name.split(' ')[0] : intensLabel(x.ftp))) + '</span>' +
+        return '<div class="sp-row"><span class="zp" style="background:' + zoneColor(z.css) + '">' + (x.tipo ? z.name : (modoAtual() === 'zonas' ? z.name.split(' ')[0] : lblInt(x))) + '</span>' +
           '<span class="nm">' + escapeHtml(x.nome || z.name) + (x.tecnica ? '<small>' + escapeHtml(x.tecnica) + '</small>' : '') + '</span>' +
           '<span class="du">' + fmtTime(blockDurationSec(x)) + '</span><span class="rp">' + rpmTxt(x) + ' rpm</span></div>';
       }).join('') + (list.length > 7 ? '<div class="sp-row"><span></span><span class="nm">+ ' + (list.length - 7) + ' intervalos</span><span></span><span></span></div>' : '');
@@ -2157,7 +2175,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   $('zoomOutBtn').addEventListener('click', ()=>{ zoom = Math.max(0.5, zoom / 1.5); renderEditor(); });
   $('prevSel').addEventListener('click', ()=> select(selIdx - 1));
   $('nextSel').addEventListener('click', ()=> select(selIdx + 1));
-  $('previewBtn').addEventListener('click', ()=> $('projectBtn').click());
+  $('previewBtn').addEventListener('click', ()=> openLive({preview:true}));   // pré-visualizar: vai direto para a aula, sem o ecrã inicial
   window.addEventListener('resize', ()=> renderEditor());
   document.addEventListener('keydown', (e)=>{
     if($('liveOverlay').classList.contains('active') || $('authOverlay').classList.contains('active')) return;
@@ -2504,8 +2522,9 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     const b = current.blocos[0];
     return sessionRef(pin).set({
       treinoNome: current.nome || 'Aula de cycling',
+      descricao: (current.descricao || '').trim() || null,
       modo: modoAtual(),
-      blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, rpm:x.rpm, rpm2:x.rpm2||null, tipo:x.tipo||null, tecnica:x.tecnica||''})),
+      blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, alvo:alvoOf(x), rpm:x.rpm, rpm2:x.rpm2||null, tipo:x.tipo||null, tecnica:x.tecnica||''})),
       state: { blockIndex: 0, status: 'paused', remainingAtStart: blockDurationSec(b), startedAt: TS() },
       raceMetric: raceMetric,
       createdAt: TS(),
@@ -2815,6 +2834,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     $('lsObj').textContent = o.nome;
     $('lsName').textContent = current.nome || 'Aula de cycling';
     $('lsQuote').textContent = o.frases[Math.floor(Math.random() * o.frases.length)];
+    $('lsDesc').textContent = (current.descricao || '').trim();
     drawProfileSvg($('lsChart'), current.blocos, 1000, 200, 4, modoAtual());
     $('lsMeta').innerHTML = '<b>' + fmtTime(totalDuration(current.blocos)) + '</b> de aula · ' + current.blocos.length + ' blocos · ' +
       ({zonas:'por zonas', ftp:'por %FTP', fc:'por %FC máx'}[modoAtual()] || '') + (userNome ? ' · com <b>' + escapeHtml(userNome) + '</b>' : '');
@@ -2841,7 +2861,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   let liveIdx = 0, liveRemaining = 0, liveTimerHandle = null, livePlaying = false;
   let tickBaseAt = 0, tickBaseRemaining = 0, lastBeepSec = null;
 
-  function openLive(){
+  function openLive(opts){
+    const preview = !!(opts && opts.preview);
     if(current.blocos.length === 0){ toast('Adiciona blocos antes de projetar.'); return; }
     if(!firebaseReady){ $('setupBanner').classList.add('active'); return; }
     liveIdx = 0;
@@ -2869,7 +2890,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     $('qrPanel').classList.remove('active');
     pushFullSession(sessionPin);
     renderQr(sessionPin);
-    showLiveStart();
+    if(!preview) showLiveStart();
     startRidersSync(sessionPin);
     requestWakeLock();
     if(document.documentElement.requestFullscreen && !document.fullscreenElement){
@@ -2933,7 +2954,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     $('liveTechnique').textContent = b.tecnica || '';
     $('liveFeel').textContent = zone.feel || '';
     updateTimerText();
-    $('liveFtp').textContent = modoAtual() === 'zonas' ? intensLabel(b.ftp) : b.ftp + '%';
+    $('liveFtp').textContent = lblInt(b);
     $('liveRpm').textContent = rpmTxt(b);
     renderSegPreview(b);
     const zi6 = b.tipo ? -1 : zonesOf().indexOf(zone);   // Z6 e Z7 também no treino por FC
@@ -2948,7 +2969,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     if(next){
       const nz = zoneColor(blkZone(next).css);
       $('liveBody').style.setProperty('--nc', nz);
-      const meta = ((modoAtual() === 'zonas' && (next.nome||'').startsWith(intensLabel(next.ftp) + ' ')) ? '' : intensLabel(next.ftp) + ' · ') + fmtTime(blockDurationSec(next)) + (next.rpm ? ' · ' + rpmTxt(next) + ' rpm' : '');
+      const meta = ((modoAtual() === 'zonas' && (next.nome||'').startsWith(intensLabel(next.ftp) + ' ')) ? '' : lblInt(next) + ' · ') + fmtTime(blockDurationSec(next)) + (next.rpm ? ' · ' + rpmTxt(next) + ' rpm' : '');
       ln.innerHTML = '<div class="nx-card"><span class="nx-lbl" id="nxLbl">a seguir</span><b>' + escapeHtml(next.nome) + '</b><span class="nx-meta">' + meta + '</span></div>';
     } else {
       ln.innerHTML = '<div class="nx-card"><span class="nx-lbl">último bloco</span><b>força até ao fim! 💪</b></div>';
@@ -3072,6 +3093,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   window.addEventListener('scroll', ()=> $('appHead').classList.toggle('scrolled', window.scrollY > 4), {passive:true});
   $('exitLive').addEventListener('click', closeLive);
   $('treinoNome').addEventListener('input', (e)=>{ current.nome = e.target.value; });
+  $('treinoDesc').addEventListener('input', (e)=>{ current.descricao = e.target.value; if(!current.descricao) delete current.descricao; });
   $('savedSearch').addEventListener('input', renderSaved);
   $('importBtn').addEventListener('click', ()=> $('importFile').click());
   $('importFile').addEventListener('change', (e)=>{ if(e.target.files[0]) importFile(e.target.files[0]); e.target.value=''; });
@@ -3140,7 +3162,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     if(!confirm(msg)) return;
     const key = existing ? existing.key : fbDb.ref('biblioteca').push().key;
     fbDb.ref('biblioteca/' + key).set(clean({
-      nome: t.nome, modo: t.modo || 'ftp', objetivo: t.objetivo || null, blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, rpm:b.rpm, rpm2:b.rpm2||null, tipo:b.tipo||null, tecnica:b.tecnica||''})),
+      nome: t.nome, modo: t.modo || 'ftp', objetivo: t.objetivo || null, descricao: t.descricao || null, blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, alvo:alvoOf(b), rpm:b.rpm, rpm2:b.rpm2||null, tipo:b.tipo||null, tecnica:b.tecnica||''})),
       autor: userUid, autorNome: userNome || '', origem: id, atualizado: Date.now()
     })).then(()=> toast(existing ? 'Biblioteca atualizada' : 'Aula partilhada na Biblioteca Playlife'))
       .catch(()=> toast('Não consegui partilhar.'));
@@ -3149,7 +3171,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function copyShared(key){
     const p = partilhadas.find(x=>x.key===key);
     if(!p) return;
-    const copy = { id: uid(), nome: p.nome, modo: p.modo || 'ftp', objetivo: p.objetivo || undefined, blocos: (p.blocos||[]).map(sanitizeBlock) };
+    const copy = { id: uid(), nome: p.nome, modo: p.modo || 'ftp', objetivo: p.objetivo || undefined, descricao: p.descricao || undefined, blocos: (p.blocos||[]).map(sanitizeBlock) };
     treinos.push(copy);
     persist();
     current = clean(copy);
