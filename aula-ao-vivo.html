@@ -98,6 +98,9 @@ body:has(#liveScreen.active) .legal{display:none;}
 .ios-url{display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 6px 6px 10px;margin:4px 0 6px;}
 .ios-u{flex:1;font-size:12px;word-break:break-all;color:#fff;}
 .ios-copy{background:var(--accent);border:none;color:#140B04;font-weight:700;border-radius:6px;padding:7px 12px;font-size:13px;white-space:nowrap;}
+.ios-box li .ios-copy{display:block;width:100%;margin:6px 0 2px;padding:10px 12px;font-size:14px;border-radius:8px;}
+.ios-copy-sm{background:transparent;color:#5FC4FF;border:1px solid rgba(95,196,255,.4);margin-top:8px;}
+.ios-pin{font-size:15px;letter-spacing:2px;color:#fff;}
 .ios-note{color:var(--muted);font-size:12px;margin-top:6px;}
 
 /* ---------- Live ---------- */
@@ -931,14 +934,21 @@ body.solo-livre #progress{display:none;}
   // iPhone sem Bluetooth na web (Safari, Chrome, etc.): explica o Bluefy e dá o endereço pronto a copiar
   const BLUEFY_STORE = 'https://apps.apple.com/app/id1492822055';
   function bluefyUrl(){ return location.origin + location.pathname + (pin ? '?pin=' + pin : ''); }
+  function bluefyKnown(){ try{ return localStorage.getItem('prBluefyOk') === '1'; }catch(e){ return false; } }
   function iosBoxHtml(){
+    if(bluefyKnown()){   // já copiou uma vez: nas aulas seguintes basta abrir o Bluefy e escrever o PIN
+      return '<div class="ios-t">📱 iPhone: liga a bike pelo <b>Bluefy</b></div>' +
+        '<div>Abre o Bluefy (tens o PlayRide nos favoritos ⭐) e escreve o PIN' + (pin ? ' <b class="ios-pin">' + escapeHtml(pin) + '</b>' : '') + '. Não precisas de copiar nada.</div>' +
+        '<button type="button" class="ios-copy ios-copy-sm">Copiar o endereço outra vez</button>' +
+        '<div class="ios-note">No Safari não dá para ligar a bike, mas podes continuar aqui só para acompanhar a aula.</div>';
+    }
     return '<div class="ios-t">📱 Tens iPhone? Para ligares a bike usa o <b>Bluefy</b></div>' +
       '<ol>' +
         '<li>Instala a app gratuita <a href="' + BLUEFY_STORE + '" target="_blank" rel="noopener">Bluefy – Web BLE Browser</a></li>' +
-        '<li>Copia o endereço da aula:</li>' +
+        '<li>Toca em <button type="button" class="ios-copy">Copiar endereço da aula</button></li>' +
+        '<li>Abre o Bluefy, cola na barra de cima e entra' + (pin ? ' (o PIN já vai incluído)' : '') + '.</li>' +
+        '<li>Guarda nos <b>favoritos ⭐</b> do Bluefy. Nas próximas aulas é só abrir o Bluefy e escrever o PIN: só copias o endereço desta vez.</li>' +
       '</ol>' +
-      '<div class="ios-url"><span class="ios-u">' + escapeHtml(bluefyUrl().replace(/^https?:\/\//,'')) + '</span><button type="button" class="ios-copy">Copiar</button></div>' +
-      '<ol start="3"><li>Abre o Bluefy, cola o endereço na barra de cima' + (pin ? ' e entra (o PIN já vai incluído)' : ' e mete o PIN') + '.</li></ol>' +
       '<div class="ios-note">No Safari não dá para ligar a bike, mas podes continuar aqui só para acompanhar a aula.</div>';
   }
   function renderIosBoxes(){
@@ -953,7 +963,7 @@ body.solo-livre #progress{display:none;}
     if(!ok){
       try{ const ta = document.createElement('textarea'); ta.value = url; document.body.appendChild(ta); ta.select(); ok = document.execCommand('copy'); ta.remove(); }catch(err){}
     }
-    if(ok){ e.target.textContent = 'Copiado ✓'; setTimeout(()=> e.target.textContent = 'Copiar', 2000); }
+    if(ok){ const t0 = e.target.textContent; e.target.textContent = 'Copiado ✓ agora cola no Bluefy'; setTimeout(()=> e.target.textContent = t0, 2500); try{ localStorage.setItem('prBluefyOk','1'); }catch(err){} }
     else prompt('Copia este endereço:', url);
   });
   function showBtWarning(){
