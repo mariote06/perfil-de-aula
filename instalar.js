@@ -34,6 +34,14 @@
     '.ig-copy input{flex:1;min-width:0;background:#1B212B;border:1px solid #262D39;border-radius:10px;color:#fff;padding:10px;font-size:13px;}' +
     '.ig-copy button{background:#1B212B;border:1px solid #262D39;color:#fff;border-radius:10px;padding:0 14px;font-weight:600;cursor:pointer;}' +
     '.ig-arrow{position:fixed;bottom:10px;left:50%;transform:translateX(-50%);font-size:30px;color:#fff;animation:igb 1.2s infinite;display:none;z-index:10000;}' +
+    '.ig-qr{background:rgba(232,114,44,.12);border:1px solid rgba(232,114,44,.45);color:#EDEFF2 !important;border-radius:12px;padding:10px 12px;margin:0 0 14px !important;}' +
+    '.ig-bar{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:9998;display:flex;align-items:center;gap:10px;background:#12161D;border:1px solid #262D39;border-radius:16px;padding:10px 10px 10px 12px;box-shadow:0 12px 40px rgba(0,0,0,.55);font-family:Inter,system-ui,sans-serif;color:#EDEFF2;max-width:520px;margin:0 auto;transform:translateY(150%);transition:transform .35s ease;}' +
+    '.ig-bar.on{transform:none;}' +
+    '.ig-bar img{width:40px;height:40px;border-radius:10px;flex-shrink:0;}' +
+    '.ig-bar .t{flex:1;min-width:0;font-size:13px;line-height:1.3;color:#8A93A3;}' +
+    '.ig-bar .t b{display:block;color:#fff;font-size:14px;}' +
+    '.ig-bar .go{border:none;border-radius:10px;padding:10px 14px;font-weight:700;font-size:14px;background:' + CFG.accent + ';color:#140B04;cursor:pointer;flex-shrink:0;}' +
+    '.ig-bar .x{background:none;border:none;color:#8A93A3;font-size:20px;line-height:1;padding:6px 8px;cursor:pointer;flex-shrink:0;}' +
     '@keyframes igb{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,8px)}}';
   document.head.appendChild(css);
 
@@ -50,9 +58,11 @@
   function steps(list){ return '<ol class="ig-steps">' + list.map(function(s, i){ return '<li><span class="ig-n">' + (i+1) + '</span><span>' + s + '</span></li>'; }).join('') + '</ol>'; }
   function copyBox(){ return '<div class="ig-copy"><input readonly value="' + location.origin + location.pathname + '"><button id="igCopy">Copiar</button></div>'; }
 
+  var qrCtx = false;
   function render(){
     var t = document.getElementById('igText'), b = document.getElementById('igBody');
     arrow.style.display = 'none';
+    document.getElementById('igLater').textContent = qrCtx && CFG.later ? CFG.later : 'Agora não, continuar no browser';
     if(deferred){
       t.textContent = 'Fica com um ícone no ' + (android ? 'telemóvel' : 'computador') + ' e abre em ecrã inteiro, como uma app normal. Atualiza-se sozinha.';
       b.innerHTML = '<button class="ig-btn" id="igGo">⬇ Instalar agora</button>';
@@ -79,17 +89,32 @@
       t.textContent = 'Este browser não instala apps. Para teres o ícone, abre o link no Google Chrome ou no Microsoft Edge. Também podes continuar a usar aqui, funciona na mesma.';
       b.innerHTML = copyBox();
     }
+    if(qrCtx) b.insertAdjacentHTML('afterbegin', '<p class="ig-qr">📲 Instala já a app: na próxima aula é só tocar no ícone ' + CFG.name + ' e escrever o PIN.</p>');
     var c = document.getElementById('igCopy');
     if(c) c.onclick = function(){ var i = c.previousSibling; i.select(); try{ navigator.clipboard.writeText(i.value); }catch(e){ document.execCommand('copy'); } c.textContent = 'Copiado ✓'; };
   }
-  function open(){ render(); ov.classList.add('on'); }
+  function open(fromQr){ qrCtx = fromQr === true; hideBar(); render(); ov.classList.add('on'); }
+
+  // barra discreta para quem já disse "agora não" e volta a entrar pelo QR
+  var bar = null;
+  function hideBar(){ if(bar){ bar.classList.remove('on'); document.body.style.paddingBottom = ''; } }
+  function showBar(){
+    bar = document.createElement('div'); bar.className = 'ig-bar'; bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', 'Instalar ' + CFG.name);
+    bar.innerHTML = '<img src="' + CFG.icon + '" alt=""><div class="t"><b>Instala a app ' + CFG.name + '</b>Na próxima aula abres com um toque</div><button class="go">Instalar</button><button class="x" aria-label="Fechar">✕</button>';
+    document.body.appendChild(bar);
+    bar.querySelector('.go').onclick = function(){ open(true); };
+    bar.querySelector('.x').onclick = function(){ hideBar(); lsSet(LSK + '_bar', String(Date.now())); };
+    setTimeout(function(){ bar.classList.add('on'); document.body.style.paddingBottom = '96px'; }, 600);
+    var hb = CFG.hideBarOn && document.getElementById(CFG.hideBarOn);
+    if(hb) hb.addEventListener('click', hideBar);
+  }
   function close(done){ ov.classList.remove('on'); arrow.style.display = 'none'; lsSet(LSK, done ? 'installed' : String(Date.now())); }
   document.getElementById('igLater').onclick = function(){ close(false); };
   ov.addEventListener('click', function(e){ if(e.target === ov) close(false); });
   window.PlayRideInstall = open;
 
   window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferred = e; if(ov.classList.contains('on')) render(); });
-  window.addEventListener('appinstalled', function(){ close(true); var x = document.getElementById('installBtn'); if(x) x.remove(); });
+  window.addEventListener('appinstalled', function(){ close(true); hideBar(); var x = document.getElementById('installBtn'); if(x) x.remove(); });
 
   if(standalone) return;
   CFG.button();
@@ -97,5 +122,13 @@
   var forced = qs.has('instalar');
   var skip = CFG.skip && CFG.skip(qs);
   var seen = lsGet(LSK);
+  var fromQr = CFG.fromQr && CFG.fromQr();
+  if(fromQr && !forced){
+    // entrou pela leitura do QR: 1.ª vez mostra o guia; depois, só uma barra discreta (até instalar)
+    if(seen === 'installed') return;
+    if(!seen) setTimeout(function(){ open(true); }, chromium && !deferred ? 1200 : 500);
+    else if(Date.now() - Number(lsGet(LSK + '_bar') || 0) > 3*24*3600*1000) showBar();
+    return;
+  }
   if(forced || (!skip && !seen)) setTimeout(open, chromium && !deferred ? 1200 : 500);
 })();

@@ -2277,6 +2277,9 @@ body.solo-livre #progress{display:none;}
   if(urlPin){
     $('pinInput').value = urlPin;
     checkPin(urlPin);
+    // veio do QR: tira o PIN do endereço, para que "Adicionar ao ecrã principal" guarde a app e não esta aula
+    window.PR_FROM_QR = true;
+    try{ history.replaceState(null, '', location.pathname + location.hash); }catch(e){}
   }
 
 })();
@@ -2284,6 +2287,9 @@ body.solo-livre #progress{display:none;}
 <script>
 window.PR_INSTALL_CFG = { key:'aluno', name:'PlayRide', icon:'icon-192.png', accent:'#E8722C',
     skip: function(qs){ return qs.has('pin') || qs.has('livre') || qs.has('conta') || qs.has('biblioteca'); },
+    fromQr: function(){ return !!window.PR_FROM_QR; },
+    later: 'Agora não, entrar na aula',
+    hideBarOn: 'enterBtn',
     button: function(){
       var home = document.getElementById('homeScreen'); if(!home || document.getElementById('installBtn')) return;
       var x = document.createElement('button'); x.id = 'installBtn'; x.className = 'btn-link'; x.textContent = '⬇ Instalar a app no telemóvel';
