@@ -402,8 +402,76 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .live-head .session-badge{position:static;display:block;padding:5px 12px;text-align:center;}
 .live-head .session-badge .pin-num{font-size:22px;line-height:1.05;}
 .live-head .exit-btn{position:static;}
-.qr-panel{top:84px !important;}
-@media (max-width:1100px){ .lh-stat:nth-child(3){display:none;} .lh-class{max-width:24vw;} }
+.lh-class{max-width:50vw;}
+
+/* tempos + PIN do lado esquerdo, junto ao timer do intervalo */
+.live-body > .live-info{position:absolute;left:2.5%;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:stretch;gap:14px;z-index:3;}
+.live-info .session-badge{position:static;display:block;text-align:center;padding:10px 22px 12px;border-radius:16px;background:rgba(232,114,44,.12);border:2px solid rgba(232,114,44,.65);}
+.live-info .session-badge .pin-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(16px,2.2vh,26px);letter-spacing:4px;color:#E8722C;}
+.live-info .session-badge .pin-num{font-size:clamp(54px,9vh,110px);line-height:.95;letter-spacing:4px;}
+.li-stats{display:flex;flex-direction:column;gap:10px;}
+.live-info .lh-stat{text-align:left;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:8px 16px;}
+.live-info .lh-stat .v{font-size:clamp(32px,5.2vh,62px);}
+.live-info .lh-stat .l{font-size:clamp(11px,1.4vh,15px);letter-spacing:1.5px;}
+.live-body > .rl-gauge,.live-body > .ce-icon{left:auto !important;right:3%;}
+.live-overlay.split .live-body{justify-content:flex-start;padding-top:14px;}
+.live-overlay.split .live-body > .live-info{position:relative;top:auto;left:auto;transform:none;width:100%;flex-shrink:0;flex-direction:row;align-items:stretch;gap:10px;margin-bottom:auto;}
+.live-overlay.split #liveActive{margin-bottom:auto;}
+.live-overlay.split .live-body > .live-info{margin-bottom:14px;}
+@media (max-height:960px){ .live-overlay.split .live-feel{display:none;} .live-overlay.split .live-next{margin-top:10px;} }
+.live-overlay.split .live-info .session-badge{padding:4px 16px 6px;}
+.live-overlay.split .live-info .session-badge .pin-lbl{font-size:clamp(12px,1.5vh,18px);letter-spacing:3px;}
+.live-overlay.split .live-info .session-badge .pin-num{font-size:clamp(40px,6.6vh,80px);}
+.live-overlay.split .li-stats{flex-direction:row;flex:1;}
+.live-overlay.split .live-info .lh-stat{flex:1;display:flex;flex-direction:column;justify-content:center;padding:4px 12px;}
+.live-overlay.split .live-info .lh-stat .v{font-size:clamp(26px,4.2vh,52px);}
+.live-overlay.split .live-body > .rl-gauge,.live-overlay.split .live-body > .ce-icon{top:42% !important;right:2%;}
+.live-overlay.split .ring-wrap{width:clamp(180px,27vh,340px);}
+.live-overlay.split .ring-wrap .live-timer{font-size:clamp(54px,8.4vh,116px);}
+.live-overlay.finished .live-info{display:none;}
+
+/* QR (tecla Q / toque no PIN) aparece grande, ao centro */
+.live-overlay .qr-panel{top:50% !important;left:50% !important;transform:translate(-50%,-50%);padding:22px;z-index:20;box-shadow:0 30px 80px rgba(0,0,0,.6);}
+.live-overlay .qr-panel #qrcode img,.live-overlay .qr-panel #qrcode canvas{width:min(46vh,420px) !important;height:auto !important;display:block;}
+.live-overlay .qr-panel .qr-caption{font-size:15px;max-width:420px;}
+
+/* ---------- ecrã inicial (antes do play) ---------- */
+.live-start{position:absolute;inset:0;z-index:30;display:none;align-items:center;gap:4vw;padding:4vh 4vw;
+  background:radial-gradient(ellipse at 20% 0%, rgba(232,114,44,.16), transparent 55%), radial-gradient(ellipse at 100% 100%, rgba(163,92,255,.12), transparent 50%), #05070A;}
+.live-overlay.starting .live-start{display:flex;}
+.ls-exit{position:absolute;top:18px;right:20px;background:transparent;border:1px solid #262D39;color:rgba(255,255,255,.6);border-radius:10px;padding:8px 14px;font:inherit;font-size:14px;cursor:pointer;}
+.ls-exit:hover{color:#fff;border-color:#4A5568;}
+.ls-left{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:1.6vh;}
+.ls-logo{font-size:clamp(56px,11vh,132px);color:#fff;}
+.ls-logo .pr-mark{height:1em;}
+.ls-obj{align-self:flex-start;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:3px;font-size:clamp(16px,2.4vh,28px);color:#E8722C;border:2px solid rgba(232,114,44,.6);border-radius:999px;padding:4px 18px;margin-top:1vh;}
+.ls-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(34px,6.4vh,78px);line-height:1;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ls-quote{font-size:clamp(20px,3.4vh,42px);font-style:italic;font-weight:500;line-height:1.25;color:rgba(255,255,255,.88);max-width:30em;}
+.ls-quote::before{content:'“';color:#E8722C;font-weight:800;margin-right:.08em;}
+.ls-quote::after{content:'”';color:#E8722C;font-weight:800;margin-left:.04em;}
+.ls-chart{height:clamp(110px,20vh,240px);background:rgba(255,255,255,.03);border:1px solid #1B212B;border-radius:14px;padding:10px 12px 6px;}
+.ls-chart svg{width:100%;height:100%;display:block;}
+.ls-meta{color:rgba(255,255,255,.6);font-size:clamp(15px,2.1vh,24px);}
+.ls-meta b{color:#fff;}
+.ls-go{display:flex;align-items:center;gap:22px;margin-top:1vh;}
+.ls-play{width:clamp(92px,14vh,160px);height:clamp(92px,14vh,160px);border-radius:50%;border:none;background:#E8722C;color:#140B04;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:clamp(40px,6vh,70px);box-shadow:0 0 0 0 rgba(232,114,44,.6);animation:lsPulse 2s ease-out infinite;flex-shrink:0;}
+.ls-play span{margin-left:.12em;line-height:1;}
+.ls-play:hover{filter:brightness(1.08);}
+@keyframes lsPulse{0%{box-shadow:0 0 0 0 rgba(232,114,44,.55);}80%,100%{box-shadow:0 0 0 34px rgba(232,114,44,0);}}
+.ls-go-t{font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:clamp(26px,4.2vh,50px);color:#fff;line-height:1;}
+.ls-count{color:rgba(255,255,255,.6);font-size:clamp(15px,2.1vh,24px);margin-top:6px;}
+.ls-count b{color:#3DD45C;}
+.ls-right{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2vh;}
+.ls-qr{background:#fff;border-radius:22px;padding:clamp(14px,2.2vh,28px);line-height:0;}
+.ls-qr img,.ls-qr canvas{width:min(62vh,44vw) !important;height:auto !important;display:block;image-rendering:pixelated;}
+.ls-pin{display:flex;align-items:baseline;gap:18px;font-family:'Barlow Condensed',sans-serif;font-weight:700;}
+.ls-pin span{font-size:clamp(22px,3.6vh,44px);letter-spacing:5px;color:#E8722C;}
+.ls-pin b{font-size:clamp(70px,13vh,160px);line-height:.9;letter-spacing:8px;color:#fff;}
+.ls-cap{color:rgba(255,255,255,.6);font-size:clamp(14px,1.9vh,22px);text-align:center;line-height:1.4;}
+.ls-cap b{color:#fff;}
+.ed-obj{background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 10px;font:inherit;font-size:14px;font-weight:600;max-width:260px;}
+@media (max-width:900px){ .live-start{flex-direction:column;overflow:auto;justify-content:flex-start;} .ls-qr img,.ls-qr canvas{width:min(70vw,48vh) !important;} }
 
 .live-body{overflow:hidden;--zc:#3A4353;}
 .live-body::before{content:'';position:absolute;inset:-15%;pointer-events:none;
@@ -480,6 +548,10 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .rt-sub .pct{color:var(--zc);font-weight:700;}
 
 .lanes{flex:1;display:flex;flex-direction:column;gap:8px;min-height:0;overflow:hidden;}
+.lanes.two{display:grid !important;grid-auto-flow:column;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px;row-gap:6px;}
+.lanes.two .lane{max-height:none;grid-template-columns:36px minmax(70px,140px) 1fr 64px;gap:8px;}
+.lanes.two .ln-pos,.lanes.two .ln-val{font-size:clamp(16px,2.2vh,24px);}
+.lanes.two .ln-name{font-size:clamp(13px,1.7vh,16px);}
 .lane{display:grid;grid-template-columns:46px minmax(90px,190px) 1fr 100px;align-items:center;gap:12px;flex:1;max-height:62px;min-height:24px;}
 .ln-pos{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:26px;text-align:center;}
 .lane.p1 .ln-pos{color:#E8C547;}
@@ -822,6 +894,17 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 .live-overlay.split .live-body > .rl-gauge{width:clamp(90px,10vw,170px);top:18%;transform:none;left:2%;}
 .seg-chart{width:100%;height:clamp(70px,11vh,140px);display:block;margin:2px 0 10px;}
 @media (max-width:700px){ .live-body > .rl-gauge{width:90px;top:8px;transform:none;left:8px;} }
+
+/* ---------- Z7: motor a tremer e a piscar (laranja / cor da Z7) ---------- */
+.ce-svg{width:100%;height:auto;overflow:visible;display:block;}
+.ce-svg .ce-g{fill:none;stroke-width:10;stroke-linecap:round;stroke-linejoin:round;animation:ceBlink .5s steps(1,end) infinite, ceShake .14s linear infinite;transform-box:view-box;transform-origin:100px 65px;}
+@keyframes ceBlink{0%{stroke:#FF8A1F;filter:drop-shadow(0 0 10px #FF8A1F);}50%{stroke:#7A0019;filter:drop-shadow(0 0 12px #FF3B3B);}}
+@keyframes ceShake{0%{transform:translate(0,0) rotate(0);}20%{transform:translate(-3px,2px) rotate(-1.5deg);}40%{transform:translate(3px,-2px) rotate(1.5deg);}60%{transform:translate(-2px,-1px) rotate(-1deg);}80%{transform:translate(2px,2px) rotate(1deg);}100%{transform:translate(0,0) rotate(0);}}
+@media (prefers-reduced-motion: reduce){ .ce-svg .ce-g{animation:ceBlink 1s steps(1,end) infinite;} }
+.live-body > .ce-icon{position:absolute;left:3%;top:50%;transform:translateY(-60%);width:clamp(150px,16vw,300px);display:none;pointer-events:none;z-index:2;}
+.live-body.z7 > .ce-icon{display:block;}
+.live-overlay.split .live-body > .ce-icon{width:clamp(90px,10vw,170px);top:18%;transform:none;left:2%;}
+@media (max-width:700px){ .live-body > .ce-icon{width:90px;top:8px;transform:none;left:8px;} }
 </style>
 </head>
 <body data-view="home">
@@ -874,7 +957,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   <div class="panel editor" id="editor" data-sec="plan">
     <div class="ed-toolbar">
       <input type="text" id="treinoNome" class="ed-name" placeholder="Nome da aula (ex: Sprint Interval — Quarta 18h)">
-      <div class="seg" id="modeSeg" title="Como se constrói esta aula"><button data-m="zonas">Zonas Z1–Z7</button><button data-m="ftp">%FTP Z1–Z7</button><button data-m="fc">%FCmáx Z1–Z5</button></div>
+      <select id="treinoObj" class="ed-obj" title="Objetivo da aula — define a frase motivacional do ecrã inicial"></select>
+      <div class="seg" id="modeSeg" title="Como se constrói esta aula"><button data-m="zonas">Zonas Z1–Z7</button><button data-m="ftp">%FTP Z1–Z7</button><button data-m="fc">%FCmáx Z1–Z7</button></div>
     </div>
 
     <div class="ed-cmd">
@@ -995,15 +1079,28 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     <div class="lh-title"><div class="lh-class" id="lhClass">Aula</div><div class="lh-sub" id="lhSub"></div></div>
     <div class="lh-center"><div class="lh-block" id="lhBlock">bloco 1 de 1</div></div>
     <div class="lh-right">
-      <div class="lh-stat"><div class="v" id="lhElapsed">0:00</div><div class="l">decorrido</div></div>
-      <div class="lh-stat"><div class="v" id="lhLeft">0:00</div><div class="l">falta</div></div>
-      <div class="lh-stat"><div class="v" id="lhClock">--:--</div><div class="l">hora</div></div>
-      <div class="session-badge" id="sessionBadge" title="Mostrar / esconder QR code (tecla Q)">
-        <div class="pin-lbl">PIN</div>
-        <div class="pin-num" id="pinDisplay">----</div>
-      </div>
       <img class="lh-logo" id="logoParceiro" src="logo-parceiro.png" alt="" onerror="this.style.display='none'">
       <button class="exit-btn" id="exitLive">✕ Sair</button>
+    </div>
+  </div>
+  <div class="live-start" id="liveStart">
+    <button class="ls-exit" id="lsExit">✕ Sair</button>
+    <div class="ls-left">
+      <div class="pr-logo ls-logo" role="img" aria-label="PlayRide"><svg class="pr-mark" viewBox="0 0 200 130" aria-hidden="true"><g transform="skewX(-14)"><rect x="34" y="96" width="22" height="34" rx="4" fill="#A35CFF"/><rect x="62" y="78" width="22" height="52" rx="4" fill="#1FA8F0"/><rect x="90" y="58" width="22" height="72" rx="4" fill="#3DD45C"/><rect x="118" y="38" width="22" height="92" rx="4" fill="#FFD60A"/><rect x="146" y="16" width="22" height="114" rx="4" fill="#FF8A1F"/><rect x="174" y="0" width="22" height="130" rx="4" fill="#FF3B3B"/></g></svg><span>PlayRide</span></div>
+      <div class="ls-obj" id="lsObj">Objetivo</div>
+      <div class="ls-name" id="lsName">Aula</div>
+      <div class="ls-quote" id="lsQuote"></div>
+      <div class="ls-chart"><svg id="lsChart" viewBox="0 0 1000 200" preserveAspectRatio="none"></svg></div>
+      <div class="ls-meta" id="lsMeta"></div>
+      <div class="ls-go">
+        <button class="ls-play" id="lsPlay" title="Iniciar a aula (barra de espaço)"><span>▶</span></button>
+        <div><div class="ls-go-t">Iniciar aula</div><div class="ls-count" id="lsCount">à espera dos alunos…</div></div>
+      </div>
+    </div>
+    <div class="ls-right">
+      <div class="ls-qr" id="lsQr"></div>
+      <div class="ls-pin"><span>PIN</span><b id="lsPin">----</b></div>
+      <div class="ls-cap">Aponta a câmara do telemóvel ao QR code<br>ou abre a app <b>PlayRide</b> e insere o PIN</div>
     </div>
   </div>
   <div class="live-profile"><svg id="liveProfileSvg" viewBox="0 0 1000 76" preserveAspectRatio="none"></svg></div>
@@ -1014,6 +1111,17 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 
   <div class="live-main">
     <div class="live-body" id="liveBody">
+      <div class="live-info" id="liveInfo">
+        <div class="session-badge" id="sessionBadge" title="Mostrar / esconder QR code (tecla Q)">
+          <div class="pin-lbl">PIN</div>
+          <div class="pin-num" id="pinDisplay">----</div>
+        </div>
+        <div class="li-stats">
+          <div class="lh-stat"><div class="v" id="lhElapsed">0:00</div><div class="l">decorrido</div></div>
+          <div class="lh-stat"><div class="v" id="lhLeft">0:00</div><div class="l">falta</div></div>
+          <div class="lh-stat"><div class="v" id="lhClock">--:--</div><div class="l">hora</div></div>
+        </div>
+      </div>
       <div id="liveActive">
         <div class="lz-pill" id="liveZone">—</div>
         <div class="live-name" id="liveName">—</div>
@@ -1040,6 +1148,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
         <div class="live-name">tempo total de treino</div>
         <div id="liveSummary" class="sum-wrap"></div>
       </div>
+      <div class="ce-icon" id="liveEngine"><svg class="ce-svg" viewBox="0 0 200 130" aria-hidden="true"><g class="ce-g"><path d="M20 58 V96 M20 77 H40"/><path d="M40 52 H58 V40 H134 L148 54 H158 V46 H170 V102 H158 V94 H148 L132 110 H74 L58 96 H40 Z"/><path d="M78 18 H110 M94 18 V40"/></g></svg></div>
       <div class="rl-gauge" id="liveGauge"><svg class="rl-svg" viewBox="0 0 200 112" aria-hidden="true"><path class="arc" d="M14 100 A86 86 0 0 1 186 100"/><line x1="24.0" y1="100.0" x2="38.0" y2="100.0" class="wt mj"/><line x1="24.9" y1="88.1" x2="32.8" y2="89.4" class="wt"/><line x1="27.7" y1="76.5" x2="35.3" y2="79.0" class="wt"/><line x1="32.3" y1="65.5" x2="39.4" y2="69.1" class="wt"/><line x1="38.5" y1="55.3" x2="45.0" y2="60.0" class="wt"/><line x1="46.3" y1="46.3" x2="56.2" y2="56.2" class="wt mj"/><line x1="55.3" y1="38.5" x2="60.0" y2="45.0" class="wt"/><line x1="65.5" y1="32.3" x2="69.1" y2="39.4" class="wt"/><line x1="76.5" y1="27.7" x2="79.0" y2="35.3" class="wt"/><line x1="88.1" y1="24.9" x2="89.4" y2="32.8" class="wt"/><line x1="100.0" y1="24.0" x2="100.0" y2="38.0" class="wt mj"/><line x1="111.9" y1="24.9" x2="110.6" y2="32.8" class="wt"/><line x1="123.5" y1="27.7" x2="121.0" y2="35.3" class="wt"/><line x1="134.5" y1="32.3" x2="130.9" y2="39.4" class="wt"/><line x1="144.7" y1="38.5" x2="140.0" y2="45.0" class="wt"/><line x1="153.7" y1="46.3" x2="143.8" y2="56.2" class="wt mj"/><line x1="161.5" y1="55.3" x2="155.0" y2="60.0" class="wt"/><line x1="167.7" y1="65.5" x2="160.6" y2="69.1" class="wt"/><line x1="172.3" y1="76.5" x2="164.7" y2="79.0" class="rt"/><line x1="175.1" y1="88.1" x2="167.2" y2="89.4" class="rt"/><line x1="176.0" y1="100.0" x2="162.0" y2="100.0" class="rt mj"/><path class="rz" d="M163.9 76.7 A68 68 0 0 1 168.0 98.8"/><g class="needle"><path d="M100 96.5 L172 100 L100 103.5 Z"/></g><circle class="hub" cx="100" cy="100" r="7"/><circle class="hub2" cx="100" cy="100" r="3"/></svg></div>
       <div class="seg-prev" id="segPrev"></div>
       <div class="live-next" id="liveNext"></div>
@@ -1166,12 +1275,14 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   const rootStyle = getComputedStyle(document.documentElement);
   function zoneColor(cssVar){ return rootStyle.getPropertyValue(cssVar).trim(); }
   // zonas de frequência cardíaca (% da FC máxima)
-  const ZONES_FC = [
-    {name:'Z1 Recuperação', max:60,   css:'--z0', feel:F[0]},
-    {name:'Z2 Resistência', max:70,   css:'--z1', feel:F[1]},
+  const ZONES_FC = [   // % da FC máxima: Z1 50–65 · Z2 65–75 · Z3 75–80 · Z4 80–85 · Z5 85–90 · Z6 90–95 · Z7 95–100
+    {name:'Z1 Recuperação', max:65,   css:'--z0', feel:F[0]},
+    {name:'Z2 Resistência', max:75,   css:'--z1', feel:F[1]},
     {name:'Z3 Tempo',       max:80,   css:'--z2', feel:F[2]},
-    {name:'Z4 Limiar',      max:90,   css:'--z3', feel:F[3]},
-    {name:'Z5 VO2máx',      max:9999, css:'--z4', feel:F[4]},
+    {name:'Z4 Limiar',      max:85,   css:'--z3', feel:F[3]},
+    {name:'Z5 VO2máx',      max:90,   css:'--z4', feel:F[4]},
+    {name:'Z6 Anaeróbio',   max:95,   css:'--z5', feel:F[5]},
+    {name:'Z7 Explosão',    max:9999, css:'--z6', feel:F[6]},
   ];
   function modoAtual(){ return (typeof current !== 'undefined' && current && current.modo) || 'ftp'; }
   function zonesOf(m){ return (m || modoAtual()) === 'fc' ? ZONES_FC : ZONES; }
@@ -1190,14 +1301,14 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function scaleOf(m){ return (m || modoAtual()) === 'fc' ? {min:40, max:100} : {min:0, max:180}; }
   // conversão aproximada entre %FTP e %FCmáx (só para mudar o modo de uma aula já feita)
   // conversão zona a zona (mantém a zona e a posição dentro dela)
-  const FTP_B = [[40,55],[55,75],[75,90],[90,105],[105,120]], FC_B = [[50,60],[60,70],[70,80],[80,90],[90,100]];
+  const FTP_B = [[40,55],[55,75],[75,90],[90,105],[105,120],[120,150],[150,200]], FC_B = [[50,65],[65,75],[75,80],[80,85],[85,90],[90,95],[95,100]];
   function mapRange(v, from, to){
     for(let i=0;i<from.length;i++){
       const [lo,hi] = from[i];
       if(v <= hi || i === from.length-1){ const f = Math.max(0, Math.min(1, (v - lo) / (hi - lo))); return Math.round(to[i][0] + f * (to[i][1] - to[i][0])); }
     }
   }
-  function ftpToFc(v){ return v > 120 ? 98 : mapRange(v, FTP_B, FC_B); }
+  function ftpToFc(v){ return v > 200 ? 99 : mapRange(v, FTP_B, FC_B); }
   function fcToFtp(v){ return mapRange(v, FC_B, FTP_B); }
   const $ = (id)=>document.getElementById(id);
 
@@ -1431,6 +1542,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     }
     if(document.activeElement !== $('treinoNome')) $('treinoNome').value = current.nome || '';
     if(typeof renderModeUi === 'function') renderModeUi();
+    if(typeof renderObjSelect === 'function') renderObjSelect();
     if(selIdx >= current.blocos.length) selIdx = current.blocos.length - 1;
     if(selIdx < 0 && current.blocos.length) selIdx = 0;
     renderEditor();
@@ -1444,7 +1556,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   // =====================================================================
   const ZONE_DEFAULTS = {
     ftp: [ {ftp:50, rpm:80}, {ftp:65, rpm:90}, {ftp:83, rpm:90}, {ftp:98, rpm:85}, {ftp:113, rpm:95}, {ftp:135, rpm:100}, {ftp:170, rpm:110} ],
-    fc:  [ {ftp:55, rpm:80}, {ftp:65, rpm:90}, {ftp:75, rpm:90}, {ftp:85, rpm:85}, {ftp:95, rpm:100} ],
+    fc:  [ {ftp:58, rpm:80}, {ftp:70, rpm:90}, {ftp:78, rpm:90}, {ftp:83, rpm:85}, {ftp:88, rpm:95}, {ftp:93, rpm:100}, {ftp:97, rpm:110} ],
     zonas: [ {ftp:45, rpm:80}, {ftp:65, rpm:90}, {ftp:83, rpm:90}, {ftp:98, rpm:85}, {ftp:113, rpm:95}, {ftp:135, rpm:100}, {ftp:170, rpm:110} ]
   };
   let TRACK_H = 260;
@@ -1496,7 +1608,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function addZone(zi){
     pushUndo();
     const d = ZONE_DEFAULTS[modoAtual()][zi];
-    const last = zi === zonesOf().length - 1 && modoAtual() !== 'fc';   // zona mais alta (Z6) = sprint
+    const last = zi === zonesOf().length - 1;   // zona mais alta (Z7) = sprint
     const b = newBlock({ nome: zonesOf()[zi].name, min:2, sec:0, ftp:d.ftp, rpm:d.rpm, tecnica: last ? 'Sprint' : 'Plano Sentado' });
     insertAt(selIdx >= 0 ? selIdx + 1 : current.blocos.length, b);
     render(); scrollToSel();
@@ -1887,7 +1999,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   // botões grandes de zona (com a faixa de intensidade por baixo)
   const ZONE_RANGE = {
     ftp: ['0–55%', '56–75%', '76–90%', '91–105%', '106–120%', '121–150%', '>150%'],
-    fc:  ['50–60%', '61–70%', '71–80%', '81–90%', '91–100%'],
+    fc:  ['50–65%', '65–75%', '75–80%', '80–85%', '85–90%', '90–95%', '95–100%'],
     zonas: ['Recuperação', 'Resistência', 'Tempo', 'Limiar', 'VO2máx', 'Anaeróbio', 'Explosão']
   };
   const ICON_SPLIT = '<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1"/><path d="M9 7v10M15 7v10"/></svg>';
@@ -1972,7 +2084,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     $('fZsel').innerHTML = ZONES.map((z,i)=> '<option value="' + i + '">' + z.name + '</option>').join('');
     $('fFtp').max = m === 'fc' ? 100 : 250;
   }
-  const MODO_NOME = { zonas:'Zonas Z1–Z7', ftp:'%FTP', fc:'%FCmáx' };
+  const MODO_NOME = { zonas:'Zonas Z1–Z7', ftp:'%FTP', fc:'%FCmáx Z1–Z7' };
   function setModo(m){
     const de = modoAtual();
     if(de === m) return;
@@ -2415,8 +2527,11 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     el.innerHTML = '';
     // no endereço PlayRide Coach, o QR leva os alunos para playride.web.app
     const joinUrl = (location.hostname === 'playride-coach.web.app' ? 'https://playride.web.app/' : location.href.split('#')[0].split('?')[0].replace(/[^/]*$/, '') + 'aula-ao-vivo.html') + '?pin=' + pin;
+    const big = $('lsQr'); big.innerHTML = '';
     if(window.QRCode){
-      new QRCode(el, { text: joinUrl, width: 170, height: 170, colorDark:'#0A0D12', colorLight:'#ffffff' });
+      const lvl = QRCode.CorrectLevel ? QRCode.CorrectLevel.L : undefined;
+      new QRCode(el, { text: joinUrl, width: 420, height: 420, colorDark:'#0A0D12', colorLight:'#ffffff', correctLevel: lvl });
+      new QRCode(big, { text: joinUrl, width: 720, height: 720, colorDark:'#000000', colorLight:'#ffffff', correctLevel: lvl });
     }
   }
 
@@ -2540,7 +2655,10 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     } else {
       grid.style.display = 'none'; lanes.style.display = 'flex';
       const max = Math.max(1, ...list.map(metricVal));
-      lanes.innerHTML = list.slice(0, 20).map((r,i)=>{
+      const two = list.length > 14;   // muitos alunos: duas colunas para caberem todos
+      lanes.classList.toggle('two', two);
+      lanes.style.gridTemplateRows = two ? 'repeat(' + Math.ceil(Math.min(list.length, 40) / 2) + ', minmax(0,1fr))' : '';
+      lanes.innerHTML = list.slice(0, 40).map((r,i)=>{
         const pct = modoAtual() === 'fc' ? ((r.fc && r.hr) ? Math.round(r.hr/r.fc*100) : null) : (r.ftp ? Math.round((r.w||0)/r.ftp*100) : null);
         const zc = zoneColor((pct==null ? zonesOf()[1] : getZone(pct)).css);
         const w = (metricVal(r)/max*100).toFixed(1);
@@ -2617,6 +2735,91 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     }catch(e){}
   }
 
+  // ================= OBJETIVO + FRASES DO ECRÃ INICIAL =================
+  var OBJETIVOS = {
+    resist: {nome:'Resistência aeróbia', frases:[
+      'Hoje constrói-se o motor. Ritmo constante, cabeça fria e pernas a rodar.',
+      'Quilómetro a quilómetro, a resistência ganha-se aqui.',
+      'Encontra o teu ritmo e mantém-no. A consistência vence sempre.']},
+    limiar: {nome:'Limiar / ritmo', frases:[
+      'Confortavelmente desconfortável — é aí que mora a evolução.',
+      'Hoje empurramos o teu limite um pouco mais para cima.',
+      'Respira, controla, aguenta. O limiar é teu.']},
+    hiit: {nome:'Intervalado (HIIT)', frases:[
+      'Curto, intenso, sem desculpas. Dá tudo nos intervalos e recupera nas pausas.',
+      'Cada intervalo é uma batalha. Ganha-as uma a uma.',
+      'O esforço é temporário. O progresso fica.']},
+    forca: {nome:'Força / subidas', frases:[
+      'Carga em cima, cabeça erguida. Cada subida faz-te mais forte.',
+      'A montanha não fica mais pequena — tu é que ficas mais forte.',
+      'Pedalada pesada, vontade de ferro.']},
+    sprint: {nome:'Sprint / potência', frases:[
+      'Explosão máxima! Quando chegar o sprint, não guardes nada.',
+      'Rápido, forte, sem travões. Hoje é dia de potência.',
+      'Segundos de tudo ou nada. Mostra o que vales!']},
+    recup: {nome:'Recuperação ativa', frases:[
+      'Hoje é para soltar as pernas. Pedala leve e sente o corpo.',
+      'Recuperar também é treinar. Respira fundo e aproveita.',
+      'Ritmo suave, cabeça leve. O corpo agradece.']},
+  };
+  // objetivo automático a partir do tempo em cada zona e das técnicas
+  function autoObjetivo(blocos){
+    const zs = zonesOf();
+    const t = [0,0,0,0,0,0,0]; let tot = 0, subida = 0;
+    (blocos || []).forEach(b=>{
+      if(b.tipo) return;
+      const d = blockDurationSec(b); const i = Math.max(0, zs.indexOf(blkZone(b)));
+      t[i] += d; tot += d;
+      if(/subida/i.test(b.tecnica || '')) subida += d;
+    });
+    if(!tot) return 'resist';
+    const f = (a,z)=> t.slice(a, z+1).reduce((x,y)=>x+y,0) / tot;
+    if(f(6,6) >= .04 || (blocos||[]).some(b=> !b.tipo && /sprint/i.test(b.tecnica||'') && zs.indexOf(blkZone(b)) >= 5)) return 'sprint';
+    if(subida / tot >= .35) return 'forca';
+    if(f(4,6) >= .12) return 'hiit';
+    if(f(2,3) >= .35) return 'limiar';
+    if(f(2,6) === 0 && f(0,0) >= .5) return 'recup';
+    return 'resist';
+  }
+  function objetivoAtual(){ return (current.objetivo && OBJETIVOS[current.objetivo]) ? current.objetivo : autoObjetivo(current.blocos); }
+  function renderObjSelect(){
+    const sel = $('treinoObj'); if(!sel || !OBJETIVOS) return;
+    const auto = OBJETIVOS[autoObjetivo(current.blocos)].nome;
+    sel.innerHTML = '<option value="">Objetivo: automático (' + escapeHtml(auto) + ')</option>' +
+      Object.keys(OBJETIVOS).map(k=> '<option value="' + k + '">Objetivo: ' + escapeHtml(OBJETIVOS[k].nome) + '</option>').join('');
+    sel.value = current.objetivo && OBJETIVOS[current.objetivo] ? current.objetivo : '';
+  }
+  renderObjSelect();
+  $('treinoObj').addEventListener('change', (e)=>{ current.objetivo = e.target.value || null; if(!current.objetivo) delete current.objetivo; });
+
+  let liveStarting = false;
+  function showLiveStart(){
+    const k = objetivoAtual(), o = OBJETIVOS[k];
+    $('lsObj').textContent = o.nome;
+    $('lsName').textContent = current.nome || 'Aula de cycling';
+    $('lsQuote').textContent = o.frases[Math.floor(Math.random() * o.frases.length)];
+    drawProfileSvg($('lsChart'), current.blocos, 1000, 200, 4, modoAtual());
+    $('lsMeta').innerHTML = '<b>' + fmtTime(totalDuration(current.blocos)) + '</b> de aula · ' + current.blocos.length + ' blocos · ' +
+      ({zonas:'por zonas', ftp:'por %FTP', fc:'por %FC máx'}[modoAtual()] || '') + (userNome ? ' · com <b>' + escapeHtml(userNome) + '</b>' : '');
+    $('lsPin').textContent = sessionPin || '----';
+    liveStarting = true;
+    $('liveOverlay').classList.add('starting');
+    updateStartCount();
+  }
+  function updateStartCount(){
+    if(!liveStarting) return;
+    const n = (typeof riderList === 'function' ? riderList() : []).filter(r=> r.online).length;
+    $('lsCount').innerHTML = n ? '<b>' + n + '</b> ' + (n === 1 ? 'aluno ligado' : 'alunos ligados') : 'à espera dos alunos…';
+  }
+  function beginFromStart(){
+    if(!liveStarting) return;
+    liveStarting = false;
+    $('liveOverlay').classList.remove('starting');
+    startTicking();
+  }
+  $('lsPlay').addEventListener('click', beginFromStart);
+  $('lsExit').addEventListener('click', ()=> closeLive());
+
   // ================= LIVE MODE =================
   let liveIdx = 0, liveRemaining = 0, liveTimerHandle = null, livePlaying = false;
   let tickBaseAt = 0, tickBaseRemaining = 0, lastBeepSec = null;
@@ -2645,9 +2848,10 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 
     sessionPin = genPin();
     $('pinDisplay').textContent = sessionPin;
-    $('qrPanel').classList.add('active');
+    $('qrPanel').classList.remove('active');
     pushFullSession(sessionPin);
     renderQr(sessionPin);
+    showLiveStart();
     startRidersSync(sessionPin);
     requestWakeLock();
     if(document.documentElement.requestFullscreen && !document.fullscreenElement){
@@ -2657,7 +2861,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 
   function closeLive(){
     if(sessionPin && ridingRiders().length) saveSummary();
-    $('liveOverlay').classList.remove('active');
+    $('liveOverlay').classList.remove('active', 'starting'); liveStarting = false;
     clearInterval(liveTimerHandle); liveTimerHandle = null; livePlaying = false;
     stopRidersSync();
     endSession();
@@ -2713,7 +2917,9 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     $('liveFtp').textContent = modoAtual() === 'zonas' ? intensLabel(b.ftp) : b.ftp + '%';
     $('liveRpm').textContent = rpmTxt(b);
     renderSegPreview(b);
-    $('liveBody').classList.toggle('z6', !b.tipo && zone === ZONES[5] && modoAtual() !== 'fc');
+    const zi6 = b.tipo ? -1 : zonesOf().indexOf(zone);   // Z6 e Z7 também no treino por FC
+    $('liveBody').classList.toggle('z6', zi6 === 5);
+    $('liveBody').classList.toggle('z7', zi6 === 6);
     $('liveBody').style.background = '#05070A';
     $('liveBody').style.setProperty('--zc', zc);
 
@@ -2752,6 +2958,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   }
 
   function updateLiveHead(){
+    updateStartCount();
     const tot = totalDuration(current.blocos);
     const el = Math.max(0, elapsedNow());
     $('lhElapsed').textContent = fmtTime(el);
@@ -2891,6 +3098,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     if(e.target && e.target.tagName === 'INPUT') return;
     const done = $('liveOverlay').classList.contains('finished');
     if(e.code === 'Escape'){ closeLive(); return; }
+    if(liveStarting){ if(e.code === 'Space' || e.code === 'Enter'){ e.preventDefault(); beginFromStart(); } return; }
     if(done) return;
     if(e.code === 'Space'){ e.preventDefault(); if(livePlaying) stopTicking(); else startTicking(); }
     if(e.code === 'ArrowRight'){ goToBlock(liveIdx+1); }
@@ -2912,7 +3120,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     if(!confirm(msg)) return;
     const key = existing ? existing.key : fbDb.ref('biblioteca').push().key;
     fbDb.ref('biblioteca/' + key).set(clean({
-      nome: t.nome, modo: t.modo || 'ftp', blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, rpm:b.rpm, rpm2:b.rpm2||null, tipo:b.tipo||null, tecnica:b.tecnica||''})),
+      nome: t.nome, modo: t.modo || 'ftp', objetivo: t.objetivo || null, blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, rpm:b.rpm, rpm2:b.rpm2||null, tipo:b.tipo||null, tecnica:b.tecnica||''})),
       autor: userUid, autorNome: userNome || '', origem: id, atualizado: Date.now()
     })).then(()=> toast(existing ? 'Biblioteca atualizada' : 'Aula partilhada na Biblioteca Playlife'))
       .catch(()=> toast('Não consegui partilhar.'));
@@ -2921,7 +3129,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function copyShared(key){
     const p = partilhadas.find(x=>x.key===key);
     if(!p) return;
-    const copy = { id: uid(), nome: p.nome, modo: p.modo || 'ftp', blocos: (p.blocos||[]).map(sanitizeBlock) };
+    const copy = { id: uid(), nome: p.nome, modo: p.modo || 'ftp', objetivo: p.objetivo || undefined, blocos: (p.blocos||[]).map(sanitizeBlock) };
     treinos.push(copy);
     persist();
     current = clean(copy);

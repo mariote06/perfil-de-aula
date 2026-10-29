@@ -299,6 +299,15 @@ body.solo-livre #progress{display:none;}
 .rl-mini{width:96px;margin:0 auto 2px;display:none;}
 .rl-mini.on{display:block;}
 .seg-chart{width:100%;max-width:340px;height:46px;display:block;margin:6px auto 4px;}
+
+/* ---------- Z7: motor a tremer e a piscar (laranja / cor da Z7) ---------- */
+.ce-svg{width:100%;height:auto;overflow:visible;display:block;}
+.ce-svg .ce-g{fill:none;stroke-width:10;stroke-linecap:round;stroke-linejoin:round;animation:ceBlink .5s steps(1,end) infinite, ceShake .14s linear infinite;transform-box:view-box;transform-origin:100px 65px;}
+@keyframes ceBlink{0%{stroke:#FF8A1F;filter:drop-shadow(0 0 10px #FF8A1F);}50%{stroke:#7A0019;filter:drop-shadow(0 0 12px #FF3B3B);}}
+@keyframes ceShake{0%{transform:translate(0,0) rotate(0);}20%{transform:translate(-3px,2px) rotate(-1.5deg);}40%{transform:translate(3px,-2px) rotate(1.5deg);}60%{transform:translate(-2px,-1px) rotate(-1deg);}80%{transform:translate(2px,2px) rotate(1deg);}100%{transform:translate(0,0) rotate(0);}}
+@media (prefers-reduced-motion: reduce){ .ce-svg .ce-g{animation:ceBlink 1s steps(1,end) infinite;} }
+.ce-mini{width:92px;margin:0 auto 4px;display:none;}
+.ce-mini.on{display:block;}
 </style>
 </head>
 <body>
@@ -536,6 +545,7 @@ body.solo-livre #progress{display:none;}
   <div class="body" id="bodyEl">
     <div class="class-name" id="className"></div>
     <div id="activeBlock" style="width:100%;display:flex;flex-direction:column;align-items:center;">
+      <div class="ce-mini" id="ceMini"><svg class="ce-svg" viewBox="0 0 200 130" aria-hidden="true"><g class="ce-g"><path d="M20 58 V96 M20 77 H40"/><path d="M40 52 H58 V40 H134 L148 54 H158 V46 H170 V102 H158 V94 H148 L132 110 H74 L58 96 H40 Z"/><path d="M78 18 H110 M94 18 V40"/></g></svg></div>
       <div class="rl-mini" id="rlMini"><svg class="rl-svg" viewBox="0 0 200 112" aria-hidden="true"><path class="arc" d="M14 100 A86 86 0 0 1 186 100"/><line x1="24.0" y1="100.0" x2="38.0" y2="100.0" class="wt mj"/><line x1="24.9" y1="88.1" x2="32.8" y2="89.4" class="wt"/><line x1="27.7" y1="76.5" x2="35.3" y2="79.0" class="wt"/><line x1="32.3" y1="65.5" x2="39.4" y2="69.1" class="wt"/><line x1="38.5" y1="55.3" x2="45.0" y2="60.0" class="wt"/><line x1="46.3" y1="46.3" x2="56.2" y2="56.2" class="wt mj"/><line x1="55.3" y1="38.5" x2="60.0" y2="45.0" class="wt"/><line x1="65.5" y1="32.3" x2="69.1" y2="39.4" class="wt"/><line x1="76.5" y1="27.7" x2="79.0" y2="35.3" class="wt"/><line x1="88.1" y1="24.9" x2="89.4" y2="32.8" class="wt"/><line x1="100.0" y1="24.0" x2="100.0" y2="38.0" class="wt mj"/><line x1="111.9" y1="24.9" x2="110.6" y2="32.8" class="wt"/><line x1="123.5" y1="27.7" x2="121.0" y2="35.3" class="wt"/><line x1="134.5" y1="32.3" x2="130.9" y2="39.4" class="wt"/><line x1="144.7" y1="38.5" x2="140.0" y2="45.0" class="wt"/><line x1="153.7" y1="46.3" x2="143.8" y2="56.2" class="wt mj"/><line x1="161.5" y1="55.3" x2="155.0" y2="60.0" class="wt"/><line x1="167.7" y1="65.5" x2="160.6" y2="69.1" class="wt"/><line x1="172.3" y1="76.5" x2="164.7" y2="79.0" class="rt"/><line x1="175.1" y1="88.1" x2="167.2" y2="89.4" class="rt"/><line x1="176.0" y1="100.0" x2="162.0" y2="100.0" class="rt mj"/><path class="rz" d="M163.9 76.7 A68 68 0 0 1 168.0 98.8"/><g class="needle"><path d="M100 96.5 L172 100 L100 103.5 Z"/></g><circle class="hub" cx="100" cy="100" r="7"/><circle class="hub2" cx="100" cy="100" r="3"/></svg></div>
       <div class="blockline"><span class="zone" id="zoneEl">—</span><span id="nameSep"> · </span><span id="nameEl">—</span></div>
       <div class="technique" id="techEl"></div>
@@ -547,7 +557,7 @@ body.solo-livre #progress{display:none;}
         <div class="me-w"><span id="myW">0</span><small id="myWUnit">W</small></div>
         <div class="cue" id="cueEl"></div>
         <div class="gauge"><div class="gauge-band" id="gBand"></div><div class="gauge-dot" id="gDot"></div></div>
-        <div class="gauge-scale"><span>0%</span><span>50%</span><span>100%</span><span>150%</span></div>
+        <div class="gauge-scale"><span>0%</span><span>60%</span><span>120%</span><span>180%</span></div>
         <div class="nosensor-msg" id="nosensorMsg">Estás só a acompanhar. Liga a bike (toca em "Bike" lá em cima) para apareceres no ecrã e no ranking.</div>
         <div class="me-grid">
           <div><div class="v" id="myPct">—</div><div class="l" id="myPctLbl">%FTP</div></div>
@@ -619,22 +629,25 @@ body.solo-livre #progress{display:none;}
   function rpmOk(cad, b){ const lo = b.rpm || 0, hi = Math.max(lo, b.rpm2 || lo); return cad >= lo - 5 && cad <= hi + 5; }
   const rootStyle = getComputedStyle(document.documentElement);
   function zoneColor(cssVar){ return rootStyle.getPropertyValue(cssVar).trim(); }
-  const ZONES_FC = [
-    {name:'Z1 Recuperação', max:60,   css:'--z0', feel:F[0]},
-    {name:'Z2 Resistência', max:70,   css:'--z1', feel:F[1]},
+  const ZONES_FC = [   // % da FC máxima: Z1 50–65 · Z2 65–75 · Z3 75–80 · Z4 80–85 · Z5 85–90 · Z6 90–95 · Z7 95–100
+    {name:'Z1 Recuperação', max:65,   css:'--z0', feel:F[0]},
+    {name:'Z2 Resistência', max:75,   css:'--z1', feel:F[1]},
     {name:'Z3 Tempo',       max:80,   css:'--z2', feel:F[2]},
-    {name:'Z4 Limiar',      max:90,   css:'--z3', feel:F[3]},
-    {name:'Z5 VO2máx',      max:9999, css:'--z4', feel:F[4]},
+    {name:'Z4 Limiar',      max:85,   css:'--z3', feel:F[3]},
+    {name:'Z5 VO2máx',      max:90,   css:'--z4', feel:F[4]},
+    {name:'Z6 Anaeróbio',   max:95,   css:'--z5', feel:F[5]},
+    {name:'Z7 Explosão',    max:9999, css:'--z6', feel:F[6]},
   ];
   let modo = 'ftp';   // vem da aula: 'ftp', 'fc' ou 'zonas' (zonas = %FTP mostrado só pela zona)
   function parseModo(v){ return v === 'fc' || v === 'zonas' ? v : 'ftp'; }
   function zonesNow(){ return modo === 'fc' ? ZONES_FC : ZONES; }
   function zoneIndex(pct){ const Z = zonesNow(); for(let i=0;i<Z.length;i++){ if(pct <= Z[i].max) return i; } return Z.length-1; }
   function getZone(pct){ return zonesNow()[zoneIndex(pct)]; }
-  function gaugeScale(){ return modo === 'fc' ? {min:40, max:100} : {min:0, max:150}; }
+  function gaugeScale(){ return modo === 'fc' ? {min:40, max:100} : {min:0, max:180}; }
   function zoneRange(pct){
     const Z = zonesNow(), i = zoneIndex(pct), g = gaugeScale();
-    return { min: i===0 ? (modo === 'fc' ? 50 : 0) : Z[i-1].max, max: i===Z.length-1 ? g.max : Z[i].max };
+    const open = i === Z.length - 1;   // última zona (Z7, ou Z5 por FC) não tem teto
+    return { min: i===0 ? (modo === 'fc' ? 50 : 0) : Z[i-1].max, max: open ? 9999 : Z[i].max, open: open, top: open ? g.max : Z[i].max };
   }
   function fmtTime(totalSec){
     totalSec = Math.max(0, Math.round(totalSec));
@@ -1252,7 +1265,9 @@ body.solo-livre #progress{display:none;}
 
     $('zoneEl').textContent = zone.name;
     $('zoneEl').style.color = zc;
-    $('rlMini').classList.toggle('on', !b.tipo && zone === ZONES[5] && modo !== 'fc');
+    const zi6 = b.tipo ? -1 : zonesNow().indexOf(zone);   // Z6 e Z7 também por FC
+    $('rlMini').classList.toggle('on', zi6 === 5);
+    $('ceMini').classList.toggle('on', zi6 === 6);
     $('nameEl').textContent = b.nome;
     const sameName = (b.nome || '').trim() === zone.name;   // não repete o nome da zona
     $('nameEl').style.display = sameName ? 'none' : ''; $('nameSep').style.display = sameName ? 'none' : '';
@@ -1266,18 +1281,18 @@ body.solo-livre #progress{display:none;}
     if(modo === 'fc'){
       const pausa = state.status !== 'playing' ? ' · em pausa' : '';
       if(me.fc){
-        const lo = Math.round(me.fc * range.min / 100), hi = Math.round(me.fc * range.max / 100);
-        $('targetEl').innerHTML = 'Alvo <b>' + lo + '–' + hi + ' bpm</b> · ' + b.ftp + '% FCmáx · <b>' + rpmTxt(b) + '</b> RPM' + pausa;
+        const lo = Math.round(me.fc * range.min / 100), hi = Math.round(me.fc * Math.min(range.max, 100) / 100);
+        $('targetEl').innerHTML = 'Alvo <b>' + (range.open ? '≥ ' + lo : lo + '–' + hi) + ' bpm</b> · ' + b.ftp + '% FCmáx · <b>' + rpmTxt(b) + '</b> RPM' + pausa;
       } else {
         $('targetEl').innerHTML = 'Alvo <b>' + b.ftp + '% FCmáx</b> · <b>' + rpmTxt(b) + '</b> RPM' + pausa;
       }
     } else if(modo === 'zonas'){
       const zl = zone.name.split(' ')[0];
-      const watts = me.ftp ? ' · <b>' + Math.round(me.ftp * range.min / 100) + '–' + Math.round(me.ftp * range.max / 100) + ' W</b>' : ' · ' + range.min + '–' + Math.min(range.max, 150) + '% FTP';
+      const watts = me.ftp ? ' · <b>' + (range.open ? '≥ ' + Math.round(me.ftp * range.min / 100) : Math.round(me.ftp * range.min / 100) + '–' + Math.round(me.ftp * range.max / 100)) + ' W</b>' : ' · ' + (range.open ? '> ' + range.min : range.min + '–' + range.max) + '% FTP';
       $('targetEl').innerHTML = 'Alvo <b>' + zl + '</b>' + watts + ' · <b>' + rpmTxt(b) + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
     } else if(me.ftp){
       const lo = Math.round(me.ftp * range.min / 100), hi = Math.round(me.ftp * range.max / 100);
-      $('targetEl').innerHTML = 'Alvo <b>' + lo + '–' + hi + ' W</b> · ' + b.ftp + '% · <b>' + rpmTxt(b) + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
+      $('targetEl').innerHTML = 'Alvo <b>' + (range.open ? '≥ ' + lo : lo + '–' + hi) + ' W</b> · ' + b.ftp + '% · <b>' + rpmTxt(b) + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
     } else {
       $('targetEl').innerHTML = 'Alvo <b>' + b.ftp + '% FTP</b> · <b>' + rpmTxt(b) + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
     }
@@ -1327,8 +1342,9 @@ body.solo-livre #progress{display:none;}
     $('myPts').textContent = Math.round(me.pts);
     $('myZone').textContent = me.as ? Math.round(me.iz/me.as*100) + '%' : '0%';
 
-    $('gBand').style.left = (range.min/150*100) + '%';  // modo FTP
-    $('gBand').style.width = ((range.max - range.min)/150*100) + '%';
+    const gs = gaugeScale().max;   // modo FTP
+    $('gBand').style.left = (range.min/gs*100) + '%';
+    $('gBand').style.width = ((Math.min(range.max, gs) - range.min)/gs*100) + '%';
     $('gBand').style.background = zoneColor(getZone(b.ftp).css);
 
     if(!powered || !me.ftp){
@@ -1342,8 +1358,9 @@ body.solo-livre #progress{display:none;}
     const pct = dispPower / me.ftp * 100;
     const myZone = getZone(pct);
     $('myW').style.color = w > 0 ? zoneColor(myZone.css) : '#fff';
+    $('myW').style.textShadow = (w > 0 && myZone === ZONES[6]) ? '0 0 18px #FF3B3B, 0 0 2px #FF8A1F' : '';
     $('myPct').textContent = Math.round(pct) + '%';
-    $('gDot').style.left = Math.min(100, Math.max(0, pct/150*100)) + '%';
+    $('gDot').style.left = Math.min(100, Math.max(0, pct/gaugeScale().max*100)) + '%';
 
     let cue = '', cls = 'v';
     if(state.status !== 'playing'){ cue = solo ? 'Em pausa · toca em ▶' : 'À espera do instrutor'; }
@@ -1384,16 +1401,18 @@ body.solo-livre #progress{display:none;}
     $('myPts').textContent = Math.round(me.pts);
     $('myZone').textContent = me.ts ? Math.round(me.iz/me.ts*100) + '%' : '0%';
     $('gBand').style.left = ((range.min - g.min)/(g.max - g.min)*100) + '%';
-    $('gBand').style.width = ((range.max - range.min)/(g.max - g.min)*100) + '%';
+    $('gBand').style.width = ((Math.min(range.max, g.max) - range.min)/(g.max - g.min)*100) + '%';
     $('gBand').style.background = zoneColor(getZone(b.ftp).css);
     if(!hr || !me.fc){
       $('myPct').textContent = '—'; $('myPct').className = 'v';
       $('cueEl').textContent = hr && !me.fc ? 'Sem FC máxima: só bpm' : '';
-      $('gDot').style.left = '0%'; $('myW').style.color = '#fff';
+      $('gDot').style.left = '0%'; $('myW').style.color = '#fff'; $('myW').style.textShadow = '';
       return;
     }
     const pct = hr / me.fc * 100;
-    $('myW').style.color = zoneColor(getZone(pct).css);
+    const fz = getZone(pct);
+    $('myW').style.color = zoneColor(fz.css);
+    $('myW').style.textShadow = ZONES_FC.indexOf(fz) === 6 ? '0 0 18px #FF3B3B, 0 0 2px #FF8A1F' : '';
     $('myPct').textContent = Math.round(pct) + '%';
     $('gDot').style.left = Math.min(100, Math.max(0, (pct - g.min)/(g.max - g.min)*100)) + '%';
     let cue = '', cls = 'v';
@@ -1586,7 +1605,7 @@ body.solo-livre #progress{display:none;}
   }
 
   const HR_ZONES = [ // % da FC máxima
-    {lo:50, hi:60, c:'--z0'}, {lo:60, hi:70, c:'--z1'}, {lo:70, hi:80, c:'--z2'}, {lo:80, hi:90, c:'--z3'}, {lo:90, hi:100, c:'--z4'}
+    {lo:50, hi:65, c:'--z0'}, {lo:65, hi:75, c:'--z1'}, {lo:75, hi:80, c:'--z2'}, {lo:80, hi:85, c:'--z3'}, {lo:85, hi:90, c:'--z4'}, {lo:90, hi:95, c:'--z5'}, {lo:95, hi:100, c:'--z6'}
   ];
   function arrOf(v){ return Array.isArray(v) ? v : Object.values(v || {}); }
 
@@ -2020,7 +2039,11 @@ body.solo-livre #progress{display:none;}
     $('activeBlock').style.display = 'flex';
     $('finishedEl').classList.remove('active');
     $('rankEl').innerHTML = '';
-    $('rlMini').classList.toggle('on', !!(dispPower && me.ftp && getZone(dispPower / me.ftp * 100) === ZONES[5]));
+    const hrL = myHr();
+    const zLiv = modo === 'fc' ? (hrL && me.fc ? getZone(hrL / me.fc * 100) : null) : ((dispPower && me.ftp) ? getZone(dispPower / me.ftp * 100) : null);
+    const zLi = zLiv ? zonesNow().indexOf(zLiv) : -1;
+    $('rlMini').classList.toggle('on', zLi === 5);
+    $('ceMini').classList.toggle('on', zLi === 6);
     const powered = hasPowerSource();
     const novoModo = (!powered && myHr() > 0) ? 'fc' : 'ftp';   // se ligares/desligares um sensor a meio, o ecrã acompanha
     if(novoModo !== modo){ modo = novoModo; updateModeLabels(); }
@@ -2057,7 +2080,7 @@ body.solo-livre #progress{display:none;}
   let ficha = null;
   try{ ficha = JSON.parse(lsGet('prFicha') || 'null'); }catch(e){ ficha = null; }
   const FTP_WKG = { sedentario:1.5, iniciado:2.0, intermedio:2.6, avancado:3.2 };
-  const FC_Z = [ {n:'Z1 Recuperação', lo:50, hi:60, c:'--z0'}, {n:'Z2 Resistência', lo:60, hi:70, c:'--z1'}, {n:'Z3 Tempo', lo:70, hi:80, c:'--z2'}, {n:'Z4 Limiar', lo:80, hi:90, c:'--z3'}, {n:'Z5 VO2máx', lo:90, hi:100, c:'--z4'} ];
+  const FC_Z = [ {n:'Z1 Recuperação', lo:50, hi:65, c:'--z0'}, {n:'Z2 Resistência', lo:65, hi:75, c:'--z1'}, {n:'Z3 Tempo', lo:75, hi:80, c:'--z2'}, {n:'Z4 Limiar', lo:80, hi:85, c:'--z3'}, {n:'Z5 VO2máx', lo:85, hi:90, c:'--z4'}, {n:'Z6 Anaeróbio', lo:90, hi:95, c:'--z5'}, {n:'Z7 Explosão', lo:95, hi:100, c:'--z6'} ];
 
   function idadeDe(nasc){
     if(!nasc) return null;
