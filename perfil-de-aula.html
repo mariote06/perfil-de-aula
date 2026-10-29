@@ -35,12 +35,15 @@
   --muted-2:#5D6675;
   --accent:#E8722C;
 
-  --z0:#A35CFF; /* Recuperação */
-  --z1:#1FA8F0; /* Resistência */
-  --z2:#3DD45C; /* Tempo */
-  --z3:#FFD60A; /* Limiar */
-  --z4:#FF8A1F; /* VO2máx */
-  --z5:#FF3B3B; /* Anaeróbio */
+  --z0:#1FA8F0; /* Z1 Recuperação: azul */
+  --z1:#3DD45C; /* Z2 Resistência: verde */
+  --z2:#FFD60A; /* Z3 Tempo: amarelo */
+  --z3:#FF8A1F; /* Z4 Limiar: laranja */
+  --z4:#FF3B3B; /* Z5 VO2máx: vermelho */
+  --z5:#C8102E; /* Z6 Anaeróbio: vermelho escuro */
+  --z6:#7A0019; /* Z7 Explosão: vermelho mais escuro */
+  --seg:#A35CFF; /* separador de segmento: lilás */
+  --cool:#1FC8B0; /* retorno à calma */
 }
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
@@ -209,6 +212,30 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .inf.wide #fTec{margin-top:4px;}
 .inf .dur{display:flex;align-items:center;font-family:'Barlow Condensed',sans-serif;font-size:24px;color:var(--muted);}
 .inf .dur input{width:46px;}
+.inf .dash{padding:0 4px;color:var(--muted);}
+.inf .val.rng{color:#fff;}
+.inf .dur.exact{font-size:15px;gap:4px;}
+.inf .dur.exact input{width:46px;font-size:16px;}
+.inf .dur.exact .ex-l{font-family:'Inter',sans-serif;font-size:11px;color:var(--muted);}
+#fRpm2{width:52px;}
+.live-body.seg .ring-wrap{width:clamp(110px,16vh,190px);margin:2px auto 4px;}
+.live-body.seg .ring-wrap .live-timer{font-size:clamp(34px,5.2vh,62px);}
+.live-body.seg .ring-sub{display:none;}
+.live-body.seg .live-metrics,.live-body.seg .live-feel,.live-body.seg .live-technique,.live-body.seg .live-name{display:none;}
+.live-body.seg .lz-pill{margin-bottom:4px;}
+.live-body.seg .seg-chart{height:clamp(46px,8vh,96px);margin:0 0 6px;}
+.live-body.seg .seg-prev{padding:10px 16px;}
+.live-body.seg .sp-row{padding:3px 0;font-size:clamp(13px,1.75vh,20px);}
+.live-body.seg .seg-prev h3{margin-bottom:6px;font-size:clamp(17px,2.2vh,26px);}
+.seg-prev{display:none;width:min(92vw,980px);margin:6px auto 0;background:rgba(163,92,255,.10);border:1px solid rgba(163,92,255,.5);border-radius:16px;padding:14px 18px;}
+.live-body.seg .seg-prev{display:block;}
+.seg-prev h3{margin:0 0 10px;font-family:'Barlow Condensed',sans-serif;font-size:clamp(20px,2.6vh,30px);letter-spacing:1px;text-transform:uppercase;color:#D9C2FF;display:flex;justify-content:space-between;}
+.sp-row{display:grid;grid-template-columns:auto 1fr auto auto;gap:6px 16px;align-items:center;padding:6px 0;border-top:1px solid rgba(255,255,255,.08);font-size:clamp(14px,2vh,22px);}
+.sp-row .zp{font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#0A0D12;padding:2px 10px;border-radius:999px;font-size:.9em;}
+.sp-row .nm{color:#fff;font-weight:600;}
+.sp-row .nm small{display:block;color:rgba(255,255,255,.55);font-weight:500;font-size:.75em;}
+.sp-row .du{font-family:'Barlow Condensed',sans-serif;font-weight:700;color:#fff;font-size:1.1em;}
+.sp-row .rp{color:rgba(255,255,255,.7);font-size:.85em;}
 .inf input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 .inf input[type=number]::-webkit-inner-spin-button,.inf input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 #fFtp,#fRpm{width:72px;}
@@ -759,6 +786,9 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 .ed-bar{touch-action:pan-y;}
 .ed-track{user-select:none;-webkit-user-select:none;}
 .ed-bar.sel{touch-action:none;cursor:grab;}
+.ed-bar.msel{outline:2px dashed #fff;outline-offset:1px;z-index:2;filter:brightness(1.1);}
+.ed-multi{text-align:center;font-size:13px;color:#fff;margin:-4px 0 10px;min-height:18px;}
+.ed-multi b{color:var(--accent);}
 .ed-bar.dragging{z-index:5;opacity:.85;cursor:grabbing;box-shadow:0 10px 24px rgba(0,0,0,.5);transition:none;}
 .ed-drop{position:absolute;top:0;bottom:0;width:3px;margin-left:-2px;background:#fff;border-radius:2px;box-shadow:0 0 10px rgba(255,255,255,.7);pointer-events:none;z-index:6;}
 @media (max-width:700px){
@@ -773,6 +803,25 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   .zb .zb-ring{width:50px;height:50px;} .zb .zb-core{width:40px;height:40px;font-size:18px;}
   .zb .zl{font-size:12px;max-width:70px;}
 }
+
+/* ---------- Z6: conta-rotações animado (agulha a subir e a descer) ---------- */
+.rl-svg{width:100%;height:auto;overflow:visible;display:block;}
+.rl-svg .arc{fill:none;stroke:#FF2D46;stroke-width:4;stroke-linecap:round;filter:drop-shadow(0 0 6px #FF2D46);}
+.rl-svg .wt{stroke:#E8E8EC;stroke-width:2.2;stroke-linecap:round;opacity:.85;}
+.rl-svg .wt.mj{stroke-width:3.4;opacity:1;}
+.rl-svg .rt{stroke:#FF2D46;stroke-width:3.2;stroke-linecap:round;filter:drop-shadow(0 0 4px #FF2D46);}
+.rl-svg .rz{fill:none;stroke:#FF2D46;stroke-width:11;filter:drop-shadow(0 0 8px #FF2D46);animation:rlPulse 1s ease-in-out infinite;}
+.rl-svg .needle{fill:#fff;filter:drop-shadow(0 0 5px rgba(255,255,255,.9));transform-box:view-box;transform-origin:100px 100px;animation:rlNeedle 2.6s ease-in-out infinite;}
+.rl-svg .hub{fill:#1A0508;stroke:#fff;stroke-width:2.5;}
+.rl-svg .hub2{fill:#FF2D46;}
+@keyframes rlNeedle{0%{transform:rotate(-62deg);}18%{transform:rotate(-14deg);}28%{transform:rotate(-24deg);}42%{transform:rotate(-4deg);}55%{transform:rotate(-30deg);}68%{transform:rotate(-7deg);}82%{transform:rotate(-46deg);}100%{transform:rotate(-62deg);}}
+@keyframes rlPulse{50%{opacity:.5;}}
+@media (prefers-reduced-motion: reduce){ .rl-svg .needle{animation-duration:6s;} .rl-svg .rz{animation:none;} }
+.live-body > .rl-gauge{position:absolute;left:3%;top:50%;transform:translateY(-62%);width:clamp(150px,17vw,320px);display:none;pointer-events:none;z-index:2;}
+.live-body.z6 > .rl-gauge{display:block;}
+.live-overlay.split .live-body > .rl-gauge{width:clamp(90px,10vw,170px);top:18%;transform:none;left:2%;}
+.seg-chart{width:100%;height:clamp(70px,11vh,140px);display:block;margin:2px 0 10px;}
+@media (max-width:700px){ .live-body > .rl-gauge{width:90px;top:8px;transform:none;left:8px;} }
 </style>
 </head>
 <body data-view="home">
@@ -825,7 +874,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   <div class="panel editor" id="editor" data-sec="plan">
     <div class="ed-toolbar">
       <input type="text" id="treinoNome" class="ed-name" placeholder="Nome da aula (ex: Sprint Interval — Quarta 18h)">
-      <div class="seg" id="modeSeg" title="Como se constrói esta aula"><button data-m="zonas">Zonas Z1–Z6</button><button data-m="ftp">%FTP Z1–Z6</button><button data-m="fc">%FCmáx Z1–Z5</button></div>
+      <div class="seg" id="modeSeg" title="Como se constrói esta aula"><button data-m="zonas">Zonas Z1–Z7</button><button data-m="ftp">%FTP Z1–Z7</button><button data-m="fc">%FCmáx Z1–Z5</button></div>
     </div>
 
     <div class="ed-cmd">
@@ -868,15 +917,16 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 
     <div class="ed-info" id="edInfo">
       <div class="inf wide"><label>intervalo</label><input type="text" id="fNome" maxlength="40"></div>
-      <div class="inf"><label>duração</label><div class="dur"><input type="number" id="fMin" min="0">:<input type="number" id="fSec" min="0" max="59"></div></div>
+      <div class="inf"><label>duração do intervalo</label><div class="dur"><input type="number" id="fMin" min="0">:<input type="number" id="fSec" min="0" max="59"></div></div>
       <div class="inf ro"><label>início</label><div class="val" id="fStart">0:00</div></div>
-      <div class="inf ro"><label>fim</label><div class="val" id="fEnd">0:00</div></div>
-      <div class="inf"><label>rpm</label><input type="number" id="fRpm" min="0" max="160"></div>
-      <div class="inf"><label>intensidade</label><div class="dur" id="fIntWrap"><input type="number" id="fFtp" min="0" max="250"><span id="fUnit">% FTP</span></div><select id="fZsel" class="zsel" style="display:none"></select><div class="ztag" id="fZone">—</div></div>
+      <div class="inf"><label>fim</label><div class="dur"><input type="number" id="fEndM" min="0" title="Minuto em que o intervalo acaba">:<input type="number" id="fEndS" min="0" max="59" title="Segundo em que o intervalo acaba"></div></div>
+      <div class="inf"><label>rpm</label><div class="dur"><input type="number" id="fRpm" min="0" max="200" title="RPM mínimo"><span class="dash">-</span><input type="number" id="fRpm2" min="0" max="200" title="RPM máximo"></div></div>
+      <div class="inf"><label>intensidade</label><div class="val rng" id="fRange">—</div><div class="dur exact" id="fIntWrap"><span class="ex-l">alvo</span><input type="number" id="fFtp" min="0" max="250"><span id="fUnit">% FTP</span></div><select id="fZsel" class="zsel" style="display:none"></select><div class="ztag" id="fZone">—</div></div>
       <div class="inf wide"><label>técnica</label><select id="fTecSel" class="zsel tec-sel"></select><input type="text" id="fTec" maxlength="80" placeholder="escreve a técnica" style="display:none"></div>
     </div>
 
     <div class="zfeel" id="fFeel"></div>
+    <div class="ed-multi" id="edMulti"></div>
 
     <div class="ed-tl">
       <button class="ed-nav" id="prevSel" title="Intervalo anterior (←)">‹</button>
@@ -888,7 +938,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       <button class="ed-nav" id="nextSel" title="Intervalo seguinte (→)">›</button>
     </div>
     <div class="ed-empty" id="edEmpty">Ainda não há intervalos. Carrega numa cor em "adicionar intervalo" para começar, por exemplo pelo azul para o aquecimento.</div>
-    <div class="ed-hint">Toca/clica num intervalo para o editar · arrasta o <b>topo</b> para mudar a intensidade e a <b>borda direita</b> para mudar a duração<span class="kb"> · teclas: ← → selecionar, Delete apagar, Ctrl+C/Ctrl+V copiar/colar, Ctrl+Z desfazer</span></div>
+    <div class="ed-hint">Toca/clica num intervalo para o editar · arrasta o <b>topo</b> para mudar a intensidade e a <b>borda direita</b> para mudar a duração<span class="kb"> · teclas: ← → selecionar, Shift+clique seleciona seguidos, Ctrl+clique um a um, Ctrl+A todos, Delete apagar, Ctrl+C/Ctrl+V copiar/colar, Ctrl+Z desfazer</span></div>
   </div>
 
   <div class="layout" data-sec="plan lib hist">
@@ -990,6 +1040,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
         <div class="live-name">tempo total de treino</div>
         <div id="liveSummary" class="sum-wrap"></div>
       </div>
+      <div class="rl-gauge" id="liveGauge"><svg class="rl-svg" viewBox="0 0 200 112" aria-hidden="true"><path class="arc" d="M14 100 A86 86 0 0 1 186 100"/><line x1="24.0" y1="100.0" x2="38.0" y2="100.0" class="wt mj"/><line x1="24.9" y1="88.1" x2="32.8" y2="89.4" class="wt"/><line x1="27.7" y1="76.5" x2="35.3" y2="79.0" class="wt"/><line x1="32.3" y1="65.5" x2="39.4" y2="69.1" class="wt"/><line x1="38.5" y1="55.3" x2="45.0" y2="60.0" class="wt"/><line x1="46.3" y1="46.3" x2="56.2" y2="56.2" class="wt mj"/><line x1="55.3" y1="38.5" x2="60.0" y2="45.0" class="wt"/><line x1="65.5" y1="32.3" x2="69.1" y2="39.4" class="wt"/><line x1="76.5" y1="27.7" x2="79.0" y2="35.3" class="wt"/><line x1="88.1" y1="24.9" x2="89.4" y2="32.8" class="wt"/><line x1="100.0" y1="24.0" x2="100.0" y2="38.0" class="wt mj"/><line x1="111.9" y1="24.9" x2="110.6" y2="32.8" class="wt"/><line x1="123.5" y1="27.7" x2="121.0" y2="35.3" class="wt"/><line x1="134.5" y1="32.3" x2="130.9" y2="39.4" class="wt"/><line x1="144.7" y1="38.5" x2="140.0" y2="45.0" class="wt"/><line x1="153.7" y1="46.3" x2="143.8" y2="56.2" class="wt mj"/><line x1="161.5" y1="55.3" x2="155.0" y2="60.0" class="wt"/><line x1="167.7" y1="65.5" x2="160.6" y2="69.1" class="wt"/><line x1="172.3" y1="76.5" x2="164.7" y2="79.0" class="rt"/><line x1="175.1" y1="88.1" x2="167.2" y2="89.4" class="rt"/><line x1="176.0" y1="100.0" x2="162.0" y2="100.0" class="rt mj"/><path class="rz" d="M163.9 76.7 A68 68 0 0 1 168.0 98.8"/><g class="needle"><path d="M100 96.5 L172 100 L100 103.5 Z"/></g><circle class="hub" cx="100" cy="100" r="7"/><circle class="hub2" cx="100" cy="100" r="3"/></svg></div>
+      <div class="seg-prev" id="segPrev"></div>
       <div class="live-next" id="liveNext"></div>
     </div>
 
@@ -1096,15 +1148,21 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 (function(){
   "use strict";
 
-  const F = ["Ritmo muito leve para recuperar as pernas. O coração mal sobe.", "Ritmo de base. Dá para pedalar muito tempo e conversar sem falhas.", "Esforço moderado. Já exige foco e a conversa fica mais curta.", "Ritmo de contrarrelógio. Pernas a arder e respiração muito controlada.", "Esforço muito duro. O coração dispara e as pernas queimam depressa.", "Explosão total: ataques e sprints. O cardio não consegue acompanhar."];  // sensação de cada zona
+  const F = ["Ritmo muito leve para recuperar as pernas. O coração mal sobe.", "Ritmo de base. Dá para pedalar muito tempo e conversar sem falhas.", "Esforço moderado. Já exige foco e a conversa fica mais curta.", "Ritmo de contrarrelógio. Pernas a arder e respiração muito controlada.", "Esforço muito duro. O coração dispara e as pernas queimam depressa.", "Esforço anaeróbio: 30 s a 2 min a fundo. As pernas queimam e a respiração descontrola-se.", "Explosão total: sprints de poucos segundos, tudo o que tens."];  // sensação de cada zona
   const ZONES = [
     {name:'Z1 Recuperação', max:55,  css:'--z0', feel:F[0]},
     {name:'Z2 Resistência', max:75,  css:'--z1', feel:F[1]},
     {name:'Z3 Tempo',       max:90,  css:'--z2', feel:F[2]},
     {name:'Z4 Limiar',      max:105, css:'--z3', feel:F[3]},
     {name:'Z5 VO2máx',      max:120, css:'--z4', feel:F[4]},
-    {name:'Z6 Anaeróbio',   max:9999,css:'--z5', feel:F[5]},
+    {name:'Z6 Anaeróbio',   max:150, css:'--z5', feel:F[5]},
+    {name:'Z7 Explosão',    max:9999,css:'--z6', feel:F[6]},
   ];
+  // blocos especiais: separador de segmento (lilás) e retorno à calma (sempre o último)
+  const SEG_Z  = {name:'Segmento · Z1', css:'--seg', feel:'Transição em Z1: pedala leve e prepara-te para o próximo segmento.'};
+  const COOL_Z = {name:'Retorno à calma', css:'--cool', feel:'Baixa a intensidade aos poucos, respira fundo e deixa o coração descer.'};
+  function blkZone(b, m){ return b && b.tipo === 'seg' ? SEG_Z : (b && b.tipo === 'cool' ? COOL_Z : getZone(b ? b.ftp : 0, m)); }
+  function rpmTxt(b){ return b.rpm2 && b.rpm2 !== b.rpm ? b.rpm + '–' + b.rpm2 : String(b.rpm || 0); }
   const rootStyle = getComputedStyle(document.documentElement);
   function zoneColor(cssVar){ return rootStyle.getPropertyValue(cssVar).trim(); }
   // zonas de frequência cardíaca (% da FC máxima)
@@ -1118,8 +1176,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function modoAtual(){ return (typeof current !== 'undefined' && current && current.modo) || 'ftp'; }
   function zonesOf(m){ return (m || modoAtual()) === 'fc' ? ZONES_FC : ZONES; }
   function modoUnit(m){ const k = m || modoAtual(); return k === 'fc' ? '%FCmáx' : k === 'zonas' ? 'zona' : '%FTP'; }
-  // modo "zonas": cada intervalo é uma zona Z1–Z6; guarda-se o meio da zona em %FTP
-  const ZONE_MID = [45, 65, 83, 98, 113, 130];
+  // modo "zonas": cada intervalo é uma zona Z1–Z7; guarda-se o meio da zona em %FTP
+  const ZONE_MID = [45, 65, 83, 98, 113, 135, 170];
   function zoneIdx(v, m){ const Z = zonesOf(m); const z = getZone(v, m); return Z.indexOf(z); }
   function snapZona(v){ return ZONE_MID[zoneIdx(v, 'ftp')]; }
   function intensLabel(v, m){ const k = m || modoAtual(); return k === 'zonas' ? 'Z' + (zoneIdx(v, k) + 1) : v + '%'; }
@@ -1129,7 +1187,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     return Z[Z.length-1];
   }
   // escala vertical do gráfico em cada modo
-  function scaleOf(m){ return (m || modoAtual()) === 'fc' ? {min:40, max:100} : {min:0, max:150}; }
+  function scaleOf(m){ return (m || modoAtual()) === 'fc' ? {min:40, max:100} : {min:0, max:180}; }
   // conversão aproximada entre %FTP e %FCmáx (só para mudar o modo de uma aula já feita)
   // conversão zona a zona (mantém a zona e a posição dentro dela)
   const FTP_B = [[40,55],[55,75],[75,90],[90,105],[105,120]], FC_B = [[50,60],[60,70],[70,80],[80,90],[90,100]];
@@ -1298,6 +1356,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       sec: Math.max(0, Math.min(59, Number(b.sec)||0)),
       ftp: Math.max(0, Number(b.ftp)||0),
       rpm: Math.max(0, Number(b.rpm)||0),
+      rpm2: Math.max(0, Number(b.rpm2)||0) || undefined,
+      tipo: (b.tipo === 'seg' || b.tipo === 'cool') ? b.tipo : undefined,
     });
   }
 
@@ -1383,9 +1443,9 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   // EDITOR DE INTERVALOS (linha do tempo)
   // =====================================================================
   const ZONE_DEFAULTS = {
-    ftp: [ {ftp:50, rpm:80}, {ftp:65, rpm:90}, {ftp:83, rpm:90}, {ftp:98, rpm:85}, {ftp:113, rpm:95}, {ftp:130, rpm:105} ],
+    ftp: [ {ftp:50, rpm:80}, {ftp:65, rpm:90}, {ftp:83, rpm:90}, {ftp:98, rpm:85}, {ftp:113, rpm:95}, {ftp:135, rpm:100}, {ftp:170, rpm:110} ],
     fc:  [ {ftp:55, rpm:80}, {ftp:65, rpm:90}, {ftp:75, rpm:90}, {ftp:85, rpm:85}, {ftp:95, rpm:100} ],
-    zonas: [ {ftp:45, rpm:80}, {ftp:65, rpm:90}, {ftp:83, rpm:90}, {ftp:98, rpm:85}, {ftp:113, rpm:95}, {ftp:130, rpm:105} ]
+    zonas: [ {ftp:45, rpm:80}, {ftp:65, rpm:90}, {ftp:83, rpm:90}, {ftp:98, rpm:85}, {ftp:113, rpm:95}, {ftp:135, rpm:100}, {ftp:170, rpm:110} ]
   };
   let TRACK_H = 260;
   const isNarrow = ()=> ($('edScroll').clientWidth || 900) < 600;
@@ -1420,7 +1480,18 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   }
 
   function selected(){ return current.blocos[selIdx] || null; }
-  function insertAt(i, b){ current.blocos.splice(i, 0, b); selIdx = i; }
+  function coolIdx(){ return current.blocos.findIndex(x=> x.tipo === 'cool'); }
+  // seleção de vários intervalos: Shift+clique (seguidos) ou Ctrl/Cmd+clique (um a um)
+  let selSet = new Set(), selAnchor = -1;
+  function selIdxs(){
+    const ids = selSet.size > 1 ? selSet : new Set(selected() ? [selected().id] : []);
+    return current.blocos.map((x,k)=> ids.has(x.id) ? k : -1).filter(k=> k >= 0);
+  }
+  function multi(){ return selIdxs().length > 1; }
+  function clearMulti(){ selSet = new Set(); }
+  // nada pode ficar depois do retorno à calma
+  function insertAt(i, b){ const c = coolIdx(); if(c >= 0 && i > c) i = c; current.blocos.splice(i, 0, b); selIdx = i; clearMulti(); }
+  function isCool(b){ return b && b.tipo === 'cool'; }
 
   function addZone(zi){
     pushUndo();
@@ -1430,16 +1501,32 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     insertAt(selIdx >= 0 ? selIdx + 1 : current.blocos.length, b);
     render(); scrollToSel();
   }
-  function doCopy(){ const b = selected(); if(!b) return; clip = clean(b); toast('Intervalo copiado'); updateActionBtns(); }
+  function doCopy(){
+    const list = selIdxs().map(k=> current.blocos[k]).filter(x=> !isCool(x));
+    if(!list.length){ if(selected()) toast('O retorno à calma não se copia: só existe um, no fim'); return; }
+    clip = list.map(clean); toast(list.length > 1 ? list.length + ' intervalos copiados' : 'Intervalo copiado'); updateActionBtns();
+  }
   function doPaste(){
     if(!clip) return;
     pushUndo();
-    insertAt(selIdx >= 0 ? selIdx + 1 : current.blocos.length, Object.assign(clean(clip), {id: uid()}));
+    const arr = Array.isArray(clip) ? clip : [clip];
+    const last = selIdxs().length ? Math.max(...selIdxs()) : current.blocos.length - 1;
+    let at = last + 1;
+    arr.forEach(x=>{ insertAt(at, Object.assign(clean(x), {id: uid()})); at = selIdx + 1; });
     render(); scrollToSel();
   }
-  function doDup(){ const b = selected(); if(!b) return; pushUndo(); insertAt(selIdx + 1, Object.assign(clean(b), {id: uid()})); render(); }
+  function doDup(){
+    const idx = selIdxs(); if(!idx.length) return;
+    const list = idx.map(k=> current.blocos[k]).filter(x=> !isCool(x));
+    if(!list.length){ toast('Só pode haver um retorno à calma'); return; }
+    pushUndo();
+    let at = Math.max(...idx.filter(k=> !isCool(current.blocos[k]))) + 1;
+    list.forEach(x=>{ insertAt(at, Object.assign(clean(x), {id: uid()})); at = selIdx + 1; });
+    render();
+  }
   function doHalf(){
     const b = selected(); if(!b) return;
+    if(isCool(b)){ toast('O retorno à calma não se divide'); return; }
     const tot = blockDurationSec(b);
     if(tot < 10){ toast('Intervalo demasiado curto para dividir'); return; }
     pushUndo();
@@ -1449,8 +1536,26 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     selIdx--; render();
   }
   function doMerge(){
+    const idx = selIdxs();
+    if(idx.length > 1){   // juntar todos os selecionados (têm de estar seguidos)
+      const contig = idx.every((k,n)=> n === 0 || k === idx[n-1] + 1);
+      const list = idx.map(k=> current.blocos[k]);
+      if(!contig){ toast('Para juntar, os intervalos têm de estar seguidos (usa Shift+clique)'); return; }
+      if(list.some(isCool) || list.some(x=> (x.tipo||'') !== (list[0].tipo||''))){ toast('Só se juntam intervalos do mesmo tipo'); return; }
+      pushUndo();
+      const tot = list.reduce((s2,x)=> s2 + blockDurationSec(x), 0) || 1;
+      const a0 = list[0];
+      a0.ftp = Math.round(list.reduce((s2,x)=> s2 + x.ftp * blockDurationSec(x), 0) / tot);
+      if(modoAtual() === 'zonas') a0.ftp = snapZona(a0.ftp);
+      a0.rpm = Math.round(list.reduce((s2,x)=> s2 + x.rpm * blockDurationSec(x), 0) / tot);
+      a0.rpm2 = Math.max(a0.rpm, ...list.map(x=> x.rpm2 || x.rpm));
+      a0.min = Math.floor(tot/60); a0.sec = tot%60;
+      current.blocos.splice(idx[0] + 1, idx.length - 1);
+      selIdx = idx[0]; clearMulti(); render(); return;
+    }
     const a = selected(), b = current.blocos[selIdx + 1];
     if(!a || !b){ toast('Seleciona um intervalo que tenha outro a seguir'); return; }
+    if(isCool(b) || a.tipo !== b.tipo){ toast('Só se juntam intervalos do mesmo tipo'); return; }
     pushUndo();
     const da = blockDurationSec(a), db = blockDurationSec(b), tot = da + db;
     a.ftp = Math.round((a.ftp*da + b.ftp*db) / (tot||1));
@@ -1463,15 +1568,16 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function doMove(dir){
     const j = selIdx + dir;
     if(selIdx < 0 || j < 0 || j >= current.blocos.length) return;
+    if(isCool(current.blocos[selIdx]) || isCool(current.blocos[j])){ toast('O retorno à calma fica sempre no fim'); return; }
     pushUndo();
     const t = current.blocos[selIdx]; current.blocos[selIdx] = current.blocos[j]; current.blocos[j] = t;
     selIdx = j; render(); scrollToSel();
   }
   function doDelete(){
-    if(selIdx < 0) return;
+    const idx = selIdxs(); if(!idx.length) return;
     pushUndo();
-    current.blocos.splice(selIdx, 1);
-    if(selIdx >= current.blocos.length) selIdx = current.blocos.length - 1;
+    idx.slice().reverse().forEach(k=> current.blocos.splice(k, 1));
+    selIdx = Math.min(idx[0], current.blocos.length - 1); clearMulti();
     render();
   }
   function doClear(){
@@ -1481,7 +1587,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   }
   function select(i){
     if(i < 0 || i >= current.blocos.length) return;
-    selIdx = i; renderEditor(); scrollToSel();
+    selIdx = i; selAnchor = i; clearMulti(); renderEditor(); scrollToSel();
   }
 
   function pxPerSec(){
@@ -1523,16 +1629,19 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     });
     if(modoAtual() !== 'fc') html += '<div class="ed-ref ftp100" style="bottom:' + ftpToY(100) + 'px"><span>100% FTP</span></div>';
 
+    current.blocos.forEach(b=>{   // o separador de segmento é sempre em Z1
+      if(b.tipo === 'seg'){ if(modoAtual() === 'zonas') b.ftp = ZONE_MID[0]; else b.ftp = Math.min(b.ftp || 0, zonesOf()[0].max); }
+    });
     let x = 0;
     current.blocos.forEach((b,i)=>{
       const d = blockDurationSec(b);
       const w = Math.max(3, d * pps);
       const h = Math.max(6, ftpToY(b.ftp));
-      const c = zoneColor(getZone(b.ftp).css);
-      html += '<div class="ed-bar' + (i === selIdx ? ' sel' : '') + '" data-i="' + i + '" style="left:' + x + 'px;width:' + (w - 2) + 'px;height:' + h + 'px;--c:' + c + '">' +
+      const c = zoneColor(blkZone(b).css);
+      html += '<div class="ed-bar' + (i === selIdx ? ' sel' : '') + (selSet.size > 1 && selSet.has(b.id) && i !== selIdx ? ' msel' : '') + '" data-i="' + i + '" style="left:' + x + 'px;width:' + (w - 2) + 'px;height:' + h + 'px;--c:' + c + '">' +
         '<div class="h-top" data-i="' + i + '"></div><div class="h-right" data-i="' + i + '"></div>' +
         (w > (modoAtual() === 'zonas' ? 24 : 40) ? '<div class="b-lbl">' + intensLabel(b.ftp) + '</div>' : '') +
-        (w > 86 && h > 34 ? '<div class="b-info">' + fmtTime(d) + '<small>s</small>&nbsp; ' + (b.rpm||0) + '<small>rpm</small></div>' : '') + '</div>';
+        (w > 86 && h > 34 ? '<div class="b-info">' + fmtTime(d) + '<small>s</small>&nbsp; ' + rpmTxt(b) + '<small>rpm</small></div>' : '') + '</div>';
       x += d * pps;
     });
     track.innerHTML = html;
@@ -1564,6 +1673,11 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     $('trPrev').disabled = !(selIdx > 0);
     $('trNext').disabled = !(selIdx < current.blocos.length - 1);
 
+    // limpa ids que já não existem
+    if(selSet.size){ const ids = new Set(current.blocos.map(x=> x.id)); selSet = new Set([...selSet].filter(id=> ids.has(id))); }
+    const mi = selIdxs();
+    $('edMulti').innerHTML = mi.length > 1 ? '<b>' + mi.length + ' intervalos selecionados</b> · ' + fmtTime(mi.reduce((a,k)=> a + blockDurationSec(current.blocos[k]), 0)) + ' · técnica, rpm e intensidade mudam em todos · Delete apaga · arrasta para mover o grupo' : '';
+
     renderInfo();
     updateActionBtns();
   }
@@ -1574,15 +1688,16 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     box.classList.toggle('disabled', !b);
     const set = (id, v)=>{ const el = $(id); if(document.activeElement !== el) el.value = v; };
     if(!b){
-      ['fNome','fMin','fSec','fRpm','fFtp','fTec'].forEach(id=> set(id, ''));
+      ['fNome','fMin','fSec','fRpm','fRpm2','fFtp','fTec'].forEach(id=> set(id, ''));
+      $('fRange').textContent = '—';
       $('fTecSel').value = TECNICAS[0]; $('fTec').style.display = 'none';
       $('fFeel').textContent = '';
-      $('fStart').textContent = '—'; $('fEnd').textContent = '—'; $('fZone').textContent = '—'; $('fZone').style.background = '';
+      $('fStart').textContent = '—'; set('fEndM', ''); set('fEndS', ''); $('fZone').textContent = '—'; $('fZone').style.background = '';
       return;
     }
     const start = current.blocos.slice(0, selIdx).reduce((s,x)=> s + blockDurationSec(x), 0);
     set('fNome', b.nome || ''); set('fMin', b.min || 0); set('fSec', b.sec || 0);
-    set('fRpm', b.rpm || 0); set('fFtp', b.ftp || 0); set('fTec', b.tecnica || '');
+    set('fRpm', b.rpm || 0); set('fRpm2', b.rpm2 || b.rpm || 0); set('fFtp', b.ftp || 0); set('fTec', b.tecnica || '');
     const tecChanged = renderInfo._tecId !== b.id; renderInfo._tecId = b.id;
     if(tecChanged){ $('fTec').value = b.tecnica || ''; }
     if(tecChanged || (document.activeElement !== $('fTecSel') && document.activeElement !== $('fTec'))){
@@ -1592,18 +1707,22 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     }
     if(modoAtual() === 'zonas' && document.activeElement !== $('fZsel')) $('fZsel').value = String(zoneIdx(b.ftp));
     $('fStart').textContent = fmtTime(start);
-    $('fEnd').textContent = fmtTime(start + blockDurationSec(b));
-    const z = getZone(b.ftp);
+    const fim = start + blockDurationSec(b);
+    set('fEndM', Math.floor(fim/60)); set('fEndS', fim%60);
+    const z = blkZone(b);
     $('fZone').textContent = z.name; $('fZone').style.background = zoneColor(z.css);
     $('fFeel').textContent = z.feel || '';
+    const mR = modoAtual() === 'fc' ? 'fc' : 'ftp';
+    $('fRange').textContent = ZONE_RANGE[mR][zoneIdx(b.ftp, mR)] || '—';
   }
 
   function updateActionBtns(){
     const has = !!selected();
     ['copyBtn','halfBtn','dupBtn','delBtn'].forEach(id=> $(id).disabled = !has);
-    $('mergeBtn').disabled = !(has && current.blocos[selIdx+1]);
-    $('moveLBtn').disabled = !(has && selIdx > 0);
-    $('moveRBtn').disabled = !(has && selIdx < current.blocos.length - 1);
+    $('mergeBtn').disabled = !(has && (current.blocos[selIdx+1] || multi()));
+    const sb = selected(), nb = current.blocos[selIdx+1];
+    $('moveLBtn').disabled = !(has && selIdx > 0 && !isCool(sb));
+    $('moveRBtn').disabled = !(has && selIdx < current.blocos.length - 1 && !isCool(sb) && !isCool(nb));
     $('pasteBtn').disabled = !clip;
     $('prevSel').disabled = !(selIdx > 0);
     $('nextSel').disabled = !(selIdx < current.blocos.length - 1);
@@ -1632,12 +1751,34 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       $('fTec').style.display = ''; $('fTec').value = TECNICAS.includes(b.tecnica) ? '' : (b.tecnica || '');
       $('fTec').focus(); return;
     }
-    pushUndo(); b.tecnica = v; $('fTec').style.display = 'none';
+    pushUndo(); selIdxs().forEach(k=> current.blocos[k].tecnica = v); b.tecnica = v; $('fTec').style.display = 'none';
+    $('fTecSel').blur();   // para o Delete e as setas voltarem a funcionar no gráfico
     renderEditor(); renderProfileOnly();
   });
   bindField('fMin',  (b,v)=> b.min = num(v, 0, 180));
+  // fim do intervalo: duração = fim − início
+  function applyEnd(b){
+    const start = current.blocos.slice(0, selIdx).reduce((a,x)=> a + blockDurationSec(x), 0);
+    const fim = num($('fEndM').value, 0, 600) * 60 + num($('fEndS').value, 0, 59);
+    const d = Math.max(5, fim - start);
+    b.min = Math.floor(d/60); b.sec = d%60;
+    // mostra já a nova duração (os campos em foco não são reescritos pelo render)
+    $('fMin').value = b.min; $('fSec').value = b.sec;
+  }
+  bindField('fEndM', (b)=> applyEnd(b));
+  bindField('fEndS', (b)=> applyEnd(b));
+  ['fEndM','fEndS'].forEach(id=> $(id).addEventListener('change', ()=> renderEditor()));
   bindField('fSec',  (b,v)=> b.sec = num(v, 0, 59));
-  bindField('fRpm',  (b,v)=> b.rpm = num(v, 0, 200));
+  bindField('fRpm',  (b,v)=>{ const had = !b.rpm2 || b.rpm2 === b.rpm; b.rpm = num(v, 0, 200); if(had) b.rpm2 = b.rpm; else if(b.rpm2 < b.rpm) b.rpm2 = b.rpm; });
+  bindField('fRpm2', (b,v)=>{ b.rpm2 = Math.max(num(v, 0, 200), 0); });
+  // com vários selecionados, rpm e intensidade mudam em todos
+  function applyToOthers(field){
+    const b = selected(); if(!b || !multi()) return;
+    selIdxs().forEach(k=>{ const x = current.blocos[k]; if(x !== b){ x[field] = b[field]; if(field === 'rpm' && (!x.rpm2 || x.rpm2 < x.rpm)) x.rpm2 = x.rpm; } });
+    renderEditor(); renderProfileOnly();
+  }
+  ['fRpm','fRpm2','fFtp'].forEach(id=> $(id).addEventListener('input', ()=> applyToOthers(id === 'fRpm' ? 'rpm' : id === 'fRpm2' ? 'rpm2' : 'ftp')));
+  $('fRpm2').addEventListener('change', ()=>{ const b = selected(); if(b && b.rpm2 && b.rpm2 < b.rpm){ b.rpm2 = b.rpm; renderEditor(); } });
   bindField('fFtp',  (b,v)=> b.ftp = num(v, 0, 300));
 
   // arrastar: topo = intensidade, borda direita = duração
@@ -1646,18 +1787,39 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     const t = e.target;
     const i = Number(t.dataset.i);
     if(isNaN(i)) return;
-    if(selIdx !== i){ selIdx = i; renderEditor(); }
+    const ae = document.activeElement;   // ao clicar no gráfico, sai dos campos (para o Delete e as setas atuarem nos intervalos)
+    if(ae && ae !== document.body && ae.blur && /INPUT|SELECT|TEXTAREA/.test(ae.tagName)) ae.blur();
     const b = current.blocos[i];
+    if(e.shiftKey || e.ctrlKey || e.metaKey){
+      e.preventDefault();
+      if(!selSet.size && selected()) selSet.add(selected().id);
+      if(e.shiftKey){
+        const a = selAnchor >= 0 && selAnchor < current.blocos.length ? selAnchor : (selIdx >= 0 ? selIdx : i);
+        if(!(e.ctrlKey || e.metaKey)) selSet = new Set();
+        for(let k = Math.min(a, i); k <= Math.max(a, i); k++) selSet.add(current.blocos[k].id);
+      } else {
+        if(selSet.has(b.id) && selSet.size > 1){ selSet.delete(b.id); if(selIdx === i){ const left = selIdxs(); selIdx = left[left.length-1]; renderEditor(); return; } }
+        else selSet.add(b.id);
+        selAnchor = i;
+      }
+      selIdx = i; renderEditor();
+      return;
+    }
+    const inGroup = selSet.size > 1 && selSet.has(b.id);
+    if(!inGroup){ clearMulti(); selAnchor = i; }
+    if(selIdx !== i){ selIdx = i; renderEditor(); }
     if(t.classList.contains('h-top') || t.classList.contains('h-right')){
       e.preventDefault();
       drag = { kind: t.classList.contains('h-top') ? 'ftp' : 'dur', i: i, x0: e.clientX, y0: e.clientY,
                ftp0: b.ftp, dur0: blockDurationSec(b), snap: snapshot(), moved: false, pps: pxPerSec() };
       $('edTrack').setPointerCapture(e.pointerId);
-    } else if(t.classList.contains('ed-bar') && (e.pointerType === 'mouse' || t.classList.contains('sel'))){
+    } else if(t.classList.contains('ed-bar') && !isCool(b) && (e.pointerType === 'mouse' || t.classList.contains('sel'))){
       e.preventDefault();
       // corpo da barra: arrastar para os lados muda a ordem (no telemóvel, primeiro toca para selecionar)
       const bars = [...$('edTrack').querySelectorAll('.ed-bar')].map(el=> ({ l: el.offsetLeft, w: el.offsetWidth }));
-      drag = { kind: 'move', i: i, x0: e.clientX, moved: false, bars: bars, el: $('edTrack').querySelector('.ed-bar[data-i="' + i + '"]'), to: i };
+      const grp = multi() ? selIdxs() : [i];
+      if(grp.some(k=> isCool(current.blocos[k]))){ return; }
+      drag = { kind: 'move', i: i, grp: grp, x0: e.clientX, moved: false, bars: bars, els: grp.map(k=> $('edTrack').querySelector('.ed-bar[data-i="' + k + '"]')), to: i };
       $('edTrack').setPointerCapture(e.pointerId);
     }
   });
@@ -1666,13 +1828,16 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     if(drag.kind === 'move'){
       const dx = e.clientX - drag.x0;
       if(!drag.moved && Math.abs(dx) < 6) return;
-      if(!drag.moved){ drag.moved = true; drag.el.classList.add('dragging'); drag.mark = document.createElement('div'); drag.mark.className = 'ed-drop'; $('edTrack').appendChild(drag.mark); }
-      drag.el.style.transform = 'translateX(' + dx + 'px)';
+      if(!drag.moved){ drag.moved = true; drag.els.forEach(el=> el.classList.add('dragging')); drag.mark = document.createElement('div'); drag.mark.className = 'ed-drop'; $('edTrack').appendChild(drag.mark); }
+      drag.els.forEach(el=> el.style.transform = 'translateX(' + dx + 'px)');
       const me = drag.bars[drag.i], cx = me.l + me.w / 2 + dx;
+      const gs = new Set(drag.grp);
       let to = 0;
-      drag.bars.forEach((bb, k)=>{ if(k !== drag.i && bb.l + bb.w / 2 < cx) to++; });
+      drag.bars.forEach((bb, k)=>{ if(!gs.has(k) && bb.l + bb.w / 2 < cx) to++; });
+      const rest = current.blocos.filter((_, k)=> !gs.has(k));
+      const ci = rest.findIndex(x=> x.tipo === 'cool'); if(ci >= 0) to = Math.min(to, ci);
       drag.to = to;
-      const others = drag.bars.filter((_, k)=> k !== drag.i);
+      const others = drag.bars.filter((_, k)=> !gs.has(k));
       drag.mark.style.left = (to < others.length ? others[to].l : (others.length ? others[others.length-1].l + others[others.length-1].w : 0)) + 'px';
       const wrap = $('edScroll'), r = wrap.getBoundingClientRect();   // rola sozinho perto das pontas
       if(e.clientX > r.right - 40) wrap.scrollLeft += 12; else if(e.clientX < r.left + 40) wrap.scrollLeft -= 12;
@@ -1697,13 +1862,19 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     if(drag && drag.kind === 'move'){
       const d = drag; drag = null;
       if(d.mark) d.mark.remove();
-      if(d.moved && d.to !== d.i){
-        pushUndo();
-        const [blk] = current.blocos.splice(d.i, 1);
-        current.blocos.splice(d.to, 0, blk);
-        selIdx = d.to;
-        render(); scrollToSel();
-      } else if(d.moved){ renderEditor(); }
+      if(d.moved){
+        const gs = new Set(d.grp);
+        const moving = d.grp.map(k=> current.blocos[k]);
+        const rest = current.blocos.filter((_, k)=> !gs.has(k));
+        const before = current.blocos.map(x=> x.id).join(',');
+        rest.splice(d.to, 0, ...moving);
+        if(rest.map(x=> x.id).join(',') !== before){
+          pushUndo();
+          current.blocos = rest;
+          selIdx = current.blocos.indexOf(current.blocos.find(x=> x.id === current.blocos[d.to + d.grp.indexOf(d.i)].id));
+          render(); scrollToSel();
+        } else renderEditor();
+      } else if(d.grp.length > 1){ clearMulti(); selIdx = d.i; selAnchor = d.i; renderEditor(); }   // clique simples num do grupo: fica só esse
       return;
     }
     if(drag && drag.moved) pushUndo(drag.snap);
@@ -1715,9 +1886,9 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 
   // botões grandes de zona (com a faixa de intensidade por baixo)
   const ZONE_RANGE = {
-    ftp: ['0–55%', '56–75%', '76–90%', '91–105%', '106–120%', '>120%'],
+    ftp: ['0–55%', '56–75%', '76–90%', '91–105%', '106–120%', '121–150%', '>150%'],
     fc:  ['50–60%', '61–70%', '71–80%', '81–90%', '91–100%'],
-    zonas: ['Recuperação', 'Resistência', 'Tempo', 'Limiar', 'VO2máx', 'Anaeróbio']
+    zonas: ['Recuperação', 'Resistência', 'Tempo', 'Limiar', 'VO2máx', 'Anaeróbio', 'Explosão']
   };
   const ICON_SPLIT = '<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1"/><path d="M9 7v10M15 7v10"/></svg>';
   const ICON_COOL = '<svg viewBox="0 0 24 24"><path d="M3 7h6v10H3zM9 11h6v6H9zM15 14h6v3h-6z"/></svg>';
@@ -1729,32 +1900,64 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       return '<button class="zb" data-z="' + i + '" title="Adicionar ' + z.name + '" style="--c:' + c + ';--p:' + Math.round((i+1)/n*100) + '%"><span class="zb-ring"><span class="zb-core">Z' + (i+1) + '</span></span><span class="zl">' + R[i] + '</span></button>';
     }).join('');
     h += '<span class="gap"></span>';
-    h += '<button class="zb" id="zbSplit" title="Divide o intervalo selecionado em várias partes iguais" style="--c:#A35CFF;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_SPLIT + '</span></span><span class="zl">Dividir em segmentos</span></button>';
-    h += '<button class="zb" id="zbCool" title="Acrescenta o retorno à calma no fim" style="--c:#1FC8B0;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_COOL + '</span></span><span class="zl">Retorno à calma</span></button>';
+    h += '<button class="zb" id="zbSplit" title="Separador de segmento: na projeção mostra o segmento seguinte" style="--c:#A35CFF;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_SPLIT + '</span></span><span class="zl">Dividir em segmentos</span></button>';
+    h += '<button class="zb" id="zbCool" title="Acrescenta o retorno à calma (fica sempre no fim)" style="--c:#1FC8B0;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_COOL + '</span></span><span class="zl">Retorno à calma</span></button>';
     h += '<span class="gap"></span>';
     h += '<button class="zb tool2" id="zbImport" title="Importar aulas de um ficheiro .json"><span class="zb-ring"><span class="zb-core">' + ICON_PLUS + '</span></span><span class="zl">Importar</span></button>';
     h += '<button class="zb tool2 total" id="zbTotal" title="Duração total da aula" tabindex="-1"><span class="zb-ring"><span class="zb-core">T</span></span><span class="zl" id="zbTotalTxt">0:00</span></button>';
     $('zoneDots').innerHTML = h;
   }
   function doSegments(){
-    const b = selected(); if(!b){ toast('Seleciona primeiro um intervalo'); return; }
-    const tot = blockDurationSec(b);
-    const n = Math.round(Number(prompt('Dividir "' + (b.nome || 'intervalo') + '" em quantas partes iguais?', '2')) || 0);
-    if(!n || n < 2) return;
-    if(tot / n < 5){ toast('Intervalo demasiado curto para tantas partes'); return; }
-    pushUndo();
-    const base = Math.floor(tot / n); let rest = tot - base * n;
-    const parts = [];
-    for(let k = 0; k < n; k++){ const d = base + (rest-- > 0 ? 1 : 0); parts.push(Object.assign(clean(b), { id: uid(), min: Math.floor(d/60), sec: d%60 })); }
-    current.blocos.splice(selIdx, 1, ...parts);
-    render();
-  }
-  function doCooldown(){
+    // separador de segmento: um bloco lilás com tempo próprio; na projeção mostra o segmento seguinte
     pushUndo();
     const m = modoAtual();
-    const b = newBlock({ nome: 'Retorno à calma', min: 4, sec: 0, ftp: m === 'fc' ? 55 : (m === 'zonas' ? ZONE_MID[0] : 45), rpm: 80, tecnica: 'Plano Sentado' });
+    const n = current.blocos.filter(x=> x.tipo === 'seg').length + 2;
+    const b = newBlock({ tipo:'seg', nome:'Segmento ' + n, min:1, sec:0, ftp: m === 'fc' ? 55 : (m === 'zonas' ? ZONE_MID[0] : 50), rpm:80, rpm2:85, tecnica:'Plano Sentado' });
+    insertAt(selIdx >= 0 ? selIdx + 1 : current.blocos.length, b);
+    render(); scrollToSel();
+  }
+  function doCooldown(){
+    const c = coolIdx();
+    if(c >= 0){ selIdx = c; renderEditor(); scrollToSel(); toast('A aula já tem retorno à calma (é sempre o último intervalo)'); return; }
+    pushUndo();
+    const m = modoAtual();
+    const b = newBlock({ tipo:'cool', nome: 'Retorno à calma', min: 4, sec: 0, ftp: m === 'fc' ? 55 : (m === 'zonas' ? ZONE_MID[0] : 45), rpm: 80, rpm2: 85, tecnica: 'Plano Sentado' });
     current.blocos.push(b); selIdx = current.blocos.length - 1;
     render(); scrollToSel();
+  }
+
+  // gráfico do segmento (barras com a duração e a intensidade de cada intervalo)
+  function segChartSvg(list, W, H){
+    const tot = list.reduce((a,x)=> a + blockDurationSec(x), 0) || 1;
+    const fc = modoAtual() === 'fc';
+    const lo = fc ? 40 : 0, hi = Math.max(fc ? 100 : 180, ...list.map(x=> x.ftp || 0));
+    let x0 = 0, r = '';
+    list.forEach(b=>{
+      const w = blockDurationSec(b) / tot * W;
+      const h = Math.max(4, ((Math.max(b.ftp || 0, lo) - lo) / (hi - lo)) * (H - 4));
+      r += '<rect x="' + x0.toFixed(1) + '" y="' + (H - h).toFixed(1) + '" width="' + Math.max(1, w - 2).toFixed(1) + '" height="' + h.toFixed(1) + '" rx="2" fill="' + zoneColor(blkZone(b).css) + '"/>';
+      x0 += w;
+    });
+    return '<svg class="seg-chart" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true">' + r + '</svg>';
+  }
+
+  // projeção: durante o segmento (lilás) mostra os intervalos do segmento seguinte
+  function renderSegPreview(b){
+    const body = $('liveBody'), box = $('segPrev');
+    const isSeg = b && b.tipo === 'seg';
+    body.classList.toggle('seg', isSeg);
+    if(!isSeg){ box.innerHTML = ''; return; }
+    const list = [];
+    for(let k = liveIdx + 1; k < current.blocos.length; k++){ const x = current.blocos[k]; if(x.tipo === 'seg') break; list.push(x); }
+    const tot = list.reduce((a,x)=> a + blockDurationSec(x), 0);
+    box.innerHTML = '<h3><span>Próximo segmento</span><span>' + list.length + (list.length === 1 ? ' intervalo' : ' intervalos') + ' · ' + fmtTime(tot) + '</span></h3>' +
+      (list.length ? segChartSvg(list, 1000, 120) : '') +
+      list.slice(0, 7).map(x=>{
+        const z = blkZone(x);
+        return '<div class="sp-row"><span class="zp" style="background:' + zoneColor(z.css) + '">' + (x.tipo ? z.name : (modoAtual() === 'zonas' ? z.name.split(' ')[0] : intensLabel(x.ftp))) + '</span>' +
+          '<span class="nm">' + escapeHtml(x.nome || z.name) + (x.tecnica ? '<small>' + escapeHtml(x.tecnica) + '</small>' : '') + '</span>' +
+          '<span class="du">' + fmtTime(blockDurationSec(x)) + '</span><span class="rp">' + rpmTxt(x) + ' rpm</span></div>';
+      }).join('') + (list.length > 7 ? '<div class="sp-row"><span></span><span class="nm">+ ' + (list.length - 7) + ' intervalos</span><span></span><span></span></div>' : '');
   }
 
   // botões do editor
@@ -1769,7 +1972,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     $('fZsel').innerHTML = ZONES.map((z,i)=> '<option value="' + i + '">' + z.name + '</option>').join('');
     $('fFtp').max = m === 'fc' ? 100 : 250;
   }
-  const MODO_NOME = { zonas:'Zonas Z1–Z6', ftp:'%FTP', fc:'%FCmáx' };
+  const MODO_NOME = { zonas:'Zonas Z1–Z7', ftp:'%FTP', fc:'%FCmáx' };
   function setModo(m){
     const de = modoAtual();
     if(de === m) return;
@@ -1797,6 +2000,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     const autoName = ZONES.some(z=> z.name === b.nome || z.name.replace(/^Z\d /,'') === b.nome);
     b.ftp = ZONE_MID[i];
     if(autoName) b.nome = ZONES[i].name;
+    if(multi()) selIdxs().forEach(k=>{ const x = current.blocos[k]; if(x !== b && !x.tipo){ const an = ZONES.some(z=> z.name === x.nome); x.ftp = ZONE_MID[i]; if(an) x.nome = ZONES[i].name; } });
     renderEditor(); renderProfileOnly();
   });
   document.querySelectorAll('#modeSeg button').forEach(bt=> bt.addEventListener('click', ()=> setModo(bt.dataset.m)));
@@ -1838,6 +2042,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     else if(mod && (e.key === 'y' || e.key === 'Y')){ e.preventDefault(); redo(); }
     else if(mod && (e.key === 'c' || e.key === 'C')){ doCopy(); }
     else if(mod && (e.key === 'v' || e.key === 'V')){ doPaste(); }
+    else if(mod && (e.key === 'a' || e.key === 'A')){ e.preventDefault(); selSet = new Set(current.blocos.map(x=> x.id)); renderEditor(); }
+    else if(e.key === 'Escape' && selSet.size > 1){ clearMulti(); renderEditor(); }
     else if(e.key === 'ArrowLeft'){ e.preventDefault(); select(selIdx - 1); }
     else if(e.key === 'ArrowRight'){ e.preventDefault(); select(selIdx + 1); }
     else if(e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); doDelete(); }
@@ -1958,7 +2164,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       const w = (dur/totalSec) * W;
       const h = Math.max(3, ((Math.max(b.ftp, sc.min) - sc.min)/(maxV - sc.min)) * (H-PADB-Math.min(20,H*0.12)));
       const y = H - PADB - h;
-      const zone = getZone(b.ftp, m || 'ftp');
+      const zone = blkZone(b, m || 'ftp');
       const rect = document.createElementNS('http://www.w3.org/2000/svg','rect');
       rect.setAttribute('x', x.toFixed(2));
       rect.setAttribute('y', y.toFixed(2));
@@ -2171,7 +2377,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     return sessionRef(pin).set({
       treinoNome: current.nome || 'Aula de cycling',
       modo: modoAtual(),
-      blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, rpm:x.rpm, tecnica:x.tecnica||''})),
+      blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, rpm:x.rpm, rpm2:x.rpm2||null, tipo:x.tipo||null, tecnica:x.tecnica||''})),
       state: { blockIndex: 0, status: 'paused', remainingAtStart: blockDurationSec(b), startedAt: TS() },
       raceMetric: raceMetric,
       createdAt: TS(),
@@ -2491,7 +2697,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function updateLiveDisplay(){
     const b = current.blocos[liveIdx];
     if(!b) return;
-    const zone = getZone(b.ftp);
+    const zone = blkZone(b);
     const zc = zoneColor(zone.css);
     $('liveZone').textContent = zone.name;
     if(liveLastIdx !== liveIdx){                       // mudou de bloco: clarão na cor da zona
@@ -2505,7 +2711,9 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     $('liveFeel').textContent = zone.feel || '';
     updateTimerText();
     $('liveFtp').textContent = modoAtual() === 'zonas' ? intensLabel(b.ftp) : b.ftp + '%';
-    $('liveRpm').textContent = b.rpm;
+    $('liveRpm').textContent = rpmTxt(b);
+    renderSegPreview(b);
+    $('liveBody').classList.toggle('z6', !b.tipo && zone === ZONES[5] && modoAtual() !== 'fc');
     $('liveBody').style.background = '#05070A';
     $('liveBody').style.setProperty('--zc', zc);
 
@@ -2513,9 +2721,9 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     const ln = $('liveNext');
     ln.classList.toggle('last', !next);
     if(next){
-      const nz = zoneColor(getZone(next.ftp).css);
+      const nz = zoneColor(blkZone(next).css);
       $('liveBody').style.setProperty('--nc', nz);
-      const meta = ((modoAtual() === 'zonas' && (next.nome||'').startsWith(intensLabel(next.ftp) + ' ')) ? '' : intensLabel(next.ftp) + ' · ') + fmtTime(blockDurationSec(next)) + (next.rpm ? ' · ' + next.rpm + ' rpm' : '');
+      const meta = ((modoAtual() === 'zonas' && (next.nome||'').startsWith(intensLabel(next.ftp) + ' ')) ? '' : intensLabel(next.ftp) + ' · ') + fmtTime(blockDurationSec(next)) + (next.rpm ? ' · ' + rpmTxt(next) + ' rpm' : '');
       ln.innerHTML = '<div class="nx-card"><span class="nx-lbl" id="nxLbl">a seguir</span><b>' + escapeHtml(next.nome) + '</b><span class="nx-meta">' + meta + '</span></div>';
     } else {
       ln.innerHTML = '<div class="nx-card"><span class="nx-lbl">último bloco</span><b>força até ao fim! 💪</b></div>';
@@ -2704,7 +2912,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     if(!confirm(msg)) return;
     const key = existing ? existing.key : fbDb.ref('biblioteca').push().key;
     fbDb.ref('biblioteca/' + key).set(clean({
-      nome: t.nome, modo: t.modo || 'ftp', blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, rpm:b.rpm, tecnica:b.tecnica||''})),
+      nome: t.nome, modo: t.modo || 'ftp', blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, rpm:b.rpm, rpm2:b.rpm2||null, tipo:b.tipo||null, tecnica:b.tecnica||''})),
       autor: userUid, autorNome: userNome || '', origem: id, atualizado: Date.now()
     })).then(()=> toast(existing ? 'Biblioteca atualizada' : 'Aula partilhada na Biblioteca Playlife'))
       .catch(()=> toast('Não consegui partilhar.'));
