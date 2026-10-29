@@ -69,6 +69,14 @@ body{
 }
 .brand span{color:var(--muted);font-size:14px;}
 .topbar-actions{display:flex;gap:10px;flex-wrap:wrap;}
+/* cabeçalho fixo: logo, botões e menu ficam sempre visíveis ao fazer scroll */
+.app-head{position:sticky;top:0;z-index:60;background:var(--bg);
+  margin:-24px calc(-1 * clamp(16px,2.2vw,40px)) 18px;padding:14px clamp(16px,2.2vw,40px) 8px;
+  border-bottom:1px solid transparent;transition:border-color .2s ease, box-shadow .2s ease;}
+.app-head .topbar{margin-bottom:10px;}
+.app-head .main-nav{margin:0;}
+.app-head.scrolled{border-bottom-color:var(--border);box-shadow:0 8px 24px rgba(0,0,0,.35);}
+@media (max-width:700px){ .app-head{position:static;} }
 
 button{
   font-family:'Inter',sans-serif;
@@ -349,6 +357,10 @@ button:disabled{opacity:.4;cursor:not-allowed;}
   opacity:0;pointer-events:none;transition:opacity .25s ease;
 }
 .live-overlay.active{opacity:1;pointer-events:auto;}
+/* na apresentação, a página de trás não faz scroll (sem barra lateral) */
+html.live-on,html.live-on body{overflow:hidden !important;}
+.live-overlay,.live-overlay *{scrollbar-width:none;}
+.live-overlay ::-webkit-scrollbar,.live-overlay::-webkit-scrollbar{width:0;height:0;display:none;}
 
 .live-profile{height:76px;flex-shrink:0;background:#0A0D12;border-bottom:1px solid #1B212B;position:relative;}
 .live-profile svg{width:100%;height:100%;display:block;}
@@ -910,6 +922,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 <body data-view="home">
 
 <div class="app" id="builderView">
+  <div class="app-head" id="appHead">
   <div class="topbar">
     <div class="brand">
       <h1 class="pr-logo" aria-label="PlayRide Coach"><svg class="pr-mark" height="30" viewBox="0 0 200 130" aria-hidden="true"><g transform="skewX(-14)"><rect x="34" y="96" width="22" height="34" rx="4" fill="#A35CFF"/><rect x="62" y="78" width="22" height="52" rx="4" fill="#1FA8F0"/><rect x="90" y="58" width="22" height="72" rx="4" fill="#3DD45C"/><rect x="118" y="38" width="22" height="92" rx="4" fill="#FFD60A"/><rect x="146" y="16" width="22" height="114" rx="4" fill="#FF8A1F"/><rect x="174" y="0" width="22" height="130" rx="4" fill="#FF3B3B"/></g></svg><span>PlayRide</span><span class="pr-sub">Coach</span></h1>
@@ -934,6 +947,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     <button data-go="hist"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>Treinos realizados</button>
     <a href="aula-ao-vivo.html?livre=1" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9h6l3.5 7.5M9 9 12 16.5h-3M14 6h2.5l-1.5 3"/></svg>Só pedalar</a>
   </nav>
+  </div>
 
   <!-- MENU INICIAL -->
   <div data-sec="home" id="homeSec">
@@ -2847,6 +2861,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     $('liveBody').classList.remove('soon');
     updateLiveDisplay();
     $('liveOverlay').classList.add('active');
+    document.documentElement.classList.add('live-on');
     $('livePlay').textContent = '▶';
 
     sessionPin = genPin();
@@ -2865,6 +2880,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function closeLive(){
     if(sessionPin && ridingRiders().length) saveSummary();
     $('liveOverlay').classList.remove('active', 'starting'); liveStarting = false;
+    document.documentElement.classList.remove('live-on');
     clearInterval(liveTimerHandle); liveTimerHandle = null; livePlaying = false;
     stopRidersSync();
     endSession();
@@ -3053,6 +3069,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   $('saveBtn').addEventListener('click', ()=> saveCurrent(false));
   $('saveCopyBtn').addEventListener('click', ()=> saveCurrent(true));
   $('projectBtn').addEventListener('click', openLive);
+  window.addEventListener('scroll', ()=> $('appHead').classList.toggle('scrolled', window.scrollY > 4), {passive:true});
   $('exitLive').addEventListener('click', closeLive);
   $('treinoNome').addEventListener('input', (e)=>{ current.nome = e.target.value; });
   $('savedSearch').addEventListener('input', renderSaved);
