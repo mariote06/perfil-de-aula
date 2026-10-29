@@ -2402,19 +2402,21 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function riderAvgPct(r){ return r.ftp ? Math.round((r.aw||0) / r.ftp * 100) : null; }
   function riderZonePct(r){ return r.as ? Math.round((r.iz||0) / r.as * 100) : 0; }
 
+  function kmFmt(km){ return (km < 10 ? (+km).toFixed(2) : (+km).toFixed(1)).replace('.', ','); }
   function summaryTableHtml(entry){
     const rows = entry.riders.map((r,i)=>{
       const pct = riderAvgPct(r);
       return '<tr><td>' + (i+1) + '</td><td>' + escapeHtml(r.n) + '</td>' +
         '<td>' + Math.round(r.pts||0) + '</td>' +
         '<td>' + (r.kj||0).toFixed(0) + '</td>' +
+        '<td>' + (r.km ? kmFmt(r.km) : '—') + '</td>' +
         '<td>' + Math.round(r.aw||0) + '</td>' +
         '<td>' + (pct==null ? '—' : pct + '%') + '</td>' +
         '<td>' + Math.round(r.mw||0) + '</td>' +
         '<td>' + riderZonePct(r) + '%</td>' +
         '<td>' + fmtTime(r.as||0) + '</td></tr>';
     }).join('');
-    return '<table class="sum-table"><thead><tr><th>#</th><th>Nome</th><th>Pontos</th><th>kJ</th><th>W médios</th><th>%FTP médio</th><th>W máx</th><th>Na zona</th><th>Tempo</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    return '<table class="sum-table"><thead><tr><th>#</th><th>Nome</th><th>Pontos</th><th>kJ</th><th>km</th><th>W médios</th><th>%FTP médio</th><th>W máx</th><th>Na zona</th><th>Tempo</th></tr></thead><tbody>' + rows + '</tbody></table>';
   }
 
   function sortRidersBy(list, metric){
@@ -2435,13 +2437,13 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function exportHistCsv(id){
     const h = historico.find(x=>x.id===id);
     if(!h) return;
-    const head = ['Posição','Nome','FTP (W)','Pontos','kJ','Potência média (W)','%FTP médio','Potência máx (W)','Tempo na zona (%)','Tempo ativo'];
+    const head = ['Posição','Nome','FTP (W)','Pontos','kJ','Distância (km)','Potência média (W)','%FTP médio','Potência máx (W)','Tempo na zona (%)','Tempo ativo'];
     const lines = [head.join(';')];
     h.riders.forEach((r,i)=>{
       const pct = riderAvgPct(r);
       lines.push([
         i+1, '"' + String(r.n||'').replace(/"/g,'""') + '"', r.ftp||'', Math.round(r.pts||0),
-        String((r.kj||0).toFixed(1)).replace('.',','), Math.round(r.aw||0), pct==null?'':pct,
+        String((r.kj||0).toFixed(1)).replace('.',','), String((+(r.km||0)).toFixed(2)).replace('.',','), Math.round(r.aw||0), pct==null?'':pct,
         Math.round(r.mw||0), riderZonePct(r), fmtTime(r.as||0)
       ].join(';'));
     });
@@ -2650,6 +2652,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
             (bigFc ? '' : '<span>' + Math.round(r.c||0) + ' rpm</span>') +
             (r.hr && !bigFc ? '<span>♥ ' + Math.round(r.hr) + '</span>' : '') +
             '<span>' + metricFmt(metricVal(r)) + ' ' + (raceMetric==='kj'?'kJ':'pts') + '</span>' +
+            (r.km > 0 ? '<span>' + kmFmt(r.km) + ' km</span>' : '') +
           '</div></div>';
       }).join('');
     } else {
@@ -2681,7 +2684,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 
   function buildSummary(){
     const list = sortRidersBy(ridingRiders().filter(r=> (r.as||0) >= 10), raceMetric).map(r=>({
-      n: r.n || '?', ftp: r.ftp || null, kj: r.kj || 0, pts: r.pts || 0, aw: r.aw || 0, mw: r.mw || 0, iz: r.iz || 0, as: r.as || 0
+      n: r.n || '?', ftp: r.ftp || null, kj: r.kj || 0, km: r.km || 0, pts: r.pts || 0, aw: r.aw || 0, mw: r.mw || 0, iz: r.iz || 0, as: r.as || 0
     }));
     return list;
   }

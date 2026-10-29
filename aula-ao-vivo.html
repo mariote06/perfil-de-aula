@@ -143,7 +143,7 @@ body:has(#liveScreen.active) .legal{display:none;}
 .feel{color:rgba(255,255,255,.55);font-size:12px;font-style:italic;margin-top:6px;max-width:320px;line-height:1.35;}
 .feel:empty{display:none;}
 .timer{
-  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(56px,18vw,96px);
+  font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(66px,21vw,112px);
   line-height:1;color:#fff;font-variant-numeric:tabular-nums;margin-top:6px;
 }
 .timer.warn{color:#FFD27A;}
@@ -151,8 +151,19 @@ body:has(#liveScreen.active) .legal{display:none;}
 .target b{color:#fff;}
 
 .me{width:100%;max-width:420px;margin-top:14px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;}
-.me-w{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(64px,22vw,110px);line-height:1;font-variant-numeric:tabular-nums;}
-.me-w small{font-size:.32em;color:rgba(255,255,255,.6);margin-left:4px;}
+.me-w{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(88px,31vw,150px);line-height:.95;font-variant-numeric:tabular-nums;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;border-radius:14px;}
+.me-w:active{transform:scale(.97);}
+.me-w:focus-visible{outline:2px solid rgba(255,255,255,.5);outline-offset:4px;}
+.me-w small{font-size:.26em;color:rgba(255,255,255,.6);margin-left:4px;}
+.me-w small.long{font-size:.17em;letter-spacing:.5px;}
+.me-w .swap{display:block;font-family:Inter,system-ui,sans-serif;font-weight:500;font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.3px;margin-top:2px;}
+.me-sd{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(24px,7.5vw,32px);line-height:1.1;margin-top:4px;font-variant-numeric:tabular-nums;}
+.me-sd small{font-family:Inter,system-ui,sans-serif;font-weight:500;font-size:13px;color:rgba(255,255,255,.55);margin:0 10px 0 3px;}
+.me-sd:empty,.me.nosensor .me-sd,.me.hronly .me-sd{display:none;}
+.fin-km{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:26px;color:rgba(255,255,255,.85);margin:-2px 0 8px;}
+.fin-km:empty{display:none;}
+.me.hronly .cue,.me.hronly .gauge,.me.hronly .gauge-scale{display:none;}
+.me.hronly .nosensor-msg{display:block;margin-top:6px;}
 .cue{font-weight:700;font-size:15px;margin:4px 0 10px;min-height:20px;}
 .gauge{position:relative;height:16px;background:#12161D;border-radius:999px;overflow:visible;margin:0 6px;}
 .gauge-band{position:absolute;top:0;bottom:0;border-radius:999px;opacity:.85;}
@@ -162,8 +173,8 @@ body:has(#liveScreen.active) .legal{display:none;}
 }
 .gauge-scale{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin:4px 6px 0;}
 .me-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
-.me-grid .v{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:28px;line-height:1.05;font-variant-numeric:tabular-nums;}
-.me-grid .l{font-size:11px;color:rgba(255,255,255,.55);}
+.me-grid .v{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(34px,10.5vw,44px);line-height:1.02;font-variant-numeric:tabular-nums;}
+.me-grid .l{font-size:12px;color:rgba(255,255,255,.55);}
 .me-grid .v.ok{color:#7FD3A6;}
 .me-grid .v.low{color:#FFD27A;}
 .me.nosensor .me-w, .me.nosensor .cue, .me.nosensor .gauge, .me.nosensor .gauge-scale{display:none;}
@@ -557,7 +568,8 @@ body.solo-livre #progress{display:none;}
       <div class="target" id="targetEl"></div>
 
       <div class="me" id="meEl">
-        <div class="me-w"><span id="myW">0</span><small id="myWUnit">W</small></div>
+        <div class="me-w" id="myBig" role="button" tabindex="0" aria-label="Trocar entre valor e percentagem"><span id="myW">0</span><small id="myWUnit">W</small><span class="swap" id="mySwap">toca para ver %FTP</span></div>
+        <div class="me-sd" id="mySd"></div>
         <div class="cue" id="cueEl"></div>
         <div class="gauge"><div class="gauge-band" id="gBand"></div><div class="gauge-dot" id="gDot"></div></div>
         <div class="gauge-scale"><span>0%</span><span>60%</span><span>120%</span><span>180%</span></div>
@@ -576,6 +588,7 @@ body.solo-livre #progress{display:none;}
     <div class="finished" id="finishedEl">
       <div class="blockline"><span class="zone" id="finTitle">Aula concluída</span></div>
       <div class="big" id="totalTimeEl">0:00</div>
+      <div class="fin-km" id="finKm"></div>
       <div class="me-grid">
         <div><div class="v" id="finKj">0</div><div class="l">kJ</div></div>
         <div><div class="v" id="finPts">0</div><div class="l">pontos</div></div>
@@ -700,7 +713,7 @@ body.solo-livre #progress{display:none;}
   let renderHandle = null, sampleHandle = null, pushHandle = null;
   let sessionEnded = false, hadState = false;
   let myRank = null;
-  const me = { n:'', ftp:null, kj:0, pts:0, sumW:0, as:0, mw:0, iz:0, ts:0 };  // as = segundos com potência, ts = segundos gravados (potência ou FC)
+  const me = { n:'', ftp:null, kj:0, pts:0, sumW:0, as:0, mw:0, iz:0, ts:0, km:0, spd:0 };  // as = segundos com potência, ts = segundos gravados (potência ou FC)
   let demo = false;
   me.fc = null;   // FC máxima do aluno
 
@@ -767,10 +780,20 @@ body.solo-livre #progress{display:none;}
     }
   }
 
+  // velocidade "virtual" a partir dos watts (estrada plana, sem vento, ciclista + bike 85 kg)
+  function speedFromPower(w){
+    if(!(w > 0)) return 0;
+    const P = w * 0.976, m = 85, g = 9.81, crr = 0.004, k = 0.5 * 1.226 * 0.32;
+    let v = 8;
+    for(let i = 0; i < 12; i++){ const f = k*v*v*v + crr*m*g*v - P, d = 3*k*v*v + crr*m*g; v = Math.max(0.1, v - f/d); }
+    return v * 3.6;   // km/h
+  }
+  function fmtKm(km){ return (km < 10 ? km.toFixed(2) : km.toFixed(1)).replace('.', ','); }
+
   function parseFtms(dv){
     let o = 0;
     const f = dv.getUint16(o, true); o += 2;
-    if(!(f & 0x0001)) o += 2;          // instantaneous speed (presente quando o bit 0 é 0)
+    if(!(f & 0x0001)){ S.bikeSpeed = dv.getUint16(o, true) / 100; S.lastSpeedAt = performance.now(); o += 2; }   // velocidade instantânea (km/h)
     if(f & 0x0002) o += 2;             // average speed
     if(f & 0x0004){ S.cadence = dv.getUint16(o, true) / 2; S.lastCadAt = performance.now(); o += 2; }
     if(f & 0x0008) o += 2;             // average cadence
@@ -928,6 +951,11 @@ body.solo-livre #progress{display:none;}
     $('hrStatus').textContent = txt; $('hrStatus').classList.toggle('on', !!on);
     $('hrBtn').textContent = on ? 'Ligada ✓' : 'Ligar'; $('hrBtn').classList.toggle('on', !!on);
     $('chipHr').classList.toggle('on', !!on);
+    // aula por watts com cinta ligada: pede a FC máxima (opcional) para mostrar a %FCmáx quando não há bike
+    if(on && !solo && modo !== 'fc' && $('fcLabel').style.display === 'none'){
+      $('fcLabel').firstChild.textContent = 'A tua FC máxima (bpm, opcional: para veres a %FCmáx)';
+      $('fcLabel').style.display = '';
+    }
   }
 
   function isIOS(){ return /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); }
@@ -1039,6 +1067,9 @@ body.solo-livre #progress{display:none;}
       }
     }
     if(isPlaying() && powered){
+      const fresh = S.bikeSpeed > 0 && now - (S.lastSpeedAt || 0) < 3000;
+      me.spd = fresh ? S.bikeSpeed : speedFromPower(dispPower);   // usa a da bike se ela a enviar
+      me.km += me.spd * dt / 3600;
       me.kj += w * dt / 1000;
       me.as += dt;
       me.sumW += w * dt;
@@ -1056,7 +1087,7 @@ body.solo-livre #progress{display:none;}
     riderRef.update({
       n: me.n, ftp: me.ftp || null, fc: me.fc || null,
       w: Math.round(dispPower), c: Math.round(S.cadence), hr: Math.round(myHr()) || null,
-      kj: Math.round(me.kj * 10) / 10, pts: Math.round(me.pts),
+      kj: Math.round(me.kj * 10) / 10, pts: Math.round(me.pts), km: Math.round(me.km * 100) / 100, v: Math.round(me.spd * 10) / 10,
       aw: me.as ? Math.round(me.sumW / me.as) : 0, mw: Math.round(me.mw),
       iz: Math.round(me.iz), as: Math.round(modo === 'fc' ? me.ts : me.as),
       dev: hasPowerSource() || (modo === 'fc' && myHr() > 0), demo: demo || null, left: null,
@@ -1141,10 +1172,10 @@ body.solo-livre #progress{display:none;}
     try{
       const prev = (await riderRef.once('value')).val();
       if(prev){
-        me.kj = prev.kj || 0; me.pts = prev.pts || 0; me.as = prev.as || 0; me.iz = prev.iz || 0;
+        me.kj = prev.kj || 0; me.pts = prev.pts || 0; me.as = prev.as || 0; me.iz = prev.iz || 0; me.km = prev.km || 0;
         me.mw = prev.mw || 0; me.sumW = (prev.aw || 0) * (prev.as || 0); me.ts = prev.as || 0;
       } else {
-        me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = me.ts = 0;
+        me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = me.ts = me.km = me.spd = 0;
       }
     }catch(e){}
 
@@ -1246,6 +1277,7 @@ body.solo-livre #progress{display:none;}
       $('nextEl').textContent = solo ? '' : (sessionEnded ? 'O instrutor fechou a aula. Podes sair.' : '');
       $('finTitle').textContent = solo ? 'Treino concluído' : 'Aula concluída';
       $('totalTimeEl').textContent = solo ? fmtTime(me.ts) : fmtTime(blocos.reduce((s,b)=>s+blockDurationSec(b),0));
+      $('finKm').textContent = me.km > 0.01 ? fmtKm(me.km) + ' km · ' + (me.as ? (me.km / me.as * 3600).toFixed(1).replace('.', ',') : '0') + ' km/h média' : '';
       $('finZoneLbl').textContent = solo === 'livre' ? 'tempo' : 'na zona';
       $('finHomeBtn').style.display = solo ? '' : 'none';
       $('leaveBtn').textContent = '✕ Sair';
@@ -1328,20 +1360,54 @@ body.solo-livre #progress{display:none;}
     updateMarker(state.blockIndex, (elapsedBefore + (blockDurationSec(b) - remaining)) / totalSec);
   }
 
+  // número grande: toque troca valor ↔ percentagem (W ↔ %FTP, bpm ↔ %FCmáx). Escolha guardada no telemóvel.
+  let bigPctW = lsGet('aavBigPctW') === '1';          // por defeito: watts
+  let bigPctHr = lsGet('aavBigPctHr') !== '0';        // por defeito: %FCmáx
+  let bigCtx = 'w', lastMeArgs = null;
+  function showBig(abs, absUnit, pct, pctUnit, ctx){
+    bigCtx = ctx;
+    const usePct = pct != null && (ctx === 'hr' ? bigPctHr : bigPctW);
+    $('myW').textContent = usePct ? Math.round(pct) : abs;
+    $('myWUnit').textContent = usePct ? pctUnit : absUnit;
+    $('myWUnit').classList.toggle('long', $('myWUnit').textContent.length > 4);
+    $('mySwap').textContent = pct == null ? '' : (usePct ? 'toca para ver ' + absUnit : 'toca para ver ' + pctUnit);
+  }
+  function toggleBig(){
+    if(bigCtx === 'hr'){ bigPctHr = !bigPctHr; lsSet('aavBigPctHr', bigPctHr ? '1' : '0'); }
+    else { bigPctW = !bigPctW; lsSet('aavBigPctW', bigPctW ? '1' : '0'); }
+    if(lastMeArgs) renderMe(lastMeArgs[0], lastMeArgs[1]);
+  }
+  $('myBig').addEventListener('click', toggleBig);
+  $('myBig').addEventListener('keydown', (e)=>{ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); toggleBig(); } });
+  function fcZoneOf(p){ return ZONES_FC.find(z=> p <= z.max) || ZONES_FC[ZONES_FC.length-1]; }
+
   function renderMe(b, range){
+    lastMeArgs = [b, range];
     if(modo === 'fc') return renderMeFc(b, range);
     const meEl = $('meEl');
     const powered = hasPowerSource();
-    meEl.classList.toggle('nosensor', !powered);
+    const hrOnly = !powered && myHr() > 0;      // sem bike mas com cinta: mostra a FC (em %FCmáx se houver FC máxima)
+    meEl.classList.toggle('nosensor', !powered && !hrOnly);
+    meEl.classList.toggle('hronly', hrOnly);
+    if(hrOnly){
+      const hr0 = Math.round(myHr());
+      const p0 = me.fc ? hr0 / me.fc * 100 : null;
+      showBig(hr0, 'bpm', p0, '%FCmáx', 'hr');
+      const fz0 = p0 != null ? fcZoneOf(p0) : null;
+      $('myW').style.color = fz0 ? zoneColor(fz0.css) : '#fff';
+      $('myW').style.textShadow = fz0 && ZONES_FC.indexOf(fz0) === 6 ? '0 0 18px #FF3B3B, 0 0 2px #FF8A1F' : '';
+    }
     if(!powered){
       $('nosensorMsg').textContent = myHr() > 0
-        ? (user ? 'A gravar a tua frequência cardíaca. Liga a bike (toca em "Bike" lá em cima) para teres também watts e apareceres no ranking.'
-                : 'A medir a tua frequência cardíaca. Entra na tua conta para guardares o treino, e liga a bike para teres watts e ranking.')
+        ? (!me.fc ? 'Sem bike: a mostrar a tua FC. Indica a tua FC máxima na ficha para veres a %FCmáx. Liga a bike para teres watts e ranking.'
+                  : 'Sem bike: a mostrar a tua frequência cardíaca. Liga a bike (toca em "Bike" lá em cima) para teres watts e apareceres no ranking.')
         : 'Estás só a acompanhar. Liga a bike (toca em "Bike" lá em cima) para apareceres no ecrã e no ranking.';
     }
 
     const w = Math.round(dispPower);
-    $('myW').textContent = powered ? w : '—';
+    $('mySd').innerHTML = powered ? (me.spd || 0).toFixed(1).replace('.', ',') + '<small>km/h</small>' + fmtKm(me.km) + '<small>km</small>' : '';
+    if(powered) showBig(w, 'W', me.ftp ? dispPower / me.ftp * 100 : null, '%FTP', 'w');
+    else if(!hrOnly){ $('myW').textContent = '—'; $('mySwap').textContent = ''; }
     $('myHrLbl').textContent = 'FC';
     const hr = Math.round(myHr());
     $('myHr').textContent = hr ? hr : '—';
@@ -1362,7 +1428,7 @@ body.solo-livre #progress{display:none;}
       $('myPct').className = 'v';
       $('cueEl').textContent = powered && !me.ftp ? 'Sem FTP: só potência' : '';
       $('gDot').style.left = '0%';
-      $('myW').style.color = '#fff';
+      if(!hrOnly){ $('myW').style.color = '#fff'; $('myW').style.textShadow = ''; }
       return;
     }
     const pct = dispPower / me.ftp * 100;
@@ -1401,9 +1467,12 @@ body.solo-livre #progress{display:none;}
       $('nosensorMsg').textContent = 'Esta aula é por frequência cardíaca. Liga a cinta de FC (toca em "FC" lá em cima) para veres a tua zona e apareceres no ranking.';
     }
     const g = gaugeScale();
-    $('myW').textContent = hr || '—';
+    meEl.classList.remove('hronly');
+    if(hr) showBig(hr, 'bpm', me.fc ? hr / me.fc * 100 : null, '%FCmáx', 'hr');
+    else { $('myW').textContent = '—'; $('mySwap').textContent = ''; }
     $('myHr').textContent = powered ? Math.round(dispPower) : '—';
     $('myHrLbl').textContent = 'W';
+    $('mySd').innerHTML = powered ? (me.spd || 0).toFixed(1).replace('.', ',') + '<small>km/h</small>' + fmtKm(me.km) + '<small>km</small>' : '';
     const cad = Math.round(S.cadence);
     $('myRpm').textContent = powered ? cad : '—';
     $('myRpm').className = 'v' + (powered && cad ? (rpmOk(cad, b) ? ' ok' : ' low') : '');
@@ -1518,7 +1587,7 @@ body.solo-livre #progress{display:none;}
     const t = {
       date: Date.now(), aula: treinoNome || 'Aula de cycling', pin: pin || null, tipo: solo || 'aula',
       ftp: me.ftp || null, dur: Math.round(me.ts), as: Math.round(me.as),
-      kj: Math.round(me.kj*10)/10, pts: Math.round(me.pts),
+      kj: Math.round(me.kj*10)/10, pts: Math.round(me.pts), km: Math.round(me.km*100)/100,
       aw: me.as ? Math.round(me.sumW/me.as) : 0, mw: Math.round(me.mw),
       iz: Math.round(me.iz), rank: myRank ? myRank.p : null, turma: myRank ? myRank.n : null,
       hrAvg: hrVals.length ? Math.round(hrVals.reduce((a,b)=>a+b,0)/hrVals.length) : null,
@@ -1689,7 +1758,7 @@ body.solo-livre #progress{display:none;}
     const hrMax = hr.length ? Math.max(...hr) : (t.hrMax || null);
     const cell = (v,l)=> '<div><div class="v">' + v + '</div><div class="l">' + l + '</div></div>';
     const stats = hasW
-      ? cell(fmtTime(t.dur||0),'tempo') + cell(Math.round(t.kj||0),'kJ') + cell(t.pts||0,'pontos') +
+      ? cell(fmtTime(t.dur||0),'tempo') + (t.km ? cell(fmtKm(t.km),'km') : cell(Math.round(t.kj||0),'kJ')) + cell(t.pts||0,'pontos') +
         cell(t.aw||0,'W médios') + cell(t.mw||0,'W máx') + cell(pct,'%FTP médio') +
         cell((t.as||t.dur) ? Math.round((t.iz||0)/(t.as||t.dur)*100) + '%' : '—','na zona') +
         cell(t.hrAvg || '—','FC média') + cell(t.rank ? t.rank + 'º/' + t.turma : '—','posição')
@@ -1962,7 +2031,7 @@ body.solo-livre #progress{display:none;}
     }
     if(solo === 'livre') modo = (!hasPowerSource() && hrConnected()) ? 'fc' : 'ftp';   // só cinta: o número grande é a FC
     resetSerie(); savedThisClass = false; $('savedNote').innerHTML = '';
-    me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = me.ts = 0;
+    me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = me.ts = me.km = me.spd = 0;
     serverOffset = 0; sessionEnded = false; myRank = null; riderRef = null;
     soloClock.acc = 0; soloClock.since = 0;
     if(solo === 'livre') state = { status:'paused', blockIndex:0 };
@@ -2030,6 +2099,7 @@ body.solo-livre #progress{display:none;}
       $('nextEl').textContent = '';
       $('finTitle').textContent = 'Treino concluído';
       $('totalTimeEl').textContent = fmtTime(soloElapsed());
+      $('finKm').textContent = me.km > 0.01 ? fmtKm(me.km) + ' km · ' + (me.as ? (me.km / me.as * 3600).toFixed(1).replace('.', ',') : '0') + ' km/h média' : '';
       $('finKj').textContent = me.kj.toFixed(0);
       $('finPts').textContent = Math.round(me.pts);
       $('finRank').textContent = '—';
