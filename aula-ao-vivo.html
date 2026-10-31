@@ -1581,7 +1581,17 @@ body.solo-livre #progress{display:none;}
   $('hrBtn').addEventListener('click', connectHr);
   $('chipBike').addEventListener('click', ()=>{ if(!demo) connectBike(false); });
   $('chipHr').addEventListener('click', connectHr);
-  $('enterBtn').addEventListener('click', ()=>{ if(solo) startSolo(); else enterClass(); });
+  // no Bluefy (iPhone com Bluetooth) pede ecrã inteiro ao entrar; se o Bluefy não deixar, não faz nada
+  function tryFullscreen(){
+    try{
+      if(!(isIOS() && hasBluetooth)) return;
+      if(document.fullscreenElement || document.webkitFullscreenElement) return;
+      const el = document.documentElement;
+      const fn = el.requestFullscreen || el.webkitRequestFullscreen;
+      if(fn){ const r = fn.call(el); if(r && r.catch) r.catch(()=>{}); }
+    }catch(e){}
+  }
+  $('enterBtn').addEventListener('click', ()=>{ tryFullscreen(); if(solo) startSolo(); else enterClass(); });
   $('demoBtn').addEventListener('click', ()=>{
     demo = true;
     if(!$('ftpInput').value) $('ftpInput').value = lsGet(LS.ftp) || 150;
