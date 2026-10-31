@@ -308,6 +308,8 @@ body.solo-livre #progress{display:none;}
 .f-out span{font-size:12px;color:var(--muted);}
 .f-chips{display:flex;flex-wrap:wrap;gap:6px;}
 .f-chips button{background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:999px;padding:8px 12px;font-size:13px;}
+.ficha-upd{display:flex;flex-direction:column;gap:2px;width:100%;max-width:420px;text-align:left;background:rgba(255,214,10,.1);border:1px solid rgba(255,214,10,.5);border-radius:14px;padding:12px 14px;color:var(--text);font-size:14px;line-height:1.4;margin:4px 0 2px;cursor:pointer;}
+.ficha-upd > b{font-size:16px;color:#FFD60A;}
 .f-chips button.on{background:rgba(232,114,44,.18);border-color:var(--accent);color:#fff;font-weight:600;}
 .f-q{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:13px;line-height:1.4;padding:8px 0;border-bottom:1px solid var(--border);}
 .f-q:last-child{border-bottom:none;}
@@ -394,6 +396,7 @@ body.solo-livre #progress{display:none;}
 <div id="homeScreen" class="screen home active">
   <h1 class="pr-logo" style="font-size:42px" aria-label="PlayRide"><svg class="pr-mark" height="42" viewBox="0 0 200 130" aria-hidden="true"><g transform="skewX(-14)"><rect x="34" y="96" width="22" height="34" rx="4" fill="#A35CFF"/><rect x="62" y="78" width="22" height="52" rx="4" fill="#1FA8F0"/><rect x="90" y="58" width="22" height="72" rx="4" fill="#3DD45C"/><rect x="118" y="38" width="22" height="92" rx="4" fill="#FFD60A"/><rect x="146" y="16" width="22" height="114" rx="4" fill="#FF8A1F"/><rect x="174" y="0" width="22" height="130" rx="4" fill="#FF3B3B"/></g></svg><span>PlayRide</span></h1>
   <div class="home-hello" id="homeHello"></div>
+  <button class="ficha-upd" id="fichaUpd" style="display:none"><b>📋 Atualiza a tua ficha</b><span>Acrescentámos o campo <b>Sexo</b>. Toca aqui para o indicar (30 segundos).</span></button>
   <div class="home-grid">
     <button class="tile big" id="tLive" style="--tc:#E8722C"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z" fill="currentColor" stroke="none"/></svg><div><b>Aula ao vivo</b><br><span>Entra na aula da sala com o PIN do ecrã</span></div></button>
     <button class="tile" id="tFree" style="--tc:#3DD45C"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9h6l3.5 7.5M9 9 12 16.5h-3M14 6h2.5l-1.5 3"/></svg><b>Só pedalar</b><span>Treino livre ao teu ritmo</span></button>
@@ -418,6 +421,12 @@ body.solo-livre #progress{display:none;}
       <div class="f-row">
         <label class="f-field">Data de nascimento<input type="date" id="fNasc" max="2020-12-31" min="1920-01-01"></label>
         <div class="f-field">Idade<div class="f-out"><b id="fIdade">—</b><span>anos</span></div></div>
+      </div>
+      <div class="f-field">Sexo
+        <div class="f-chips" id="fSexo">
+          <button type="button" data-v="M">Masculino</button>
+          <button type="button" data-v="F">Feminino</button>
+        </div>
       </div>
       <div class="f-row">
         <label class="f-field">Peso (kg)<input type="number" id="fPeso" inputmode="decimal" min="30" max="250" step="0.5" placeholder="ex: 70"></label>
@@ -2284,7 +2293,8 @@ body.solo-livre #progress{display:none;}
     $('tHistSub').textContent = user ? 'Gráficos e evolução dos teus treinos' : 'Entra na tua conta para guardares os treinos';
     if(typeof ficha !== 'undefined'){
       const fc = fichaFcMax(ficha), id = ficha ? idadeDe(ficha.nasc) : null;
-      $('tFichaSub').textContent = ficha ? (id ? id + ' anos' : 'Ficha') + (fc ? ' · FCmáx ' + fc + ' bpm' : '') + (fichaAlerta(ficha) ? ' · ⚠ fala com o médico' : '') : 'Por preencher: idade, FCmáx e saúde';
+      $('tFichaSub').textContent = ficha ? (id ? id + ' anos' : 'Ficha') + (fc ? ' · FCmáx ' + fc + ' bpm' : '') + (fichaAlerta(ficha) ? ' · ⚠ fala com o médico' : '') + (!ficha.sexo ? ' · ⚠ falta atualizar' : '') : 'Por preencher: idade, FCmáx e saúde';
+      $('fichaUpd').style.display = ficha && !ficha.sexo ? '' : 'none';
     }
   }
 
@@ -2541,7 +2551,7 @@ body.solo-livre #progress{display:none;}
 
   function chipVal(id){ const b = $(id).querySelector('button.on'); return b ? b.dataset.v : null; }
   function setChip(id, v){ $(id).querySelectorAll('button').forEach(b=> b.classList.toggle('on', b.dataset.v === v)); }
-  ['fNivel','fFreq','fObj'].forEach(id=> $(id).addEventListener('click', e=>{ const b = e.target.closest('button'); if(b){ setChip(id, b.dataset.v); fichaPreview(); } }));
+  ['fSexo','fNivel','fFreq','fObj'].forEach(id=> $(id).addEventListener('click', e=>{ const b = e.target.closest('button'); if(b){ setChip(id, b.dataset.v); fichaPreview(); } }));
   $('fParq').addEventListener('click', e=>{
     const b = e.target.closest('button'); if(!b) return;
     b.parentNode.querySelectorAll('button').forEach(x=> x.classList.toggle('on', x === b));
@@ -2553,7 +2563,7 @@ body.solo-livre #progress{display:none;}
     $('fParq').querySelectorAll('.f-yn').forEach(g=>{ const on = g.querySelector('button.on'); if(on) parq[g.dataset.q] = Number(on.dataset.v); });
     const num = (id)=>{ const v = Number($(id).value); return v > 0 ? v : null; };
     return {
-      nasc: $('fNasc').value || null, peso: num('fPeso'), altura: num('fAltura'),
+      nasc: $('fNasc').value || null, sexo: chipVal('fSexo'), peso: num('fPeso'), altura: num('fAltura'),
       nivel: chipVal('fNivel'), freq: chipVal('fFreq'), objetivo: chipVal('fObj'),
       fcRep: num('fFcRep'), fcMed: num('fFcMed'), ftp: num('fFtp'), parq: parq,
       decl: $('fDecl').checked, rgpd: $('fRgpd').checked
@@ -2589,7 +2599,7 @@ body.solo-livre #progress{display:none;}
   function fillFichaForm(f){
     f = f || {};
     $('fNasc').value = f.nasc || ''; $('fPeso').value = f.peso || ''; $('fAltura').value = f.altura || '';
-    setChip('fNivel', f.nivel || null); setChip('fFreq', f.freq || null); setChip('fObj', f.objetivo || null);
+    setChip('fSexo', f.sexo || null); setChip('fNivel', f.nivel || null); setChip('fFreq', f.freq || null); setChip('fObj', f.objetivo || null);
     $('fFcRep').value = f.fcRep || ''; $('fFcMed').value = f.fcMed || '';
     $('fFtp').value = f.ftp || (perfil && perfil.ftp) || lsGet(LS.ftp) || '';
     $('fParq').querySelectorAll('.f-yn').forEach(g=>{ const v = f.parq ? f.parq[g.dataset.q] : undefined; g.querySelectorAll('button').forEach(b=> b.classList.toggle('on', v !== undefined && Number(b.dataset.v) === Number(v))); });
@@ -2606,6 +2616,7 @@ body.solo-livre #progress{display:none;}
     const f = readFichaForm();
     $('fErr').textContent = '';
     if(!f.nasc || !idadeDe(f.nasc)){ $('fErr').textContent = 'Indica a tua data de nascimento.'; $('fNasc').focus(); return; }
+    if(!f.sexo){ $('fErr').textContent = 'Indica o teu sexo (Masculino ou Feminino).'; $('fSexo').scrollIntoView({block:'center'}); return; }
     if(Object.keys(f.parq).length < $('fParq').querySelectorAll('.f-yn').length){ $('fErr').textContent = 'Responde a todas as perguntas do questionário de saúde.'; return; }
     if(!f.decl || !f.rgpd){ $('fErr').textContent = 'Para guardar, confirma as duas caixas no fim.'; return; }
     f.atualizado = Date.now();
@@ -2659,6 +2670,8 @@ body.solo-livre #progress{display:none;}
       $('fichaLine').innerHTML = 'Ainda não tens ficha. <a href="#" id="fichaLink">Preenche a tua ficha</a> (2 minutos) para treinares com as tuas zonas e em segurança.';
     } else if(fichaAlerta(ficha)){
       $('fichaLine').innerHTML = '<span style="color:#FF8A8A">⚠ Na tua ficha indicaste um problema de saúde: pedala com intensidade leve e avisa o professor.</span>';
+    } else if(!ficha.sexo){
+      $('fichaLine').innerHTML = '<span style="color:#FFD27A">📋 Atualiza a tua ficha: falta indicar o sexo.</span> <a href="#" id="fichaLink">Atualizar agora</a>';
     } else $('fichaLine').innerHTML = '';
     $('setupSafetyTxt').innerHTML = solo
       ? 'Estás a treinar sozinho. Se sentires <b>dor no peito, tonturas, falta de ar ou qualquer desconforto</b>, pára de pedalar e pede ajuda. Em emergência liga <b>112</b>.'
@@ -2691,6 +2704,7 @@ body.solo-livre #progress{display:none;}
   $('fSave').addEventListener('click', saveFicha);
   $('fDelete').addEventListener('click', deleteFicha);
   document.addEventListener('click', (e)=>{ if(e.target && e.target.id === 'fichaLink'){ e.preventDefault(); openFicha(); } });
+  $('fichaUpd').addEventListener('click', openFicha);
 
   $('tLive').addEventListener('click', ()=>{ showScreen('joinScreen'); setTimeout(()=> $('pinInput').focus(), 50); });
   $('tFree').addEventListener('click', openLivre);
