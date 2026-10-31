@@ -177,7 +177,7 @@ body:has(#liveScreen.active) .legal{display:none;}
   font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(66px,21vw,112px);
   line-height:1;color:#fff;font-variant-numeric:tabular-nums;margin-top:6px;
 }
-.timer.warn{color:#FFD27A;}
+.timer.t-warn{color:#FFD27A;}
 .target{font-size:15px;color:rgba(255,255,255,.8);margin-top:6px;width:100%;max-width:420px;}
 .target b{color:#fff;}
 /* alvo do bloco em cartões grandes, logo por baixo do tempo */
@@ -222,40 +222,49 @@ body:has(#liveScreen.active) .legal{display:none;}
 
 .next{margin-top:auto;padding-top:14px;color:rgba(255,255,255,.6);font-size:13px;width:100%;max-width:420px;}
 .next b{color:rgba(255,255,255,.9);}
-/* cartão "a seguir": cor do próximo bloco, maior, pulsa nos últimos 10 s */
-#nextEl{position:sticky;bottom:0;z-index:6;padding-top:10px;padding-bottom:6px;background:linear-gradient(to bottom,transparent,rgba(5,7,10,.92) 22%);}
-#nextEl:empty{display:none;}
+/* cartão "a seguir": escondido; aparece por magia nos últimos 15 s, sobe e explode nos últimos 3 s */
+.nx-float{position:fixed;contain:layout;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));width:min(560px,calc(100% - 24px));z-index:60;pointer-events:none;transform:translateX(-50%);}
+.nx-float:empty{display:none;}
 .nx{border-radius:16px;text-align:left;padding:8px 14px 10px;box-shadow:0 -6px 24px rgba(0,0,0,.45);border:2px solid color-mix(in srgb,var(--nc) 55%,transparent);border-left:10px solid var(--nc);
-  background:linear-gradient(120deg,color-mix(in srgb,var(--nc) 32%,#12161D),#12161D 75%);transition:transform .2s ease;}
+  background:linear-gradient(120deg,color-mix(in srgb,var(--nc) 32%,#12161D),#12161D 75%);position:relative;overflow:hidden;
+  visibility:hidden;opacity:0;}
 .nx-top{display:flex;justify-content:space-between;align-items:baseline;}
-.nx-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.75);}
-.nx-in{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#fff;font-variant-numeric:tabular-nums;}
+.nx-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.8);}
+.nx-in{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:26px;color:#fff;font-variant-numeric:tabular-nums;text-shadow:0 0 12px var(--nc);}
 .nx-main{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin-top:4px;}
 .nx-zone{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(22px,6.8vw,30px);text-transform:uppercase;letter-spacing:.5px;line-height:1.1;background:var(--nc);border-radius:10px;padding:2px 12px;}
 .nx-tec{font-weight:800;font-size:17px;color:#fff;}
 .nx-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:26px;color:#fff;}
 .nx-meta{margin-top:4px;font-size:15px;color:rgba(255,255,255,.75);}
 .nx-meta b{color:#fff;font-size:18px;}
-.nx.soon{animation:nxPulse 1s ease-in-out infinite;border-color:var(--nc);}
-.nx.soon .nx-in{font-size:32px;color:#fff;text-shadow:0 0 12px var(--nc);}
-.nx.soon .nx-lbl{color:#fff;}
-@keyframes nxPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 transparent;}50%{transform:scale(1.035);box-shadow:0 0 34px color-mix(in srgb,var(--nc) 65%,transparent);}}
+/* aparecer "por magia" */
+.nx.show{visibility:visible;opacity:1;animation:nxMagic .9s cubic-bezier(.2,1.4,.4,1) both;}
+.nx.show::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);transform:translateX(-120%);animation:nxShine 1.1s .35s ease-out both;}
+@keyframes nxMagic{0%{opacity:0;transform:translateY(40px) scale(.55);filter:blur(14px) brightness(2.2);}60%{opacity:1;filter:blur(0) brightness(1.4);}100%{opacity:1;transform:none;filter:none;}}
+@keyframes nxShine{to{transform:translateX(120%);}}
+/* subir ao meio e explodir (3 s) */
+.nx.boom{visibility:visible;opacity:1;animation:nxBoom 3s cubic-bezier(.3,.1,.3,1) both;border-color:var(--nc);}
+.nx.boom .nx-in{font-size:40px;}
+@keyframes nxBoom{
+  0%{transform:none;}
+  35%{transform:translateY(calc(-50vh + 110px)) scale(1);box-shadow:0 0 40px color-mix(in srgb,var(--nc) 70%,transparent);}
+  45%,55%,65%,75%{transform:translateY(calc(-50vh + 110px)) rotate(-1.2deg);}
+  50%,60%,70%{transform:translateY(calc(-50vh + 110px)) rotate(1.2deg);}
+  78%{transform:translateY(calc(-50vh + 110px)) scale(.94);opacity:1;filter:brightness(1.3);}
+  100%{transform:translateY(calc(-50vh + 110px)) scale(2.2);opacity:0;filter:brightness(3) blur(6px);}}
+.nx-burst{position:fixed;inset:0;z-index:59;pointer-events:none;display:none;overflow:hidden;}
+.nx-burst.on{display:block;}
+.nx-burst .ring{position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px 0 0 -20px;border-radius:50%;background:radial-gradient(circle,#fff 0,var(--nc) 35%,color-mix(in srgb,var(--nc) 40%,transparent) 65%,transparent 72%);
+  animation:nxRing .9s 2.35s ease-out both;}
+@keyframes nxRing{0%{transform:scale(0);opacity:1;}60%{opacity:.9;}100%{transform:scale(60);opacity:0;}}
+.nx-burst i{position:absolute;left:50%;top:50%;width:var(--s);height:var(--s);margin:calc(var(--s) / -2) 0 0 calc(var(--s) / -2);border-radius:50%;background:var(--nc);box-shadow:0 0 10px var(--nc);opacity:0;
+  animation:nxPart 1s calc(2.35s + var(--d)) cubic-bezier(.1,.8,.3,1) both;}
+@keyframes nxPart{0%{transform:translate(0,0) scale(1);opacity:1;}100%{transform:translate(var(--x),var(--y)) scale(.2);opacity:0;}}
 .nx-seg{margin-top:8px;padding-top:0;}
 .nx-seg:empty{display:none;}
-/* clarão na mudança de bloco */
-.blk-flash{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;pointer-events:none;
-  background:radial-gradient(circle at 50% 45%,color-mix(in srgb,var(--fc) 85%,transparent),color-mix(in srgb,var(--fc) 35%,#05070A) 70%);}
-.blk-flash.on{display:flex;animation:bfAnim 1.7s ease-out forwards;}
-.bf-in{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:20px;animation:bfIn 1.7s ease-out forwards;}
-.bf-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:5px;text-transform:uppercase;font-size:18px;color:rgba(255,255,255,.85);}
-.bf-in b{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(44px,14vw,72px);text-transform:uppercase;line-height:1;text-shadow:0 4px 24px rgba(0,0,0,.45);}
-#bfTec{font-weight:800;font-size:22px;color:#fff;}
-#bfMeta{font-size:18px;color:rgba(255,255,255,.9);font-weight:600;}
-@keyframes bfAnim{0%{opacity:0;}10%{opacity:1;}70%{opacity:1;}100%{opacity:0;visibility:hidden;}}
-@keyframes bfIn{0%{transform:scale(1.35);}18%{transform:scale(1);}100%{transform:scale(.96);}}
 .body.blk-in #activeBlock{animation:blkIn .6s ease-out;}
-@keyframes blkIn{0%{transform:translateY(18px);opacity:.3;}100%{transform:none;opacity:1;}}
-@media (prefers-reduced-motion:reduce){.nx.soon,.blk-flash.on,.bf-in,.body.blk-in #activeBlock{animation:none;}.blk-flash.on{display:none;}}
+@keyframes blkIn{0%{transform:translateY(18px) scale(.97);opacity:.3;}100%{transform:none;opacity:1;}}
+@media (prefers-reduced-motion:reduce){.nx.show,.nx.show::after,.body.blk-in #activeBlock{animation:none;}}
 
 .finished{display:none;flex-direction:column;align-items:center;gap:8px;margin-top:20px;width:100%;max-width:420px;}
 .finished.active{display:flex;}
@@ -660,7 +669,7 @@ body.solo-livre #progress{display:none;}
     <div class="fe-acts"><button class="btn-outline" id="ftpEditCancel">Cancelar</button><button class="btn-primary" id="ftpEditSave">Gravar</button><button class="btn-primary" id="ftpEditOk" style="display:none">OK</button></div>
   </div>
 </div>
-<div class="blk-flash" id="blkFlash" aria-hidden="true"><div class="bf-in"><span class="bf-lbl">Novo bloco</span><b id="bfZone"></b><span id="bfTec"></span><span id="bfMeta"></span></div></div>
+<div class="nx-burst" id="nxBurst" aria-hidden="true"></div><div class="nx-float" id="nxFloat"></div>
 <div id="liveScreen">
   <div class="progress" id="progress"></div>
   <div class="topbar">
@@ -800,28 +809,50 @@ body.solo-livre #progress{display:none;}
     return (range.open ? '> ' + range.min : lo + '–' + range.max) + '%';
   }
   // ===== cartão "a seguir" e transição de bloco =====
-  let lastNextHtml = '', lastBlockIdx = -1;
+  let lastNextHtml = '', lastBlockIdx = -1, nxPhase = '', nxBoomIdx = -1;
+  const NX_SHOW = 15, NX_BOOM = 3;   // segundos antes do fim do bloco
   function zoneTxtColor(css){ return (css === '--z5' || css === '--z6' || css === '--seg') ? '#fff' : '#0A0D12'; }
+  function hideNx(){ const f = $('nxFloat'); if(f) f.innerHTML = ''; const bu = $('nxBurst'); if(bu){ bu.className = 'nx-burst'; bu.innerHTML = ''; } lastNextHtml = ''; nxPhase = ''; }
+  function nxExplode(color){
+    const bu = $('nxBurst'); bu.style.setProperty('--nc', color);
+    let h = '<div class="ring"></div>';
+    for(let k = 0; k < 26; k++){
+      const a = Math.random() * Math.PI * 2, r = 120 + Math.random() * 260, sz = 6 + Math.round(Math.random() * 12);
+      h += '<i style="--x:' + Math.round(Math.cos(a) * r) + 'px;--y:' + Math.round(Math.sin(a) * r) + 'px;--s:' + sz + 'px;--d:' + (Math.random() * .12).toFixed(2) + 's"></i>';
+    }
+    bu.innerHTML = h; bu.className = 'nx-burst'; void bu.offsetWidth; bu.className = 'nx-burst on';
+    clearTimeout(nxExplode.t); nxExplode.t = setTimeout(()=>{ bu.className = 'nx-burst'; bu.innerHTML = ''; }, 3600);
+  }
   function renderNext(next, remaining){
-    const el = $('nextEl');
-    let html;
+    const el = $('nxFloat');
+    const playing = state.status === 'playing' && solo !== 'livre';
+    let phase = '';
+    if(playing && remaining > 0){
+      if(next && remaining <= NX_BOOM) phase = 'boom';
+      else if(remaining <= NX_SHOW) phase = 'show';
+    }
+    if(!phase){ if(el.innerHTML) el.innerHTML = ''; lastNextHtml = ''; nxPhase = ''; return; }
+    let html, color = '#fff';
     if(!next){
-      html = '<div class="nx last" style="--nc:#fff"><div class="nx-top"><span class="nx-lbl">Último bloco</span></div><div class="nx-main"><span class="nx-name">Força até ao fim! 💪</span></div></div>';
+      html = '<div class="nx last" style="--nc:#fff"><div class="nx-top"><span class="nx-lbl">Último bloco</span><span class="nx-in"></span></div><div class="nx-main"><span class="nx-name">Força até ao fim! 💪</span></div></div>';
     } else {
-      const z = blkZone(next), nc = zoneColor(z.css);
+      const z = blkZone(next); color = zoneColor(z.css);
       const zl = next.tipo === 'seg' ? 'Segmento' : (next.tipo === 'cool' ? 'Retorno à calma' : z.name);
       const meta = next.tipo === 'seg' ? 'transição leve'
         : (next.teste ? 'o mais forte possível' : (modo === 'zonas' ? '' : '<b>' + pctTxt(next, zoneRange(next.ftp)) + '</b>' + (modo === 'fc' ? ' FCmáx' : ' FTP')));
-      html = '<div class="nx" style="--nc:' + nc + '"><div class="nx-top"><span class="nx-lbl">A seguir</span><span class="nx-in"></span></div>' +
+      html = '<div class="nx" style="--nc:' + color + '"><div class="nx-top"><span class="nx-lbl">A seguir</span><span class="nx-in"></span></div>' +
         '<div class="nx-main"><span class="nx-zone" style="color:' + zoneTxtColor(z.css) + '">' + escapeHtml(next.teste ? 'Teste FTP' : zl) + '</span>' + (next.tecnica ? '<span class="nx-tec">' + escapeHtml(next.tecnica) + '</span>' : '') + '</div>' +
         '<div class="nx-meta">' + (meta ? meta + ' · ' : '') + (next.rpm ? '<b>' + rpmTxt(next) + '</b> rpm · ' : '') + '<b>' + fmtTime(blockDurationSec(next)) + '</b></div></div>';
     }
-    if(html !== lastNextHtml){ el.innerHTML = html; lastNextHtml = html; }
+    if(html !== lastNextHtml){ el.innerHTML = html; lastNextHtml = html; nxPhase = ''; }
     const card = el.querySelector('.nx'); if(!card) return;
-    const soon = !!next && state.status === 'playing' && remaining <= 10 && remaining > 0;
-    card.classList.toggle('soon', soon);
+    if(phase !== nxPhase){
+      card.classList.remove('show', 'boom'); void card.offsetWidth; card.classList.add(phase);
+      if(phase === 'boom' && nxBoomIdx !== state.blockIndex){ nxBoomIdx = state.blockIndex; nxExplode(color); }
+      nxPhase = phase;
+    }
     const inn = card.querySelector('.nx-in');
-    if(inn) inn.textContent = soon ? 'em ' + Math.ceil(remaining) : (next ? 'em ' + fmtTime(remaining) : '');
+    if(inn) inn.textContent = 'em ' + Math.ceil(remaining);
   }
   function checkBlockChange(b){
     const idx = state.blockIndex;
@@ -829,16 +860,7 @@ body.solo-livre #progress{display:none;}
     const first = lastBlockIdx === -1;
     lastBlockIdx = idx;
     if(first || state.status !== 'playing' || solo === 'livre') return;
-    const z = blkZone(b), c = zoneColor(z.css);
-    const f = $('blkFlash');
-    f.style.setProperty('--fc', c);
-    $('bfZone').textContent = b.teste ? 'Teste FTP' : (b.tipo === 'seg' ? 'Segmento' : z.name);
-    $('bfZone').style.color = '#fff';
-    $('bfTec').textContent = b.tecnica || '';
-    $('bfMeta').textContent = fmtTime(blockDurationSec(b)) + (b.rpm ? ' · ' + rpmTxt(b) + ' rpm' : '');
-    f.classList.remove('on'); void f.offsetWidth; f.classList.add('on');
     const body = $('bodyEl'); body.classList.remove('blk-in'); void body.offsetWidth; body.classList.add('blk-in');
-    try{ if(navigator.vibrate) navigator.vibrate([90, 60, 90]); }catch(e){}
   }
 
   function setTarget(tiles, note, color){
@@ -1386,7 +1408,7 @@ body.solo-livre #progress{display:none;}
       if(ftp && (!perfil || perfil.ftp !== ftp)) upd.ftp = ftp;
       if(Object.keys(upd).length){ fbDb.ref('alunos/' + user.uid + '/perfil').update(upd).catch(()=>{}); perfil = Object.assign({}, perfil, upd); }
     }
-    resetSerie(); savedThisClass = false; treinoKey = null; lastBlockIdx = -1; lastNextHtml = ''; $('savedNote').innerHTML = ''; $('ftpResult').style.display = 'none'; $('finFtp').innerHTML = '';
+    resetSerie(); savedThisClass = false; treinoKey = null; lastBlockIdx = -1; nxBoomIdx = -1; hideNx(); $('savedNote').innerHTML = ''; $('ftpResult').style.display = 'none'; $('finFtp').innerHTML = '';
 
     riderRef =fbDb.ref('sessions/' + pin + '/riders/' + riderId);
     // se recarregaste a página a meio, continua de onde ficaste
@@ -1498,7 +1520,7 @@ body.solo-livre #progress{display:none;}
     if(finished){
       $('activeBlock').style.display = 'none';
       $('finishedEl').classList.add('active');
-      $('nextEl').textContent = solo ? '' : (sessionEnded ? 'O instrutor fechou a aula. Podes sair.' : ''); lastNextHtml = ''; $('segNext').innerHTML = '';
+      $('nextEl').textContent = solo ? '' : (sessionEnded ? 'O instrutor fechou a aula. Podes sair.' : ''); hideNx(); $('segNext').innerHTML = '';
       $('finTitle').textContent = solo ? 'Treino concluído' : 'Aula concluída';
       $('totalTimeEl').textContent = solo ? fmtTime(me.ts) : fmtTime(blocos.reduce((s,b)=>s+blockDurationSec(b),0));
       $('finKm').textContent = me.km > 0.01 ? fmtKm(me.km) + ' km · ' + (me.as ? (me.km / me.as * 3600).toFixed(1).replace('.', ',') : '0') + ' km/h média' : '';
@@ -1541,7 +1563,7 @@ body.solo-livre #progress{display:none;}
     $('techEl').textContent = b.tecnica || '';
     $('feelEl').textContent = zone.feel || '';
     $('timerEl').textContent = state.status === 'paused' && remaining > 0 ? fmtCountdown(remaining) : fmtCountdown(remaining);
-    $('timerEl').classList.toggle('warn', remaining <= 5 && remaining > 0 && state.status === 'playing');
+    $('timerEl').classList.toggle('t-warn', remaining <= 5 && remaining > 0 && state.status === 'playing');
     $('bodyEl').style.background = 'radial-gradient(circle at 50% 30%, ' + zc + '33, #05070A 70%)';
 
     const range = zoneRange(b.ftp);
@@ -2482,7 +2504,7 @@ body.solo-livre #progress{display:none;}
       if(Object.keys(upd).length){ fbDb.ref('alunos/' + user.uid + '/perfil').update(upd).catch(()=>{}); perfil = Object.assign({}, perfil, upd); }
     }
     if(solo === 'livre') modo = (!hasPowerSource() && hrConnected()) ? 'fc' : 'ftp';   // só cinta: o número grande é a FC
-    resetSerie(); savedThisClass = false; treinoKey = null; lastBlockIdx = -1; lastNextHtml = ''; $('savedNote').innerHTML = ''; $('ftpResult').style.display = 'none'; $('finFtp').innerHTML = '';
+    resetSerie(); savedThisClass = false; treinoKey = null; lastBlockIdx = -1; nxBoomIdx = -1; hideNx(); $('savedNote').innerHTML = ''; $('ftpResult').style.display = 'none'; $('finFtp').innerHTML = '';
     me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = me.ts = me.km = me.spd = me.tw = me.tt = 0; me.ftpIni = null; me.ftpTest = null; me.testDone = false;
     serverOffset = 0; sessionEnded = false; myRank = null; riderRef = null;
     soloClock.acc = 0; soloClock.since = 0;
@@ -2548,7 +2570,7 @@ body.solo-livre #progress{display:none;}
       const tmp = solo; // reaproveita o ecrã de fim
       $('activeBlock').style.display = 'none';
       $('finishedEl').classList.add('active');
-      $('nextEl').textContent = ''; lastNextHtml = '';
+      $('nextEl').textContent = ''; hideNx();
       $('finTitle').textContent = 'Treino concluído';
       $('totalTimeEl').textContent = fmtTime(soloElapsed());
       $('finKm').textContent = me.km > 0.01 ? fmtKm(me.km) + ' km · ' + (me.as ? (me.km / me.as * 3600).toFixed(1).replace('.', ',') : '0') + ' km/h média' : '';
@@ -2591,7 +2613,7 @@ body.solo-livre #progress{display:none;}
     $('techEl').textContent = '';
     $('feelEl').textContent = zone ? zone.feel : '';
     $('timerEl').textContent = fmtTime(soloElapsed());
-    $('timerEl').classList.remove('warn');
+    $('timerEl').classList.remove('t-warn');
     $('targetEl').innerHTML = state.status === 'playing' ? 'Pedala ao teu ritmo' : 'Em pausa · toca em <b>▶</b> para continuar';
     $('bodyEl').style.background = 'radial-gradient(circle at 50% 30%, ' + zc + '33, #05070A 70%)';
     const range = zone ? zoneRange(pct) : {min:0, max:0};
@@ -2603,7 +2625,7 @@ body.solo-livre #progress{display:none;}
     $('myZoneLbl').textContent = 'W médios';
     $('myZone').textContent = me.as ? Math.round(me.sumW/me.as) : 0;
     soloNoSensorMsg();
-    $('nextEl').innerHTML = 'Toca em <b>GRAVAR &amp; SAIR</b> quando acabares'; lastNextHtml = '';
+    $('nextEl').innerHTML = 'Toca em <b>GRAVAR &amp; SAIR</b> quando acabares'; hideNx();
   }
 
 
