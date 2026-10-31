@@ -185,6 +185,7 @@ body:has(#liveScreen.active) .legal{display:none;}
 .tg{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-top:4px solid var(--zc,#3A4353);border-radius:12px;padding:6px 4px 8px;min-width:0;}
 .tg-l{display:block;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:1px;}
 .tg b{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(21px,6.6vw,34px);line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:clip;}
+.tg b.lng{font-size:clamp(18px,5.4vw,28px);}
 .tg small{display:block;font-size:12px;color:rgba(255,255,255,.6);font-weight:600;margin-top:1px;}
 .tg-note{margin-top:6px;font-size:14px;color:#FFD27A;font-weight:600;}
 
@@ -219,8 +220,42 @@ body:has(#liveScreen.active) .legal{display:none;}
 .nosensor-msg{display:none;font-size:13px;color:var(--muted);line-height:1.45;}
 .me.nosensor .nosensor-msg{display:block;}
 
-.next{margin-top:auto;padding-top:14px;color:rgba(255,255,255,.6);font-size:13px;}
+.next{margin-top:auto;padding-top:14px;color:rgba(255,255,255,.6);font-size:13px;width:100%;max-width:420px;}
 .next b{color:rgba(255,255,255,.9);}
+/* cartão "a seguir": cor do próximo bloco, maior, pulsa nos últimos 10 s */
+#nextEl{position:sticky;bottom:0;z-index:6;padding-top:10px;padding-bottom:6px;background:linear-gradient(to bottom,transparent,rgba(5,7,10,.92) 22%);}
+#nextEl:empty{display:none;}
+.nx{border-radius:16px;text-align:left;padding:8px 14px 10px;box-shadow:0 -6px 24px rgba(0,0,0,.45);border:2px solid color-mix(in srgb,var(--nc) 55%,transparent);border-left:10px solid var(--nc);
+  background:linear-gradient(120deg,color-mix(in srgb,var(--nc) 32%,#12161D),#12161D 75%);transition:transform .2s ease;}
+.nx-top{display:flex;justify-content:space-between;align-items:baseline;}
+.nx-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:15px;letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.75);}
+.nx-in{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#fff;font-variant-numeric:tabular-nums;}
+.nx-main{display:flex;align-items:center;flex-wrap:wrap;gap:6px 10px;margin-top:4px;}
+.nx-zone{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(22px,6.8vw,30px);text-transform:uppercase;letter-spacing:.5px;line-height:1.1;background:var(--nc);border-radius:10px;padding:2px 12px;}
+.nx-tec{font-weight:800;font-size:17px;color:#fff;}
+.nx-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:26px;color:#fff;}
+.nx-meta{margin-top:4px;font-size:15px;color:rgba(255,255,255,.75);}
+.nx-meta b{color:#fff;font-size:18px;}
+.nx.soon{animation:nxPulse 1s ease-in-out infinite;border-color:var(--nc);}
+.nx.soon .nx-in{font-size:32px;color:#fff;text-shadow:0 0 12px var(--nc);}
+.nx.soon .nx-lbl{color:#fff;}
+@keyframes nxPulse{0%,100%{transform:scale(1);box-shadow:0 0 0 transparent;}50%{transform:scale(1.035);box-shadow:0 0 34px color-mix(in srgb,var(--nc) 65%,transparent);}}
+.nx-seg{margin-top:8px;padding-top:0;}
+.nx-seg:empty{display:none;}
+/* clarão na mudança de bloco */
+.blk-flash{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;pointer-events:none;
+  background:radial-gradient(circle at 50% 45%,color-mix(in srgb,var(--fc) 85%,transparent),color-mix(in srgb,var(--fc) 35%,#05070A) 70%);}
+.blk-flash.on{display:flex;animation:bfAnim 1.7s ease-out forwards;}
+.bf-in{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:20px;animation:bfIn 1.7s ease-out forwards;}
+.bf-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;letter-spacing:5px;text-transform:uppercase;font-size:18px;color:rgba(255,255,255,.85);}
+.bf-in b{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(44px,14vw,72px);text-transform:uppercase;line-height:1;text-shadow:0 4px 24px rgba(0,0,0,.45);}
+#bfTec{font-weight:800;font-size:22px;color:#fff;}
+#bfMeta{font-size:18px;color:rgba(255,255,255,.9);font-weight:600;}
+@keyframes bfAnim{0%{opacity:0;}10%{opacity:1;}70%{opacity:1;}100%{opacity:0;visibility:hidden;}}
+@keyframes bfIn{0%{transform:scale(1.35);}18%{transform:scale(1);}100%{transform:scale(.96);}}
+.body.blk-in #activeBlock{animation:blkIn .6s ease-out;}
+@keyframes blkIn{0%{transform:translateY(18px);opacity:.3;}100%{transform:none;opacity:1;}}
+@media (prefers-reduced-motion:reduce){.nx.soon,.blk-flash.on,.bf-in,.body.blk-in #activeBlock{animation:none;}.blk-flash.on{display:none;}}
 
 .finished{display:none;flex-direction:column;align-items:center;gap:8px;margin-top:20px;width:100%;max-width:420px;}
 .finished.active{display:flex;}
@@ -625,6 +660,7 @@ body.solo-livre #progress{display:none;}
     <div class="fe-acts"><button class="btn-outline" id="ftpEditCancel">Cancelar</button><button class="btn-primary" id="ftpEditSave">Gravar</button><button class="btn-primary" id="ftpEditOk" style="display:none">OK</button></div>
   </div>
 </div>
+<div class="blk-flash" id="blkFlash" aria-hidden="true"><div class="bf-in"><span class="bf-lbl">Novo bloco</span><b id="bfZone"></b><span id="bfTec"></span><span id="bfMeta"></span></div></div>
 <div id="liveScreen">
   <div class="progress" id="progress"></div>
   <div class="topbar">
@@ -699,6 +735,7 @@ body.solo-livre #progress{display:none;}
     </div>
 
     <div class="next" id="nextEl"></div>
+    <div class="next nx-seg" id="segNext"></div>
   </div>
 </div>
 
@@ -762,10 +799,52 @@ body.solo-livre #progress{display:none;}
     const lo = (modo !== 'fc' && range.min > 0) ? range.min + 1 : range.min;   // igual ao planeamento: 56–75%, 76–90%…
     return (range.open ? '> ' + range.min : lo + '–' + range.max) + '%';
   }
+  // ===== cartão "a seguir" e transição de bloco =====
+  let lastNextHtml = '', lastBlockIdx = -1;
+  function zoneTxtColor(css){ return (css === '--z5' || css === '--z6' || css === '--seg') ? '#fff' : '#0A0D12'; }
+  function renderNext(next, remaining){
+    const el = $('nextEl');
+    let html;
+    if(!next){
+      html = '<div class="nx last" style="--nc:#fff"><div class="nx-top"><span class="nx-lbl">Último bloco</span></div><div class="nx-main"><span class="nx-name">Força até ao fim! 💪</span></div></div>';
+    } else {
+      const z = blkZone(next), nc = zoneColor(z.css);
+      const zl = next.tipo === 'seg' ? 'Segmento' : (next.tipo === 'cool' ? 'Retorno à calma' : z.name);
+      const meta = next.tipo === 'seg' ? 'transição leve'
+        : (next.teste ? 'o mais forte possível' : (modo === 'zonas' ? '' : '<b>' + pctTxt(next, zoneRange(next.ftp)) + '</b>' + (modo === 'fc' ? ' FCmáx' : ' FTP')));
+      html = '<div class="nx" style="--nc:' + nc + '"><div class="nx-top"><span class="nx-lbl">A seguir</span><span class="nx-in"></span></div>' +
+        '<div class="nx-main"><span class="nx-zone" style="color:' + zoneTxtColor(z.css) + '">' + escapeHtml(next.teste ? 'Teste FTP' : zl) + '</span>' + (next.tecnica ? '<span class="nx-tec">' + escapeHtml(next.tecnica) + '</span>' : '') + '</div>' +
+        '<div class="nx-meta">' + (meta ? meta + ' · ' : '') + (next.rpm ? '<b>' + rpmTxt(next) + '</b> rpm · ' : '') + '<b>' + fmtTime(blockDurationSec(next)) + '</b></div></div>';
+    }
+    if(html !== lastNextHtml){ el.innerHTML = html; lastNextHtml = html; }
+    const card = el.querySelector('.nx'); if(!card) return;
+    const soon = !!next && state.status === 'playing' && remaining <= 10 && remaining > 0;
+    card.classList.toggle('soon', soon);
+    const inn = card.querySelector('.nx-in');
+    if(inn) inn.textContent = soon ? 'em ' + Math.ceil(remaining) : (next ? 'em ' + fmtTime(remaining) : '');
+  }
+  function checkBlockChange(b){
+    const idx = state.blockIndex;
+    if(lastBlockIdx === idx) return;
+    const first = lastBlockIdx === -1;
+    lastBlockIdx = idx;
+    if(first || state.status !== 'playing' || solo === 'livre') return;
+    const z = blkZone(b), c = zoneColor(z.css);
+    const f = $('blkFlash');
+    f.style.setProperty('--fc', c);
+    $('bfZone').textContent = b.teste ? 'Teste FTP' : (b.tipo === 'seg' ? 'Segmento' : z.name);
+    $('bfZone').style.color = '#fff';
+    $('bfTec').textContent = b.tecnica || '';
+    $('bfMeta').textContent = fmtTime(blockDurationSec(b)) + (b.rpm ? ' · ' + rpmTxt(b) + ' rpm' : '');
+    f.classList.remove('on'); void f.offsetWidth; f.classList.add('on');
+    const body = $('bodyEl'); body.classList.remove('blk-in'); void body.offsetWidth; body.classList.add('blk-in');
+    try{ if(navigator.vibrate) navigator.vibrate([90, 60, 90]); }catch(e){}
+  }
+
   function setTarget(tiles, note, color){
     const el = $('targetEl');
     el.style.setProperty('--zc', color || '#3A4353');
-    el.innerHTML = '<div class="tg-row">' + tiles.map(t=> '<div class="tg"><span class="tg-l">' + t.l + '</span><b>' + t.v + '</b>' + (t.u ? '<small>' + t.u + '</small>' : '') + '</div>').join('') + '</div>' +
+    el.innerHTML = '<div class="tg-row">' + tiles.map(t=> '<div class="tg"><span class="tg-l">' + t.l + '</span><b' + (String(t.v).length > 7 ? ' class="lng"' : '') + '>' + t.v + '</b>' + (t.u ? '<small>' + t.u + '</small>' : '') + '</div>').join('') + '</div>' +
       (note ? '<div class="tg-note">' + note + '</div>' : '');
   }
   function zoneRange(pct){
@@ -1307,7 +1386,7 @@ body.solo-livre #progress{display:none;}
       if(ftp && (!perfil || perfil.ftp !== ftp)) upd.ftp = ftp;
       if(Object.keys(upd).length){ fbDb.ref('alunos/' + user.uid + '/perfil').update(upd).catch(()=>{}); perfil = Object.assign({}, perfil, upd); }
     }
-    resetSerie(); savedThisClass = false; treinoKey = null; $('savedNote').innerHTML = ''; $('ftpResult').style.display = 'none'; $('finFtp').innerHTML = '';
+    resetSerie(); savedThisClass = false; treinoKey = null; lastBlockIdx = -1; lastNextHtml = ''; $('savedNote').innerHTML = ''; $('ftpResult').style.display = 'none'; $('finFtp').innerHTML = '';
 
     riderRef =fbDb.ref('sessions/' + pin + '/riders/' + riderId);
     // se recarregaste a página a meio, continua de onde ficaste
@@ -1419,7 +1498,7 @@ body.solo-livre #progress{display:none;}
     if(finished){
       $('activeBlock').style.display = 'none';
       $('finishedEl').classList.add('active');
-      $('nextEl').textContent = solo ? '' : (sessionEnded ? 'O instrutor fechou a aula. Podes sair.' : '');
+      $('nextEl').textContent = solo ? '' : (sessionEnded ? 'O instrutor fechou a aula. Podes sair.' : ''); lastNextHtml = ''; $('segNext').innerHTML = '';
       $('finTitle').textContent = solo ? 'Treino concluído' : 'Aula concluída';
       $('totalTimeEl').textContent = solo ? fmtTime(me.ts) : fmtTime(blocos.reduce((s,b)=>s+blockDurationSec(b),0));
       $('finKm').textContent = me.km > 0.01 ? fmtKm(me.km) + ' km · ' + (me.as ? (me.km / me.as * 3600).toFixed(1).replace('.', ',') : '0') + ' km/h média' : '';
@@ -1476,9 +1555,9 @@ body.solo-livre #progress{display:none;}
         : [{l:'Alvo', v: pctTxt(b, range), u:'FCmáx'}, rpmT];
     } else if(modo === 'zonas'){
       tiles = [{l:'Zona', v: zone.name.split(' ')[0], u:''},
-        me.ftp ? {l:'Alvo', v: rng(Math.round(me.ftp * range.min / 100), Math.round(me.ftp * range.max / 100)), u:'W'} : {l:'% FTP', v: (range.open ? '> ' + range.min : range.min + '–' + range.max) + '%', u:''}, rpmT];
+        me.ftp ? {l:'Alvo', v: rng(Math.round(me.ftp * range.min / 100), Math.round(me.ftp * range.max / 100)), u:'W'} : {l:'% FTP', v: (range.open ? '> ' + range.min : range.min + '–' + range.max), u:'%'}, rpmT];
     } else if(me.ftp){
-      tiles = [{l:'Alvo', v: rng(Math.round(me.ftp * range.min / 100), Math.round(me.ftp * range.max / 100)), u:'W'}, {l:'% FTP', v: pctTxt(b, range), u:''}, rpmT];
+      tiles = [{l:'Alvo', v: rng(Math.round(me.ftp * range.min / 100), Math.round(me.ftp * range.max / 100)), u:'W'}, {l:'% FTP', v: pctTxt(b, range).replace(/%$/,''), u:'%'}, rpmT];
     } else {
       tiles = [{l:'Alvo', v: pctTxt(b, range), u:'FTP'}, rpmT];
     }
@@ -1499,15 +1578,13 @@ body.solo-livre #progress{display:none;}
     if(solo) soloNoSensorMsg();
 
     const next = blocos[state.blockIndex+1];
-    $('nextEl').innerHTML = next
-      ? (next.tipo === 'seg' ? 'a seguir: <b>' + escapeHtml(next.nome || 'Segmento') + '</b> · transição · ' + fmtTime(blockDurationSec(next))
-        : next.tipo === 'cool' ? 'a seguir: <b>Retorno à calma</b> · ' + fmtTime(blockDurationSec(next)) :
-        'a seguir: <b>' + escapeHtml(next.nome) + '</b> · ' + (modo === 'zonas' ? ((next.nome||'').startsWith(getZone(next.ftp).name.split(' ')[0] + ' ') ? '' : getZone(next.ftp).name.split(' ')[0] + ' · ') : pctTxt(next, zoneRange(next.ftp)) + (modo === 'fc' ? ' FCmáx' : '') + ' · ') + fmtTime(blockDurationSec(next)) + (next.rpm ? ' · ' + rpmTxt(next) + ' rpm' : ''))
-      : 'último bloco';
+    renderNext(next, remaining);
+    checkBlockChange(b);
+    if(b.tipo !== 'seg' && $('segNext').innerHTML) $('segNext').innerHTML = '';
     if(b.tipo === 'seg'){   // no separador de segmento: resumo do segmento que vem a seguir
       const lst = []; for(let k = state.blockIndex + 1; k < blocos.length; k++){ if(blocos[k].tipo === 'seg') break; lst.push(blocos[k]); }
       const tt = lst.reduce((a,x)=> a + blockDurationSec(x), 0);
-      $('nextEl').innerHTML = 'próximo segmento: <b>' + lst.length + (lst.length === 1 ? ' intervalo' : ' intervalos') + ' · ' + fmtTime(tt) + '</b>' + (lst.length ? segChartSvg(lst, 340, 46) : '<br>') +
+      $('segNext').innerHTML = 'próximo segmento: <b>' + lst.length + (lst.length === 1 ? ' intervalo' : ' intervalos') + ' · ' + fmtTime(tt) + '</b>' + (lst.length ? segChartSvg(lst, 340, 46) : '<br>') +
         lst.slice(0, 6).map(x=>{ const z = blkZone(x); return '<span style="color:' + zoneColor(z.css) + '">●</span> ' + escapeHtml(z.name.split(' ')[0]) + ' ' + fmtTime(blockDurationSec(x)); }).join(' &nbsp; ');
     }
 
@@ -2405,7 +2482,7 @@ body.solo-livre #progress{display:none;}
       if(Object.keys(upd).length){ fbDb.ref('alunos/' + user.uid + '/perfil').update(upd).catch(()=>{}); perfil = Object.assign({}, perfil, upd); }
     }
     if(solo === 'livre') modo = (!hasPowerSource() && hrConnected()) ? 'fc' : 'ftp';   // só cinta: o número grande é a FC
-    resetSerie(); savedThisClass = false; treinoKey = null; $('savedNote').innerHTML = ''; $('ftpResult').style.display = 'none'; $('finFtp').innerHTML = '';
+    resetSerie(); savedThisClass = false; treinoKey = null; lastBlockIdx = -1; lastNextHtml = ''; $('savedNote').innerHTML = ''; $('ftpResult').style.display = 'none'; $('finFtp').innerHTML = '';
     me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = me.ts = me.km = me.spd = me.tw = me.tt = 0; me.ftpIni = null; me.ftpTest = null; me.testDone = false;
     serverOffset = 0; sessionEnded = false; myRank = null; riderRef = null;
     soloClock.acc = 0; soloClock.since = 0;
@@ -2471,7 +2548,7 @@ body.solo-livre #progress{display:none;}
       const tmp = solo; // reaproveita o ecrã de fim
       $('activeBlock').style.display = 'none';
       $('finishedEl').classList.add('active');
-      $('nextEl').textContent = '';
+      $('nextEl').textContent = ''; lastNextHtml = '';
       $('finTitle').textContent = 'Treino concluído';
       $('totalTimeEl').textContent = fmtTime(soloElapsed());
       $('finKm').textContent = me.km > 0.01 ? fmtKm(me.km) + ' km · ' + (me.as ? (me.km / me.as * 3600).toFixed(1).replace('.', ',') : '0') + ' km/h média' : '';
@@ -2526,7 +2603,7 @@ body.solo-livre #progress{display:none;}
     $('myZoneLbl').textContent = 'W médios';
     $('myZone').textContent = me.as ? Math.round(me.sumW/me.as) : 0;
     soloNoSensorMsg();
-    $('nextEl').innerHTML = 'Toca em ✕ Terminar quando acabares';
+    $('nextEl').innerHTML = 'Toca em <b>GRAVAR &amp; SAIR</b> quando acabares'; lastNextHtml = '';
   }
 
 
