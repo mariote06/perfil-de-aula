@@ -112,32 +112,36 @@ body:has(#liveScreen.active) .legal{display:none;}
 .progress-seg.done{opacity:1;}
 .progress-marker{position:absolute;top:0;bottom:0;width:2px;background:#fff;box-shadow:0 0 6px rgba(255,255,255,.8);}
 
-.topbar{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 12px 0;flex-shrink:0;}
-.chips{display:flex;gap:6px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 12px 0;flex-shrink:0;}
+.chips{display:contents;}   /* os botões e o GRAVAR & SAIR partilham as mesmas linhas */
+.topbar{justify-content:flex-start;gap:7px;}
 .chip{
-  font-size:12px;padding:5px 9px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
-  color:var(--muted);display:flex;align-items:center;gap:5px;
+  font-size:15px;font-weight:600;padding:8px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
+  color:var(--muted);display:flex;align-items:center;gap:6px;min-height:40px;
 }
-.chip .dot{width:7px;height:7px;border-radius:50%;background:#5B6472;}
+.chip .dot{width:9px;height:9px;border-radius:50%;background:#5B6472;}
 .chip.on{color:#fff;}
 .chip.on .dot{background:var(--ok);box-shadow:0 0 6px var(--ok);}
 .rank{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#fff;}
 .rank small{font-size:13px;color:var(--muted);font-family:'Inter',sans-serif;font-weight:500;}
 .leave-btn{
-  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
-  color:#fff;padding:6px 10px;border-radius:8px;font-size:12px;
+  background:#3DD45C;border:none;color:#06210d;padding:10px 15px;border-radius:10px;
+  font-size:15px;font-weight:800;letter-spacing:.3px;min-height:42px;margin-left:auto;white-space:nowrap;
+  box-shadow:0 4px 14px rgba(61,212,92,.25);
 }
+.leave-btn:active{transform:scale(.97);}
 
 .body{
   flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
   text-align:center;padding:10px 16px 14px;transition:background .4s ease;min-height:0;overflow:auto;
 }
 .class-name{color:rgba(255,255,255,.4);font-size:12px;margin-bottom:6px;}
+#className{display:none;}
 .blockline{font-size:clamp(14px,4vw,18px);color:rgba(255,255,255,.7);}
 .blockline .zone{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:1.35em;}
 .technique{
-  color:rgba(255,255,255,.85);font-size:13px;font-weight:600;margin-top:6px;
-  padding:4px 12px;border:1px solid rgba(255,255,255,.2);border-radius:999px;display:inline-block;
+  color:#fff;font-size:clamp(18px,5.4vw,22px);font-weight:800;margin-top:8px;letter-spacing:.2px;
+  padding:6px 18px;border:2px solid rgba(255,255,255,.35);border-radius:999px;display:inline-block;background:rgba(255,255,255,.06);
 }
 .technique:empty{display:none;}
 .feel{color:rgba(255,255,255,.55);font-size:12px;font-style:italic;margin-top:6px;max-width:320px;line-height:1.35;}
@@ -293,7 +297,7 @@ body.solo-livre #progress{display:none;}
 .safety-banner.on{display:flex;}
 .safety-banner button{margin-left:auto;background:none;border:none;color:#fff;font-size:18px;padding:0 4px;align-self:flex-start;}
 .chip.ftpchip{color:#fff;cursor:pointer;}
-.chip.ftpchip b{font-family:'Barlow Condensed',sans-serif;font-size:14px;}
+.chip.ftpchip b{font-family:'Barlow Condensed',sans-serif;font-size:18px;}
 .ftp-edit{position:fixed;inset:0;z-index:300;background:rgba(5,7,10,.8);display:none;align-items:center;justify-content:center;padding:18px;}
 .ftp-edit.on{display:flex;}
 .fe-card{width:100%;max-width:360px;background:#12161D;border:1px solid #262D39;border-radius:18px;padding:20px 18px 16px;text-align:center;}
@@ -310,6 +314,9 @@ body.solo-livre #progress{display:none;}
 .fe-acts{display:flex;gap:8px;}
 .fe-acts button{flex:1;margin:0;}
 .ftp-result{margin-top:8px;max-width:420px;background:rgba(255,214,10,.08);border:1px solid rgba(255,214,10,.4);border-radius:12px;padding:9px 12px;font-size:14px;line-height:1.4;}
+.bg-warn{display:none;position:relative;margin-top:8px;max-width:420px;background:rgba(255,59,59,.12);border:1px solid rgba(255,59,59,.5);border-radius:12px;padding:10px 34px 10px 12px;font-size:14px;line-height:1.4;text-align:left;}
+.bg-warn.on{display:block;}
+.bg-warn button{position:absolute;top:6px;right:6px;background:none;border:none;color:var(--muted);font-size:16px;padding:4px;}
 .fin-ftp{font-size:15px;line-height:1.45;margin:0 0 8px;max-width:420px;}
 .fin-ftp:empty{display:none;}
 .fin-ftp b{color:#FFD60A;}
@@ -566,9 +573,9 @@ body.solo-livre #progress{display:none;}
 <!-- 3. AULA -->
 <div class="ftp-edit" id="ftpEdit" role="dialog" aria-modal="true" aria-label="Alterar o FTP">
   <div class="fe-card">
-    <h3>O teu FTP</h3>
-    <p>A tua potência de limiar. As zonas, os alvos em watts e os pontos passam a usar este valor.</p>
-    <div class="fe-row"><input id="ftpEditVal" type="number" inputmode="numeric" min="50" max="600"><span>W</span></div>
+    <h3 id="ftpEditTitle">O teu FTP</h3>
+    <p id="ftpEditTxt">A tua potência de limiar. As zonas, os alvos em watts e os pontos passam a usar este valor.</p>
+    <div class="fe-row"><input id="ftpEditVal" type="number" inputmode="numeric" min="50" max="600"><span id="ftpEditUnit">W</span></div>
     <div class="fe-msg" id="ftpEditMsg"></div>
     <div class="fe-acts"><button class="btn-outline" id="ftpEditCancel">Cancelar</button><button class="btn-primary" id="ftpEditSave">Gravar</button><button class="btn-primary" id="ftpEditOk" style="display:none">OK</button></div>
   </div>
@@ -581,10 +588,11 @@ body.solo-livre #progress{display:none;}
       <span class="chip" id="chipHr"><span class="dot"></span>FC</span>
       <button class="chip warnchip" id="chipSafety" aria-label="Aviso de segurança">⚠</button>
       <button class="chip ftpchip" id="chipFtp" title="Alterar o meu FTP">FTP <b id="chipFtpV">—</b> ✎</button>
+      <button class="chip ftpchip" id="chipFc" title="Alterar a minha FC máxima">FCmáx <b id="chipFcV">—</b> ✎</button>
     </div>
     <div class="rank" id="rankEl"></div>
     <div class="solo-ctl"><button class="solo-btn" id="soloPlay">▶ Começar</button><button class="solo-btn ghost" id="soloSkip" title="Saltar para o bloco seguinte">⏭</button></div>
-    <button class="leave-btn" id="leaveBtn">✕ Sair</button>
+    <button class="leave-btn" id="leaveBtn">GRAVAR &amp; SAIR</button>
   </div>
   <div class="safety safety-banner" id="safetyBanner" role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17.5v.01"/></svg><div id="safetyBannerTxt">Sentes <b>desconforto, dor no peito, tonturas ou falta de ar</b>? <b>Pára de pedalar</b> e pede ajuda ao professor da aula.</div><button id="safetyClose" aria-label="Fechar aviso">✕</button></div>
   <div class="body" id="bodyEl">
@@ -598,6 +606,7 @@ body.solo-livre #progress{display:none;}
       <div class="timer" id="timerEl">0:00</div>
       <div class="target" id="targetEl"></div>
       <div class="ftp-result" id="ftpResult" style="display:none"></div>
+      <div class="bg-warn" id="bgWarn" role="alert"></div>
 
       <div class="me" id="meEl">
         <div class="me-w" id="myBig" role="button" tabindex="0" aria-label="Trocar entre valor e percentagem"><span id="myW">0</span><small id="myWUnit">W</small><span class="swap" id="mySwap">toca para ver %FTP</span></div>
@@ -1152,6 +1161,7 @@ body.solo-livre #progress{display:none;}
       w: Math.round(dispPower), c: Math.round(S.cadence), hr: Math.round(myHr()) || null,
       kj: Math.round(me.kj * 10) / 10, pts: Math.round(me.pts), km: Math.round(me.km * 100) / 100, v: Math.round(me.spd * 10) / 10,
       tw: me.tt ? Math.round(me.tw) : null, tt: me.tt ? Math.round(me.tt) : null,
+      bg: document.visibilityState === 'hidden' ? true : null,
       ftpT: me.ftpTest && me.ftpTest.ok ? me.ftpTest.ftp : null, m20: me.ftpTest ? me.ftpTest.m20 : null, ftpIni: me.ftpIni || null,
       aw: me.as ? Math.round(me.sumW / me.as) : 0, mw: Math.round(me.mw),
       iz: Math.round(me.iz), as: Math.round(modo === 'fc' ? me.ts : me.as),
@@ -1349,7 +1359,7 @@ body.solo-livre #progress{display:none;}
       checkFtpTest(); showFtpResult();
       $('finZoneLbl').textContent = solo === 'livre' ? 'tempo' : 'na zona';
       $('finHomeBtn').style.display = solo ? '' : 'none';
-      $('leaveBtn').textContent = '✕ Sair';
+      $('leaveBtn').textContent = 'GRAVAR & SAIR';
       $('finKj').textContent = me.kj.toFixed(0);
       $('finPts').textContent = Math.round(me.pts);
       $('finRank').textContent = myRank ? myRank.p + 'º/' + myRank.n : '—';
@@ -1620,9 +1630,30 @@ body.solo-livre #progress{display:none;}
     try{ if('wakeLock' in navigator){ wakeLock = await navigator.wakeLock.request('screen'); } }catch(e){}
   }
   function releaseWakeLock(){ try{ if(wakeLock){ wakeLock.release(); wakeLock = null; } }catch(e){} }
+  // app em segundo plano: avisa a TV e, ao voltar, diz ao aluno quanto tempo não contou
+  let hiddenAt = 0;
   document.addEventListener('visibilitychange', ()=>{
-    if(document.visibilityState === 'visible' && $('liveScreen').classList.contains('active')) requestWakeLock();
+    const inLive = $('liveScreen').classList.contains('active');
+    if(document.visibilityState === 'hidden'){
+      if(inLive && (riderRef || solo)){ hiddenAt = Date.now(); if(riderRef) riderRef.update({bg:true, t:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{}); }
+      return;
+    }
+    if(inLive) requestWakeLock();
+    if(hiddenAt){
+      const secs = Math.round((Date.now() - hiddenAt) / 1000);
+      hiddenAt = 0;
+      if(riderRef) riderRef.update({bg:null}).catch(()=>{});
+      if(secs >= 15 && state && state.status === 'playing') showBgWarn(secs);
+    }
   });
+  function showBgWarn(secs){
+    const el = $('bgWarn'); if(!el) return;
+    const t = secs >= 90 ? Math.round(secs / 60) + ' min' : secs + ' s';
+    el.innerHTML = '📵 Estiveste <b>' + t + '</b> fora da app: esse tempo não contou para o treino. <b>Mantém a app aberta durante a aula.</b><button aria-label="Fechar">✕</button>';
+    el.classList.add('on');
+    el.querySelector('button').onclick = ()=> el.classList.remove('on');
+    clearTimeout(showBgWarn.h); showBgWarn.h = setTimeout(()=> el.classList.remove('on'), 15000);
+  }
 
   // ---------- eventos ----------
   $('joinBtn').addEventListener('click', ()=> checkPin($('pinInput').value.trim()));
@@ -1642,7 +1673,8 @@ body.solo-livre #progress{display:none;}
       if(fn){ const r = fn.call(el); if(r && r.catch) r.catch(()=>{}); }
     }catch(e){}
   }
-  $('chipFtp').addEventListener('click', openFtpEdit);
+  $('chipFtp').addEventListener('click', ()=> openFtpEdit('ftp'));
+  $('chipFc').addEventListener('click', openFcEdit);
   $('ftpEditCancel').addEventListener('click', closeFtpEdit);
   $('ftpEditOk').addEventListener('click', closeFtpEdit);
   $('ftpEditSave').addEventListener('click', saveFtpEdit);
@@ -1658,10 +1690,10 @@ body.solo-livre #progress{display:none;}
   $('leaveBtn').addEventListener('click', ()=>{
     if(solo){
       if(state && state.status === 'finished'){ leave(); return; }
-      if(me.ts < 5 || confirm('Terminar o treino?')) finishSolo();
+      if(me.ts < 5 || confirm('Gravar o treino e terminar?')) finishSolo();
       return;
     }
-    if(sessionEnded || state && state.status === 'finished' || confirm('Sair da aula?')) leave();
+    if(sessionEnded || state && state.status === 'finished' || confirm('Gravar o treino e sair da aula?')) leave();
   });
   window.addEventListener('pagehide', ()=>{ pushRider(); });
 
@@ -1740,8 +1772,16 @@ body.solo-livre #progress{display:none;}
   }
 
   // ================= ALTERAR O FTP DURANTE A AULA =================
-  function openFtpEdit(){
-    $('ftpEditVal').value = me.ftp || '';
+  let editKind = 'ftp';
+  function openFcEdit(){ openFtpEdit('fc'); }
+  function openFtpEdit(kind){
+    editKind = kind === 'fc' ? 'fc' : 'ftp';
+    const fc = editKind === 'fc';
+    $('ftpEditTitle').textContent = fc ? 'A tua FC máxima' : 'O teu FTP';
+    $('ftpEditTxt').textContent = fc ? 'A frequência cardíaca máxima. As zonas de FC e a %FCmáx passam a usar este valor. Não sabes? 220 − a tua idade.' : 'A tua potência de limiar. As zonas, os alvos em watts e os pontos passam a usar este valor.';
+    $('ftpEditUnit').textContent = fc ? 'bpm' : 'W';
+    $('ftpEditVal').min = fc ? 100 : 50; $('ftpEditVal').max = fc ? 230 : 600;
+    $('ftpEditVal').value = (fc ? me.fc : me.ftp) || '';
     $('ftpEditMsg').innerHTML = ''; $('ftpEditMsg').className = 'fe-msg';
     $('ftpEditSave').style.display = ''; $('ftpEditOk').style.display = 'none';
     $('ftpEdit').classList.add('on');
@@ -1749,6 +1789,7 @@ body.solo-livre #progress{display:none;}
   }
   function closeFtpEdit(){ $('ftpEdit').classList.remove('on'); }
   function saveFtpEdit(){
+    if(editKind === 'fc') return saveFcEdit();
     const v = Math.round(Number($('ftpEditVal').value) || 0);
     if(v < 50 || v > 600){ $('ftpEditMsg').textContent = 'O FTP tem de estar entre 50 e 600 W.'; $('ftpEditMsg').className = 'fe-msg err'; return; }
     const old = me.ftp || 0;
@@ -1766,7 +1807,25 @@ body.solo-livre #progress{display:none;}
       : '💪 Boa! FTP atualizado para <b>' + v + ' W</b>' + (old ? ' (era ' + old + ' W)' : '') + '. As tuas zonas já mudaram.';
     $('ftpEditSave').style.display = 'none'; $('ftpEditOk').style.display = '';
   }
-  function updateFtpChip(){ const c = $('chipFtpV'); if(c) c.textContent = me.ftp ? me.ftp + ' W' : '—'; }
+  function saveFcEdit(){
+    const v = Math.round(Number($('ftpEditVal').value) || 0);
+    if(v < 100 || v > 230){ $('ftpEditMsg').textContent = 'A FC máxima tem de estar entre 100 e 230 bpm.'; $('ftpEditMsg').className = 'fe-msg err'; return; }
+    const old = me.fc || 0;
+    if(v === old){ closeFtpEdit(); return; }
+    me.fc = v;
+    lsSet('aavFcMax', String(v));
+    if(user && fbDb){ fbDb.ref('alunos/' + user.uid + '/perfil/fcMax').set(v).catch(()=>{}); perfil = Object.assign({}, perfil, {fcMax: v}); }
+    if($('fcInput')) $('fcInput').value = v;
+    try{ pushRider(); }catch(e){}
+    updateFtpChip();
+    $('ftpEditMsg').className = 'fe-msg good';
+    $('ftpEditMsg').innerHTML = '❤ FC máxima atualizada para <b>' + v + ' bpm</b>' + (old ? ' (era ' + old + ' bpm)' : '') + '. As tuas zonas de FC já mudaram.';
+    $('ftpEditSave').style.display = 'none'; $('ftpEditOk').style.display = '';
+  }
+  function updateFtpChip(){
+    const c = $('chipFtpV'); if(c) c.textContent = me.ftp ? me.ftp + ' W' : '—';
+    const f = $('chipFcV'); if(f) f.textContent = me.fc ? me.fc : '—';
+  }
 
   function saveProgress(){ if(riderRef || solo) saveTreino(false); }
   setInterval(()=>{ if(isPlaying()) saveProgress(); }, 60000);
@@ -2275,7 +2334,7 @@ body.solo-livre #progress{display:none;}
     $('className').textContent = treinoNome;
     $('progress').dataset.built = '';
     updateModeLabels();
-    $('leaveBtn').textContent = '✕ Terminar';
+    $('leaveBtn').textContent = 'GRAVAR & SAIR';
     $('soloPlay').textContent = '▶ Começar';
     showScreen('liveScreen');
     $('chipBike').classList.toggle('on', bikeConnected() || demo);
@@ -2340,7 +2399,7 @@ body.solo-livre #progress{display:none;}
       $('finZoneLbl').textContent = 'a gravar';
       $('finZone').textContent = fmtTime(me.ts);
       $('finHomeBtn').style.display = '';
-      $('leaveBtn').textContent = '✕ Sair';
+      $('leaveBtn').textContent = 'GRAVAR & SAIR';
       $('bodyEl').style.background = '#05070A';
       if(!savedThisClass){
         if(user && !savePending){ savePending = true; setTimeout(saveTreino, 300); }
