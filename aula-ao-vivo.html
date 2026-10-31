@@ -1616,9 +1616,32 @@ body.solo-livre #progress{display:none;}
   let treinosCache = [];
   let returnTo = 'homeScreen';
 
+  // números inválidos (NaN, Infinity) ou indefinidos fazem o Firebase recusar o treino inteiro: passam a null
+  function cleanVals(v){
+    if(Array.isArray(v)) return v.map(x=> (typeof x === 'number' && !isFinite(x)) || x === undefined ? null : cleanVals(x));
+    if(v && typeof v === 'object'){ const o = {}; Object.keys(v).forEach(k=>{ const x = v[k]; if(x === undefined || (typeof x === 'number' && !isFinite(x))) o[k] = null; else o[k] = cleanVals(x); }); return o; }
+    return v;
+  }
+  // treinos que não se conseguiram enviar ficam no telemóvel e seguem quando houver internet / sessão
+  const PEND_KEY = 'prTreinosPendentes';
+  function pendList(){ try{ return JSON.parse(localStorage.getItem(PEND_KEY) || '[]') || []; }catch(e){ return []; } }
+  function pendSave(list){ try{ if(list.length) localStorage.setItem(PEND_KEY, JSON.stringify(list.slice(-20))); else localStorage.removeItem(PEND_KEY); }catch(e){} }
+  async function flushPendentes(){
+    if(!user || !fbDb) return;
+    const list = pendList(); if(!list.length) return;
+    const keep = [];
+    for(const it of list){
+      if(it.uid && it.uid !== user.uid){ keep.push(it); continue; }
+      try{ await fbDb.ref('alunos/' + user.uid + '/treinos/' + it.key).set(cleanVals(it.t)); }catch(e){ keep.push(it); }
+    }
+    pendSave(keep);
+    if(keep.length < list.length && $('savedNote')) $('savedNote').innerHTML = '<b>✓ Treino pendente enviado para a tua conta</b>';
+  }
   function saveTreino(){
     savePending = false;
-    if(savedThisClass || !user || !fbDb || (!pin && !solo) || me.ts < 60) return;
+    if(savedThisClass || !fbDb || (!pin && !solo)) return;
+    if(me.ts < 60){ if(me.ts > 5) $('savedNote').textContent = 'Treino com menos de 1 minuto a pedalar: não foi guardado.'; return; }
+    if(!user){ $('savedNote').innerHTML = 'Este treino não fica guardado porque não tens sessão iniciada. <a href="#" id="saveLink">Entra na tua conta</a> para guardares os próximos.'; return; }
     savedThisClass = true;
     if(bucket.n) { serie.w.push(Math.round(bucket.w/bucket.n)); serie.c.push(Math.round(bucket.c/bucket.n)); serie.hr.push(Math.round(bucket.hr/bucket.n)); bucket = {w:0,c:0,hr:0,n:0}; }
     const hrVals = serie.hr.filter(x=>x>0);
@@ -1636,9 +1659,17 @@ body.solo-livre #progress{display:none;}
       fcMax: me.fc || (perfil && perfil.fcMax) || null
     };
     const key = new Date().toISOString().slice(0,10) + '_' + (pin || solo) + '_' + Math.random().toString(36).slice(2,6);
-    fbDb.ref('alunos/' + user.uid + '/treinos/' + key).set(t)
-      .then(()=>{ $('savedNote').innerHTML = '<b>✓ Treino guardado na tua conta</b>'; })
-      .catch(()=>{ savedThisClass = false; $('savedNote').textContent = 'Não consegui guardar o treino (sem internet?).'; });
+    const uid = user.uid, clean = cleanVals(t);
+    const falhou = (e)=>{
+      const l = pendList(); l.push({uid: uid, key: key, t: clean}); pendSave(l);
+      $('savedNote').innerHTML = 'Não consegui guardar agora' + (e && e.code ? ' (' + escapeHtml(String(e.code)) + ')' : '') + '. O treino ficou neste telemóvel e é enviado sozinho da próxima vez que abrires a app com internet.';
+      console.error('saveTreino', e);
+    };
+    try{
+      fbDb.ref('alunos/' + uid + '/treinos/' + key).set(clean)
+        .then(()=>{ $('savedNote').innerHTML = '<b>✓ Treino guardado na tua conta</b>'; flushPendentes(); })
+        .catch(falhou);
+    }catch(e){ falhou(e); }
   }
 
   function renderAcctLine(){
@@ -1841,6 +1872,7 @@ body.solo-livre #progress{display:none;}
 
   if(auth){
     auth.onAuthStateChanged(async u=>{
+      if(libError){ libError = false; libPlaylife = null; }   // mudou a conta: volta a tentar ler a Biblioteca Playlife
       user = u; perfil = null;
       if(u){
         try{
@@ -1854,7 +1886,7 @@ body.solo-livre #progress{display:none;}
       updateAccountBtn();
       renderAcctLine();
       renderHome();
-      if(u) loadFichaConta();
+      if(u){ loadFichaConta(); setTimeout(flushPendentes, 1500); }
       if(currentScreen === 'setupScreen' && perfil){
         if(perfil.nome) $('nameInput').value = perfil.nome;
         if(perfil.ftp) $('ftpInput').value = perfil.ftp;
@@ -1994,6 +2026,12 @@ body.solo-livre #progress{display:none;}
     sec('Treinos PlayRide');
     PRESETS.forEach(t=> list.appendChild(libItem(t)));
     if(libPlaylife === null && !libError){ const h = document.createElement('div'); h.className = 'hint'; h.textContent = 'A carregar a Biblioteca Playlife…'; list.insertBefore(h, list.firstChild); }
+    if(libError && !user){   // a Biblioteca Playlife só se vê com conta
+      const h = document.createElement('div'); h.className = 'hint';
+      h.innerHTML = 'Entra na tua conta para veres também os treinos da <b>Biblioteca Playlife</b>. <a href="#" id="libLogin">Entrar ou criar conta</a>';
+      list.insertBefore(h, list.firstChild);
+      h.querySelector('#libLogin').addEventListener('click', (e)=>{ e.preventDefault(); openAccount(); });
+    }
   }
   async function openLib(){
     showScreen('libScreen');
