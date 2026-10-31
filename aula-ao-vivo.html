@@ -120,6 +120,28 @@ body:has(#liveScreen.active) .legal{display:none;}
 .topbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;padding:10px 12px 0;flex-shrink:0;}
 .chips{display:contents;}   /* os botões e o GRAVAR & SAIR partilham as mesmas linhas */
 .topbar{justify-content:flex-start;gap:7px;}
+/* cabeçalho numa só linha: [ᛒ menu] [✎ menu] [⚠] posição ... GRAVAR & SAIR */
+.topbar{flex-wrap:nowrap;align-items:center;position:relative;z-index:40;}
+#rankEl:empty{display:none;}
+#rankEl{white-space:nowrap;}
+.tb-menu{position:relative;}
+.mbtn{width:48px;height:46px;border-radius:14px;border:1px solid var(--border);background:var(--surface);color:#fff;display:grid;place-items:center;position:relative;padding:0;}
+.mbtn svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+.mbtn[aria-expanded="true"]{border-color:var(--accent);background:rgba(232,114,44,.15);}
+.mdots{position:absolute;bottom:4px;right:5px;display:flex;gap:3px;}
+.mdots i{width:7px;height:7px;border-radius:50%;background:#5B6472;}
+.mdots i.on{background:var(--ok);box-shadow:0 0 5px var(--ok);}
+.tb-pop{display:none;position:absolute;top:calc(100% + 8px);left:0;min-width:190px;background:#12161D;border:1px solid #2F3846;border-radius:14px;padding:8px;box-shadow:0 14px 40px rgba(0,0,0,.6);flex-direction:column;gap:8px;z-index:60;}
+.tb-pop.on{display:flex;}
+.tb-pop .chip{width:100%;justify-content:flex-start;cursor:pointer;}
+.tb-pop .chip.ftpchip{align-items:flex-start;padding:6px 14px;}
+
+@media (max-width:380px){
+  .topbar{gap:5px;padding-left:10px;padding-right:10px;}
+  .chip{font-size:14px;padding:7px 10px;}
+  #chipSafety{padding:7px 9px;}
+  .leave-btn{font-size:13px;padding:9px 10px;}
+}
 .chip{
   font-size:15px;font-weight:600;padding:8px 13px;border-radius:999px;border:1px solid var(--border);background:var(--surface);
   color:var(--muted);display:flex;align-items:center;gap:6px;min-height:40px;
@@ -130,8 +152,8 @@ body:has(#liveScreen.active) .legal{display:none;}
 .rank{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#fff;}
 .rank small{font-size:13px;color:var(--muted);font-family:'Inter',sans-serif;font-weight:500;}
 .leave-btn{
-  background:#3DD45C;border:none;color:#06210d;padding:10px 15px;border-radius:10px;
-  font-size:15px;font-weight:800;letter-spacing:.3px;min-height:42px;margin-left:auto;white-space:nowrap;
+  background:#3DD45C;border:none;color:#06210d;padding:10px 13px;border-radius:10px;
+  font-size:14px;font-weight:800;letter-spacing:.2px;min-height:42px;margin-left:auto;white-space:nowrap;
   box-shadow:0 4px 14px rgba(61,212,92,.25);
 }
 .leave-btn:active{transform:scale(.97);}
@@ -156,8 +178,15 @@ body:has(#liveScreen.active) .legal{display:none;}
   line-height:1;color:#fff;font-variant-numeric:tabular-nums;margin-top:6px;
 }
 .timer.warn{color:#FFD27A;}
-.target{font-size:14px;color:rgba(255,255,255,.75);margin-top:2px;}
+.target{font-size:15px;color:rgba(255,255,255,.8);margin-top:6px;width:100%;max-width:420px;}
 .target b{color:#fff;}
+/* alvo do bloco em cartões grandes, logo por baixo do tempo */
+.tg-row{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);gap:8px;width:100%;}
+.tg{background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.1);border-top:4px solid var(--zc,#3A4353);border-radius:12px;padding:6px 4px 8px;min-width:0;}
+.tg-l{display:block;font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:1px;}
+.tg b{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(21px,6.6vw,34px);line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:clip;}
+.tg small{display:block;font-size:12px;color:rgba(255,255,255,.6);font-weight:600;margin-top:1px;}
+.tg-note{margin-top:6px;font-size:14px;color:#FFD27A;font-weight:600;}
 
 .me{width:100%;max-width:420px;margin-top:14px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:14px;}
 .me-w{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(88px,31vw,150px);line-height:.95;font-variant-numeric:tabular-nums;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;border-radius:14px;}
@@ -301,8 +330,10 @@ body.solo-livre #progress{display:none;}
 .safety-banner{position:absolute;left:12px;right:12px;top:54px;z-index:30;max-width:none;box-shadow:0 10px 30px rgba(0,0,0,.5);background:#2A1215;display:none;}
 .safety-banner.on{display:flex;}
 .safety-banner button{margin-left:auto;background:none;border:none;color:#fff;font-size:18px;padding:0 4px;align-self:flex-start;}
-.chip.ftpchip{color:#fff;cursor:pointer;}
-.chip.ftpchip b{font-family:'Barlow Condensed',sans-serif;font-size:18px;}
+.chip{min-height:46px;padding:6px 12px;}
+.chip.ftpchip{color:#fff;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:4px 12px;border-radius:14px;line-height:1.05;}
+.chip.ftpchip .cl{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);}
+.chip.ftpchip b{font-family:'Barlow Condensed',sans-serif;font-size:21px;}
 .ftp-edit{position:fixed;inset:0;z-index:300;background:rgba(5,7,10,.8);display:none;align-items:center;justify-content:center;padding:18px;}
 .ftp-edit.on{display:flex;}
 .fe-card{width:100%;max-width:360px;background:#12161D;border:1px solid #262D39;border-radius:18px;padding:20px 18px 16px;text-align:center;}
@@ -325,7 +356,7 @@ body.solo-livre #progress{display:none;}
 .fin-ftp{font-size:15px;line-height:1.45;margin:0 0 8px;max-width:420px;}
 .fin-ftp:empty{display:none;}
 .fin-ftp b{color:#FFD60A;}
-.chip.warnchip{color:#FF8A8A;border-color:rgba(255,59,59,.4);}
+.chip.warnchip{color:#FF8A8A;border-color:rgba(255,59,59,.4);width:40px;min-height:40px;height:40px;padding:0;justify-content:center;font-size:14px;align-self:center;}
 #liveScreen{position:relative;}
 .f-alert{display:none;}
 .f-alert.on{display:flex;}
@@ -588,13 +619,21 @@ body.solo-livre #progress{display:none;}
 <div id="liveScreen">
   <div class="progress" id="progress"></div>
   <div class="topbar">
-    <div class="chips">
-      <span class="chip" id="chipBike"><span class="dot"></span>Bike</span>
-      <span class="chip" id="chipHr"><span class="dot"></span>FC</span>
-      <button class="chip warnchip" id="chipSafety" aria-label="Aviso de segurança">⚠</button>
-      <button class="chip ftpchip" id="chipFtp" title="Alterar o meu FTP">FTP <b id="chipFtpV">—</b> ✎</button>
-      <button class="chip ftpchip" id="chipFc" title="Alterar a minha FC máxima">FCmáx <b id="chipFcV">—</b> ✎</button>
+    <div class="tb-menu">
+      <button class="mbtn" id="btMenuBtn" aria-expanded="false" aria-controls="btPop" title="Bike e cinta de FC"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10-5 5V2l5 5L7 17"/></svg><span class="mdots"><i id="dotBike" title="Bike"></i><i id="dotHr" title="Cinta de FC"></i></span></button>
+      <div class="tb-pop" id="btPop">
+        <span class="chip" id="chipBike"><span class="dot"></span>Bike</span>
+        <span class="chip" id="chipHr"><span class="dot"></span>Cinta de FC</span>
+      </div>
     </div>
+    <div class="tb-menu">
+      <button class="mbtn" id="edMenuBtn" aria-expanded="false" aria-controls="edPop" title="Alterar FTP e FC máxima"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/></svg></button>
+      <div class="tb-pop" id="edPop">
+        <button class="chip ftpchip" id="chipFtp" title="Alterar o meu FTP"><span class="cl">FTP ✎</span><b id="chipFtpV">—</b></button>
+        <button class="chip ftpchip" id="chipFc" title="Alterar a minha FC máxima"><span class="cl">FCmáx ✎</span><b id="chipFcV">—</b></button>
+      </div>
+    </div>
+    <button class="chip warnchip" id="chipSafety" aria-label="Aviso de segurança">⚠</button>
     <div class="rank" id="rankEl"></div>
     <div class="solo-ctl"><button class="solo-btn" id="soloPlay">▶ Começar</button><button class="solo-btn ghost" id="soloSkip" title="Saltar para o bloco seguinte">⏭</button></div>
     <button class="leave-btn" id="leaveBtn">GRAVAR &amp; SAIR</button>
@@ -713,6 +752,12 @@ body.solo-livre #progress{display:none;}
     const a = alvoOf(b); if(a > 0) return a + '%';
     const lo = (modo !== 'fc' && range.min > 0) ? range.min + 1 : range.min;   // igual ao planeamento: 56–75%, 76–90%…
     return (range.open ? '> ' + range.min : lo + '–' + range.max) + '%';
+  }
+  function setTarget(tiles, note, color){
+    const el = $('targetEl');
+    el.style.setProperty('--zc', color || '#3A4353');
+    el.innerHTML = '<div class="tg-row">' + tiles.map(t=> '<div class="tg"><span class="tg-l">' + t.l + '</span><b>' + t.v + '</b>' + (t.u ? '<small>' + t.u + '</small>' : '') + '</div>').join('') + '</div>' +
+      (note ? '<div class="tg-note">' + note + '</div>' : '');
   }
   function zoneRange(pct){
     const Z = zonesNow(), i = zoneIndex(pct), g = gaugeScale();
@@ -1412,29 +1457,29 @@ body.solo-livre #progress{display:none;}
     $('bodyEl').style.background = 'radial-gradient(circle at 50% 30%, ' + zc + '33, #05070A 70%)';
 
     const range = zoneRange(b.ftp);
+    const pausaN = state.status !== 'playing' ? 'em pausa' : '';
+    const rng = (lo, hi)=> range.open ? '≥ ' + lo : lo + '–' + hi;
+    const rpmT = {l:'RPM', v: rpmTxt(b), u:''};
+    let tiles;
     if(modo === 'fc'){
-      const pausa = state.status !== 'playing' ? ' · em pausa' : '';
-      if(me.fc){
-        const lo = Math.round(me.fc * range.min / 100), hi = Math.round(me.fc * Math.min(range.max, 100) / 100);
-        $('targetEl').innerHTML = 'Alvo <b>' + (range.open ? '≥ ' + lo : lo + '–' + hi) + ' bpm</b> · ' + pctTxt(b, range) + ' FCmáx · <b>' + rpmTxt(b) + '</b> RPM' + pausa;
-      } else {
-        $('targetEl').innerHTML = 'Alvo <b>' + pctTxt(b, range) + ' FCmáx</b> · <b>' + rpmTxt(b) + '</b> RPM' + pausa;
-      }
+      tiles = me.fc
+        ? [{l:'Alvo FC', v: rng(Math.round(me.fc * range.min / 100), Math.round(me.fc * Math.min(range.max, 100) / 100)), u:'bpm'}, {l:'% FCmáx', v: pctTxt(b, range), u:''}, rpmT]
+        : [{l:'Alvo', v: pctTxt(b, range), u:'FCmáx'}, rpmT];
     } else if(modo === 'zonas'){
-      const zl = zone.name.split(' ')[0];
-      const watts = me.ftp ? ' · <b>' + (range.open ? '≥ ' + Math.round(me.ftp * range.min / 100) : Math.round(me.ftp * range.min / 100) + '–' + Math.round(me.ftp * range.max / 100)) + ' W</b>' : ' · ' + (range.open ? '> ' + range.min : range.min + '–' + range.max) + '% FTP';
-      $('targetEl').innerHTML = 'Alvo <b>' + zl + '</b>' + watts + ' · <b>' + rpmTxt(b) + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
+      tiles = [{l:'Zona', v: zone.name.split(' ')[0], u:''},
+        me.ftp ? {l:'Alvo', v: rng(Math.round(me.ftp * range.min / 100), Math.round(me.ftp * range.max / 100)), u:'W'} : {l:'% FTP', v: (range.open ? '> ' + range.min : range.min + '–' + range.max) + '%', u:''}, rpmT];
     } else if(me.ftp){
-      const lo = Math.round(me.ftp * range.min / 100), hi = Math.round(me.ftp * range.max / 100);
-      $('targetEl').innerHTML = 'Alvo <b>' + (range.open ? '≥ ' + lo : lo + '–' + hi) + ' W</b> · ' + pctTxt(b, range) + ' · <b>' + rpmTxt(b) + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
+      tiles = [{l:'Alvo', v: rng(Math.round(me.ftp * range.min / 100), Math.round(me.ftp * range.max / 100)), u:'W'}, {l:'% FTP', v: pctTxt(b, range), u:''}, rpmT];
     } else {
-      $('targetEl').innerHTML = 'Alvo <b>' + pctTxt(b, range) + ' FTP</b> · <b>' + rpmTxt(b) + '</b> RPM' + (state.status !== 'playing' ? ' · em pausa' : '');
+      tiles = [{l:'Alvo', v: pctTxt(b, range), u:'FTP'}, rpmT];
     }
+    setTarget(tiles, pausaN, zc);
 
     renderMe(b, range);
     if(b.teste){   // bloco do teste FTP: sem zona-alvo, conta a média
       const avg = me.tt > 5 ? me.tw / me.tt : 0;
-      $('targetEl').innerHTML = '<b>TESTE FTP</b> · o mais forte e constante possível' + (avg ? ' · média <b>' + Math.round(avg) + ' W</b> · FTP ≈ <b>' + Math.round(avg * 0.95) + ' W</b>' : '') + (state.status !== 'playing' ? ' · em pausa' : '');
+      setTarget([{l:'Teste FTP', v:'MÁX', u:''}, {l:'Média', v: avg ? Math.round(avg) : '—', u: avg ? 'W' : ''}, {l:'FTP ≈', v: avg ? Math.round(avg * 0.95) : '—', u: avg ? 'W' : ''}],
+        state.status !== 'playing' ? 'em pausa' : 'o mais forte e constante possível', zc);
       if(state.status === 'playing' && hasPowerSource() && dispPower > 0 && avg){
         const r = dispPower / avg;
         const cue = r < 0.9 ? '↑ Não deixes cair o ritmo' : (r > 1.15 && me.tt < 600 ? '↓ Calma, guarda forças para o fim' : '✓ Ritmo constante, aguenta!');
@@ -1686,8 +1731,20 @@ body.solo-livre #progress{display:none;}
       if(fn){ const r = fn.call(el); if(r && r.catch) r.catch(()=>{}); }
     }catch(e){}
   }
-  $('chipFtp').addEventListener('click', ()=> openFtpEdit('ftp'));
-  $('chipFc').addEventListener('click', openFcEdit);
+  // menus do cabeçalho: ᛒ = bike e cinta · ✎ = FTP e FC máxima
+  function closeMenus(except){
+    [['btMenuBtn','btPop'],['edMenuBtn','edPop']].forEach(([b,p])=>{ if(p === except) return; $(p).classList.remove('on'); $(b).setAttribute('aria-expanded','false'); });
+  }
+  function toggleMenu(btn, pop){
+    const open = !$(pop).classList.contains('on');
+    closeMenus(pop);
+    $(pop).classList.toggle('on', open); $(btn).setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  $('btMenuBtn').addEventListener('click', (e)=>{ e.stopPropagation(); toggleMenu('btMenuBtn','btPop'); });
+  $('edMenuBtn').addEventListener('click', (e)=>{ e.stopPropagation(); toggleMenu('edMenuBtn','edPop'); });
+  document.addEventListener('click', (e)=>{ if(!e.target.closest('.tb-menu')) closeMenus(); });
+  $('chipFtp').addEventListener('click', ()=>{ closeMenus(); openFtpEdit('ftp'); });
+  $('chipFc').addEventListener('click', ()=>{ closeMenus(); openFcEdit(); });
   $('ftpEditCancel').addEventListener('click', closeFtpEdit);
   $('ftpEditOk').addEventListener('click', closeFtpEdit);
   $('ftpEditSave').addEventListener('click', saveFtpEdit);
@@ -1835,7 +1892,12 @@ body.solo-livre #progress{display:none;}
     $('ftpEditMsg').innerHTML = '❤ FC máxima atualizada para <b>' + v + ' bpm</b>' + (old ? ' (era ' + old + ' bpm)' : '') + '. As tuas zonas de FC já mudaram.';
     $('ftpEditSave').style.display = 'none'; $('ftpEditOk').style.display = '';
   }
+  function syncMenuDots(){
+    $('dotBike').classList.toggle('on', $('chipBike').classList.contains('on'));
+    $('dotHr').classList.toggle('on', $('chipHr').classList.contains('on'));
+  }
   function updateFtpChip(){
+    syncMenuDots();
     const c = $('chipFtpV'); if(c) c.textContent = me.ftp ? me.ftp + ' W' : '—';
     const f = $('chipFcV'); if(f) f.textContent = me.fc ? me.fc : '—';
   }
