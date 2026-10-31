@@ -564,7 +564,7 @@ html.live-on,html.live-on body{overflow:hidden !important;}
 .rt-sub .pct{color:var(--zc);font-weight:700;}
 
 .lanes{flex:1;display:flex;flex-direction:column;gap:8px;min-height:0;overflow:hidden;}
-.lanes.two{display:grid !important;grid-auto-flow:column;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px;row-gap:6px;}
+.lanes.two{grid-auto-flow:column;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:28px;row-gap:6px;}
 .lanes.two .lane{max-height:none;grid-template-columns:36px minmax(70px,140px) 1fr 64px;gap:8px;}
 .lanes.two .ln-pos,.lanes.two .ln-val{font-size:clamp(16px,2.2vh,24px);}
 .lanes.two .ln-name{font-size:clamp(13px,1.7vh,16px);}
@@ -1315,6 +1315,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function alvoOf(b){ return !b ? 0 : (b.alvo === undefined || b.alvo === null ? (b.ftp || 0) : (b.alvo || 0)); }
   function lblInt(b, m){
     const k = m || modoAtual();
+    if(b && b.teste) return 'TESTE FTP';
     if(k === 'zonas' || !b || b.tipo) return intensLabel(b ? b.ftp : 0, k);
     const a = alvoOf(b);
     return a > 0 ? a + '%' : (ZONE_RANGE[k] || ZONE_RANGE.ftp)[zoneIdx(b.ftp, k)];
@@ -1499,6 +1500,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       rpm: Math.max(0, Number(b.rpm)||0),
       rpm2: Math.max(0, Number(b.rpm2)||0) || undefined,
       tipo: (b.tipo === 'seg' || b.tipo === 'cool') ? b.tipo : undefined,
+      teste: b.teste ? true : undefined,
     });
   }
 
@@ -2037,6 +2039,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   const ICON_SPLIT = '<svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1"/><path d="M9 7v10M15 7v10"/></svg>';
   const ICON_COOL = '<svg viewBox="0 0 24 24"><path d="M3 7h6v10H3zM9 11h6v6H9zM15 14h6v3h-6z"/></svg>';
   const ICON_PLUS = '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>';
+  const ICON_TEST = '<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>';
   function renderZoneButtons(m){
     const Z = zonesOf(m), n = Z.length, R = ZONE_RANGE[m];
     let h = Z.map((z,i)=>{
@@ -2047,6 +2050,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     h += '<button class="zb" id="zbSplit" title="Separador de segmento: na projeção mostra o segmento seguinte" style="--c:#A35CFF;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_SPLIT + '</span></span><span class="zl">Dividir em segmentos</span></button>';
     h += '<button class="zb" id="zbCool" title="Acrescenta o retorno à calma (fica sempre no fim)" style="--c:#1FC8B0;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_COOL + '</span></span><span class="zl">Retorno à calma</span></button>';
     h += '<span class="gap"></span>';
+    h += '<button class="zb" id="zbFtpTest" title="Teste FTP de 20 minutos (Allen-Coggan): no fim a app calcula o FTP de cada aluno" style="--c:#FFD60A;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_TEST + '</span></span><span class="zl">Teste FTP</span></button>';
     h += '<button class="zb tool2" id="zbImport" title="Importar aulas de um ficheiro .json"><span class="zb-ring"><span class="zb-core">' + ICON_PLUS + '</span></span><span class="zl">Importar</span></button>';
     h += '<button class="zb tool2 total" id="zbTotal" title="Duração total da aula" tabindex="-1"><span class="zb-ring"><span class="zb-core">T</span></span><span class="zl" id="zbTotalTxt">0:00</span></button>';
     $('zoneDots').innerHTML = h;
@@ -2059,6 +2063,30 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     const b = newBlock({ tipo:'seg', nome:'Segmento ' + n, min:1, sec:0, ftp: m === 'fc' ? 55 : (m === 'zonas' ? ZONE_MID[0] : 50), rpm:80, rpm2:85, tecnica:'Plano Sentado' });
     insertAt(selIdx >= 0 ? selIdx + 1 : current.blocos.length, b);
     render(); scrollToSel();
+  }
+  // aula de teste FTP (protocolo de 20 min, Allen-Coggan): FTP = média dos 20 min × 0,95
+  function doFtpTest(){
+    const temBlocos = current.blocos.length > 1 || (current.blocos[0] && current.blocos[0].nome !== 'Aquecimento');
+    if(temBlocos && !confirm('Substituir os intervalos desta aula pelo protocolo do teste FTP (20 min)?')) return;
+    pushUndo();
+    if(modoAtual() !== 'ftp'){ current.modo = 'ftp'; renderModeUi(); }
+    const B = (nome, min, ftp, rpm, rpm2, extra)=> newBlock(Object.assign({ nome, min, sec:0, ftp, alvo:0, rpm, rpm2, tecnica:'Plano Sentado' }, extra || {}));
+    current.blocos = [
+      B('Aquecimento', 7, 60, 85, 95),
+      B('Ativação 1', 1, 110, 95, 105), B('Recupera', 1, 50, 85, 90),
+      B('Ativação 2', 1, 110, 95, 105), B('Recupera', 1, 50, 85, 90),
+      B('Ativação 3', 1, 110, 95, 105), B('Recupera', 1, 50, 85, 90),
+      B('Esforço máximo 5 min', 5, 115, 90, 100),
+      B('Recuperação', 10, 50, 80, 90),
+      B('TESTE FTP · 20 min', 20, 100, 85, 95, { teste:true }),
+      B('Retorno à calma', 10, 45, 80, 85, { tipo:'cool' })
+    ];
+    if(!current.nome) current.nome = 'TESTE FTP ' + new Date().toLocaleDateString('pt-PT').replace(/\//g, '-');
+    if(!current.descricao) current.descricao = 'Teste de FTP de 20 minutos. Aquecimento com 3 ativações, 5 min de esforço máximo, 10 min de recuperação e 20 min o mais forte e constante possível. No fim, a app calcula o teu FTP (média dos 20 min × 0,95) e atualiza-o.';
+    current.objetivo = 'limiar';
+    selIdx = 0; clearMulti();
+    render();
+    toast('Protocolo do teste FTP criado (58 min)');
   }
   function doCooldown(){
     const c = coolIdx();
@@ -2154,6 +2182,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     else if(btn.id === 'zbSplit') doSegments();
     else if(btn.id === 'zbCool') doCooldown();
     else if(btn.id === 'zbImport') $('importFile').click();
+    else if(btn.id === 'zbFtpTest') doFtpTest();
   });
   $('splitBtn').addEventListener('click', doHalf);
   $('cmdSaveBtn').addEventListener('click', ()=> $('saveBtn').click());
@@ -2436,9 +2465,12 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 
   function kmFmt(km){ return (km < 10 ? (+km).toFixed(2) : (+km).toFixed(1)).replace('.', ','); }
   function summaryTableHtml(entry){
+    const hasTest = entry.riders.some(r=> r.ftpT || r.m20);
     const rows = entry.riders.map((r,i)=>{
       const pct = riderAvgPct(r);
       return '<tr><td>' + (i+1) + '</td><td>' + escapeHtml(r.n) + '</td>' +
+        '<td>' + (r.ftp ? r.ftp + (r.ftpIni && r.ftpIni !== r.ftp ? ' <small title="alterou o FTP na aula">✎ era ' + r.ftpIni + '</small>' : '') : '—') + '</td>' +
+        (hasTest ? '<td>' + (r.ftpT ? '<b>' + r.ftpT + ' W</b> <small>(média ' + r.m20 + ')</small>' : (r.m20 ? '<small>incompleto</small>' : '—')) + '</td>' : '') +
         '<td>' + Math.round(r.pts||0) + '</td>' +
         '<td>' + (r.kj||0).toFixed(0) + '</td>' +
         '<td>' + (r.km ? kmFmt(r.km) : '—') + '</td>' +
@@ -2448,7 +2480,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
         '<td>' + riderZonePct(r) + '%</td>' +
         '<td>' + fmtTime(r.as||0) + '</td></tr>';
     }).join('');
-    return '<table class="sum-table"><thead><tr><th>#</th><th>Nome</th><th>Pontos</th><th>kJ</th><th>km</th><th>W médios</th><th>%FTP médio</th><th>W máx</th><th>Na zona</th><th>Tempo</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    return '<table class="sum-table"><thead><tr><th>#</th><th>Nome</th><th>FTP</th>' + (hasTest ? '<th>Teste FTP</th>' : '') + '<th>Pontos</th><th>kJ</th><th>km</th><th>W médios</th><th>%FTP médio</th><th>W máx</th><th>Na zona</th><th>Tempo</th></tr></thead><tbody>' + rows + '</tbody></table>';
   }
 
   function sortRidersBy(list, metric){
@@ -2469,12 +2501,12 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function exportHistCsv(id){
     const h = historico.find(x=>x.id===id);
     if(!h) return;
-    const head = ['Posição','Nome','FTP (W)','Pontos','kJ','Distância (km)','Potência média (W)','%FTP médio','Potência máx (W)','Tempo na zona (%)','Tempo ativo'];
+    const head = ['Posição','Nome','FTP (W)','FTP no início (W)','Teste FTP (W)','Média 20 min (W)','Pontos','kJ','Distância (km)','Potência média (W)','%FTP médio','Potência máx (W)','Tempo na zona (%)','Tempo ativo'];
     const lines = [head.join(';')];
     h.riders.forEach((r,i)=>{
       const pct = riderAvgPct(r);
       lines.push([
-        i+1, '"' + String(r.n||'').replace(/"/g,'""') + '"', r.ftp||'', Math.round(r.pts||0),
+        i+1, '"' + String(r.n||'').replace(/"/g,'""') + '"', r.ftp||'', r.ftpIni||'', r.ftpT||'', r.m20||'', Math.round(r.pts||0),
         String((r.kj||0).toFixed(1)).replace('.',','), String((+(r.km||0)).toFixed(2)).replace('.',','), Math.round(r.aw||0), pct==null?'':pct,
         Math.round(r.mw||0), riderZonePct(r), fmtTime(r.as||0)
       ].join(';'));
@@ -2524,7 +2556,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       treinoNome: current.nome || 'Aula de cycling',
       descricao: (current.descricao || '').trim() || null,
       modo: modoAtual(),
-      blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, alvo:alvoOf(x), rpm:x.rpm, rpm2:x.rpm2||null, tipo:x.tipo||null, tecnica:x.tecnica||''})),
+      blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, alvo:alvoOf(x), teste:x.teste ? true : null, rpm:x.rpm, rpm2:x.rpm2||null, tipo:x.tipo||null, tecnica:x.tecnica||''})),
       state: { blockIndex: 0, status: 'paused', remainingAtStart: blockDurationSec(b), startedAt: TS() },
       raceMetric: raceMetric,
       createdAt: TS(),
@@ -2649,13 +2681,13 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 
     const grid = $('rgrid'), lanes = $('lanes'), empty = $('rpEmpty');
     if(!list.length){
-      grid.style.display = 'none'; lanes.style.display = 'none'; empty.style.display = '';
+      grid.style.display = 'none'; lanes.style.display = 'none'; lanes.classList.remove('two'); empty.style.display = '';
       return;
     }
     empty.style.display = 'none';
 
     if(mode === 'turma'){
-      lanes.style.display = 'none'; grid.style.display = 'grid';
+      lanes.style.display = 'none'; lanes.classList.remove('two'); lanes.innerHTML = ''; grid.style.display = 'grid';
       const n = list.length;
       const panel = $('ridersPanel');
       const pw = panel.clientWidth || 800, ph = (panel.clientHeight || 600) - 60;
@@ -2686,13 +2718,16 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
             (r.hr && !bigFc ? '<span>♥ ' + Math.round(r.hr) + '</span>' : '') +
             '<span>' + metricFmt(metricVal(r)) + ' ' + (raceMetric==='kj'?'kJ':'pts') + '</span>' +
             (r.km > 0 ? '<span>' + kmFmt(r.km) + ' km</span>' : '') +
+            (block && block.teste && r.tt > 5 ? '<span class="pct">méd. ' + Math.round(r.tw / r.tt) + ' W</span>' : '') +
+            (r.ftpT ? '<span class="pct">🎯 FTP ' + r.ftpT + '</span>' : '') +
           '</div></div>';
       }).join('');
     } else {
-      grid.style.display = 'none'; lanes.style.display = 'flex';
+      grid.style.display = 'none'; grid.innerHTML = '';
       const max = Math.max(1, ...list.map(metricVal));
       const two = list.length > 14;   // muitos alunos: duas colunas para caberem todos
       lanes.classList.toggle('two', two);
+      lanes.style.display = two ? 'grid' : 'flex';   // muda pelo estilo (sem !important) para o modo Turma o conseguir esconder
       lanes.style.gridTemplateRows = two ? 'repeat(' + Math.ceil(Math.min(list.length, 40) / 2) + ', minmax(0,1fr))' : '';
       lanes.innerHTML = list.slice(0, 40).map((r,i)=>{
         const pct = modoAtual() === 'fc' ? ((r.fc && r.hr) ? Math.round(r.hr/r.fc*100) : null) : (r.ftp ? Math.round((r.w||0)/r.ftp*100) : null);
@@ -2717,7 +2752,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 
   function buildSummary(){
     const list = sortRidersBy(ridingRiders().filter(r=> (r.as||0) >= 10), raceMetric).map(r=>({
-      n: r.n || '?', ftp: r.ftp || null, kj: r.kj || 0, km: r.km || 0, pts: r.pts || 0, aw: r.aw || 0, mw: r.mw || 0, iz: r.iz || 0, as: r.as || 0
+      n: r.n || '?', ftp: r.ftp || null, ftpIni: r.ftpIni || null, ftpT: r.ftpT || null, m20: r.m20 || null, kj: r.kj || 0, km: r.km || 0, pts: r.pts || 0, aw: r.aw || 0, mw: r.mw || 0, iz: r.iz || 0, as: r.as || 0
     }));
     return list;
   }
@@ -2943,7 +2978,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     if(!b) return;
     const zone = blkZone(b);
     const zc = zoneColor(zone.css);
-    $('liveZone').textContent = zone.name;
+    $('liveZone').textContent = b.teste ? 'Teste FTP · 20 min' : zone.name;
     if(liveLastIdx !== liveIdx){                       // mudou de bloco: clarão na cor da zona
       liveLastIdx = liveIdx;
       const body = $('liveBody');
@@ -2952,9 +2987,9 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     $('liveName').textContent = b.nome;
     $('liveName').style.display = (b.nome || '').trim() === zone.name ? 'none' : '';   // não repete o nome da zona
     $('liveTechnique').textContent = b.tecnica || '';
-    $('liveFeel').textContent = zone.feel || '';
+    $('liveFeel').textContent = b.teste ? 'O mais forte e constante possível durante 20 minutos. Não comeces demasiado forte. No fim, a app calcula o FTP de cada um.' : (zone.feel || '');
     updateTimerText();
-    $('liveFtp').textContent = lblInt(b);
+    $('liveFtp').textContent = b.teste ? 'MÁX' : lblInt(b);
     $('liveRpm').textContent = rpmTxt(b);
     renderSegPreview(b);
     const zi6 = b.tipo ? -1 : zonesOf().indexOf(zone);   // Z6 e Z7 também no treino por FC
@@ -3162,7 +3197,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     if(!confirm(msg)) return;
     const key = existing ? existing.key : fbDb.ref('biblioteca').push().key;
     fbDb.ref('biblioteca/' + key).set(clean({
-      nome: t.nome, modo: t.modo || 'ftp', objetivo: t.objetivo || null, descricao: t.descricao || null, blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, alvo:alvoOf(b), rpm:b.rpm, rpm2:b.rpm2||null, tipo:b.tipo||null, tecnica:b.tecnica||''})),
+      nome: t.nome, modo: t.modo || 'ftp', objetivo: t.objetivo || null, descricao: t.descricao || null, blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, alvo:alvoOf(b), teste:b.teste ? true : null, rpm:b.rpm, rpm2:b.rpm2||null, tipo:b.tipo||null, tecnica:b.tecnica||''})),
       autor: userUid, autorNome: userNome || '', origem: id, atualizado: Date.now()
     })).then(()=> toast(existing ? 'Biblioteca atualizada' : 'Aula partilhada na Biblioteca Playlife'))
       .catch(()=> toast('Não consegui partilhar.'));
