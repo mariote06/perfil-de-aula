@@ -31,6 +31,11 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;height:100%;}
+/* sem "arrastar para baixo para atualizar": evita sair do treino sem querer */
+html,body{overscroll-behavior-y:none;}
+html.in-class,html.in-class body{overflow:hidden;overscroll-behavior:none;}
+html.in-class body{position:fixed;inset:0;width:100%;}
+html.in-class .body{overscroll-behavior:contain;}
 body{
   background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;
   min-height:100vh;min-height:100dvh;display:flex;flex-direction:column;overscroll-behavior:none;
@@ -771,8 +776,16 @@ body.solo-livre #progress{display:none;}
     currentScreen = id;
     ['homeScreen','libScreen','fichaScreen','joinScreen','setupScreen','accountScreen'].forEach(s=> $(s).classList.toggle('active', s===id));
     $('liveScreen').classList.toggle('active', id==='liveScreen');
+    document.documentElement.classList.toggle('in-class', id==='liveScreen');
     window.scrollTo(0,0);
   }
+  // se o aluno tentar recarregar ou fechar a página a meio do treino, o browser pede confirmação
+  window.addEventListener('beforeunload', (e)=>{
+    if(currentScreen !== 'liveScreen' || !(riderRef || solo)) return;
+    if(sessionEnded || (state && state.status === 'finished')) return;
+    try{ saveProgress(); }catch(err){}
+    e.preventDefault(); e.returnValue = '';
+  });
 
   // série do treino para o gráfico: médias de 5 em 5 segundos
   const SERIE_STEP = 5;
