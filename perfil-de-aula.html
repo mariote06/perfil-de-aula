@@ -575,6 +575,7 @@ html.live-on,html.live-on body{overflow:hidden !important;}
 .rtile.offline{opacity:.35;filter:grayscale(1);}
 .rt-top{display:flex;gap:8px;align-items:center;font-weight:600;overflow:hidden;}
 .rmood{flex-shrink:0;font-size:1.15em;line-height:1;margin-left:4px;}
+.rmood .ae{width:1.3em;height:1.3em;vertical-align:-.25em;object-fit:contain;}
 .rt-pos{font-family:'Barlow Condensed',sans-serif;font-weight:700;background:rgba(255,255,255,.12);border-radius:6px;padding:0 7px;flex-shrink:0;}
 .rt-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .rt-bg{margin-left:auto;flex-shrink:0;font-size:.78em;font-weight:700;color:#fff;background:#C8102E;border-radius:6px;padding:1px 7px;font-family:'Inter',sans-serif;}
@@ -2488,6 +2489,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function kmFmt(km){ return (km < 10 ? (+km).toFixed(2) : (+km).toFixed(1)).replace('.', ','); }
   function summaryTableHtml(entry){
     const hasTest = entry.riders.some(r=> r.ftpT || r.m20);
+    const hasMood = entry.riders.some(r=> r.md || r.rx || r.fa);
     const rows = entry.riders.map((r,i)=>{
       const pct = riderAvgPct(r);
       return '<tr><td>' + (i+1) + '</td><td>' + escapeHtml(r.n) + '</td>' +
@@ -2500,9 +2502,9 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
         '<td>' + (pct==null ? '—' : pct + '%') + '</td>' +
         '<td>' + Math.round(r.mw||0) + '</td>' +
         '<td>' + riderZonePct(r) + '%</td>' +
-        '<td>' + fmtTime(r.as||0) + '</td></tr>';
+        '<td>' + fmtTime(r.as||0) + '</td>' + (hasMood ? '<td class="sum-md">' + sentirCell(r) + '</td>' : '') + '</tr>';
     }).join('');
-    return '<table class="sum-table"><thead><tr><th>#</th><th>Nome</th><th>FTP</th>' + (hasTest ? '<th>Teste FTP</th>' : '') + '<th>Pontos</th><th>kJ</th><th>km</th><th>W médios</th><th>%FTP médio</th><th>W máx</th><th>Na zona</th><th>Tempo</th></tr></thead><tbody>' + rows + '</tbody></table>';
+    return '<table class="sum-table"><thead><tr><th>#</th><th>Nome</th><th>FTP</th>' + (hasTest ? '<th>Teste FTP</th>' : '') + '<th>Pontos</th><th>kJ</th><th>km</th><th>W médios</th><th>%FTP médio</th><th>W máx</th><th>Na zona</th><th>Tempo</th>' + (hasMood ? '<th>Como se sentiu</th>' : '') + '</tr></thead><tbody>' + rows + '</tbody></table>';
   }
 
   function sortRidersBy(list, metric){
@@ -2688,8 +2690,18 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   }
 
   // emoji que o aluno escolheu em "Como te sentes hoje?" na app
-  const MOOD_EMO = {1:['😫','exausto'], 2:['😕','em baixo'], 3:['😐','normal'], 4:['🙂','bem'], 5:['🤩','em grande']};
-  function moodEm(r){ const m = MOOD_EMO[r && r.md]; return m ? '<span class="rmood" title="Hoje sente-se ' + m[1] + '">' + m[0] + '</span>' : ''; }
+  const MOOD_EMO = {1:['😫','exausto','1f62b'], 2:['😕','em baixo','1f615'], 3:['😐','normal','1f610'], 4:['🙂','bem','1f642'], 5:['🤩','em grande','1f929']};
+  const EXP_EMO = {1:['😞','mau'], 2:['😕','fraco'], 3:['😐','razoável'], 4:['😀','bom'], 5:['🤩','excelente']};
+  const FEEL_EMO = {1:['😫','exausto'], 2:['😮‍💨','cansado'], 3:['🙂','bem'], 4:['💪','forte'], 5:['🔥','em grande']};
+  // emoji animado (Noto, da Google); se não carregar, fica o emoji normal
+  function aeImg(u, c){ return '<img class="ae" src="https://fonts.gstatic.com/s/e/notoemoji/latest/' + u + '/512.webp" alt="' + c + '" draggable="false" onerror="this.replaceWith(document.createTextNode(this.alt))">'; }
+  function moodEm(r){ const m = MOOD_EMO[r && r.md]; return m ? '<span class="rmood" title="Hoje sente-se ' + m[1] + '">' + aeImg(m[2], m[0]) + '</span>' : ''; }
+  function sentirCell(r){
+    const a = MOOD_EMO[r.md], d = FEEL_EMO[r.fa], x = EXP_EMO[r.rx];
+    if(!a && !d && !x) return '—';
+    return (a ? '<span title="antes: ' + a[1] + '">' + a[0] + '</span>' : '·') + (d ? ' → <span title="depois: ' + d[1] + '">' + d[0] + '</span>' : '') +
+      (x ? ' <small title="o treino foi ' + x[1] + '">treino ' + x[0] + '</small>' : '');
+  }
   function renderRiders(){
     if(!$('liveOverlay').classList.contains('active')) return;
     const mode = applyMode();
@@ -2779,7 +2791,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 
   function buildSummary(){
     const list = sortRidersBy(ridingRiders().filter(r=> (r.as||0) >= 10), raceMetric).map(r=>({
-      n: r.n || '?', ftp: r.ftp || null, ftpIni: r.ftpIni || null, ftpT: r.ftpT || null, m20: r.m20 || null, kj: r.kj || 0, km: r.km || 0, pts: r.pts || 0, aw: r.aw || 0, mw: r.mw || 0, iz: r.iz || 0, as: r.as || 0
+      n: r.n || '?', md: r.md || null, rx: r.rx || null, fa: r.fa || null, ftp: r.ftp || null, ftpIni: r.ftpIni || null, ftpT: r.ftpT || null, m20: r.m20 || null, kj: r.kj || 0, km: r.km || 0, pts: r.pts || 0, aw: r.aw || 0, mw: r.mw || 0, iz: r.iz || 0, as: r.as || 0
     }));
     return list;
   }

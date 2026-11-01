@@ -449,6 +449,23 @@ body.solo-livre #progress{display:none;}
 .chip.ftpchip{color:#fff;cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:4px 12px;border-radius:14px;line-height:1.05;}
 .chip.ftpchip .cl{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);}
 .chip.ftpchip b{font-family:'Barlow Condensed',sans-serif;font-size:21px;}
+.ae{width:1em;height:1em;display:inline-block;vertical-align:-.12em;object-fit:contain;}
+.mood-opts button i .ae{width:30px;height:30px;}
+.rate-ov{position:fixed;inset:0;z-index:310;background:rgba(5,7,10,.82);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:16px;}
+.rate-ov.on{display:flex;}
+.rate-card{width:100%;max-width:420px;background:#12161D;border:1px solid #2A3240;border-radius:22px;padding:20px 16px 14px;text-align:center;animation:rateIn .35s cubic-bezier(.2,1.3,.4,1);}
+@keyframes rateIn{from{opacity:0;transform:translateY(24px) scale(.96);}to{opacity:1;transform:none;}}
+.rate-top{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:28px;color:#fff;margin-bottom:6px;}
+.rate-q{font-weight:800;font-size:16px;color:#fff;margin:14px 0 9px;text-align:left;}
+.rate-opts{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.rate-opts button{display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 2px 7px;border-radius:13px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-size:clamp(9.5px,2.9vw,11px);font-weight:600;white-space:nowrap;transition:transform .15s ease,background .2s ease,border-color .2s ease;}
+.rate-opts button .ae{width:38px;height:38px;}
+.rate-opts button i{font-style:normal;font-size:32px;line-height:1;}
+.rate-opts button:active{transform:scale(.93);}
+.rate-opts button.on{border-color:var(--mc);background:color-mix(in srgb,var(--mc) 24%,transparent);color:#fff;transform:scale(1.06);}
+.rate-ok{width:100%;margin-top:18px;border:none;border-radius:14px;padding:14px;font-weight:800;font-size:17px;background:var(--accent);color:#140B04;}
+.rate-ok:disabled{opacity:.4;}
+.rate-skip{background:none;border:none;color:var(--muted);font-size:13px;margin-top:8px;padding:8px;text-decoration:underline;}
 .ftp-edit{position:fixed;inset:0;z-index:300;background:rgba(5,7,10,.8);display:none;align-items:center;justify-content:center;padding:18px;}
 .ftp-edit.on{display:flex;}
 .fe-card{width:100%;max-width:360px;background:#12161D;border:1px solid #262D39;border-radius:18px;padding:20px 18px 16px;text-align:center;}
@@ -549,11 +566,11 @@ body.solo-livre #progress{display:none;}
   <div class="mood" id="moodCard">
     <div class="mood-h">Como te sentes hoje?</div>
     <div class="mood-opts" id="moodOpts">
-      <button type="button" data-m="1" style="--mc:#FF5A5A"><i>😫</i>Exausto</button>
-      <button type="button" data-m="2" style="--mc:#FF9F43"><i>😕</i>Em baixo</button>
-      <button type="button" data-m="3" style="--mc:#FFD60A"><i>😐</i>Normal</button>
-      <button type="button" data-m="4" style="--mc:#3DD45C"><i>🙂</i>Bem</button>
-      <button type="button" data-m="5" style="--mc:#1FA8F0"><i>🤩</i>Em grande</button>
+      <button type="button" data-m="1" data-u="1f62b" style="--mc:#FF5A5A"><i>😫</i>Exausto</button>
+      <button type="button" data-m="2" data-u="1f615" style="--mc:#FF9F43"><i>😕</i>Em baixo</button>
+      <button type="button" data-m="3" data-u="1f610" style="--mc:#FFD60A"><i>😐</i>Normal</button>
+      <button type="button" data-m="4" data-u="1f642" style="--mc:#3DD45C"><i>🙂</i>Bem</button>
+      <button type="button" data-m="5" data-u="1f929" style="--mc:#1FA8F0"><i>🤩</i>Em grande</button>
     </div>
     <div class="mood-r" id="moodResp" aria-live="polite"></div>
     <button type="button" class="bora-btn" id="boraBtn">Bora pedalar →</button>
@@ -782,6 +799,29 @@ body.solo-livre #progress{display:none;}
 </div>
 
 <!-- 3. AULA -->
+<div class="rate-ov" id="rateOv" role="dialog" aria-modal="true" aria-labelledby="rateTitle">
+  <div class="rate-card">
+    <div class="rate-top" id="rateTitle">Treino terminado! 🎉</div>
+    <div class="rate-q">Como foi o treino?</div>
+    <div class="rate-opts" id="rateExp">
+      <button type="button" data-v="1" data-u="1f61e" data-c="😞" style="--mc:#FF5A5A">Mau</button>
+      <button type="button" data-v="2" data-u="1f615" data-c="😕" style="--mc:#FF9F43">Fraco</button>
+      <button type="button" data-v="3" data-u="1f610" data-c="😐" style="--mc:#FFD60A">Razoável</button>
+      <button type="button" data-v="4" data-u="1f600" data-c="😀" style="--mc:#3DD45C">Bom</button>
+      <button type="button" data-v="5" data-u="1f929" data-c="🤩" style="--mc:#1FA8F0">Excelente</button>
+    </div>
+    <div class="rate-q">Como te sentes agora?</div>
+    <div class="rate-opts" id="rateFeel">
+      <button type="button" data-v="1" data-u="1f62b" data-c="😫" style="--mc:#FF5A5A">Exausto</button>
+      <button type="button" data-v="2" data-u="1f62e_200d_1f4a8" data-c="😮‍💨" style="--mc:#FF9F43">Cansado</button>
+      <button type="button" data-v="3" data-u="1f642" data-c="🙂" style="--mc:#FFD60A">Bem</button>
+      <button type="button" data-v="4" data-u="1f4aa" data-c="💪" style="--mc:#3DD45C">Forte</button>
+      <button type="button" data-v="5" data-u="1f525" data-c="🔥" style="--mc:#1FA8F0">Em grande</button>
+    </div>
+    <button type="button" class="rate-ok" id="rateOk" disabled>Guardar</button>
+    <button type="button" class="rate-skip" id="rateSkip">Agora não</button>
+  </div>
+</div>
 <div class="ftp-edit" id="ftpEdit" role="dialog" aria-modal="true" aria-label="Alterar o FTP">
   <div class="fe-card">
     <h3 id="ftpEditTitle">O teu FTP</h3>
@@ -1476,6 +1516,7 @@ body.solo-livre #progress{display:none;}
       aw: me.as ? Math.round(me.sumW / me.as) : 0, mw: Math.round(me.mw),
       iz: Math.round(me.iz), as: Math.round(modo === 'fc' ? me.ts : me.as),
       dev: hasPowerSource() || (modo === 'fc' && myHr() > 0), demo: demo || null, left: null,
+      rx: me.rx || null, fa: me.fa || null,
       md: moodHoje(),   // emoji do "como te sentes hoje?" (aparece junto ao nome na projeção)
       t: firebase.database.ServerValue.TIMESTAMP
     }).catch(()=>{});
@@ -1551,7 +1592,7 @@ body.solo-livre #progress{display:none;}
       if(ftp && (!perfil || perfil.ftp !== ftp)) upd.ftp = ftp;
       if(Object.keys(upd).length){ fbDb.ref('alunos/' + user.uid + '/perfil').update(upd).catch(()=>{}); perfil = Object.assign({}, perfil, upd); }
     }
-    resetSerie(); savedThisClass = false; treinoKey = null; lastBlockIdx = -1; nxBoomIdx = -1; hideNx(); $('savedNote').innerHTML = ''; $('ftpResult').style.display = 'none'; $('finFtp').innerHTML = '';
+    resetSerie(); savedThisClass = false; treinoKey = null; lastBlockIdx = -1; nxBoomIdx = -1; hideNx(); rateDone = false; rateAuto = false; me.rx = null; me.fa = null; $('savedNote').innerHTML = ''; $('ftpResult').style.display = 'none'; $('finFtp').innerHTML = '';
 
     riderRef =fbDb.ref('sessions/' + pin + '/riders/' + riderId);
     // se recarregaste a página a meio, continua de onde ficaste
@@ -1663,6 +1704,7 @@ body.solo-livre #progress{display:none;}
     $('rankEl').innerHTML = hasPowerSource() ? rankTxt : '';
 
     if(finished){
+      if(!rateAuto && !rateDone){ rateAuto = true; setTimeout(()=> askRating(null), 900); }
       $('activeBlock').style.display = 'none';
       $('finishedEl').classList.add('active');
       $('nextEl').textContent = solo ? '' : (sessionEnded ? 'O instrutor fechou a aula. Podes sair.' : ''); hideNx(); $('segNext').innerHTML = '';
@@ -2086,11 +2128,11 @@ body.solo-livre #progress{display:none;}
   });
   $('leaveBtn').addEventListener('click', ()=>{
     if(solo){
-      if(state && state.status === 'finished'){ leave(); return; }
+      if(state && state.status === 'finished'){ askRating(leave); return; }
       if(me.ts < 5 || confirm('Gravar o treino e terminar?')) finishSolo();
       return;
     }
-    if(sessionEnded || state && state.status === 'finished' || confirm('Gravar o treino e sair da aula?')) leave();
+    if(sessionEnded || state && state.status === 'finished' || confirm('Gravar o treino e sair da aula?')) askRating(leave);
   });
   window.addEventListener('pagehide', ()=>{ pushRider(); });
 
@@ -2259,7 +2301,8 @@ body.solo-livre #progress{display:none;}
       modo: modo,
       fcMax: me.fc || (perfil && perfil.fcMax) || null,
       ftpIni: me.ftpIni || null,
-      ftpTeste: me.ftpTest || null
+      ftpTeste: me.ftpTest || null,
+      avaliacao: (me.rx || me.fa) ? {exp: me.rx || null, sente: me.fa || null} : null
     };
     const key = getTreinoKey();
     const uid = user.uid, clean = cleanVals(t);
@@ -2745,6 +2788,46 @@ body.solo-livre #progress{display:none;}
     4: { t:'Boa! <b>Aproveita</b> esse bom momento.', go:'tLive', gl:'Entra no treino' },
     5: { t:'Que energia! 🔥 Hoje é dia de <b>atacar os blocos fortes</b>.', go:'tLive', gl:'Bora para o treino' }
   };
+  // ===== emojis animados (Noto, da Google); se não carregarem, fica o emoji normal =====
+  const AE_URL = 'https://fonts.gstatic.com/s/e/notoemoji/latest/';
+  function aeHtml(u, c){ return '<img class="ae" src="' + AE_URL + u + '/512.webp" alt="' + c + '" draggable="false" onerror="this.replaceWith(document.createTextNode(this.alt))">'; }
+  function animarEmojis(root){
+    (root || document).querySelectorAll('button[data-u]').forEach(b=>{
+      if(b.dataset.ae) return; b.dataset.ae = '1';
+      const i = b.querySelector('i'), c = i ? i.textContent : b.dataset.c;
+      if(i) i.innerHTML = aeHtml(b.dataset.u, c);
+      else b.insertAdjacentHTML('afterbegin', '<i>' + aeHtml(b.dataset.u, c) + '</i>');
+    });
+  }
+  // ===== cartão "como foi o treino?" no fim =====
+  let rateDone = false, rateAuto = false, rateThen = null;
+  function rateVal(id){ const b = document.querySelector('#' + id + ' button.on'); return b ? +b.dataset.v : null; }
+  function askRating(then){
+    if(rateDone || me.ts < 60 || $('rateOv').classList.contains('on')){ if(then && !$('rateOv').classList.contains('on')) then(); return; }
+    rateThen = then || null;
+    animarEmojis($('rateOv'));
+    document.querySelectorAll('#rateOv .rate-opts button').forEach(b=> b.classList.remove('on'));
+    $('rateOk').disabled = true;
+    $('rateTitle').textContent = (solo ? 'Treino' : 'Aula') + ' terminad' + (solo ? 'o' : 'a') + '! 🎉';
+    $('rateOv').classList.add('on');
+  }
+  function closeRating(){
+    rateDone = true; $('rateOv').classList.remove('on');
+    const f = rateThen; rateThen = null; if(f) f();
+  }
+  ['rateExp','rateFeel'].forEach(id=> $(id).addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    $(id).querySelectorAll('button').forEach(x=> x.classList.toggle('on', x === b));
+    $('rateOk').disabled = !(rateVal('rateExp') || rateVal('rateFeel'));
+  }));
+  $('rateOk').addEventListener('click', ()=>{
+    me.rx = rateVal('rateExp'); me.fa = rateVal('rateFeel');
+    pushRider();
+    // se o treino já estava guardado na conta, junta-lhe a avaliação
+    if(user && fbDb && savedThisClass && treinoKey) fbDb.ref('alunos/' + user.uid + '/treinos/' + treinoKey + '/avaliacao').set({exp: me.rx || null, sente: me.fa || null}).catch(()=>{});
+    closeRating();
+  });
+  $('rateSkip').addEventListener('click', closeRating);
   function moodHoje(){ try{ const v = JSON.parse(localStorage.getItem('prMood') || 'null'); return (v && v.d === hojeKey() && v.m >= 1 && v.m <= 5) ? v.m : null; }catch(e){ return null; } }
   function hojeKey(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
   function renderMood(){
@@ -2779,6 +2862,7 @@ body.solo-livre #progress{display:none;}
   $('goSheet').addEventListener('click', e=>{ if(e.target === $('goSheet') || e.target.closest('.tile.go')) closeGo(); });
   document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeGo(); });
   renderMood();
+  animarEmojis($('moodOpts'));
   // a app pode ficar aberta horas: ao voltar a ela, a saudação e a frase acertam-se com a hora
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && currentScreen === 'homeScreen') renderHome(); });
   setInterval(()=>{ if(!document.hidden && currentScreen === 'homeScreen') renderHome(); }, 60000);
@@ -2889,7 +2973,7 @@ body.solo-livre #progress{display:none;}
       if(Object.keys(upd).length){ fbDb.ref('alunos/' + user.uid + '/perfil').update(upd).catch(()=>{}); perfil = Object.assign({}, perfil, upd); }
     }
     if(solo === 'livre') modo = (!hasPowerSource() && hrConnected()) ? 'fc' : 'ftp';   // só cinta: o número grande é a FC
-    resetSerie(); savedThisClass = false; treinoKey = null; lastBlockIdx = -1; nxBoomIdx = -1; hideNx(); $('savedNote').innerHTML = ''; $('ftpResult').style.display = 'none'; $('finFtp').innerHTML = '';
+    resetSerie(); savedThisClass = false; treinoKey = null; lastBlockIdx = -1; nxBoomIdx = -1; hideNx(); rateDone = false; rateAuto = false; me.rx = null; me.fa = null; $('savedNote').innerHTML = ''; $('ftpResult').style.display = 'none'; $('finFtp').innerHTML = '';
     me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = me.ts = me.km = me.spd = me.tw = me.tt = 0; me.ftpIni = null; me.ftpTest = null; me.testDone = false;
     serverOffset = 0; sessionEnded = false; myRank = null; riderRef = null;
     soloClock.acc = 0; soloClock.since = 0;
@@ -2951,6 +3035,7 @@ body.solo-livre #progress{display:none;}
   }
   function renderLivre(){
     if(state.status === 'finished'){
+      if(!rateAuto && !rateDone){ rateAuto = true; setTimeout(()=> askRating(null), 900); }
       blocos = [];
       const tmp = solo; // reaproveita o ecrã de fim
       $('activeBlock').style.display = 'none';
