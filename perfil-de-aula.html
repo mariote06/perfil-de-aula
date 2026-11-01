@@ -835,7 +835,79 @@ html.live-on,html.live-on body{overflow:hidden !important;}
 body[data-view="home"] [data-sec]:not([data-sec~="home"]),
 body[data-view="plan"] [data-sec]:not([data-sec~="plan"]),
 body[data-view="lib"] [data-sec]:not([data-sec~="lib"]),
-body[data-view="hist"] [data-sec]:not([data-sec~="hist"]){display:none !important;}
+body[data-view="hist"] [data-sec]:not([data-sec~="hist"]),
+body[data-view="ano"] [data-sec]:not([data-sec~="ano"]){display:none !important;}
+/* ---------- Plano anual ---------- */
+#anoSec{max-width:1100px;}
+.pa-head h2{font-family:'Barlow Condensed',sans-serif;font-size:36px;font-weight:700;margin:0;line-height:1;}
+.pa-head p{color:var(--muted);margin:6px 0 18px;font-size:14px;}
+.pa-blocks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:16px;}
+.pa-blk{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:14px 16px;}
+.pa-blk.on{border-color:var(--accent);background:linear-gradient(140deg,rgba(232,114,44,.16),var(--surface) 70%);}
+.pa-blk small{display:block;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+.pa-blk b{display:block;font-size:16px;margin:4px 0 6px;}
+.pa-blk span{display:block;color:var(--muted);font-size:12.5px;line-height:1.45;}
+.pa-blk.on small{color:var(--accent);}
+.pa-cal{padding:16px;}
+.pa-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
+.pa-nav > div{text-align:center;}
+.pa-nav b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:28px;text-transform:capitalize;}
+.pa-nav span{display:block;color:var(--muted);font-size:13px;}
+.pa-nav button{width:42px;height:42px;border-radius:12px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font-size:22px;}
+.pa-nav button:disabled{opacity:.3;}
+.pa-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;}
+.pa-wd{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px;text-align:center;padding:4px 0;}
+.pa-c{min-height:78px;border-radius:12px;background:var(--surface-2);border:1px solid var(--border);padding:7px 7px 6px;text-align:left;display:flex;flex-direction:column;gap:5px;color:var(--text);cursor:pointer;position:relative;overflow:hidden;}
+.pa-c.empty{background:transparent;border-color:transparent;cursor:default;}
+.pa-c .n{font-weight:700;font-size:13px;color:var(--muted);}
+.pa-c .t{font-size:12.5px;font-weight:700;line-height:1.2;color:#fff;}
+.pa-c .ts{display:none;}
+.pa-c::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--tc,transparent);}
+.pa-c{background:linear-gradient(160deg,color-mix(in srgb,var(--tc,#1B212B) 20%,var(--surface-2)),var(--surface-2) 75%);}
+.pa-c.today{outline:2px solid #fff;outline-offset:-2px;}
+.pa-c.today .n::after{content:' · hoje';color:#fff;}
+.pa-c.sel{border-color:var(--tc);box-shadow:0 0 0 2px var(--tc) inset;}
+.pa-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;}
+.pa-sala{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:4px;}
+.pa-sala span{color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:0 6px 0 10px;}
+.pa-sala button{border:none;background:transparent;color:var(--muted);font-weight:700;padding:8px 14px;border-radius:999px;}
+.pa-sala button.on{background:var(--accent);color:#140B04;}
+.pa-c.fer{background:repeating-linear-gradient(135deg,#161B23 0 8px,#1B212B 8px 16px);border-style:dashed;}
+.pa-c.fer .t{color:#C9D0DB;}
+.pa-c .fn{font-size:10.5px;color:var(--muted);line-height:1.2;}
+.pa-c .n em{font-style:normal;font-size:9.5px;color:#FFAA2B;font-weight:700;margin-left:2px;}
+.pa-dcard.fer b{color:#C9D0DB;}
+.pa-day{margin-top:14px;}
+.pa-day:empty{display:none;}
+.pa-dcard{display:flex;gap:14px;align-items:flex-start;flex-wrap:wrap;background:var(--surface-2);border:1px solid var(--border);border-left:6px solid var(--tc);border-radius:14px;padding:14px 16px;}
+.pa-dcard > div{flex:1;min-width:220px;}
+.pa-dcard small{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:700;}
+.pa-dcard b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:26px;margin:2px 0 4px;}
+.pa-dcard p{margin:0;color:var(--text);font-size:14px;line-height:1.45;}
+.pa-dcard p i{color:var(--muted);font-style:normal;}
+.pa-dcard button{align-self:center;}
+.pa-legend{margin-top:16px;}
+.pa-legend #paLegend{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;}
+.pa-lg{border-left:5px solid var(--tc);background:var(--surface-2);border-radius:10px;padding:10px 12px;}
+.pa-lg b{display:block;font-size:15px;}
+.pa-lg i{display:block;font-style:normal;color:var(--tc);font-weight:700;font-size:12.5px;margin:2px 0 4px;}
+.pa-lg span{display:block;color:var(--muted);font-size:12.5px;line-height:1.4;}
+.pa-today{margin:-8px 0 18px;}
+.pa-today:empty{display:none;}
+.pa-today .pa-dcard{background:linear-gradient(120deg,color-mix(in srgb,var(--tc) 18%,var(--surface)),var(--surface) 70%);}
+@media (max-width:760px){
+  .pa-blocks{grid-template-columns:1fr;}
+  .pa-grid{gap:4px;}
+  .pa-c{min-height:58px;padding:5px 4px;border-radius:9px;}
+  .pa-c .t{font-size:10.5px;}
+  .pa-c .tl{display:none;}
+  .pa-c .fn{display:none;}
+  .pa-c .n em{display:block;margin:0;font-size:8.5px;}
+  .pa-c .ts{display:inline;}
+  .pa-blk:not(.on){display:none;}
+  .pa-c .n{font-size:11px;}
+  .pa-c.today .n::after{content:'';}
+}
 body:not([data-view="plan"]) #newBtn, body:not([data-view="plan"]) #saveBtn, body:not([data-view="plan"]) #saveCopyBtn, body:not([data-view="plan"]) #projectBtn{display:none;}
 body:not([data-view="plan"]) .layout{grid-template-columns:1fr;}
 body[data-view="lib"] .layout > .col-r, body[data-view="hist"] .layout > .col-r{display:grid !important;grid-template-columns:1fr 1fr;align-items:start;}
@@ -969,6 +1041,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   <nav class="main-nav" aria-label="Menu">
     <button data-go="home"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v9h-5v-6H9v6H4z"/></svg>Início</button>
     <button data-go="plan"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18M5 20v-5h3v5M10.5 20V9h3v11M16 20V4h3v16"/></svg>Planeamento</button>
+    <button data-go="ano"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h2M12 14h2M16 14h1M8 17.5h2M12 17.5h2"/></svg>Plano anual</button>
     <button data-go="lib"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5v14H4zM10 5h4v14h-4zM15.5 6.2l3.8-1 3 13.6-3.8 1z"/></svg>Biblioteca</button>
     <button data-go="hist"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>Treinos realizados</button>
     <a href="aula-ao-vivo.html?livre=1" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9h6l3.5 7.5M9 9 12 16.5h-3M14 6h2.5l-1.5 3"/></svg>Só pedalar</a>
@@ -981,6 +1054,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       <div><h2 id="homeHello">Olá</h2><p>O que vamos fazer hoje?</p></div>
       <button class="primary" id="homeNewBtn">＋ Nova aula</button>
     </div>
+    <div class="pa-today" id="paToday"></div>
     <div class="home-cards">
       <button class="hcard" data-go="plan" style="--hc:#E8722C"><div class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 20h18M5 20v-5h3v5M10.5 20V9h3v11M16 20V4h3v16"/></svg></div><b>Planeamento</b><span>Constrói a aula bloco a bloco por zonas, %FTP ou %FCmáx, e projeta-a na sala.</span><div class="hstat" id="hsPlan"></div></button>
       <button class="hcard" data-go="lib" style="--hc:#1FA8F0"><div class="hi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5v14H4zM10 5h4v14h-4zM15.5 6.2l3.8-1 3 13.6-3.8 1z"/></svg></div><b>Biblioteca</b><span>As tuas aulas e as aulas partilhadas pelos professores da Playlife.</span><div class="hstat" id="hsLib"></div></button>
@@ -991,6 +1065,21 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       <h2>Últimas aulas <small>toca para abrir no planeamento</small></h2>
       <div class="saved-list" id="recentList"></div>
     </div>
+  </div>
+
+  <!-- PLANO ANUAL -->
+  <div data-sec="ano" id="anoSec">
+    <div class="pa-head">
+      <div><h2>Plano anual de cycling</h2><p id="paSub">Setembro 2026 a Agosto 2027 · sem aulas iguais em dias seguidos · sem aulas nos feriados</p></div>
+      <div class="pa-sala" id="paSala"><span>Ginásio</span><button data-s="LSD">Lousada</button><button data-s="PNF">Penafiel</button></div>
+    </div>
+    <div class="pa-blocks" id="paBlocks"></div>
+    <div class="pa-cal panel">
+      <div class="pa-nav"><button id="paPrev" aria-label="Mês anterior">‹</button><div><b id="paMonth"></b><span id="paMonthT"></span></div><button id="paNext" aria-label="Mês seguinte">›</button></div>
+      <div class="pa-grid" id="paGrid"></div>
+      <div class="pa-day" id="paDay"></div>
+    </div>
+    <div class="panel pa-legend"><h2>Tipos de aula</h2><div id="paLegend"></div></div>
   </div>
 
   <!-- EDITOR DE INTERVALOS -->
@@ -3547,17 +3636,135 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 
   // ================= MENU INICIAL / NAVEGAÇÃO =================
   let myRidesLoaded = false;
+
+  // =====================================================================
+  // PLANO ANUAL (importado do Excel "Plano Anual Schwinn Cycling 2026/2027")
+  // =====================================================================
+  const PA_TIPOS = {
+    A:{n:'Alto Endurance', s:'Endur.', c:'#5B8DEF', rpm:'75–85 rpm', d:'Manutenção de ritmo estável, oxidação de gordura e capacidade aeróbia de base.', obj:'resist'},
+    I:{n:'Intervalado Extensivo', s:'Interv.', c:'#3DD45C', rpm:'80–90 rpm', d:'Aumento do limiar anaeróbio com intervalos longos de esforço sustentado.', obj:'limiar'},
+    F:{n:'Fartlek', s:'Fartlek', c:'#FFD60A', rpm:'65–95 rpm (pico 100)', d:'Jogo de velocidades e variação constante de terreno e resistência.', obj:'hiit'},
+    D:{n:'Fartlek / Desafio', s:'Desafio', c:'#FFAA2B', rpm:'65–95 rpm (pico 100)', d:'Fartlek com desafio: jogo de velocidades com um momento de superação para a turma.', obj:'hiit'},
+    M:{n:'Montanha', s:'Mont.', c:'#FF7A45', rpm:'60–75 rpm', d:'Força muscular e tolerância ao lactato com simulação de subidas com carga elevada.', obj:'forca'},
+    T:{n:'Teste FTP', s:'Teste', c:'#FF4D6D', rpm:'livre / controlada', d:'Aula de aferição da potência máxima sustentada / limiar anaeróbio (20 min).', obj:'limiar', teste:true},
+    V:{n:'Ativação', s:'Ativ.', c:'#A9B1BE', rpm:'livre', d:'Aula leve de ativação antes do teste de FTP.', obj:'recup'},
+    R:{n:'Regenerativo', s:'Regen.', c:'#A9B1BE', rpm:'livre', d:'Aula regenerativa entre testes: pedalar leve para recuperar.', obj:'recup'}
+  };
+  const PA_BLOCOS = [
+    {n:'Bloco 1', per:'Setembro a Janeiro', foco:'Aprendizagem técnica, base aeróbia & VO2 máx (teste FTP)', cad:'85–90 rpm (planos) · 65–75 rpm (subidas)', fc:'65–85% FCmáx', de:'2026-09', ate:'2027-01'},
+    {n:'Bloco 2', per:'Janeiro a Abril', foco:'Intensificação & força específica (re-teste FTP)', cad:'60–75 rpm (subidas pesadas) · picos 100 rpm', fc:'65–85% FCmáx (maior intensidade)', de:'2027-02', ate:'2027-04'},
+    {n:'Bloco 3', per:'Maio a Agosto', foco:'Consistência, manutenção & retenção estival', cad:'65–100 rpm (zona de conforto)', fc:'65–85% FCmáx (desafios)', de:'2027-05', ate:'2027-08'}
+  ];
+  const PA_MESES = [{"y": 2026, "m": 9, "t": "Bloco 1: Aprendizagem Técnica & Base", "d": "AIFAMIAFIAFIAMIAFADFADFAMIAFIA"}, {"y": 2026, "m": 10, "t": "Bloco 1: Aprendizagem Técnica & Base", "d": "FIAMIAFAFIAIFAMIAFDAFIAMIAFAIAD"}, {"y": 2026, "m": 11, "t": "Bloco 1: VO2 Máx & TESTE DE FTP", "d": "IFAMIAFIAFIAMIAFAIFAIFVTRTMDAI"}, {"y": 2026, "m": 12, "t": "Bloco 1: Eficiência & Consolidação", "d": "FAMIAFAIFADFAMIAFIAFIAMIAFAIAFI"}, {"y": 2027, "m": 1, "t": "Bloco 1 / Transição para Força", "d": "MAMIAFIAFIAMIAFAIFADFAMDAFIAFIA"}, {"y": 2027, "m": 2, "t": "Bloco 2: Força Específica & Intensidade", "d": "IFMFAMIMFIMFAMFIMFAMIFMFAMIM"}, {"y": 2027, "m": 3, "t": "Bloco 2: Pico de Torque & Limiar", "d": "FIMFAMAIMFAMIFMFAMIMFIMFAMFIMFA"}, {"y": 2027, "m": 4, "t": "Bloco 2: RE-TESTE DE FTP", "d": "MIFMFAMIMFIMTRTDMAVAMIFMFAMIMF"}, {"y": 2027, "m": 5, "t": "Bloco 3: Consistência & Retenção", "d": "DIADMIADMAIDMAIDMAIMDIADMIADMAI"}, {"y": 2027, "m": 6, "t": "Bloco 3: Variabilidade & Eventos", "d": "DMAIDMFAMDIADMIADMAIDMAIDMDAMD"}, {"y": 2027, "m": 7, "t": "Bloco 3: Aulas Especiais de Verão", "d": "IADMIADMAIDMAIDMFAMDIADMIADMAID"}, {"y": 2027, "m": 8, "t": "Bloco 3: Manutenção & Transição", "d": "MAIDMIAMDIADMIADMAIDMAIDMAFMDIA"}];
+  // feriados: nos feriados nacionais e nos dias de fecho do ginásio não há aulas
+  const PA_FERIADOS = {
+    '2026-10-05':'Implantação da República', '2026-11-01':'Todos os Santos', '2026-12-01':'Restauração da Independência',
+    '2026-12-08':'Imaculada Conceição', '2026-12-24':'Véspera de Natal (ginásio fechado)', '2026-12-25':'Natal',
+    '2026-12-31':'Véspera de Ano Novo (ginásio fechado)', '2027-01-01':'Ano Novo', '2027-02-09':'Carnaval', '2027-03-26':'Sexta-feira Santa',
+    '2027-03-28':'Páscoa', '2027-04-25':'Dia da Liberdade', '2027-05-01':'Dia do Trabalhador', '2027-05-27':'Corpo de Deus',
+    '2027-06-10':'Dia de Portugal', '2027-08-15':'Assunção de Nossa Senhora'
+  };
+  const PA_FERIADOS_LOCAIS = {   // feriados municipais: só fecha o ginásio desse concelho
+    '2026-11-11':{sala:'PNF', n:'Feriado municipal de Penafiel'},
+    '2027-07-26':{sala:'LSD', n:'Feriado municipal de Lousada'}
+  };
+  const PA_SALAS = {LSD:'Lousada', PNF:'Penafiel'};
+  let paSala = 'LSD'; try{ const v = localStorage.getItem('prPaSala'); if(PA_SALAS[v]) paSala = v; }catch(e){}
+  function paKey(d){ return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+  function paFeriado(d){   // → {n, local} se nesse dia não há aula no ginásio escolhido
+    const k = paKey(d);
+    if(PA_FERIADOS[k]) return {n: PA_FERIADOS[k], local:false};
+    const l = PA_FERIADOS_LOCAIS[k];
+    return (l && l.sala === paSala) ? {n: l.n, local:true} : null;
+  }
+  function paFeriadoOutro(d){ const l = PA_FERIADOS_LOCAIS[paKey(d)]; return (l && l.sala !== paSala) ? l : null; }
+  const MESES_PT = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  function paTipo(d){   // d: Date → {k, tipo, mes} ou null
+    const mo = PA_MESES.find(x=> x.y === d.getFullYear() && x.m === d.getMonth() + 1);
+    if(!mo) return null;
+    const fer = paFeriado(d);
+    if(fer) return {feriado: fer, mes:mo};
+    const k = mo.d[d.getDate() - 1];
+    return (k && PA_TIPOS[k]) ? {k:k, tipo:PA_TIPOS[k], mes:mo, outro: paFeriadoOutro(d)} : null;
+  }
+  function paMesIdxHoje(){
+    const d = new Date(), i = PA_MESES.findIndex(x=> x.y === d.getFullYear() && x.m === d.getMonth() + 1);
+    if(i >= 0) return i;
+    return (d < new Date(PA_MESES[0].y, PA_MESES[0].m - 1, 1)) ? 0 : PA_MESES.length - 1;
+  }
+  let paIdx = null, paSel = null;
+  function paBlocoDe(mo){ const key = mo.y + '-' + String(mo.m).padStart(2,'0'); return PA_BLOCOS.findIndex(b=> key >= b.de && key <= b.ate); }
+  function paDiaCard(d, info, hoje){
+    const dt = d.toLocaleDateString('pt-PT', {weekday:'long', day:'numeric', month:'long'});
+    if(info.feriado) return '<div class="pa-dcard fer" style="--tc:#5D6675"><div><small>' + (hoje ? 'Hoje · ' : '') + escapeHtml(dt) + '</small>' +
+      '<b>🎉 Feriado: sem aula</b><p>' + escapeHtml(info.feriado.n) + (info.feriado.local ? '' : '') + '<br><i>Ginásio de ' + PA_SALAS[paSala] + '</i></p></div></div>';
+    return '<div class="pa-dcard" style="--tc:' + info.tipo.c + '"><div><small>' + (hoje ? 'Hoje no plano anual · ' : '') + escapeHtml(dt) + '</small>' +
+      '<b>' + escapeHtml(info.tipo.n) + '</b><p>' + escapeHtml(info.tipo.d) + '<br><i>Cadência alvo: ' + escapeHtml(info.tipo.rpm) + ' · ' + escapeHtml(info.mes.t) + '</i>' +
+      (info.outro ? '<br><i>⚠ ' + escapeHtml(info.outro.n) + ': não há aula em ' + PA_SALAS[info.outro.sala] + '</i>' : '') + '</p></div>' +
+      '<button class="primary pa-criar" data-d="' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate() + '">＋ Criar esta aula</button></div>';
+  }
+  function renderPlanoAnual(){
+    if(paIdx === null) paIdx = paMesIdxHoje();
+    const mo = PA_MESES[paIdx], hoje = new Date(), bi = paBlocoDe(mo);
+    $('paBlocks').innerHTML = PA_BLOCOS.map((b,i)=> '<div class="pa-blk' + (i === bi ? ' on' : '') + '"><small>' + b.n + ' · ' + b.per + '</small><b>' + escapeHtml(b.foco) + '</b><span>' + escapeHtml(b.cad) + '<br>' + escapeHtml(b.fc) + '</span></div>').join('');
+    document.querySelectorAll('#paSala button').forEach(b=> b.classList.toggle('on', b.dataset.s === paSala));
+    $('paMonth').textContent = MESES_PT[mo.m - 1] + ' ' + mo.y;
+    $('paMonthT').textContent = mo.t;
+    $('paPrev').disabled = paIdx === 0; $('paNext').disabled = paIdx === PA_MESES.length - 1;
+    const first = new Date(mo.y, mo.m - 1, 1), lead = (first.getDay() + 6) % 7;
+    let h = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'].map(x=> '<div class="pa-wd">' + x + '</div>').join('');
+    for(let i = 0; i < lead; i++) h += '<div class="pa-c empty"></div>';
+    for(let dd = 1; dd <= mo.d.length; dd++){
+      const dObj = new Date(mo.y, mo.m - 1, dd), fer = paFeriado(dObj), outro = paFeriadoOutro(dObj);
+      const t = fer ? null : PA_TIPOS[mo.d[dd-1]];
+      const isHoje = hoje.getFullYear() === mo.y && hoje.getMonth() + 1 === mo.m && hoje.getDate() === dd;
+      const key = mo.y + '-' + mo.m + '-' + dd;
+      h += '<button class="pa-c' + (fer ? ' fer' : '') + (isHoje ? ' today' : '') + (paSel === key ? ' sel' : '') + '" data-k="' + key + '" style="--tc:' + (t ? t.c : 'transparent') + '" title="' + escapeHtml(fer ? 'Feriado: ' + fer.n : (outro ? outro.n : '')) + '"><span class="n">' + dd + (outro ? ' <em>' + outro.sala + ' fechado</em>' : '') + '</span>' +
+        (fer ? '<span class="t"><span class="tl">🎉 Feriado</span><span class="ts">🎉</span></span><span class="fn">' + escapeHtml(fer.n) + '</span>' : (t ? '<span class="t"><span class="tl">' + escapeHtml(t.n) + '</span><span class="ts">' + escapeHtml(t.s) + '</span></span>' : '')) + '</button>';
+    }
+    $('paGrid').innerHTML = h;
+    // dia escolhido (por defeito, hoje se estiver neste mês)
+    let selD = null;
+    if(paSel){ const [y,m,dd] = paSel.split('-').map(Number); if(y === mo.y && m === mo.m) selD = new Date(y, m-1, dd); }
+    if(!selD && hoje.getFullYear() === mo.y && hoje.getMonth() + 1 === mo.m) selD = hoje;
+    const info = selD && paTipo(selD);
+    $('paDay').innerHTML = info ? paDiaCard(selD, info, selD.toDateString() === hoje.toDateString()) : '';
+    $('paLegend').innerHTML = Object.keys(PA_TIPOS).filter(k=> k !== 'R').map(k=>{ const t = PA_TIPOS[k];
+      return '<div class="pa-lg" style="--tc:' + t.c + '"><b>' + escapeHtml(k === 'V' ? 'Ativação / Regenerativo' : t.n) + '</b><i>' + escapeHtml(t.rpm) + '</i><span>' + escapeHtml(k === 'V' ? 'Aulas leves à volta do teste de FTP: ativar antes e recuperar entre testes.' : t.d) + '</span></div>'; }).join('');
+  }
+  function renderPlanoHoje(){
+    const el = $('paToday'); if(!el) return;
+    const d = new Date(), info = paTipo(d);
+    el.innerHTML = info ? paDiaCard(d, info, true) : '';
+  }
+  function criarAulaDoPlano(key){
+    const [y,m,dd] = key.split('-').map(Number), d = new Date(y, m-1, dd), info = paTipo(d);
+    if(!info || !info.tipo) return;
+    resetTreino();
+    current.nome = info.tipo.n + ' — ' + String(dd).padStart(2,'0') + '/' + String(m).padStart(2,'0');
+    if(info.tipo.obj) current.objetivo = info.tipo.obj;
+    current.descricao = info.tipo.d + ' Cadência alvo: ' + info.tipo.rpm + '.';
+    setView('plan'); render();
+    if(info.tipo.teste) toast('Dica: usa o botão "Teste FTP" para montar o protocolo de 20 min');
+  }
+  $('paSala').addEventListener('click', e=>{ const b = e.target.closest('button[data-s]'); if(!b) return; paSala = b.dataset.s; try{ localStorage.setItem('prPaSala', paSala); }catch(err){} renderPlanoAnual(); renderPlanoHoje(); });
+  $('paPrev').addEventListener('click', ()=>{ if(paIdx > 0){ paIdx--; paSel = null; renderPlanoAnual(); } });
+  $('paNext').addEventListener('click', ()=>{ if(paIdx < PA_MESES.length - 1){ paIdx++; paSel = null; renderPlanoAnual(); } });
+  $('paGrid').addEventListener('click', e=>{ const b = e.target.closest('.pa-c[data-k]'); if(!b) return; paSel = b.dataset.k; renderPlanoAnual(); });
+  document.addEventListener('click', e=>{ const b = e.target.closest('.pa-criar'); if(b) criarAulaDoPlano(b.dataset.d); });
   function setView(v){
-    if(!['home','plan','lib','hist'].includes(v)) v = 'home';
+    if(!['home','plan','lib','hist','ano'].includes(v)) v = 'home';
     document.body.dataset.view = v;
     document.querySelectorAll('.main-nav [data-go]').forEach(b=> b.classList.toggle('on', b.dataset.go === v));
     if(v === 'home') renderHome();
+    if(v === 'ano') renderPlanoAnual();
     if(v === 'hist') loadMyRides();
     if(v === 'plan') setTimeout(()=>{ try{ render(); }catch(e){} }, 0);   // a linha do tempo mede a largura visível
     try{ sessionStorage.setItem('prView', v); }catch(e){}
     window.scrollTo(0, 0);
   }
   function renderHome(){
+    renderPlanoHoje();
     const first = (userNome || '').split(' ')[0];
     $('homeHello').textContent = first ? 'Olá, ' + first : 'Olá';
     const nAulas = treinos.length, nLib = partilhadas.length, nHist = historico.length;
