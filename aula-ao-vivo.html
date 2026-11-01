@@ -225,6 +225,7 @@ body:has(#liveScreen.active) .legal{display:none;}
 /* cartão "a seguir": escondido; aparece por magia nos últimos 15 s, sobe e explode nos últimos 3 s */
 .nx-float{position:fixed;contain:layout;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));width:min(560px,calc(100% - 24px));z-index:60;pointer-events:none;transform:translateX(-50%);}
 .nx-float:empty{display:none;}
+body:not(:has(#liveScreen.active)) .nx-float,body:not(:has(#liveScreen.active)) .nx-burst{display:none !important;}
 .nx{border-radius:16px;text-align:left;padding:8px 14px 10px;box-shadow:0 -6px 24px rgba(0,0,0,.45);border:2px solid color-mix(in srgb,var(--nc) 55%,transparent);border-left:10px solid var(--nc);
   background:linear-gradient(120deg,color-mix(in srgb,var(--nc) 32%,#12161D),#12161D 75%);position:relative;overflow:hidden;
   visibility:hidden;opacity:0;}
@@ -1660,6 +1661,7 @@ body.solo-livre #progress{display:none;}
   }
 
   function leave(){
+    hideNx();   // tira o cartão "a seguir" e o rebentamento, que ficam por cima do ecrã
     checkFtpTest();
     saveTreino();
     if(riderRef && !sessionEnded){ riderRef.update({left:true, w:0, t:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{}); }
