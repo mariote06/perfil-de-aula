@@ -408,6 +408,16 @@ body:not(:has(#liveScreen.active)) .nx-float,body:not(:has(#liveScreen.active)) 
 .lib-prof{display:flex;align-items:flex-end;gap:1px;height:34px;}
 .lib-prof i{display:block;border-radius:2px 2px 0 0;min-width:2px;}
 .lib-sec{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin:10px 0 0;align-self:flex-start;}
+.lib-sec.g{display:flex;align-items:center;gap:8px;color:#fff;font-weight:800;letter-spacing:.8px;font-size:13px;margin-top:14px;}
+.lib-sec.g i{width:10px;height:10px;border-radius:3px;background:var(--gc);}
+.lib-sec.g small{color:var(--muted);font-weight:600;}
+.lib-chips{display:flex;gap:7px;overflow-x:auto;width:100%;max-width:520px;padding:2px 0 8px;scrollbar-width:none;}
+.lib-chips::-webkit-scrollbar{display:none;}
+.lib-chips:empty{display:none;}
+.lib-chips button{flex-shrink:0;border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:7px 12px;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;}
+.lib-chips button i{width:8px;height:8px;border-radius:50%;background:var(--gc,#8A93A3);}
+.lib-chips button.on{border-color:var(--gc,var(--accent));background:color-mix(in srgb,var(--gc,#E8722C) 24%,var(--surface));}
+.lib-item .li-by{font-size:11px;color:var(--muted);}
 .solo-ctl{display:none;gap:6px;}
 body.solo .solo-ctl{display:flex;}
 body.solo-livre #progress{display:none;}
@@ -702,6 +712,7 @@ body.solo-livre #progress{display:none;}
   <button class="btn-link back-top" id="libBack">← Início</button>
   <h1>Biblioteca</h1>
   <p>Escolhe um treino. A app guia-te bloco a bloco, com as tuas zonas, sem precisares de estar numa aula.</p>
+  <div class="lib-chips" id="libChips"></div>
   <div class="lib-list" id="libList"></div>
 </div>
 
@@ -2629,7 +2640,7 @@ body.solo-livre #progress{display:none;}
   // MENU INICIAL, SÓ PEDALAR E BIBLIOTECA (treino sozinho, sem aula)
   // =====================================================================
   const PRESETS = [
-    { nome:'Teste FTP · 20 min (Allen-Coggan)', modo:'ftp', autorNome:'PlayRide', ftpTest:true, blocos:[
+    { nome:'Teste FTP · 20 min (Allen-Coggan)', grupo:'COMPETIÇÃO', modo:'ftp', autorNome:'PlayRide', ftpTest:true, blocos:[
       {nome:'Aquecimento', min:7, sec:0, ftp:60, rpm:85, rpm2:95, tecnica:'Plano Sentado'},
       {nome:'Ativação 1', min:1, sec:0, ftp:110, rpm:95, rpm2:105, tecnica:'Plano Sentado'},
       {nome:'Recupera', min:1, sec:0, ftp:50, rpm:85, tecnica:'Plano Sentado'},
@@ -2641,13 +2652,13 @@ body.solo-livre #progress{display:none;}
       {nome:'Recuperação', min:10, sec:0, ftp:50, rpm:80, rpm2:90, tecnica:'Plano Sentado'},
       {nome:'TESTE FTP · 20 min', min:20, sec:0, ftp:100, rpm:85, rpm2:95, tecnica:'Plano Sentado', teste:true},
       {nome:'Retorno à calma', min:10, sec:0, ftp:45, rpm:80, rpm2:85, tecnica:'Plano Sentado', tipo:'cool'} ]},
-    { nome:'Base aeróbia · 30 min', modo:'ftp', autorNome:'PlayRide', blocos:[
+    { nome:'Base aeróbia · 30 min', grupo:'BAIXO ENDURANCE', modo:'ftp', autorNome:'PlayRide', blocos:[
       {nome:'Aquecimento', min:5, sec:0, ftp:55, rpm:85, tecnica:'sentado, solta as pernas'},
       {nome:'Ritmo de base', min:10, sec:0, ftp:70, rpm:90, tecnica:'sentado'},
       {nome:'Subida leve', min:5, sec:0, ftp:80, rpm:75, tecnica:'sentado, mais carga'},
       {nome:'Ritmo de base', min:6, sec:0, ftp:70, rpm:90, tecnica:''},
       {nome:'Retorno à calma', min:4, sec:0, ftp:50, rpm:85, tecnica:''} ]},
-    { nome:'Limiar 3 × 6 min · 40 min', modo:'ftp', autorNome:'PlayRide', blocos:[
+    { nome:'Limiar 3 × 6 min · 40 min', grupo:'INTERVALADO EXTENSIVO', modo:'ftp', autorNome:'PlayRide', blocos:[
       {nome:'Aquecimento', min:5, sec:0, ftp:55, rpm:85, tecnica:''},
       {nome:'Ativação', min:3, sec:0, ftp:75, rpm:95, tecnica:''},
       {nome:'Limiar 1', min:6, sec:0, ftp:98, rpm:85, tecnica:'sentado, ritmo constante'},
@@ -2656,7 +2667,7 @@ body.solo-livre #progress{display:none;}
       {nome:'Recupera', min:3, sec:0, ftp:55, rpm:90, tecnica:''},
       {nome:'Limiar 3', min:6, sec:0, ftp:98, rpm:85, tecnica:'em pé no último minuto'},
       {nome:'Retorno à calma', min:8, sec:0, ftp:50, rpm:85, tecnica:''} ]},
-    { nome:'VO2máx 30/30 · 30 min', modo:'ftp', autorNome:'PlayRide', blocos:(function(){
+    { nome:'VO2máx 30/30 · 30 min', grupo:'INTERVALADO INTENSIVO', modo:'ftp', autorNome:'PlayRide', blocos:(function(){
       const b=[{nome:'Aquecimento', min:8, sec:0, ftp:55, rpm:85, tecnica:''},{nome:'Ativação', min:2, sec:0, ftp:80, rpm:95, tecnica:''}];
       for(let s=0;s<2;s++){
         for(let i=0;i<6;i++){ b.push({nome:'Forte', min:0, sec:30, ftp:120, rpm:100, tecnica:'em pé ou sentado, a fundo'}); b.push({nome:'Leve', min:0, sec:30, ftp:50, rpm:90, tecnica:''}); }
@@ -2664,7 +2675,7 @@ body.solo-livre #progress{display:none;}
       }
       b.push({nome:'Retorno à calma', min:4, sec:0, ftp:50, rpm:85, tecnica:''});
       return b; })() },
-    { nome:'Resistência por FC · 35 min', modo:'fc', autorNome:'PlayRide', blocos:[
+    { nome:'Resistência por FC · 35 min', grupo:'ALTO ENDURANCE', modo:'fc', autorNome:'PlayRide', blocos:[
       {nome:'Aquecimento', min:6, sec:0, ftp:58, rpm:85, tecnica:''},
       {nome:'Z2 contínuo', min:12, sec:0, ftp:68, rpm:90, tecnica:'conversa possível'},
       {nome:'Z3 tempo', min:8, sec:0, ftp:77, rpm:85, tecnica:''},
@@ -2905,16 +2916,37 @@ body.solo-livre #progress{display:none;}
     const modoTxt = parseModo(t.modo) === 'fc' ? '%FCmáx' : (parseModo(t.modo) === 'zonas' ? 'zonas' : '%FTP');
     el.innerHTML = '<div class="li-top"><b></b><small>' + fmtTime(treinoDur(t)) + ' · ' + modoTxt + '</small></div><div class="lib-prof">' + profHtml(t) + '</div>';
     el.querySelector('b').textContent = t.nome || 'Treino';
+    if(t.autorNome){ const by = document.createElement('span'); by.className = 'li-by'; by.textContent = PRESETS.includes(t) ? 'Treino PlayRide' : 'Biblioteca Playlife · ' + t.autorNome; el.appendChild(by); }
     el.addEventListener('click', ()=> openGuided(t));
     return el;
   }
+  // grupos da biblioteca (os mesmos da app do professor)
+  const LIB_GRUPOS = [
+    {n:'RECUPERAÇÃO', c:'#1FA8F0'}, {n:'BAIXO ENDURANCE', c:'#3DD45C'}, {n:'ALTO ENDURANCE', c:'#5B8DEF'}, {n:'MONTANHA', c:'#FF7A45'},
+    {n:'FARTLEK', c:'#FFD60A'}, {n:'INTERVALADO EXTENSIVO', c:'#2EC4B6'}, {n:'INTERVALADO INTENSIVO', c:'#FF4D6D'}, {n:'COMPETIÇÃO', c:'#A35CFF'}
+  ];
+  const LIB_OUTROS = 'OUTROS TREINOS';
+  let libFiltro = '';
+  function libGrupo(t){ return String(t.grupo || '').trim().toUpperCase() || LIB_OUTROS; }
   function renderLib(){
     const list = $('libList');
     list.innerHTML = '';
-    const sec = (txt)=>{ const d = document.createElement('div'); d.className = 'lib-sec'; d.textContent = txt; list.appendChild(d); };
-    if(libPlaylife && libPlaylife.length){ sec('Biblioteca Playlife'); libPlaylife.forEach(t=> list.appendChild(libItem(t))); }
-    sec('Treinos PlayRide');
-    PRESETS.forEach(t=> list.appendChild(libItem(t)));
+    // junta a Biblioteca Playlife com os treinos PlayRide e arruma tudo por grupo
+    const todos = (libPlaylife || []).concat(PRESETS);
+    const por = {}; todos.forEach(t=>{ const g = libGrupo(t); (por[g] = por[g] || []).push(t); });
+    const base = LIB_GRUPOS.map(g=> g.n);
+    const ordem = base.concat(Object.keys(por).filter(g=> !base.includes(g) && g !== LIB_OUTROS).sort()).concat([LIB_OUTROS]).filter(g=> por[g]);
+    const cor = g=> (LIB_GRUPOS.find(x=> x.n === g) || {c: g === LIB_OUTROS ? '#8A93A3' : '#B07CFF'}).c;
+    if(libFiltro && !por[libFiltro]) libFiltro = '';
+    $('libChips').innerHTML = ordem.length > 1 ? '<button data-f="" class="' + (!libFiltro ? 'on' : '') + '">Todos</button>' +
+      ordem.map(g=> '<button data-f="' + escapeHtml(g) + '" class="' + (libFiltro === g ? 'on' : '') + '" style="--gc:' + cor(g) + '"><i></i>' + escapeHtml(g) + '</button>').join('') : '';
+    ordem.forEach(g=>{
+      if(libFiltro && libFiltro !== g) return;
+      const d = document.createElement('div'); d.className = 'lib-sec g'; d.style.setProperty('--gc', cor(g));
+      d.innerHTML = '<i></i>' + escapeHtml(g) + ' <small>' + por[g].length + '</small>';
+      list.appendChild(d);
+      por[g].forEach(t=> list.appendChild(libItem(t)));
+    });
     if(libPlaylife === null && !libError){ const h = document.createElement('div'); h.className = 'hint'; h.textContent = 'A carregar a Biblioteca Playlife…'; list.insertBefore(h, list.firstChild); }
     if(libError && !user){   // a Biblioteca Playlife só se vê com conta
       const h = document.createElement('div'); h.className = 'hint';
@@ -2923,6 +2955,7 @@ body.solo-livre #progress{display:none;}
       h.querySelector('#libLogin').addEventListener('click', (e)=>{ e.preventDefault(); openAccount(); });
     }
   }
+  $('libChips').addEventListener('click', e=>{ const b = e.target.closest('button'); if(!b) return; libFiltro = b.dataset.f || ''; renderLib(); });
   async function openLib(){
     showScreen('libScreen');
     renderLib();

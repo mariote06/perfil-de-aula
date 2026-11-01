@@ -175,6 +175,28 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 }
 .search:focus{outline:none;border-color:#4A5568;}
 .saved-list{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow:auto;}
+/* grupos da biblioteca */
+.grp-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;grid-column:1 / -1;}
+.grp-chip{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:700;letter-spacing:.3px;display:inline-flex;align-items:center;gap:7px;cursor:pointer;}
+.grp-chip i{width:9px;height:9px;border-radius:50%;background:var(--gc,#8A93A3);display:inline-block;}
+.grp-chip small{color:var(--muted);font-weight:600;}
+.grp-chip.on{border-color:var(--gc,var(--accent));background:color-mix(in srgb,var(--gc,#E8722C) 22%,var(--surface));}
+.grp-chip.add{border-style:dashed;color:var(--muted);}
+.grp-sec{display:flex;flex-direction:column;gap:8px;}
+.grp-head{display:flex;align-items:center;gap:9px;width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--text);padding:9px 2px 7px;font-weight:800;font-size:13px;letter-spacing:.6px;cursor:pointer;text-align:left;}
+.grp-head i{width:10px;height:10px;border-radius:3px;background:var(--gc,#8A93A3);}
+.grp-head small{color:var(--muted);font-weight:600;margin-left:auto;}
+.grp-head .car{transition:transform .2s;color:var(--muted);}
+.grp-sec.fechado .grp-head .car{transform:rotate(-90deg);}
+.grp-sec.fechado .saved-item{display:none;}
+.grp-card{max-width:620px;}
+.grp-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin:6px 0 12px;}
+.grp-pick button{display:flex;align-items:center;gap:9px;text-align:left;border:1.5px solid var(--border);background:var(--surface-2);color:var(--text);border-radius:12px;padding:11px 12px;font-weight:700;font-size:13px;cursor:pointer;}
+.grp-pick button i{width:12px;height:12px;border-radius:4px;background:var(--gc,#8A93A3);flex-shrink:0;}
+.grp-pick button.on{border-color:var(--gc,var(--accent));background:color-mix(in srgb,var(--gc,#E8722C) 24%,var(--surface-2));}
+.grp-pick button.none{font-weight:600;color:var(--muted);}
+.grp-new{display:flex;gap:8px;}
+.grp-new input{flex:1;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:10px 12px;font-size:14px;}
 .saved-item{
   display:flex;align-items:center;justify-content:space-between;gap:8px;
   background:var(--surface-2);border:1px solid var(--border);border-radius:8px;
@@ -1114,7 +1136,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       <select id="treinoObj" class="ed-obj" title="Objetivo da aula — define a frase motivacional do ecrã inicial"></select>
       <div class="seg" id="modeSeg" title="Como se constrói esta aula"><button data-m="zonas">Zonas Z1–Z7</button><button data-m="ftp">%FTP Z1–Z7</button><button data-m="fc">%FCmáx Z1–Z7</button></div>
     </div>
-    <textarea id="treinoDesc" class="ed-desc" rows="2" maxlength="600" placeholder="Descrição do treino: objetivo, estrutura, notas para os alunos…"></textarea>
+    <textarea id="treinoDesc" class="ed-desc" rows="2" maxlength="600" placeholder="🔒 Notas privadas do treino: objetivo, estrutura, lembretes… (só tu vês: não aparece na projeção, na app dos alunos nem na Biblioteca)"></textarea>
 
     <div class="ed-cmd">
       <div class="ed-clock" title="Início do intervalo selecionado">
@@ -1193,6 +1215,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     </div>
 
     <div class="col-r" data-sec="plan lib hist" style="display:flex;flex-direction:column;gap:20px;">
+      <div class="grp-bar" data-sec="lib" id="grpBar"></div>
       <div class="panel" data-sec="plan lib">
         <h2>
           <span>As minhas aulas <small id="savedCount">0</small></span>
@@ -1366,6 +1389,19 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       <button id="imRead" class="primary" disabled>Ler imagens</button>
       <button id="imAppend" style="display:none">Acrescentar ao fim</button>
       <button id="imApply" class="primary" style="display:none">Substituir a aula</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="grpModal">
+  <div class="modal-card grp-card">
+    <h3 id="grpTitle">Guardar em que grupo?</h3>
+    <div class="sub" id="grpSub"></div>
+    <div class="grp-pick" id="grpPick"></div>
+    <div class="grp-new"><input type="text" id="grpNewName" maxlength="30" placeholder="Nome do novo grupo (ex: HALLOWEEN)"><button id="grpNewBtn">＋ Criar grupo</button></div>
+    <div class="modal-actions">
+      <button id="grpCancel">Cancelar</button>
+      <button class="primary" id="grpOk">Guardar</button>
     </div>
   </div>
 </div>
@@ -1578,7 +1614,116 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     fbDb.ref('historico/' + userUid).set(toKeyed(historico)).catch(()=>{});
   }
 
-  function saveCurrent(asCopy){
+  // ===================== GRUPOS DA BIBLIOTECA =====================
+  const GRUPOS_BASE = [
+    {n:'RECUPERAÇÃO', c:'#1FA8F0'}, {n:'BAIXO ENDURANCE', c:'#3DD45C'}, {n:'ALTO ENDURANCE', c:'#5B8DEF'}, {n:'MONTANHA', c:'#FF7A45'},
+    {n:'FARTLEK', c:'#FFD60A'}, {n:'INTERVALADO EXTENSIVO', c:'#2EC4B6'}, {n:'INTERVALADO INTENSIVO', c:'#FF4D6D'}, {n:'COMPETIÇÃO', c:'#A35CFF'}
+  ];
+  const GRUPO_NENHUM = 'SEM GRUPO';
+  let gruposMeus = [];        // grupos criados por este professor (profiles/{uid}/grupos)
+  let grpFiltro = '';         // filtro da biblioteca ('' = todos)
+  function normGrupo(g){ return String(g || '').trim().replace(/\s+/g, ' ').toUpperCase().slice(0, 30); }
+  function todosGrupos(){
+    const extra = new Set();
+    gruposMeus.forEach(g=> extra.add(normGrupo(g)));
+    treinos.forEach(t=> t.grupo && extra.add(normGrupo(t.grupo)));
+    partilhadas.forEach(p=> p.grupo && extra.add(normGrupo(p.grupo)));
+    const base = GRUPOS_BASE.map(g=> g.n);
+    return GRUPOS_BASE.concat([...extra].filter(g=> g && !base.includes(g)).sort((a,b)=> a.localeCompare(b)).map(g=> ({n:g, c:'#B07CFF', meu:true})));
+  }
+  function corGrupo(n){ const g = todosGrupos().find(x=> x.n === n); return g ? g.c : '#8A93A3'; }
+  function sugereGrupo(t){
+    if(t.grupo) return normGrupo(t.grupo);
+    const nm = (t.nome || '').toLowerCase();
+    const porNome = [['recupera','RECUPERAÇÃO'],['regenera','RECUPERAÇÃO'],['baixo endurance','BAIXO ENDURANCE'],['alto endurance','ALTO ENDURANCE'],['endurance','ALTO ENDURANCE'],
+      ['montanha','MONTANHA'],['subida','MONTANHA'],['fartlek','FARTLEK'],['extensivo','INTERVALADO EXTENSIVO'],['intensivo','INTERVALADO INTENSIVO'],['hiit','INTERVALADO INTENSIVO'],['competi','COMPETIÇÃO'],['corrida','COMPETIÇÃO']];
+    for(const [k,g] of porNome) if(nm.includes(k)) return g;
+    const o = (t.objetivo && OBJETIVOS[t.objetivo]) ? t.objetivo : (t.blocos && t.blocos.length ? autoObjetivo(t.blocos) : null);
+    return ({recup:'RECUPERAÇÃO', resist:'ALTO ENDURANCE', limiar:'INTERVALADO EXTENSIVO', hiit:'INTERVALADO INTENSIVO', forca:'MONTANHA', sprint:'INTERVALADO INTENSIVO'})[o] || '';
+  }
+  function guardarGruposMeus(){ if(fbDb && userUid) fbDb.ref('profiles/' + userUid + '/grupos').set(gruposMeus.length ? gruposMeus : null).catch(()=>{}); }
+  function criarGrupo(nome){
+    const g = normGrupo(nome);
+    if(!g || g === GRUPO_NENHUM) return null;
+    if(!todosGrupos().some(x=> x.n === g)){ gruposMeus.push(g); guardarGruposMeus(); }
+    return g;
+  }
+  // ---- janela "Guardar em que grupo?" ----
+  let grpEscolha = '', grpDepois = null;
+  function abrirGrupos(opts){
+    grpEscolha = opts.grupo || ''; grpDepois = opts.depois;
+    $('grpTitle').textContent = opts.titulo || 'Guardar em que grupo?';
+    $('grpSub').textContent = opts.sub || '';
+    $('grpOk').textContent = opts.ok || 'Guardar';
+    $('grpNewName').value = '';
+    desenharGrupos();
+    $('grpModal').classList.add('active');
+  }
+  function desenharGrupos(){
+    $('grpPick').innerHTML = todosGrupos().map(g=> '<button data-g="' + escapeHtml(g.n) + '" style="--gc:' + g.c + '" class="' + (grpEscolha === g.n ? 'on' : '') + '"><i></i>' + escapeHtml(g.n) + '</button>').join('') +
+      '<button data-g="" class="none' + (!grpEscolha ? ' on' : '') + '">Sem grupo</button>';
+  }
+  $('grpPick').addEventListener('click', e=>{ const b = e.target.closest('button[data-g]'); if(!b) return; grpEscolha = b.dataset.g; desenharGrupos(); });
+  $('grpNewBtn').addEventListener('click', ()=>{ const g = criarGrupo($('grpNewName').value); if(!g){ $('grpNewName').focus(); return; } grpEscolha = g; $('grpNewName').value = ''; desenharGrupos(); });
+  $('grpNewName').addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); $('grpNewBtn').click(); } });
+  $('grpCancel').addEventListener('click', ()=>{ $('grpModal').classList.remove('active'); grpDepois = null; });
+  $('grpOk').addEventListener('click', ()=>{ $('grpModal').classList.remove('active'); const f = grpDepois; grpDepois = null; if(f) f(grpEscolha || null); });
+  // mudar o grupo de uma aula já guardada
+  function moverGrupo(id){
+    const t = treinos.find(x=> x.id === id); if(!t) return;
+    abrirGrupos({ grupo: normGrupo(t.grupo), titulo:'Mudar de grupo', sub: t.nome, ok:'Mover', depois: g=>{
+      if(g) t.grupo = g; else delete t.grupo;
+      if(current.id === t.id){ if(g) current.grupo = g; else delete current.grupo; }
+      persist(); renderSaved(); renderGrpBar();
+      const sh = partilhadas.find(p=> p.origem === t.id && p.autor === userUid);
+      if(sh && fbDb) fbDb.ref('biblioteca/' + sh.key + '/grupo').set(g || null).catch(()=>{});
+      toast(g ? 'Movida para ' + g : 'Aula sem grupo');
+    }});
+  }
+  // lista agrupada (secções que abrem e fecham)
+  let grpFechados = {}; try{ grpFechados = JSON.parse(localStorage.getItem('prGrpFechados') || '{}') || {}; }catch(e){}
+  function listaAgrupada(list, items, linha){
+    const ordem = todosGrupos().map(g=> g.n).concat([GRUPO_NENHUM]);
+    const por = {}; items.forEach(t=>{ const g = normGrupo(t.grupo) || GRUPO_NENHUM; (por[g] = por[g] || []).push(t); });
+    const filtro = document.body.dataset.view === 'lib' ? grpFiltro : '';   // o filtro só vale na Biblioteca
+    ordem.concat(Object.keys(por).filter(g=> !ordem.includes(g))).forEach(g=>{
+      if(!por[g] || (filtro && filtro !== g)) return;
+      const sec = document.createElement('div');
+      sec.className = 'grp-sec' + (grpFechados[list.id + g] ? ' fechado' : '');
+      const h = document.createElement('button');
+      h.className = 'grp-head'; h.style.setProperty('--gc', g === GRUPO_NENHUM ? '#5D6675' : corGrupo(g));
+      h.innerHTML = '<i></i>' + escapeHtml(g) + '<small>' + por[g].length + '</small><span class="car">▾</span>';
+      h.addEventListener('click', ()=>{ sec.classList.toggle('fechado'); grpFechados[list.id + g] = sec.classList.contains('fechado'); try{ localStorage.setItem('prGrpFechados', JSON.stringify(grpFechados)); }catch(e){} });
+      sec.appendChild(h);
+      por[g].forEach(t=> sec.appendChild(linha(t)));
+      list.appendChild(sec);
+    });
+    if(!list.children.length){ const e = document.createElement('div'); e.className = 'empty-state'; e.textContent = 'Nenhuma aula neste grupo.'; list.appendChild(e); }
+  }
+  function renderGrpBar(){
+    const bar = $('grpBar'); if(!bar) return;
+    const conta = g=> treinos.concat(partilhadas).filter(t=> (normGrupo(t.grupo) || GRUPO_NENHUM) === g).length;
+    bar.innerHTML = '<button class="grp-chip' + (!grpFiltro ? ' on' : '') + '" data-f="">Todos</button>' +
+      todosGrupos().map(g=> '<button class="grp-chip' + (grpFiltro === g.n ? ' on' : '') + '" data-f="' + escapeHtml(g.n) + '" style="--gc:' + g.c + '"><i></i>' + escapeHtml(g.n) + ' <small>' + conta(g.n) + '</small></button>').join('') +
+      '<button class="grp-chip add" data-novo="1">＋ Novo grupo</button>';
+  }
+  $('grpBar').addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    if(b.dataset.novo){ const n = prompt('Nome do novo grupo:'); const g = criarGrupo(n); if(g){ grpFiltro = g; renderGrpBar(); renderSaved(); renderShared(); toast('Grupo ' + g + ' criado'); } return; }
+    grpFiltro = b.dataset.f || ''; renderGrpBar(); renderSaved(); renderShared();
+  });
+
+  function saveCurrent(asCopy, grupoEscolhido){
+    // pergunta sempre em que grupo guardar
+    if(grupoEscolhido === undefined){
+      const nome0 = $('treinoNome').value.trim();
+      if(!nome0){ $('treinoNome').focus(); toast('Dá um nome à aula antes de guardar.'); return; }
+      if(current.blocos.length === 0){ toast('A aula não tem blocos.'); return; }
+      abrirGrupos({ grupo: sugereGrupo(Object.assign({}, current, {nome: nome0})), sub: nome0 + (asCopy ? ' (cópia)' : ''), ok: asCopy ? 'Guardar cópia' : 'Guardar',
+        depois: g=> saveCurrent(asCopy, g) });
+      return;
+    }
+    if(grupoEscolhido) current.grupo = grupoEscolhido; else delete current.grupo;
     const nome = $('treinoNome').value.trim();
     if(!nome){ $('treinoNome').focus(); toast('Dá um nome à aula antes de guardar.'); return; }
     if(current.blocos.length === 0){ toast('A aula não tem blocos.'); return; }
@@ -1590,8 +1735,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       copy.blocos.forEach(b=> b.id = uid());
       treinos.push(copy);
       current = copy;
-      persist(); render();
-      toast('Cópia guardada: ' + copy.nome);
+      persist(); render(); renderGrpBar();
+      toast('Cópia guardada: ' + copy.nome + (copy.grupo ? ' · ' + copy.grupo : ''));
       return;
     }
     if(!current.id){ current.id = uid(); treinos.push(JSON.parse(JSON.stringify(current))); }
@@ -1601,8 +1746,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       if(idx>=0) treinos[idx] = snap; else treinos.push(snap);
     }
     persist();
-    renderSaved();
-    toast('Aula guardada');
+    renderSaved(); renderGrpBar();
+    toast('Aula guardada' + (current.grupo ? ' em ' + current.grupo : ''));
   }
 
   function loadTreino(id){
@@ -2753,7 +2898,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       list.appendChild(empty);
       return;
     }
-    items.forEach(t=>{
+    listaAgrupada(list, items, t=>{
       const totalSec = totalDuration(t.blocos);
       const row = document.createElement('div');
       row.className = 'saved-item' + (t.id === current.id ? ' current' : '');
@@ -2770,11 +2915,12 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       actions.appendChild(makeIconBtn('⇪', ()=> shareTreino(t.id), false, 'Partilhar na Biblioteca Playlife'));
       actions.appendChild(makeIconBtn('⧉', ()=> duplicateTreino(t.id), false, 'Duplicar'));
       actions.appendChild(makeIconBtn('⤓', ()=> exportTreino(t.id), false, 'Exportar .json'));
+      actions.appendChild(makeIconBtn('📁', ()=> moverGrupo(t.id), false, 'Mudar de grupo'));
       actions.appendChild(makeIconBtn('✕', ()=> deleteTreino(t.id), false, 'Apagar'));
 
       row.appendChild(info);
       row.appendChild(actions);
-      list.appendChild(row);
+      return row;
     });
   }
 
@@ -2913,7 +3059,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     const b = current.blocos[0];
     return sessionRef(pin).set({
       treinoNome: current.nome || 'Aula de cycling',
-      descricao: (current.descricao || '').trim() || null,
+      descricao: null,   // a descrição é privada do professor: não vai para a aula ao vivo
       modo: modoAtual(),
       blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, alvo:alvoOf(x), teste:x.teste ? true : null, rpm:x.rpm, rpm2:x.rpm2||null, tipo:x.tipo||null, tecnica:x.tecnica||''})),
       state: { blockIndex: 0, status: 'paused', remainingAtStart: blockDurationSec(b), startedAt: TS() },
@@ -3244,7 +3390,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     $('lsObj').textContent = o.nome;
     $('lsName').textContent = current.nome || 'Aula de cycling';
     $('lsQuote').textContent = o.frases[Math.floor(Math.random() * o.frases.length)];
-    $('lsDesc').textContent = (current.descricao || '').trim();
+    $('lsDesc').textContent = '';   // descrição privada: não aparece no ecrã da sala
     drawProfileSvg($('lsChart'), current.blocos, 1000, 200, 4, modoAtual());
     $('lsMeta').innerHTML = '<b>' + fmtTime(totalDuration(current.blocos)) + '</b> de aula · ' + current.blocos.length + ' blocos · ' +
       ({zonas:'por zonas', ftp:'por %FTP', fc:'por %FC máx'}[modoAtual()] || '') + (userNome ? ' · com <b>' + escapeHtml(userNome) + '</b>' : '');
@@ -3610,7 +3756,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     if(!confirm(msg)) return;
     const key = existing ? existing.key : fbDb.ref('biblioteca').push().key;
     fbDb.ref('biblioteca/' + key).set(clean({
-      nome: t.nome, modo: t.modo || 'ftp', objetivo: t.objetivo || null, descricao: t.descricao || null, blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, alvo:alvoOf(b), teste:b.teste ? true : null, rpm:b.rpm, rpm2:b.rpm2||null, tipo:b.tipo||null, tecnica:b.tecnica||''})),
+      nome: t.nome, modo: t.modo || 'ftp', objetivo: t.objetivo || null, descricao: null, blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, alvo:alvoOf(b), teste:b.teste ? true : null, rpm:b.rpm, rpm2:b.rpm2||null, tipo:b.tipo||null, tecnica:b.tecnica||''})),
+      grupo: t.grupo || null,
       autor: userUid, autorNome: userNome || '', origem: id, atualizado: Date.now()
     })).then(()=> toast(existing ? 'Biblioteca atualizada' : 'Aula partilhada na Biblioteca Playlife'))
       .catch(()=> toast('Não consegui partilhar.'));
@@ -3619,7 +3766,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function copyShared(key){
     const p = partilhadas.find(x=>x.key===key);
     if(!p) return;
-    const copy = { id: uid(), nome: p.nome, modo: p.modo || 'ftp', objetivo: p.objetivo || undefined, descricao: p.descricao || undefined, blocos: (p.blocos||[]).map(sanitizeBlock) };
+    const copy = { id: uid(), nome: p.nome, modo: p.modo || 'ftp', objetivo: p.objetivo || undefined, descricao: p.descricao || undefined, grupo: p.grupo || undefined, blocos: (p.blocos||[]).map(sanitizeBlock) };
     treinos.push(copy);
     persist();
     current = clean(copy);
@@ -3648,7 +3795,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       list.appendChild(empty);
       return;
     }
-    items.forEach(p=>{
+    listaAgrupada(list, items, p=>{
       const blocos = p.blocos || [];
       const row = document.createElement('div');
       row.className = 'saved-item';
@@ -3665,7 +3812,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       actions.appendChild(makeIconBtn('＋ Copiar', ()=> copyShared(p.key), false, 'Copiar para as minhas aulas'));
       if(p.autor === userUid || isAdmin) actions.appendChild(makeIconBtn('✕', ()=> deleteShared(p.key), false, 'Retirar da biblioteca'));
       row.appendChild(info); row.appendChild(actions);
-      list.appendChild(row);
+      return row;
     });
   }
 
@@ -3722,6 +3869,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       }
       pendingRegName = '';
       userNome = prof.nome || user.email;
+      gruposMeus = Array.isArray(prof.grupos) ? prof.grupos.filter(Boolean) : Object.values(prof.grupos || {});
       isAdmin = (await fbDb.ref('admins/' + user.uid).once('value')).val() === true;
     }catch(e){
       console.error(e);
@@ -4004,6 +4152,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     document.querySelectorAll('.main-nav [data-go]').forEach(b=> b.classList.toggle('on', b.dataset.go === v));
     if(v === 'home') renderHome();
     if(v === 'ano') renderPlanoAnual();
+    if(v === 'lib' || v === 'plan'){ renderGrpBar(); try{ renderSaved(); renderShared(); }catch(e){} }
     if(v === 'hist') loadMyRides();
     if(v === 'plan') setTimeout(()=>{ try{ render(); }catch(e){} }, 0);   // a linha do tempo mede a largura visível
     try{ sessionStorage.setItem('prView', v); }catch(e){}
@@ -4081,9 +4230,9 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   const _copyShared = copyShared;
   copyShared = function(key){ _copyShared(key); setView('plan'); };
   const _renderSaved = renderSaved;
-  renderSaved = function(){ _renderSaved.apply(this, arguments); if(document.body.dataset.view === 'home') renderHome(); };
+  renderSaved = function(){ _renderSaved.apply(this, arguments); renderGrpBar(); if(document.body.dataset.view === 'home') renderHome(); };
   const _renderShared = renderShared;
-  renderShared = function(){ _renderShared.apply(this, arguments); if(document.body.dataset.view === 'home') renderHome(); };
+  renderShared = function(){ _renderShared.apply(this, arguments); renderGrpBar(); if(document.body.dataset.view === 'home') renderHome(); };
   const _renderHistory = renderHistory;
   renderHistory = function(){ _renderHistory.apply(this, arguments); if(document.body.dataset.view === 'home') renderHome(); };
 
