@@ -344,6 +344,29 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .modal-card h3{font-family:'Barlow Condensed',sans-serif;font-size:24px;margin:0 0 4px;}
 .modal-card .sub{color:var(--muted);font-size:13px;margin-bottom:14px;}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+.im-card{max-width:820px;}
+.im-drop{display:flex;align-items:center;gap:14px;flex-wrap:wrap;border:2px dashed var(--border);border-radius:14px;padding:16px;color:var(--muted);font-size:14px;}
+.im-drop.over{border-color:var(--accent);background:rgba(232,114,44,.08);}
+.im-thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;}
+.im-thumbs:empty{display:none;}
+.im-th{position:relative;width:120px;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:#000;}
+.im-th img{display:block;width:100%;height:80px;object-fit:cover;object-position:top;}
+.im-th div{display:flex;justify-content:space-between;align-items:center;padding:3px 4px;background:var(--surface-2);font-size:12px;}
+.im-th button{background:none;border:none;color:var(--text);padding:2px 5px;font-size:13px;cursor:pointer;}
+.im-status{margin-top:12px;font-size:14px;color:var(--muted);}
+.im-status:empty{display:none;}
+.im-status b{color:var(--text);}
+.im-tbl{width:100%;border-collapse:collapse;margin-top:10px;font-size:13.5px;}
+.im-tbl th{color:var(--muted);font-size:11.5px;text-align:left;padding:5px 6px;border-bottom:1px solid var(--border);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
+.im-tbl td{padding:3px 4px;border-bottom:1px solid #1B212B;}
+.im-tbl td:first-child{border-left:5px solid var(--zc);padding-left:8px;color:var(--muted);}
+.im-tbl input,.im-tbl select{width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:5px 6px;font-size:13.5px;font-variant-numeric:tabular-nums;}
+.im-tbl input.t{max-width:70px;} .im-tbl input.r{max-width:64px;}
+.im-tbl tr.cool td:first-child{border-left-color:#1FC8B0;}
+.im-tbl tr.chk td{background:rgba(255,210,122,.12);}
+.im-tbl tr.chk td:first-child::after{content:' ⚠';color:#FFD27A;}
+.im-tbl .x{background:none;border:none;color:#E27070;cursor:pointer;font-size:15px;}
+.im-warn{margin-top:8px;font-size:12.5px;color:#FFD27A;}
 
 .sum-table{border-collapse:collapse;width:100%;font-size:14px;}
 .sum-table th{color:var(--muted);font-weight:600;font-size:12px;text-align:right;padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
@@ -1326,6 +1349,25 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   </div>
 </div>
 
+<div class="modal" id="imgModal">
+  <div class="modal-card im-card">
+    <h3>Importar aula de imagens</h3>
+    <div class="sub">Capturas de ecrã com as colunas <b>Time · %FTP · RPM · Position</b> (e a barra <b>Cooldown</b>, se houver). Escolhe todas as imagens da aula, pela ordem. Podes também colá-las aqui (Ctrl+V) ou arrastá-las.</div>
+    <div class="im-drop" id="imDrop"><input type="file" id="imFiles" accept="image/*" multiple hidden>
+      <button class="primary" id="imPick">🖼️ Escolher imagens</button><span>ou arrasta / cola as capturas aqui</span></div>
+    <div class="im-thumbs" id="imThumbs"></div>
+    <div class="im-status" id="imStatus"></div>
+    <div id="imResult"></div>
+    <div class="modal-actions">
+      <button class="btn-link" id="imJson" style="margin-right:auto">Importar ficheiro .json</button>
+      <button id="imClose">Cancelar</button>
+      <button id="imRead" class="primary" disabled>Ler imagens</button>
+      <button id="imAppend" style="display:none">Acrescentar ao fim</button>
+      <button id="imApply" class="primary" style="display:none">Substituir a aula</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <!-- CONTA / LOGIN -->
@@ -2200,6 +2242,200 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     render();
     toast('Protocolo do teste FTP criado (58 min)');
   }
+  // =====================================================================
+  // IMPORTAR AULA DE IMAGENS (capturas Time · %FTP · RPM · Position) — leitura com Tesseract.js no próprio browser
+  // =====================================================================
+  let imImgs = [], imRows = null, tessP = null;
+  const TESS_URL = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+  function loadTess(){
+    if(window.Tesseract) return Promise.resolve();
+    if(tessP) return tessP;
+    tessP = new Promise((res, rej)=>{ const sc = document.createElement('script'); sc.src = TESS_URL; sc.onload = ()=> res(); sc.onerror = ()=>{ tessP = null; rej(new Error('Sem ligação para carregar o leitor de imagens.')); }; document.head.appendChild(sc); });
+    return tessP;
+  }
+  function openImgImport(){
+    imImgs = []; imRows = null;
+    $('imThumbs').innerHTML = ''; $('imStatus').innerHTML = ''; $('imResult').innerHTML = '';
+    imButtons();
+    $('imgModal').classList.add('active');
+    loadTess().catch(()=>{});   // vai carregando o leitor em segundo plano
+  }
+  function closeImgImport(){ $('imgModal').classList.remove('active'); }
+  function imButtons(){
+    $('imRead').disabled = !imImgs.length; $('imRead').style.display = imRows ? 'none' : '';
+    $('imApply').style.display = imRows && imRows.length ? '' : 'none';
+    $('imAppend').style.display = imRows && imRows.length ? '' : 'none';
+  }
+  function imAddFiles(files){
+    const list = [...files].filter(f=> f && /^image\//.test(f.type));
+    if(!list.length) return;
+    list.sort((a,b)=> (a.lastModified || 0) - (b.lastModified || 0));   // capturas pela ordem em que foram tiradas (se a hora for igual, fica a ordem escolhida)
+    list.forEach(f=> imImgs.push({file:f, url: URL.createObjectURL(f)}));
+    imRows = null; $('imResult').innerHTML = ''; $('imStatus').innerHTML = '';
+    imThumbs(); imButtons();
+  }
+  function imThumbs(){
+    $('imThumbs').innerHTML = imImgs.map((x,i)=> '<div class="im-th"><img src="' + x.url + '" alt=""><div><button data-a="up" data-i="' + i + '" title="Mais cedo">◀</button><b>' + (i+1) + '</b><button data-a="dn" data-i="' + i + '" title="Mais tarde">▶</button><button data-a="rm" data-i="' + i + '" title="Tirar">✕</button></div></div>').join('');
+  }
+  $('imThumbs').addEventListener('click', e=>{
+    const b = e.target.closest('button[data-a]'); if(!b) return;
+    const i = +b.dataset.i, a = b.dataset.a;
+    if(a === 'rm') imImgs.splice(i, 1);
+    if(a === 'up' && i > 0) [imImgs[i-1], imImgs[i]] = [imImgs[i], imImgs[i-1]];
+    if(a === 'dn' && i < imImgs.length - 1) [imImgs[i+1], imImgs[i]] = [imImgs[i], imImgs[i+1]];
+    imRows = null; $('imResult').innerHTML = ''; imThumbs(); imButtons();
+  });
+  $('imPick').addEventListener('click', ()=> $('imFiles').click());
+  $('imFiles').addEventListener('change', e=>{ imAddFiles(e.target.files); e.target.value = ''; });
+  $('imDrop').addEventListener('dragover', e=>{ e.preventDefault(); $('imDrop').classList.add('over'); });
+  $('imDrop').addEventListener('dragleave', ()=> $('imDrop').classList.remove('over'));
+  $('imDrop').addEventListener('drop', e=>{ e.preventDefault(); $('imDrop').classList.remove('over'); imAddFiles(e.dataTransfer.files); });
+  document.addEventListener('paste', e=>{
+    if(!$('imgModal').classList.contains('active')) return;
+    const fs = [...(e.clipboardData ? e.clipboardData.items : [])].filter(it=> it.kind === 'file').map(it=> it.getAsFile());
+    if(fs.length){ e.preventDefault(); imAddFiles(fs); }
+  });
+  $('imClose').addEventListener('click', closeImgImport);
+  $('imJson').addEventListener('click', ()=>{ closeImgImport(); $('importFile').click(); });
+
+  // prepara a imagem: aumenta (o texto fica mais nítido) e, na 2.ª leitura, isola o texto branco (serve para a barra Cooldown colorida)
+  function imCanvas(img, mascara, escala){
+    const k = escala || Math.max(1.5, Math.min(3.5, 3000 / img.naturalWidth));
+    const w = Math.round(img.naturalWidth * k), h = Math.round(img.naturalHeight * k);
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const g = c.getContext('2d'); g.imageSmoothingQuality = 'high'; g.drawImage(img, 0, 0, w, h);
+    if(mascara){
+      const d = g.getImageData(0, 0, w, h), p = d.data;
+      for(let i = 0; i < p.length; i += 4){ const mn = Math.min(p[i], p[i+1], p[i+2]); const v = mn > 150 ? 0 : 255; p[i] = p[i+1] = p[i+2] = v; p[i+3] = 255; }
+      g.putImageData(d, 0, 0);
+    }
+    return c;
+  }
+  function imParse(text){
+    const rows = []; let cool = null;
+    text.split('\n').forEach(raw=>{
+      const l = raw.replace(/[|!\[\]{}]/g, ' ').replace(/[Oo](?=\d)/g, '0').replace(/(?<=\d)[Oo]/g, '0');
+      const c = l.match(/coo\w*\s*.*?(\d{1,2})\s*[:.;]\s*(\d{2})/i);
+      if(c){ cool = {min: +c[1], sec: +c[2]}; return; }
+      const m = l.match(/(\d{1,2})\s*[:.;]\s*(\d{1,2})\s+(\d{1,3})\s*[-–—~]\s*(\d{1,3})\s+(\d{2,3}|fr\w*)\s+(se\w*|st\w*)/i);
+      if(m){
+        const rpm = /^fr/i.test(m[5]) ? 0 : +m[5];
+        // marca para rever o que parece mal lido (segundos com 1 algarismo, %FTP ou rpm estranhos)
+        const chk = m[2].length < 2 || +m[3] > +m[4] || (rpm && (rpm < 40 || rpm > 140));
+        rows.push({min: +m[1], sec: Math.min(59, +m[2]), lo: +m[3], hi: +m[4], rpm: rpm, pos: /^se/i.test(m[6]) ? 'S' : 'P', chk: chk || undefined});
+      }
+    });
+    return {rows, cool};
+  }
+  const imKey = x=> [x.min, x.sec, x.lo, x.hi, x.rpm, x.pos].join('|');
+  function imBest(passes){
+    const n = Math.max(...passes.map(p=> p.rows.length));
+    const full = passes.filter(p=> p.rows.length === n);
+    const rows = [];
+    for(let j = 0; j < n; j++){
+      const cand = full.map(p=> p.rows[j]);
+      const votos = {};
+      cand.forEach(c=>{ const k = imKey(c); votos[k] = (votos[k] || 0) + (c.chk ? 0.5 : 1); });
+      const best = Object.keys(votos).sort((a,b)=> votos[b] - votos[a])[0];
+      const row = Object.assign({}, cand.find(c=> imKey(c) === best));
+      if(Object.keys(votos).length > 1 && votos[best] < full.length) row.chk = true; else if(votos[best] >= 1) delete row.chk;
+      rows.push(row);
+    }
+    return {rows: rows, cool: (passes.find(p=> p.cool) || {}).cool || null};
+  }
+  function imLoadImg(url){ return new Promise((res, rej)=>{ const im = new Image(); im.onload = ()=> res(im); im.onerror = rej; im.src = url; }); }
+  $('imRead').addEventListener('click', async ()=>{
+    $('imRead').disabled = true;
+    const st = $('imStatus');
+    try{
+      st.innerHTML = 'A preparar o leitor de imagens… (a primeira vez demora uns segundos)';
+      await loadTess();
+      const worker = await Tesseract.createWorker('eng');
+      let rows = [], cool = null;
+      for(let i = 0; i < imImgs.length; i++){
+        st.innerHTML = 'A ler a imagem <b>' + (i+1) + '</b> de ' + imImgs.length + '…';
+        const img = await imLoadImg(imImgs[i].url);
+        // lê a imagem em 3 tamanhos e fica com a melhor leitura (mais linhas e menos dúvidas); onde as leituras discordam, ganha a maioria
+        const passes = [];
+        for(const alvo of [2100, 2600, 3100]){   // largura (px) a que a imagem é lida
+          const k = Math.max(1, alvo / img.naturalWidth);
+          st.innerHTML = 'A ler a imagem <b>' + (i+1) + '</b> de ' + imImgs.length + '… <small>(' + (passes.length + 1) + '/3)</small>';
+          passes.push(imParse((await worker.recognize(imCanvas(img, false, k))).data.text));
+        }
+        let r = imBest(passes);
+        if(!r.rows.length || !r.cool){   // 2.ª leitura só com o texto branco (ex.: barra Cooldown)
+          const r2 = imParse((await worker.recognize(imCanvas(img, true))).data.text);
+          if(!r.rows.length && r2.rows.length) r.rows = r2.rows;
+          if(!r.cool && r2.cool) r.cool = r2.cool;
+        }
+        rows = rows.concat(r.rows); if(r.cool) cool = r.cool;
+      }
+      await worker.terminate();
+      if(cool) rows.push({min: cool.min, sec: cool.sec, cool: true});
+      imRows = rows;
+      if(!rows.length){ st.innerHTML = '⚠ Não encontrei intervalos nestas imagens. Confirma que se veem as colunas Time · %FTP · RPM · Position.'; imRows = null; }
+      else imRender();
+    }catch(e){
+      st.innerHTML = '⚠ ' + escapeHtml(e.message || 'Não consegui ler as imagens.');
+    }
+    imButtons();
+    $('imRead').disabled = !imImgs.length;
+  });
+  function imTecnica(r){ const sub = r.rpm && r.rpm <= 75; return r.pos === 'P' ? (sub ? 'Subida em Pé' : 'Plano em Pé') : (sub ? 'Subida Sentada' : 'Plano Sentado'); }
+  function imZi(r){ return zoneIdx(Math.round((r.lo + r.hi) / 2), 'ftp'); }
+  function imRender(){
+    const tot = imRows.reduce((a,r)=> a + r.min*60 + r.sec, 0);
+    const nChk = imRows.filter(r=> r.chk).length;
+    $('imStatus').innerHTML = (nChk ? '⚠ <b>' + nChk + (nChk === 1 ? ' linha' : ' linhas') + ' a amarelo para confirmar.</b> ' : '') + '✓ Encontrei <b>' + imRows.filter(r=> !r.cool).length + ' intervalos</b>' + (imRows.some(r=> r.cool) ? ' + retorno à calma' : '') + ' · duração total <b>' + fmtTime(tot) + '</b>. Confere com as imagens e corrige o que for preciso:';
+    $('imResult').innerHTML = '<table class="im-tbl"><thead><tr><th>#</th><th>Tempo</th><th>%FTP</th><th>RPM</th><th>Posição</th><th>Técnica</th><th></th></tr></thead><tbody>' +
+      imRows.map((r,i)=>{
+        const t = String(r.min).padStart(2,'0') + ':' + String(r.sec).padStart(2,'0');
+        if(r.cool) return '<tr class="cool" data-i="' + i + '"><td>' + (i+1) + '</td><td><input class="t" data-f="t" value="' + t + '"></td><td colspan="4">Retorno à calma</td><td><button class="x" data-i="' + i + '" title="Tirar">✕</button></td></tr>';
+        const zc = zoneColor(ZONES[imZi(r)].css);
+        return '<tr data-i="' + i + '"' + (r.chk ? ' class="chk" title="Confirma esta linha: pode ter sido mal lida"' : '') + ' style="--zc:' + zc + '"><td>' + (i+1) + '</td><td><input class="t" data-f="t" value="' + t + '"></td>' +
+          '<td><input data-f="z" value="' + r.lo + '-' + r.hi + '"></td><td><input class="r" data-f="rpm" value="' + (r.rpm || 'Free') + '"></td>' +
+          '<td><select data-f="pos"><option value="S"' + (r.pos === 'S' ? ' selected' : '') + '>Sentado</option><option value="P"' + (r.pos === 'P' ? ' selected' : '') + '>Em pé</option></select></td>' +
+          '<td><select data-f="tec">' + TECNICAS.map(x=> '<option' + ((r.tec || imTecnica(r)) === x ? ' selected' : '') + '>' + x + '</option>').join('') + '</select></td>' +
+          '<td><button class="x" data-i="' + i + '" title="Tirar">✕</button></td></tr>';
+      }).join('') + '</tbody></table>' +
+      '<div class="im-warn">Se as capturas se sobrepõem (a mesma linha aparece em duas imagens), tira a linha repetida com ✕.</div>';
+  }
+  $('imResult').addEventListener('change', e=>{
+    const tr = e.target.closest('tr[data-i]'); if(!tr) return;
+    const r = imRows[+tr.dataset.i], f = e.target.dataset.f, v = e.target.value.trim();
+    delete r.chk;
+    if(f === 't'){ const m = v.match(/(\d{1,3})\s*[:.]\s*(\d{1,2})/); if(m){ r.min = +m[1]; r.sec = Math.min(59, +m[2]); } }
+    if(f === 'z'){ const m = v.match(/(\d{1,3})\s*[-–]\s*(\d{1,3})/); if(m){ r.lo = +m[1]; r.hi = +m[2]; } }
+    if(f === 'rpm'){ r.rpm = /^\d+$/.test(v) ? +v : 0; }
+    if(f === 'pos'){ r.pos = v; delete r.tec; }
+    if(f === 'tec'){ r.tec = v; }
+    imRender();
+  });
+  $('imResult').addEventListener('click', e=>{ const b = e.target.closest('.x'); if(!b) return; imRows.splice(+b.dataset.i, 1); if(!imRows.length){ imRows = null; $('imResult').innerHTML = ''; $('imStatus').innerHTML = ''; } else imRender(); imButtons(); });
+  function imBlocks(){
+    return imRows.map((r,i)=>{
+      if(r.cool) return newBlock({ tipo:'cool', nome:'Retorno à calma', min:r.min, sec:r.sec, ftp:ZONE_MID[0], rpm:80, rpm2:85, tecnica:'Plano Sentado' });
+      const zi = imZi(r);
+      return newBlock({ nome: (i === 0 && zi === 0) ? 'Aquecimento' : ZONES[zi].name, min:r.min, sec:r.sec, ftp:ZONE_MID[zi], alvo:0, rpm:r.rpm || 0, tecnica: r.tec || imTecnica(r) });
+    });
+  }
+  function imApply(append){
+    if(!imRows || !imRows.length) return;
+    pushUndo();
+    if(modoAtual() === 'fc') current.modo = 'ftp';   // as imagens vêm em %FTP
+    const novos = imBlocks();
+    if(append){
+      const ci = coolIdx(), temCool = novos.some(b=> b.tipo === 'cool');
+      if(ci >= 0 && temCool) current.blocos.splice(ci, 1);
+      const ci2 = coolIdx();
+      if(ci2 >= 0) current.blocos.splice(ci2, 0, ...novos); else current.blocos.push(...novos);
+    } else current.blocos = novos;
+    selIdx = 0; render(); closeImgImport();
+    toast(novos.length + ' intervalos importados das imagens');
+  }
+  $('imApply').addEventListener('click', ()=> imApply(false));
+  $('imAppend').addEventListener('click', ()=> imApply(true));
+
   function doCooldown(){
     const c = coolIdx();
     if(c >= 0){ selIdx = c; renderEditor(); scrollToSel(); toast('A aula já tem retorno à calma (é sempre o último intervalo)'); return; }
@@ -2293,7 +2529,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     if(btn.dataset.z !== undefined) addZone(Number(btn.dataset.z));
     else if(btn.id === 'zbSplit') doSegments();
     else if(btn.id === 'zbCool') doCooldown();
-    else if(btn.id === 'zbImport') $('importFile').click();
+    else if(btn.id === 'zbImport') openImgImport();
     else if(btn.id === 'zbFtpTest') doFtpTest();
   });
   $('splitBtn').addEventListener('click', doHalf);
