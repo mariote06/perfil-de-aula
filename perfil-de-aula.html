@@ -176,6 +176,8 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .search:focus{outline:none;border-color:#4A5568;}
 .saved-list{display:flex;flex-direction:column;gap:8px;max-height:420px;overflow:auto;}
 /* grupos da biblioteca */
+.saved-item em.ult{font-style:normal;font-size:12px;color:#7FD3A6;font-weight:600;}
+.saved-item em.ult.nunca{color:var(--muted);font-weight:500;}
 .grp-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;grid-column:1 / -1;}
 .grp-chip{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:999px;padding:7px 13px;font-size:12.5px;font-weight:700;letter-spacing:.3px;display:inline-flex;align-items:center;gap:7px;cursor:pointer;}
 .grp-chip i{width:9px;height:9px;border-radius:50%;background:var(--gc,#8A93A3);display:inline-block;}
@@ -1732,6 +1734,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       const copy = JSON.parse(JSON.stringify(current));
       copy.id = uid();
       if(copy.nome === nome && treinos.some(t=>t.nome===nome)) copy.nome = nome + ' (cópia)';
+      delete copy.ultima; delete copy.vezes;
       copy.blocos.forEach(b=> b.id = uid());
       treinos.push(copy);
       current = copy;
@@ -1775,6 +1778,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     copy.id = uid();
     copy.nome = t.nome + ' (cópia)';
     copy.blocos.forEach(b=> b.id = uid());
+    delete copy.ultima; delete copy.vezes;
     treinos.push(copy);
     persist();
     renderSaved();
@@ -2907,6 +2911,10 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       info.title = 'Abrir esta aula';
       const b = document.createElement('b'); b.textContent = t.nome;
       const s = document.createElement('span'); s.textContent = t.blocos.length + ' blocos · ' + fmtTime(totalSec) + (t.modo === 'fc' ? ' · %FCmáx' : t.modo === 'zonas' ? ' · zonas' : '');
+      const uv = ultimaVez(t), ul = document.createElement('em');
+      ul.className = 'ult' + (uv ? '' : ' nunca'); ul.title = 'Só tu vês esta informação' + (t.vezes ? ' · dada ' + t.vezes + (t.vezes === 1 ? ' vez' : ' vezes') + ' com a app' : '');
+      ul.textContent = '🕒 ' + ultimaTxt(uv) + (t.vezes > 1 ? ' · ' + t.vezes + '×' : '');
+      s.appendChild(document.createElement('br')); s.appendChild(ul);
       info.appendChild(b); info.appendChild(s); info.appendChild(miniProfileSvg(t.blocos, t.modo));
       info.addEventListener('click', ()=> loadTreino(t.id));
 
@@ -3281,7 +3289,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     const list = buildSummary();
     if(!list.length) return null;
     if(!summaryEntry){
-      summaryEntry = { id: uid(), date: new Date().toISOString(), treinoNome: current.nome || 'Aula de cycling', dur: totalDuration(current.blocos), metric: raceMetric, riders: list };
+      summaryEntry = { id: uid(), date: new Date().toISOString(), aulaId: current.id || null, treinoNome: current.nome || 'Aula de cycling', dur: totalDuration(current.blocos), metric: raceMetric, riders: list };
     } else {
       summaryEntry.riders = list;
       summaryEntry.metric = raceMetric;
@@ -3417,8 +3425,30 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   let liveIdx = 0, liveRemaining = 0, liveTimerHandle = null, livePlaying = false;
   let tickBaseAt = 0, tickBaseRemaining = 0, lastBeepSec = null;
 
+  // ---- última vez que o professor deu esta aula (só ele vê: fica nas suas aulas) ----
+  let execMarcada = false, livePreview = false;
+  function marcarExecucao(){
+    execMarcada = true;
+    if(livePreview || !current.id) return;
+    const t = treinos.find(x=> x.id === current.id); if(!t) return;
+    t.ultima = Date.now(); t.vezes = (t.vezes || 0) + 1;
+    current.ultima = t.ultima; current.vezes = t.vezes;
+    persist(); renderSaved();
+  }
+  function ultimaVez(t){   // timestamp da última vez (também procura no histórico das aulas antigas)
+    let u = t.ultima || 0;
+    historico.forEach(h=>{ if(h.aulaId === t.id || (!h.aulaId && h.treinoNome === t.nome)){ const d = Date.parse(h.date) || 0; if(d > u) u = d; } });
+    return u;
+  }
+  function ultimaTxt(u){
+    if(!u) return 'nunca dada';
+    const dias = Math.floor((new Date().setHours(0,0,0,0) - new Date(u).setHours(0,0,0,0)) / 864e5);
+    const quando = dias <= 0 ? 'hoje' : dias === 1 ? 'ontem' : 'há ' + dias + ' dias';
+    return 'dada ' + quando + ' (' + new Date(u).toLocaleDateString('pt-PT', {day:'numeric', month:'short'}) + ')';
+  }
   function openLive(opts){
     const preview = !!(opts && opts.preview);
+    execMarcada = false; livePreview = preview;
     if(current.blocos.length === 0){ toast('Adiciona blocos antes de projetar.'); return; }
     if(!firebaseReady){ $('setupBanner').classList.add('active'); return; }
     liveIdx = 0;
@@ -3592,6 +3622,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   }
   function updateLiveHead(){
     updateStartCount();
+    // conta como dada quando passa metade da aula (ou 10 min)
+    if(!execMarcada && livePlaying && elapsedNow() >= Math.min(600, totalDuration(current.blocos) * 0.5)) marcarExecucao();
     updClassLamp();
     const tot = totalDuration(current.blocos);
     const el = Math.max(0, elapsedNow());
@@ -3766,7 +3798,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   function copyShared(key){
     const p = partilhadas.find(x=>x.key===key);
     if(!p) return;
-    const copy = { id: uid(), nome: p.nome, modo: p.modo || 'ftp', objetivo: p.objetivo || undefined, descricao: p.descricao || undefined, grupo: p.grupo || undefined, blocos: (p.blocos||[]).map(sanitizeBlock) };
+    const copy = { id: uid(), origemBib: key, nome: p.nome, modo: p.modo || 'ftp', objetivo: p.objetivo || undefined, descricao: p.descricao || undefined, grupo: p.grupo || undefined, blocos: (p.blocos||[]).map(sanitizeBlock) };
     treinos.push(copy);
     persist();
     current = clean(copy);
@@ -3805,6 +3837,11 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       const b = document.createElement('b'); b.textContent = p.nome;
       const s = document.createElement('span');
       s.textContent = blocos.length + ' blocos · ' + fmtTime(totalDuration(blocos)) + (p.modo === 'fc' ? ' · %FCmáx' : p.modo === 'zonas' ? ' · zonas' : '') + ' · por ' + (p.autorNome || 'professor');
+      { const minhas = treinos.filter(t=> t.origemBib === p.key || (p.autor === userUid && p.origem === t.id));
+        const uv = Math.max(0, ...minhas.map(ultimaVez));
+        const ul = document.createElement('em'); ul.className = 'ult' + (uv ? '' : ' nunca'); ul.title = 'Só tu vês esta informação';
+        ul.textContent = '🕒 ' + (uv ? ultimaTxt(uv).replace('dada', 'deste-a') : 'ainda não a deste');
+        s.appendChild(document.createElement('br')); s.appendChild(ul); }
       info.appendChild(b); info.appendChild(s); info.appendChild(miniProfileSvg(blocos, p.modo));
       info.addEventListener('click', ()=> copyShared(p.key));
       const actions = document.createElement('div');
