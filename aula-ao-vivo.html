@@ -338,7 +338,11 @@ body:has(#liveScreen.active) .legal{display:none;}
 .mood-r{margin-top:12px;font-size:14.5px;line-height:1.45;color:rgba(255,255,255,.88);animation:moodIn .35s ease-out;}
 .mood-r:empty{display:none;}
 .mood-r b{color:#fff;}
-.mood-r .mood-go{display:inline-block;margin-top:9px;padding:8px 14px;border-radius:999px;border:1px solid var(--mc,#A35CFF);color:#fff;background:color-mix(in srgb,var(--mc,#A35CFF) 25%,transparent);font-weight:700;font-size:14px;}
+.mood-gos{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px;}
+.mood-r .mood-go{display:flex !important;flex-direction:column;align-items:center;justify-content:center;text-align:center;line-height:1.15;padding:8px 4px !important;border-radius:12px !important;font-size:13.5px !important;}
+.mood-r .mood-go small{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;opacity:.85;margin-bottom:2px;}
+.mood-r .mood-go.alt{border-color:var(--border);background:rgba(255,255,255,.05);color:rgba(255,255,255,.85);font-weight:600;}
+.mood-r .mood-go{display:inline-block;margin-top:0;padding:8px 14px;border-radius:999px;border:1px solid var(--mc,#A35CFF);color:#fff;background:color-mix(in srgb,var(--mc,#A35CFF) 25%,transparent);font-weight:700;font-size:14px;}
 @keyframes moodIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:420px;}
 .tile{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 14px;color:#fff;min-height:128px;position:relative;overflow:hidden;}
@@ -2701,7 +2705,11 @@ body.solo-livre #progress{display:none;}
     const mo = MOODS[m], btn = document.querySelector('#moodOpts button[data-m="' + m + '"]');
     r.style.setProperty('--mc', btn ? btn.style.getPropertyValue('--mc') : '#A35CFF');
     const fims = MOOD_FIM[mom][m];
-    r.innerHTML = mo.t + ' ' + fims[(dia + m) % fims.length] + '<br><button type="button" class="mood-go" data-go="' + mo.go + '">' + mo.gl + ' →</button>';
+    // os três caminhos estão sempre lá; o sugerido para este estado aparece primeiro e em destaque
+    const DEST = { tLive:'Aula ao vivo', tFree:'Só pedalar', tLib:'Biblioteca' };
+    const ordem = [mo.go].concat(['tLive','tFree','tLib'].filter(k=> k !== mo.go));
+    r.innerHTML = mo.t + ' ' + fims[(dia + m) % fims.length] +
+      '<div class="mood-gos">' + ordem.map((k,i)=> '<button type="button" class="mood-go' + (i ? ' alt' : '') + '" data-go="' + k + '">' + (i ? '' : '<small>sugerido</small>') + DEST[k] + '</button>').join('') + '</div>';
   }
   $('moodOpts').addEventListener('click', e=>{
     const b = e.target.closest('button'); if(!b) return;
