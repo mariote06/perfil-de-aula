@@ -242,6 +242,8 @@ body:has(#liveScreen.active) .legal{display:none;}
 .nx.show::after{content:'';position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%);transform:translateX(-120%);animation:nxShine 1.1s .35s ease-out both;}
 @keyframes nxMagic{0%{opacity:0;transform:translateY(40px) scale(.55);filter:blur(14px) brightness(2.2);}60%{opacity:1;filter:blur(0) brightness(1.4);}100%{opacity:1;transform:none;filter:none;}}
 @keyframes nxShine{to{transform:translateX(120%);}}
+.nx.show.shine2::after{animation:nxShine2 1.1s ease-out both;}
+@keyframes nxShine2{from{transform:translateX(-120%);}to{transform:translateX(120%);}}
 /* subir ao meio e explodir (3 s) */
 .nx.boom{visibility:visible;opacity:1;animation:nxBoom 3s cubic-bezier(.3,.1,.3,1) both;border-color:var(--nc);}
 .nx.boom .nx-in{font-size:40px;}
@@ -260,11 +262,18 @@ body:has(#liveScreen.active) .legal{display:none;}
 .nx-burst i{position:absolute;left:50%;top:50%;width:var(--s);height:var(--s);margin:calc(var(--s) / -2) 0 0 calc(var(--s) / -2);border-radius:50%;background:var(--nc);box-shadow:0 0 10px var(--nc);opacity:0;
   animation:nxPart 1s calc(2.35s + var(--d)) cubic-bezier(.1,.8,.3,1) both;}
 @keyframes nxPart{0%{transform:translate(0,0) scale(1);opacity:1;}100%{transform:translate(var(--x),var(--y)) scale(.2);opacity:0;}}
+/* enquanto o cartão está à vista, o ecrã encolhe para nada ficar tapado por baixo dele */
+.body .timer,.body .me-w{transition:font-size .45s ease;}
+.body.nx-on{padding-bottom:calc(var(--nxh,120px) + 14px);}
+.body.nx-on .feel{display:none;}
+.body.nx-on .timer{font-size:clamp(52px,16vw,90px);}
+.body.nx-on .me-w{font-size:clamp(68px,23vw,116px);}
+@media (max-height:760px){.body.nx-on .timer{font-size:clamp(44px,13vw,64px);}.body.nx-on .me-w{font-size:clamp(56px,18vw,92px);}}
 .nx-seg{margin-top:8px;padding-top:0;}
 .nx-seg:empty{display:none;}
 .body.blk-in #activeBlock{animation:blkIn .6s ease-out;}
 @keyframes blkIn{0%{transform:translateY(18px) scale(.97);opacity:.3;}100%{transform:none;opacity:1;}}
-@media (prefers-reduced-motion:reduce){.nx.show,.nx.show::after,.body.blk-in #activeBlock{animation:none;}}
+@media (prefers-reduced-motion:reduce){.nx.show,.nx.show::after,.nx.show.shine2::after,.body.blk-in #activeBlock{animation:none;}}
 
 .finished{display:none;flex-direction:column;align-items:center;gap:8px;margin-top:20px;width:100%;max-width:420px;}
 .finished.active{display:flex;}
@@ -404,6 +413,19 @@ body.solo-livre #progress{display:none;}
 .fin-ftp b{color:#FFD60A;}
 .chip.warnchip{color:#FF8A8A;border-color:rgba(255,59,59,.4);width:40px;min-height:40px;height:40px;padding:0;justify-content:center;font-size:14px;align-self:center;}
 #liveScreen{position:relative;}
+/* cabeçalho escondido durante o treino: abre-se a deslizar para baixo na seta */
+.topbar{transition:transform .32s cubic-bezier(.2,.9,.3,1),opacity .25s ease;}
+#liveScreen.hdr-hide .topbar{position:absolute;top:10px;left:0;right:0;transform:translateY(calc(-100% - 14px));opacity:0;pointer-events:none;
+  background:linear-gradient(to bottom,rgba(5,7,10,.97),rgba(5,7,10,.93));padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08);box-shadow:0 12px 30px rgba(0,0,0,.55);}
+#liveScreen.hdr-hide.hdr-open .topbar{transform:none;opacity:1;pointer-events:auto;}
+.hdr-handle{display:none;position:absolute;top:10px;left:50%;transform:translateX(-50%);z-index:41;width:92px;height:34px;padding:0;border:1px solid rgba(255,255,255,.18);border-top:none;
+  border-radius:0 0 16px 16px;background:rgba(18,22,29,.92);color:#fff;place-items:center;touch-action:none;-webkit-tap-highlight-color:transparent;cursor:pointer;}
+.hdr-handle svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;animation:hdrNudge 1.6s ease-in-out infinite;}
+.hdr-handle.alert{border-color:var(--bad,#FF5A5A);color:var(--bad,#FF5A5A);}
+#liveScreen.hdr-hide:not(.hdr-open) .hdr-handle{display:grid;}
+#liveScreen.hdr-hide .body{padding-top:42px;}
+@keyframes hdrNudge{0%,100%{transform:translateY(-2px);opacity:.75;}50%{transform:translateY(4px);opacity:1;}}
+@media (prefers-reduced-motion:reduce){.hdr-handle svg{animation:none;}}
 .f-alert{display:none;}
 .f-alert.on{display:flex;}
 
@@ -672,6 +694,7 @@ body.solo-livre #progress{display:none;}
 <div class="nx-burst" id="nxBurst" aria-hidden="true"></div><div class="nx-float" id="nxFloat"></div>
 <div id="liveScreen">
   <div class="progress" id="progress"></div>
+  <button class="hdr-handle" id="hdrHandle" aria-label="Desliza para baixo para abrir o menu" title="Desliza para baixo para abrir o menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
   <div class="topbar">
     <div class="tb-menu">
       <button class="mbtn" id="btMenuBtn" aria-expanded="false" aria-controls="btPop" title="Bike e cinta de FC"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10-5 5V2l5 5L7 17"/></svg><span class="mdots"><i id="dotBike" title="Bike"></i><i id="dotHr" title="Cinta de FC"></i></span></button>
@@ -812,7 +835,7 @@ body.solo-livre #progress{display:none;}
   let lastNextHtml = '', lastBlockIdx = -1, nxPhase = '', nxBoomIdx = -1;
   const NX_SHOW = 15, NX_BOOM = 3;   // segundos antes do fim do bloco
   function zoneTxtColor(css){ return (css === '--z5' || css === '--z6' || css === '--seg') ? '#fff' : '#0A0D12'; }
-  function hideNx(){ const f = $('nxFloat'); if(f) f.innerHTML = ''; const bu = $('nxBurst'); if(bu){ bu.className = 'nx-burst'; bu.innerHTML = ''; } lastNextHtml = ''; nxPhase = ''; }
+  function hideNx(){ nxRoom(false); const f = $('nxFloat'); if(f) f.innerHTML = ''; const bu = $('nxBurst'); if(bu){ bu.className = 'nx-burst'; bu.innerHTML = ''; } lastNextHtml = ''; nxPhase = ''; }
   function nxExplode(color){
     const bu = $('nxBurst'); bu.style.setProperty('--nc', color);
     let h = '<div class="ring"></div>';
@@ -823,6 +846,21 @@ body.solo-livre #progress{display:none;}
     bu.innerHTML = h; bu.className = 'nx-burst'; void bu.offsetWidth; bu.className = 'nx-burst on';
     clearTimeout(nxExplode.t); nxExplode.t = setTimeout(()=>{ bu.className = 'nx-burst'; bu.innerHTML = ''; }, 3600);
   }
+  // abre espaço por baixo do cartão: encolhe o ecrã e, se ainda faltar, desliza até ao fim do cartão do aluno
+  function nxRoom(on, card){
+    const body = $('bodyEl'); if(!body) return;
+    if(!on){ if(body.classList.contains('nx-on')){ body.classList.remove('nx-on'); body.scrollTo({top:0, behavior:'smooth'}); } return; }
+    if(nxPhase === 'boom') return;   // a subir/rebentar: não mexe no ecrã
+    body.style.setProperty('--nxh', card.offsetHeight + 'px');
+    body.classList.add('nx-on');
+    if(nxRoom.busy) return;
+    nxRoom.busy = true; setTimeout(()=>{   // espera que o ecrã encolha (0,45 s) e só depois mede
+      nxRoom.busy = false;
+      const me = $('meEl'), c = $('nxFloat').querySelector('.nx'); if(!me || !c || !body.classList.contains('nx-on') || nxPhase === 'boom') return;
+      const over = me.getBoundingClientRect().bottom + 8 - c.getBoundingClientRect().top;
+      if(over > 1) body.scrollTo({top: body.scrollTop + over, behavior:'smooth'});
+    }, 600);
+  }
   function renderNext(next, remaining){
     const el = $('nxFloat');
     const playing = state.status === 'playing' && solo !== 'livre';
@@ -831,7 +869,7 @@ body.solo-livre #progress{display:none;}
       if(next && remaining <= NX_BOOM) phase = 'boom';
       else if(remaining <= NX_SHOW) phase = 'show';
     }
-    if(!phase){ if(el.innerHTML) el.innerHTML = ''; lastNextHtml = ''; nxPhase = ''; return; }
+    if(!phase){ if(el.innerHTML) el.innerHTML = ''; lastNextHtml = ''; nxPhase = ''; nxRoom(false); return; }
     let html, color = '#fff';
     if(!next){
       html = '<div class="nx last" style="--nc:#fff"><div class="nx-top"><span class="nx-lbl">Último bloco</span><span class="nx-in"></span></div><div class="nx-main"><span class="nx-name">Força até ao fim! 💪</span></div></div>';
@@ -851,8 +889,10 @@ body.solo-livre #progress{display:none;}
       if(phase === 'boom' && nxBoomIdx !== state.blockIndex){ nxBoomIdx = state.blockIndex; nxExplode(color); }
       nxPhase = phase;
     }
+    if(phase === 'show' && remaining <= 8 && !card.classList.contains('shine2')) card.classList.add('shine2');   // repete o brilho aos 8 s
     const inn = card.querySelector('.nx-in');
     if(inn) inn.textContent = 'em ' + Math.ceil(remaining);
+    nxRoom(true, card);
   }
   function checkBlockChange(b){
     const idx = state.blockIndex;
@@ -1508,6 +1548,7 @@ body.solo-livre #progress{display:none;}
 
   function render(){
     updateFtpChip();
+    hdrSync();
     if(!state) return;
     if(solo === 'guiado') soloAdvance();
     if(solo === 'livre') return renderLivre();
@@ -1840,6 +1881,42 @@ body.solo-livre #progress{display:none;}
     }catch(e){}
   }
   // menus do cabeçalho: ᛒ = bike e cinta · ✎ = FTP e FC máxima
+  // ===== cabeçalho escondido durante o treino =====
+  let hdrTimer = 0;
+  function hdrSync(){
+    const ls = $('liveScreen'); if(!ls) return;
+    const hide = !!state && state.status === 'playing';   // fora do treino (à espera, pausa, fim) fica sempre à vista
+    if(ls.classList.contains('hdr-hide') !== hide){ ls.classList.toggle('hdr-hide', hide); if(!hide) ls.classList.remove('hdr-open'); }
+    const bikeOff = typeof bikeConnected === 'function' && !demo && hasBluetooth && !bikeConnected() && !hrConnected();
+    $('hdrHandle').classList.toggle('alert', bikeOff);
+  }
+  function hdrOpen(on){
+    const ls = $('liveScreen');
+    ls.classList.toggle('hdr-open', on);
+    clearTimeout(hdrTimer);
+    if(on) hdrArm(); else closeMenus();
+  }
+  function hdrArm(){   // fecha sozinho passados 6 s sem mexer (se nenhum menu estiver aberto)
+    clearTimeout(hdrTimer);
+    hdrTimer = setTimeout(()=>{ if($('btPop').classList.contains('on') || $('edPop').classList.contains('on') || document.querySelector('.modal.on, .ftp-edit.on')) return hdrArm(); hdrOpen(false); }, 6000);
+  }
+  (function(){
+    const h = $('hdrHandle'); let y0 = null;
+    h.addEventListener('pointerdown', e=>{ y0 = e.clientY; try{ h.setPointerCapture(e.pointerId); }catch(_){} });
+    h.addEventListener('pointermove', e=>{ if(y0 !== null && e.clientY - y0 > 18){ y0 = null; hdrOpen(true); } });
+    h.addEventListener('pointerup', ()=>{ y0 = null; });
+    h.addEventListener('pointercancel', ()=>{ y0 = null; });
+    h.addEventListener('click', ()=> hdrOpen(true));   // um toque também abre
+    const tb = document.querySelector('#liveScreen .topbar'); let ty = null;
+    tb.addEventListener('pointerdown', e=>{ ty = e.clientY; hdrArm(); });
+    tb.addEventListener('pointermove', e=>{ if(ty !== null && ty - e.clientY > 24){ ty = null; hdrOpen(false); } });   // deslizar para cima fecha
+    tb.addEventListener('pointerup', ()=>{ ty = null; });
+    document.addEventListener('pointerdown', e=>{   // tocar fora fecha
+      const ls = $('liveScreen'); if(!ls.classList.contains('hdr-open')) return;
+      if(e.target.closest('.topbar, #hdrHandle, .modal, #ftpEdit, .safety-banner')) return;
+      hdrOpen(false);
+    });
+  })();
   function closeMenus(except){
     [['btMenuBtn','btPop'],['edMenuBtn','edPop']].forEach(([b,p])=>{ if(p === except) return; $(p).classList.remove('on'); $(b).setAttribute('aria-expanded','false'); });
   }
