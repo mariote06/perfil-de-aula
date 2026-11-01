@@ -318,6 +318,12 @@ body:not(:has(#liveScreen.active)) .nx-float,body:not(:has(#liveScreen.active)) 
 .tr-item{display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;text-align:left;cursor:pointer;}
 .tr-item b{display:block;font-size:14px;}
 .tr-item span{color:var(--muted);font-size:12px;}
+.tr-item .tr-emo{display:block;font-style:normal;font-size:16px;margin-top:3px;color:var(--muted);}
+.tr-emos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 4px;}
+.tr-emos div{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 6px;text-align:center;}
+.tr-emos i{display:block;font-style:normal;font-size:30px;line-height:1.1;}
+.tr-emos b{display:block;font-size:13px;color:#fff;margin-top:4px;text-transform:capitalize;}
+.tr-emos span{display:block;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;margin-top:2px;}
 .tr-item .kj{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:700;white-space:nowrap;}
 .tr-item .kj small{font-size:12px;color:var(--muted);font-family:'Inter',sans-serif;}
 .chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px;margin:10px 0;}
@@ -2306,7 +2312,8 @@ body.solo-livre #progress{display:none;}
       fcMax: me.fc || (perfil && perfil.fcMax) || null,
       ftpIni: me.ftpIni || null,
       ftpTeste: me.ftpTest || null,
-      avaliacao: (me.rx || me.fa) ? {exp: me.rx || null, sente: me.fa || null} : null
+      avaliacao: (me.rx || me.fa) ? {exp: me.rx || null, sente: me.fa || null} : null,
+      humor: moodHoje()
     };
     const key = getTreinoKey();
     const uid = user.uid, clean = cleanVals(t);
@@ -2376,6 +2383,14 @@ body.solo-livre #progress{display:none;}
     return d.toLocaleDateString('pt-PT', {weekday:'short', day:'2-digit', month:'short'}) + ' · ' + d.toLocaleTimeString('pt-PT', {hour:'2-digit', minute:'2-digit'});
   }
 
+  // emojis do treino guardado: como chegou, como saiu e como achou o treino (emojis normais)
+  const EMO_ANTES = {1:['😫','exausto'], 2:['😕','em baixo'], 3:['😐','normal'], 4:['🙂','bem'], 5:['🤩','em grande']};
+  const EMO_DEPOIS = {1:['😫','exausto'], 2:['😮‍💨','cansado'], 3:['🙂','bem'], 4:['💪','forte'], 5:['🔥','em grande']};
+  const EMO_TREINO = {1:['😞','mau'], 2:['😕','fraco'], 3:['😐','razoável'], 4:['😀','bom'], 5:['🤩','excelente']};
+  function treinoEmos(t){
+    const av = t.avaliacao || {}, a = EMO_ANTES[t.humor], d = EMO_DEPOIS[av.sente], x = EMO_TREINO[av.exp];
+    return { a: a, d: d, x: x, any: !!(a || d || x) };
+  }
   function renderTreinoList(){
     const n = treinosCache.length;
     const now = Date.now(), d30 = 30*24*3600*1000;
@@ -2390,7 +2405,8 @@ body.solo-livre #progress{display:none;}
       const row = document.createElement('div');
       row.className = 'tr-item';
       const onlyHr = !t.w && t.hrAvg;
-      row.innerHTML = '<div><b></b><span></span></div><div class="kj">' + (onlyHr ? t.hrAvg + ' <small>bpm</small>' : Math.round(t.kj||0) + ' <small>kJ</small>') + '</div>';
+      const em = treinoEmos(t);
+      row.innerHTML = '<div><b></b><span></span>' + (em.any ? '<i class="tr-emo">' + (em.a ? em.a[0] : '') + (em.a && em.d ? ' → ' : '') + (em.d ? em.d[0] : '') + (em.x ? ' · treino ' + em.x[0] : '') + '</i>' : '') + '</div><div class="kj">' + (onlyHr ? t.hrAvg + ' <small>bpm</small>' : Math.round(t.kj||0) + ' <small>kJ</small>') + '</div>';
       row.querySelector('b').textContent = t.aula || 'Aula';
       row.querySelector('span').textContent = fmtDate(t.date) + ' · ' + fmtTime(t.dur||0) + (onlyHr ? ' · só FC' : ' · ' + (t.aw||0) + ' W méd.') + (t.emCurso ? ' · saiu antes do fim' : '') + (t.ftpTeste && t.ftpTeste.ok ? ' · 🎯 FTP ' + t.ftpTeste.ftp + ' W' : '');
       row.addEventListener('click', ()=> showTreino(t.key));
@@ -2508,6 +2524,9 @@ body.solo-livre #progress{display:none;}
       '<div class="acct-top" style="max-width:none"><button class="btn-link" id="trBack">← Todos os treinos</button></div>' +
       '<div class="section-t" style="margin-top:4px">' + escapeHtml(t.aula||'Aula') + '</div>' +
       '<div class="hint" style="text-align:left">' + fmtDate(t.date) + (t.ftp && hasW ? ' · FTP ' + t.ftp + ' W' : '') + (hasW ? '' : ' · só frequência cardíaca') + '</div>' +
+      (function(){ const em = treinoEmos(t); if(!em.any) return '';
+        const c = (e, l)=> '<div><i>' + (e ? e[0] : '—') + '</i><b>' + (e ? e[1] : '—') + '</b><span>' + l + '</span></div>';
+        return '<div class="tr-emos">' + c(em.a, 'antes') + c(em.d, 'depois') + c(em.x, 'o treino') + '</div>'; })() +
       charts + hrZonesHtml +
       '<div class="me-grid">' + stats + '</div>' +
       '<button class="btn-link" id="trDelete" style="margin-top:16px;color:#E27070">Apagar este treino</button>';
@@ -2828,7 +2847,7 @@ body.solo-livre #progress{display:none;}
     me.rx = rateVal('rateExp'); me.fa = rateVal('rateFeel');
     pushRider();
     // se o treino já estava guardado na conta, junta-lhe a avaliação
-    if(user && fbDb && savedThisClass && treinoKey) fbDb.ref('alunos/' + user.uid + '/treinos/' + treinoKey + '/avaliacao').set({exp: me.rx || null, sente: me.fa || null}).catch(()=>{});
+    if(user && fbDb && savedThisClass && treinoKey) fbDb.ref('alunos/' + user.uid + '/treinos/' + treinoKey).update({avaliacao: {exp: me.rx || null, sente: me.fa || null}, humor: moodHoje()}).catch(()=>{});
     closeRating();
   });
   $('rateSkip').addEventListener('click', closeRating);
