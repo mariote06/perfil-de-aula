@@ -15,7 +15,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="PlayRide">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-maskable-192.png">
 <link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -413,6 +413,23 @@ body.solo-livre #progress{display:none;}
 .fin-ftp b{color:#FFD60A;}
 .chip.warnchip{color:#FF8A8A;border-color:rgba(255,59,59,.4);width:40px;min-height:40px;height:40px;padding:0;justify-content:center;font-size:14px;align-self:center;}
 #liveScreen{position:relative;}
+/* lâmpada: acende com a eletricidade gerada (kJ ÷ 3,6 × 80% de um gerador) */
+.lamp{position:absolute;top:var(--lt,6px);right:var(--lr,8px);z-index:5;display:flex;flex-direction:column;align-items:center;gap:1px;pointer-events:none;--lv:0;}
+.lamp svg{width:var(--lw,40px);height:auto;overflow:visible;filter:drop-shadow(0 0 calc(2px + 26px * var(--lv)) rgba(255,205,70,calc(var(--lv) * .95)));transition:filter .8s ease;}
+.lamp .lg{fill:rgba(255,214,90,calc(.06 + .9 * var(--lv)));stroke:color-mix(in srgb,#FFD86B calc(var(--lv) * 100%),#5B6472);stroke-width:2.2;transition:fill .8s ease;}
+.lamp .lf{fill:none;stroke:color-mix(in srgb,#FFF4C2 calc(var(--lv) * 100%),#8A93A1);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.lamp .lb{fill:#8A93A1;}
+.lamp .lr{stroke:#FFD86B;stroke-width:2.6;stroke-linecap:round;opacity:calc(var(--lv) * 1.4 - .4);}
+.lamp.on .lg{animation:lampFlick 2.4s ease-in-out infinite;}
+@keyframes lampFlick{0%,100%{opacity:1;}50%{opacity:.86;}}
+.lamp .leur{font-size:calc(var(--lfs,15px) * .72);font-weight:700;color:#9FE3B8;white-space:nowrap;line-height:1.1;font-variant-numeric:tabular-nums;}
+.lamp .lwh{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:var(--lfs,15px);line-height:1;color:color-mix(in srgb,#FFE08A calc(var(--lv) * 100%),#AEB6C2);white-space:nowrap;font-variant-numeric:tabular-nums;}
+@media (prefers-reduced-motion:reduce){.lamp.on .lg{animation:none;}}
+.body{position:relative;}
+#myLamp{--lt:14px;--lr:10px;}
+.fin-wh{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:22px;color:#FFE08A;margin:-4px 0 10px;}
+.fin-wh small{display:block;font-family:inherit;font-size:16px;color:rgba(255,255,255,.7);font-weight:600;}
+.fin-wh:empty{display:none;}
 /* cabeçalho escondido durante o treino: abre-se a deslizar para baixo na seta */
 .topbar{transition:transform .32s cubic-bezier(.2,.9,.3,1),opacity .25s ease;}
 #liveScreen.hdr-hide .topbar{position:absolute;top:10px;left:0;right:0;transform:translateY(calc(-100% - 14px));opacity:0;pointer-events:none;
@@ -717,6 +734,7 @@ body.solo-livre #progress{display:none;}
   </div>
   <div class="safety safety-banner" id="safetyBanner" role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17.5v.01"/></svg><div id="safetyBannerTxt">Sentes <b>desconforto, dor no peito, tonturas ou falta de ar</b>? <b>Pára de pedalar</b> e pede ajuda ao professor da aula.</div><button id="safetyClose" aria-label="Fechar aviso">✕</button></div>
   <div class="body" id="bodyEl">
+    <div class="lamp" id="myLamp"><svg viewBox="0 0 64 80" aria-hidden="true"><g class="lrs"><line class="lr" x1="32" y1="-6" x2="32" y2="-14"/><line class="lr" x1="6" y1="6" x2="0" y2="0"/><line class="lr" x1="58" y1="6" x2="64" y2="0"/><line class="lr" x1="-4" y1="28" x2="-12" y2="28"/><line class="lr" x1="68" y1="28" x2="76" y2="28"/></g><path class="lg" d="M32 4a24 24 0 0 1 14 43.5c-2.8 2.1-4.2 4.6-4.2 7.4V57H22.2v-2.1c0-2.8-1.4-5.3-4.2-7.4A24 24 0 0 1 32 4z"/><path class="lf" d="M25 44l3.5-11 3.5 8 3.5-8L39 44"/><rect class="lb" x="22" y="59" width="20" height="5" rx="2"/><rect class="lb" x="23.5" y="66" width="17" height="5" rx="2"/><rect class="lb" x="27" y="73" width="10" height="4" rx="2"/></svg><span class="lwh">0 Wh</span><span class="leur">≈ 0,00 cêntimos</span></div>
     <div class="class-name" id="className"></div>
     <div id="activeBlock" style="width:100%;display:flex;flex-direction:column;align-items:center;">
       <div class="ce-mini" id="ceMini"><svg class="ce-svg" viewBox="0 0 200 130" aria-hidden="true"><g class="ce-g"><path d="M20 58 V96 M20 77 H40"/><path d="M40 52 H58 V40 H134 L148 54 H158 V46 H170 V102 H158 V94 H148 L132 110 H74 L58 96 H40 Z"/><path d="M78 18 H110 M94 18 V40"/></g></svg></div>
@@ -751,6 +769,7 @@ body.solo-livre #progress{display:none;}
       <div class="blockline"><span class="zone" id="finTitle">Aula concluída</span></div>
       <div class="big" id="totalTimeEl">0:00</div>
       <div class="fin-km" id="finKm"></div>
+      <div class="fin-wh" id="finWh"></div>
       <div class="fin-ftp" id="finFtp"></div>
       <div class="me-grid">
         <div><div class="v" id="finKj">0</div><div class="l">kJ</div></div>
@@ -1549,6 +1568,7 @@ body.solo-livre #progress{display:none;}
   function render(){
     updateFtpChip();
     hdrSync();
+    updMyLamp();
     if(!state) return;
     if(solo === 'guiado') soloAdvance();
     if(solo === 'livre') return renderLivre();
@@ -1881,6 +1901,44 @@ body.solo-livre #progress{display:none;}
     }catch(e){}
   }
   // menus do cabeçalho: ᛒ = bike e cinta · ✎ = FTP e FC máxima
+  // ===== eletricidade gerada (equivalente): kJ ÷ 3,6 = Wh; um gerador real aproveita ~80% =====
+  const GEN_EFF = 0.8, PHONE_WH = 15, EUR_KWH = 0.17;   // preço médio do kWh em Portugal (2026)
+  function whFromKj(kj){ return (kj || 0) / 3.6 * GEN_EFF; }
+  function fmtWh(wh){
+    if(wh >= 1000) return (wh / 1000).toFixed(2).replace('.', ',') + ' kWh';
+    if(wh < 10) return wh.toFixed(1).replace('.', ',') + ' Wh';
+    return Math.round(wh) + ' Wh';
+  }
+  function fmtEur(wh){
+    const eur = wh / 1000 * EUR_KWH, c = eur * 100;
+    if(eur >= 1) return eur.toFixed(2).replace('.', ',') + ' €';
+    if(c >= 10) return Math.round(c) + ' cêntimos';
+    if(c >= 1) return c.toFixed(1).replace('.', ',') + ' cêntimos';
+    return c.toFixed(2).replace('.', ',') + ' cêntimos';
+  }
+  function phonesTxt(wh){
+    const n = wh / PHONE_WH;
+    if(n >= 1.5) return '≈ ' + Math.round(n) + ' cargas de telemóvel';
+    if(n >= 0.95) return '≈ 1 carga de telemóvel';
+    return '≈ ' + Math.max(1, Math.round(n * 100)) + '% de uma carga de telemóvel';
+  }
+  function setLamp(el, wh, goal, active){
+    if(!el) return;
+    const lv = Math.max(wh > 0.05 ? 0.06 : 0, Math.min(1, Math.sqrt(wh / goal)));
+    el.style.setProperty('--lv', lv.toFixed(3));
+    el.classList.toggle('on', !!active && lv > 0);
+    const t = el.querySelector('.lwh'), s = fmtWh(wh);
+    if(t && t.textContent !== s) t.textContent = s;
+    const e = el.querySelector('.leur'), es = '≈ ' + fmtEur(wh).replace('cêntimos', 'cênt.');
+    if(e && e.textContent !== es) e.textContent = es;
+    el.title = s + ' de eletricidade (' + phonesTxt(wh) + ' · ' + es + ')';
+  }
+  function updMyLamp(){
+    const wh = whFromKj(me.kj);
+    setLamp($('myLamp'), wh, 100, !!state && state.status === 'playing' && dispPower > 0);
+    const f = $('finWh');
+    if(f){ const h = wh >= 0.05 ? '⚡ ' + fmtWh(wh) + ' de eletricidade<small>' + phonesTxt(wh) + ' · vale ≈ ' + fmtEur(wh) + '</small>' : ''; if(f.innerHTML !== h) f.innerHTML = h; }
+  }
   // ===== cabeçalho escondido durante o treino =====
   let hdrTimer = 0;
   function hdrSync(){
