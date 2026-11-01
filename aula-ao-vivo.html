@@ -324,22 +324,50 @@ body:has(#liveScreen.active) .legal{display:none;}
 .home-hello{margin:2px 0 6px;min-height:18px;text-align:center;line-height:1.05;}
 .home-hello .hh-g{display:block;color:var(--muted);font-size:19px;font-weight:600;}
 .home-hello .hh-n{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(34px,10vw,44px);color:#fff;letter-spacing:.3px;margin-top:2px;}
+/* ===== menu inicial ===== */
+.home{padding-top:max(22px, env(safe-area-inset-top, 0px)) !important;}
+.home .pr-logo{font-size:36px !important;}
+.home .pr-logo .pr-mark{height:36px;}
+.home .home-hello{margin:4px 0 0;}
+.home .home-hello .hh-g{font-size:18px;}
+.home .home-hello .hh-n{font-size:clamp(32px,10vw,44px);}
+.home-msg{max-width:360px;margin:10px auto 18px;text-align:center;font-size:17px;line-height:1.45;color:rgba(255,255,255,.86);font-weight:500;min-height:2.9em;}
+.home .home-grid{gap:10px;}
+.home .tile:not(.go){min-height:0;padding:13px 13px 14px;gap:6px 9px;border-radius:15px;display:grid;grid-template-columns:auto 1fr;align-items:center;align-content:start;}
+.home .tile:not(.go) span{grid-column:1 / -1;}
+.home .tile:not(.go) svg{width:24px;height:24px;}
+.home .tile:not(.go) b{font-size:20px;}
+.home .tile:not(.go) span{font-size:12px;line-height:1.3;}
 /* cartão "como te sentes hoje?" */
-.mood{width:100%;max-width:420px;margin-top:16px;background:linear-gradient(160deg,rgba(163,92,255,.16),var(--surface) 60%);border:1px solid var(--border);border-radius:18px;padding:16px 16px 14px;text-align:left;}
-.mood-q{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:600;font-size:21px;line-height:1.2;color:#fff;margin:0;}
-.mood-q::before{content:'“';color:#A35CFF;font-size:1.3em;margin-right:2px;}
-.mood-q::after{content:'”';color:#A35CFF;font-size:1.3em;margin-left:2px;}
-.mood-h{font-weight:800;font-size:16px;color:#fff;margin:14px 0 8px;}
+.mood{width:100%;max-width:420px;margin-top:14px;background:linear-gradient(160deg,rgba(163,92,255,.16),var(--surface) 60%);border:1px solid var(--border);border-radius:18px;padding:14px 14px 14px;text-align:left;}
+.mood-h{font-weight:800;font-size:17px;color:#fff;margin:0 0 10px;}
 .mood-opts{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
 .mood-opts button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px 7px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-size:clamp(9.5px,2.9vw,11px);white-space:nowrap;letter-spacing:-.1px;font-weight:600;transition:transform .15s ease,background .2s ease,border-color .2s ease;}
-.mood-opts button i{font-style:normal;font-size:28px;line-height:1;}
+.mood-opts button i{font-style:normal;font-size:27px;line-height:1;}
 .mood-opts button:active{transform:scale(.94);}
 .mood-opts button.on{border-color:var(--mc,#A35CFF);background:color-mix(in srgb,var(--mc,#A35CFF) 22%,transparent);color:#fff;}
-.mood-r{margin-top:12px;font-size:14.5px;line-height:1.45;color:rgba(255,255,255,.88);animation:moodIn .35s ease-out;}
+.mood-r{margin-top:11px;font-size:14.5px;line-height:1.45;color:rgba(255,255,255,.9);animation:moodIn .35s ease-out;}
 .mood-r:empty{display:none;}
 .mood-r b{color:#fff;}
-.mood-r .mood-go{display:inline-block;margin-top:9px;padding:8px 14px;border-radius:999px;border:1px solid var(--mc,#A35CFF);color:#fff;background:color-mix(in srgb,var(--mc,#A35CFF) 25%,transparent);font-weight:700;font-size:14px;}
 @keyframes moodIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.bora-btn{display:inline-block;margin-top:13px;padding:10px 18px;border-radius:999px;border:1.5px solid var(--mc,#A35CFF);background:color-mix(in srgb,var(--mc,#A35CFF) 25%,transparent);color:#fff;font-weight:800;font-size:16px;}
+.bora-btn:active{transform:scale(.97);}
+/* folha "Como queres pedalar hoje?" */
+.go-sheet{position:fixed;inset:0;z-index:120;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s ease;}
+.go-sheet.on{opacity:1;pointer-events:auto;}
+.go-panel{width:100%;max-width:480px;background:#10141B;border:1px solid #2A3240;border-bottom:none;border-radius:22px 22px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom, 0px));transform:translateY(100%);transition:transform .32s cubic-bezier(.2,.9,.3,1);}
+.go-sheet.on .go-panel{transform:none;}
+.go-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.go-head b{font-family:'Barlow Condensed',sans-serif;font-size:25px;font-weight:800;color:#fff;}
+.go-x{width:38px;height:38px;border-radius:50%;border:1px solid var(--border);background:transparent;color:#fff;font-size:16px;}
+.go-list{display:flex;flex-direction:column;gap:10px;}
+.tile.go{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:14px;row-gap:2px;align-items:center;min-height:0;padding:15px 16px;width:100%;}
+.tile.go svg{grid-row:1 / 3;width:34px;height:34px;color:var(--tc);}
+.tile.go b{font-size:24px;}
+.tile.go span{font-size:13px;}
+.tile.go.sug{border-color:var(--tc);background:linear-gradient(120deg,color-mix(in srgb,var(--tc) 22%,transparent),var(--surface) 70%);}
+.tile.go.sug b::after{content:'sugerido para hoje';margin-left:8px;font-family:system-ui,sans-serif;font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;padding:3px 7px;border-radius:999px;background:var(--tc);color:#0A0D12;vertical-align:middle;}
+@media (prefers-reduced-motion:reduce){.go-panel,.go-sheet{transition:none;}}
 .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:420px;}
 .tile{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 14px;color:#fff;min-height:128px;position:relative;overflow:hidden;}
 .tile svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
@@ -497,16 +525,13 @@ body.solo-livre #progress{display:none;}
 <div id="homeScreen" class="screen home active">
   <h1 class="pr-logo" style="font-size:42px" aria-label="PlayRide"><svg class="pr-mark" height="42" viewBox="0 0 200 130" aria-hidden="true"><g transform="skewX(-14)"><rect x="34" y="96" width="22" height="34" rx="4" fill="#A35CFF"/><rect x="62" y="78" width="22" height="52" rx="4" fill="#1FA8F0"/><rect x="90" y="58" width="22" height="72" rx="4" fill="#3DD45C"/><rect x="118" y="38" width="22" height="92" rx="4" fill="#FFD60A"/><rect x="146" y="16" width="22" height="114" rx="4" fill="#FF8A1F"/><rect x="174" y="0" width="22" height="130" rx="4" fill="#FF3B3B"/></g></svg><span>PlayRide</span></h1>
   <div class="home-hello" id="homeHello"></div>
+  <p class="home-msg" id="moodPhrase"></p>
   <button class="ficha-upd" id="fichaUpd" style="display:none"><b>📋 Atualiza a tua ficha</b><span>Acrescentámos o campo <b>Sexo</b>. Toca aqui para o indicar (30 segundos).</span></button>
   <div class="home-grid">
-    <button class="tile big" id="tLive" style="--tc:#E8722C"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z" fill="currentColor" stroke="none"/></svg><div><b>Aula ao vivo</b><br><span>Entra na aula da sala com o PIN do ecrã</span></div></button>
-    <button class="tile" id="tFree" style="--tc:#3DD45C"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9h6l3.5 7.5M9 9 12 16.5h-3M14 6h2.5l-1.5 3"/></svg><b>Só pedalar</b><span>Treino livre ao teu ritmo</span></button>
-    <button class="tile" id="tLib" style="--tc:#1FA8F0"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5v14H4zM10 5h4v14h-4zM15.5 6.2l3.8-1 3 13.6-3.8 1z"/></svg><b>Biblioteca</b><span>Treinos guiados para fazeres sozinho</span></button>
     <button class="tile" id="tHist" style="--tc:#A35CFF"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg><b>Treinos realizados</b><span id="tHistSub">Gráficos e evolução dos teus treinos</span></button>
     <button class="tile" id="tFicha" style="--tc:#FFD60A"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11h6M9 15h6"/></svg><b>A minha ficha</b><span id="tFichaSub">Idade, FCmáx e saúde para treinares em segurança</span></button>
   </div>
   <div class="mood" id="moodCard">
-    <p class="mood-q" id="moodPhrase"></p>
     <div class="mood-h">Como te sentes hoje?</div>
     <div class="mood-opts" id="moodOpts">
       <button type="button" data-m="1" style="--mc:#FF5A5A"><i>😫</i>Exausto</button>
@@ -516,6 +541,18 @@ body.solo-livre #progress{display:none;}
       <button type="button" data-m="5" style="--mc:#1FA8F0"><i>🤩</i>Em grande</button>
     </div>
     <div class="mood-r" id="moodResp" aria-live="polite"></div>
+    <button type="button" class="bora-btn" id="boraBtn">Bora pedalar →</button>
+  </div>
+  <!-- escolha do treino: abre com "Bora pedalar" -->
+  <div class="go-sheet" id="goSheet" aria-hidden="true">
+    <div class="go-panel" role="dialog" aria-modal="true" aria-labelledby="goTitle">
+      <div class="go-head"><b id="goTitle">Como queres pedalar hoje?</b><button type="button" class="go-x" id="goClose" aria-label="Fechar">✕</button></div>
+      <div class="go-list">
+    <button class="tile go" id="tLive" style="--tc:#E8722C"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z" fill="currentColor" stroke="none"/></svg><b>Aula ao vivo</b><span>Entra na aula da sala com o PIN do ecrã</span></button>
+    <button class="tile go" id="tFree" style="--tc:#3DD45C"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9h6l3.5 7.5M9 9 12 16.5h-3M14 6h2.5l-1.5 3"/></svg><b>Só pedalar</b><span>Treino livre ao teu ritmo</span></button>
+    <button class="tile go" id="tLib" style="--tc:#1FA8F0"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5v14H4zM10 5h4v14h-4zM15.5 6.2l3.8-1 3 13.6-3.8 1z"/></svg><b>Biblioteca</b><span>Treinos guiados para fazeres sozinho</span></button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -2628,7 +2665,7 @@ body.solo-livre #progress{display:none;}
           'Começar o dia com treino é meio caminho andado.',
           'Sem pressas: cumpre o plano e sai daqui com energia para o dia.'],
       4: ['Começar o dia assim é meio caminho andado. Bom treino!',
-          'Boa disposição logo de manhã? Aproveita e segue as zonas à risca.',
+          'Boa disposição logo de manhã? Aproveita e dá o teu melhor.',
           'Hoje acordaste do lado certo da bike. Bora!',
           'Esse bom humor vai contigo o dia inteiro. Bom treino!'],
       5: ['Que manhã! Leva essa energia para os blocos fortes.',
@@ -2650,7 +2687,7 @@ body.solo-livre #progress{display:none;}
           'Aquece bem, que o corpo está há horas parado.',
           'Um treino agora e o resto do dia corre melhor.'],
       4: ['Aproveita esta energia da tarde: dá tudo nos blocos fortes.',
-          'Boa! Hoje é dia de tirar partido das zonas.',
+          'Boa! Hoje é dia de te desafiares um bocadinho.',
           'Estás bem? Então desafia-te um bocadinho mais do que o costume.',
           'Esse bom humor da tarde vai fazer-te voar nos sprints.'],
       5: ['Tarde em grande! Hoje os blocos fortes são teus.',
@@ -2682,11 +2719,11 @@ body.solo-livre #progress{display:none;}
     }
   };
   var MOODS = {
-    1: { t:'Obrigado por seres sincero. Nos dias de cansaço, o melhor treino é <b>leve</b>: pedala em Z1–Z2, sem pressão, e sai a sentir-te melhor do que entraste. Se tiveres dor no peito, tonturas ou falta de ar, hoje não treines.', go:'tFree', gl:'Pedalar com calma' },
-    2: { t:'Há dias assim, e está tudo bem. Um treino suave costuma ajudar a cabeça tanto como as pernas, e <b>não tens de provar nada a ninguém</b>.', go:'tLib', gl:'Ver treinos leves' },
-    3: { t:'Um dia normal é um ótimo dia para treinar. <b>Aparece, cumpre o plano</b> e deixa o corpo aquecer: a energia vem com as primeiras pedaladas.', go:'tLive', gl:'Entrar na aula' },
-    4: { t:'Boa! Estás num bom dia: <b>aproveita</b> para seguir as zonas à risca e acabar a sentir que deste o teu melhor.', go:'tLive', gl:'Entrar na aula' },
-    5: { t:'Que energia! 🔥 Hoje é dia de <b>atacar os blocos fortes</b>.', go:'tLive', gl:'Bora para a aula' }
+    1: { t:'Obrigado pela sinceridade. Hoje o melhor treino é <b>leve</b> e sem pressão. Com dor no peito, tonturas ou falta de ar, não treines.', go:'tFree', gl:'Pedala com calma' },
+    2: { t:'Há dias assim, e está tudo bem. <b>Não tens de provar nada a ninguém.</b>', go:'tLib', gl:'Pedala leve' },
+    3: { t:'Um dia normal é um ótimo dia para treinar: <b>a energia vem com as primeiras pedaladas.</b>', go:'tLive', gl:'Entra no treino' },
+    4: { t:'Boa! <b>Aproveita</b> esse bom momento.', go:'tLive', gl:'Entra no treino' },
+    5: { t:'Que energia! 🔥 Hoje é dia de <b>atacar os blocos fortes</b>.', go:'tLive', gl:'Bora para o treino' }
   };
   function hojeKey(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
   function renderMood(){
@@ -2697,20 +2734,32 @@ body.solo-livre #progress{display:none;}
     let m = null; try{ const v = JSON.parse(localStorage.getItem('prMood') || 'null'); if(v && v.d === hojeKey()) m = v.m; }catch(e){}
     document.querySelectorAll('#moodOpts button').forEach(b=> b.classList.toggle('on', +b.dataset.m === m));
     const r = $('moodResp');
-    if(!m){ r.innerHTML = ''; r.style.removeProperty('--mc'); return; }
+    $('moodCard').classList.toggle('done', !!m);
+    const bb = $('boraBtn');
+    if(!m){ r.innerHTML = ''; r.style.removeProperty('--mc'); bb.style.removeProperty('--mc'); bb.textContent = 'Bora pedalar →'; return; }
     const mo = MOODS[m], btn = document.querySelector('#moodOpts button[data-m="' + m + '"]');
-    r.style.setProperty('--mc', btn ? btn.style.getPropertyValue('--mc') : '#A35CFF');
+    const mc = btn ? btn.style.getPropertyValue('--mc') : '#A35CFF';
+    r.style.setProperty('--mc', mc); bb.style.setProperty('--mc', mc); bb.textContent = mo.gl + ' →';
     const fims = MOOD_FIM[mom][m];
-    r.innerHTML = mo.t + ' ' + fims[(dia + m) % fims.length] + '<br><button type="button" class="mood-go" data-go="' + mo.go + '">' + mo.gl + ' →</button>';
+    r.innerHTML = mo.t + ' ' + fims[(dia + m) % fims.length];
   }
   $('moodOpts').addEventListener('click', e=>{
     const b = e.target.closest('button'); if(!b) return;
     try{ localStorage.setItem('prMood', JSON.stringify({d: hojeKey(), m: +b.dataset.m})); }catch(err){}
     renderMood();
   });
-  $('moodResp').addEventListener('click', e=>{
-    const b = e.target.closest('.mood-go'); if(b && $(b.dataset.go)) $(b.dataset.go).click();
-  });
+  // "Bora pedalar": abre a escolha Aula ao vivo / Só pedalar / Biblioteca (com a sugestão do dia em destaque)
+  function openGo(){
+    let m = null; try{ const v = JSON.parse(localStorage.getItem('prMood') || 'null'); if(v && v.d === hojeKey()) m = v.m; }catch(e){}
+    const sug = m && MOODS[m] ? MOODS[m].go : null;
+    ['tLive','tFree','tLib'].forEach(k=> $(k).classList.toggle('sug', k === sug));
+    $('goSheet').classList.add('on'); $('goSheet').setAttribute('aria-hidden', 'false');
+  }
+  function closeGo(){ $('goSheet').classList.remove('on'); $('goSheet').setAttribute('aria-hidden', 'true'); }
+  $('boraBtn').addEventListener('click', openGo);
+  $('goClose').addEventListener('click', closeGo);
+  $('goSheet').addEventListener('click', e=>{ if(e.target === $('goSheet') || e.target.closest('.tile.go')) closeGo(); });
+  document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeGo(); });
   renderMood();
   // a app pode ficar aberta horas: ao voltar a ela, a saudação e a frase acertam-se com a hora
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && currentScreen === 'homeScreen') renderHome(); });
