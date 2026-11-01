@@ -574,6 +574,7 @@ html.live-on,html.live-on body{overflow:hidden !important;}
 .rtile.inzone{border-color:var(--zc);}
 .rtile.offline{opacity:.35;filter:grayscale(1);}
 .rt-top{display:flex;gap:8px;align-items:center;font-weight:600;overflow:hidden;}
+.rmood{flex-shrink:0;font-size:1.15em;line-height:1;margin-left:4px;}
 .rt-pos{font-family:'Barlow Condensed',sans-serif;font-weight:700;background:rgba(255,255,255,.12);border-radius:6px;padding:0 7px;flex-shrink:0;}
 .rt-name{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .rt-bg{margin-left:auto;flex-shrink:0;font-size:.78em;font-weight:700;color:#fff;background:#C8102E;border-radius:6px;padding:1px 7px;font-family:'Inter',sans-serif;}
@@ -2686,6 +2687,9 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     return mode;
   }
 
+  // emoji que o aluno escolheu em "Como te sentes hoje?" na app
+  const MOOD_EMO = {1:['😫','exausto'], 2:['😕','em baixo'], 3:['😐','normal'], 4:['🙂','bem'], 5:['🤩','em grande']};
+  function moodEm(r){ const m = MOOD_EMO[r && r.md]; return m ? '<span class="rmood" title="Hoje sente-se ' + m[1] + '">' + m[0] + '</span>' : ''; }
   function renderRiders(){
     if(!$('liveOverlay').classList.contains('active')) return;
     const mode = applyMode();
@@ -2733,7 +2737,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
         const inZone = r.online && pct!=null && targetZone === z.name && (fcMode ? r.hr > 0 : (r.w||0) > 0);
         const bigFc = fcMode && !(r.w > 0);
         return '<div class="rtile' + (r.online ? '' : ' offline') + (inZone ? ' inzone' : '') + '" style="--zc:' + zc + ';--zc-a:' + zc + '55">' +
-          '<div class="rt-top"><span class="rt-pos">' + (i+1) + '</span><span class="rt-name">' + escapeHtml(r.n||'?') + '</span>' + (outApp(r) ? '<span class="rt-bg">📵 fora da app</span>' : '') + '</div>' +
+          '<div class="rt-top"><span class="rt-pos">' + (i+1) + '</span><span class="rt-name">' + escapeHtml(r.n||'?') + '</span>' + moodEm(r) + (outApp(r) ? '<span class="rt-bg">📵 fora da app</span>' : '') + '</div>' +
           '<div class="rt-w">' + (r.online ? Math.round(bigFc ? (r.hr||0) : (r.w||0)) : '—') + '<small>' + (bigFc ? 'bpm' : 'W') + '</small></div>' +
           '<div class="rt-sub">' +
             (pct==null ? '' : '<span class="pct">' + pct + '%' + (fcMode ? ' FC' : '') + '</span>') +
@@ -2758,7 +2762,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
         const w = (metricVal(r)/max*100).toFixed(1);
         return '<div class="lane p' + (i+1) + (r.online ? '' : ' offline') + '">' +
           '<div class="ln-pos">' + (i+1) + '</div>' +
-          '<div class="ln-name">' + (outApp(r) ? '📵 ' : '') + escapeHtml(r.n||'?') + '</div>' +
+          '<div class="ln-name">' + (outApp(r) ? '📵 ' : '') + escapeHtml(r.n||'?') + moodEm(r) + '</div>' +
           '<div class="ln-track"><div class="ln-bar" style="width:' + w + '%;background:' + zc + '"></div></div>' +
           '<div class="ln-val">' + metricFmt(metricVal(r)) + '</div></div>';
       }).join('');

@@ -1476,6 +1476,7 @@ body.solo-livre #progress{display:none;}
       aw: me.as ? Math.round(me.sumW / me.as) : 0, mw: Math.round(me.mw),
       iz: Math.round(me.iz), as: Math.round(modo === 'fc' ? me.ts : me.as),
       dev: hasPowerSource() || (modo === 'fc' && myHr() > 0), demo: demo || null, left: null,
+      md: moodHoje(),   // emoji do "como te sentes hoje?" (aparece junto ao nome na projeção)
       t: firebase.database.ServerValue.TIMESTAMP
     }).catch(()=>{});
   }
@@ -2744,6 +2745,7 @@ body.solo-livre #progress{display:none;}
     4: { t:'Boa! <b>Aproveita</b> esse bom momento.', go:'tLive', gl:'Entra no treino' },
     5: { t:'Que energia! 🔥 Hoje é dia de <b>atacar os blocos fortes</b>.', go:'tLive', gl:'Bora para o treino' }
   };
+  function moodHoje(){ try{ const v = JSON.parse(localStorage.getItem('prMood') || 'null'); return (v && v.d === hojeKey() && v.m >= 1 && v.m <= 5) ? v.m : null; }catch(e){ return null; } }
   function hojeKey(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
   function renderMood(){
     const d = new Date(), dia = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5);
