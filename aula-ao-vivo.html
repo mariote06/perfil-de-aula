@@ -320,8 +320,26 @@ body:has(#liveScreen.active) .legal{display:none;}
 .pr-logo .pr-sub{font-style:normal;font-weight:600;font-size:.42em;letter-spacing:3px;color:#E8722C;margin-left:.1em;padding-bottom:.12em;}
 
 /* ---------- Menu inicial ---------- */
-.home{justify-content:flex-start;padding-top:max(36px, env(safe-area-inset-top, 0px));}
-.home-hello{color:var(--muted);font-size:14px;margin:-6px 0 4px;min-height:18px;}
+.home{justify-content:flex-start;padding-top:max(36px, env(safe-area-inset-top, 0px));padding-bottom:calc(36px + env(safe-area-inset-bottom, 0px));}
+.home-hello{margin:2px 0 6px;min-height:18px;text-align:center;line-height:1.05;}
+.home-hello .hh-g{display:block;color:var(--muted);font-size:19px;font-weight:600;}
+.home-hello .hh-n{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(34px,10vw,44px);color:#fff;letter-spacing:.3px;margin-top:2px;}
+/* cartão "como te sentes hoje?" */
+.mood{width:100%;max-width:420px;margin-top:16px;background:linear-gradient(160deg,rgba(163,92,255,.16),var(--surface) 60%);border:1px solid var(--border);border-radius:18px;padding:16px 16px 14px;text-align:left;}
+.mood-q{font-family:'Barlow Condensed',sans-serif;font-style:italic;font-weight:600;font-size:21px;line-height:1.2;color:#fff;margin:0;}
+.mood-q::before{content:'“';color:#A35CFF;font-size:1.3em;margin-right:2px;}
+.mood-q::after{content:'”';color:#A35CFF;font-size:1.3em;margin-left:2px;}
+.mood-h{font-weight:800;font-size:16px;color:#fff;margin:14px 0 8px;}
+.mood-opts{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;}
+.mood-opts button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 2px 7px;border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:var(--muted);font-size:clamp(9.5px,2.9vw,11px);white-space:nowrap;letter-spacing:-.1px;font-weight:600;transition:transform .15s ease,background .2s ease,border-color .2s ease;}
+.mood-opts button i{font-style:normal;font-size:28px;line-height:1;}
+.mood-opts button:active{transform:scale(.94);}
+.mood-opts button.on{border-color:var(--mc,#A35CFF);background:color-mix(in srgb,var(--mc,#A35CFF) 22%,transparent);color:#fff;}
+.mood-r{margin-top:12px;font-size:14.5px;line-height:1.45;color:rgba(255,255,255,.88);animation:moodIn .35s ease-out;}
+.mood-r:empty{display:none;}
+.mood-r b{color:#fff;}
+.mood-r .mood-go{display:inline-block;margin-top:9px;padding:8px 14px;border-radius:999px;border:1px solid var(--mc,#A35CFF);color:#fff;background:color-mix(in srgb,var(--mc,#A35CFF) 25%,transparent);font-weight:700;font-size:14px;}
+@keyframes moodIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 .home-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;max-width:420px;}
 .tile{display:flex;flex-direction:column;align-items:flex-start;gap:10px;text-align:left;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 14px;color:#fff;min-height:128px;position:relative;overflow:hidden;}
 .tile svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
@@ -486,6 +504,18 @@ body.solo-livre #progress{display:none;}
     <button class="tile" id="tLib" style="--tc:#1FA8F0"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5v14H4zM10 5h4v14h-4zM15.5 6.2l3.8-1 3 13.6-3.8 1z"/></svg><b>Biblioteca</b><span>Treinos guiados para fazeres sozinho</span></button>
     <button class="tile" id="tHist" style="--tc:#A35CFF"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg><b>Treinos realizados</b><span id="tHistSub">Gráficos e evolução dos teus treinos</span></button>
     <button class="tile" id="tFicha" style="--tc:#FFD60A"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11h6M9 15h6"/></svg><b>A minha ficha</b><span id="tFichaSub">Idade, FCmáx e saúde para treinares em segurança</span></button>
+  </div>
+  <div class="mood" id="moodCard">
+    <p class="mood-q" id="moodPhrase"></p>
+    <div class="mood-h">Como te sentes hoje?</div>
+    <div class="mood-opts" id="moodOpts">
+      <button type="button" data-m="1" style="--mc:#FF5A5A"><i>😫</i>Exausto</button>
+      <button type="button" data-m="2" style="--mc:#FF9F43"><i>😕</i>Em baixo</button>
+      <button type="button" data-m="3" style="--mc:#FFD60A"><i>😐</i>Normal</button>
+      <button type="button" data-m="4" style="--mc:#3DD45C"><i>🙂</i>Bem</button>
+      <button type="button" data-m="5" style="--mc:#1FA8F0"><i>🤩</i>Em grande</button>
+    </div>
+    <div class="mood-r" id="moodResp" aria-live="polite"></div>
   </div>
 </div>
 
@@ -2523,7 +2553,10 @@ body.solo-livre #progress{display:none;}
 
   function renderHome(){
     const nome = (perfil && perfil.nome) || '';
-    $('homeHello').textContent = user ? 'Olá' + (nome ? ', ' + nome : '') + ' 👋' : '';
+    const hr = new Date().getHours(), sauda = hr < 6 ? 'Boa noite' : hr < 12 ? 'Bom dia' : hr < 20 ? 'Boa tarde' : 'Boa noite';   // 6h–12h dia · 12h–20h tarde · 20h–6h noite
+    const pn = nome ? nome.trim().split(/\s+/)[0] : '';
+    $('homeHello').innerHTML = '<span class="hh-g">' + sauda + ' 👋</span>' + (pn ? '<span class="hh-n">' + escapeHtml(pn) + '</span>' : '');
+    renderMood();
     $('tHistSub').textContent = user ? 'Gráficos e evolução dos teus treinos' : 'Entra na tua conta para guardares os treinos';
     if(typeof ficha !== 'undefined'){
       const fc = fichaFcMax(ficha), id = ficha ? idadeDe(ficha.nasc) : null;
@@ -2532,6 +2565,156 @@ body.solo-livre #progress{display:none;}
     }
   }
 
+  // ===== frase do dia + "como te sentes hoje?" (fica só neste telemóvel) =====
+  // frases por momento do dia (manhã 6–12h · tarde 12–20h · noite 20–6h); muda todos os dias
+  var FRASES = {
+    manha: [
+      'Um bom dia começa com uma boa pedalada.',
+      'O dia ainda agora começou e tu já estás a cuidar de ti.',
+      'Treinar de manhã é ganhar o dia antes de ele começar.',
+      'Acorda o corpo e a cabeça acompanha.',
+      'Café, água e pedais: o pequeno-almoço dos campeões.',
+      'Hoje é uma página em branco. Escreve-a com energia.',
+      'Quem pedala de manhã chega a tudo com mais força.',
+      'O sol nasce para todos. Tu nasces para mais um treino.',
+      'Começa devagar, aquece bem: o dia é longo e é teu.',
+      'Primeira vitória do dia: estares aqui.',
+      'Manhã bem começada, dia meio ganho.',
+      'Hoje tens uma oportunidade nova de seres melhor do que ontem.'
+    ],
+    tarde: [
+      'Meio do dia, energia inteira.',
+      'A tarde é ótima para descarregar o stress nos pedais.',
+      'Pausa no trabalho, play no treino.',
+      'O dia já vai a meio. A tua força ainda vai no início.',
+      'Uma tarde a pedalar vale mais do que uma tarde a adiar.',
+      'Deixa o cansaço do dia na bike e leva só a boa disposição.',
+      'Cada pedalada da tarde é uma recarga para o resto do dia.',
+      'O treino mais difícil é o que não fazes.',
+      'Consistência vence intensidade. Todos os dias, a qualquer hora.',
+      'A subida custa, mas a vista lá de cima vale a pena.',
+      'És mais forte do que a desculpa desta tarde.',
+      'Celebra o progresso, não a perfeição.'
+    ],
+    noite: [
+      'Acabar o dia a pedalar é acabar o dia por cima.',
+      'O dia foi longo? Deixa-o ficar na bike.',
+      'Treino ao fim do dia: o melhor calmante natural.',
+      'Hoje fizeste muito. Agora é tempo para ti.',
+      'Quem treina à noite dorme melhor e acorda mais forte.',
+      'Fecha o dia com chave de ouro: suor e sorriso.',
+      'Ninguém se arrepende de um treino feito, sobretudo ao fim do dia.',
+      'O cansaço passa. O orgulho fica.',
+      'Pedala para soltar o dia e descansar como mereces.',
+      'Descansar faz parte do treino. Não é desistir.',
+      'Mais um dia, mais um passo. Amanhã há mais.',
+      'Vieste, mesmo depois de um dia cheio. Isso diz muito de ti.'
+    ]
+  };
+  function momentoDia(){ const h = new Date().getHours(); return h < 6 ? 'noite' : h < 12 ? 'manha' : h < 20 ? 'tarde' : 'noite'; }
+  // final da mensagem "como te sentes": varia com a hora do dia e com a resposta (muda todos os dias)
+  var MOOD_FIM = {
+    manha: {
+      1: ['De manhã o corpo demora a acordar: aquece devagar e a cabeça acompanha.',
+          'Se a noite foi curta, hoje não há recordes: pedala só para despertar.',
+          'Um pequeno-almoço, água e um treino leve podem mudar o resto do teu dia.',
+          'Às vezes o melhor treino da manhã é o mais calmo. E está tudo certo.'],
+      2: ['Começa devagar: daqui a dez minutos já te vais sentir diferente.',
+          'Manhãs difíceis também acabam. Dá-lhe uma pedalada e vê como fica.',
+          'Não precisas de estar motivado para começar. A motivação chega a pedalar.',
+          'Respira fundo, aquece com calma e deixa o dia ganhar cor.'],
+      3: ['Uma manhã normal é a melhor base para um bom dia. Bom treino!',
+          'Aquece bem nos primeiros minutos e o corpo responde.',
+          'Começar o dia com treino é meio caminho andado.',
+          'Sem pressas: cumpre o plano e sai daqui com energia para o dia.'],
+      4: ['Começar o dia assim é meio caminho andado. Bom treino!',
+          'Boa disposição logo de manhã? Aproveita e segue as zonas à risca.',
+          'Hoje acordaste do lado certo da bike. Bora!',
+          'Esse bom humor vai contigo o dia inteiro. Bom treino!'],
+      5: ['Que manhã! Leva essa energia para os blocos fortes.',
+          'Com esse ânimo, hoje o dia é teu. Só não saltes o aquecimento!',
+          'Manhã em grande, treino em grande. Bebe água e dá tudo.',
+          'Estás a brilhar mais do que o sol. Aproveita cada bloco!']
+    },
+    tarde: {
+      1: ['Uma pedalada leve a meio do dia pode ser o empurrão de que precisas.',
+          'Se o dia já pesa, hoje o importante é mexer, não é sofrer.',
+          'Come qualquer coisa e bebe água antes: o cansaço da tarde também é fome.',
+          'Hoje conta mais teres vindo do que a intensidade. Vai com calma.'],
+      2: ['Às vezes a tarde pede só uma pausa. Pedala para limpar a cabeça.',
+          'Deixa os problemas do dia na porta da sala: aqui é só tu e a bike.',
+          'Uma tarde menos boa melhora quase sempre com movimento.',
+          'Treina ao teu ritmo: hoje o objetivo é saíres melhor do que entraste.'],
+      3: ['Tarde normal, treino certo: cumpre o plano e sai a sentir-te bem.',
+          'O meio do dia é ótimo para recarregar baterias. Bom treino!',
+          'Aquece bem, que o corpo está há horas parado.',
+          'Um treino agora e o resto do dia corre melhor.'],
+      4: ['Aproveita esta energia da tarde: dá tudo nos blocos fortes.',
+          'Boa! Hoje é dia de tirar partido das zonas.',
+          'Estás bem? Então desafia-te um bocadinho mais do que o costume.',
+          'Esse bom humor da tarde vai fazer-te voar nos sprints.'],
+      5: ['Tarde em grande! Hoje os blocos fortes são teus.',
+          'Com esta energia, puxa pela turma: o teu ânimo é contagiante.',
+          'Que pica! Só não te esqueças de beber água entre blocos.',
+          'Dia perfeito para bateres o teu recorde. Bora!']
+    },
+    noite: {
+      1: ['Ao fim do dia, ouve o corpo: um treino curto e leve, e depois descansa bem.',
+          'Depois de um dia cheio, hoje basta mexer as pernas sem pressão.',
+          'Se estás mesmo exausto, descansar hoje também é treinar para amanhã.',
+          'Pedala devagar, solta o dia e deita-te cedo.'],
+      2: ['Às vezes o dia pesa. Uma pedalada calma ajuda a desligar.',
+          'Fecha o dia com algo que é só para ti: este treino.',
+          'Não tens de dar tudo hoje. Basta estares aqui.',
+          'Respira, pedala e deixa o dia ficar para trás.'],
+      3: ['Um treino ao fim do dia e o sono agradece. Bom treino!',
+          'Fim do dia, treino feito: o melhor fecho possível.',
+          'Cumpre o plano e depois descansa: amanhã vais sentir a diferença.',
+          'Pedala tranquilo e sai daqui pronto para uma boa noite.'],
+      4: ['Fecha o dia em grande e, depois, dorme bem para recuperar.',
+          'Que bom acabar o dia bem disposto! Aproveita os blocos.',
+          'Estás bem ao fim do dia? Isso merece um treino a sério.',
+          'Termina o dia por cima: dá o teu melhor e depois descansa.'],
+      5: ['Que energia para esta hora! Dá tudo e depois relaxa.',
+          'Noite em grande! Os blocos fortes estão à tua espera.',
+          'Com essa pica, hoje és tu quem dá o ritmo à turma.',
+          'Aproveita cada pedalada e, no fim, um bom duche e cama!']
+    }
+  };
+  var MOODS = {
+    1: { t:'Obrigado por seres sincero. Nos dias de cansaço, o melhor treino é <b>leve</b>: pedala em Z1–Z2, sem pressão, e sai a sentir-te melhor do que entraste. Se tiveres dor no peito, tonturas ou falta de ar, hoje não treines.', go:'tFree', gl:'Pedalar com calma' },
+    2: { t:'Há dias assim, e está tudo bem. Um treino suave costuma ajudar a cabeça tanto como as pernas, e <b>não tens de provar nada a ninguém</b>.', go:'tLib', gl:'Ver treinos leves' },
+    3: { t:'Um dia normal é um ótimo dia para treinar. <b>Aparece, cumpre o plano</b> e deixa o corpo aquecer: a energia vem com as primeiras pedaladas.', go:'tLive', gl:'Entrar na aula' },
+    4: { t:'Boa! Estás num bom dia: <b>aproveita</b> para seguir as zonas à risca e acabar a sentir que deste o teu melhor.', go:'tLive', gl:'Entrar na aula' },
+    5: { t:'Que energia! 🔥 Hoje é dia de <b>atacar os blocos fortes</b>.', go:'tLive', gl:'Bora para a aula' }
+  };
+  function hojeKey(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+  function renderMood(){
+    const d = new Date(), dia = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 864e5);
+    const pe = $('moodPhrase'); if(!pe || !FRASES || !MOODS) return;
+    const mom = momentoDia(), lst = FRASES[mom];
+    pe.textContent = lst[dia % lst.length];
+    let m = null; try{ const v = JSON.parse(localStorage.getItem('prMood') || 'null'); if(v && v.d === hojeKey()) m = v.m; }catch(e){}
+    document.querySelectorAll('#moodOpts button').forEach(b=> b.classList.toggle('on', +b.dataset.m === m));
+    const r = $('moodResp');
+    if(!m){ r.innerHTML = ''; r.style.removeProperty('--mc'); return; }
+    const mo = MOODS[m], btn = document.querySelector('#moodOpts button[data-m="' + m + '"]');
+    r.style.setProperty('--mc', btn ? btn.style.getPropertyValue('--mc') : '#A35CFF');
+    const fims = MOOD_FIM[mom][m];
+    r.innerHTML = mo.t + ' ' + fims[(dia + m) % fims.length] + '<br><button type="button" class="mood-go" data-go="' + mo.go + '">' + mo.gl + ' →</button>';
+  }
+  $('moodOpts').addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    try{ localStorage.setItem('prMood', JSON.stringify({d: hojeKey(), m: +b.dataset.m})); }catch(err){}
+    renderMood();
+  });
+  $('moodResp').addEventListener('click', e=>{
+    const b = e.target.closest('.mood-go'); if(b && $(b.dataset.go)) $(b.dataset.go).click();
+  });
+  renderMood();
+  // a app pode ficar aberta horas: ao voltar a ela, a saudação e a frase acertam-se com a hora
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && currentScreen === 'homeScreen') renderHome(); });
+  setInterval(()=>{ if(!document.hidden && currentScreen === 'homeScreen') renderHome(); }, 60000);
   function treinoDur(t){ return (t.blocos||[]).reduce((s,b)=> s + blockDurationSec(b), 0); }
   function profHtml(t){
     const tot = treinoDur(t) || 1, m = parseModo(t.modo);
