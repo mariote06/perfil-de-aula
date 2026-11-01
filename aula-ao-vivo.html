@@ -1755,7 +1755,7 @@ body.solo-livre #progress{display:none;}
     $('rlMini').classList.toggle('on', zi6 === 5);
     $('ceMini').classList.toggle('on', zi6 === 6);
     $('nameEl').textContent = b.nome;
-    const sameName = (b.nome || '').trim() === zone.name;   // não repete o nome da zona
+    const sameName = !(b.nome || '').trim() || (b.nome || '').trim() === zone.name;   // sem nome ou igual à zona: não aparece
     $('nameEl').style.display = sameName ? 'none' : ''; $('nameSep').style.display = sameName ? 'none' : '';
     $('techEl').textContent = b.tecnica || '';
     $('feelEl').textContent = zone.feel || '';

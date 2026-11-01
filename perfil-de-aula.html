@@ -366,6 +366,8 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .im-tbl tr.chk td{background:rgba(255,210,122,.12);}
 .im-tbl tr.chk td:first-child::after{content:' ⚠';color:#FFD27A;}
 .im-tbl .x{background:none;border:none;color:#E27070;cursor:pointer;font-size:15px;}
+.im-tbl .im-act{white-space:nowrap;}
+.im-tbl .ok{background:#3DD45C;border:none;color:#06210F;font-weight:800;border-radius:7px;padding:3px 9px;cursor:pointer;margin-right:4px;}
 .im-warn{margin-top:8px;font-size:12.5px;color:#FFD27A;}
 
 .sum-table{border-collapse:collapse;width:100%;font-size:14px;}
@@ -1153,7 +1155,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     </div>
 
     <div class="ed-info" id="edInfo">
-      <div class="inf wide"><label>intervalo</label><input type="text" id="fNome" maxlength="40"></div>
+      <div class="inf wide"><label>intervalo</label><input type="text" id="fNome" maxlength="40" placeholder="opcional (ex: Aquecimento)"></div>
       <div class="inf"><label>duração do intervalo</label><div class="dur"><input type="number" id="fMin" min="0">:<input type="number" id="fSec" min="0" max="59"></div></div>
       <div class="inf ro"><label>início</label><div class="val" id="fStart">0:00</div></div>
       <div class="inf"><label>fim</label><div class="dur"><input type="number" id="fEndM" min="0" title="Minuto em que o intervalo acaba">:<input type="number" id="fEndS" min="0" max="59" title="Segundo em que o intervalo acaba"></div></div>
@@ -1465,6 +1467,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   const ZONE_MID = [45, 65, 83, 98, 113, 135, 170];
   function zoneIdx(v, m){ const Z = zonesOf(m); const z = getZone(v, m); return Z.indexOf(z); }
   function snapZona(v){ return ZONE_MID[zoneIdx(v, 'ftp')]; }
+  const ZONE_MID_FC = [58, 70, 78, 83, 88, 93, 98];   // meio de cada zona em %FCmáx
+  function zoneMidNow(i){ return modoAtual() === 'fc' ? ZONE_MID_FC[i] : ZONE_MID[i]; }
   // alvo do intervalo: 0 = sem alvo exato, vale o intervalo da zona. Aulas antigas (sem campo) usam a intensidade.
   function alvoOf(b){ return !b ? 0 : (b.alvo === undefined || b.alvo === null ? (b.ftp || 0) : (b.alvo || 0)); }
   function lblInt(b, m){
@@ -1513,13 +1517,13 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   const TEC_OUTRA = '__outra__';
   function newBlock(overrides){
     return Object.assign({
-      id: uid(), nome:'Bloco', min:2, sec:0, ftp:70, alvo:0, rpm:85, tecnica:'Plano Sentado'
+      id: uid(), nome:'', min:2, sec:0, ftp:70, alvo:0, rpm:85, tecnica:'Plano Sentado'
     }, overrides || {});
   }
 
   function resetTreino(){
     current = { id:null, nome:'', blocos:[
-      newBlock({nome:'Aquecimento', min:5, sec:0, ftp:55, rpm:80, tecnica:'Plano Sentado'}),
+      newBlock({nome:'', min:5, sec:0, ftp:55, rpm:80, tecnica:'Plano Sentado'}),
     ]};
     render();
   }
@@ -1645,7 +1649,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 
   function sanitizeBlock(b){
     return newBlock({
-      nome: String(b.nome || 'Bloco').slice(0,60),
+      nome: String(b.nome || '').slice(0,60),
       tecnica: String(b.tecnica || '').slice(0,120),
       min: Math.max(0, Number(b.min)||0),
       sec: Math.max(0, Math.min(59, Number(b.sec)||0)),
@@ -1796,7 +1800,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     pushUndo();
     const d = ZONE_DEFAULTS[modoAtual()][zi];
     const last = zi === zonesOf().length - 1;   // zona mais alta (Z7) = sprint
-    const b = newBlock({ nome: zonesOf()[zi].name, min:2, sec:0, ftp:d.ftp, rpm:d.rpm, tecnica: last ? 'Sprint' : 'Plano Sentado' });
+    const b = newBlock({ nome: '', min:2, sec:0, ftp:d.ftp, rpm:d.rpm, tecnica: last ? 'Sprint' : 'Plano Sentado' });
     insertAt(selIdx >= 0 ? selIdx + 1 : current.blocos.length, b);
     render(); scrollToSel();
   }
@@ -2005,7 +2009,10 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       $('fTecSel').value = known ? b.tecnica : TEC_OUTRA;
       $('fTec').style.display = known ? 'none' : '';
     }
-    if(modoAtual() === 'zonas' && document.activeElement !== $('fZsel')) $('fZsel').value = String(zoneIdx(b.ftp));
+    if(document.activeElement !== $('fZsel')) $('fZsel').value = String(zoneIdx(b.ftp));
+    { const zz = blkZone(b), esp = !!b.tipo || !!b.teste;   // separador / retorno à calma / teste: zona fixa
+      $('fZsel').style.display = esp ? 'none' : ''; $('fZone').style.display = esp ? '' : 'none';
+      $('fZsel').style.background = esp ? '' : zoneColor(zz.css); $('fZsel').style.color = /--z[56]/.test(zz.css) ? '#fff' : '#0A0D12'; }
     $('fStart').textContent = fmtTime(start);
     const fim = start + blockDurationSec(b);
     set('fEndM', Math.floor(fim/60)); set('fEndS', fim%60);
@@ -2220,7 +2227,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   }
   // aula de teste FTP (protocolo de 20 min, Allen-Coggan): FTP = média dos 20 min × 0,95
   function doFtpTest(){
-    const temBlocos = current.blocos.length > 1 || (current.blocos[0] && current.blocos[0].nome !== 'Aquecimento');
+    const temBlocos = current.blocos.length > 1 || (current.blocos[0] && !['', 'Aquecimento'].includes(current.blocos[0].nome || ''));
     if(temBlocos && !confirm('Substituir os intervalos desta aula pelo protocolo do teste FTP (20 min)?')) return;
     pushUndo();
     if(modoAtual() !== 'ftp'){ current.modo = 'ftp'; renderModeUi(); }
@@ -2381,12 +2388,13 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     imButtons();
     $('imRead').disabled = !imImgs.length;
   });
-  function imTecnica(r){ const sub = r.rpm && r.rpm <= 75; return r.pos === 'P' ? (sub ? 'Subida em Pé' : 'Plano em Pé') : (sub ? 'Subida Sentada' : 'Plano Sentado'); }
+  // técnica: subida 60–80 rpm · plano 80–115 rpm
+  function imTecnica(r){ const sub = r.rpm && r.rpm < 80; return r.pos === 'P' ? (sub ? 'Subida em Pé' : 'Plano em Pé') : (sub ? 'Subida Sentada' : 'Plano Sentado'); }
   function imZi(r){ return zoneIdx(Math.round((r.lo + r.hi) / 2), 'ftp'); }
   function imRender(){
     const tot = imRows.reduce((a,r)=> a + r.min*60 + r.sec, 0);
     const nChk = imRows.filter(r=> r.chk).length;
-    $('imStatus').innerHTML = (nChk ? '⚠ <b>' + nChk + (nChk === 1 ? ' linha' : ' linhas') + ' a amarelo para confirmar.</b> ' : '') + '✓ Encontrei <b>' + imRows.filter(r=> !r.cool).length + ' intervalos</b>' + (imRows.some(r=> r.cool) ? ' + retorno à calma' : '') + ' · duração total <b>' + fmtTime(tot) + '</b>. Confere com as imagens e corrige o que for preciso:';
+    $('imStatus').innerHTML = (nChk ? '⚠ <b>' + nChk + (nChk === 1 ? ' linha' : ' linhas') + ' a amarelo:</b> confere com a imagem e toca em <b>✓</b> se estiver certa (ou corrige o valor). ' : '') + '✓ Encontrei <b>' + imRows.filter(r=> !r.cool).length + ' intervalos</b>' + (imRows.some(r=> r.cool) ? ' + retorno à calma' : '') + ' · duração total <b>' + fmtTime(tot) + '</b>. Confere com as imagens e corrige o que for preciso:';
     $('imResult').innerHTML = '<table class="im-tbl"><thead><tr><th>#</th><th>Tempo</th><th>%FTP</th><th>RPM</th><th>Posição</th><th>Técnica</th><th></th></tr></thead><tbody>' +
       imRows.map((r,i)=>{
         const t = String(r.min).padStart(2,'0') + ':' + String(r.sec).padStart(2,'0');
@@ -2396,7 +2404,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
           '<td><input data-f="z" value="' + r.lo + '-' + r.hi + '"></td><td><input class="r" data-f="rpm" value="' + (r.rpm || 'Free') + '"></td>' +
           '<td><select data-f="pos"><option value="S"' + (r.pos === 'S' ? ' selected' : '') + '>Sentado</option><option value="P"' + (r.pos === 'P' ? ' selected' : '') + '>Em pé</option></select></td>' +
           '<td><select data-f="tec">' + TECNICAS.map(x=> '<option' + ((r.tec || imTecnica(r)) === x ? ' selected' : '') + '>' + x + '</option>').join('') + '</select></td>' +
-          '<td><button class="x" data-i="' + i + '" title="Tirar">✕</button></td></tr>';
+          '<td class="im-act">' + (r.chk ? '<button class="ok" data-i="' + i + '" title="Está certa: confirmar">✓</button>' : '') + '<button class="x" data-i="' + i + '" title="Tirar">✕</button></td></tr>';
       }).join('') + '</tbody></table>' +
       '<div class="im-warn">Se as capturas se sobrepõem (a mesma linha aparece em duas imagens), tira a linha repetida com ✕.</div>';
   }
@@ -2411,12 +2419,13 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     if(f === 'tec'){ r.tec = v; }
     imRender();
   });
+  $('imResult').addEventListener('click', e=>{ const ok = e.target.closest('.ok'); if(ok){ delete imRows[+ok.dataset.i].chk; imRender(); return; } });
   $('imResult').addEventListener('click', e=>{ const b = e.target.closest('.x'); if(!b) return; imRows.splice(+b.dataset.i, 1); if(!imRows.length){ imRows = null; $('imResult').innerHTML = ''; $('imStatus').innerHTML = ''; } else imRender(); imButtons(); });
   function imBlocks(){
     return imRows.map((r,i)=>{
       if(r.cool) return newBlock({ tipo:'cool', nome:'Retorno à calma', min:r.min, sec:r.sec, ftp:ZONE_MID[0], rpm:80, rpm2:85, tecnica:'Plano Sentado' });
       const zi = imZi(r);
-      return newBlock({ nome: (i === 0 && zi === 0) ? 'Aquecimento' : ZONES[zi].name, min:r.min, sec:r.sec, ftp:ZONE_MID[zi], alvo:0, rpm:r.rpm || 0, tecnica: r.tec || imTecnica(r) });
+      return newBlock({ nome: '', min:r.min, sec:r.sec, ftp:ZONE_MID[zi], alvo:0, rpm:r.rpm || 0, tecnica: r.tec || imTecnica(r) });
     });
   }
   function imApply(append){
@@ -2488,8 +2497,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     $('fUnit').textContent = m === 'fc' ? '% FCmáx' : '% FTP';
     $('liveFtpLbl').textContent = m === 'fc' ? 'FC máx alvo' : m === 'zonas' ? 'zona alvo' : 'FTP alvo';
     $('fIntWrap').style.display = m === 'zonas' ? 'none' : '';
-    $('fZsel').style.display = m === 'zonas' ? '' : 'none';
-    $('fZsel').innerHTML = ZONES.map((z,i)=> '<option value="' + i + '">' + z.name + '</option>').join('');
+    $('fZsel').style.display = '';
+    $('fZsel').innerHTML = zonesOf(m).map((z,i)=> '<option value="' + i + '">' + z.name + '</option>').join('');
     $('fFtp').max = m === 'fc' ? 100 : 250;
   }
   const MODO_NOME = { zonas:'Zonas Z1–Z7', ftp:'%FTP', fc:'%FCmáx Z1–Z7' };
@@ -2517,10 +2526,11 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     const b = selected(); if(!b) return;
     pushUndo();
     const i = Number($('fZsel').value);
+    const mid = zoneMidNow(i);
     const autoName = ZONES.some(z=> z.name === b.nome || z.name.replace(/^Z\d /,'') === b.nome);
-    b.ftp = ZONE_MID[i];
+    b.ftp = mid; b.alvo = 0;   // ao mudar de zona, o alvo passa a ser o intervalo da zona
     if(autoName) b.nome = ZONES[i].name;
-    if(multi()) selIdxs().forEach(k=>{ const x = current.blocos[k]; if(x !== b && !x.tipo){ const an = ZONES.some(z=> z.name === x.nome); x.ftp = ZONE_MID[i]; if(an) x.nome = ZONES[i].name; } });
+    if(multi()) selIdxs().forEach(k=>{ const x = current.blocos[k]; if(x !== b && !x.tipo){ const an = ZONES.some(z=> z.name === x.nome); x.ftp = mid; x.alvo = 0; if(an) x.nome = ZONES[i].name; } });
     renderEditor(); renderProfileOnly();
   });
   document.querySelectorAll('#modeSeg button').forEach(bt=> bt.addEventListener('click', ()=> setModo(bt.dataset.m)));
@@ -3350,7 +3360,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       body.classList.remove('flash'); void body.offsetWidth; body.classList.add('flash');
     }
     $('liveName').textContent = b.nome;
-    $('liveName').style.display = (b.nome || '').trim() === zone.name ? 'none' : '';   // não repete o nome da zona
+    $('liveName').style.display = (!(b.nome || '').trim() || (b.nome || '').trim() === zone.name) ? 'none' : '';   // sem nome: não aparece   // não repete o nome da zona
     $('liveTechnique').textContent = b.tecnica || '';
     $('liveFeel').textContent = b.teste ? 'O mais forte e constante possível durante 20 minutos. Não comeces demasiado forte. No fim, a app calcula o FTP de cada um.' : (zone.feel || '');
     updateTimerText();
