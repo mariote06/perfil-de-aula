@@ -1204,6 +1204,21 @@ body[data-view="ano"] .legal{margin-top:8px;}
 .aud-note{flex-basis:100%;font-size:12px;color:var(--muted-2);}
 .aud-note.warn{color:#FFAA2B;}
 .aud-note.ok{color:#3DD45C;}
+.aud-bar .sp-add{border-color:rgba(30,215,96,.55);color:#7CE7A4;}
+.sp-card{max-width:560px;}
+.sp-card .sub{color:var(--muted);font-size:13px;margin-bottom:12px;}
+.sp-card .sub .warn{color:#FFAA2B;}
+.sp-card .sub button{padding:2px 8px;font-size:12px;}
+.sp-list{display:flex;flex-direction:column;gap:6px;max-height:52vh;overflow:auto;}
+.sp-pl{display:flex;align-items:center;gap:12px;text-align:left;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:8px 10px;color:#fff;}
+.sp-pl:hover{border-color:#1ED760;}
+.sp-pl.off{opacity:.45;cursor:not-allowed;}
+.sp-pl img,.sp-noimg{width:44px;height:44px;border-radius:6px;object-fit:cover;flex-shrink:0;background:#1B212B;display:grid;place-items:center;color:#1ED760;font-size:20px;}
+.sp-pl span{display:flex;flex-direction:column;min-width:0;}
+.sp-pl b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sp-pl small{color:var(--muted);font-size:12px;}
+.sp-load{color:var(--muted);text-align:center;padding:18px 0;}
+.sp-dica{font-size:12px;color:var(--muted-2);margin:10px 0 0;}
 .sum-oc{text-align:center;color:rgba(255,255,255,.55);font-size:13px;margin:6px 0 4px;}
 .lh-net{display:none;margin-top:4px;font-size:13px;font-weight:600;color:#FFD60A;background:rgba(255,214,10,.12);border:1px solid rgba(255,214,10,.35);border-radius:999px;padding:3px 12px;}
 html.sem-net .lh-net{display:inline-block;}
@@ -1560,6 +1575,15 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   </div>
 </div>
 
+<div class="modal" id="spModal">
+  <div class="modal-card sp-card">
+    <h3>🟢 Escolhe a playlist</h3>
+    <div class="sub" id="spConta"></div>
+    <div class="sp-list" id="spList"></div>
+    <p class="sp-dica">Só aparecem prontas as playlists que são tuas. Para usar uma de outra pessoa, no Spotify faz ⋯ → Adicionar à playlist → Nova playlist.</p>
+    <div class="modal-actions"><button id="spFechar">Fechar</button></div>
+  </div>
+</div>
 <div class="modal" id="grpModal">
   <div class="modal-card grp-card">
     <h3 id="grpTitle">Guardar em que grupo?</h3>
@@ -3595,6 +3619,185 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   $('lsPlay').addEventListener('click', ()=>{ pedeEcraInteiro(); beginFromStart(); });
   $('lsExit').addEventListener('click', ()=> closeLive());
 
+  // ================= SPOTIFY (conta do professor) =================
+  // Liga a conta Spotify Premium do professor (PKCE, sem segredo) e comanda o Spotify aberto no PC da projeção:
+  // começa a playlist na música e no segundo certos, salta com os blocos e pausa com a aula.
+  var SP_CLIENT = '0b04ca629afb456fa2742e909ac43171';
+  var SP_SCOPES = 'user-read-playback-state user-modify-playback-state playlist-read-private playlist-read-collaborative';
+  var spTok = null, spEu = null;
+  try{ spTok = JSON.parse(localStorage.getItem('prSpTok') || 'null'); }catch(e){}
+  function spRedirect(){ return /(^|\.)playride-coach\.(web\.app|firebaseapp\.com)$/.test(location.hostname) ? 'https://playride-coach.web.app/' : location.origin + location.pathname; }
+  function spLigado(){ return !!(spTok && spTok.refresh); }
+  function spB64(buf){ return btoa(String.fromCharCode.apply(null, new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''); }
+  function spRand(n){ const a = new Uint8Array(n); crypto.getRandomValues(a); return Array.from(a, x=> 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'[x % 62]).join(''); }
+  async function spLogin(){
+    const ver = spRand(64), st = spRand(16);
+    const ch = spB64(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(ver)));
+    // guarda a aula que está aberta (mesmo sem gravar) para voltar a ela depois de autorizar
+    try{ localStorage.setItem('prSpAuth', JSON.stringify({ ver, st, cur: current, view: document.body.dataset.view, t: Date.now() })); }catch(e){}
+    location.href = 'https://accounts.spotify.com/authorize?' + new URLSearchParams({ response_type:'code', client_id: SP_CLIENT, scope: SP_SCOPES,
+      code_challenge_method:'S256', code_challenge: ch, redirect_uri: spRedirect(), state: st }).toString();
+  }
+  function spGuardaTok(j){
+    spTok = { acc: j.access_token, exp: Date.now() + (j.expires_in || 3600) * 1000, refresh: j.refresh_token || (spTok && spTok.refresh) };
+    try{ localStorage.setItem('prSpTok', JSON.stringify(spTok)); }catch(e){}
+  }
+  async function spTokenReq(body){
+    const r = await fetch('https://accounts.spotify.com/api/token', { method:'POST', headers:{ 'Content-Type':'application/x-www-form-urlencoded' }, body: new URLSearchParams(body) });
+    const j = await r.json().catch(()=> ({}));
+    if(!r.ok || !j.access_token) throw new Error(j.error_description || j.error || ('token ' + r.status));
+    spGuardaTok(j);
+  }
+  function spDesligar(){
+    spTok = null; spEu = null;
+    try{ localStorage.removeItem('prSpTok'); }catch(e){}
+  }
+  var spRet = null;
+  (function spVolta(){   // regresso do Spotify com ?code=…
+    const q = new URLSearchParams(location.search);
+    if(!q.has('state') || !(q.has('code') || q.has('error'))) return;
+    let pend = null; try{ pend = JSON.parse(localStorage.getItem('prSpAuth') || 'null'); localStorage.removeItem('prSpAuth'); }catch(e){}
+    try{ history.replaceState(null, '', location.pathname); }catch(e){}
+    if(!pend || pend.st !== q.get('state')) return;
+    spRet = pend;
+    if(q.has('error')){ spRet.erro = q.get('error') === 'access_denied' ? 'Não autorizaste o Spotify.' : 'O Spotify não deixou ligar (' + q.get('error') + ').'; return; }
+    spRet.p = spTokenReq({ grant_type:'authorization_code', code: q.get('code'), redirect_uri: spRedirect(), client_id: SP_CLIENT, code_verifier: pend.ver })
+      .then(()=> spWeb('/me')).then(me=>{ spEu = me; return true; })
+      .catch(e=>{ spRet.erro = 'Não consegui ligar ao Spotify: ' + e.message; });
+  })();
+  // chamada quando as aulas acabam de carregar: volta à aula que estava aberta e abre a escolha da playlist
+  function spRetoma(){
+    if(!spRet) return;
+    const r = spRet; spRet = null;
+    if(r.cur && r.cur.blocos){ current = clean(r.cur); }
+    setView(r.view || 'plan'); render();
+    Promise.resolve(r.p).then(()=>{
+      if(r.erro){ toast(r.erro); return; }
+      toast('Spotify ligado' + (spEu && spEu.display_name ? ': ' + spEu.display_name : '') + ' ✓');
+      if(spEu && spEu.product && spEu.product !== 'premium') toast('⚠ Esta conta Spotify não é Premium: o Spotify só deixa comandar a música com Premium.');
+      spEscolherPlaylist();
+    });
+  }
+  async function spWeb(path, opts){
+    opts = opts || {};
+    if(!spLigado()) throw Object.assign(new Error('Spotify não ligado'), { code:'nolink' });
+    if(!spTok.acc || Date.now() > spTok.exp - 60000) await spTokenReq({ grant_type:'refresh_token', refresh_token: spTok.refresh, client_id: SP_CLIENT })
+      .catch(e=>{ spDesligar(); throw Object.assign(new Error('A ligação ao Spotify expirou. Liga outra vez.'), { code:'nolink' }); });
+    const url = /^https:/.test(path) ? path : 'https://api.spotify.com/v1' + path;
+    const go = ()=> fetch(url, { method: opts.method || 'GET', headers: Object.assign({ Authorization:'Bearer ' + spTok.acc }, opts.body ? { 'Content-Type':'application/json' } : {}), body: opts.body ? JSON.stringify(opts.body) : undefined });
+    let r = await go();
+    if(r.status === 401){ await spTokenReq({ grant_type:'refresh_token', refresh_token: spTok.refresh, client_id: SP_CLIENT }); r = await go(); }
+    if(r.status === 204 || r.status === 202) return null;
+    const j = await r.json().catch(()=> null);
+    if(!r.ok){ const err = new Error((j && j.error && (j.error.message || j.error)) || ('Spotify ' + r.status)); err.status = r.status; err.reason = j && j.error && j.error.reason; throw err; }
+    return j;
+  }
+
+  // ---- escolher uma playlist da conta ----
+  async function spEscolherPlaylist(){
+    if(!spLigado()){ spLogin(); return; }
+    const m = $('spModal'), lst = $('spList');
+    m.classList.add('active'); lst.innerHTML = '<p class="sp-load">A carregar as tuas playlists…</p>';
+    try{
+      if(!spEu) spEu = await spWeb('/me');
+      $('spConta').innerHTML = '🟢 ' + escapeHtml(spEu.display_name || spEu.id) + (spEu.product && spEu.product !== 'premium' ? ' · <b class="warn">sem Premium</b>' : ' · Premium') + ' · <button class="ghost" id="spSair">desligar</button>';
+      let url = '/me/playlists?limit=50', todas = [];
+      for(let n = 0; url && n < 6; n++){ const j = await spWeb(url); todas = todas.concat((j.items || []).filter(Boolean)); url = j.next; }
+      if(!todas.length){ lst.innerHTML = '<p class="sp-load">Não encontrei playlists nesta conta.</p>'; return; }
+      lst.innerHTML = todas.map(p=>{
+        const minha = p.owner && spEu && p.owner.id === spEu.id || p.collaborative;
+        const img = p.images && p.images.length ? p.images[p.images.length - 1].url : '';
+        const n = (p.items && p.items.total) != null ? p.items.total : (p.tracks && p.tracks.total);
+        return '<button class="sp-pl' + (minha ? '' : ' off') + '" data-id="' + escapeHtml(p.id) + '" data-n="' + escapeHtml(p.name || '') + '"' + (minha ? '' : ' disabled title="O Spotify só deixa ler as músicas das playlists que são tuas. Abre-a no Spotify e usa ⋯ → Adicionar à playlist → Nova playlist para teres uma cópia."') + '>' +
+          (img ? '<img src="' + escapeHtml(img) + '" alt="">' : '<span class="sp-noimg">♫</span>') +
+          '<span><b>' + escapeHtml(p.name || 'Playlist') + '</b><small>' + (n != null ? n + ' músicas' : '') + (minha ? '' : ' · não é tua: faz uma cópia no Spotify') + '</small></span></button>';
+      }).join('');
+    }catch(e){
+      if(e.code === 'nolink'){ lst.innerHTML = '<p class="sp-load">' + escapeHtml(e.message) + '</p><button class="primary" id="spLigar">🟢 Ligar o Spotify</button>'; return; }
+      lst.innerHTML = '<p class="sp-load">⚠ ' + escapeHtml(e.status === 403 ? 'O Spotify recusou o acesso. Confirma que o teu email está em User Management na app do developer.spotify.com e que a conta é Premium.' : e.message) + '</p>';
+    }
+  }
+  async function spUsarPlaylist(id, nome){
+    const lst = $('spList'); lst.innerHTML = '<p class="sp-load">A ler as músicas de "' + escapeHtml(nome) + '"…</p>';
+    try{
+      let url = '/playlists/' + encodeURIComponent(id) + '/items?limit=50', faixas = [];
+      for(let n = 0; url && n < 10; n++){
+        const j = await spWeb(url);
+        (j.items || []).forEach(row=>{
+          const it = row && (typeof row.item === 'object' && row.item ? row.item : (typeof row.track === 'object' ? row.track : null));
+          if(it && it.uri && it.duration_ms) faixas.push({ u: it.uri, n: it.name || '', a: (it.artists || []).map(x=> x.name).join(', ') || (it.show && it.show.name) || '', d: Math.round(it.duration_ms / 100) / 10 });
+        });
+        url = j.next;
+      }
+      if(!faixas.length){ lst.innerHTML = '<p class="sp-load">⚠ Não consegui ler as músicas desta playlist (o Spotify só deixa ler as playlists que são tuas).</p>'; return; }
+      $('spModal').classList.remove('active');
+      const dur = faixas.reduce((s,f)=> s + f.d, 0);
+      audNovo({ src:'spapi', playlist: id, uri: 'spotify:playlist:' + id, nome: nome, faixas, dur: Math.round(dur * 10) / 10 });
+      toast('Playlist ligada: ' + faixas.length + ' músicas · guarda a aula para ficar com ela');
+    }catch(e){ lst.innerHTML = '<p class="sp-load">⚠ ' + escapeHtml(e.message) + '</p>'; }
+  }
+  $('spModal').addEventListener('click', e=>{
+    if(e.target.id === 'spModal' || e.target.id === 'spFechar'){ $('spModal').classList.remove('active'); return; }
+    if(e.target.id === 'spSair'){ spDesligar(); $('spModal').classList.remove('active'); toast('Spotify desligado deste PC'); renderAudBar(); return; }
+    if(e.target.id === 'spLigar'){ spLogin(); return; }
+    const b = e.target.closest('.sp-pl'); if(b && !b.disabled) spUsarPlaylist(b.dataset.id, b.dataset.n);
+  });
+
+  // ---- leitor: comanda o Spotify do PC pela Web API ----
+  function audSpApiPlayer(a){
+    const fx = a.faixas || [], cum = [0];
+    fx.forEach(f=> cum.push(cum[cum.length - 1] + f.d));
+    const P = { tipo:'spapi', ok: true, _tocar:false, _pos:0, _at: performance.now(), _volAt:0, _vol:null, _poll:0, _prep:false, _dev:null, _ocupado:false,
+      _onde(s){ let i = 0; while(i < fx.length - 1 && s >= cum[i + 1]) i++; return { i, ms: Math.max(0, Math.round((s - cum[i]) * 1000)) }; },
+      async _cmd(path, body){
+        try{ return await spWeb(path + (this._dev ? (path.includes('?') ? '&' : '?') + 'device_id=' + this._dev : ''), { method:'PUT', body }); }
+        catch(e){
+          if(e.status === 404 || e.reason === 'NO_ACTIVE_DEVICE'){
+            const d = await spWeb('/me/player/devices').catch(()=> null), lista = (d && d.devices || []).filter(x=> !x.is_restricted);
+            const dev = lista.find(x=> x.is_active) || lista.find(x=> x.type === 'Computer') || lista[0];
+            if(!dev){ toast('🟢 Abre o Spotify neste PC (a app ou open.spotify.com) para a música tocar.'); throw e; }
+            this._dev = dev.id;
+            return spWeb(path + (path.includes('?') ? '&' : '?') + 'device_id=' + dev.id, { method:'PUT', body });
+          }
+          if(e.code === 'nolink') toast('🟢 Liga outra vez o Spotify (Planeamento → faixa de áudio).');
+          else if(e.status === 403) toast('⚠ O Spotify recusou: é preciso conta Premium.');
+          throw e;
+        }
+      },
+      async _prepara(){ if(this._prep) return; this._prep = true; try{ await this._cmd('/me/player/shuffle?state=false'); await this._cmd('/me/player/repeat?state=off'); }catch(e){} },
+      play(){ if(this._tocar) return; this._tocar = true; this._at = performance.now(); this._cmd('/me/player/play').catch(()=>{ this._tocar = false; }); },
+      pause(){ if(!this._tocar) return; this._pos = this.pos(); this._tocar = false; this._cmd('/me/player/pause').catch(()=>{}); },
+      seek(s){
+        const o = this._onde(s);
+        this._pos = s; this._at = performance.now(); this._tocar = true;
+        this._prepara().then(()=> this._cmd('/me/player/play', { context_uri: a.uri, offset: { position: o.i }, position_ms: o.ms })).catch(()=>{ this._tocar = false; });
+      },
+      pos(){
+        if(this._tocar && performance.now() - this._poll > 5000){ this._poll = performance.now(); this._acerta(); }
+        return this._pos + (this._tocar ? (performance.now() - this._at) / 1000 : 0);
+      },
+      async _acerta(){   // confirma onde o Spotify vai mesmo (música + segundo) a cada 5 s
+        try{
+          const st = await spWeb('/me/player'); if(!st || !st.item || !this._tocar) return;
+          const esp = this._onde(this.pos()).i;
+          let i = -1, best = 1e9;
+          fx.forEach((f, k)=>{ if(f.u === st.item.uri && Math.abs(k - esp) < best){ best = Math.abs(k - esp); i = k; } });
+          if(i < 0) return;
+          this._pos = cum[i] + (st.progress_ms || 0) / 1000; this._at = performance.now();
+          if(st.is_playing === false) this._tocar = false;
+        }catch(e){}
+      },
+      vol(v){
+        const pc = Math.round(v * 100);
+        if(this._vol === pc || performance.now() - this._volAt < 1000) return;
+        if(this._vol != null && Math.abs(this._vol - pc) < 4 && pc > 0 && pc < 100) return;
+        this._vol = pc; this._volAt = performance.now();
+        this._cmd('/me/player/volume?volume_percent=' + pc).catch(()=>{});
+      },
+      rate(){}, loop(){}, destroy(){ if(this._tocar) this.pause(); } };
+    return P;
+  }
+
   // ================= FAIXA DE ÁUDIO =================
   // Fontes: ficheiro do dispositivo (fica só neste dispositivo, em IndexedDB), link de OneDrive / Dropbox /
   // Google Drive (ou outro link direto), SoundCloud e Spotify. Na aula guarda-se só a origem, a duração e os ajustes.
@@ -3828,6 +4031,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       if(rec && rec.blob){ audUrl = URL.createObjectURL(rec.blob); audP = audElPlayer(audUrl); audPeaks = rec.peaks || null; audGuardada = true; }
       else { audP = audElPlayer(a.url); if(rec && rec.peaks) audPeaks = rec.peaks; audPeaksRemote(a.url, k); }
     } else if(src === 'soundcloud') audP = audSCPlayer(a);
+    else if(src === 'spapi') audP = audSpApiPlayer(a);
     else if(src === 'spotify') audP = audSPPlayer(a);
     document.documentElement.classList.toggle('aud-spotify', src === 'spotify');
     renderEditor();
@@ -3951,6 +4155,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const a = audInfo();
     if(!a || audEscolha){
       let h = '<button class="aud-add" id="audAdd">📁 Ficheiro do dispositivo</button>' +
+        '<button class="aud-add sp-add" id="audSpBtn">🟢 Playlist da minha conta Spotify</button>' +
         '<button class="aud-add" id="audLinkBtn">🔗 Link: OneDrive · Dropbox · Google Drive · SoundCloud · Spotify</button>' +
         (a ? '<button class="ghost" id="audCancel">cancelar</button>' : '');
       if(audLinkAberto) h += '<span class="aud-link"><input type="url" id="audLinkIn" placeholder="Cola aqui o link de partilha (ficheiro de áudio ou playlist)"><button class="primary" id="audLinkOk">Usar</button></span>';
@@ -3960,7 +4165,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       return;
     }
     const nota = audNota(), src = audSrc(a);
-    const ic = { file:'🎵', url:'🔗', soundcloud:'☁️', spotify:'🟢' }[src] || '🎵';
+    const ic = { file:'🎵', url:'🔗', soundcloud:'☁️', spotify:'🟢', spapi:'🟢' }[src] || '🎵';
     let h = '<span>' + ic + ' <b title="' + escapeHtml(a.nome || '') + '">' + escapeHtml(a.nome || 'faixa') + '</b>' + (a.dur ? ' · ' + fmtTime(Math.round(a.dur)) : '') + '</span>';
     if(audFalta === true){
       h += '<button id="audAdd">Escolher o ficheiro</button><button class="ghost" id="audTrocar">↺ Trocar</button><button class="ghost" id="audDel">✕</button>';
@@ -3978,6 +4183,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     if(!audFalta){
       const net = src === 'file' || (src === 'url' && audGuardada) ? ['ok', '✓ Guardada neste dispositivo: toca mesmo se a internet falhar']
         : src === 'url' ? (audSemCache ? ['warn', '⚠ Este serviço não deixa guardar a música no dispositivo: se a internet falhar, pára quando acabar o que já carregou. Para ficar segura, usa o ficheiro (📁) ou o Dropbox.'] : ['', '⏳ A guardar a música neste dispositivo para tocar sem internet…'])
+        : src === 'spapi' ? ['', '🟢 Toca no Spotify deste PC (deixa a app do Spotify ou open.spotify.com aberta) · precisa de internet e de conta Premium' + (spLigado() ? '' : ' · <b>Spotify não ligado neste PC:</b> <button class="ghost" id="audSpLig">Ligar</button>')]
         : ['warn', '⚠ ' + (src === 'spotify' ? 'O Spotify' : 'O SoundCloud') + ' precisa de internet: se falhar, a música pára (o treino continua). Para ficar segura, usa um ficheiro (📁).'];
       h += '<span class="aud-note aud-net ' + net[0] + '">' + net[1] + '</span>';
     }
@@ -4017,6 +4223,24 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       g.fillRect(x, mid - h, bw, h * 2);
     }
     g.globalAlpha = 1;
+    if(audSrc(a) === 'spapi' && a.faixas && a.faixas.length){   // músicas da playlist encaixadas nos blocos
+      g.font = '600 ' + Math.round(11 * dpr) + 'px Inter, sans-serif'; g.textBaseline = 'top';
+      const reps = a.modo === 'repetir' ? Math.ceil(Math.max(0, tot - (a.off || 0)) / (a.dur || 1)) : 1;
+      for(let r = 0; r < reps; r++){
+        let c = (a.off || 0) + r * a.dur;
+        a.faixas.forEach((f, k)=>{
+          const x0 = Math.round(c * pps * dpr), x1 = Math.round((c + f.d) * pps * dpr);
+          c += f.d;
+          if(x0 > W) return;
+          g.fillStyle = 'rgba(255,255,255,.55)'; g.fillRect(x0, 0, Math.max(1, Math.round(dpr)), cv.height);
+          const w = x1 - x0 - 8 * dpr; if(w < 30 * dpr) return;
+          let t = (k + 1) + '. ' + f.n; while(t.length > 2 && g.measureText(t).width > w) t = t.slice(0, -2);
+          if(t !== (k + 1) + '. ' + f.n) t = t.replace(/.$/, '…');
+          g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(x0 + 2 * dpr, 3 * dpr, g.measureText(t).width + 8 * dpr, 15 * dpr);
+          g.fillStyle = '#fff'; g.fillText(t, x0 + 6 * dpr, 5 * dpr);
+        });
+      }
+    }
     if(tot > 0 && a.modo === 'cortar' && a.dur && (a.off || 0) + a.dur > tot){   // linha do fim do treino
       g.fillStyle = 'rgba(255,255,255,.6)'; g.fillRect(Math.round(tot * pps * dpr) - 1, 0, 2, cv.height);
     }
@@ -4044,6 +4268,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   $('audBar').addEventListener('click', e=>{
     const b = e.target.closest('button'); if(!b) return;
     if(b.id === 'audAdd'){ $('audFile').click(); return; }
+    if(b.id === 'audSpBtn'){ spEscolherPlaylist(); return; }
+    if(b.id === 'audSpLig'){ spLogin(); return; }
     if(b.id === 'audLinkBtn'){ audLinkAberto = !audLinkAberto; renderAudBar(); return; }
     if(b.id === 'audLinkOk'){ const i = $('audLinkIn'); if(i && i.value.trim()) audUsarLink(i.value); return; }
     if(b.id === 'audTrocar'){ audPrevStop(); audEscolha = true; audLinkAberto = false; renderAudBar(); return; }
@@ -4636,6 +4862,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
         offerLocalImport();
         if(!current.id && treinos.length) current = clean(treinos[treinos.length-1]);
         render();
+        spRetoma();
       } else {
         renderSaved();
       }
