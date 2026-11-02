@@ -959,7 +959,7 @@ body[data-view="ano"] [data-sec]:not([data-sec~="ano"]){display:none !important;
   .pa-c .n{font-size:11px;}
   .pa-c.today .n::after{content:'';}
 }
-body:not([data-view="plan"]) #newBtn, body:not([data-view="plan"]) #saveBtn, body:not([data-view="plan"]) #saveCopyBtn, body:not([data-view="plan"]) #projectBtn{display:none;}
+body:not([data-view="plan"]) #newBtn, body:not([data-view="plan"]) #projectBtn{display:none;}
 body:not([data-view="plan"]) .layout{grid-template-columns:1fr;}
 body[data-view="lib"] .layout > .col-r, body[data-view="hist"] .layout > .col-r{display:grid !important;grid-template-columns:1fr 1fr;align-items:start;}
 @media (max-width:880px){ body[data-view="lib"] .layout > .col-r, body[data-view="hist"] .layout > .col-r{grid-template-columns:1fr;} }
@@ -1178,6 +1178,36 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   .ed-actions .act{flex:0 0 auto;padding:8px 12px;font-size:13px;}
 }
 body[data-view="ano"] .legal{margin-top:8px;}
+/* cabeçalho: botões principais maiores */
+.topbar-actions .hd-big{font-size:16px;font-weight:700;padding:12px 22px;border-radius:12px;}
+/* barra de comandos do gráfico com letra maior */
+.ed-links button{font-size:16px;}
+@media (max-width:900px){ .ed-links button{font-size:14px;} }
+/* cabeça de leitura do gráfico */
+.ed-scroll{position:relative;}
+.ed-ph{position:absolute;top:4px;bottom:0;left:0;width:18px;margin-left:-9px;z-index:6;cursor:ew-resize;touch-action:none;}
+.ed-ph i{position:absolute;left:8px;top:6px;bottom:0;width:2px;background:#fff;box-shadow:0 0 8px rgba(255,255,255,.8);border-radius:1px;}
+.ed-ph::before{content:'';position:absolute;left:2px;top:0;width:14px;height:12px;background:#fff;clip-path:polygon(0 0,100% 0,100% 55%,50% 100%,0 55%);}
+.ed-ph.on i,.ed-ph.drag i{background:var(--accent);box-shadow:0 0 10px var(--accent);}
+.ed-ph.on::before,.ed-ph.drag::before{background:var(--accent);}
+.ed-axis{cursor:pointer;touch-action:none;}
+#trPlay.on{color:var(--accent);}
+/* aviso de alterações por gravar */
+.sujo-card{max-width:460px;text-align:center;}
+.sujo-card .sub{margin-bottom:16px;}
+.sujo-acts{display:flex;flex-direction:column;gap:8px;}
+.sujo-acts button{font-size:15px;font-weight:700;padding:12px;}
+.sujo-acts .esq{background:transparent;border:1px solid #5A2A2E;color:#FF8A8A;}
+.sujo-acts .canc{background:none;border:none;color:var(--muted);font-weight:500;text-decoration:underline;}
+/* professores: utilização */
+.admin-row .who .uso{display:block;font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.5;}
+.admin-row .who .uso b{display:inline;color:#fff;font-weight:600;font-size:12.5px;}
+.admin-row details{margin-top:4px;font-size:12.5px;color:var(--muted);}
+.admin-row details summary{cursor:pointer;color:#FFB27A;}
+.admin-row details li{margin:2px 0;}
+.admin-row .who details li b{display:inline;font-size:12.5px;}
+.admin-row details ul{margin:4px 0 0;padding-left:18px;}
+
 /* aula por zonas: cartão do aluno dividido em %FTP e %FC */
 .rz-dual{display:grid;grid-template-columns:1fr;gap:6px;margin:2px 0;}
 .rz-dual.two{grid-template-columns:1fr 1fr;}
@@ -1291,10 +1321,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
         <button class="small ghost" id="adminBtn" style="display:none">👥 Professores <span class="badge" id="pendingBadge" style="display:none">0</span></button>
         <button class="small ghost" id="logoutBtn">Sair</button>
       </span>
-      <button class="ghost icon" id="newBtn">＋ Novo<span class="lg"> treino</span></button>
-      <button class="icon" id="saveBtn">Guardar</button>
-      <button class="icon" id="saveCopyBtn"><span class="lg">Guardar como cópia</span><span class="sm">Cópia</span></button>
-      <button class="primary" id="projectBtn">▶ Projetar<span class="lg"> aula</span></button>
+      <button class="ghost icon hd-big" id="newBtn">＋ Novo<span class="lg"> treino</span></button>
+      <button class="primary hd-big" id="projectBtn">▶ Projetar<span class="lg"> aula</span></button>
     </div>
   </div>
 
@@ -1362,7 +1390,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       </div>
       <div class="ed-transport">
         <button id="trPrev" title="Intervalo anterior" aria-label="Intervalo anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="3" height="16" rx="1"/><path d="M20 4v16L8 12z"/></svg></button>
-        <button id="trPlay" class="play" title="Pré-visualizar a aula" aria-label="Pré-visualizar a aula"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4z" fill="currentColor"/></svg></button>
+        <button id="trPlay" class="play" title="Play do gráfico (Espaço)" aria-label="Play do gráfico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4z" fill="currentColor"/></svg></button>
         <button id="trNext" title="Intervalo seguinte" aria-label="Intervalo seguinte"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="17" y="4" width="3" height="16" rx="1"/><path d="M4 4v16l12-8z"/></svg></button>
       </div>
       <div class="ed-links">
@@ -1370,7 +1398,6 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
         <button class="tool" id="redoBtn" title="Refazer (Ctrl+Y)">refazer</button>
         <button class="tool" id="zoomInBtn" title="Aproximar">aproximar</button>
         <button class="tool" id="zoomOutBtn" title="Afastar">afastar</button>
-        <button class="tool" id="splitBtn" title="Divide o intervalo selecionado em duas metades">dividir intervalo</button>
         <button class="tool" id="previewBtn" title="Abrir a projeção">pré-visualizar</button>
       </div>
       <div class="ed-links right">
@@ -1409,6 +1436,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       <button class="ed-nav" id="prevSel" title="Intervalo anterior (←)">‹</button>
       <div class="ed-y" id="edY"></div>
       <div class="ed-scroll" id="edScroll">
+        <div class="ed-ph" id="edPh" title="Arrasta para a frente ou para trás"><i></i></div>
         <div class="ed-track" id="edTrack"></div>
         <div class="ed-axis" id="edAxis"></div>
         <div class="ed-wave" id="edWave"><canvas id="edWaveCv"></canvas><div class="aud-ph" id="audPh"></div></div>
@@ -1616,6 +1644,18 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   </div>
 </div>
 
+<div class="modal" id="sujoModal">
+  <div class="modal-card sujo-card">
+    <h3>Alterações por gravar</h3>
+    <div class="sub">Fizeste alterações a <b id="sujoNome">esta aula</b>. O que queres fazer?</div>
+    <div class="sujo-acts">
+      <button class="primary" id="sujoGuardar">Guardar ALTERAÇÕES</button>
+      <button id="sujoNovo">Guardar NOVO</button>
+      <button class="esq" id="sujoEsquecer">ESQUECER ALTERAÇÕES</button>
+      <button class="canc" id="sujoCancel">Continuar a editar</button>
+    </div>
+  </div>
+</div>
 <div class="modal" id="spModal">
   <div class="modal-card sp-card">
     <h3>🟢 Escolhe a playlist</h3>
@@ -1682,7 +1722,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
 <div class="modal" id="adminModal">
   <div class="modal-card">
     <h3>Professores</h3>
-    <div class="sub">Aprova quem pode usar a app. Quem não estiver aprovado não consegue projetar aulas nem ver a biblioteca.</div>
+    <div class="sub">Aprova quem pode usar a app e vê a utilização de cada professor: a última vez que entrou, o tempo com a app aberta e os treinos que aplicou nas aulas.</div>
     <div id="adminList"></div>
     <div class="modal-actions"><button class="primary" id="adminClose">Fechar</button></div>
   </div>
@@ -1793,8 +1833,41 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     current = { id:null, nome:'', blocos:[
       newBlock({nome:'', min:5, sec:0, ftp:55, rpm:80, tecnica:'Plano Sentado'}),
     ]};
-    render();
+    marcaLimpo(); render();
   }
+  // ---- alterações por gravar: ao sair do Planeamento pergunta o que fazer ----
+  var planBase = null, planBasePend = false, aposGuardar = null;
+  function planSnap(c){
+    if(!c) return '';
+    const o = { nome: (c.nome || '').trim(), descricao: c.descricao || '', modo: c.modo || 'ftp', objetivo: c.objetivo || '', grupo: c.grupo || '',
+      blocos: (c.blocos || []).map(b=> [b.nome || '', b.min || 0, b.sec || 0, b.ftp || 0, b.alvo || 0, b.rpm || 0, b.rpm2 || 0, b.tecnica || '', b.tipo || '', b.teste ? 1 : 0]) };
+    if(c.audio){ const a = c.audio; o.audio = [a.src || 'file', a.key || a.url || a.uri || '', a.modo || '', a.off || 0, a.vol == null ? 0.8 : a.vol]; }
+    return JSON.stringify(o);
+  }
+  function marcaLimpo(){ planBasePend = true; }   // a fotografia tira-se no próximo desenho do gráfico
+  function planSujo(){ if(planBasePend) return false; return planBase !== null && planSnap(current) !== planBase; }
+  function pedirSair(depois){
+    const m = $('sujoModal');
+    $('sujoNome').textContent = (current.nome || '').trim() ? '"' + current.nome.trim() + '"' : 'esta aula';
+    $('sujoGuardar').style.display = current.id ? '' : 'none';
+    $('sujoNovo').textContent = current.id ? 'Guardar NOVO' : 'Guardar';
+    m.classList.add('active');
+    m.onclick = e=>{
+      const id = e.target.id;
+      if(id === 'sujoModal' || id === 'sujoCancel'){ m.classList.remove('active'); return; }
+      if(id === 'sujoGuardar'){ m.classList.remove('active'); aposGuardar = depois; saveCurrent(false, current.grupo || ''); return; }
+      if(id === 'sujoNovo'){ m.classList.remove('active'); aposGuardar = depois; saveCurrent(!!current.id); return; }
+      if(id === 'sujoEsquecer'){
+        m.classList.remove('active');
+        const t = current.id && treinos.find(x=> x.id === current.id);
+        if(t){ current = clean(t); marcaLimpo(); render(); } else resetTreino();
+        planBase = null; planBasePend = true;
+        depois(); return;
+      }
+    };
+  }
+  function guardado(){ marcaLimpo(); const f = aposGuardar; aposGuardar = null; if(f) setTimeout(f, 0); }
+  window.addEventListener('beforeunload', e=>{ if(document.body.dataset.view === 'plan' && planSujo()){ e.preventDefault(); e.returnValue = ''; } });
 
   function toast(msg){
     const t = $('toast');
@@ -1898,7 +1971,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   $('grpPick').addEventListener('click', e=>{ const b = e.target.closest('button[data-g]'); if(!b) return; grpEscolha = b.dataset.g; desenharGrupos(); });
   $('grpNewBtn').addEventListener('click', ()=>{ const g = criarGrupo($('grpNewName').value); if(!g){ $('grpNewName').focus(); return; } grpEscolha = g; $('grpNewName').value = ''; desenharGrupos(); });
   $('grpNewName').addEventListener('keydown', e=>{ if(e.key === 'Enter'){ e.preventDefault(); $('grpNewBtn').click(); } });
-  $('grpCancel').addEventListener('click', ()=>{ $('grpModal').classList.remove('active'); grpDepois = null; });
+  $('grpCancel').addEventListener('click', ()=>{ $('grpModal').classList.remove('active'); grpDepois = null; aposGuardar = null; });
   $('grpOk').addEventListener('click', ()=>{ $('grpModal').classList.remove('active'); const f = grpDepois; grpDepois = null; if(f) f(grpEscolha || null); });
   // mudar o grupo de uma aula já guardada
   function moverGrupo(id){
@@ -1970,6 +2043,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       current = copy;
       persist(); render(); renderGrpBar();
       toast('Cópia guardada: ' + copy.nome + (copy.grupo ? ' · ' + copy.grupo : ''));
+      guardado();
       return;
     }
     if(!current.id){ current.id = uid(); treinos.push(JSON.parse(JSON.stringify(current))); }
@@ -1981,12 +2055,15 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     persist();
     renderSaved(); renderGrpBar();
     toast('Aula guardada' + (current.grupo ? ' em ' + current.grupo : ''));
+    guardado();
   }
 
   function loadTreino(id){
     const t = treinos.find(t=>t.id===id);
     if(!t) return;
+    if(id !== current.id && document.body.dataset.view === 'plan' && planSujo()){ pedirSair(()=> loadTreino(id)); return; }
     current = JSON.parse(JSON.stringify(t));
+    marcaLimpo();
     render();
     window.scrollTo({top:0, behavior:'smooth'});
   }
@@ -2280,6 +2357,11 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     return pps * zoom;
   }
 
+  function edNavSync(){
+    const w = $('edScroll'); if(!w) return;
+    $('prevSel').disabled = w.scrollLeft <= 1;
+    $('nextSel').disabled = w.scrollLeft + w.clientWidth >= w.scrollWidth - 1;
+  }
   function scrollToSel(){
     const el = document.querySelector('.ed-bar.sel');
     const wrap = $('edScroll');
@@ -2347,11 +2429,13 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       return '<div class="ydot" title="' + z.name + '" style="bottom:' + (ftpToY((lo+hi)/2) - 6 + 22) + 'px;background:' + zoneColor(z.css) + '"></div>';
     }).join('');
 
-    // relógio: início do intervalo selecionado; botão T: duração total
-    const st = selIdx > 0 ? current.blocos.slice(0, selIdx).reduce((a,x)=> a + blockDurationSec(x), 0) : 0;
-    $('clkH').textContent = String(Math.floor(st/3600)).padStart(2,'0');
-    $('clkM').textContent = String(Math.floor(st%3600/60)).padStart(2,'0');
-    $('clkS').textContent = String(st%60).padStart(2,'0');
+    // relógio = posição da cabeça de leitura; ao escolher outro intervalo (parado) a cabeça vai para o início dele
+    if(selIdx !== edSelVisto){
+      edSelVisto = selIdx;
+      if(!audPrevOn) edPos = selIdx > 0 ? current.blocos.slice(0, selIdx).reduce((a,x)=> a + blockDurationSec(x), 0) : 0;
+    }
+    if(edPos > total) edPos = total;
+    edPhSync();
     if($('zbTotalTxt')) $('zbTotalTxt').textContent = fmtTime(total);
     $('trPrev').disabled = !(selIdx > 0);
     $('trNext').disabled = !(selIdx < current.blocos.length - 1);
@@ -2365,6 +2449,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     updateActionBtns();
     renderAudio(width, pps);
     audEnsure();
+    if(planBasePend){ planBasePend = false; planBase = planSnap(current); }
+    edNavSync();
   }
 
   function renderInfo(){
@@ -2412,8 +2498,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     $('moveLBtn').disabled = !(has && selIdx > 0 && !isCool(sb));
     $('moveRBtn').disabled = !(has && selIdx < current.blocos.length - 1 && !isCool(sb) && !isCool(nb));
     $('pasteBtn').disabled = !clip;
-    $('prevSel').disabled = !(selIdx > 0);
-    $('nextSel').disabled = !(selIdx < current.blocos.length - 1);
+    edNavSync();
   }
 
   // campos do intervalo selecionado
@@ -2923,11 +3008,11 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     else if(btn.id === 'zbImport') openImgImport();
     else if(btn.id === 'zbFtpTest') doFtpTest();
   });
-  $('splitBtn').addEventListener('click', doHalf);
-  $('cmdSaveBtn').addEventListener('click', ()=> $('saveBtn').click());
-  $('trPrev').addEventListener('click', ()=> select(selIdx - 1));
-  $('trNext').addEventListener('click', ()=> select(selIdx + 1));
-  $('trPlay').addEventListener('click', ()=> $('projectBtn').click());
+  $('cmdSaveBtn').addEventListener('click', ()=> saveCurrent(false));
+  const inicioDe = i=> current.blocos.slice(0, i).reduce((a,x)=> a + blockDurationSec(x), 0);
+  $('trPrev').addEventListener('click', ()=>{ const i = selIdx - 1; if(i < 0) return; select(i); edIrPara(inicioDe(i)); });
+  $('trNext').addEventListener('click', ()=>{ const i = selIdx + 1; if(i >= current.blocos.length) return; select(i); edIrPara(inicioDe(i)); });
+  $('trPlay').addEventListener('click', ()=>{ if(audPrevOn) audPrevStop(); else audPrevStart(); });
   $('copyBtn').addEventListener('click', doCopy);
   $('pasteBtn').addEventListener('click', doPaste);
   $('halfBtn').addEventListener('click', doHalf);
@@ -2941,8 +3026,27 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   $('redoBtn').addEventListener('click', redo);
   $('zoomInBtn').addEventListener('click', ()=>{ zoom = Math.min(8, zoom * 1.5); renderEditor(); scrollToSel(); });
   $('zoomOutBtn').addEventListener('click', ()=>{ zoom = Math.max(0.5, zoom / 1.5); renderEditor(); });
-  $('prevSel').addEventListener('click', ()=> select(selIdx - 1));
-  $('nextSel').addEventListener('click', ()=> select(selIdx + 1));
+  document.addEventListener('keydown', e=>{
+    if(e.code !== 'Space' || document.body.dataset.view !== 'plan' || $('liveOverlay').classList.contains('active')) return;
+    const t = e.target; if(t && (/^(INPUT|TEXTAREA|SELECT|BUTTON)$/.test(t.tagName) || t.isContentEditable)) return;
+    if(document.querySelector('.modal.active')) return;
+    e.preventDefault(); if(audPrevOn) audPrevStop(); else audPrevStart();
+  });
+  // as setas ao lado do gráfico deslizam o gráfico (os eixos ficam no sítio)
+  $('prevSel').addEventListener('click', ()=>{ const w = $('edScroll'); w.scrollBy({left: -w.clientWidth * 0.6, behavior:'smooth'}); });
+  $('nextSel').addEventListener('click', ()=>{ const w = $('edScroll'); w.scrollBy({left: w.clientWidth * 0.6, behavior:'smooth'}); });
+  $('edScroll').addEventListener('scroll', edNavSync, {passive:true});
+  // roda do rato em cima do gráfico: para a frente aproxima, para trás afasta (o ponto debaixo do rato fica no sítio)
+  $('edScroll').addEventListener('wheel', e=>{
+    if(Math.abs(e.deltaX) > Math.abs(e.deltaY) || e.shiftKey) return;   // deslizar de lado: scroll normal
+    e.preventDefault();
+    const w = $('edScroll'), x = e.clientX - w.getBoundingClientRect().left, t = (w.scrollLeft + x) / pxPerSec();
+    const nz = e.deltaY < 0 ? Math.min(8, zoom * 1.2) : Math.max(0.5, zoom / 1.2);
+    if(nz === zoom) return;
+    zoom = nz; renderEditor();
+    w.scrollLeft = Math.max(0, t * pxPerSec() - x);
+    edNavSync();
+  }, {passive:false});
   $('previewBtn').addEventListener('click', ()=> openLive({preview:true}));   // pré-visualizar: vai direto para a aula, sem o ecrã inicial
   window.addEventListener('resize', ()=> renderEditor());
   document.addEventListener('keydown', (e)=>{
@@ -4181,32 +4285,81 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     audPrevStop();
   }
   function audPrevT(){ return audPrevT0 + (performance.now() - audPrevAt) / 1000; }
+  // play do gráfico: a cabeça de leitura anda, o relógio conta e a música (se houver) toca a partir daí
+  var edPos = 0, edSelVisto = -2;
   function audPrevStart(){
-    if(!audP){ return; }
-    const st = selIdx > 0 ? current.blocos.slice(0, selIdx).reduce((s,b)=> s + blockDurationSec(b), 0) : 0;
-    audPrevT0 = st; audPrevAt = performance.now(); audPrevOn = true;
-    audSync(st, true, true);
-    let ult = 0;
+    const tot = audTot(); if(!tot) return;
+    if(edPos >= tot - 0.5) edPos = 0;
+    audPrevT0 = edPos; audPrevAt = performance.now(); audPrevOn = true;
+    if(audP) audSync(edPos, true, true);
+    let ult = performance.now();
     const loop = ()=>{
       if(!audPrevOn) return;
       const T = audPrevT();
-      if(T >= audTot()){ audPrevStop(); renderAudBar(); return; }
-      if(performance.now() - ult > 900){ ult = performance.now(); audSync(T, true); }
-      audPh(T);
+      if(T >= audTot()){ edPos = audTot(); audPrevStop(); return; }
+      edPos = T;
+      if(audP && !edArrasto && performance.now() - ult > 900){ ult = performance.now(); audSync(T, true); }
+      edPhSync(true);
       audPrevRaf = requestAnimationFrame(loop);
     };
-    loop(); renderAudBar();
+    loop(); edPlayUi();
   }
   function audPrevStop(){
     const ativo = audPrevOn;
+    if(ativo) edPos = Math.min(audPrevT(), audTot());
     audPrevOn = false; cancelAnimationFrame(audPrevRaf);
     if(ativo && audP) try{ audP.pause(); }catch(e){}
-    const ph = $('audPh'); if(ph) ph.style.display = 'none';
+    if(ativo){ edPlayUi(); edPhSync(); }
   }
-  function audPh(T){
-    const ph = $('audPh'); if(!ph) return;
-    ph.style.display = 'block'; ph.style.left = (T * pxPerSec()) + 'px';
+  function edIrPara(T){   // muda a posição (a arrastar, a clicar na régua ou com ⏮ ⏭)
+    edPos = Math.max(0, Math.min(audTot(), T));
+    if(audPrevOn){ audPrevT0 = edPos; audPrevAt = performance.now(); if(audP && !edArrasto) audSync(edPos, true, true); }
+    edPhSync();
   }
+  function edPlayUi(){
+    const b = $('trPlay'); if(!b) return;
+    b.classList.toggle('on', audPrevOn);
+    b.innerHTML = audPrevOn
+      ? '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><rect x="8.5" y="7.5" width="2.6" height="9" rx=".6" fill="currentColor" stroke="none"/><rect x="12.9" y="7.5" width="2.6" height="9" rx=".6" fill="currentColor" stroke="none"/></svg>'
+      : '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4z" fill="currentColor"/></svg>';
+    b.title = audPrevOn ? 'Pausa (Espaço)' : 'Play do gráfico (Espaço)';
+    renderAudBar();
+  }
+  function edPhSync(seguir){
+    const ph = $('edPh'); if(!ph) return;
+    const x = edPos * pxPerSec();
+    ph.style.left = x + 'px';
+    ph.classList.toggle('on', audPrevOn);
+    const t = Math.floor(edPos);
+    $('clkH').textContent = String(Math.floor(t/3600)).padStart(2,'0');
+    $('clkM').textContent = String(Math.floor(t%3600/60)).padStart(2,'0');
+    $('clkS').textContent = String(t%60).padStart(2,'0');
+    if(seguir && !edArrasto){   // a tocar: o gráfico acompanha a cabeça
+      const w = $('edScroll');
+      if(x > w.scrollLeft + w.clientWidth - 40 || x < w.scrollLeft) w.scrollLeft = Math.max(0, x - w.clientWidth * 0.25);
+    }
+  }
+  function audPh(){ edPhSync(); }
+  var edArrasto = false;
+  (function(){
+    const ph = $('edPh'), w = $('edScroll'), ax = $('edAxis');
+    const tempoEm = cx=> (cx - w.getBoundingClientRect().left + w.scrollLeft) / pxPerSec();
+    ph.addEventListener('pointerdown', e=>{
+      e.preventDefault(); e.stopPropagation(); edArrasto = true; ph.classList.add('drag');
+      try{ ph.setPointerCapture(e.pointerId); }catch(_){}
+    });
+    ph.addEventListener('pointermove', e=>{ if(edArrasto) edIrPara(tempoEm(e.clientX)); });
+    const solta = ()=>{ if(!edArrasto) return; edArrasto = false; ph.classList.remove('drag'); edIrPara(edPos); };
+    ph.addEventListener('pointerup', solta); ph.addEventListener('pointercancel', solta);
+    // clicar (ou arrastar) na régua do tempo também mexe a cabeça
+    ax.addEventListener('pointerdown', e=>{
+      edArrasto = true; edIrPara(tempoEm(e.clientX));
+      try{ ax.setPointerCapture(e.pointerId); }catch(_){}
+    });
+    ax.addEventListener('pointermove', e=>{ if(edArrasto) edIrPara(tempoEm(e.clientX)); });
+    const soltaAx = ()=>{ if(!edArrasto) return; edArrasto = false; edIrPara(edPos); };
+    ax.addEventListener('pointerup', soltaAx); ax.addEventListener('pointercancel', soltaAx);
+  })();
   function audNota(){
     const a = audInfo(); if(!a) return null;
     const src = audSrc(a), t = audTot();
@@ -4245,7 +4398,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     if(audFalta === true){
       h += '<button id="audAdd">Escolher o ficheiro</button><button class="ghost" id="audTrocar">↺ Trocar</button><button class="ghost" id="audDel">✕</button>';
     } else {
-      h += '<button id="audPlay">' + (audPrevOn ? '❚❚ Parar' : '▶ Ouvir daqui') + '</button>';
+      h += '<button id="audPlay" title="O mesmo que o ▶ do gráfico">' + (audPrevOn ? '❚❚ Pausa' : '▶ Ouvir') + '</button>';
       if(!audSpLista(a)) h += '<select id="audModo" title="Como ajustar a música ao treino">' + Object.keys(AUD_MODOS).filter(k=> k !== 'esticar' || audPodeEsticar(a)).map(k=> '<option value="' + k + '"' + (a.modo === k ? ' selected' : '') + '>' + AUD_MODOS[k] + '</option>').join('') + '</select>';
       if(a.modo !== 'esticar'){
         const o = a.off || 0;
@@ -4319,7 +4472,6 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     if(tot > 0 && a.modo === 'cortar' && a.dur && (a.off || 0) + a.dur > tot){   // linha do fim do treino
       g.fillStyle = 'rgba(255,255,255,.6)'; g.fillRect(Math.round(tot * pps * dpr) - 1, 0, 2, cv.height);
     }
-    if(audPrevOn) audPh(audPrevT());
   }
   // arrastar a onda muda o início da música (encaixa no início dos intervalos)
   (function(){
@@ -4350,7 +4502,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     if(b.id === 'audTrocar'){ audPrevStop(); audEscolha = true; audLinkAberto = false; renderAudBar(); return; }
     if(b.id === 'audCancel'){ audEscolha = false; audLinkAberto = false; renderAudBar(); return; }
     if(b.id === 'audDel'){ audRemove(); return; }
-    if(b.id === 'audPlay'){ if(audPrevOn) audPrevStop(); else audPrevStart(); renderAudBar(); return; }
+    if(b.id === 'audPlay'){ if(audPrevOn) audPrevStop(); else audPrevStart(); return; }
     if(b.dataset.off){ const a = audInfo(); a.off = Math.max(a.dur ? -Math.floor(a.dur) + 5 : 0, (a.off || 0) + Number(b.dataset.off)); renderEditor(); }
   });
   $('audBar').addEventListener('keydown', e=>{
@@ -4411,7 +4563,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const t = treinos.find(x=> x.id === current.id); if(!t) return;
     t.ultima = Date.now(); t.vezes = (t.vezes || 0) + 1;
     current.ultima = t.ultima; current.vezes = t.vezes;
-    persist(); renderSaved();
+    if(planBase !== null && !planSujo()) marcaLimpo();   // a contagem não conta como alteração
+    persist(); renderSaved(); usoAula(t);
   }
   function ultimaVez(t){   // timestamp da última vez (também procura no histórico das aulas antigas)
     let u = t.ultima || 0;
@@ -4730,9 +4883,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   });
 
   // ---------- wire up ----------
-  $('newBtn').addEventListener('click', resetTreino);
-  $('saveBtn').addEventListener('click', ()=> saveCurrent(false));
-  $('saveCopyBtn').addEventListener('click', ()=> saveCurrent(true));
+  $('newBtn').addEventListener('click', ()=>{ if(planSujo()) pedirSair(resetTreino); else resetTreino(); });
   $('projectBtn').addEventListener('click', openLive);
   window.addEventListener('scroll', ()=> $('appHead').classList.toggle('scrolled', window.scrollY > 4), {passive:true});
   $('exitLive').addEventListener('click', closeLive);
@@ -4822,7 +4973,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     treinos.push(copy);
     persist();
     current = clean(copy);
-    render();
+    marcaLimpo(); render();
     toast('Copiada para as tuas aulas');
     window.scrollTo({top:0, behavior:'smooth'});
   }
@@ -4941,9 +5092,44 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     }, ()=> showAuth('pending'));
   }
 
+  // utilização: última vez, tempo com a app aberta (só conta com a janela à vista) e aulas dadas
+  var usoHandle = null;
+  function usoMes(){ const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
+  function usoInc(ref, k, n){
+    const inc = firebase.database.ServerValue && firebase.database.ServerValue.increment;
+    if(inc) ref.child(k).set(inc(n)).catch(()=>{});
+    else ref.child(k).once('value').then(s=> ref.child(k).set((s.val() || 0) + n)).catch(()=>{});
+  }
+  function usoInicio(){
+    if(!fbDb || !userUid) return;
+    const r = fbDb.ref('profiles/' + userUid + '/uso');
+    r.update({ ultimo: TS() }).catch(()=>{});
+    usoInc(r, 'sessoes', 1);
+    clearInterval(usoHandle);
+    usoHandle = setInterval(()=>{
+      if(document.visibilityState !== 'visible' || !userUid) return;
+      usoInc(r, 'seg', 60); usoInc(r, 'mes/' + usoMes(), 60);
+      r.update({ ultimo: TS() }).catch(()=>{});
+    }, 60000);
+  }
+  function usoAula(t){
+    if(!fbDb || !userUid || !t) return;
+    fbDb.ref('profiles/' + userUid + '/uso/aulas/' + t.id).set({ n: t.nome || 'Aula', v: t.vezes || 1, u: t.ultima || Date.now(), al: ridingRiders().length }).catch(()=>{});
+  }
+  // aulas dadas antes de haver este registo: copia a contagem que já existe em cada aula
+  function usoRecupera(){
+    if(!fbDb || !userUid) return;
+    const r = fbDb.ref('profiles/' + userUid + '/uso/aulas');
+    r.once('value').then(s=>{
+      const tem = s.val() || {}, novo = {};
+      treinos.forEach(t=>{ const u = ultimaVez(t); if(u && !tem[t.id]) novo[t.id] = { n: t.nome || 'Aula', v: t.vezes || 1, u: u }; });
+      if(Object.keys(novo).length) r.update(novo).catch(()=>{});
+    }).catch(()=>{});
+  }
   function enterApp(){
     if(entered) return;
     entered = true;
+    usoInicio();
     $('authOverlay').classList.remove('active');
     $('userName').textContent = userNome;
     let lastView = null; try{ lastView = sessionStorage.getItem('prView'); }catch(e){}
@@ -4957,8 +5143,9 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
         first = false;
         offerLocalImport();
         if(!current.id && treinos.length) current = clean(treinos[treinos.length-1]);
-        render();
+        marcaLimpo(); render();
         spRetoma();
+        usoRecupera();
       } else {
         renderSaved();
       }
@@ -5001,6 +5188,30 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     ap.on('value', s=>{ adminApproved = s.val() || {}; renderAdmin(); });
     adminRefs.push(pr, ap);
   }
+  function usoDur(seg){ seg = Math.round(seg || 0); const h = Math.floor(seg / 3600), m = Math.round(seg % 3600 / 60); return h ? h + ' h ' + String(m).padStart(2, '0') + ' min' : m + ' min'; }
+  function usoQuando(ts){
+    if(!ts) return 'nunca';
+    const d = new Date(ts), min = Math.round((Date.now() - ts) / 60000);
+    if(min < 2) return 'agora mesmo';
+    if(min < 60) return 'há ' + min + ' min';
+    const hm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+    const dias = Math.floor((new Date().setHours(0,0,0,0) - new Date(ts).setHours(0,0,0,0)) / 864e5);
+    return dias === 0 ? 'hoje às ' + hm : dias === 1 ? 'ontem às ' + hm : d.toLocaleDateString('pt-PT', {day:'numeric', month:'short'}) + ' às ' + hm;
+  }
+  function usoHtml(u){
+    u = u || {};
+    const mes = (u.mes || {})[usoMes()] || 0;
+    const aulas = Object.values(u.aulas || {}).filter(Boolean).sort((a,b)=> (b.u || 0) - (a.u || 0));
+    const nDadas = aulas.reduce((a,x)=> a + (x.v || 0), 0);
+    let h = '<span class="uso">🕒 Última vez: <b>' + usoQuando(u.ultimo) + '</b> · Tempo na app: <b>' + usoDur(u.seg) + '</b> (este mês ' + usoDur(mes) + ')' +
+      (u.sessoes ? ' · ' + u.sessoes + ' entrada' + (u.sessoes > 1 ? 's' : '') : '') +
+      ' · Aulas dadas: <b>' + nDadas + '</b></span>';
+    if(aulas.length){
+      h += '<details><summary>Treinos aplicados (' + aulas.length + ')</summary><ul>' + aulas.slice(0, 30).map(a=>
+        '<li><b>' + escapeHtml(a.n || 'Aula') + '</b> · ' + (a.v || 1) + '× · última ' + usoQuando(a.u) + (a.al ? ' · ' + a.al + ' aluno' + (a.al > 1 ? 's' : '') : '') + '</li>').join('') + '</ul></details>';
+    }
+    return h;
+  }
   function renderAdmin(){
     const ids = Object.keys(adminProfiles);
     const pending = ids.filter(id=> adminApproved[id] !== true);
@@ -5019,6 +5230,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       const b = document.createElement('b'); b.textContent = p.nome || '—';
       const s = document.createElement('span'); s.textContent = (p.email || '') + (id === userUid ? ' · tu (administrador)' : '');
       who.appendChild(b); who.appendChild(s);
+      if(ok) who.insertAdjacentHTML('beforeend', usoHtml(p.uso));
       const right = document.createElement('div');
       const st = document.createElement('span');
       st.className = 'state ' + (ok ? 'ok' : 'wait');
@@ -5077,7 +5289,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   });
   $('toRegister').addEventListener('click', (e)=>{ e.preventDefault(); $('regEmail').value = $('loginEmail').value; showAuth('register'); });
   $('toLogin').addEventListener('click', (e)=>{ e.preventDefault(); showAuth('login'); });
-  const doLogout = ()=>{ if(sessionPin) closeLive(); current = {id:null, nome:'', blocos:[]}; auth.signOut(); };
+  const doLogout = ()=>{ if(sessionPin) closeLive(); clearInterval(usoHandle); current = {id:null, nome:'', blocos:[]}; planBase = null; auth.signOut(); };
   $('logoutBtn').addEventListener('click', ()=>{ if(confirm('Sair da conta?')) doLogout(); });
   $('pendingLogout').addEventListener('click', doLogout);
   $('adminBtn').addEventListener('click', ()=>{ renderAdmin(); $('adminModal').classList.add('active'); });
@@ -5233,8 +5445,9 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     window.scrollTo({top:0, behavior:'smooth'});
   }
   document.addEventListener('click', e=>{ const b = e.target.closest('.pa-bib'); if(b) abrirBibDoPlano(b.dataset.t); });
-  function setView(v){
+  function setView(v, forca){
     if(!['home','plan','lib','hist','ano'].includes(v)) v = 'home';
+    if(!forca && document.body.dataset.view === 'plan' && v !== 'plan' && planSujo()){ pedirSair(()=> setView(v, true)); return; }
     document.body.dataset.view = v;
     document.querySelectorAll('.main-nav [data-go]').forEach(b=> b.classList.toggle('on', b.dataset.go === v));
     if(v === 'home') renderHome();
