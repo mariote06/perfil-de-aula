@@ -3,13 +3,24 @@
   var CFG = window.PR_INSTALL_CFG || {};
   if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(function(){}); }
   var ua = navigator.userAgent;
-  var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  // dentro da app Android (APK) o Chrome abre a página com referrer android-app://…: aí não se sugere instalar
+  try{ if(/^android-app:\/\//.test(document.referrer)) sessionStorage.setItem('prTwa', '1'); }catch(e){}
+  var inTwa = false; try{ inTwa = sessionStorage.getItem('prTwa') === '1'; }catch(e){}
+  var standalone = inTwa || (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
   var ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   var iosOther = ios && /CriOS|FxiOS|EdgiOS|OPiOS/.test(ua);
   var mac = !ios && /Macintosh/.test(ua);
   var macSafari = mac && /Safari/.test(ua) && !/Chrome|Chromium|Edg\/|OPR\//.test(ua);
   var android = /Android/.test(ua);
   var chromium = 'onbeforeinstallprompt' in window;
+  // Android fora do Chrome (Samsung Internet, Firefox, browsers dentro do WhatsApp/Instagram/Facebook…): a app instala-se no Chrome
+  var realChrome = /Chrome\/\d/.test(ua) && !/SamsungBrowser|EdgA|OPR\/|Firefox|YaBrowser|MiuiBrowser|HuaweiBrowser|HeyTapBrowser|DuckDuckGo|UCBrowser|; wv\)|Version\/\d[^ ]* Chrome|FBAN|FBAV|FB_IAB|Instagram|Line\/|Snapchat|TikTok|musical_ly|GSA\//.test(ua);
+  var androidOther = android && !realChrome && !inTwa;
+  function chromeUrl(){
+    var u = new URL(location.href); u.hash = ''; u.searchParams.set('instalar', '1');
+    return 'intent://' + u.host + u.pathname + u.search + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(location.href) + ';end';
+  }
+  function chromeTried(){ try{ return sessionStorage.getItem('prChromeTry') === '1'; }catch(e){ return true; } }
   var deferred = null;
   var LSK = 'prInstallSeen_' + CFG.key;
   function lsGet(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } }
@@ -63,7 +74,11 @@
     var t = document.getElementById('igText'), b = document.getElementById('igBody');
     arrow.style.display = 'none';
     document.getElementById('igLater').textContent = qrCtx && CFG.later ? CFG.later : 'Agora não, continuar no browser';
-    if(deferred){
+    if(androidOther){
+      t.textContent = 'A app instala-se e funciona melhor no Google Chrome. Toca no botão para abrir este link no Chrome e instalar a partir de lá:';
+      b.innerHTML = '<a class="ig-btn" id="igChrome" href="' + chromeUrl() + '" style="display:block;text-decoration:none;box-sizing:border-box">Abrir no Chrome</a>' +
+        '<p style="font-size:12px;margin:12px 0 8px">Se não abrir, copia o link e cola-o no Chrome:</p>' + copyBox();
+    } else if(deferred){
       t.textContent = 'Fica com um ícone no ' + (android ? 'telemóvel' : 'computador') + ' e abre em ecrã inteiro, como uma app normal. Atualiza-se sozinha.';
       b.innerHTML = '<button class="ig-btn" id="igGo">⬇ Instalar agora</button>';
       document.getElementById('igGo').onclick = function(){
@@ -93,7 +108,17 @@
     var c = document.getElementById('igCopy');
     if(c) c.onclick = function(){ var i = c.previousSibling; i.select(); try{ navigator.clipboard.writeText(i.value); }catch(e){ document.execCommand('copy'); } c.textContent = 'Copiado ✓'; };
   }
-  function open(fromQr){ qrCtx = fromQr === true; hideBar(); render(); ov.classList.add('on'); }
+  function open(fromQr){
+    qrCtx = fromQr === true; hideBar();
+    // Android fora do Chrome: tenta abrir logo no Chrome (uma vez por sessão); se não der, mostra o guia com o botão
+    if(androidOther && !chromeTried()){
+      try{ sessionStorage.setItem('prChromeTry', '1'); }catch(e){}
+      location.href = chromeUrl();
+      setTimeout(function(){ if(document.visibilityState === 'visible'){ render(); ov.classList.add('on'); } }, 1500);
+      return;
+    }
+    render(); ov.classList.add('on');
+  }
 
   // barra discreta para quem já disse "agora não" e volta a entrar pelo QR
   var bar = null;

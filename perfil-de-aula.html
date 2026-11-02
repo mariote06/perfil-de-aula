@@ -1143,6 +1143,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   body[data-view="plan"] .editor > .ed-toolbar{order:1;margin-bottom:8px;gap:6px;}
   body[data-view="plan"] .editor > .ed-tl{order:2;}
   body[data-view="plan"] .editor > .ed-empty{order:2;}
+  body[data-view="plan"] .editor > .ed-audio{order:2;}
   body[data-view="plan"] .editor > .ed-hint{order:3;font-size:11px;margin:2px 0 6px;}
   body[data-view="plan"] .editor > .zbtns{order:4;}
   body[data-view="plan"] .editor > .ed-info{order:5;}
@@ -1175,6 +1176,39 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   .ed-actions .act{flex:0 0 auto;padding:8px 12px;font-size:13px;}
 }
 body[data-view="ano"] .legal{margin-top:8px;}
+/* ---- faixa de áudio por baixo do gráfico ---- */
+.ed-wave{position:relative;height:58px;margin-top:2px;display:none;cursor:grab;touch-action:pan-y;}
+.ed-wave.on{display:block;}
+.ed-wave.drag{cursor:grabbing;}
+.ed-wave.fixo{cursor:default;}
+.ed-wave canvas{position:absolute;left:0;top:0;height:100%;}
+.aud-ph{position:absolute;top:0;bottom:0;width:2px;background:#fff;box-shadow:0 0 6px #fff;display:none;pointer-events:none;}
+.ed-audio{margin:4px 0 6px 30px;}
+.aud-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;color:var(--muted);}
+.aud-bar button{padding:6px 10px;font-size:12.5px;}
+.aud-bar .aud-add{background:transparent;border:1px dashed #3A4353;color:var(--muted);}
+.aud-bar .aud-add:hover{border-color:var(--accent);color:#fff;}
+.aud-bar b{color:#fff;font-weight:600;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.aud-bar select{padding:5px 6px;font-size:12.5px;background:#141A24;color:#fff;border:1px solid #3A4353;border-radius:8px;}
+.aud-bar input[type=range]{accent-color:var(--accent);}
+.aud-bar input[type=range]{width:80px;}
+.aud-off{display:inline-flex;align-items:center;gap:4px;}
+.aud-off span{min-width:46px;text-align:center;color:#fff;font-variant-numeric:tabular-nums;}
+.aud-note{flex-basis:100%;font-size:12px;color:var(--muted-2);}
+.aud-note.warn{color:#FFAA2B;}
+.aud-link{flex-basis:100%;display:flex;gap:6px;}
+.aud-link input{flex:1;min-width:0;padding:7px 10px;font-size:13px;}
+#audExt .aud-sc{position:fixed;left:-20px;bottom:0;width:10px;height:10px;opacity:0;pointer-events:none;border:0;}
+#audExt .aud-sp{position:fixed;left:14px;bottom:14px;width:320px;max-width:calc(100vw - 28px);z-index:1200;border-radius:12px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.5);}
+#audExt .aud-sp iframe{display:block;border:0;}
+html:not(.live-on) body:not([data-view="plan"]) #audExt .aud-sp{left:-400px;}
+html.live-on #audExt .aud-sp{width:260px;opacity:.85;}
+@media (max-width:600px){
+  .ed-audio{margin:4px 0 6px 0;}
+  .ed-wave{height:44px;}
+  .aud-bar{gap:6px;font-size:12px;}
+  .aud-bar b{max-width:150px;}
+}
 </style>
 </head>
 <body data-view="home">
@@ -1311,8 +1345,13 @@ body[data-view="ano"] .legal{margin-top:8px;}
       <div class="ed-scroll" id="edScroll">
         <div class="ed-track" id="edTrack"></div>
         <div class="ed-axis" id="edAxis"></div>
+        <div class="ed-wave" id="edWave"><canvas id="edWaveCv"></canvas><div class="aud-ph" id="audPh"></div></div>
       </div>
       <button class="ed-nav" id="nextSel" title="Intervalo seguinte (→)">›</button>
+    </div>
+    <div class="ed-audio" id="edAudio">
+      <input type="file" id="audFile" accept="audio/*,.mp3,.m4a,.aac,.wav,.ogg" hidden>
+      <div class="aud-bar" id="audBar"></div>
     </div>
     <div class="ed-empty" id="edEmpty">Ainda não há intervalos. Carrega numa cor em "adicionar intervalo" para começar, por exemplo pelo azul para o aquecimento.</div>
     <div class="ed-hint">Toca/clica num intervalo para o editar · arrasta o <b>topo</b> para mudar a intensidade e a <b>borda direita</b> para mudar a duração<span class="kb"> · teclas: ← → selecionar, Shift+clique seleciona seguidos, Ctrl+clique um a um, Ctrl+A todos, Delete apagar, Ctrl+C/Ctrl+V copiar/colar, Ctrl+Z desfazer</span></div>
@@ -2247,6 +2286,8 @@ body[data-view="ano"] .legal{margin-top:8px;}
 
     renderInfo();
     updateActionBtns();
+    renderAudio(width, pps);
+    audEnsure();
   }
 
   function renderInfo(){
@@ -3535,6 +3576,450 @@ body[data-view="ano"] .legal{margin-top:8px;}
   $('lsPlay').addEventListener('click', beginFromStart);
   $('lsExit').addEventListener('click', ()=> closeLive());
 
+  // ================= FAIXA DE ÁUDIO =================
+  // Fontes: ficheiro do dispositivo (fica só neste dispositivo, em IndexedDB), link de OneDrive / Dropbox /
+  // Google Drive (ou outro link direto), SoundCloud e Spotify. Na aula guarda-se só a origem, a duração e os ajustes.
+  var AUD_MODOS = { cortar:'Cortar no fim (com fade)', repetir:'Repetir até ao fim', esticar:'Ajustar à duração do treino' };
+  function audDb(){
+    return new Promise((res, rej)=>{
+      const r = indexedDB.open('playride-audio', 1);
+      r.onupgradeneeded = ()=> r.result.createObjectStore('faixas');
+      r.onsuccess = ()=> res(r.result); r.onerror = ()=> rej(r.error);
+    });
+  }
+  async function audPut(k, v){
+    const db = await audDb();
+    return new Promise((res, rej)=>{ const tx = db.transaction('faixas', 'readwrite'); tx.objectStore('faixas').put(v, k); tx.oncomplete = ()=> res(); tx.onerror = ()=> rej(tx.error); });
+  }
+  async function audGet(k){
+    try{
+      const db = await audDb();
+      return await new Promise(res=>{ const rq = db.transaction('faixas').objectStore('faixas').get(k); rq.onsuccess = ()=> res(rq.result || null); rq.onerror = ()=> res(null); });
+    }catch(e){ return null; }
+  }
+  var audPKey = null, audP = null, audUrl = null, audPeaks = null, audFalta = false, audEscolha = false, audLinkAberto = false;
+  var audPrevOn = false, audPrevT0 = 0, audPrevAt = 0, audPrevRaf = 0;
+  function audInfo(){ return current.audio || null; }
+  function audSrc(a){ return (a && a.src) || 'file'; }
+  function audTot(){ return totalDuration(current.blocos) || 0; }
+  function audPodeEsticar(a){ const s = audSrc(a); return s === 'file' || s === 'url'; }
+  function audSpLista(a){ return audSrc(a) === 'spotify' && a.tipo !== 'track' && a.tipo !== 'episode'; }
+  function audRate(){ const a = audInfo(), t = audTot(); return a && a.modo === 'esticar' && a.dur && t > 0 ? a.dur / t : 1; }
+  // tempo do treino (s) → tempo da música (s), ou null se nesse momento não há música
+  function audMap(T){
+    const a = audInfo(); if(!a) return null;
+    if(a.modo === 'esticar' && a.dur) return T >= 0 && T < audTot() ? Math.min(a.dur - 0.05, T * audRate()) : null;
+    const A = T - (a.off || 0);
+    if(A < 0) return null;
+    if(!a.dur) return A;                       // duração ainda desconhecida (ex.: playlist do Spotify)
+    if(a.modo === 'repetir') return A % a.dur;
+    return A < a.dur ? A : null;
+  }
+
+  // ---- links de partilha → endereço que o leitor consegue tocar ----
+  function audLink(raw){
+    raw = String(raw || '').trim();
+    const sp = raw.match(/spotify(?:\.com)?[:\/](?:intl-[\w-]+\/)?(?:embed\/)?(track|playlist|album|episode|show)[:\/]([A-Za-z0-9]+)/);
+    if(sp) return { src:'spotify', uri:'spotify:' + sp[1] + ':' + sp[2], tipo: sp[1], url:'https://open.spotify.com/' + sp[1] + '/' + sp[2],
+      nome:'Spotify · ' + ({track:'música', playlist:'playlist', album:'álbum', episode:'episódio', show:'podcast'}[sp[1]]) };
+    let u; try{ u = new URL(raw); }catch(e){ return null; }
+    if(u.protocol !== 'https:' && u.protocol !== 'http:') return null;
+    const h = u.hostname.replace(/^www\.|^m\./, '');
+    const nomeDe = p=>{ try{ return decodeURIComponent((p.split('/').filter(Boolean).pop() || 'faixa')).replace(/\.[^.]+$/, ''); }catch(e){ return 'faixa'; } };
+    if(h === 'soundcloud.com' || h === 'on.soundcloud.com' || h === 'snd.sc') return { src:'soundcloud', url:u.href, nome:'SoundCloud · ' + nomeDe(u.pathname).replace(/-/g, ' ') };
+    if(h === 'dropbox.com' || h === 'dl.dropbox.com' || h === 'dl.dropboxusercontent.com'){
+      u.hostname = 'dl.dropboxusercontent.com'; u.searchParams.delete('dl'); u.searchParams.delete('raw');
+      return { src:'url', url:u.href, nome:'Dropbox · ' + nomeDe(u.pathname) };
+    }
+    if(h === 'drive.google.com' || h === 'docs.google.com' || h === 'drive.usercontent.google.com'){
+      const m = u.pathname.match(/\/d\/([\w-]{10,})/); const id = m ? m[1] : u.searchParams.get('id');
+      if(!id) return null;
+      return { src:'url', url:'https://drive.google.com/uc?export=download&id=' + id, nome:'Google Drive' };
+    }
+    if(h === '1drv.ms' || /(^|\.)onedrive\.live\.com$/.test(h)){
+      const b64 = btoa(unescape(encodeURIComponent(u.href))).replace(/=+$/, '').replace(/\//g, '_').replace(/\+/g, '-');
+      return { src:'url', url:'https://api.onedrive.com/v1.0/shares/u!' + b64 + '/root/content', nome:'OneDrive' };
+    }
+    if(/(^|\.)sharepoint\.com$/.test(h)){ u.searchParams.set('download', '1'); return { src:'url', url:u.href, nome:'OneDrive' }; }
+    return { src:'url', url:u.href, nome: nomeDe(u.pathname) };
+  }
+
+  // ---- leitores: <audio> (ficheiro e links), SoundCloud e Spotify, todos com a mesma interface ----
+  function audElPlayer(url){
+    const el = new Audio(); el.preload = 'auto'; try{ el.preservesPitch = true; }catch(e){}
+    const P = { tipo:'el', el, ok:true,
+      play(){ if(el.paused) el.play().catch(()=>{}); }, pause(){ if(!el.paused) el.pause(); },
+      seek(s){ try{ el.currentTime = s; }catch(e){} }, pos(){ return el.currentTime; },
+      vol(v){ try{ el.volume = v; }catch(e){} }, rate(r){ if(Math.abs(el.playbackRate - r) > 0.001) el.playbackRate = r; },
+      loop(b){ el.loop = b; }, destroy(){ el.pause(); el.removeAttribute('src'); try{ el.load(); }catch(e){} } };
+    el.addEventListener('loadedmetadata', ()=>{
+      const a = audInfo();
+      if(audP === P && a && el.duration && isFinite(el.duration) && Math.abs((a.dur || 0) - el.duration) > 0.5){ a.dur = Math.round(el.duration * 10) / 10; audFalta = false; renderEditor(); }
+    });
+    el.addEventListener('error', ()=>{ if(audP === P && audSrc(audInfo()) === 'url'){ audFalta = 'link'; renderAudBar(); } });
+    el.src = url;
+    return P;
+  }
+  function audExtBox(){ let b = $('audExt'); if(!b){ b = document.createElement('div'); b.id = 'audExt'; document.body.appendChild(b); } return b; }
+  function audScript(src, pronto){
+    return new Promise((res, rej)=>{
+      if(pronto()) return res();
+      const s = document.createElement('script'); s.src = src; s.async = true;
+      s.onload = ()=> res(); s.onerror = ()=> { s.remove(); rej(); };
+      document.head.appendChild(s);
+    });
+  }
+  var scApiP = null, spApiP = null;
+  function scApi(){ return scApiP || (scApiP = audScript('https://w.soundcloud.com/player/api.js', ()=> window.SC && SC.Widget).then(()=> window.SC).catch(e=>{ scApiP = null; throw e; })); }
+  function spApi(){
+    return spApiP || (spApiP = new Promise((res, rej)=>{
+      if(window.__spApi) return res(window.__spApi);
+      window.onSpotifyIframeApiReady = api=>{ window.__spApi = api; res(api); };
+      audScript('https://open.spotify.com/embed/iframe-api/v1', ()=> false).catch(()=>{ spApiP = null; rej(); });
+    }));
+  }
+  function audSCPlayer(a){
+    const f = document.createElement('iframe'); f.className = 'aud-sc'; f.allow = 'autoplay'; f.title = 'SoundCloud';
+    f.src = 'https://w.soundcloud.com/player/?url=' + encodeURIComponent(a.url) + '&auto_play=false&visual=false&show_comments=false&buying=false&sharing=false&download=false&show_artwork=false';
+    const P = { tipo:'sc', ok:false, w:null, _pos:0, _idx:0, _cum:[0], _durs:[], _paused:true,
+      play(){ if(this.ok && this._paused){ this._paused = false; this.w.play(); } },
+      pause(){ if(this.ok && !this._paused){ this._paused = true; this.w.pause(); } },
+      seek(s){
+        if(!this.ok) return;
+        let i = 0; while(i < this._durs.length - 1 && s >= this._cum[i + 1]) i++;
+        const ms = Math.max(0, (s - (this._cum[i] || 0)) * 1000);
+        if(this._durs.length > 1 && i !== this._idx){ this._idx = i; this.w.skip(i); setTimeout(()=> this.w.seekTo(ms), 600); }
+        else this.w.seekTo(ms);
+        this._pos = s;
+      },
+      pos(){ return this._pos; }, vol(v){ if(this.ok) this.w.setVolume(Math.round(v * 100)); }, rate(){}, loop(){},
+      destroy(){ try{ this.w && this.w.pause(); }catch(e){} f.remove(); this.ok = false; } };
+    audExtBox().appendChild(f);
+    scApi().then(SC=>{
+      if(audP !== P) return;
+      const w = SC.Widget(f); P.w = w;
+      const E = SC.Widget.Events;
+      w.bind(E.READY, ()=>{
+        w.getSounds(snds=>{
+          snds = (snds || []).filter(Boolean);
+          P._durs = snds.map(s=> (s.duration || 0) / 1000);
+          const fim = durs=>{
+            P._cum = [0]; durs.forEach(d=> P._cum.push(P._cum[P._cum.length - 1] + d));
+            P.ok = true;
+            const ai = audInfo(), tot = P._cum[P._cum.length - 1];
+            if(audP === P && ai){
+              if(tot) ai.dur = Math.round(tot * 10) / 10;
+              if(snds.length === 1 && snds[0].title) ai.nome = 'SoundCloud · ' + snds[0].title;
+              else if(snds.length > 1) ai.nome = 'SoundCloud · ' + snds.length + ' faixas';
+              audFalta = false; renderEditor();
+            }
+          };
+          if(!P._durs.length || !P._durs[0]) w.getDuration(ms=>{ P._durs = [ms / 1000]; fim(P._durs); }); else fim(P._durs);
+        });
+      });
+      w.bind(E.PLAY, ()=>{ P._paused = false; w.getCurrentSoundIndex(i=>{ if(typeof i === 'number') P._idx = i; }); });
+      w.bind(E.PAUSE, ()=>{ P._paused = true; });
+      w.bind(E.PLAY_PROGRESS, e=>{ if(e && e.currentPosition != null) P._pos = (P._cum[P._idx] || 0) + e.currentPosition / 1000; });
+      w.bind(E.ERROR, ()=>{ if(audP === P){ audFalta = 'link'; renderAudBar(); } });
+    }).catch(()=>{ if(audP === P){ audFalta = 'link'; renderAudBar(); } });
+    return P;
+  }
+  function audSPPlayer(a){
+    const box = document.createElement('div'); box.className = 'aud-sp';
+    box.innerHTML = '<div class="aud-sp-el"></div>';
+    audExtBox().appendChild(box);
+    const P = { tipo:'sp', ok:false, c:null, _pos:null, _paused:true, _ini:false, unico: !audSpLista(a),
+      play(){ if(!this.ok || !this._paused) return; this._paused = false; if(this._ini) this.c.resume(); else { this._ini = true; this.c.play(); } },
+      pause(){ if(this.ok && !this._paused){ this._paused = true; this.c.pause(); } },
+      seek(s){ if(this.ok && this.unico){ if(!this._ini){ this._ini = true; this.c.play(); } this.c.seek(s); this._pos = s; } },
+      pos(){ return this.unico ? this._pos : null; }, vol(){}, rate(){}, loop(){},
+      destroy(){ try{ this.c && this.c.destroy(); }catch(e){} box.remove(); this.ok = false; } };
+    spApi().then(api=>{
+      if(audP !== P) return;
+      api.createController(box.firstChild, { uri: a.uri, width:'100%', height: 80 }, c=>{
+        P.c = c;
+        c.addListener('ready', ()=>{ P.ok = true; if(audP === P){ audFalta = false; renderAudBar(); } });
+        c.addListener('playback_update', e=>{
+          const d = (e && e.data) || {};
+          P._paused = !!d.isPaused;
+          if(d.position != null) P._pos = d.position / 1000;
+          const ai = audInfo();
+          if(P.unico && d.duration && ai && audP === P && Math.abs((ai.dur || 0) - d.duration / 1000) > 1){ ai.dur = Math.round(d.duration / 100) / 10; renderEditor(); }
+        });
+      });
+    }).catch(()=>{ if(audP === P){ audFalta = 'link'; renderAudBar(); } });
+    return P;
+  }
+  function audDestroy(){
+    if(audP){ try{ audP.destroy(); }catch(e){} audP = null; }
+    if(audUrl){ URL.revokeObjectURL(audUrl); audUrl = null; }
+  }
+  async function audDecode(buf){
+    const Off = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    const ctx = new Off(1, 1, 8000);
+    const ab = await ctx.decodeAudioData(buf);
+    const ch = ab.getChannelData(0), n = Math.max(200, Math.min(8000, Math.ceil(ab.duration * 4))), step = ch.length / n;
+    let peaks = new Array(n), mx = 0;
+    for(let i = 0; i < n; i++){
+      let m = 0; const a0 = Math.floor(i * step), a1 = Math.min(ch.length, Math.floor((i + 1) * step));
+      for(let j = a0; j < a1; j += 2){ const v = Math.abs(ch[j]); if(v > m) m = v; }
+      peaks[i] = m; if(m > mx) mx = m;
+    }
+    if(mx > 0) peaks = peaks.map(v=> Math.round(v / mx * 100) / 100);
+    return { dur: ab.duration, peaks };
+  }
+  async function audPeaksRemote(url, k){   // só funciona se o serviço deixar ler o ficheiro (CORS); senão fica a onda estilizada
+    try{
+      const r = await fetch(url); if(!r.ok) return;
+      const res = await audDecode(await r.arrayBuffer());
+      if(audPKey !== k) return;
+      audPeaks = res.peaks; audPut('u:' + url, { peaks: res.peaks, dur: res.dur }).catch(()=>{});
+      renderEditor();
+    }catch(e){}
+  }
+  async function audEnsure(){
+    const a = audInfo(), k = a ? audSrc(a) + '|' + (a.key || a.uri || a.url) : null;
+    if(k === audPKey) return;
+    audStop(); audDestroy();
+    audPKey = k; audPeaks = null; audFalta = false;
+    if(!a){ return; }
+    const src = audSrc(a);
+    if(src === 'file'){
+      const rec = await audGet(a.key);
+      if(audPKey !== k) return;
+      if(rec && rec.blob){ audUrl = URL.createObjectURL(rec.blob); audPeaks = rec.peaks || null; audP = audElPlayer(audUrl); }
+      else audFalta = true;
+    } else if(src === 'url'){
+      audP = audElPlayer(a.url);
+      const rec = await audGet('u:' + a.url);
+      if(audPKey !== k) return;
+      if(rec && rec.peaks) audPeaks = rec.peaks; else audPeaksRemote(a.url, k);
+    } else if(src === 'soundcloud') audP = audSCPlayer(a);
+    else if(src === 'spotify') audP = audSPPlayer(a);
+    document.documentElement.classList.toggle('aud-spotify', src === 'spotify');
+    renderEditor();
+  }
+  function audNovo(base){
+    const ant = audInfo();
+    const modo = ant ? ant.modo : 'cortar';
+    current.audio = Object.assign({ modo: (modo === 'esticar' && !audPodeEsticar(base)) ? 'cortar' : modo, off: ant ? (ant.off || 0) : 0, vol: ant && ant.vol != null ? ant.vol : 0.8 }, base);
+    if(current.audio.modo === 'esticar') current.audio.off = 0;
+    if(audSpLista(current.audio)) current.audio.modo = 'cortar';
+    audEscolha = false; audLinkAberto = false;
+    document.documentElement.classList.remove('aud-spotify');
+    audEnsure(); renderEditor();
+  }
+  async function audPick(file){
+    if(!file) return;
+    toast('A preparar a faixa…');
+    let peaks = null, dur = 0;
+    try{ const r = await audDecode(await file.arrayBuffer()); peaks = r.peaks; dur = r.dur; }
+    catch(e){
+      dur = await new Promise(res=>{ const el = new Audio(); el.preload = 'metadata'; el.onloadedmetadata = ()=> res(el.duration || 0); el.onerror = ()=> res(0); el.src = URL.createObjectURL(file); });
+    }
+    if(!dur || !isFinite(dur)){ toast('Não consegui ler este ficheiro de áudio.'); return; }
+    const key = 'a' + uid();
+    try{ await audPut(key, { blob: file, peaks, dur, nome: file.name }); }
+    catch(e){ toast('Não consegui guardar a música neste dispositivo.'); return; }
+    const t = audTot(), ant = audInfo();
+    audNovo({ src:'file', key, nome: file.name.replace(/\.[^.]+$/, ''), dur: Math.round(dur * 10) / 10 });
+    if(!ant && dur < t - 5) current.audio.modo = 'repetir';
+    renderEditor();
+    toast('Faixa adicionada · guarda a aula para ficar com ela');
+  }
+  function audUsarLink(raw){
+    const L = audLink(raw);
+    if(!L){ toast('Não reconheço este link. Cola o link de partilha do ficheiro ou da playlist.'); return; }
+    audNovo(Object.assign({ dur: 0 }, L));
+    toast(L.src === 'spotify' ? 'Spotify ligado · guarda a aula para ficar com ele' : 'Link adicionado · guarda a aula para ficar com ele');
+  }
+  function audRemove(){
+    if(!audInfo()) return;
+    if(!confirm('Tirar a faixa de áudio desta aula?')) return;
+    delete current.audio; audEscolha = false; audLinkAberto = false;
+    document.documentElement.classList.remove('aud-spotify');
+    audEnsure(); renderEditor();
+  }
+  // toca a música na posição certa do treino (chamada pela projeção e pela pré-escuta)
+  function audSync(T, playing, force){
+    const a = audInfo(), P = audP;
+    if(!a || !P) return;
+    const m = audMap(T), tot = audTot();
+    P.loop(a.modo === 'repetir');
+    const r = a.modo === 'esticar' ? audRate() : 1;
+    P.rate(r);
+    let vol = a.vol == null ? 0.8 : a.vol;
+    const fim = tot - T; if(fim < 6) vol *= Math.max(0, fim / 6);
+    if(a.modo === 'cortar' && m != null && a.dur && a.dur - m < 3) vol *= Math.max(0, (a.dur - m) / 3);
+    P.vol(Math.max(0, Math.min(1, vol)));
+    if(!playing || m == null || T >= tot){ P.pause(); return; }
+    const pos = P.pos(), tol = P.tipo === 'el' ? 0.45 * r + 0.25 : 2.5;
+    if(pos != null && (force || Math.abs(pos - m) > tol)) P.seek(m);
+    P.play();
+  }
+  function audStop(){
+    if(audP) try{ audP.pause(); }catch(e){}
+    audPrevStop();
+  }
+  function audPrevT(){ return audPrevT0 + (performance.now() - audPrevAt) / 1000; }
+  function audPrevStart(){
+    if(!audP){ return; }
+    const st = selIdx > 0 ? current.blocos.slice(0, selIdx).reduce((s,b)=> s + blockDurationSec(b), 0) : 0;
+    audPrevT0 = st; audPrevAt = performance.now(); audPrevOn = true;
+    audSync(st, true, true);
+    let ult = 0;
+    const loop = ()=>{
+      if(!audPrevOn) return;
+      const T = audPrevT();
+      if(T >= audTot()){ audPrevStop(); renderAudBar(); return; }
+      if(performance.now() - ult > 900){ ult = performance.now(); audSync(T, true); }
+      audPh(T);
+      audPrevRaf = requestAnimationFrame(loop);
+    };
+    loop(); renderAudBar();
+  }
+  function audPrevStop(){
+    const ativo = audPrevOn;
+    audPrevOn = false; cancelAnimationFrame(audPrevRaf);
+    if(ativo && audP) try{ audP.pause(); }catch(e){}
+    const ph = $('audPh'); if(ph) ph.style.display = 'none';
+  }
+  function audPh(T){
+    const ph = $('audPh'); if(!ph) return;
+    ph.style.display = 'block'; ph.style.left = (T * pxPerSec()) + 'px';
+  }
+  function audNota(){
+    const a = audInfo(); if(!a) return null;
+    const src = audSrc(a), t = audTot();
+    if(audFalta === 'link') return { txt:'⚠ Não consegui abrir este link. Confirma que a partilha está como "qualquer pessoa com o link" e que é um ficheiro de áudio (mp3, m4a, wav).', warn:true };
+    if(audFalta) return { txt:'⚠ A música não está guardada neste dispositivo. Escolhe o mesmo ficheiro para a voltar a ligar a esta aula (ou usa um link, que funciona em qualquer dispositivo).', warn:true };
+    const extra = src === 'spotify' ? ' · No Spotify, para ouvires as músicas completas tens de ter sessão iniciada no Spotify neste browser (sem sessão só tocam 30 s de cada).' : '';
+    if(audSpLista(a)) return { txt:'A playlist toca e pausa com a aula e pára no fim do treino. O Spotify não deixa saltar para um ponto da playlist, por isso ao recuar ou avançar blocos a música continua onde ia.' + extra, warn:false };
+    if(!a.dur) return { txt: src === 'soundcloud' ? 'A ligar ao SoundCloud…' : src === 'spotify' ? 'A ligar ao Spotify… a duração aparece quando tocares (▶ Ouvir daqui).' + extra : 'A ler a duração da música…' };
+    if(a.modo === 'esticar'){
+      const r = audRate();
+      return { txt:'a música toca a ' + Math.round(r * 100) + '% da velocidade para acabar com o treino (o tom não muda)', warn: Math.abs(r - 1) > 0.12 };
+    }
+    const off = a.off || 0, d = a.dur, fim = off + d;
+    if(a.modo === 'repetir' && fim < t) return { txt:'a música dura ' + fmtTime(Math.round(d)) + ' e repete até ao fim do treino (' + fmtTime(t) + ')' + extra };
+    if(fim > t + 1) return { txt:'a música acaba aos ' + fmtTime(Math.round(fim)) + ': os últimos ' + fmtTime(Math.round(fim - t)) + ' são cortados com fade no fim do treino' + extra };
+    if(fim < t - 1) return { txt:'a música acaba aos ' + fmtTime(Math.round(fim)) + ': faltam ' + fmtTime(Math.round(t - fim)) + ' sem música (escolhe "Repetir"' + (audPodeEsticar(a) ? ' ou "Ajustar"' : '') + ')' + extra, warn:true };
+    return { txt:'a música acaba exatamente com o treino' + extra };
+  }
+  function renderAudBar(){
+    const bar = $('audBar'); if(!bar) return;
+    const a = audInfo();
+    if(!a || audEscolha){
+      let h = '<button class="aud-add" id="audAdd">📁 Ficheiro do dispositivo</button>' +
+        '<button class="aud-add" id="audLinkBtn">🔗 Link: OneDrive · Dropbox · Google Drive · SoundCloud · Spotify</button>' +
+        (a ? '<button class="ghost" id="audCancel">cancelar</button>' : '');
+      if(audLinkAberto) h += '<span class="aud-link"><input type="url" id="audLinkIn" placeholder="Cola aqui o link de partilha (ficheiro de áudio ou playlist)"><button class="primary" id="audLinkOk">Usar</button></span>';
+      h += '<span class="aud-note">No telemóvel, "Ficheiro do dispositivo" também abre o Google Drive, OneDrive e Dropbox. Um link fica a funcionar em qualquer dispositivo (ex.: o PC da projeção).</span>';
+      bar.innerHTML = h;
+      if(audLinkAberto){ const i = $('audLinkIn'); if(i) setTimeout(()=> i.focus(), 0); }
+      return;
+    }
+    const nota = audNota(), src = audSrc(a);
+    const ic = { file:'🎵', url:'🔗', soundcloud:'☁️', spotify:'🟢' }[src] || '🎵';
+    let h = '<span>' + ic + ' <b title="' + escapeHtml(a.nome || '') + '">' + escapeHtml(a.nome || 'faixa') + '</b>' + (a.dur ? ' · ' + fmtTime(Math.round(a.dur)) : '') + '</span>';
+    if(audFalta === true){
+      h += '<button id="audAdd">Escolher o ficheiro</button><button class="ghost" id="audTrocar">↺ Trocar</button><button class="ghost" id="audDel">✕</button>';
+    } else {
+      h += '<button id="audPlay">' + (audPrevOn ? '❚❚ Parar' : '▶ Ouvir daqui') + '</button>';
+      if(!audSpLista(a)) h += '<select id="audModo" title="Como ajustar a música ao treino">' + Object.keys(AUD_MODOS).filter(k=> k !== 'esticar' || audPodeEsticar(a)).map(k=> '<option value="' + k + '"' + (a.modo === k ? ' selected' : '') + '>' + AUD_MODOS[k] + '</option>').join('') + '</select>';
+      if(a.modo !== 'esticar'){
+        const o = a.off || 0;
+        h += '<span class="aud-off" title="Quando a música começa (podes arrastar a onda)">início <button class="ghost" data-off="-5">−5s</button><span>' + (o < 0 ? '−' : '') + fmtTime(Math.abs(Math.round(o))) + '</span><button class="ghost" data-off="5">+5s</button></span>';
+      }
+      if(src !== 'spotify') h += '<label title="Volume">🔊 <input type="range" id="audVol" min="0" max="1" step="0.05" value="' + (a.vol == null ? 0.8 : a.vol) + '"></label>';
+      h += '<button class="ghost" id="audTrocar" title="Trocar a música">↺ Trocar</button><button class="ghost" id="audDel" title="Tirar a música">✕</button>';
+    }
+    if(nota) h += '<span class="aud-note' + (nota.warn ? ' warn' : '') + '">' + nota.txt + '</span>';
+    bar.innerHTML = h;
+  }
+  function renderAudio(width, pps){
+    renderAudBar();
+    const wrap = $('edWave'), cv = $('edWaveCv'), a = audInfo();
+    wrap.classList.toggle('on', !!a);
+    if(!a) return;
+    wrap.style.width = width + 'px';
+    wrap.classList.toggle('fixo', a.modo === 'esticar');
+    const H = wrap.clientHeight || 58, dpr = Math.min(2, window.devicePixelRatio || 1);
+    const W = Math.min(16000, Math.round(width * dpr));
+    cv.width = W; cv.height = Math.round(H * dpr); cv.style.width = width + 'px';
+    const g = cv.getContext('2d'); g.clearRect(0, 0, cv.width, cv.height);
+    g.fillStyle = 'rgba(255,255,255,.04)'; g.fillRect(0, 0, cv.width, cv.height);
+    // cor de cada momento = cor do intervalo do treino
+    const tot = audTot(), cores = [];
+    let acc = 0; current.blocos.forEach(b=>{ const d = blockDurationSec(b); cores.push([acc, acc + d, zoneColor(blkZone(b).css)]); acc += d; });
+    const corEm = T=>{ for(const c of cores) if(T < c[1]) return c[2]; return '#3A4353'; };
+    const mid = cv.height / 2, bw = Math.max(1, Math.round(2 * dpr));
+    const real = !!(audPeaks && audPeaks.length && a.dur);
+    for(let x = 0; x < W; x += bw + 1){
+      const T = (x / dpr) / pps;
+      let A;
+      if(T < tot) A = audMap(T);
+      else { if(a.modo !== 'cortar' || !a.dur) break; A = T - (a.off || 0); if(A < 0 || A >= a.dur) continue; }
+      if(A == null) continue;
+      let v;
+      if(real){ const i = Math.min(audPeaks.length - 1, Math.floor(A / a.dur * audPeaks.length)); v = audPeaks[i]; }
+      else v = 0.3 + 0.22 * Math.abs(Math.sin(A * 0.9)) + 0.18 * Math.abs(Math.sin(A * 0.23 + 1));   // onda estilizada
+      if(audFalta) v = 0.2;
+      const h = Math.max(1, v * (cv.height - 6) / 2);
+      g.fillStyle = T < tot ? corEm(T) : 'rgba(138,147,163,.35)';
+      g.globalAlpha = T < tot ? (audFalta ? 0.3 : real ? 0.9 : 0.55) : 1;
+      g.fillRect(x, mid - h, bw, h * 2);
+    }
+    g.globalAlpha = 1;
+    if(tot > 0 && a.modo === 'cortar' && a.dur && (a.off || 0) + a.dur > tot){   // linha do fim do treino
+      g.fillStyle = 'rgba(255,255,255,.6)'; g.fillRect(Math.round(tot * pps * dpr) - 1, 0, 2, cv.height);
+    }
+    if(audPrevOn) audPh(audPrevT());
+  }
+  // arrastar a onda muda o início da música (encaixa no início dos intervalos)
+  (function(){
+    const wrap = $('edWave'); let drag = null;
+    wrap.addEventListener('pointerdown', e=>{
+      const a = audInfo(); if(!a || a.modo === 'esticar') return;
+      drag = { x: e.clientX, off: a.off || 0 }; wrap.classList.add('drag');
+      try{ wrap.setPointerCapture(e.pointerId); }catch(_){}
+    });
+    wrap.addEventListener('pointermove', e=>{
+      if(!drag) return;
+      const a = audInfo(), pps = pxPerSec();
+      let off = Math.round(drag.off + (e.clientX - drag.x) / pps);
+      off = Math.max(a.dur ? -Math.floor(a.dur) + 5 : 0, Math.min(audTot() - 5, off));
+      let acc = 0; for(const b of current.blocos){ if(Math.abs(acc - off) * pps < 8){ off = acc; break; } acc += blockDurationSec(b); }
+      if(off !== a.off){ a.off = off; renderAudio(parseFloat($('edTrack').style.width) || 900, pps); }
+    });
+    const fim = ()=>{ if(drag){ drag = null; wrap.classList.remove('drag'); renderAudBar(); } };
+    wrap.addEventListener('pointerup', fim); wrap.addEventListener('pointercancel', fim);
+  })();
+  $('audBar').addEventListener('click', e=>{
+    const b = e.target.closest('button'); if(!b) return;
+    if(b.id === 'audAdd'){ $('audFile').click(); return; }
+    if(b.id === 'audLinkBtn'){ audLinkAberto = !audLinkAberto; renderAudBar(); return; }
+    if(b.id === 'audLinkOk'){ const i = $('audLinkIn'); if(i && i.value.trim()) audUsarLink(i.value); return; }
+    if(b.id === 'audTrocar'){ audPrevStop(); audEscolha = true; audLinkAberto = false; renderAudBar(); return; }
+    if(b.id === 'audCancel'){ audEscolha = false; audLinkAberto = false; renderAudBar(); return; }
+    if(b.id === 'audDel'){ audRemove(); return; }
+    if(b.id === 'audPlay'){ if(audPrevOn) audPrevStop(); else audPrevStart(); renderAudBar(); return; }
+    if(b.dataset.off){ const a = audInfo(); a.off = Math.max(a.dur ? -Math.floor(a.dur) + 5 : 0, (a.off || 0) + Number(b.dataset.off)); renderEditor(); }
+  });
+  $('audBar').addEventListener('keydown', e=>{
+    if(e.target.id === 'audLinkIn' && e.key === 'Enter'){ e.preventDefault(); if(e.target.value.trim()) audUsarLink(e.target.value); }
+    e.stopPropagation();   // não deixar as teclas do editor (Delete, setas…) apagar intervalos enquanto se escreve o link
+  });
+  $('audBar').addEventListener('change', e=>{
+    const a = audInfo(); if(!a) return;
+    if(e.target.id === 'audModo'){ a.modo = e.target.value; if(a.modo === 'esticar') a.off = 0; audPrevStop(); renderEditor(); }
+    if(e.target.id === 'audVol'){ a.vol = Number(e.target.value); }
+  });
+  $('audBar').addEventListener('input', e=>{
+    if(e.target.id === 'audVol'){ const a = audInfo(); a.vol = Number(e.target.value); if(audP) audP.vol(a.vol); }
+  });
+  $('audFile').addEventListener('change', e=>{ const f = e.target.files[0]; e.target.value = ''; if(f) audPick(f); });
+
   // ================= LIVE MODE =================
   let liveIdx = 0, liveRemaining = 0, liveTimerHandle = null, livePlaying = false;
   let tickBaseAt = 0, tickBaseRemaining = 0, lastBeepSec = null;
@@ -3568,6 +4053,7 @@ body[data-view="ano"] .legal{margin-top:8px;}
     liveIdx = 0;
     liveRemaining = blockDurationSec(current.blocos[0]);
     livePlaying = false;
+    audPrevStop();
     summaryEntry = null;
     viewMode = 'auto';
     $('liveOverlay').classList.remove('finished');
@@ -3603,6 +4089,7 @@ body[data-view="ano"] .legal{margin-top:8px;}
     $('liveOverlay').classList.remove('active', 'starting'); liveStarting = false;
     document.documentElement.classList.remove('live-on');
     clearInterval(liveTimerHandle); liveTimerHandle = null; livePlaying = false;
+    audStop();
     stopRidersSync();
     endSession();
     releaseWakeLock();
@@ -3758,6 +4245,7 @@ body[data-view="ano"] .legal{margin-top:8px;}
     if(liveTimerHandle){ clearInterval(liveTimerHandle); liveTimerHandle = null; }
     livePlaying = false;
     $('livePlay').textContent = '▶';
+    audSync(elapsedNow(), false);
     pushState();
   }
 
@@ -3767,7 +4255,9 @@ body[data-view="ano"] .legal{margin-top:8px;}
     $('livePlay').textContent = '❚❚';
     $('qrPanel').classList.remove('active');
     resetTickBase();
+    audPrevStop(); audSync(elapsedNow(), true, true);
     pushState();
+    let audUlt = 0;
     liveTimerHandle = setInterval(()=>{
       liveRemaining = tickBaseRemaining - (performance.now() - tickBaseAt)/1000;
       const secLeft = Math.ceil(liveRemaining);
@@ -3778,6 +4268,7 @@ body[data-view="ano"] .legal{margin-top:8px;}
       } else {
         updateTimerText();
         updateLiveProgressMarker();
+        if(performance.now() - audUlt > 900){ audUlt = performance.now(); audSync(elapsedNow(), true); }
       }
     }, 200);
   }
@@ -3787,7 +4278,7 @@ body[data-view="ano"] .legal{margin-top:8px;}
     if(idx < 0) idx = 0;
     liveIdx = idx;
     liveRemaining = blockDurationSec(current.blocos[liveIdx]);
-    if(livePlaying) resetTickBase();
+    if(livePlaying){ resetTickBase(); audSync(elapsedNow(), true, true); }
     updateLiveDisplay();
     pushState();
     renderRiders();
@@ -3795,6 +4286,7 @@ body[data-view="ano"] .legal{margin-top:8px;}
 
   function finishLive(){
     clearInterval(liveTimerHandle); liveTimerHandle = null; livePlaying = false;
+    audStop();
     $('livePlay').textContent = '▶';
     liveIdx = current.blocos.length - 1; liveRemaining = 0;
     updateLiveProgressMarker();
@@ -3870,7 +4362,7 @@ body[data-view="ano"] .legal{margin-top:8px;}
     const dur = blockDurationSec(b);
     if(dur - liveRemaining > 3){
       liveRemaining = dur;
-      if(livePlaying) resetTickBase();
+      if(livePlaying){ resetTickBase(); audSync(elapsedNow(), true, true); }
       updateLiveDisplay(); pushState();
     } else { goToBlock(liveIdx-1); }
   });
@@ -4186,19 +4678,19 @@ body[data-view="ano"] .legal{margin-top:8px;}
   // PLANO ANUAL (importado do Excel "Plano Anual Schwinn Cycling 2026/2027")
   // =====================================================================
   const PA_TIPOS = {
-    A:{n:'Alto Endurance', s:'Endur.', c:'#5B8DEF', rpm:'75–85 rpm', d:'Manutenção de ritmo estável, oxidação de gordura e capacidade aeróbia de base.', obj:'resist'},
-    I:{n:'Intervalado Extensivo', s:'Interv.', c:'#3DD45C', rpm:'80–90 rpm', d:'Aumento do limiar anaeróbio com intervalos longos de esforço sustentado.', obj:'limiar'},
-    F:{n:'Fartlek', s:'Fartlek', c:'#FFD60A', rpm:'65–95 rpm (pico 100)', d:'Jogo de velocidades e variação constante de terreno e resistência.', obj:'hiit'},
-    D:{n:'Fartlek / Desafio', s:'Desafio', c:'#FFAA2B', rpm:'65–95 rpm (pico 100)', d:'Fartlek com desafio: jogo de velocidades com um momento de superação para a turma.', obj:'hiit'},
-    M:{n:'Montanha', s:'Mont.', c:'#FF7A45', rpm:'60–75 rpm', d:'Força muscular e tolerância ao lactato com simulação de subidas com carga elevada.', obj:'forca'},
+    A:{n:'Alto Endurance', s:'Endur.', c:'#5B8DEF', rpm:'60–115 rpm', d:'Manutenção de ritmo estável, oxidação de gordura e capacidade aeróbia de base.', obj:'resist'},
+    I:{n:'Intervalado Extensivo', s:'Interv.', c:'#3DD45C', rpm:'60–115 rpm', d:'Aumento do limiar anaeróbio com intervalos longos de esforço sustentado.', obj:'limiar'},
+    F:{n:'Fartlek', s:'Fartlek', c:'#FFD60A', rpm:'60–115 rpm', d:'Jogo de velocidades e variação constante de terreno e resistência.', obj:'hiit'},
+    D:{n:'Fartlek / Desafio', s:'Desafio', c:'#FFAA2B', rpm:'60–115 rpm', d:'Fartlek com desafio: jogo de velocidades com um momento de superação para a turma.', obj:'hiit'},
+    M:{n:'Montanha', s:'Mont.', c:'#FF7A45', rpm:'60–80 rpm', d:'Força muscular e tolerância ao lactato com simulação de subidas com carga elevada.', obj:'forca'},
     T:{n:'Teste FTP', s:'Teste', c:'#FF4D6D', rpm:'livre / controlada', d:'Aula de aferição da potência máxima sustentada / limiar anaeróbio (20 min).', obj:'limiar', teste:true},
     V:{n:'Ativação', s:'Ativ.', c:'#A9B1BE', rpm:'livre', d:'Aula leve de ativação antes do teste de FTP.', obj:'recup'},
     R:{n:'Regenerativo', s:'Regen.', c:'#A9B1BE', rpm:'livre', d:'Aula regenerativa entre testes: pedalar leve para recuperar.', obj:'recup'}
   };
   const PA_BLOCOS = [
-    {n:'Bloco 1', per:'Setembro a Janeiro', foco:'Aprendizagem técnica, base aeróbia & VO2 máx (teste FTP)', cad:'85–90 rpm (planos) · 65–75 rpm (subidas)', fc:'65–85% FCmáx', de:'2026-09', ate:'2027-01'},
-    {n:'Bloco 2', per:'Janeiro a Abril', foco:'Intensificação & força específica (re-teste FTP)', cad:'60–75 rpm (subidas pesadas) · picos 100 rpm', fc:'65–85% FCmáx (maior intensidade)', de:'2027-02', ate:'2027-04'},
-    {n:'Bloco 3', per:'Maio a Agosto', foco:'Consistência, manutenção & retenção estival', cad:'65–100 rpm (zona de conforto)', fc:'65–85% FCmáx (desafios)', de:'2027-05', ate:'2027-08'}
+    {n:'Bloco 1', per:'Setembro a Janeiro', foco:'Aprendizagem técnica, base aeróbia & VO2 máx (teste FTP)', cad:'80–115 rpm (planos) · 60–80 rpm (subidas)', fc:'65–85% FCmáx', de:'2026-09', ate:'2027-01'},
+    {n:'Bloco 2', per:'Janeiro a Abril', foco:'Intensificação & força específica (re-teste FTP)', cad:'60–80 rpm (subidas pesadas) · 80–115 rpm (planos)', fc:'65–85% FCmáx (maior intensidade)', de:'2027-02', ate:'2027-04'},
+    {n:'Bloco 3', per:'Maio a Agosto', foco:'Consistência, manutenção & retenção estival', cad:'80–115 rpm (planos) · 60–80 rpm (subidas)', fc:'65–85% FCmáx (desafios)', de:'2027-05', ate:'2027-08'}
   ];
   const PA_MESES = [{"y": 2026, "m": 9, "t": "Bloco 1: Aprendizagem Técnica & Base", "d": "AIFAMIAFIAFIAMIAFADFADFAMIAFIA"}, {"y": 2026, "m": 10, "t": "Bloco 1: Aprendizagem Técnica & Base", "d": "FIAMIAFAFIAIFAMIAFDAFIAMIAFAIAD"}, {"y": 2026, "m": 11, "t": "Bloco 1: VO2 Máx & TESTE DE FTP", "d": "IFAMIAFIAFIAMIAFAIFAIFVTRTMDAI"}, {"y": 2026, "m": 12, "t": "Bloco 1: Eficiência & Consolidação", "d": "FAMIAFAIFADFAMIAFIAFIAMIAFAIAFI"}, {"y": 2027, "m": 1, "t": "Bloco 1 / Transição para Força", "d": "MAMIAFIAFIAMIAFAIFADFAMDAFIAFIA"}, {"y": 2027, "m": 2, "t": "Bloco 2: Força Específica & Intensidade", "d": "IFMFAMIMFIMFAMFIMFAMIFMFAMIM"}, {"y": 2027, "m": 3, "t": "Bloco 2: Pico de Torque & Limiar", "d": "FIMFAMAIMFAMIFMFAMIMFIMFAMFIMFA"}, {"y": 2027, "m": 4, "t": "Bloco 2: RE-TESTE DE FTP", "d": "MIFMFAMIMFIMTRTDMAVAMIFMFAMIMF"}, {"y": 2027, "m": 5, "t": "Bloco 3: Consistência & Retenção", "d": "DIADMIADMAIDMAIDMAIMDIADMIADMAI"}, {"y": 2027, "m": 6, "t": "Bloco 3: Variabilidade & Eventos", "d": "DMAIDMFAMDIADMIADMAIDMAIDMDAMD"}, {"y": 2027, "m": 7, "t": "Bloco 3: Aulas Especiais de Verão", "d": "IADMIADMAIDMAIDMFAMDIADMIADMAID"}, {"y": 2027, "m": 8, "t": "Bloco 3: Manutenção & Transição", "d": "MAIDMIAMDIADMIADMAIDMAIDMAFMDIA"}];
   // feriados: nos feriados nacionais e nos dias de fecho do ginásio não há aulas
@@ -4246,7 +4738,8 @@ body[data-view="ano"] .legal{margin-top:8px;}
     return '<div class="pa-dcard" style="--tc:' + info.tipo.c + '"><div><small>' + (hoje ? 'Hoje no plano anual · ' : '') + escapeHtml(dt) + '</small>' +
       '<b>' + escapeHtml(info.tipo.n) + '</b><p>' + escapeHtml(info.tipo.d) + '<br><i>Cadência alvo: ' + escapeHtml(info.tipo.rpm) + ' · ' + escapeHtml(info.mes.t) + '</i>' +
       (info.outro ? '<br><i>⚠ ' + escapeHtml(info.outro.n) + ': não há aula em ' + PA_SALAS[info.outro.sala] + '</i>' : '') + '</p></div>' +
-      '<button class="primary pa-criar" data-d="' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate() + '">＋ Criar esta aula</button></div>';
+      (hoje ? '<button class="primary pa-bib" data-t="' + info.k + '">📚 Carregar aula da biblioteca</button>'
+            : '<button class="primary pa-criar" data-d="' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate() + '">＋ Criar esta aula</button>') + '</div>';
   }
   function paAltura(){
     const sec = $('anoSec'); if(!sec || document.body.dataset.view !== 'ano') return;
@@ -4311,6 +4804,20 @@ body[data-view="ano"] .legal{margin-top:8px;}
   $('paNext').addEventListener('click', ()=>{ if(paIdx < PA_MESES.length - 1){ paIdx++; paSel = null; renderPlanoAnual(); } });
   $('paGrid').addEventListener('click', e=>{ const b = e.target.closest('.pa-c[data-k]'); if(!b) return; paSel = b.dataset.k; renderPlanoAnual(); });
   document.addEventListener('click', e=>{ const b = e.target.closest('.pa-criar'); if(b) criarAulaDoPlano(b.dataset.d); });
+  // aula do dia → abre a Biblioteca já no grupo deste tipo de aula
+  const PA_GRUPO = { A:'ALTO ENDURANCE', I:'INTERVALADO EXTENSIVO', F:'FARTLEK', D:'FARTLEK', M:'MONTANHA', T:'', V:'RECUPERAÇÃO', R:'RECUPERAÇÃO' };
+  function abrirBibDoPlano(k){
+    const tipo = PA_TIPOS[k], g = PA_GRUPO[k] || '';
+    grpFiltro = todosGrupos().some(x=> x.n === g) ? g : '';
+    setView('lib');
+    const n = document.querySelectorAll('#savedList .saved-item, #sharedList .saved-item').length;
+    if(grpFiltro && !n){
+      grpFiltro = ''; renderGrpBar(); renderSaved(); renderShared();
+      toast('Ainda não há aulas em ' + g + ' · mostro a biblioteca toda');
+    } else toast(grpFiltro ? 'Biblioteca · ' + grpFiltro + ' (' + (tipo ? tipo.n : '') + ')' : 'Escolhe a aula de ' + (tipo ? tipo.n : 'hoje'));
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+  document.addEventListener('click', e=>{ const b = e.target.closest('.pa-bib'); if(b) abrirBibDoPlano(b.dataset.t); });
   function setView(v){
     if(!['home','plan','lib','hist','ano'].includes(v)) v = 'home';
     document.body.dataset.view = v;
@@ -4415,6 +4922,38 @@ window.PR_INSTALL_CFG = { key:'coach', name:'PlayRide Coach', icon:'icon-prof-19
       x.addEventListener('click', function(){ window.PlayRideInstall(); });
       bar.insertBefore(x, bar.firstChild);
     } };
+</script>
+<script>
+// olho na palavra-passe: toca para ver ou esconder o que escreveste
+(function(){
+  var EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>';
+  var EYE_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.4 10.4 0 0 1 12 5c6.4 0 10 7 10 7a17.6 17.6 0 0 1-3.2 4.2M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a9.8 9.8 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>';
+  var st = document.createElement('style');
+  st.textContent = '.pw-wrap{position:relative;display:block;width:100%;}' +
+    '.pw-wrap input{width:100%;box-sizing:border-box;padding-right:48px !important;}' +
+    'button.pw-eye{position:absolute;top:0;right:0;bottom:0;width:46px !important;min-width:0;padding:0 !important;margin:0;background:none !important;border:none !important;box-shadow:none !important;color:#8A93A3;display:flex;align-items:center;justify-content:center;cursor:pointer;}' +
+    'button.pw-eye:hover,button.pw-eye.on{color:#fff;}' +
+    'button.pw-eye svg{width:22px;height:22px;}';
+  document.head.appendChild(st);
+  document.querySelectorAll('input[type=password]').forEach(function(inp){
+    var w = document.createElement('span'); w.className = 'pw-wrap';
+    inp.parentNode.insertBefore(w, inp); w.appendChild(inp);
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'pw-eye'; b.tabIndex = -1;
+    b.setAttribute('aria-label', 'Mostrar palavra-passe'); b.innerHTML = EYE;
+    w.appendChild(b);
+    b.addEventListener('mousedown', function(e){ e.preventDefault(); });   // não tira o foco do campo
+    b.addEventListener('click', function(e){
+      e.preventDefault();
+      var ver = inp.type === 'password';
+      inp.type = ver ? 'text' : 'password';
+      b.innerHTML = ver ? EYE_OFF : EYE; b.classList.toggle('on', ver);
+      b.setAttribute('aria-label', ver ? 'Esconder palavra-passe' : 'Mostrar palavra-passe');
+      try{ var n = inp.value.length; inp.focus(); inp.setSelectionRange(n, n); }catch(err){}
+    });
+    // ao enviar o formulário volta a esconder (para o browser oferecer guardar a palavra-passe)
+    if(inp.form) inp.form.addEventListener('submit', function(){ if(inp.type === 'text'){ inp.type = 'password'; b.innerHTML = EYE; b.classList.remove('on'); } }, true);
+  });
+})();
 </script>
 <script src="instalar.js"></script>
 
