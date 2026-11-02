@@ -1176,6 +1176,11 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   .ed-actions .act{flex:0 0 auto;padding:8px 12px;font-size:13px;}
 }
 body[data-view="ano"] .legal{margin-top:8px;}
+/* projeção: a barra do rodapé fica escondida e aparece com o rato no fundo do ecrã (ou com um toque em baixo) */
+.live-overlay .live-controls{position:absolute;left:0;right:0;bottom:0;z-index:20;transform:translateY(105%);opacity:0;transition:transform .28s ease, opacity .28s ease;box-shadow:0 -10px 30px rgba(0,0,0,.45);}
+.live-overlay .live-controls.mostra{transform:none;opacity:1;}
+.live-overlay.ctl-auto{cursor:none;}
+.live-overlay.ctl-auto .live-controls, .live-overlay.ctl-auto .live-controls *{cursor:default;}
 /* ---- faixa de áudio por baixo do gráfico ---- */
 .ed-wave{position:relative;height:58px;margin-top:2px;display:none;cursor:grab;touch-action:pan-y;}
 .ed-wave.on{display:block;}
@@ -1196,13 +1201,16 @@ body[data-view="ano"] .legal{margin-top:8px;}
 .aud-off span{min-width:46px;text-align:center;color:#fff;font-variant-numeric:tabular-nums;}
 .aud-note{flex-basis:100%;font-size:12px;color:var(--muted-2);}
 .aud-note.warn{color:#FFAA2B;}
+.aud-note.ok{color:#3DD45C;}
+.lh-net{display:none;margin-top:4px;font-size:13px;font-weight:600;color:#FFD60A;background:rgba(255,214,10,.12);border:1px solid rgba(255,214,10,.35);border-radius:999px;padding:3px 12px;}
+html.sem-net .lh-net{display:inline-block;}
 .aud-link{flex-basis:100%;display:flex;gap:6px;}
 .aud-link input{flex:1;min-width:0;padding:7px 10px;font-size:13px;}
 #audExt .aud-sc{position:fixed;left:-20px;bottom:0;width:10px;height:10px;opacity:0;pointer-events:none;border:0;}
 #audExt .aud-sp{position:fixed;left:14px;bottom:14px;width:320px;max-width:calc(100vw - 28px);z-index:1200;border-radius:12px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.5);}
 #audExt .aud-sp iframe{display:block;border:0;}
 html:not(.live-on) body:not([data-view="plan"]) #audExt .aud-sp{left:-400px;}
-html.live-on #audExt .aud-sp{width:260px;opacity:.85;}
+html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom:90px;}
 @media (max-width:600px){
   .ed-audio{margin:4px 0 6px 0;}
   .ed-wave{height:44px;}
@@ -1410,7 +1418,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;}
   <div class="live-head">
     <img class="lh-logo" id="logoSala" src="logo-sala.png" alt="" onerror="this.style.display='none'">
     <div class="lh-title"><div class="lh-class" id="lhClass">Aula</div><div class="lh-sub" id="lhSub"></div></div>
-    <div class="lh-center"><div class="lh-block" id="lhBlock">bloco 1 de 1</div></div>
+    <div class="lh-center"><div class="lh-block" id="lhBlock">bloco 1 de 1</div><div class="lh-net">📡 Sem internet · o treino e a música continuam</div></div>
     <div class="lh-right">
       <img class="lh-logo" id="logoParceiro" src="logo-parceiro.png" alt="" onerror="this.style.display='none'">
       <button class="exit-btn" id="exitLive">✕ Sair</button>
@@ -3768,20 +3776,34 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;}
     if(mx > 0) peaks = peaks.map(v=> Math.round(v / mx * 100) / 100);
     return { dur: ab.duration, peaks };
   }
-  async function audPeaksRemote(url, k){   // só funciona se o serviço deixar ler o ficheiro (CORS); senão fica a onda estilizada
+  // links: descarrega a música para este dispositivo (IndexedDB) para tocar mesmo se a internet falhar
+  var audGuardada = false, audSemCache = false, audBlobPend = null;
+  async function audPeaksRemote(url, k){
     try{
-      const r = await fetch(url); if(!r.ok) return;
-      const res = await audDecode(await r.arrayBuffer());
+      const r = await fetch(url); if(!r.ok) throw new Error('http');
+      const blob = await r.blob();
+      let res = null; try{ res = await audDecode(await blob.arrayBuffer()); }catch(e){}
+      await audPut('u:' + url, { blob, peaks: res ? res.peaks : null, dur: res ? res.dur : 0 }).catch(()=>{});
       if(audPKey !== k) return;
-      audPeaks = res.peaks; audPut('u:' + url, { peaks: res.peaks, dur: res.dur }).catch(()=>{});
+      if(res) audPeaks = res.peaks;
+      audGuardada = true; audUsarBlob(blob);
       renderEditor();
-    }catch(e){}
+    }catch(e){ if(audPKey === k){ audSemCache = true; renderAudBar(); } }
+  }
+  function audUsarBlob(blob){
+    // passa a tocar a cópia local; se estiver a tocar, troca na próxima pausa para não cortar a música
+    if(audP && audP.tipo === 'el' && !audP.el.paused){ audBlobPend = blob; return; }
+    audBlobPend = null;
+    if(audUrl) URL.revokeObjectURL(audUrl);
+    audUrl = URL.createObjectURL(blob);
+    if(audP) try{ audP.destroy(); }catch(e){}
+    audP = audElPlayer(audUrl);
   }
   async function audEnsure(){
     const a = audInfo(), k = a ? audSrc(a) + '|' + (a.key || a.uri || a.url) : null;
     if(k === audPKey) return;
     audStop(); audDestroy();
-    audPKey = k; audPeaks = null; audFalta = false;
+    audPKey = k; audPeaks = null; audFalta = false; audGuardada = false; audSemCache = false; audBlobPend = null;
     if(!a){ return; }
     const src = audSrc(a);
     if(src === 'file'){
@@ -3790,10 +3812,10 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;}
       if(rec && rec.blob){ audUrl = URL.createObjectURL(rec.blob); audPeaks = rec.peaks || null; audP = audElPlayer(audUrl); }
       else audFalta = true;
     } else if(src === 'url'){
-      audP = audElPlayer(a.url);
       const rec = await audGet('u:' + a.url);
       if(audPKey !== k) return;
-      if(rec && rec.peaks) audPeaks = rec.peaks; else audPeaksRemote(a.url, k);
+      if(rec && rec.blob){ audUrl = URL.createObjectURL(rec.blob); audP = audElPlayer(audUrl); audPeaks = rec.peaks || null; audGuardada = true; }
+      else { audP = audElPlayer(a.url); if(rec && rec.peaks) audPeaks = rec.peaks; audPeaksRemote(a.url, k); }
     } else if(src === 'soundcloud') audP = audSCPlayer(a);
     else if(src === 'spotify') audP = audSPPlayer(a);
     document.documentElement.classList.toggle('aud-spotify', src === 'spotify');
@@ -3865,6 +3887,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;}
   }
   function audStop(){
     if(audP) try{ audP.pause(); }catch(e){}
+    if(audBlobPend) audUsarBlob(audBlobPend);
     audPrevStop();
   }
   function audPrevT(){ return audPrevT0 + (performance.now() - audPrevAt) / 1000; }
@@ -3941,6 +3964,12 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;}
       h += '<button class="ghost" id="audTrocar" title="Trocar a música">↺ Trocar</button><button class="ghost" id="audDel" title="Tirar a música">✕</button>';
     }
     if(nota) h += '<span class="aud-note' + (nota.warn ? ' warn' : '') + '">' + nota.txt + '</span>';
+    if(!audFalta){
+      const net = src === 'file' || (src === 'url' && audGuardada) ? ['ok', '✓ Guardada neste dispositivo: toca mesmo se a internet falhar']
+        : src === 'url' ? (audSemCache ? ['warn', '⚠ Este serviço não deixa guardar a música no dispositivo: se a internet falhar, pára quando acabar o que já carregou. Para ficar segura, usa o ficheiro (📁) ou o Dropbox.'] : ['', '⏳ A guardar a música neste dispositivo para tocar sem internet…'])
+        : ['warn', '⚠ ' + (src === 'spotify' ? 'O Spotify' : 'O SoundCloud') + ' precisa de internet: se falhar, a música pára (o treino continua). Para ficar segura, usa um ficheiro (📁).'];
+      h += '<span class="aud-note aud-net ' + net[0] + '">' + net[1] + '</span>';
+    }
     bar.innerHTML = h;
   }
   function renderAudio(width, pps){
@@ -4026,6 +4055,38 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;}
   });
   $('audFile').addEventListener('change', e=>{ const f = e.target.files[0]; e.target.value = ''; if(f) audPick(f); });
 
+  // ---- internet: se falhar, o treino continua (relógio e música são locais) e os dados enviam-se quando voltar ----
+  function netEstado(ev){
+    const sem = navigator.onLine === false;
+    document.documentElement.classList.toggle('sem-net', sem);
+    if(ev && $('liveOverlay').classList.contains('active')) toast(sem ? 'Sem internet: o treino e a música continuam' : 'Internet de volta ✓');
+  }
+  window.addEventListener('online', netEstado); window.addEventListener('offline', netEstado); netEstado();
+
+  // ---- barra do rodapé da projeção: escondida; aparece com o rato no fundo do ecrã ----
+  (function(){
+    const ov = $('liveOverlay'), bar = $('liveControls');
+    let tEsconde = 0, tRato = 0;
+    const ZONA = 110;   // px a contar do fundo
+    const mostra = ms=>{ clearTimeout(tEsconde); bar.classList.add('mostra'); if(ms) tEsconde = setTimeout(esconde, ms); };
+    const rato = matchMedia('(hover:hover)').matches;
+    const esconde = ()=>{ if(rato && bar.matches(':hover')) return; bar.classList.remove('mostra'); };
+    ov.addEventListener('mousemove', e=>{
+      ov.classList.remove('ctl-auto'); clearTimeout(tRato);
+      tRato = setTimeout(()=> ov.classList.add('ctl-auto'), 2500);   // o cursor também desaparece se o rato ficar parado
+      if(window.innerHeight - e.clientY <= ZONA) mostra(0);
+      else if(!bar.matches(':hover')){ clearTimeout(tEsconde); tEsconde = setTimeout(esconde, 500); }
+    });
+    ov.addEventListener('mouseleave', ()=>{ clearTimeout(tEsconde); tEsconde = setTimeout(esconde, 500); });
+    // ecrã tátil: tocar na parte de baixo mostra a barra durante 4 s
+    ov.addEventListener('touchstart', e=>{
+      const t = e.touches[0]; if(!t) return;
+      if(window.innerHeight - t.clientY <= ZONA * 1.6 || bar.contains(e.target)) mostra(4000);
+    }, {passive:true});
+    bar.addEventListener('click', ()=>{ if(matchMedia('(hover:none)').matches) mostra(4000); });
+    window.liveCtlEsconde = ()=>{ clearTimeout(tEsconde); bar.classList.remove('mostra'); ov.classList.remove('ctl-auto'); };
+  })();
+
   // ================= LIVE MODE =================
   let liveIdx = 0, liveRemaining = 0, liveTimerHandle = null, livePlaying = false;
   let tickBaseAt = 0, tickBaseRemaining = 0, lastBeepSec = null;
@@ -4066,7 +4127,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;}
     $('liveDone').classList.remove('active');
     $('liveSummary').innerHTML = '';
     $('liveActive').style.display = '';
-    $('liveControls').style.display = 'flex';
+    $('liveControls').style.display = 'flex'; liveCtlEsconde();
     drawLiveProfile();
     liveLastIdx = -1;
     $('lhClass').textContent = current.nome || 'Aula de cycling';
