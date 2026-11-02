@@ -1064,6 +1064,117 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 .live-body.z7 > .ce-icon{display:block;}
 .live-overlay.split .live-body > .ce-icon{width:clamp(90px,10vw,170px);top:18%;transform:none;left:2%;}
 @media (max-width:700px){ .live-body > .ce-icon{width:90px;top:8px;transform:none;left:8px;} }
+
+/* ===== Plano anual: tudo no ecrã, sem scroll ===== */
+.topbar-actions .sm{display:none;}
+#anoSec{max-width:none;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:14px;height:calc(100vh - var(--pa-top,150px));height:calc(100dvh - var(--pa-top,150px));min-height:520px;}
+#anoSec .pa-cal{display:flex;flex-direction:column;min-height:0;padding:10px 12px 12px;margin:0;}
+#anoSec .pa-nav{margin-bottom:6px;}
+#anoSec .pa-nav b{font-size:24px;line-height:1.1;}
+#anoSec .pa-nav span{font-size:12px;}
+#anoSec .pa-nav button{width:36px;height:36px;font-size:20px;}
+#anoSec .pa-grid{flex:1;min-height:0;grid-template-rows:auto;grid-auto-rows:minmax(0,1fr);gap:5px;}
+#anoSec .pa-wd{padding:0 0 2px;}
+#anoSec .pa-c{min-height:0;padding:5px 7px;gap:3px;border-radius:10px;}
+#anoSec .pa-c .t{font-size:clamp(10.5px,1.05vw,13px);}
+#anoSec .pa-c .fn{font-size:10px;}
+.pa-side{display:flex;flex-direction:column;gap:10px;min-height:0;overflow:hidden;}
+#anoSec .pa-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:nowrap;}
+#anoSec .pa-head h2{font-size:28px;}
+#anoSec .pa-head p{margin:2px 0 0;font-size:12px;}
+#anoSec .pa-sala{padding:3px;flex-shrink:0;}
+#anoSec .pa-sala button{padding:6px 10px;font-size:12.5px;}
+#anoSec .pa-blocks{display:flex;flex-direction:column;gap:6px;margin:0;}
+#anoSec .pa-blk{padding:8px 12px;border-radius:12px;}
+#anoSec .pa-blk small{font-size:10.5px;}
+#anoSec .pa-blk b{font-size:13px;margin:2px 0 0;line-height:1.25;}
+#anoSec .pa-blk span{font-size:11.5px;margin-top:3px;}
+#anoSec .pa-blk:not(.on) span{display:none;}
+#anoSec .pa-day{margin:0;}
+#anoSec .pa-dcard{padding:10px 12px;gap:8px;border-left-width:5px;}
+#anoSec .pa-dcard > div{min-width:0;flex:1 1 100%;}
+#anoSec .pa-dcard small{font-size:10.5px;}
+#anoSec .pa-dcard b{font-size:22px;margin:1px 0 2px;}
+#anoSec .pa-dcard p{font-size:12.5px;line-height:1.35;}
+#anoSec .pa-dcard button{width:100%;padding:9px;}
+#anoSec .pa-legend{margin:0;padding:8px 10px;flex:1 1 auto;min-height:0;overflow:auto;}
+#anoSec #paLegend{display:flex;flex-direction:column;gap:4px;}
+#anoSec .pa-lg{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:5px 9px;border-left-width:4px;border-radius:8px;}
+#anoSec .pa-lg b{font-size:12.5px;}
+#anoSec .pa-lg i{margin:0;font-size:11.5px;white-space:nowrap;}
+@media (max-width:900px){
+  #anoSec{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);gap:8px;}
+  #anoSec .pa-side{order:-1;gap:6px;overflow:visible;}
+  #anoSec .pa-head h2{font-size:22px;}
+  #anoSec .pa-head p{display:none;}
+  #anoSec .pa-blocks,#anoSec .pa-legend{display:none;}
+  #anoSec .pa-day{order:5;}
+  #anoSec .pa-cal{padding:8px;}
+  #anoSec .pa-nav b{font-size:20px;}
+  #anoSec .pa-nav span{font-size:11px;}
+  #anoSec .pa-grid{gap:3px;}
+  #anoSec .pa-c{padding:3px 3px;border-radius:7px;}
+  #anoSec .pa-c .n{font-size:10.5px;}
+  #anoSec .pa-c .t{font-size:10px;}
+  #anoSec .pa-dcard{padding:8px 10px;}
+  #anoSec .pa-dcard b{font-size:18px;}
+  #anoSec .pa-dcard p{font-size:12px;}
+  #anoSec .pa-dcard p i{display:none;}
+  #anoSec .pa-dcard button{padding:8px;}
+  body[data-view="ano"] .app{padding-bottom:8px;}
+  body[data-view="ano"] .app > footer, body[data-view="ano"] .legal, body[data-view="ano"] .copyright{display:none;}
+}
+
+/* ===== Planeamento no telemóvel: construir a aula com tudo à mão ===== */
+@media (max-width:600px){
+  html,body{overflow-x:hidden;}
+  .app-head .topbar{margin-bottom:6px;gap:6px;}
+  .brand > span{display:none;}
+  .brand h1{font-size:22px;}
+  .user-chip{font-size:12px;gap:4px;}
+  .topbar-actions .lg{display:none;}
+  .topbar-actions .sm{display:inline;}
+  .topbar-actions{display:flex;flex-wrap:wrap;gap:6px;}
+  .topbar-actions > button{flex:1 1 0;min-width:0;padding:8px 6px;font-size:13px;}
+  .main-nav button,.main-nav a{padding:6px 10px;font-size:13px;}
+  .app-head .main-nav{margin-bottom:4px;}
+  /* ordem pensada para construir: nome · gráfico · zonas · intervalo · ações · resto */
+  body[data-view="plan"] .editor{display:flex;flex-direction:column;padding:10px 8px;}
+  body[data-view="plan"] .editor > .ed-toolbar{order:1;margin-bottom:8px;gap:6px;}
+  body[data-view="plan"] .editor > .ed-tl{order:2;}
+  body[data-view="plan"] .editor > .ed-empty{order:2;}
+  body[data-view="plan"] .editor > .ed-hint{order:3;font-size:11px;margin:2px 0 6px;}
+  body[data-view="plan"] .editor > .zbtns{order:4;}
+  body[data-view="plan"] .editor > .ed-info{order:5;}
+  body[data-view="plan"] .editor > .zfeel{order:6;}
+  body[data-view="plan"] .editor > .ed-multi{order:6;}
+  body[data-view="plan"] .editor > .ed-actions{order:7;}
+  body[data-view="plan"] .editor > .ed-cmd{order:8;margin:10px 0 8px;}
+  body[data-view="plan"] .editor > .ed-desc{order:9;}
+  .ed-toolbar .ed-obj{flex:1 1 100%;font-size:13px;padding:7px 8px;}
+  #modeSeg button{padding:6px 2px;font-size:11.5px;}
+  .ed-track{height:170px;}
+  /* zonas numa só linha que desliza */
+  .zbtns{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;gap:8px;margin:8px -8px 10px;padding:4px 8px 6px;scrollbar-width:none;}
+  .zbtns::-webkit-scrollbar{display:none;}
+  .zb{min-width:46px;flex-shrink:0;gap:4px;}
+  .zb .zb-ring{width:42px;height:42px;} .zb .zb-core{width:34px;height:34px;font-size:15px;}
+  .zb .zl{font-size:10.5px;max-width:64px;line-height:1.15;}
+  /* campos do intervalo em grelha compacta */
+  .ed-info{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px 6px;margin-bottom:6px;}
+  .ed-info .inf.wide{grid-column:1 / -1;}
+  .ed-info .inf{min-width:0;}
+  .ed-info .inf label{font-size:10.5px;}
+  .ed-info .dur input{width:34px;font-size:17px;}
+  .ed-info .val{font-size:17px;}
+  .ed-info .zsel{font-size:12.5px;padding:5px 4px;max-width:100%;}
+  .ed-info .inf:has(#fFtp){grid-column:span 3;}
+  .zfeel{font-size:11.5px;margin:2px 0 6px;}
+  .ed-actions{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:6px;margin:0 -8px 8px;padding:0 8px 4px;scrollbar-width:none;}
+  .ed-actions::-webkit-scrollbar{display:none;}
+  .ed-actions .act{flex:0 0 auto;padding:8px 12px;font-size:13px;}
+}
+body[data-view="ano"] .legal{margin-top:8px;}
 </style>
 </head>
 <body data-view="home">
@@ -1080,10 +1191,10 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
         <button class="small ghost" id="adminBtn" style="display:none">👥 Professores <span class="badge" id="pendingBadge" style="display:none">0</span></button>
         <button class="small ghost" id="logoutBtn">Sair</button>
       </span>
-      <button class="ghost icon" id="newBtn">＋ Novo treino</button>
+      <button class="ghost icon" id="newBtn">＋ Novo<span class="lg"> treino</span></button>
       <button class="icon" id="saveBtn">Guardar</button>
-      <button class="icon" id="saveCopyBtn">Guardar como cópia</button>
-      <button class="primary" id="projectBtn">▶ Projetar aula</button>
+      <button class="icon" id="saveCopyBtn"><span class="lg">Guardar como cópia</span><span class="sm">Cópia</span></button>
+      <button class="primary" id="projectBtn">▶ Projetar<span class="lg"> aula</span></button>
     </div>
   </div>
 
@@ -1118,18 +1229,21 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 
   <!-- PLANO ANUAL -->
   <div data-sec="ano" id="anoSec">
-    <div class="pa-head">
-      <div><h2>Plano anual de cycling</h2><p id="paSub">Setembro 2026 a Agosto 2027 · sem aulas iguais em dias seguidos · sem aulas nos feriados</p></div>
-      <div class="pa-sala" id="paSala"><span>Ginásio</span><button data-s="LSD">Lousada</button><button data-s="PNF">Penafiel</button></div>
-    </div>
-    <div class="pa-blocks" id="paBlocks"></div>
     <div class="pa-cal panel">
       <div class="pa-nav"><button id="paPrev" aria-label="Mês anterior">‹</button><div><b id="paMonth"></b><span id="paMonthT"></span></div><button id="paNext" aria-label="Mês seguinte">›</button></div>
       <div class="pa-grid" id="paGrid"></div>
-      <div class="pa-day" id="paDay"></div>
     </div>
-    <div class="panel pa-legend"><h2>Tipos de aula</h2><div id="paLegend"></div></div>
+    <aside class="pa-side">
+      <div class="pa-head">
+        <div><h2>Plano anual</h2><p id="paSub">Set 2026 – Ago 2027 · sem aulas nos feriados</p></div>
+        <div class="pa-sala" id="paSala"><button data-s="LSD">Lousada</button><button data-s="PNF">Penafiel</button></div>
+      </div>
+      <div class="pa-blocks" id="paBlocks"></div>
+      <div class="pa-day" id="paDay"></div>
+      <div class="panel pa-legend"><div id="paLegend"></div></div>
+    </aside>
   </div>
+
 
   <!-- EDITOR DE INTERVALOS -->
   <div class="panel editor" id="editor" data-sec="plan">
@@ -4134,7 +4248,21 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
       (info.outro ? '<br><i>⚠ ' + escapeHtml(info.outro.n) + ': não há aula em ' + PA_SALAS[info.outro.sala] + '</i>' : '') + '</p></div>' +
       '<button class="primary pa-criar" data-d="' + d.getFullYear() + '-' + (d.getMonth()+1) + '-' + d.getDate() + '">＋ Criar esta aula</button></div>';
   }
+  function paAltura(){
+    const sec = $('anoSec'); if(!sec || document.body.dataset.view !== 'ano') return;
+    const top = sec.getBoundingClientRect().top + window.scrollY;
+    let alt = Math.round(top + 14);
+    document.documentElement.style.setProperty('--pa-top', alt + 'px');
+    // desconta o que ainda ficar por baixo (rodapé, margens) para não haver scroll
+    const extra = document.scrollingElement.scrollHeight - window.innerHeight;
+    if(extra > 0 && window.innerWidth > 900){
+      alt += extra + 2;
+      document.documentElement.style.setProperty('--pa-top', alt + 'px');
+    }
+  }
+  window.addEventListener('resize', ()=> paAltura());
   function renderPlanoAnual(){
+    setTimeout(paAltura, 0);
     if(paIdx === null) paIdx = paMesIdxHoje();
     const mo = PA_MESES[paIdx], hoje = new Date(), bi = paBlocoDe(mo);
     $('paBlocks').innerHTML = PA_BLOCOS.map((b,i)=> '<div class="pa-blk' + (i === bi ? ' on' : '') + '"><small>' + b.n + ' · ' + b.per + '</small><b>' + escapeHtml(b.foco) + '</b><span>' + escapeHtml(b.cad) + '<br>' + escapeHtml(b.fc) + '</span></div>').join('');
@@ -4161,7 +4289,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
     const info = selD && paTipo(selD);
     $('paDay').innerHTML = info ? paDiaCard(selD, info, selD.toDateString() === hoje.toDateString()) : '';
     $('paLegend').innerHTML = Object.keys(PA_TIPOS).filter(k=> k !== 'R').map(k=>{ const t = PA_TIPOS[k];
-      return '<div class="pa-lg" style="--tc:' + t.c + '"><b>' + escapeHtml(k === 'V' ? 'Ativação / Regenerativo' : t.n) + '</b><i>' + escapeHtml(t.rpm) + '</i><span>' + escapeHtml(k === 'V' ? 'Aulas leves à volta do teste de FTP: ativar antes e recuperar entre testes.' : t.d) + '</span></div>'; }).join('');
+      return '<div class="pa-lg" style="--tc:' + t.c + '" title="' + escapeHtml(k === 'V' ? 'Aulas leves à volta do teste de FTP: ativar antes e recuperar entre testes.' : t.d) + '"><b>' + escapeHtml(k === 'V' ? 'Ativação / Regenerativo' : t.n) + '</b><i>' + escapeHtml(t.rpm) + '</i></div>'; }).join('');
   }
   function renderPlanoHoje(){
     const el = $('paToday'); if(!el) return;
