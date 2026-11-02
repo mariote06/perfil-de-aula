@@ -418,8 +418,19 @@ body:not(:has(#liveScreen.active)) .nx-float,body:not(:has(#liveScreen.active)) 
 .lib-chips button i{width:8px;height:8px;border-radius:50%;background:var(--gc,#8A93A3);}
 .lib-chips button.on{border-color:var(--gc,var(--accent));background:color-mix(in srgb,var(--gc,#E8722C) 24%,var(--surface));}
 .lib-item .li-by{font-size:11px;color:var(--muted);}
-.solo-ctl{display:none;gap:6px;}
-body.solo .solo-ctl{display:flex;}
+.solo-bar{display:none;position:fixed;left:50%;bottom:calc(14px + env(safe-area-inset-bottom, 0px));z-index:70;transform:translateX(-50%);gap:18px;align-items:center;padding:10px 20px;background:rgba(10,13,18,.92);border:1px solid #262D39;border-radius:999px;box-shadow:0 12px 34px rgba(0,0,0,.55);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:transform .28s ease, opacity .28s ease;}
+body.solo #liveScreen.active .solo-bar.on{display:flex;}
+.solo-bar.esc{transform:translate(-50%, calc(100% + 40px));opacity:0;pointer-events:none;}
+.sb-btn{width:52px;height:52px;border-radius:50%;border:1px solid #2E3746;background:#1B212B;color:#fff;display:flex;align-items:center;justify-content:center;padding:0;}
+.sb-btn svg{width:22px;height:22px;fill:currentColor;}
+.sb-btn.play{width:64px;height:64px;background:var(--accent);border-color:var(--accent);color:#140B04;}
+.sb-btn.play svg{width:28px;height:28px;}
+.sb-btn:active{transform:scale(.94);}
+.sb-handle{display:none;position:fixed;left:50%;bottom:calc(4px + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);z-index:69;width:120px;height:26px;border:none;background:none;padding:0;}
+.sb-handle::after{content:'';position:absolute;left:32px;right:32px;top:12px;height:5px;border-radius:3px;background:rgba(255,255,255,.35);}
+body.solo #liveScreen.active .sb-handle.on{display:block;}
+body.sb-on .nx-float{bottom:calc(100px + env(safe-area-inset-bottom, 0px));}
+#liveScreen.sb-auto{cursor:none;}
 body.solo-livre #progress{display:none;}
 .solo-btn{background:var(--accent);border:none;color:#140B04;font-weight:700;padding:6px 14px;border-radius:8px;font-size:13px;}
 .solo-btn.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff;font-weight:500;}
@@ -872,7 +883,6 @@ body.solo-livre #progress{display:none;}
     </div>
     <button class="chip warnchip" id="chipSafety" aria-label="Aviso de segurança">⚠</button>
     <div class="rank" id="rankEl"></div>
-    <div class="solo-ctl"><button class="solo-btn" id="soloPlay">▶ Começar</button><button class="solo-btn ghost" id="soloSkip" title="Saltar para o bloco seguinte">⏭</button></div>
     <button class="leave-btn" id="leaveBtn">GRAVAR &amp; SAIR</button>
   </div>
   <div class="safety safety-banner" id="safetyBanner" role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17.5v.01"/></svg><div id="safetyBannerTxt">Sentes <b>desconforto, dor no peito, tonturas ou falta de ar</b>? <b>Pára de pedalar</b> e pede ajuda ao professor da aula.</div><button id="safetyClose" aria-label="Fechar aviso">✕</button></div>
@@ -931,6 +941,12 @@ body.solo-livre #progress{display:none;}
     <div class="next" id="nextEl"></div>
     <div class="next nx-seg" id="segNext"></div>
   </div>
+  <div class="solo-bar" id="soloBar">
+    <button class="sb-btn" id="soloBack" aria-label="Bloco anterior" title="Bloco anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="5" width="3" height="14" rx="1"/><path d="M20 5v14L9 12z"/></svg></button>
+    <button class="sb-btn play" id="soloPlay" aria-label="Começar" title="Começar"></button>
+    <button class="sb-btn" id="soloSkip" aria-label="Bloco seguinte" title="Bloco seguinte"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="17" y="5" width="3" height="14" rx="1"/><path d="M4 5v14l11-7z"/></svg></button>
+  </div>
+  <button class="sb-handle" id="soloHandle" aria-label="Mostrar os botões"></button>
 </div>
 
 <script>
@@ -1717,6 +1733,7 @@ body.solo-livre #progress{display:none;}
     updMyLamp();
     if(!state) return;
     if(solo === 'guiado') soloAdvance();
+    else if(!solo) aulaAvancaLocal();
     if(solo === 'livre') return renderLivre();
     buildProgress();
 
@@ -2090,6 +2107,7 @@ body.solo-livre #progress{display:none;}
   let hdrTimer = 0;
   function hdrSync(){
     const ls = $('liveScreen'); if(!ls) return;
+    if(typeof soloBarSync === 'function') soloBarSync();
     const hide = !!state && state.status === 'playing';   // fora do treino (à espera, pausa, fim) fica sempre à vista
     if(ls.classList.contains('hdr-hide') !== hide){ ls.classList.toggle('hdr-hide', hide); if(!hide) ls.classList.remove('hdr-open'); }
     const bikeOff = typeof bikeConnected === 'function' && !demo && hasBluetooth && !bikeConnected() && !hrConnected();
@@ -3044,7 +3062,7 @@ body.solo-livre #progress{display:none;}
     $('progress').dataset.built = '';
     updateModeLabels();
     $('leaveBtn').textContent = 'GRAVAR & SAIR';
-    $('soloPlay').textContent = '▶ Começar';
+    sbPlayIcon(false); sbForce = false; soloBarSync();
     showScreen('liveScreen');
     $('chipBike').classList.toggle('on', bikeConnected() || demo);
     lastSampleAt = performance.now();
@@ -3058,17 +3076,84 @@ body.solo-livre #progress{display:none;}
     if(state.status === 'playing'){
       if(solo === 'livre'){ soloClock.acc = soloElapsed(); soloClock.since = 0; state = { status:'paused', blockIndex:0 }; }
       else state = Object.assign({}, state, { status:'paused', remainingAtStart: computeRemaining(state) });
-      $('soloPlay').textContent = '▶ Continuar';
+      sbPlayIcon(false);
     } else {
       if(solo === 'livre'){ soloClock.since = Date.now(); state = { status:'playing', blockIndex:0 }; }
       else state = Object.assign({}, state, { status:'playing', startedAt: Date.now() });
-      $('soloPlay').textContent = '❚❚ Pausa';
+      sbPlayIcon(true);
     }
+    render();
+  }
+  // ---- barra de baixo do treino da biblioteca / só pedalar: ⏮ ▶ ⏭ ----
+  // à vista enquanto está parado; durante o treino esconde-se e aparece com o rato no fundo do ecrã ou com um toque em baixo
+  var sbTimer = 0, sbForce = false;
+  var SB_PLAY = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 4.5v15l12.5-7.5z"/></svg>';
+  var SB_PAUSE = '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4.5" width="4.2" height="15" rx="1.2"/><rect x="13.8" y="4.5" width="4.2" height="15" rx="1.2"/></svg>';
+  function sbPlayIcon(aTocar){
+    const b = $('soloPlay'); b.innerHTML = aTocar ? SB_PAUSE : SB_PLAY;
+    const t = aTocar ? 'Pausa' : (state && state.status === 'paused' && (state.startedAt || soloClock.acc) ? 'Continuar' : 'Começar');
+    b.setAttribute('aria-label', t); b.title = t;
+  }
+  function soloBarSync(){
+    const bar = $('soloBar'); if(!bar) return;
+    const ativo = !!solo && !!state && state.status !== 'finished';
+    const esc = ativo && state.status === 'playing' && !sbForce;
+    bar.classList.toggle('on', ativo);
+    bar.classList.toggle('esc', esc);
+    $('soloHandle').classList.toggle('on', ativo && esc);
+    document.body.classList.toggle('sb-on', ativo && !esc);
+    const g = solo === 'guiado';
+    $('soloBack').style.display = g ? '' : 'none'; $('soloSkip').style.display = g ? '' : 'none';
+  }
+  var sbRato = matchMedia('(hover:hover)').matches;
+  function sbMostra(ms){
+    sbForce = true; clearTimeout(sbTimer);
+    if(ms) sbTimer = setTimeout(sbEsconde, ms);
+    soloBarSync();
+  }
+  function sbEsconde(){
+    if(sbRato && $('soloBar').matches(':hover')) return;
+    sbForce = false; soloBarSync();
+  }
+  (function(){
+    const ls = $('liveScreen'), bar = $('soloBar'), ZONA = 110;
+    let tRato = 0;
+    ls.addEventListener('mousemove', e=>{
+      if(!solo) return;
+      ls.classList.remove('sb-auto'); clearTimeout(tRato);
+      if(state && state.status === 'playing') tRato = setTimeout(()=> ls.classList.add('sb-auto'), 2500);
+      if(window.innerHeight - e.clientY <= ZONA) sbMostra(0);
+      else if(sbForce && !bar.matches(':hover')){ clearTimeout(sbTimer); sbTimer = setTimeout(sbEsconde, 500); }
+    });
+    ls.addEventListener('mouseleave', ()=>{ if(sbForce){ clearTimeout(sbTimer); sbTimer = setTimeout(sbEsconde, 500); } });
+    ls.addEventListener('touchstart', e=>{
+      const t = e.touches[0]; if(!solo || !t) return;
+      if(window.innerHeight - t.clientY <= ZONA * 1.6 || bar.contains(e.target)) sbMostra(4000);
+    }, {passive:true});
+    $('soloHandle').addEventListener('click', ()=> sbMostra(4000));
+    bar.addEventListener('click', ()=>{ if(!sbRato) sbMostra(4000); });
+  })();
+  function soloVoltar(){   // recomeça o bloco se já passaram mais de 3 s; senão volta ao anterior
+    if(!state || state.status === 'finished' || solo !== 'guiado') return;
+    const dur = blockDurationSec(blocos[state.blockIndex]), rem = computeRemaining(state);
+    if(dur - rem > 3 || state.blockIndex === 0) state = Object.assign({}, state, { remainingAtStart: dur, startedAt: Date.now() });
+    else soloGoTo(state.blockIndex - 1);
     render();
   }
   function soloGoTo(idx){
     if(idx >= blocos.length){ finishSolo(); return; }
     state = { blockIndex: idx, status: state.status, remainingAtStart: blockDurationSec(blocos[idx]), startedAt: Date.now() };
+  }
+  // aula ao vivo: se a internet falhar (aqui ou no professor), o telemóvel continua a passar de bloco sozinho
+  // pelo relógio; quando a ligação voltar, o estado do professor volta a mandar
+  function aulaAvancaLocal(){
+    if(!state || state.status !== 'playing' || !blocos.length) return;
+    for(let n = 0; n < 500; n++){
+      const passou = (Date.now() + serverOffset - (state.startedAt || 0)) / 1000 - (state.remainingAtStart || 0);
+      const ni = state.blockIndex + 1;
+      if(passou < 0 || ni >= blocos.length) return;
+      state = Object.assign({}, state, { blockIndex: ni, remainingAtStart: blockDurationSec(blocos[ni]), startedAt: Date.now() + serverOffset - passou * 1000 });
+    }
   }
   function soloAdvance(){
     if(!state || state.status !== 'playing') return;
@@ -3350,6 +3435,7 @@ body.solo-livre #progress{display:none;}
   $('joinBack').addEventListener('click', ()=>{ showScreen('homeScreen'); renderHome(); });
   $('libBack').addEventListener('click', ()=>{ showScreen('homeScreen'); renderHome(); });
   $('soloPlay').addEventListener('click', soloPlayToggle);
+  $('soloBack').addEventListener('click', soloVoltar);
   $('soloSkip').addEventListener('click', ()=>{ if(state && state.status !== 'finished') soloGoTo(state.blockIndex + 1); render(); });
   $('finHomeBtn').addEventListener('click', ()=> leave());
   $('setupBack').addEventListener('click', ()=>{
