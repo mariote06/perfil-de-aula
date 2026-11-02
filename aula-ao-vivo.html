@@ -435,6 +435,17 @@ body.solo-livre #progress{display:none;}
 .solo-btn{background:var(--accent);border:none;color:#140B04;font-weight:700;padding:6px 14px;border-radius:8px;font-size:13px;}
 .solo-btn.ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);color:#fff;font-weight:500;}
 
+/* ---------- ligar a bike e a cinta (ecrã antes de entrar) ---------- */
+#setupScreen .form{max-width:400px;}
+#setupScreen .sensor{padding:16px 16px;border-radius:14px;min-height:76px;}
+#setupScreen .sensor .s-name{font-size:19px;font-weight:800;}
+#setupScreen .sensor .s-status{font-size:15px;font-weight:600;margin-top:4px;}
+#setupScreen .sensor .s-status.on{font-weight:800;}
+#setupScreen .sensor button{font-size:16px;font-weight:700;padding:12px 18px;border-radius:10px;}
+#setupScreen .bt-all{width:100%;background:transparent;border:1.5px dashed rgba(255,255,255,.28);color:#fff;border-radius:12px;padding:13px 14px;font-size:15px;font-weight:700;text-align:center;}
+#setupScreen .bt-all:hover{border-color:var(--accent);}
+#setupScreen #bikeHelp{font-size:14px;line-height:1.45;}
+
 /* ---------- Ficha do aluno ---------- */
 .ficha{max-width:420px;width:100%;text-align:left;display:flex;flex-direction:column;gap:14px;}
 .ficha h1{text-align:left;}
@@ -518,6 +529,13 @@ body.solo-livre #progress{display:none;}
 .fin-ftp{font-size:15px;line-height:1.45;margin:0 0 8px;max-width:420px;}
 .fin-ftp:empty{display:none;}
 .fin-ftp b{color:#FFD60A;}
+.chip.occhip{width:40px;min-height:40px;height:40px;padding:0;justify-content:center;font-size:17px;align-self:center;}
+.chip.occhip.on{background:rgba(155,92,255,.22);border-color:rgba(155,92,255,.6);}
+body.solo .chip.occhip{display:none;}
+@keyframes warnPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,59,59,0)}50%{box-shadow:0 0 0 6px rgba(255,59,59,.35)}}
+.chip.warnchip.pulse{animation:warnPulse 1.2s ease-in-out 4;}
+.oc-tag{display:none;align-self:center;margin:4px auto 0;font-size:12px;font-weight:700;color:#C9A8FF;background:rgba(155,92,255,.14);border:1px solid rgba(155,92,255,.4);border-radius:999px;padding:3px 10px;}
+body.oculto:not(.solo) .oc-tag{display:inline-block;}
 .chip.warnchip{color:#FF8A8A;border-color:rgba(255,59,59,.4);width:40px;min-height:40px;height:40px;padding:0;justify-content:center;font-size:14px;align-self:center;}
 #liveScreen{position:relative;}
 /* lâmpada: acende com a eletricidade gerada (kJ ÷ 3,6 × 80% de um gerador) */
@@ -817,7 +835,7 @@ body.solo-livre #progress{display:none;}
       <div><div class="s-name">♥ Cinta de FC</div><div class="s-status" id="hrStatus">opcional</div></div>
       <button id="hrBtn">Ligar</button>
     </div>
-    <button id="showAllBtn" class="btn-link" style="display:none;text-align:left;padding:0">Não aparece? Mostrar todos os dispositivos Bluetooth</button>
+    <button id="showAllBtn" class="bt-all">🔍 Não aparece? Mostrar todos os dispositivos Bluetooth</button>
     <div class="hint" id="bikeHelp">Antes de ligar: pedala um pouco para acordar a consola da bike. Tens de ter o Bluetooth e a Localização do telemóvel ligados.</div>
     <div class="warn" id="btWarn"></div>
   </div>
@@ -882,6 +900,7 @@ body.solo-livre #progress{display:none;}
       </div>
     </div>
     <button class="chip warnchip" id="chipSafety" aria-label="Aviso de segurança">⚠</button>
+    <button class="chip occhip" id="chipOculto" aria-pressed="false" aria-label="Aparecer ou não na projeção" title="Aparecer ou não na projeção"></button>
     <div class="rank" id="rankEl"></div>
     <button class="leave-btn" id="leaveBtn">GRAVAR &amp; SAIR</button>
   </div>
@@ -889,6 +908,7 @@ body.solo-livre #progress{display:none;}
   <div class="body" id="bodyEl">
     <div class="lamp" id="myLamp"><svg viewBox="0 0 64 80" aria-hidden="true"><g class="lrs"><line class="lr" x1="32" y1="-6" x2="32" y2="-14"/><line class="lr" x1="6" y1="6" x2="0" y2="0"/><line class="lr" x1="58" y1="6" x2="64" y2="0"/><line class="lr" x1="-4" y1="28" x2="-12" y2="28"/><line class="lr" x1="68" y1="28" x2="76" y2="28"/></g><path class="lg" d="M32 4a24 24 0 0 1 14 43.5c-2.8 2.1-4.2 4.6-4.2 7.4V57H22.2v-2.1c0-2.8-1.4-5.3-4.2-7.4A24 24 0 0 1 32 4z"/><path class="lf" d="M25 44l3.5-11 3.5 8 3.5-8L39 44"/><rect class="lb" x="22" y="59" width="20" height="5" rx="2"/><rect class="lb" x="23.5" y="66" width="17" height="5" rx="2"/><rect class="lb" x="27" y="73" width="10" height="4" rx="2"/></svg><span class="lwh">0 Wh</span><span class="leur">≈ 0,00 cêntimos</span></div>
     <div class="class-name" id="className"></div>
+    <div class="oc-tag" id="ocTag">🙈 Não apareces na projeção · o treino fica gravado</div>
     <div id="activeBlock" style="width:100%;display:flex;flex-direction:column;align-items:center;">
       <div class="ce-mini" id="ceMini"><svg class="ce-svg" viewBox="0 0 200 130" aria-hidden="true"><g class="ce-g"><path d="M20 58 V96 M20 77 H40"/><path d="M40 52 H58 V40 H134 L148 54 H158 V46 H170 V102 H158 V94 H148 L132 110 H74 L58 96 H40 Z"/><path d="M78 18 H110 M94 18 V40"/></g></svg></div>
       <div class="rl-mini" id="rlMini"><svg class="rl-svg" viewBox="0 0 200 112" aria-hidden="true"><path class="arc" d="M14 100 A86 86 0 0 1 186 100"/><line x1="24.0" y1="100.0" x2="38.0" y2="100.0" class="wt mj"/><line x1="24.9" y1="88.1" x2="32.8" y2="89.4" class="wt"/><line x1="27.7" y1="76.5" x2="35.3" y2="79.0" class="wt"/><line x1="32.3" y1="65.5" x2="39.4" y2="69.1" class="wt"/><line x1="38.5" y1="55.3" x2="45.0" y2="60.0" class="wt"/><line x1="46.3" y1="46.3" x2="56.2" y2="56.2" class="wt mj"/><line x1="55.3" y1="38.5" x2="60.0" y2="45.0" class="wt"/><line x1="65.5" y1="32.3" x2="69.1" y2="39.4" class="wt"/><line x1="76.5" y1="27.7" x2="79.0" y2="35.3" class="wt"/><line x1="88.1" y1="24.9" x2="89.4" y2="32.8" class="wt"/><line x1="100.0" y1="24.0" x2="100.0" y2="38.0" class="wt mj"/><line x1="111.9" y1="24.9" x2="110.6" y2="32.8" class="wt"/><line x1="123.5" y1="27.7" x2="121.0" y2="35.3" class="wt"/><line x1="134.5" y1="32.3" x2="130.9" y2="39.4" class="wt"/><line x1="144.7" y1="38.5" x2="140.0" y2="45.0" class="wt"/><line x1="153.7" y1="46.3" x2="143.8" y2="56.2" class="wt mj"/><line x1="161.5" y1="55.3" x2="155.0" y2="60.0" class="wt"/><line x1="167.7" y1="65.5" x2="160.6" y2="69.1" class="wt"/><line x1="172.3" y1="76.5" x2="164.7" y2="79.0" class="rt"/><line x1="175.1" y1="88.1" x2="167.2" y2="89.4" class="rt"/><line x1="176.0" y1="100.0" x2="162.0" y2="100.0" class="rt mj"/><path class="rz" d="M163.9 76.7 A68 68 0 0 1 168.0 98.8"/><g class="needle"><path d="M100 96.5 L172 100 L100 103.5 Z"/></g><circle class="hub" cx="100" cy="100" r="7"/><circle class="hub2" cx="100" cy="100" r="3"/></svg></div>
@@ -1325,7 +1345,6 @@ body.solo-livre #progress{display:none;}
       if(bikeConnected()){ setBikeStatus(S.bikeName + ' ligada', true); return; }
       if(e && e.name === 'NotFoundError'){
         setBikeStatus(showAll === true ? 'nenhum dispositivo escolhido' : 'bike não encontrada: toca em "Não aparece?" em baixo', false);
-        $('showAllBtn').style.display = '';
         return;
       }
       if(e && (e.name === 'SecurityError' || e.name === 'NotAllowedError')){
@@ -1333,7 +1352,6 @@ body.solo-livre #progress{display:none;}
         return;
       }
       setBikeStatus(btErr(typeof btStage === 'string' ? btStage : '', e), false);
-      $('showAllBtn').style.display = '';
     }
   }
 
@@ -1552,8 +1570,10 @@ body.solo-livre #progress{display:none;}
       aw: me.as ? Math.round(me.sumW / me.as) : 0, mw: Math.round(me.mw),
       iz: Math.round(me.iz), as: Math.round(modo === 'fc' ? me.ts : me.as),
       dev: hasPowerSource() || (modo === 'fc' && myHr() > 0), demo: demo || null, left: null,
+      pw: hasPowerSource() ? true : false,   // tem bike/potenciómetro ligado (a projeção por zonas mostra %FTP)
       rx: me.rx || null, fa: me.fa || null,
       md: moodHoje(),   // emoji do "como te sentes hoje?" (aparece junto ao nome na projeção)
+      oc: ocultoProj ? true : null,   // pediu para não aparecer no ecrã da projeção (continua no relatório do professor)
       t: firebase.database.ServerValue.TIMESTAMP
     }).catch(()=>{});
   }
@@ -2051,6 +2071,7 @@ body.solo-livre #progress{display:none;}
   $('pinInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') checkPin(e.target.value.trim()); });
   $('bikeBtn').addEventListener('click', ()=> connectBike(false));
   $('showAllBtn').addEventListener('click', ()=> connectBike(true));
+  if(!hasBluetooth) $('showAllBtn').style.display = 'none';   // sem Bluetooth na web (iPhone fora do Bluefy) não serve
   $('hrBtn').addEventListener('click', connectHr);
   $('chipBike').addEventListener('click', ()=>{ if(!demo) connectBike(false); });
   $('chipHr').addEventListener('click', connectHr);
@@ -3324,7 +3345,7 @@ body.solo-livre #progress{display:none;}
     let t = $('prToast');
     if(!t){ t = document.createElement('div'); t.id = 'prToast'; t.className = 'pr-toast'; t.setAttribute('role', 'status'); document.body.appendChild(t); }
     t.textContent = txt; t.classList.remove('on'); void t.offsetWidth; t.classList.add('on');
-    clearTimeout(toast.h); toast.h = setTimeout(()=> t.classList.remove('on'), 2600);
+    clearTimeout(toast.h); toast.h = setTimeout(()=> t.classList.remove('on'), txt.length > 60 ? 4500 : 2600);
   }
   function openFicha(){ fillFichaForm(ficha); showScreen('fichaScreen'); }
 
@@ -3399,7 +3420,25 @@ body.solo-livre #progress{display:none;}
       : 'Se sentires <b>dor no peito, tonturas, falta de ar ou qualquer desconforto</b>, pára de pedalar e pede ajuda ao professor da aula.';
   }
 
-  // aviso durante a aula: aparece ao entrar e sempre que tocas em ⚠
+  // ---- não aparecer na projeção: o treino continua a ser gravado e entra no relatório do professor ----
+  var ocultoProj = false;
+  try{ ocultoProj = localStorage.getItem('prOcultoProj') === '1'; }catch(e){}
+  function ocultoSync(){
+    const b = $('chipOculto'); if(!b) return;
+    b.textContent = ocultoProj ? '🙈' : '👁';
+    b.classList.toggle('on', ocultoProj); b.setAttribute('aria-pressed', ocultoProj ? 'true' : 'false');
+    b.title = ocultoProj ? 'Estás oculto na projeção (toca para voltares a aparecer)' : 'Estás visível na projeção (toca para não apareceres)';
+    document.body.classList.toggle('oculto', ocultoProj);
+  }
+  $('chipOculto').addEventListener('click', ()=>{
+    ocultoProj = !ocultoProj;
+    try{ localStorage.setItem('prOcultoProj', ocultoProj ? '1' : '0'); }catch(e){}
+    ocultoSync(); pushRider();
+    toast(ocultoProj ? '🙈 Já não apareces na projeção. O treino continua a ser gravado e fica no relatório do professor.' : '👁 Voltaste a aparecer na projeção.');
+  });
+  ocultoSync();
+
+  // aviso de segurança: começa minimizado (só o ⚠ em cima, a pulsar uns segundos); abre ao tocar em ⚠
   let safetyTimer = null;
   function showSafety(ms){
     $('safetyBannerTxt').innerHTML = solo
@@ -3416,7 +3455,7 @@ body.solo-livre #progress{display:none;}
     const was = currentScreen;
     _showScreen(id);
     if(id === 'setupScreen') setupFichaInfo();
-    if(id === 'liveScreen' && was !== 'liveScreen') showSafety(12000);
+    if(id === 'liveScreen' && was !== 'liveScreen'){ const c = $('chipSafety'); c.classList.remove('pulse'); void c.offsetWidth; c.classList.add('pulse'); }
     if(id !== 'liveScreen'){ clearTimeout(safetyTimer); $('safetyBanner').classList.remove('on'); }
   };
 
