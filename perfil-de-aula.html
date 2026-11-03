@@ -1178,6 +1178,77 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   .ed-actions .act{flex:0 0 auto;padding:8px 12px;font-size:13px;}
 }
 body[data-view="ano"] .legal{margin-top:8px;}
+/* ---------- jogos e percurso na projeção ---------- */
+.game-panel{display:none;flex:1;flex-direction:column;gap:10px;min-height:0;overflow:auto;}
+.jg-bar{display:flex;flex-direction:column;gap:6px;}
+.jg-tipos,.jg-forma{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
+.jg-tipos button,.jg-forma button{padding:6px 11px;font-size:13px;border-radius:999px;background:#141A24;border:1px solid #262D39;color:#C9CED6;}
+.jg-tipos button.on,.jg-forma button.on{border-color:var(--accent);color:#fff;background:rgba(232,114,44,.18);}
+.jg-g{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.45);margin:0 2px 0 6px;}
+.jg-forma span{font-size:12px;color:rgba(255,255,255,.55);}
+.jg-area{flex:1;display:flex;flex-direction:column;gap:12px;min-height:0;}
+.jg-placar{text-align:center;font-size:clamp(16px,1.6vw,24px);color:rgba(255,255,255,.75);}
+.jg-placar b{font-family:'Barlow Condensed',sans-serif;font-size:1.8em;color:#fff;margin:0 6px;}
+.jg-placar small{display:block;font-size:.6em;color:rgba(255,255,255,.5);}
+.jg-chips{display:flex;flex-wrap:wrap;gap:5px;}
+.jg-chips.c{justify-content:center;}
+.jg-chip{font-size:13px;font-weight:600;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.07);color:rgba(255,255,255,.7);border:1px solid transparent;}
+.jg-chip.ok{background:rgba(61,212,92,.18);color:#B8F5C8;border-color:rgba(61,212,92,.5);}
+.jg-chip.off{opacity:.4;}
+/* cabo de guerra */
+.jg-cabo{position:relative;height:clamp(90px,14vh,150px);border-radius:16px;overflow:hidden;background:#0B0F15;border:1px solid #1B212B;}
+.jg-cabo-lado{position:absolute;top:0;bottom:0;left:0;width:50%;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 45%,transparent),transparent);}
+.jg-cabo-lado.d{left:50%;background:linear-gradient(270deg,color-mix(in srgb,var(--c) 45%,transparent),transparent);}
+.jg-corda{position:absolute;left:4%;right:4%;top:50%;height:8px;margin-top:-4px;border-radius:4px;background:repeating-linear-gradient(45deg,#C9A36B 0 8px,#8C6A3A 8px 16px);}
+.jg-meio{position:absolute;left:50%;top:12%;bottom:12%;width:3px;margin-left:-1.5px;background:#fff;opacity:.6;}
+.jg-no{position:absolute;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:#E8722C;border:3px solid #fff;box-shadow:0 0 18px #E8722C;transition:left .9s linear;}
+.jg-venc{text-align:center;font-size:clamp(20px,2.4vw,34px);font-weight:800;animation:nxPulse 1s ease-in-out infinite;}
+.jg-eqs{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.jg-eq,.jg-cor{border:1px solid color-mix(in srgb,var(--c) 55%,transparent);border-left:6px solid var(--c);border-radius:12px;padding:8px 10px;background:color-mix(in srgb,var(--c) 10%,#0B0F15);}
+.jg-eqh,.jg-corh{display:flex;align-items:baseline;gap:10px;margin-bottom:6px;}
+.jg-eqh b,.jg-corh b{color:var(--c);font-size:17px;}
+.jg-eqh span,.jg-corh span{color:rgba(255,255,255,.65);font-size:13px;}
+/* escalada */
+.jg-mont{width:100%;flex:1;min-height:200px;max-height:48vh;}
+/* sobrevivente */
+.jg-sobre{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;}
+.jg-sv{background:#0B0F15;border:1px solid #1B212B;border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;}
+.jg-sv.ok{border-color:rgba(61,212,92,.6);}
+.jg-sv b{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.jg-sv .cor{font-size:18px;letter-spacing:1px;}
+.jg-sv .est{color:#FFD60A;font-size:14px;}
+.jg-sv.morto{opacity:.4;filter:grayscale(1);}
+/* equipas por cores e pares */
+.jg-cores,.jg-pares{display:flex;flex-direction:column;gap:8px;}
+.jg-corh .pos,.jg-par .pos{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#fff;min-width:28px;}
+.jg-corh .v,.jg-par .v{margin-left:auto;font-family:'Barlow Condensed',sans-serif;font-size:24px;color:#fff;}
+.jg-trk{height:12px;border-radius:999px;background:rgba(255,255,255,.07);overflow:hidden;margin:4px 0 6px;}
+.jg-trk div{height:100%;border-radius:999px;background:var(--c,#E8722C);transition:width .9s linear;}
+.jg-par{display:grid;grid-template-columns:auto 1.3fr 1fr auto;align-items:center;gap:10px;background:#0B0F15;border:1px solid #1B212B;border-radius:12px;padding:8px 12px;}
+.jg-par.lider{border-color:#FFD60A;}
+.jg-par .jg-trk{margin:0;}
+.jg-pnomes{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:15px;}
+.jg-pnomes i{color:rgba(255,255,255,.4);font-style:normal;}
+.jg-pn{padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.07);}
+.jg-pn.ok{background:rgba(61,212,92,.2);color:#B8F5C8;}
+.jg-pnomes .fogo{color:#FFAA2B;font-weight:800;font-size:13px;}
+/* percurso */
+.perc-info{font-size:13px;color:rgba(255,255,255,.6);text-align:center;}
+.perc-wrap{flex:0 0 auto;border-radius:14px;background:linear-gradient(180deg,#0B1420,#05070A);border:1px solid #1B212B;overflow:hidden;}
+.perc-svg{width:100%;height:auto;display:block;max-height:52vh;}
+.perc-tab{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;}
+.perc-l{display:flex;gap:8px;align-items:baseline;background:#0B0F15;border:1px solid #1B212B;border-radius:10px;padding:6px 10px;font-size:14px;}
+.perc-l .pos{font-weight:800;color:#fff;}
+.perc-l b{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.perc-l span:last-child{color:rgba(255,255,255,.55);font-variant-numeric:tabular-nums;}
+.perc-l span.ok:last-child{color:#7FD3A6;}
+/* escolher equipas */
+.jg-card{max-width:760px;}
+.jg-ed{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
+.jg-edg{border:1px solid #262D39;border-top:4px solid var(--c);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:5px;}
+.jg-edg button{text-align:left;font-size:14px;padding:6px 9px;}
+.live-overlay .ctrl-group.left button{padding:8px 10px;}
+
 /* pilha / powerbank: carrega com a energia gerada (Wh ÷ 3,7 V = Ah) */
 .batt{position:absolute;top:var(--lt,6px);left:var(--lr,8px);z-index:5;display:flex;flex-direction:column;align-items:center;gap:1px;pointer-events:none;transform-origin:top left;}
 .batt svg{width:calc(var(--lw,40px) * .62);height:auto;overflow:visible;filter:drop-shadow(0 0 calc(3px + 14px * var(--bv,0)) rgba(61,212,92,calc(.25 + .6 * var(--bv,0))));}
@@ -1320,6 +1391,8 @@ body[data-view="ano"] .legal{margin-top:8px;}
 .sp-pl small{color:var(--muted);font-size:12px;}
 .sp-load{color:var(--muted);text-align:center;padding:18px 0;}
 .sp-dica{font-size:12px;color:var(--muted-2);margin:10px 0 0;}
+.sum-crit{text-align:center;color:#7FD3A6;font-weight:700;font-size:clamp(14px,1.4vw,18px);margin:0 0 6px;}
+.sum-table .sum-zona{color:#7FD3A6;font-weight:800;}
 .sum-oc{text-align:center;color:rgba(255,255,255,.55);font-size:13px;margin:6px 0 4px;}
 .lh-net{display:none;margin-top:4px;font-size:13px;font-weight:600;color:#FFD60A;background:rgba(255,214,10,.12);border:1px solid rgba(255,214,10,.35);border-radius:999px;padding:3px 12px;}
 html.sem-net .lh-net{display:inline-block;}
@@ -1625,6 +1698,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       </div>
       <div class="rgrid" id="rgrid"></div>
       <div class="lanes" id="lanes"></div>
+      <div class="game-panel" id="gamePanel"></div>
       <div class="rp-empty" id="rpEmpty">Ainda ninguém ligou a bike.<br>Toca no PIN para mostrar o QR code.</div>
     </div>
   </div>
@@ -1634,6 +1708,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       <button data-mode="aula" title="Tecla 1">Aula</button>
       <button data-mode="turma" title="Tecla 2">Turma</button>
       <button data-mode="corrida" title="Tecla 3">Corrida</button>
+      <button data-mode="jogos" title="Tecla 4">🎮 Jogos</button>
+      <button data-mode="percurso" title="Tecla 5">⛰️ Percurso</button>
     </div>
     <button class="ctrl" id="liveBack" title="Bloco anterior">⏮</button>
     <button class="ctrl play" id="livePlay" title="Play/Pausa">▶</button>
@@ -1677,6 +1753,13 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   </div>
 </div>
 
+<div class="modal" id="jgModal">
+  <div class="modal-card jg-card">
+    <h3>✋ Equipas</h3>
+    <div id="jgModalBody"></div>
+    <div class="modal-actions"><button class="primary" id="jgModalOk">Feito</button></div>
+  </div>
+</div>
 <div class="modal" id="sujoModal">
   <div class="modal-card sujo-card">
     <h3>Alterações por gravar</h3>
@@ -3351,6 +3434,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const rows = entry.riders.map((r,i)=>{
       const pct = riderAvgPct(r);
       return '<tr><td>' + (i+1) + '</td><td>' + escapeHtml(r.n) + (r.oc ? ' <span title="Escolheu não aparecer na projeção">🙈</span>' : '') + '</td>' +
+        '<td class="sum-zona">' + riderZonePct(r) + '%</td>' +
         '<td>' + (r.ftp ? r.ftp + (r.ftpIni && r.ftpIni !== r.ftp ? ' <small title="alterou o FTP na aula">✎ era ' + r.ftpIni + '</small>' : '') : '—') + '</td>' +
         (hasTest ? '<td>' + (r.ftpT ? '<b>' + r.ftpT + ' W</b> <small>(média ' + r.m20 + ')</small>' : (r.m20 ? '<small>incompleto</small>' : '—')) + '</td>' : '') +
         '<td>' + Math.round(r.pts||0) + '</td>' +
@@ -3359,12 +3443,17 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
         '<td>' + Math.round(r.aw||0) + '</td>' +
         '<td>' + (pct==null ? '—' : pct + '%') + '</td>' +
         '<td>' + Math.round(r.mw||0) + '</td>' +
-        '<td>' + riderZonePct(r) + '%</td>' +
         '<td>' + fmtTime(r.as||0) + '</td>' + (hasMood ? '<td class="sum-md">' + sentirCell(r) + '</td>' : '') + '</tr>';
     }).join('');
-    return '<table class="sum-table"><thead><tr><th>#</th><th>Nome</th><th>FTP</th>' + (hasTest ? '<th>Teste FTP</th>' : '') + '<th>Pontos</th><th>kJ</th><th>km</th><th>W médios</th><th>%FTP médio</th><th>W máx</th><th>Na zona</th><th>Tempo</th>' + (hasMood ? '<th>Como se sentiu</th>' : '') + '</tr></thead><tbody>' + rows + '</tbody></table>';
+    return '<table class="sum-table"><thead><tr><th>#</th><th>Nome</th><th class="sum-zona">Na zona</th><th>FTP</th>' + (hasTest ? '<th>Teste FTP</th>' : '') + '<th>Pontos</th><th>kJ</th><th>km</th><th>W médios</th><th>%FTP médio</th><th>W máx</th><th>Tempo</th>' + (hasMood ? '<th>Como se sentiu</th>' : '') + '</tr></thead><tbody>' + rows + '</tbody></table>';
   }
 
+  // ranking final: quem cumpriu mais tempo dentro da zona pedida (em % do tempo a pedalar).
+  // Quem pedalou menos de metade da aula fica depois dos outros; empate desfaz-se pelos pontos.
+  function sortZona(list, dur){
+    const min = Math.max(60, (dur || totalDuration(current.blocos) || 0) * 0.5);
+    return list.slice().sort((a,b)=> ((b.as||0) >= min) - ((a.as||0) >= min) || riderZonePct(b) - riderZonePct(a) || (b.pts||0) - (a.pts||0));
+  }
   function sortRidersBy(list, metric){
     return list.slice().sort((a,b)=> (metric==='kj' ? (b.kj||0)-(a.kj||0) : (b.pts||0)-(a.pts||0)));
   }
@@ -3566,10 +3655,284 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     return (a ? '<span title="antes: ' + a[1] + '">' + a[0] + '</span>' : '·') + (d ? ' → <span title="depois: ' + d[1] + '">' + d[0] + '</span>' : '') +
       (x ? ' <small title="o treino foi ' + x[1] + '">treino ' + x[0] + '</small>' : '');
   }
+  // ================= JOGOS E PERCURSO VIRTUAL (projeção) =================
+  // Tudo é calculado aqui, no PC da projeção, a partir dos dados que os telemóveis já enviam.
+  // Em todos os jogos só conta quem está DENTRO da zona do bloco.
+  var JG_TIPOS = {
+    cabo:     { n:'Cabo de guerra',       g:'grupo', ico:'🪢' },
+    escalada: { n:'Escalada coletiva',    g:'grupo', ico:'⛰️' },
+    sobre:    { n:'Sobrevivente da zona', g:'grupo', ico:'❤️' },
+    cores:    { n:'Equipas por cores',    g:'grupo', ico:'🎨' },
+    sinc:     { n:'Pares sincronizados',  g:'pares', ico:'🤝' },
+    cpares:   { n:'Corrida de pares',     g:'pares', ico:'🏁' },
+    estafeta: { n:'Estafeta',             g:'pares', ico:'🔁' }
+  };
+  var EQ_COR = ['#3B82F6', '#EF4444', '#22C55E', '#EAB308'], EQ_NOME = ['Azul', 'Vermelha', 'Verde', 'Amarela'];
+  var JG = { tipo: 'cabo', forma: 'equilibrado', grupos: {}, st: {}, perc: {}, lastT: 0, z: {}, blocoVisto: -1 };
+  try{ JG.tipo = localStorage.getItem('prJgTipo') || 'cabo'; JG.forma = localStorage.getItem('prJgForma') || 'equilibrado'; }catch(e){}
+  if(!JG_TIPOS[JG.tipo]) JG.tipo = 'cabo';
+  function jgReset(){ JG.grupos = {}; JG.st = {}; JG.perc = {}; JG.lastT = 0; JG.z = {}; JG.blocoVisto = -1; }
+
+  // está dentro da zona do bloco agora? (mesma regra dos cartões da Turma)
+  function jgNaZona(r){
+    if(!r || !r.online) return false;
+    const b = current.blocos[liveIdx]; if(!b) return false;
+    const fc = modoAtual() === 'fc';
+    const pct = fc ? ((r.fc && r.hr) ? r.hr / r.fc * 100 : null) : (r.ftp ? (r.w || 0) / r.ftp * 100 : null);
+    if(pct == null || !(fc ? r.hr > 0 : (r.w || 0) > 0)) return false;
+    return getZone(pct).name === getZone(b.ftp || 0).name;
+  }
+  function jgPedala(r){ return r && r.online && ((r.w || 0) > 0 || (r.hr || 0) > 0); }
+
+  // ---- equipas e pares: equilibrado (pelo FTP), aleatório ou escolhidos pelo professor ----
+  function jgChave(){ const g = JG_TIPOS[JG.tipo].g; return g === 'pares' ? 'p' : (JG.tipo === 'cabo' ? '2' : JG.tipo === 'cores' ? 'n' : null); }
+  function jgNEquipas(k, n){ return k === '2' ? 2 : k === 'n' ? (n >= 12 ? 4 : 3) : Math.max(1, Math.ceil(n / 2)); }
+  function jgFormar(k, forma){
+    const rs = visRiders().filter(r=> r.dev || (r.as || 0) > 0);
+    let ids = rs.map(r=> r.id);
+    const ftp = id=>{ const r = riders[id] || {}; return r.ftp || 0; };
+    if(forma === 'aleatorio'){ for(let i = ids.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [ids[i], ids[j]] = [ids[j], ids[i]]; } }
+    else ids.sort((a,b)=> ftp(b) - ftp(a));
+    const n = jgNEquipas(k, ids.length), out = Array.from({length: n}, ()=> []);
+    if(k === 'p'){
+      if(forma === 'aleatorio') ids.forEach((id, i)=> out[Math.floor(i / 2)].push(id));
+      else { let a = 0, z = ids.length - 1, p = 0; while(a <= z){ out[p].push(ids[a++]); if(a <= z) out[p].push(ids[z--]); p++; } }   // o mais forte com o mais leve
+      if(out.length > 1 && out[out.length - 1].length === 1){ out[out.length - 2].push(out.pop()[0]); }   // número ímpar: o último junta-se ao par anterior (trio)
+    } else {
+      ids.forEach((id, i)=>{ const ronda = Math.floor(i / n), pos = i % n; out[ronda % 2 ? n - 1 - pos : pos].push(id); });   // "serpentina"
+    }
+    JG.grupos[k] = out.filter(g=> g.length || k !== 'p');
+    return JG.grupos[k];
+  }
+  function jgGrupos(){
+    const k = jgChave(); if(!k) return null;
+    if(!JG.grupos[k]) jgFormar(k, JG.forma === 'professor' ? 'equilibrado' : JG.forma);
+    // quem chegou depois entra na equipa (ou par) com menos gente
+    const g = JG.grupos[k], tem = new Set(g.flat());
+    visRiders().filter(r=> (r.dev || (r.as || 0) > 0) && !tem.has(r.id)).forEach(r=>{
+      if(k === 'p'){ const ult = g[g.length - 1]; if(ult && ult.length < 2) ult.push(r.id); else g.push([r.id]); }
+      else { let m = 0; g.forEach((x, i)=>{ if(x.length < g[m].length) m = i; }); g[m].push(r.id); }
+    });
+    return g;
+  }
+  function jgNome(id){ const r = riders[id]; return r && r.n ? r.n : '?'; }
+
+  // ---- um segundo de jogo ----
+  function jgTick(){
+    const now = performance.now(), dt = JG.lastT ? Math.min(3, (now - JG.lastT) / 1000) : 0;
+    JG.lastT = now;
+    const rs = visRiders();
+    JG.z = {}; rs.forEach(r=> JG.z[r.id] = jgNaZona(r));
+    if(!livePlaying || !dt) return;
+    // percurso: avança sempre (a 100% dentro da zona, a 60% fora dela)
+    rs.forEach(r=>{ if(jgPedala(r)) JG.perc[r.id] = (JG.perc[r.id] || 0) + dt * (JG.z[r.id] ? 1 : 0.6); });
+    const st = JG.st[JG.tipo] || (JG.st[JG.tipo] = {});
+    const g = jgGrupos();
+    const naZ = id=> !!JG.z[id];
+    if(JG.tipo === 'cabo'){
+      if(st.pos == null){ st.pos = 0; st.vit = [0, 0]; }
+      if(st.pausa > 0){ st.pausa -= dt; if(st.pausa <= 0){ st.pos = 0; st.venc = null; } return; }
+      const f = g.slice(0, 2).map(e=> e.length ? e.filter(naZ).length / e.length : 0);
+      st.f = f;
+      st.pos = Math.max(-100, Math.min(100, st.pos + (f[1] - f[0]) * 6 * dt));
+      if(Math.abs(st.pos) >= 100){ const w = st.pos > 0 ? 1 : 0; st.vit[w]++; st.venc = w; st.pausa = 6; }
+    } else if(JG.tipo === 'escalada'){
+      st.seg = (st.seg || 0) + rs.filter(r=> naZ(r.id)).length * dt;
+      st.n = Math.max(st.n || 0, rs.filter(jgPedala).length);
+    } else if(JG.tipo === 'sobre'){
+      if(!st.vidas || st.bloco !== liveIdx){
+        if(st.vidas) Object.keys(st.vidas).forEach(id=>{ if(st.vidas[id] > 0) st.estr[id] = (st.estr[id] || 0) + 1; });   // sobreviveu ao bloco: ganha ★
+        st.estr = st.estr || {}; st.vidas = {}; st.fora = {}; st.bloco = liveIdx;
+      }
+      rs.forEach(r=>{
+        if(st.vidas[r.id] == null) st.vidas[r.id] = 3;
+        if(st.vidas[r.id] <= 0 || !jgPedala(r) && !r.online) return;
+        if(naZ(r.id)) st.fora[r.id] = 0;
+        else { st.fora[r.id] = (st.fora[r.id] || 0) + dt; if(st.fora[r.id] >= 5){ st.vidas[r.id]--; st.fora[r.id] = 0; } }   // 5 s fora da zona = perde uma vida
+      });
+    } else if(JG.tipo === 'cores'){
+      st.pts = st.pts || [];
+      g.forEach((e, i)=>{ st.pts[i] = (st.pts[i] || 0) + (e.length ? e.filter(naZ).length / e.length : 0) * dt; });
+    } else if(JG.tipo === 'sinc'){
+      st.pts = st.pts || []; st.serie = st.serie || [];
+      g.forEach((p, i)=>{
+        const ok = p.length && p.every(naZ);
+        st.pts[i] = (st.pts[i] || 0) + (ok ? dt : 0);
+        st.serie[i] = ok ? (st.serie[i] || 0) + dt : 0;
+        st.best = Math.max(st.best || 0, st.serie[i]);
+      });
+    } else if(JG.tipo === 'cpares'){
+      st.kj = st.kj || [];
+      g.forEach((p, i)=>{ st.kj[i] = (st.kj[i] || 0) + p.reduce((a, id)=> a + (naZ(id) ? (riders[id].w || 0) * dt / 1000 : 0), 0); });
+    } else if(JG.tipo === 'estafeta'){
+      st.pts = st.pts || [];
+      g.forEach((p, i)=>{ const ativo = p[liveIdx % p.length]; st.pts[i] = (st.pts[i] || 0) + (naZ(ativo) ? dt : 0); });
+    }
+  }
+
+  // ---- desenho ----
+  function jgBarra(){
+    const k = jgChave(), forma = JG.forma;
+    return '<div class="jg-bar">' +
+      '<div class="jg-tipos"><span class="jg-g">Grupo</span>' + Object.keys(JG_TIPOS).filter(t=> JG_TIPOS[t].g === 'grupo').map(t=> '<button data-jg="' + t + '" class="' + (JG.tipo === t ? 'on' : '') + '">' + JG_TIPOS[t].ico + ' ' + JG_TIPOS[t].n + '</button>').join('') +
+      '<span class="jg-g">Pares</span>' + Object.keys(JG_TIPOS).filter(t=> JG_TIPOS[t].g === 'pares').map(t=> '<button data-jg="' + t + '" class="' + (JG.tipo === t ? 'on' : '') + '">' + JG_TIPOS[t].ico + ' ' + JG_TIPOS[t].n + '</button>').join('') + '</div>' +
+      (k ? '<div class="jg-forma"><span>' + (k === 'p' ? 'Pares' : 'Equipas') + ':</span>' +
+        [['equilibrado', '⚖️ Equilibradas (FTP)'], ['aleatorio', '🎲 Aleatórias'], ['professor', '✋ Escolho eu']].map(([v, l])=> '<button data-forma="' + v + '" class="' + (forma === v ? 'on' : '') + '">' + l + '</button>').join('') +
+        '<button data-jgr="1" title="Recomeçar o jogo com as mesmas equipas">↻ Recomeçar</button></div>' : '<div class="jg-forma"><button data-jgr="1">↻ Recomeçar</button></div>') +
+      '</div>';
+  }
+  function jgChip(id){ return '<span class="jg-chip' + (JG.z[id] ? ' ok' : '') + (riders[id] && !riders[id].online ? ' off' : '') + '">' + escapeHtml(jgNome(id)) + '</span>'; }
+  function jgHtml(){
+    const st = JG.st[JG.tipo] || {}, g = jgGrupos(), rs = visRiders();
+    const nz = rs.filter(r=> JG.z[r.id]).length, np = rs.filter(jgPedala).length;
+    let h = '';
+    if(JG.tipo === 'cabo'){
+      const pos = st.pos || 0, f = st.f || [0, 0], vit = st.vit || [0, 0];
+      h += '<div class="jg-placar"><b style="color:' + EQ_COR[0] + '">' + vit[0] + '</b> vitórias <b style="color:' + EQ_COR[1] + '">' + vit[1] + '</b></div>' +
+        '<div class="jg-cabo"><div class="jg-cabo-lado" style="--c:' + EQ_COR[0] + '"></div><div class="jg-cabo-lado d" style="--c:' + EQ_COR[1] + '"></div>' +
+        '<div class="jg-corda"></div><div class="jg-meio"></div><div class="jg-no" style="left:' + (50 + pos / 2) + '%"></div></div>' +
+        (st.venc != null ? '<div class="jg-venc" style="color:' + EQ_COR[st.venc] + '">🏆 Equipa ' + EQ_NOME[st.venc] + ' ganhou! Nova ronda já a seguir…</div>' : '') +
+        '<div class="jg-eqs">' + g.slice(0, 2).map((e, i)=> '<div class="jg-eq" style="--c:' + EQ_COR[i] + '"><div class="jg-eqh"><b>Equipa ' + EQ_NOME[i] + '</b><span>' + Math.round((f[i] || 0) * 100) + '% na zona</span></div><div class="jg-chips">' + e.map(jgChip).join('') + '</div></div>').join('') + '</div>';
+    } else if(JG.tipo === 'escalada'){
+      const goal = Math.max(1, (st.n || np || 1) * totalDuration(current.blocos) * 0.7), p = Math.min(1, (st.seg || 0) / goal);
+      const marcos = [[.25, 'Acampamento 1'], [.5, 'Acampamento 2'], [.75, 'Acampamento 3'], [1, 'CUME']];
+      const pt = t=> ({ x: 40 + t * 520, y: 250 - t * 210 + Math.sin(t * 18) * 6 });
+      let path = 'M40 260'; for(let i = 0; i <= 40; i++){ const q = pt(i / 40); path += ' L' + q.x.toFixed(1) + ' ' + q.y.toFixed(1); }
+      const me = pt(p);
+      h += '<div class="jg-placar"><b>' + Math.round(p * 100) + '%</b> da montanha · ' + nz + ' de ' + np + ' na zona agora</div>' +
+        '<svg class="jg-mont" viewBox="0 0 600 270" preserveAspectRatio="xMidYMid meet"><defs><linearGradient id="jgM" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#1B2A3A"/><stop offset="1" stop-color="#3A4E66"/></linearGradient></defs>' +
+        '<path d="' + path + ' L600 40 L600 270 L40 270 Z" fill="url(#jgM)"/><path d="M560 40 l-30 30 l18 -4 l12 14 l12 -14 l18 4 z" fill="#fff" opacity=".9"/>' +
+        '<path d="' + path + '" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="3" stroke-dasharray="6 6"/>' +
+        marcos.map(([t, l])=>{ const q = pt(t); return '<g><circle cx="' + q.x + '" cy="' + q.y + '" r="6" fill="' + (p >= t ? '#3DD45C' : '#5D6675') + '"/><text x="' + (q.x - 8) + '" y="' + (q.y - 12) + '" fill="#C9CED6" font-size="13" text-anchor="end">' + l + '</text></g>'; }).join('') +
+        '<circle cx="' + me.x + '" cy="' + me.y + '" r="12" fill="#E8722C" stroke="#fff" stroke-width="3"/><text x="' + me.x + '" y="' + (me.y + 5) + '" font-size="13" text-anchor="middle">🚴</text></svg>' +
+        '<div class="jg-chips c">' + rs.filter(jgPedala).map(r=> jgChip(r.id)).join('') + '</div>';
+    } else if(JG.tipo === 'sobre'){
+      const vidas = st.vidas || {}, estr = st.estr || {};
+      const vivos = rs.filter(r=> (vidas[r.id] == null ? 3 : vidas[r.id]) > 0).length;
+      h += '<div class="jg-placar">Bloco ' + (liveIdx + 1) + ' · restam <b>' + vivos + '</b> de ' + rs.length + ' <small>(5 s fora da zona = perdes uma vida)</small></div><div class="jg-sobre">' +
+        rs.slice().sort((a,b)=> (vidas[b.id] ?? 3) - (vidas[a.id] ?? 3) || (estr[b.id] || 0) - (estr[a.id] || 0)).map(r=>{
+          const v = vidas[r.id] == null ? 3 : vidas[r.id];
+          return '<div class="jg-sv' + (v <= 0 ? ' morto' : '') + (JG.z[r.id] ? ' ok' : '') + '"><b>' + escapeHtml(r.n || '?') + '</b><span class="cor">' + (v <= 0 ? '💀' : '❤️'.repeat(v) + '🤍'.repeat(3 - v)) + '</span>' + (estr[r.id] ? '<span class="est">' + '★'.repeat(Math.min(5, estr[r.id])) + (estr[r.id] > 5 ? '+' + (estr[r.id] - 5) : '') + '</span>' : '') + '</div>';
+        }).join('') + '</div>';
+    } else if(JG.tipo === 'cores'){
+      const pts = st.pts || [], max = Math.max(1, ...g.map((_, i)=> pts[i] || 0));
+      h += '<div class="jg-cores">' + g.map((e, i)=> ({ e, i, p: pts[i] || 0 })).sort((a,b)=> b.p - a.p).map(({e, i, p}, k)=>
+        '<div class="jg-cor" style="--c:' + EQ_COR[i] + '"><div class="jg-corh"><span class="pos">' + (k + 1) + 'º</span><b>Equipa ' + EQ_NOME[i] + '</b><span>' + e.filter(id=> JG.z[id]).length + '/' + e.length + ' na zona</span><b class="v">' + Math.round(p) + '</b></div>' +
+        '<div class="jg-trk"><div style="width:' + (p / max * 100).toFixed(1) + '%"></div></div><div class="jg-chips">' + e.map(jgChip).join('') + '</div></div>').join('') + '</div>';
+    } else {
+      const val = JG.tipo === 'cpares' ? (st.kj || []) : (st.pts || []);
+      const fmt = v=> JG.tipo === 'cpares' ? v.toFixed(1) + ' kJ' : fmtTime(Math.round(v));
+      const max = Math.max(0.001, ...g.map((_, i)=> val[i] || 0));
+      h += '<div class="jg-placar">' + (JG.tipo === 'sinc' ? 'Pontuam os segundos em que <b>os dois</b> estão na zona ao mesmo tempo' : JG.tipo === 'cpares' ? 'A energia dos dois, só a contar dentro da zona' : 'Bloco ' + (liveIdx + 1) + ': puxa um, o outro recupera; trocam no bloco seguinte') + '</div>' +
+        '<div class="jg-pares">' + g.map((p, i)=> ({ p, i, v: val[i] || 0 })).sort((a,b)=> b.v - a.v).map(({p, i, v}, k)=>{
+          const ativo = p[liveIdx % p.length];
+          const nomes = p.map(id=> '<span class="jg-pn' + (JG.z[id] ? ' ok' : '') + '">' + (JG.tipo === 'estafeta' ? (id === ativo ? '🚴 ' : '😮‍💨 ') : '') + escapeHtml(jgNome(id)) + '</span>').join('<i>&</i>');
+          const serie = JG.tipo === 'sinc' && (st.serie || [])[i] >= 10 ? '<span class="fogo">🔥 ' + Math.round(st.serie[i]) + ' s</span>' : '';
+          return '<div class="jg-par' + (k === 0 && v > 0 ? ' lider' : '') + '"><span class="pos">' + (k + 1) + '</span><div class="jg-pnomes">' + nomes + serie + '</div>' +
+            '<div class="jg-trk"><div style="width:' + (v / max * 100).toFixed(1) + '%"></div></div><b class="v">' + fmt(v) + '</b></div>';
+        }).join('') + '</div>';
+    }
+    return jgBarra() + '<div class="jg-area">' + h + '</div>';
+  }
+
+  // ---- percurso virtual: perfil de etapa feito a partir dos blocos ----
+  var PERC_DECL = [-2, 0, 2, 4, 6, 8, 3];   // inclinação (%) por zona: Z1 desce, Z2 plano, Z3–Z6 sobem, Z7 sprint
+  function percHtml(){
+    const bl = current.blocos, tot = totalDuration(bl) || 1, W = 1000, H = 440, top = 60, bot = 380;
+    let alt = [0], t = 0; const segs = [];
+    bl.forEach(b=>{
+      const d = blockDurationSec(b), zi = b.tipo ? 0 : Math.max(0, zonesOf(modoAtual() === 'fc' ? 'fc' : 'ftp').indexOf(getZone(b.ftp || 0, modoAtual() === 'fc' ? 'fc' : 'ftp')));
+      const a0 = alt[alt.length - 1], a1 = a0 + PERC_DECL[zi] * d / 60;
+      segs.push({ t0: t, t1: t + d, a0, a1, zi, b }); alt.push(a1); t += d;
+    });
+    const aMin = Math.min(...alt), aMax = Math.max(...alt, aMin + 1);
+    const X = s=> (s / tot * W), Y = a=> bot - (a - aMin) / (aMax - aMin) * (bot - top);
+    const altEm = s=>{ const g = segs.find(x=> s <= x.t1) || segs[segs.length - 1]; if(!g) return 0; const f = (s - g.t0) / ((g.t1 - g.t0) || 1); return g.a0 + (g.a1 - g.a0) * Math.max(0, Math.min(1, f)); };
+    let svg = '<svg class="perc-svg" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMidYMid meet">';
+    segs.forEach(g=>{
+      const c = zoneColor(blkZone(g.b).css);
+      svg += '<path d="M' + X(g.t0).toFixed(1) + ' ' + Y(g.a0).toFixed(1) + ' L' + X(g.t1).toFixed(1) + ' ' + Y(g.a1).toFixed(1) + ' L' + X(g.t1).toFixed(1) + ' ' + H + ' L' + X(g.t0).toFixed(1) + ' ' + H + ' Z" fill="' + c + '" opacity=".55"/>';
+      svg += '<path d="M' + X(g.t0).toFixed(1) + ' ' + Y(g.a0).toFixed(1) + ' L' + X(g.t1).toFixed(1) + ' ' + Y(g.a1).toFixed(1) + '" stroke="' + c + '" stroke-width="4" fill="none"/>';
+    });
+    // prémios: montanha no topo das subidas fortes (Z5+), sprint nos Z7, meta no fim
+    segs.forEach((g, i)=>{
+      const nxt = segs[i + 1];
+      if(g.zi >= 4 && g.zi < 6 && (!nxt || nxt.zi < g.zi)) svg += '<text x="' + X(g.t1) + '" y="' + (Y(g.a1) - 12) + '" font-size="22" text-anchor="middle">⛰️</text>';
+      if(g.zi === 6) svg += '<text x="' + X((g.t0 + g.t1) / 2) + '" y="' + (Y((g.a0 + g.a1) / 2) - 12) + '" font-size="20" text-anchor="middle">⚡</text>';
+    });
+    svg += '<text x="' + (W - 6) + '" y="' + (Y(alt[alt.length - 1]) - 14) + '" font-size="24" text-anchor="end">🏁</text>';
+    // onde vai a aula
+    const el = Math.max(0, elapsedNow());
+    svg += '<line x1="' + X(el) + '" y1="20" x2="' + X(el) + '" y2="' + H + '" stroke="#fff" stroke-dasharray="6 6" stroke-width="2" opacity=".7"/><text x="' + X(el) + '" y="16" fill="#fff" font-size="14" text-anchor="middle">aula</text>';
+    const rs = visRiders().filter(r=> JG.perc[r.id] != null || jgPedala(r)).map(r=> ({ r, x: Math.min(tot, JG.perc[r.id] || 0) })).sort((a,b)=> b.x - a.x);
+    rs.forEach((o, i)=>{
+      const x = X(o.x), y = Y(altEm(o.x)), ok = JG.z[o.r.id];
+      svg += '<g>' + '<circle cx="' + x + '" cy="' + y + '" r="' + (i === 0 ? 10 : 8) + '" fill="' + (i === 0 ? '#FFD60A' : ok ? '#3DD45C' : '#AEB6C2') + '" stroke="#05070A" stroke-width="2.5"/></g>';
+    });
+    // só os 5 primeiros com nome no mapa (os outros estão na tabela), em alturas diferentes para não se sobreporem
+    rs.slice(0, 5).forEach((o, i)=>{ const x = Math.max(30, Math.min(W - 30, X(o.x))), y = Y(altEm(o.x)), ty = Math.max(16, y - 26 - i * 17); svg += '<line x1="' + x + '" y1="' + (y - 10) + '" x2="' + x + '" y2="' + (ty + 4) + '" stroke="rgba(255,255,255,.35)"/><text x="' + x + '" y="' + ty + '" fill="' + (i === 0 ? '#FFD60A' : '#fff') + '" font-size="15" font-weight="700" text-anchor="middle" paint-order="stroke" stroke="#05070A" stroke-width="4">' + (i + 1) + '. ' + escapeHtml((o.r.n || '?').split(' ')[0]) + '</text>'; });
+    svg += '</svg>';
+    const lider = rs[0] ? rs[0].x : 0;
+    const tab = '<div class="perc-tab">' + rs.slice(0, 8).map((o, i)=> '<div class="perc-l"><span class="pos">' + (i + 1) + (i === 0 ? ' 🟡' : '') + '</span><b>' + escapeHtml(o.r.n || '?') + '</b><span class="' + (JG.z[o.r.id] ? 'ok' : '') + '">' + (i === 0 ? 'líder' : '−' + fmtTime(Math.round(lider - o.x))) + '</span></div>').join('') + '</div>';
+    return '<div class="perc-info">Dentro da zona pedalas a <b>100%</b>; fora dela só a <b>60%</b>. Blocos fortes são subidas ⛰️, os leves são descidas e planos.</div>' +
+      '<div class="perc-wrap">' + svg + '</div>' + tab;
+  }
+  function renderJogos(mode){
+    const gp = $('gamePanel');
+    $('rpTitle').textContent = mode === 'percurso' ? 'Percurso virtual · etapa da aula' : 'Jogos · ' + JG_TIPOS[JG.tipo].n;
+    const rs = visRiders();
+    $('rpMeta').innerHTML = '<b>' + rs.filter(r=> JG.z[r.id]).length + '</b> de ' + rs.filter(jgPedala).length + ' dentro da zona agora';
+    if(!rs.length){ gp.innerHTML = ''; gp.style.display = 'none'; $('rpEmpty').style.display = ''; return; }
+    $('rpEmpty').style.display = 'none';
+    gp.style.display = 'flex';
+    const sc = gp.scrollTop;
+    gp.innerHTML = mode === 'percurso' ? percHtml() : jgHtml();
+    gp.scrollTop = sc;
+  }
+  // escolher jogo, forma das equipas, recomeçar
+  document.addEventListener('click', e=>{
+    const b = e.target.closest('#gamePanel button'); if(!b) return;
+    if(b.dataset.jg){ JG.tipo = b.dataset.jg; try{ localStorage.setItem('prJgTipo', JG.tipo); }catch(_){} }
+    if(b.dataset.forma){
+      JG.forma = b.dataset.forma; try{ localStorage.setItem('prJgForma', JG.forma); }catch(_){}
+      const k = jgChave();
+      if(k){ if(JG.forma === 'professor'){ jgGrupos(); jgEditar(); } else { jgFormar(k, JG.forma); JG.st[JG.tipo] = {}; } }
+    }
+    if(b.dataset.jgr){ JG.st[JG.tipo] = {}; }
+    renderRiders();
+  });
+  // o professor escolhe as equipas: toca no nome para o mudar de equipa / par
+  function jgEditar(){
+    const k = jgChave(); if(!k) return;
+    const g = jgGrupos();
+    const m = $('jgModal');
+    const draw = ()=>{
+      const n = k === 'p' ? g.length + 1 : g.length;
+      $('jgModalBody').innerHTML = '<p class="sub">' + (k === 'p' ? 'Toca no nome para o passar para o par seguinte.' : 'Toca no nome para o passar para a equipa seguinte.') + '</p>' +
+        '<div class="jg-ed">' + g.map((e, i)=> '<div class="jg-edg" style="--c:' + (k === 'p' ? '#3A4353' : EQ_COR[i]) + '"><b>' + (k === 'p' ? 'Par ' + (i + 1) : 'Equipa ' + EQ_NOME[i]) + '</b>' +
+          e.map(id=> '<button data-mv="' + id + '">' + escapeHtml(jgNome(id)) + '</button>').join('') + '</div>').join('') + '</div>';
+      $('jgModalBody').querySelectorAll('[data-mv]').forEach(bt=> bt.onclick = ()=>{
+        const id = bt.dataset.mv, i = g.findIndex(e=> e.includes(id));
+        g[i].splice(g[i].indexOf(id), 1);
+        let j = (i + 1) % n; if(k === 'p' && j === g.length) g.push([]);
+        g[j].push(id);
+        for(let q = g.length - 1; q >= 0; q--) if(k === 'p' && !g[q].length) g.splice(q, 1);
+        draw();
+      });
+    };
+    draw(); m.classList.add('active');
+  }
   function renderRiders(){
     if(!$('liveOverlay').classList.contains('active')) return;
+    jgTick();
     const mode = applyMode();
     if(mode === 'aula') return;
+    const gpn = $('gamePanel');
+    if(mode === 'jogos' || mode === 'percurso'){
+      $('rgrid').style.display = 'none'; $('lanes').style.display = 'none';
+      renderJogos(mode); return;
+    }
+    gpn.style.display = 'none';
 
     const list = sortRidersBy(visRiders(), raceMetric);
     const ocultos = ridingRiders().filter(r=> r.oc && r.online).length;
@@ -3580,6 +3943,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const targetZone = block ? getZone(block.ftp).name : null;
 
     $('rpTitle').textContent = mode === 'corrida' ? 'Corrida · ' + metricLabel() : 'Turma';
+    gpn.innerHTML = '';
     $('rpMeta').innerHTML = '<b>' + online.length + '</b> a pedalar' + (watchers ? ' · ' + watchers + ' a acompanhar' : '') +
       ' · total <b>' + metricFmt(teamTotal) + '</b> ' + metricLabel() + (ocultos ? ' · <span title="Pedalam e ficam no relatório, mas pediram para não aparecer no ecrã">🙈 ' + ocultos + ' oculto' + (ocultos > 1 ? 's' : '') + '</span>' : '');
 
@@ -3678,14 +4042,16 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
 
   function pushRanking(){
     if(!fbDb || !sessionPin) return;
-    const list = sortRidersBy(visRiders(), raceMetric);   // o ranking é o que está no ecrã
+    // durante a aula: pontos/kJ (como no ecrã); no fim: cumprimento da zona
+    const fim = $('liveOverlay').classList.contains('finished');
+    const list = fim ? sortZona(visRiders()) : sortRidersBy(visRiders(), raceMetric);
     const rank = {};
     list.forEach((r,i)=>{ rank[r.id] = {p:i+1, n:list.length}; });
     sessionRef(sessionPin).child('rank').set(list.length ? rank : null);
   }
 
   function buildSummary(){
-    const list = sortRidersBy(ridingRiders().filter(r=> (r.as||0) >= 10), raceMetric).map(r=>({
+    const list = sortZona(ridingRiders().filter(r=> (r.as||0) >= 10)).map(r=>({
       n: r.n || '?', oc: r.oc ? true : null, md: r.md || null, rx: r.rx || null, fa: r.fa || null, ftp: r.ftp || null, ftpIni: r.ftpIni || null, ftpT: r.ftpT || null, m20: r.m20 || null, kj: r.kj || 0, km: r.km || 0, pts: r.pts || 0, aw: r.aw || 0, mw: r.mw || 0, iz: r.iz || 0, as: r.as || 0
     }));
     return list;
@@ -3695,10 +4061,10 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const list = buildSummary();
     if(!list.length) return null;
     if(!summaryEntry){
-      summaryEntry = { id: uid(), date: new Date().toISOString(), aulaId: current.id || null, treinoNome: current.nome || 'Aula de cycling', dur: totalDuration(current.blocos), metric: raceMetric, riders: list };
+      summaryEntry = { id: uid(), date: new Date().toISOString(), aulaId: current.id || null, treinoNome: current.nome || 'Aula de cycling', dur: totalDuration(current.blocos), metric: 'zona', riders: list };
     } else {
       summaryEntry.riders = list;
-      summaryEntry.metric = raceMetric;
+      summaryEntry.metric = 'zona';
     }
     const hi = historico.findIndex(h=> h.id === summaryEntry.id);
     if(hi >= 0) historico[hi] = summaryEntry; else historico.push(summaryEntry);
@@ -3717,9 +4083,10 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const entry = Object.assign({}, full, { riders: full.riders.filter(r=> !r.oc) });
     const top = entry.riders.slice(0,3);
     const order = [1,0,2].filter(i=> top[i]);
-    const unit = raceMetric==='kj' ? 'kJ' : 'pontos';
-    const val = (r)=> raceMetric==='kj' ? r.kj.toFixed(0) : Math.round(r.pts);
+    const unit = 'na zona';
+    const val = (r)=> riderZonePct(r) + '%';
     wrap.innerHTML =
+      '<div class="sum-crit">🏆 Classificação: tempo a pedalar dentro da zona pedida</div>' +
       '<div class="podium" style="justify-content:center">' + order.map(i=>
         '<div class="pod p' + (i+1) + '"><div class="pn">' + escapeHtml(top[i].n) + '</div><div class="pv">' + val(top[i]) + ' ' + unit + '</div><div class="step">' + (i+1) + '</div></div>'
       ).join('') + '</div>' +
@@ -4619,6 +4986,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     liveRemaining = blockDurationSec(current.blocos[0]);
     livePlaying = false;
     audPrevStop();
+    jgReset();
     summaryEntry = null;
     viewMode = 'auto';
     $('liveOverlay').classList.remove('finished');
@@ -5028,6 +5396,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     if(e.key === '1'){ viewMode = 'aula'; applyMode(); }
     if(e.key === '2'){ viewMode = 'turma'; renderRiders(); }
     if(e.key === '3'){ viewMode = 'corrida'; renderRiders(); }
+    if(e.key === '4'){ viewMode = 'jogos'; renderRiders(); }
+    if(e.key === '5'){ viewMode = 'percurso'; renderRiders(); }
     if(e.key === 'm' || e.key === 'M'){ toggleMetric(); }
     if(e.key === 'q' || e.key === 'Q'){ $('qrPanel').classList.toggle('active'); }
   });
@@ -5376,6 +5746,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   $('logoutBtn').addEventListener('click', ()=>{ if(confirm('Sair da conta?')) doLogout(); });
   $('pendingLogout').addEventListener('click', doLogout);
   $('adminBtn').addEventListener('click', ()=>{ renderAdmin(); $('adminModal').classList.add('active'); });
+  $('jgModalOk').addEventListener('click', ()=>{ $('jgModal').classList.remove('active'); JG.st[JG.tipo] = {}; renderRiders(); });
   $('adminClose').addEventListener('click', ()=> $('adminModal').classList.remove('active'));
   $('adminModal').addEventListener('click', (e)=>{ if(e.target.id==='adminModal') $('adminModal').classList.remove('active'); });
   $('sharedSearch').addEventListener('input', renderShared);
