@@ -1178,6 +1178,37 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   .ed-actions .act{flex:0 0 auto;padding:8px 12px;font-size:13px;}
 }
 body[data-view="ano"] .legal{margin-top:8px;}
+/* pilha / powerbank: carrega com a energia gerada (Wh ÷ 3,7 V = Ah) */
+.batt{position:absolute;top:var(--lt,6px);left:var(--lr,8px);z-index:5;display:flex;flex-direction:column;align-items:center;gap:1px;pointer-events:none;transform-origin:top left;}
+.batt svg{width:calc(var(--lw,40px) * .62);height:auto;overflow:visible;filter:drop-shadow(0 0 calc(3px + 14px * var(--bv,0)) rgba(61,212,92,calc(.25 + .6 * var(--bv,0))));}
+.batt .bt-cap{fill:#8A93A1;}
+.batt .bt-body{fill:rgba(255,255,255,.04);stroke:#8A93A1;stroke-width:2.6;}
+.batt .bt-fill{fill:url(#btGrad);transition:y .8s ease, height .8s ease;}
+.batt .bt-bolt{fill:#fff;opacity:.92;}
+.batt .bt-shine{fill:rgba(255,255,255,.35);opacity:0;}
+.batt.on .bt-shine{animation:btShine 1.8s linear infinite;}
+.batt.on .bt-bolt{animation:btBolt 1.2s ease-in-out infinite;}
+@keyframes btShine{0%{opacity:0;transform:translateY(60px);}20%{opacity:.9;}100%{opacity:0;transform:translateY(-6px);}}
+@keyframes btBolt{0%,100%{opacity:.6;}50%{opacity:1;}}
+.batt .bx{position:absolute;top:-4px;right:-10px;font-size:11px;font-weight:800;color:#0A0D12;background:#3DD45C;border-radius:999px;padding:0 5px;line-height:16px;}
+.batt .bx:empty{display:none;}
+.batt .bmah{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:var(--lfs,15px);line-height:1;color:#B8F5C8;white-space:nowrap;font-variant-numeric:tabular-nums;}
+.batt .bpb{font-size:calc(var(--lfs,15px) * .72);font-weight:700;color:#9FE3B8;white-space:nowrap;line-height:1.1;font-variant-numeric:tabular-nums;}
+@media (prefers-reduced-motion:reduce){.batt.on .bt-shine,.batt.on .bt-bolt{animation:none;}}
+
+.live-body > #classBatt{position:absolute;top:18px;left:22px;--lw:clamp(48px,5vw,84px);--lfs:clamp(18px,2vw,30px);z-index:8;}
+.live-overlay.split .live-body > #classBatt{top:var(--lamp-top,120px);left:16px;--lw:clamp(44px,3.6vw,64px);--lfs:clamp(16px,1.6vw,24px);}
+#classBatt .lsub{font-size:clamp(12px,1.1vw,16px);color:rgba(255,255,255,.6);font-weight:600;letter-spacing:.5px;}
+.live-overlay.finished #classBatt{display:none;}
+/* projeção: caixas %FTP · RPM · %FCmáx maiores */
+#liveActive .live-metrics{gap:clamp(10px,1.4vw,22px);margin-top:6px;justify-content:center;}
+#liveActive .live-metric{min-width:clamp(110px,9vw,170px);padding:10px 22px 12px;border-radius:14px;border-top-width:4px;}
+#liveActive .live-metric .v{font-size:clamp(28px,2.7vw,54px);white-space:nowrap;}
+#liveActive .live-metric .l{font-size:clamp(12px,1vw,15px);letter-spacing:1.5px;}
+.live-overlay.split #liveActive .live-metric{min-width:0;flex:0 1 auto;padding:8px 18px 10px;}
+.live-overlay.split #liveActive .live-metric .v{font-size:clamp(22px,min(4.2vh,2.5vw),48px);}
+@media (max-height:820px){ .live-overlay.split #liveActive .live-metric{padding:5px 10px 6px;} #liveActive .live-metric .l{font-size:11px;}}
+.live-overlay.split #liveActive .live-metrics{width:min(100%,560px);margin-left:auto;margin-right:auto;}
 /* cabeçalho: botões principais maiores */
 .topbar-actions .hd-big{font-size:16px;font-weight:700;padding:12px 22px;border-radius:12px;}
 /* barra de comandos do gráfico com letra maior */
@@ -1540,6 +1571,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
 
   <div class="live-main">
     <div class="live-body" id="liveBody">
+      <div class="batt" id="classBatt"><div style="position:relative"><svg viewBox="0 0 44 80" aria-hidden="true"><defs><linearGradient id="btGradP" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#1FA84A"/><stop offset="1" stop-color="#7CF0A0"/></linearGradient><clipPath id="btClipP"><rect x="7" y="11" width="30" height="62" rx="4"/></clipPath></defs><rect class="bt-cap" x="15" y="1" width="14" height="7" rx="2"/><rect class="bt-body" x="4" y="8" width="36" height="68" rx="7"/><g clip-path="url(#btClipP)"><rect class="bt-fill" x="7" y="72" width="30" height="0" style="fill:url(#btGradP)"/><rect class="bt-shine" x="7" y="10" width="30" height="6"/></g><path class="bt-bolt" d="M25 20 L14 44 H22 L18 64 L31 36 H23 Z"/></svg><span class="bx"></span></div><span class="bmah">0 mAh</span><span class="bpb">≈ 0% de um powerbank</span><span class="lsub">carregados pela turma</span></div>
       <div class="lamp" id="classLamp"><svg viewBox="0 0 64 80" aria-hidden="true"><g class="lrs"><line class="lr" x1="32" y1="-6" x2="32" y2="-14"/><line class="lr" x1="6" y1="6" x2="0" y2="0"/><line class="lr" x1="58" y1="6" x2="64" y2="0"/><line class="lr" x1="-4" y1="28" x2="-12" y2="28"/><line class="lr" x1="68" y1="28" x2="76" y2="28"/></g><path class="lg" d="M32 4a24 24 0 0 1 14 43.5c-2.8 2.1-4.2 4.6-4.2 7.4V57H22.2v-2.1c0-2.8-1.4-5.3-4.2-7.4A24 24 0 0 1 32 4z"/><path class="lf" d="M25 44l3.5-11 3.5 8 3.5-8L39 44"/><rect class="lb" x="22" y="59" width="20" height="5" rx="2"/><rect class="lb" x="23.5" y="66" width="17" height="5" rx="2"/><rect class="lb" x="27" y="73" width="10" height="4" rx="2"/></svg><span class="lwh">0 Wh</span><span class="leur">≈ 0,00 cêntimos</span><span class="lsub">gerados pela turma</span></div>
       <div class="live-info" id="liveInfo">
         <div class="session-badge" id="sessionBadge" title="Mostrar / esconder QR code (tecla Q)">
@@ -1569,8 +1601,9 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
         </div>
         <div class="live-feel" id="liveFeel"></div>
         <div class="live-metrics">
-          <div class="live-metric"><div class="v" id="liveFtp">0%</div><div class="l" id="liveFtpLbl">FTP alvo</div></div>
-          <div class="live-metric"><div class="v" id="liveRpm">0</div><div class="l">RPM alvo</div></div>
+          <div class="live-metric"><div class="v" id="liveFtp">0%</div><div class="l" id="liveFtpLbl">%FTP</div></div>
+          <div class="live-metric"><div class="v" id="liveRpm">0</div><div class="l">RPM</div></div>
+          <div class="live-metric"><div class="v" id="liveFc">—</div><div class="l">%FCmáx</div></div>
         </div>
       </div>
       <div class="live-done" id="liveDone">
@@ -2961,7 +2994,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     renderZoneButtons(m);
     document.querySelectorAll('#modeSeg button').forEach(bt=> bt.classList.toggle('on', bt.dataset.m === m));
     $('fUnit').textContent = m === 'fc' ? '% FCmáx' : '% FTP';
-    $('liveFtpLbl').textContent = m === 'fc' ? 'FC máx alvo' : m === 'zonas' ? 'zona alvo' : 'FTP alvo';
+    $('liveFtpLbl').textContent = '%FTP';
     $('fIntWrap').style.display = m === 'zonas' ? 'none' : '';
     $('fZsel').style.display = '';
     $('fZsel').innerHTML = zonesOf(m).map((z,i)=> '<option value="' + i + '">' + z.name + '</option>').join('');
@@ -3515,7 +3548,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     $('soundBtn').textContent = soundOn ? '🔔' : '🔕';
     // na vista com a turma, a lâmpada fica em cima, logo por baixo da linha do PIN e dos tempos
     const info = document.querySelector('#liveBody > .live-info'), body = $('liveBody');
-    requestAnimationFrame(nxArrowFit);
+    requestAnimationFrame(nxArrowFit); requestAnimationFrame(battFit);
     if(info && body) body.style.setProperty('--lamp-top', Math.round(info.getBoundingClientRect().bottom - body.getBoundingClientRect().top + 12) + 'px');
     return mode;
   }
@@ -3690,7 +3723,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       '<div class="podium" style="justify-content:center">' + order.map(i=>
         '<div class="pod p' + (i+1) + '"><div class="pn">' + escapeHtml(top[i].n) + '</div><div class="pv">' + val(top[i]) + ' ' + unit + '</div><div class="step">' + (i+1) + '</div></div>'
       ).join('') + '</div>' +
-      (function(){ const wh = full.riders.reduce((a,r)=> a + whFromKj(r.kj), 0); return wh >= 0.05 ? '<div class="sum-wh">⚡ Hoje a turma gerou ' + fmtWh(wh) + ' de eletricidade <small>(' + phonesTxt(wh) + ' · vale ≈ ' + fmtEur(wh) + ')</small></div>' : ''; })() +
+      (function(){ const wh = full.riders.reduce((a,r)=> a + whFromKj(r.kj), 0); return wh >= 0.05 ? '<div class="sum-wh">⚡ Hoje a turma gerou ' + fmtWh(wh) + ' de eletricidade <small>(' + phonesTxt(wh) + ' · vale ≈ ' + fmtEur(wh) + ')</small><br>🔋 ' + fmtMah(mahFromWh(wh)) + ' <small>(' + pbTxt(mahFromWh(wh)) + ')</small></div>' : ''; })() +
       summaryTableHtml(entry) +
       (nOc ? '<div class="sum-oc">🙈 + ' + nOc + ' aluno' + (nOc > 1 ? 's' : '') + ' que pediu para não aparecer no ecrã: está' + (nOc > 1 ? 'o' : '') + ' no relatório em Treinos realizados.</div>' : '') +
       '<div class="sum-actions"><button id="sumCsvBtn">⤓ Exportar CSV</button></div>';
@@ -4681,7 +4714,11 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     $('liveTechnique').textContent = b.tecnica || '';
     $('liveFeel').textContent = b.teste ? 'O mais forte e constante possível durante 20 minutos. Não comeces demasiado forte. No fim, a app calcula o FTP de cada um.' : (zone.feel || '');
     updateTimerText();
-    $('liveFtp').textContent = b.teste ? 'MÁX' : lblInt(b);
+    // %FTP e %FCmáx da zona deste bloco (no modo da aula vale o alvo exato, se houver)
+    const mz = modoAtual(), zi = Math.max(0, zonesOf(mz).indexOf(zone));
+    const zf = b.tipo ? 0 : zi;
+    $('liveFtp').textContent = b.teste ? 'MÁX' : (mz === 'ftp' ? lblInt(b) : ZONE_RANGE.ftp[zf]);
+    $('liveFc').textContent = b.teste ? '—' : (mz === 'fc' ? lblInt(b) : ZONE_RANGE.fc[zf]);
     $('liveRpm').textContent = rpmTxt(b);
     renderSegPreview(b);
     const zi6 = b.tipo ? -1 : zonesOf().indexOf(zone);   // Z6 e Z7 também no treino por FC
@@ -4692,17 +4729,25 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
 
     const next = current.blocos[liveIdx+1];
     const ln = $('liveNext');
+    // o "força até ao fim!" aparece no último bloco forte (Z3 a Z7), não no retorno à calma
+    let ultForte = -1;
+    const mzN = modoAtual() === 'fc' ? 'fc' : 'ftp';
+    current.blocos.forEach((x, k)=>{ if(!x.tipo && !x.teste && zonesOf(mzN).indexOf(getZone(x.ftp || 0, mzN)) >= 2) ultForte = k; });
     ln.classList.toggle('last', !next);
     if(next){
       const nz = zoneColor(blkZone(next).css);
       $('liveBody').style.setProperty('--nc', nz);
       const meta = ((modoAtual() === 'zonas' && (next.nome||'').startsWith(intensLabel(next.ftp) + ' ')) ? '' : lblInt(next) + ' · ') + fmtTime(blockDurationSec(next)) + (next.rpm ? ' · ' + rpmTxt(next) + ' rpm' : '');
-      ln.innerHTML = '<div class="nx-card"><span class="nx-lbl" id="nxLbl">a seguir</span><b>' + escapeHtml(next.nome) + '</b><span class="nx-meta">' + meta + '</span></div>';
+      ln.innerHTML = liveIdx === ultForte
+        ? '<div class="nx-card"><span class="nx-lbl" id="nxLbl" data-base="último bloco">último bloco</span><b>força até ao fim! 💪</b><span class="nx-meta">depois: ' + meta + '</span></div>'
+        : '<div class="nx-card"><span class="nx-lbl" id="nxLbl">a seguir</span><b>' + escapeHtml(next.nome) + '</b><span class="nx-meta">' + meta + '</span></div>';
       // seta néon » na cor do próximo bloco, ao lado do relógio
-      $('nxArrow').classList.remove('off'); requestAnimationFrame(nxArrowFit);
+      $('nxArrow').classList.remove('off'); requestAnimationFrame(nxArrowFit); requestAnimationFrame(battFit);
     } else {
       $('nxArrow').classList.add('off');
-      ln.innerHTML = '<div class="nx-card"><span class="nx-lbl">último bloco</span><b>força até ao fim! 💪</b></div>';
+      ln.innerHTML = liveIdx === ultForte
+        ? '<div class="nx-card"><span class="nx-lbl">último bloco</span><b>força até ao fim! 💪</b></div>'
+        : '<div class="nx-card"><span class="nx-lbl">a terminar</span><b>bom trabalho! 🙌</b></div>';
     }
     updateLiveHead();
 
@@ -4727,6 +4772,16 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     ar.style.width = Math.max(30, Math.floor(w)) + 'px';
   }
   window.addEventListener('resize', ()=>{ if($('liveOverlay').classList.contains('active')) nxArrowFit(); });
+  function battFit(){
+    const bt = $('classBatt'); if(!bt) return;
+    bt.style.transform = '';
+    const r = bt.getBoundingClientRect(); if(!r.width) return;
+    let lim = Infinity;
+    ['liveZone', 'liveTechnique', 'liveName'].forEach(id=>{ const e = $(id); if(e && e.offsetParent && e.textContent.trim()){ const q = e.getBoundingClientRect(); if(q.bottom > r.top && q.top < r.bottom) lim = Math.min(lim, q.left); } });
+    const ring = document.querySelector('#liveActive .ring-wrap'); if(ring){ const q = ring.getBoundingClientRect(); if(q.top < r.bottom && q.bottom > r.top) lim = Math.min(lim, q.left); }
+    if(lim < Infinity && r.right > lim - 8){ const k = Math.max(0.45, (lim - 8 - r.left) / r.width); bt.style.transform = 'scale(' + k.toFixed(3) + ')'; }
+  }
+  window.addEventListener('resize', ()=>{ if($('liveOverlay').classList.contains('active')) battFit(); });
   let liveLastIdx = -1;
   const RING_C = 565.49;
   function updateTimerText(){
@@ -4741,7 +4796,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const soon = !!current.blocos[liveIdx+1] && liveRemaining <= 10 && liveRemaining > 0 && livePlaying;
     $('liveBody').classList.toggle('soon', soon);
     const nl = $('nxLbl');
-    if(nl) nl.textContent = soon ? 'prepara-te · ' + Math.ceil(liveRemaining) : 'a seguir';
+    if(nl) nl.textContent = soon ? 'prepara-te · ' + Math.ceil(liveRemaining) : (nl.dataset.base || 'a seguir');
     updateLiveHead();
   }
 
@@ -4777,10 +4832,38 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     if(e && e.textContent !== es) e.textContent = es;
     el.title = s + ' de eletricidade (' + phonesTxt(wh) + ' · ' + es + ')';
   }
+  // ===== pilha / powerbank: mAh a 3,7 V (bateria de telemóvel ou powerbank), a partir dos Wh gerados =====
+  const PB_MAH = 10000;   // um powerbank "normal"
+  function mahFromWh(wh){ return (wh || 0) / 3.7 * 1000; }
+  function fmtMah(mah){ return Math.round(mah).toLocaleString('pt-PT').replace(/ /g, ' ') + ' mAh'; }
+  function pbTxt(mah){
+    const n = mah / PB_MAH;
+    if(n >= 1.05) return '≈ ' + n.toFixed(1).replace('.', ',') + ' powerbanks';
+    if(n >= 0.95) return '≈ 1 powerbank';
+    return '≈ ' + Math.max(mah > 0 ? 1 : 0, Math.round(n * 100)) + '% de um powerbank';
+  }
+  function setBatt(el, wh, active){
+    if(!el) return;
+    const mah = mahFromWh(wh), cheios = Math.floor(mah / PB_MAH), frac = (mah % PB_MAH) / PB_MAH;
+    const h = mah > 0 ? Math.max(3, 60 * frac) : 0;
+    const f = el.querySelector('.bt-fill');
+    if(f){ f.setAttribute('y', (72 - h).toFixed(1)); f.setAttribute('height', h.toFixed(1)); }
+    el.style.setProperty('--bv', Math.min(1, mah > 0 ? 0.15 + frac * 0.85 : 0).toFixed(3));
+    el.classList.toggle('on', !!active && mah > 0);
+    const x = el.querySelector('.bx'), xs = cheios ? '×' + cheios : '';
+    if(x && x.textContent !== xs) x.textContent = xs;
+    const t = el.querySelector('.bmah'), s = fmtMah(mah);
+    if(t && t.textContent !== s) t.textContent = s;
+    const p = el.querySelector('.bpb'), ps = pbTxt(mah);
+    if(p && p.textContent !== ps) p.textContent = ps;
+    el.title = s + ' (' + ps + ' de ' + PB_MAH.toLocaleString('pt-PT') + ' mAh)';
+  }
   function classWh(){ return ridingRiders().reduce((a,r)=> a + whFromKj(r.kj), 0); }
   function updClassLamp(){
     const n = Math.max(1, ridingRiders().length);
-    setLamp($('classLamp'), classWh(), 100 * n, livePlaying);
+    const wh = classWh();
+    setLamp($('classLamp'), wh, 100 * n, livePlaying);
+    setBatt($('classBatt'), wh, livePlaying);
   }
   function updateLiveHead(){
     updateStartCount();
