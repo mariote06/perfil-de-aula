@@ -215,11 +215,21 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 
 /* ---------- Editor de intervalos ---------- */
 .editor{margin-bottom:20px;padding:18px 18px 14px;}
-.ed-toolbar{display:flex;gap:14px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px;}
+.ed-toolbar{display:flex;gap:14px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;margin-bottom:16px;}
 .ed-name{flex:1;min-width:240px;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 12px;font-size:15px;font-weight:600;}
 .ed-name:focus{outline:none;border-color:#4A5568;}
 .ed-desc{display:block;width:100%;background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 12px;font:inherit;font-size:14px;line-height:1.45;resize:vertical;min-height:44px;margin:-6px 0 14px;}
 .ed-desc:focus{outline:none;border-color:#4A5568;}
+.ed-nlab{flex:1;min-width:240px;display:flex;flex-direction:column;gap:3px;}
+.ed-nlab > span,.ed-flab{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);}
+.ed-nlab .ed-name{min-width:0;width:100%;}
+.ed-flab small{font-weight:500;letter-spacing:0;text-transform:none;margin-left:6px;opacity:.8;}
+.ed-ficha{margin:-6px 0 14px;}
+.ed-ficha .ed-desc{margin:4px 0 0;}
+.ed-dadas{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:8px;font-size:13px;color:var(--muted);}
+.ed-dadas b{color:var(--text);}
+.ed-dadas .dd{background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:3px 10px;font-size:12.5px;color:var(--text);white-space:nowrap;}
+.ed-dadas button{background:none;border:none;color:var(--accent);font-size:12.5px;cursor:pointer;padding:3px 4px;}
 .ed-tools{display:flex;gap:4px;flex-wrap:wrap;}
 .tool{background:transparent;border:none;color:var(--text);font-size:13px;letter-spacing:.3px;padding:7px 9px;}
 .tool:hover{color:var(--accent);background:transparent;}
@@ -743,6 +753,7 @@ html.fs-on .live-head .fs-btn{display:none;}
   .editor{padding:14px 12px 12px;}
   .ed-toolbar{gap:10px;margin-bottom:12px;}
   .ed-name{min-width:0;width:100%;flex:1 1 100%;}
+  .ed-nlab{min-width:0;width:100%;flex:1 1 100%;}
   #modeSeg{width:100%;display:grid;grid-template-columns:repeat(3,1fr);}
   #modeSeg button{padding:8px 4px;font-size:12px;line-height:1.2;}
   .ed-tools{width:100%;justify-content:space-between;}
@@ -1153,7 +1164,8 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
   body[data-view="plan"] .editor > .ed-multi{order:6;}
   body[data-view="plan"] .editor > .ed-actions{order:7;}
   body[data-view="plan"] .editor > .ed-cmd{order:8;margin:10px 0 8px;}
-  body[data-view="plan"] .editor > .ed-desc{order:9;}
+  body[data-view="plan"] .editor > .ed-ficha{order:1;margin:0 0 10px;}
+  .ed-flab small{display:block;margin:2px 0 0;}
   .ed-toolbar .ed-obj{flex:1 1 100%;font-size:13px;padding:7px 8px;}
   #modeSeg button{padding:6px 2px;font-size:11.5px;}
   .ed-track{height:170px;}
@@ -1244,6 +1256,55 @@ body[data-view="ano"] .legal{margin-top:8px;}
 .perc-l span.ok:last-child{color:#7FD3A6;}
 /* escolher equipas */
 .jg-card{max-width:760px;}
+.jg-regra{display:flex;gap:12px;align-items:center;background:#141A24;border:1px solid #262D39;border-radius:12px;padding:8px 14px;}
+.jg-regra .ico{font-size:34px;line-height:1;}
+.jg-regra b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:24px;letter-spacing:.3px;}
+.jg-regra small{display:block;font-size:13px;color:rgba(255,255,255,.65);line-height:1.35;}
+.jg-seg{margin-left:auto;font-size:13px;color:rgba(255,255,255,.6);}
+.b-jg{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:2px;font-size:17px;line-height:1;pointer-events:none;filter:drop-shadow(0 1px 2px rgba(0,0,0,.6));}
+.zb-emo{font-size:22px;}
+.jp-modal{max-width:1200px;max-height:92vh;padding:18px 20px;}
+.jp-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.jp-x{background:none;border:1px solid var(--border);color:var(--text);border-radius:999px;width:36px;height:36px;font-size:16px;cursor:pointer;}
+.jp-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:18px;}
+.jp-h{display:flex;align-items:center;justify-content:space-between;font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#fff;margin:6px 0 8px;}
+.jp-limpa{background:none;border:1px solid var(--border);color:var(--muted);border-radius:999px;padding:4px 10px;font-size:12px;text-transform:none;letter-spacing:0;cursor:pointer;}
+.jp-list{display:flex;flex-direction:column;gap:5px;max-height:44vh;overflow:auto;padding-right:4px;}
+.jp-row{display:grid;grid-template-columns:44px minmax(0,1fr) minmax(0,200px);gap:8px;align-items:center;background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:6px 8px;cursor:pointer;}
+.jp-row.sel{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent) inset;}
+.jp-row.tem{background:color-mix(in srgb,#FF4FA3 10%,var(--surface-2));}
+.jp-z{display:flex;align-items:center;justify-content:center;height:30px;border-radius:8px;background:var(--c);color:#0A0D12;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:16px;}
+.jp-n{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.jp-n small{color:var(--muted);margin-left:8px;font-size:12px;}
+.jp-row select{width:100%;background:#0E1218;color:var(--text);border:1px solid var(--border);border-radius:8px;padding:6px;font-size:13px;}
+.jp-eq{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
+.jp-eq button{background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:8px;text-align:left;cursor:pointer;}
+.jp-eq button b{display:block;font-size:14px;}
+.jp-eq button small{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;line-height:1.3;}
+.jp-eq button.on{border-color:var(--accent);background:rgba(232,114,44,.15);}
+.jp-nota{font-size:12.5px;color:var(--muted);margin-top:10px;line-height:1.4;}
+.jp-cat{max-height:62vh;overflow:auto;padding-right:4px;}
+.jp-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px;}
+.jp-card{background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:5px;}
+.jp-card.usado{border-color:#FF4FA3;}
+.jp-ch{display:flex;align-items:center;gap:8px;}
+.jp-ch .ico{font-size:24px;}
+.jp-ch b{font-size:16px;}
+.jp-us{margin-left:auto;font-size:11px;background:#FF4FA3;color:#fff;border-radius:999px;padding:2px 8px;white-space:nowrap;}
+.jp-card p{margin:0;font-size:12.5px;line-height:1.4;color:#C9CED6;}
+.jp-card p.jp-tl{color:var(--muted);}
+.jp-cb{display:flex;gap:6px;margin-top:auto;padding-top:4px;}
+.jp-cb button{flex:1;background:var(--accent);color:#fff;border:none;border-radius:8px;padding:7px 6px;font-size:12.5px;font-weight:700;cursor:pointer;}
+.jp-cb button.sec{background:transparent;border:1px solid var(--border);color:var(--text);font-weight:500;}
+@media (max-width:860px){
+  .jp-modal{padding:14px 12px;max-height:94vh;}
+  .jp-grid{grid-template-columns:1fr;}
+  .jp-list{max-height:none;}
+  .jp-cat{max-height:none;overflow:visible;}
+  .jp-row{grid-template-columns:38px minmax(0,1fr);}
+  .jp-row select{grid-column:1 / -1;}
+  .jp-eq{grid-template-columns:1fr;}
+}
 .jg-ed{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;}
 .jg-edg{border:1px solid #262D39;border-top:4px solid var(--c);border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:5px;}
 .jg-edg button{text-align:left;font-size:14px;padding:6px 9px;}
@@ -1326,6 +1387,7 @@ body[data-view="ano"] .legal{margin-top:8px;}
 #liveActive .live-name{display:block;}
 #liveActive .live-technique{display:table;margin:0 auto 10px;font-size:clamp(22px,3.2vw,40px);font-weight:800;color:#fff;padding:6px 24px;border:2px solid color-mix(in srgb,var(--zc) 70%,rgba(255,255,255,.3));background:rgba(255,255,255,.05);letter-spacing:.3px;}
 .live-overlay.split #liveActive .live-technique{font-size:clamp(20px,3.6vh,36px);}
+#liveActive .live-technique:empty{display:none;}
 .nx-card{font-size:clamp(18px,1.9vw,26px);padding:12px 26px;gap:16px;border-left-width:7px;border-radius:14px;}
 .nx-lbl{font-size:clamp(16px,1.6vw,22px);}
 .nx-card b{font-size:clamp(22px,2.4vw,34px);}
@@ -1480,11 +1542,15 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   <!-- EDITOR DE INTERVALOS -->
   <div class="panel editor" id="editor" data-sec="plan">
     <div class="ed-toolbar">
-      <input type="text" id="treinoNome" class="ed-name" placeholder="Nome da aula (ex: Sprint Interval — Quarta 18h)">
+      <label class="ed-nlab"><span>Nome da aula</span><input type="text" id="treinoNome" class="ed-name" maxlength="80" placeholder="Escreve o nome da aula (ex: Sprint Interval — Quarta 18h)"></label>
       <select id="treinoObj" class="ed-obj" title="Objetivo da aula — define a frase motivacional do ecrã inicial"></select>
       <div class="seg" id="modeSeg" title="Como se constrói esta aula"><button data-m="zonas">Zonas Z1–Z7</button><button data-m="ftp">%FTP Z1–Z7</button><button data-m="fc">%FCmáx Z1–Z7</button></div>
     </div>
-    <textarea id="treinoDesc" class="ed-desc" rows="2" maxlength="600" placeholder="🔒 Notas privadas do treino: objetivo, estrutura, lembretes… (só tu vês: não aparece na projeção, na app dos alunos nem na Biblioteca)"></textarea>
+    <div class="ed-ficha">
+      <label class="ed-flab" for="treinoDesc">🔒 Informação interna da aula <small>só tu vês: não aparece na projeção, na app dos alunos nem na Biblioteca</small></label>
+      <textarea id="treinoDesc" class="ed-desc" rows="2" maxlength="1500" placeholder="Objetivo, estrutura, música, lembretes, como correu…"></textarea>
+      <div class="ed-dadas" id="edDadas"></div>
+    </div>
 
     <div class="ed-cmd">
       <div class="ed-clock" title="Início do intervalo selecionado">
@@ -1708,8 +1774,6 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       <button data-mode="aula" title="Tecla 1">Aula</button>
       <button data-mode="turma" title="Tecla 2">Turma</button>
       <button data-mode="corrida" title="Tecla 3">Corrida</button>
-      <button data-mode="jogos" title="Tecla 4">🎮 Jogos</button>
-      <button data-mode="percurso" title="Tecla 5">⛰️ Percurso</button>
     </div>
     <button class="ctrl" id="liveBack" title="Bloco anterior">⏮</button>
     <button class="ctrl play" id="livePlay" title="Play/Pausa">▶</button>
@@ -1753,6 +1817,14 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   </div>
 </div>
 
+<div class="modal" id="jpModal">
+  <div class="modal-card jp-modal">
+    <div class="jp-top"><h3>🎮 Jogos e percursos virtuais</h3><button class="jp-x" id="jpX" title="Fechar">✕</button></div>
+    <p class="sub">Escolhe um jogo ou um percurso para cada bloco. Na aula, a projeção muda sozinha e cada aluno vê no telemóvel a sua equipa, o seu par ou a sua posição.</p>
+    <div id="jpBody"></div>
+    <div class="modal-actions"><button class="primary" id="jpOk">Feito</button></div>
+  </div>
+</div>
 <div class="modal" id="jgModal">
   <div class="modal-card jg-card">
     <h3>✋ Equipas</h3>
@@ -1939,6 +2011,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   // técnicas por defeito (podes escolher "Outra…" e escrever a tua)
   const TECNICAS = ['Plano Sentado', 'Plano em Pé', 'Combinado no Plano', 'Subida Sentada', 'Subida em Pé', 'Combinado na Subida', 'Sprint'];
   const TEC_OUTRA = '__outra__';
+  var JOGO_KEYS = /^(cabo|escalada|sobre|cores|sinc|cpares|estafeta|p_etapa|p_circuito|p_contra|p_serp)$/;
   function newBlock(overrides){
     return Object.assign({
       id: uid(), nome:'', min:2, sec:0, ftp:70, alvo:0, rpm:85, tecnica:'Plano Sentado'
@@ -1956,7 +2029,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   function planSnap(c){
     if(!c) return '';
     const o = { nome: (c.nome || '').trim(), descricao: c.descricao || '', modo: c.modo || 'ftp', objetivo: c.objetivo || '', grupo: c.grupo || '',
-      blocos: (c.blocos || []).map(b=> [b.nome || '', b.min || 0, b.sec || 0, b.ftp || 0, b.alvo || 0, b.rpm || 0, b.rpm2 || 0, b.tecnica || '', b.tipo || '', b.teste ? 1 : 0]) };
+      blocos: (c.blocos || []).map(b=> [b.nome || '', b.min || 0, b.sec || 0, b.ftp || 0, b.alvo || 0, b.rpm || 0, b.rpm2 || 0, b.tecnica || '', b.tipo || '', b.teste ? 1 : 0, b.jogo || '']), equipas: c.equipas || '' };
     if(c.audio){ const a = c.audio; o.audio = [a.src || 'file', a.key || a.url || a.uri || '', a.modo || '', a.off || 0, a.vol == null ? 0.8 : a.vol]; }
     return JSON.stringify(o);
   }
@@ -2231,6 +2304,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       rpm2: Math.max(0, Number(b.rpm2)||0) || undefined,
       tipo: (b.tipo === 'seg' || b.tipo === 'cool') ? b.tipo : undefined,
       teste: b.teste ? true : undefined,
+      jogo: JOGO_KEYS.test(b.jogo || '') ? b.jogo : undefined,
     });
   }
 
@@ -2304,6 +2378,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     }
     if(document.activeElement !== $('treinoNome')) $('treinoNome').value = current.nome || '';
     if(document.activeElement !== $('treinoDesc')) $('treinoDesc').value = current.descricao || '';
+    renderDadas();
     if(typeof renderModeUi === 'function') renderModeUi();
     if(typeof renderObjSelect === 'function') renderObjSelect();
     if(selIdx >= current.blocos.length) selIdx = current.blocos.length - 1;
@@ -2522,6 +2597,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       html += '<div class="ed-bar' + (i === selIdx ? ' sel' : '') + (selSet.size > 1 && selSet.has(b.id) && i !== selIdx ? ' msel' : '') + '" data-i="' + i + '" style="left:' + x + 'px;width:' + (w - 2) + 'px;height:' + h + 'px;--c:' + c + '">' +
         '<div class="h-top" data-i="' + i + '"></div><div class="h-right" data-i="' + i + '"></div>' +
         (w > (modoAtual() === 'zonas' ? 24 : 40) ? '<div class="b-lbl">' + lblInt(b) + '</div>' : '') +
+        (b.jogo && w > 12 ? '<div class="b-jg" title="' + escapeHtml(jogoInfo(b.jogo).n) + '">' + jogoInfo(b.jogo).ico + '</div>' : '') +
         (w > 86 && h > 34 ? '<div class="b-info">' + fmtTime(d) + '<small>s</small>&nbsp; ' + rpmTxt(b) + '<small>rpm</small></div>' : '') + '</div>';
       x += d * pps;
     });
@@ -2794,6 +2870,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     h += '<button class="zb" id="zbCool" title="Acrescenta o retorno à calma (fica sempre no fim)" style="--c:#1FC8B0;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_COOL + '</span></span><span class="zl">Retorno à calma</span></button>';
     h += '<span class="gap"></span>';
     h += '<button class="zb" id="zbFtpTest" title="Teste FTP de 20 minutos (Allen-Coggan): no fim a app calcula o FTP de cada aluno" style="--c:#FFD60A;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_TEST + '</span></span><span class="zl">Teste FTP</span></button>';
+    h += '<button class="zb" id="zbJogos" title="Jogos e percursos virtuais: escolhe um jogo para cada bloco da aula" style="--c:#FF4FA3;--p:100%"><span class="zb-ring"><span class="zb-core zb-emo">🎮</span></span><span class="zl">Jogos e percursos</span></button>';
     h += '<button class="zb tool2" id="zbImport" title="Importar aulas de um ficheiro .json"><span class="zb-ring"><span class="zb-core">' + ICON_PLUS + '</span></span><span class="zl">Importar</span></button>';
     h += '<button class="zb tool2 total" id="zbTotal" title="Duração total da aula" tabindex="-1"><span class="zb-ring"><span class="zb-core">T</span></span><span class="zl" id="zbTotalTxt">0:00</span></button>';
     $('zoneDots').innerHTML = h;
@@ -3123,6 +3200,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     else if(btn.id === 'zbCool') doCooldown();
     else if(btn.id === 'zbImport') openImgImport();
     else if(btn.id === 'zbFtpTest') doFtpTest();
+    else if(btn.id === 'zbJogos') jpAbrir();
   });
   $('cmdSaveBtn').addEventListener('click', ()=> saveCurrent(false));
   const inicioDe = i=> current.blocos.slice(0, i).reduce((a,x)=> a + blockDurationSec(x), 0);
@@ -3167,6 +3245,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   window.addEventListener('resize', ()=> renderEditor());
   document.addEventListener('keydown', (e)=>{
     if($('liveOverlay').classList.contains('active') || $('authOverlay').classList.contains('active')) return;
+    if($('jpModal').classList.contains('active')){ if(e.key === 'Escape') jpFechar(); return; }
     const tag = (e.target && e.target.tagName) || '';
     if(tag === 'INPUT' || tag === 'TEXTAREA') return;
     const mod = e.ctrlKey || e.metaKey;
@@ -3527,7 +3606,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       treinoNome: current.nome || 'Aula de cycling',
       descricao: null,   // a descrição é privada do professor: não vai para a aula ao vivo
       modo: modoAtual(),
-      blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, alvo:alvoOf(x), teste:x.teste ? true : null, rpm:x.rpm, rpm2:x.rpm2||null, tipo:x.tipo||null, tecnica:x.tecnica||''})),
+      blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, alvo:alvoOf(x), teste:x.teste ? true : null, rpm:x.rpm, rpm2:x.rpm2||null, tipo:x.tipo||null, tecnica:x.tecnica||'', jogo:x.jogo||null})),
       state: { blockIndex: 0, status: 'paused', remainingAtStart: blockDurationSec(b), startedAt: TS() },
       raceMetric: raceMetric,
       createdAt: TS(),
@@ -3659,19 +3738,39 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   // Tudo é calculado aqui, no PC da projeção, a partir dos dados que os telemóveis já enviam.
   // Em todos os jogos só conta quem está DENTRO da zona do bloco.
   var JG_TIPOS = {
-    cabo:     { n:'Cabo de guerra',       g:'grupo', ico:'🪢' },
-    escalada: { n:'Escalada coletiva',    g:'grupo', ico:'⛰️' },
-    sobre:    { n:'Sobrevivente da zona', g:'grupo', ico:'❤️' },
-    cores:    { n:'Equipas por cores',    g:'grupo', ico:'🎨' },
-    sinc:     { n:'Pares sincronizados',  g:'pares', ico:'🤝' },
-    cpares:   { n:'Corrida de pares',     g:'pares', ico:'🏁' },
-    estafeta: { n:'Estafeta',             g:'pares', ico:'🔁' }
+    cabo:     { n:'Cabo de guerra',       g:'grupo', ico:'🪢', eq:true,
+      d:'A turma é dividida em 2 equipas, Azul e Vermelha. A corda é puxada para o lado da equipa com mais gente dentro da zona. Quando o nó chega ao fim, essa equipa ganha a ronda e começa outra.',
+      v:'A cor e o nome da equipa, a % da equipa dentro da zona e o resultado das rondas.',
+      q:'Blocos de 3 a 8 min em Z3–Z5. Bom para a turma puxar em conjunto.' },
+    escalada: { n:'Escalada coletiva',    g:'grupo', ico:'⛰️',
+      d:'Toda a turma sobe a mesma montanha. Cada segundo de cada aluno dentro da zona leva o grupo mais acima, passando por 3 acampamentos até ao cume.',
+      v:'A % da montanha que a turma já subiu e se ele está a ajudar (dentro da zona) ou não.',
+      q:'Blocos longos de resistência ou tempo (Z2–Z4). Une a turma; não há perdedores.' },
+    sobre:    { n:'Sobrevivente da zona', g:'grupo', ico:'❤️',
+      d:'Cada aluno começa o bloco com 3 vidas. Ficar 5 s seguidos fora da zona tira uma vida. Quem chega ao fim do bloco com vidas ganha uma ★.',
+      v:'As vidas que tem (❤️❤️🤍) e um aviso quando está fora da zona e a perder vida.',
+      q:'Blocos de limiar ou VO2máx (Z4–Z6), para manter toda a gente dentro da zona.' },
+    cores:    { n:'Equipas por cores',    g:'grupo', ico:'🎨', eq:true,
+      d:'3 equipas (4 com 12 ou mais alunos). Cada equipa soma pontos com a % dos seus elementos dentro da zona. Ganha a que tiver mais pontos.',
+      v:'A cor da equipa, o lugar da equipa e quantos colegas da equipa estão na zona.',
+      q:'Qualquer bloco. Bom para aulas grandes.' },
+    sinc:     { n:'Pares sincronizados',  g:'pares', ico:'🤝', eq:true,
+      d:'Alunos em pares. Só contam pontos os segundos em que os DOIS estão dentro da zona ao mesmo tempo. Séries de 10 s ou mais ganham uma 🔥.',
+      v:'O nome do par, se o par está sincronizado e o lugar do par.',
+      q:'Blocos de cadência ou técnica (Z2–Z4). Os pares ajudam-se a manter o ritmo.' },
+    cpares:   { n:'Corrida de pares',     g:'pares', ico:'🏁', eq:true,
+      d:'Os pares somam a energia (kJ) dos dois, mas só a que é feita dentro da zona. Com equipas equilibradas, o mais forte fica com o mais leve.',
+      v:'O nome do par, os kJ que já fizeram juntos e o lugar do par.',
+      q:'Blocos de força ou subida (Z3–Z5).' },
+    estafeta: { n:'Estafeta',             g:'pares', ico:'🔁', eq:true,
+      d:'Em cada bloco um elemento do par puxa e o outro recupera; trocam no bloco seguinte. Só contam os segundos em que quem puxa está dentro da zona.',
+      v:'Se é a vez dele puxar (🚴 És tu a puxar!) ou de recuperar (😮‍💨), e o nome do par.',
+      q:'Séries de vários blocos seguidos de esforço/recuperação. Põe a estafeta em todos os blocos da série.' }
   };
+  function jogoInfo(k){ return JG_TIPOS[k] || PERC_TIPOS[k] || { n:'', ico:'' }; }
   var EQ_COR = ['#3B82F6', '#EF4444', '#22C55E', '#EAB308'], EQ_NOME = ['Azul', 'Vermelha', 'Verde', 'Amarela'];
-  var JG = { tipo: 'cabo', forma: 'equilibrado', grupos: {}, st: {}, perc: {}, lastT: 0, z: {}, blocoVisto: -1 };
-  try{ JG.tipo = localStorage.getItem('prJgTipo') || 'cabo'; JG.forma = localStorage.getItem('prJgForma') || 'equilibrado'; }catch(e){}
-  if(!JG_TIPOS[JG.tipo]) JG.tipo = 'cabo';
-  function jgReset(){ JG.grupos = {}; JG.st = {}; JG.perc = {}; JG.lastT = 0; JG.z = {}; JG.blocoVisto = -1; }
+  var JG = { tipo: 'cabo', ptipo: 'p_etapa', forma: 'equilibrado', grupos: {}, st: {}, perc: {}, lastT: 0, z: {}, blocoVisto: -1, editado: {}, pushT: 0, pushS: '' };
+  function jgReset(){ JG.grupos = {}; JG.st = {}; JG.perc = {}; JG.lastT = 0; JG.z = {}; JG.blocoVisto = -1; JG.editado = {}; JG.ptipo = 'p_etapa'; JG.pushT = 0; JG.pushS = ''; }
 
   // está dentro da zona do bloco agora? (mesma regra dos cartões da Turma)
   function jgNaZona(r){
@@ -3723,9 +3822,13 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     JG.lastT = now;
     const rs = visRiders();
     JG.z = {}; rs.forEach(r=> JG.z[r.id] = jgNaZona(r));
+    jgPush();
     if(!livePlaying || !dt) return;
     // percurso: avança sempre (a 100% dentro da zona, a 60% fora dela)
     rs.forEach(r=>{ if(jgPedala(r)) JG.perc[r.id] = (JG.perc[r.id] || 0) + dt * (JG.z[r.id] ? 1 : 0.6); });
+    const jk = (current.blocos[liveIdx] || {}).jogo;
+    if(!JG_TIPOS[jk]) return;            // este bloco não tem jogo
+    JG.tipo = jk;
     const st = JG.st[JG.tipo] || (JG.st[JG.tipo] = {});
     const g = jgGrupos();
     const naZ = id=> !!JG.z[id];
@@ -3772,14 +3875,143 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
 
   // ---- desenho ----
   function jgBarra(){
-    const k = jgChave(), forma = JG.forma;
-    return '<div class="jg-bar">' +
-      '<div class="jg-tipos"><span class="jg-g">Grupo</span>' + Object.keys(JG_TIPOS).filter(t=> JG_TIPOS[t].g === 'grupo').map(t=> '<button data-jg="' + t + '" class="' + (JG.tipo === t ? 'on' : '') + '">' + JG_TIPOS[t].ico + ' ' + JG_TIPOS[t].n + '</button>').join('') +
-      '<span class="jg-g">Pares</span>' + Object.keys(JG_TIPOS).filter(t=> JG_TIPOS[t].g === 'pares').map(t=> '<button data-jg="' + t + '" class="' + (JG.tipo === t ? 'on' : '') + '">' + JG_TIPOS[t].ico + ' ' + JG_TIPOS[t].n + '</button>').join('') + '</div>' +
-      (k ? '<div class="jg-forma"><span>' + (k === 'p' ? 'Pares' : 'Equipas') + ':</span>' +
-        [['equilibrado', '⚖️ Equilibradas (FTP)'], ['aleatorio', '🎲 Aleatórias'], ['professor', '✋ Escolho eu']].map(([v, l])=> '<button data-forma="' + v + '" class="' + (forma === v ? 'on' : '') + '">' + l + '</button>').join('') +
-        '<button data-jgr="1" title="Recomeçar o jogo com as mesmas equipas">↻ Recomeçar</button></div>' : '<div class="jg-forma"><button data-jgr="1">↻ Recomeçar</button></div>') +
-      '</div>';
+    const k = jgChave(), forma = JG.forma, t = JG_TIPOS[JG.tipo];
+    return '<div class="jg-bar"><div class="jg-regra"><span class="ico">' + t.ico + '</span><div><b>' + t.n + '</b><small>' + t.d + '</small></div></div>' +
+      '<div class="jg-forma">' + (k ? '<span>' + (k === 'p' ? 'Pares' : 'Equipas') + ':</span>' +
+        [['equilibrado', '⚖️ Equilibrar'], ['aleatorio', '🎲 Sortear'], ['professor', '✋ Mudar eu']].map(([v, l])=> '<button data-forma="' + v + '" class="' + (forma === v ? 'on' : '') + '">' + l + '</button>').join('') : '') +
+        '<button data-jgr="1" title="Recomeçar o jogo com as mesmas equipas">↻ Recomeçar</button>' + jgSeguinte() + '</div></div>';
+  }
+  // próximo bloco com um jogo diferente
+  function jgSeguinte(){
+    const bl = current.blocos, cur = (bl[liveIdx] || {}).jogo;
+    for(let i = liveIdx + 1; i < bl.length; i++){ if(bl[i].jogo && bl[i].jogo !== cur){ const t = jogoInfo(bl[i].jogo); return '<span class="jg-seg">A seguir, no bloco ' + (i + 1) + ': ' + t.ico + ' ' + t.n + '</span>'; } }
+    return '';
+  }
+  // ---- o que cada aluno vê no telemóvel durante o jogo (sessions/{pin}/jogo/r/{id}) ----
+  function jgLugar(vals, i){ const v = vals[i] || 0; return 1 + vals.filter((x, j)=> j !== i && (x || 0) > v).length; }
+  function jgInfoRider(k, id){
+    const z = !!JG.z[id], t0 = jogoInfo(k), j = t0.ico + ' ' + t0.n;
+    if(PERC_TIPOS[k]){
+      const { rs, tot } = percLista(), i = rs.findIndex(o=> o.r.id === id);
+      if(i < 0) return { j, t:'Começa a pedalar', s:'Entras no percurso quando começares a pedalar', c:'#E8722C' };
+      const o = rs[i];
+      let s2 = i === 0 ? '🟡 Vais na frente!' : '−' + fmtTime(Math.round(rs[0].x - o.x)) + ' do líder';
+      if(k === 'p_circuito') s2 += ' · ' + Math.floor(o.x / 300) + ' voltas';
+      if(k === 'p_serp') s2 += ' · ' + Math.round(Math.min(1, o.x / tot) * 1000) + ' m';
+      return { j, t: (i + 1) + 'º lugar de ' + rs.length, s: s2 + (z ? '' : ' · fora da zona vais a 60%'), c: i === 0 ? '#FFD60A' : '#E8722C' };
+    }
+    const st = JG.st[k] || {}, g = jgGrupos() || [], gi = g.findIndex(e=> e.includes(id));
+    if(k === 'escalada'){
+      const rs = visRiders(), np = rs.filter(jgPedala).length;
+      const p = Math.min(1, (st.seg || 0) / Math.max(1, (st.n || np || 1) * totalDuration(current.blocos) * 0.7));
+      return { j, t: 'A turma vai em ' + Math.round(p * 100) + '% da montanha', s: z ? '✅ Estás a ajudar a turma a subir' : '⬆️ Entra na zona para ajudar a turma', c:'#E8722C' };
+    }
+    if(k === 'sobre'){
+      const v = st.vidas && st.vidas[id] != null ? st.vidas[id] : 3, e = (st.estr || {})[id] || 0, f = (st.fora || {})[id] || 0;
+      return { j, t: v <= 0 ? '💀 Eliminado neste bloco' : '❤️'.repeat(v) + '🤍'.repeat(3 - v),
+        s: (v <= 0 ? 'Voltas a jogar no próximo bloco' : (!z && f > 0 ? '⚠️ Fora da zona! Perdes uma vida em ' + Math.max(1, Math.ceil(5 - f)) + ' s' : '5 s fora da zona = perdes uma vida')) + (e ? ' · ' + e + ' ★' : ''),
+        c: v <= 0 ? '#5D6675' : '#EF4444' };
+    }
+    if(gi < 0) return { j, t:'Ainda sem equipa', s:'Entras no jogo daqui a pouco', c:'#5D6675' };
+    const e = g[gi], par = e.filter(x=> x !== id).map(x=> jgNome(x).split(' ')[0]).join(' e ');
+    if(k === 'cabo'){
+      const f = st.f || [0, 0], vit = st.vit || [0, 0], o = 1 - gi;
+      return { j, t:'Equipa ' + EQ_NOME[gi], c: EQ_COR[gi],
+        s: st.venc != null ? (st.venc === gi ? '🏆 A tua equipa ganhou a ronda!' : 'A Equipa ' + EQ_NOME[o] + ' ganhou a ronda. Vinga-te!') : Math.round((f[gi] || 0) * 100) + '% da tua equipa na zona · rondas ' + (vit[gi] || 0) + '–' + (vit[o] || 0) };
+    }
+    if(k === 'cores'){
+      const pts = st.pts || [];
+      return { j, t:'Equipa ' + EQ_NOME[gi] + ' · ' + jgLugar(pts, gi) + 'º lugar', s: e.filter(x=> JG.z[x]).length + ' de ' + e.length + ' da tua equipa na zona', c: EQ_COR[gi] };
+    }
+    const val = k === 'cpares' ? (st.kj || []) : (st.pts || []), lug = jgLugar(val, gi) + 'º de ' + g.length;
+    if(k === 'estafeta'){
+      const ativo = e[liveIdx % e.length];
+      return ativo === id ? { j, t:'🚴 És tu a puxar!', s:'Fica na zona · ' + (par || 'o teu par') + ' recupera · ' + lug, c:'#E8722C' }
+                          : { j, t:'😮‍💨 Recupera', s:'Agora puxa ' + jgNome(ativo).split(' ')[0] + ' · trocam no próximo bloco · ' + lug, c:'#1FC8B0' };
+    }
+    if(k === 'sinc') return { j, t:'O teu par: ' + (par || '—'), s:(e.every(x=> JG.z[x]) ? '✅ Sincronizados! · ' : '⏳ Os dois na zona para pontuar · ') + lug, c:'#A35CFF' };
+    return { j, t:'O teu par: ' + (par || '—'), s:(val[gi] || 0).toFixed(1) + ' kJ juntos na zona · ' + lug, c:'#22C55E' };
+  }
+  function jgPush(){
+    if(!fbDb || !sessionPin) return;
+    const now = Date.now(); if(now - JG.pushT < 2000) return; JG.pushT = now;
+    const k = (current.blocos[liveIdx] || {}).jogo || null;
+    let o = null;
+    if(k && jogoInfo(k).n){
+      if(JG_TIPOS[k]) JG.tipo = k;
+      o = { k, r: {} };
+      visRiders().forEach(r=>{ const x = jgInfoRider(k, r.id); if(x) o.r[r.id] = x; });
+    }
+    const sj = JSON.stringify(o); if(sj === JG.pushS) return; JG.pushS = sj;
+    try{ sessionRef(sessionPin).child('jogo').set(o).catch(()=>{}); }catch(e){}
+  }
+
+  // ================= PLANEAMENTO: escolher os jogos e percursos de cada bloco =================
+  var jpSel = 0, jpUndo = false;
+  function jpAbrir(){
+    if(!current.blocos.length){ toast('Primeiro cria os blocos da aula.'); return; }
+    jpSel = Math.max(0, Math.min(current.blocos.length - 1, selIdx >= 0 ? selIdx : 0)); jpUndo = false;
+    jpDraw(); $('jpModal').classList.add('active');
+  }
+  function jpMexe(){ if(!jpUndo){ pushUndo(); jpUndo = true; } }
+  function jpOpts(sel){
+    const G = Object.keys(JG_TIPOS);
+    return '<option value="">— sem jogo —</option>' + [['Jogos de grupo', G.filter(k=> JG_TIPOS[k].g === 'grupo')], ['Jogos de pares', G.filter(k=> JG_TIPOS[k].g === 'pares')], ['Percursos virtuais', Object.keys(PERC_TIPOS)]]
+      .map(([l, ks])=> '<optgroup label="' + l + '">' + ks.map(k=> '<option value="' + k + '"' + (k === sel ? ' selected' : '') + '>' + jogoInfo(k).ico + ' ' + jogoInfo(k).n + '</option>').join('') + '</optgroup>').join('');
+  }
+  function jpZona(b){ if(b.tipo === 'seg') return 'Seg'; if(b.tipo === 'cool') return 'RC'; if(b.teste) return 'FTP'; return 'Z' + (Math.max(0, zonesOf().indexOf(blkZone(b))) + 1); }
+  function jpDraw(){
+    const bl = current.blocos, eq = current.equipas || 'equilibrado';
+    const usados = {}; bl.forEach((b, i)=>{ if(b.jogo) (usados[b.jogo] = usados[b.jogo] || []).push(i + 1); });
+    const linhas = bl.map((b, i)=>{
+      const c = zoneColor(blkZone(b).css), nome = (b.nome || '').trim() || blkZone(b).name;
+      return '<div class="jp-row' + (i === jpSel ? ' sel' : '') + (b.jogo ? ' tem' : '') + '" data-row="' + i + '"><span class="jp-z" style="--c:' + c + '">' + jpZona(b) + '</span>' +
+        '<span class="jp-n"><b>' + (i + 1) + '.</b> ' + escapeHtml(nome) + '<small>' + fmtTime(blockDurationSec(b)) + '</small></span>' +
+        '<select data-i="' + i + '" aria-label="Jogo do bloco ' + (i + 1) + '">' + jpOpts(b.jogo || '') + '</select></div>';
+    }).join('');
+    const card = k=>{
+      const t = jogoInfo(k), u = usados[k];
+      return '<div class="jp-card' + (u ? ' usado' : '') + '"><div class="jp-ch"><span class="ico">' + t.ico + '</span><b>' + t.n + '</b>' + (u ? '<span class="jp-us">bloco' + (u.length > 1 ? 's ' : ' ') + u.join(', ') + '</span>' : '') + '</div>' +
+        '<p>' + t.d + '</p><p class="jp-tl">📱 <b>No telemóvel do aluno:</b> ' + t.v + '</p><p class="jp-tl">👍 <b>Melhor em:</b> ' + t.q + '</p>' +
+        '<div class="jp-cb"><button data-put="' + k + '">Pôr no bloco ' + (jpSel + 1) + '</button><button data-all="' + k + '" class="sec">Em todos os blocos</button></div></div>';
+    };
+    const G = Object.keys(JG_TIPOS);
+    $('jpBody').innerHTML = '<div class="jp-grid"><div class="jp-col">' +
+      '<div class="jp-h">Blocos da aula <button class="jp-limpa" data-clear="1">Tirar todos</button></div><div class="jp-list">' + linhas + '</div>' +
+      '<div class="jp-h">Equipas e pares</div><div class="jp-eq">' +
+        [['equilibrado', '⚖️ Equilibradas', 'pelo FTP: o mais forte com o mais leve'], ['aleatorio', '🎲 Aleatórias', 'sorteadas no início do jogo'], ['professor', '✋ Escolho eu', 'abre a lista na projeção quando o jogo começa']]
+        .map(([v, l, d])=> '<button data-eq="' + v + '" class="' + (eq === v ? 'on' : '') + '"><b>' + l + '</b><small>' + d + '</small></button>').join('') + '</div>' +
+      '<p class="jp-nota">Na projeção, a aula muda sozinha para o jogo ou percurso de cada bloco. Nos blocos sem jogo fica a vista normal da turma.</p></div>' +
+      '<div class="jp-col jp-cat"><div class="jp-h">Jogos de grupo</div><div class="jp-cards">' + G.filter(k=> JG_TIPOS[k].g === 'grupo').map(card).join('') + '</div>' +
+      '<div class="jp-h">Jogos de pares</div><div class="jp-cards">' + G.filter(k=> JG_TIPOS[k].g === 'pares').map(card).join('') + '</div>' +
+      '<div class="jp-h">Percursos virtuais</div><div class="jp-cards">' + Object.keys(PERC_TIPOS).map(card).join('') + '</div></div></div>';
+  }
+  function jpPoe(i, k){ const b = current.blocos[i]; if(!b) return; jpMexe(); if(k) b.jogo = k; else delete b.jogo; }
+  document.addEventListener('change', e=>{
+    const sel = e.target.closest('#jpBody select[data-i]'); if(!sel) return;
+    jpPoe(+sel.dataset.i, sel.value); jpSel = +sel.dataset.i; jpDraw();
+  });
+  document.addEventListener('click', e=>{
+    if(!e.target.closest('#jpBody')) return;
+    const b = e.target.closest('button'), row = e.target.closest('[data-row]');
+    if(b && b.dataset.put){ const i0 = jpSel; jpPoe(i0, b.dataset.put); if(i0 < current.blocos.length - 1 && !current.blocos[i0 + 1].jogo) jpSel++; jpDraw(); toast(jogoInfo(b.dataset.put).n + ' no bloco ' + (i0 + 1)); return; }
+    if(b && b.dataset.all){ current.blocos.forEach((x, i)=>{ if(x.tipo !== 'cool') jpPoe(i, b.dataset.all); }); jpDraw(); return; }
+    if(b && b.dataset.clear){ current.blocos.forEach((x, i)=> jpPoe(i, '')); jpDraw(); return; }
+    if(b && b.dataset.eq){ jpMexe(); current.equipas = b.dataset.eq; if(current.equipas === 'equilibrado') delete current.equipas; jpDraw(); return; }
+    if(row && !e.target.closest('select')){ jpSel = +row.dataset.row; jpDraw(); }
+  });
+  function jpFechar(){ $('jpModal').classList.remove('active'); render(); }
+
+  // mudou de bloco: a projeção vai sozinha para o jogo ou percurso desse bloco
+  function jgMudouBloco(b){
+    const k = b && b.jogo;
+    if(JG_TIPOS[k]){
+      viewMode = 'jogos'; JG.tipo = k;
+      const ch = jgChave();
+      if(ch && JG.forma === 'professor' && !JG.editado[ch] && visRiders().length){ JG.editado[ch] = 1; jgGrupos(); setTimeout(jgEditar, 50); }
+    } else if(PERC_TIPOS[k]){ viewMode = 'percurso'; JG.ptipo = k; }
+    else if(viewMode === 'jogos' || viewMode === 'percurso') viewMode = 'auto';
+    if(typeof renderRiders === 'function'){ renderRiders(); applyMode(); }
   }
   function jgChip(id){ return '<span class="jg-chip' + (JG.z[id] ? ' ok' : '') + (riders[id] && !riders[id].online ? ' off' : '') + '">' + escapeHtml(jgNome(id)) + '</span>'; }
   function jgHtml(){
@@ -3877,24 +4109,109 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     return '<div class="perc-info">Dentro da zona pedalas a <b>100%</b>; fora dela só a <b>60%</b>. Blocos fortes são subidas ⛰️, os leves são descidas e planos.</div>' +
       '<div class="perc-wrap">' + svg + '</div>' + tab;
   }
+  // ---- percursos virtuais (escolhidos no planeamento, por bloco) ----
+  var PERC_TIPOS = {
+    p_etapa:    { n:'Etapa de montanha', ico:'⛰️', d:'Perfil de etapa visto de lado, desenhado com os blocos da aula: Z1 desce, Z2 é plano e Z3 a Z6 sobem cada vez mais. Prémios de montanha ⛰️ no topo das subidas fortes, sprint ⚡ nos Z7 e meta 🏁 no fim.',
+      v:'A posição dele na etapa e o tempo que está atrás do líder.', q:'Aulas de montanha ou mistas. Fica bem na aula toda.' },
+    p_circuito: { n:'Circuito da cidade',  ico:'🏙️', d:'Circuito fechado visto de cima. Cada volta são 5 minutos de pedalada dentro da zona. Mostra quantas voltas cada um já deu e quem vai à frente.',
+      v:'A posição, as voltas que já deu e o tempo atrás do líder.', q:'Aulas de resistência ou fartlek no plano.' },
+    p_contra:   { n:'Contrarrelógio',      ico:'⏱️', d:'Uma estrada em reta com marcos a cada 5 minutos. A câmara segue o líder e mostra a distância de cada aluno até ele, como num contrarrelógio.',
+      v:'A posição e o tempo atrás do líder.', q:'Blocos longos de limiar (Z3–Z4) ou um teste.' },
+    p_serp:     { n:'Subida em serpentina', ico:'🐍', d:'Uma subida em ziguezague com 12 curvas até ao cume. Todos sobem a mesma montanha ao longo da aula; quem cumpre a zona chega mais acima.',
+      v:'A posição e os metros que já subiu (até 1000 m no cume).', q:'Aulas de força e subida (montanha).' }
+  };
+  function percLista(){
+    const tot = totalDuration(current.blocos) || 1;
+    return { tot, rs: visRiders().filter(r=> JG.perc[r.id] != null || jgPedala(r)).map(r=> ({ r, x: JG.perc[r.id] || 0 })).sort((a,b)=> b.x - a.x) };
+  }
+  function percTabela(rs, fmt){
+    const lider = rs[0] ? rs[0].x : 0;
+    return '<div class="perc-tab">' + rs.slice(0, 8).map((o, i)=> '<div class="perc-l"><span class="pos">' + (i + 1) + (i === 0 ? ' 🟡' : '') + '</span><b>' + escapeHtml(o.r.n || '?') + '</b><span class="' + (JG.z[o.r.id] ? 'ok' : '') + '">' + (i === 0 ? (fmt ? fmt(o) : 'líder') : '−' + fmtTime(Math.round(lider - o.x))) + '</span></div>').join('') + '</div>';
+  }
+  function percPonto(o, i, x, y){
+    return '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (i === 0 ? 11 : 8) + '" fill="' + (i === 0 ? '#FFD60A' : JG.z[o.r.id] ? '#3DD45C' : '#AEB6C2') + '" stroke="#05070A" stroke-width="2.5"/>';
+  }
+  function percNome(o, i, x, y, dy){
+    const ty = Math.max(16, y - (dy || 26) - i * 17);
+    return '<line x1="' + x.toFixed(1) + '" y1="' + (y - 10).toFixed(1) + '" x2="' + x.toFixed(1) + '" y2="' + (ty + 4).toFixed(1) + '" stroke="rgba(255,255,255,.35)"/><text x="' + x.toFixed(1) + '" y="' + ty.toFixed(1) + '" fill="' + (i === 0 ? '#FFD60A' : '#fff') + '" font-size="15" font-weight="700" text-anchor="middle" paint-order="stroke" stroke="#05070A" stroke-width="4">' + (i + 1) + '. ' + escapeHtml((o.r.n || '?').split(' ')[0]) + '</text>';
+  }
+  function percCircuitoHtml(){
+    const { rs } = percLista(), L = 300, W = 1000, H = 440;
+    // estádio: 2 retas + 2 semicírculos
+    const cx = W / 2, cy = H / 2, R = 140, Ls = 520, per = 2 * Ls + 2 * Math.PI * R;
+    const pt = f=>{
+      let d = (f % 1) * per;
+      if(d < Ls) return { x: cx - Ls / 2 + d, y: cy + R }; d -= Ls;
+      if(d < Math.PI * R){ const a = Math.PI / 2 - d / R; return { x: cx + Ls / 2 + R * Math.cos(a), y: cy + R * Math.sin(a) }; } d -= Math.PI * R;
+      if(d < Ls) return { x: cx + Ls / 2 - d, y: cy - R }; d -= Ls;
+      const a = -Math.PI / 2 - d / R; return { x: cx - Ls / 2 + R * Math.cos(a), y: cy + R * Math.sin(a) };
+    };
+    const track = 'M' + (cx - Ls / 2) + ' ' + (cy + R) + ' H' + (cx + Ls / 2) + ' A' + R + ' ' + R + ' 0 0 0 ' + (cx + Ls / 2) + ' ' + (cy - R) + ' H' + (cx - Ls / 2) + ' A' + R + ' ' + R + ' 0 0 0 ' + (cx - Ls / 2) + ' ' + (cy + R) + ' Z';
+    let svg = '<svg class="perc-svg" viewBox="0 0 ' + W + ' ' + H + '"><rect x="' + (cx - Ls / 2 - R - 40) + '" y="' + (cy - R - 40) + '" width="' + (Ls + 2 * R + 80) + '" height="' + (2 * R + 80) + '" rx="' + (R + 40) + '" fill="#13311F"/>' +
+      '<path d="' + track + '" fill="none" stroke="#2B3441" stroke-width="46"/><path d="' + track + '" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2" stroke-dasharray="14 12"/>' +
+      '<rect x="' + (cx - Ls / 2 - 3) + '" y="' + (cy + R - 24) + '" width="6" height="48" fill="#fff"/><text x="' + (cx - Ls / 2) + '" y="' + (cy + R + 50) + '" fill="#fff" font-size="16" text-anchor="middle">🏁 partida / meta</text>' +
+      '<text x="' + cx + '" y="' + (cy - 10) + '" fill="rgba(255,255,255,.75)" font-size="26" font-weight="700" text-anchor="middle">🏙️ Circuito da cidade</text><text x="' + cx + '" y="' + (cy + 24) + '" fill="rgba(255,255,255,.5)" font-size="16" text-anchor="middle">1 volta = 5 min dentro da zona</text>';
+    rs.slice().reverse().forEach(o=>{ const i = rs.indexOf(o), p = pt(o.x / L); svg += percPonto(o, i, p.x, p.y); });
+    rs.slice(0, 5).forEach((o, i)=>{ const p = pt(o.x / L); svg += percNome(o, i, p.x, p.y, 20); });
+    svg += '</svg>';
+    return '<div class="perc-info">Dentro da zona pedalas a <b>100%</b>; fora dela só a <b>60%</b>.</div><div class="perc-wrap">' + svg + '</div>' + percTabela(rs, o=> Math.floor(o.x / L) + ' voltas');
+  }
+  function percContraHtml(){
+    const { rs } = percLista(), W = 1000, H = 440, lider = rs[0] ? rs[0].x : 0;
+    const janela = 240, ini = Math.max(0, lider - janela + 30), X = s=> 40 + (s - ini) / janela * (W - 80);
+    let svg = '<svg class="perc-svg" viewBox="0 0 ' + W + ' ' + H + '"><rect width="' + W + '" height="' + H + '" fill="#0E1A12"/><rect x="0" y="150" width="' + W + '" height="150" fill="#2B3441"/>' +
+      '<line x1="0" y1="225" x2="' + W + '" y2="225" stroke="rgba(255,255,255,.55)" stroke-width="3" stroke-dasharray="26 22"/>';
+    for(let m = Math.ceil(ini / 300) * 300; m <= ini + janela + 60; m += 300){
+      const x = X(m); svg += '<line x1="' + x + '" y1="140" x2="' + x + '" y2="310" stroke="#FFD60A" stroke-width="3"/><text x="' + x + '" y="130" fill="#FFD60A" font-size="16" font-weight="700" text-anchor="middle">⏱ ' + (m / 60) + ' min</text>';
+    }
+    for(let m = Math.ceil(ini / 30) * 30; m <= ini + janela + 30; m += 30){ const x = X(m); svg += '<rect x="' + (x - 3) + '" y="318" width="6" height="16" fill="rgba(255,255,255,.25)"/>'; }
+    rs.slice().reverse().forEach(o=>{ const i = rs.indexOf(o); if(o.x < ini - 5) return; svg += percPonto(o, i, X(o.x), 175 + (i % 4) * 33); });
+    rs.slice(0, 5).forEach((o, i)=>{ if(o.x < ini - 5) return; svg += percNome(o, i, X(o.x), 175 + (i % 4) * 33, 46); });
+    const atras = rs.filter(o=> o.x < ini - 5).length;
+    if(atras) svg += '<text x="20" y="400" fill="rgba(255,255,255,.6)" font-size="16">◀ mais ' + atras + ' atrás</text>';
+    svg += '<text x="' + (W - 20) + '" y="400" fill="rgba(255,255,255,.5)" font-size="16" text-anchor="end">a câmara segue o líder →</text></svg>';
+    return '<div class="perc-info">⏱️ Contrarrelógio: dentro da zona pedalas a <b>100%</b>, fora dela a <b>60%</b>.</div><div class="perc-wrap">' + svg + '</div>' + percTabela(rs);
+  }
+  function percSerpHtml(){
+    const { rs, tot } = percLista(), W = 1000, H = 440, N = 12;
+    // ziguezague de baixo (partida) para cima (cume)
+    const pts = []; for(let k = 0; k <= N; k++) pts.push({ x: k % 2 ? 760 : 240, y: 410 - k * (370 / N) });
+    const segL = pts.slice(1).map((p, k)=> Math.hypot(p.x - pts[k].x, p.y - pts[k].y)), L = segL.reduce((a,b)=> a + b, 0);
+    const pt = f=>{ let d = Math.max(0, Math.min(1, f)) * L; for(let k = 0; k < segL.length; k++){ if(d <= segL[k]){ const t = d / segL[k]; return { x: pts[k].x + (pts[k+1].x - pts[k].x) * t, y: pts[k].y + (pts[k+1].y - pts[k].y) * t }; } d -= segL[k]; } return pts[N]; };
+    let svg = '<svg class="perc-svg" viewBox="0 0 ' + W + ' ' + H + '"><defs><linearGradient id="srpG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#16301F"/><stop offset="1" stop-color="#3A4E66"/></linearGradient></defs><rect width="' + W + '" height="' + H + '" fill="url(#srpG)"/>' +
+      '<polyline points="' + pts.map(p=> p.x + ',' + p.y).join(' ') + '" fill="none" stroke="#2B3441" stroke-width="30" stroke-linejoin="round"/><polyline points="' + pts.map(p=> p.x + ',' + p.y).join(' ') + '" fill="none" stroke="rgba(255,255,255,.45)" stroke-width="2" stroke-dasharray="10 10"/>';
+    pts.slice(1, N).forEach((p, k)=> svg += '<text x="' + (p.x + (p.x > 500 ? 30 : -30)) + '" y="' + (p.y + 5) + '" fill="rgba(255,255,255,.55)" font-size="14" text-anchor="middle">curva ' + (N - 1 - k) + '</text>');
+    svg += '<text x="' + pts[N].x + '" y="' + (pts[N].y - 8) + '" font-size="26" text-anchor="middle">🚩</text><text x="' + (pts[N].x + 40) + '" y="' + (pts[N].y + 6) + '" fill="#fff" font-size="16" font-weight="700">CUME</text>';
+    rs.slice().reverse().forEach(o=>{ const i = rs.indexOf(o), p = pt(o.x / tot); svg += percPonto(o, i, p.x, p.y); });
+    rs.slice(0, 5).forEach((o, i)=>{ const p = pt(o.x / tot); svg += percNome(o, i, p.x + 70, p.y, 0); });
+    svg += '</svg>';
+    return '<div class="perc-info">🐍 Subida em serpentina: dentro da zona sobes a <b>100%</b>, fora dela a <b>60%</b>.</div><div class="perc-wrap">' + svg + '</div>' + percTabela(rs, o=> Math.round(Math.min(1, o.x / tot) * 1000) + ' m');
+  }
+  function percTipoHtml(k){
+    return k === 'p_circuito' ? percCircuitoHtml() : k === 'p_contra' ? percContraHtml() : k === 'p_serp' ? percSerpHtml() : percHtml();
+  }
   function renderJogos(mode){
     const gp = $('gamePanel');
-    $('rpTitle').textContent = mode === 'percurso' ? 'Percurso virtual · etapa da aula' : 'Jogos · ' + JG_TIPOS[JG.tipo].n;
+    const pk = PERC_TIPOS[(current.blocos[liveIdx] || {}).jogo] ? current.blocos[liveIdx].jogo : JG.ptipo;
+    $('rpTitle').textContent = mode === 'percurso' ? 'Percurso virtual · ' + PERC_TIPOS[pk].n : 'Jogo · ' + JG_TIPOS[JG.tipo].n;
     const rs = visRiders();
     $('rpMeta').innerHTML = '<b>' + rs.filter(r=> JG.z[r.id]).length + '</b> de ' + rs.filter(jgPedala).length + ' dentro da zona agora';
-    if(!rs.length){ gp.innerHTML = ''; gp.style.display = 'none'; $('rpEmpty').style.display = ''; return; }
     $('rpEmpty').style.display = 'none';
+    if(!rs.length){   // ainda sem alunos: já dá para escolher o jogo e a forma das equipas
+      gp.style.display = 'flex';
+      gp.innerHTML = (mode === 'percurso' ? '' : jgBarra()) + '<div class="rp-empty" style="display:block">Ainda ninguém ligou a bike.<br>' + (mode === 'percurso' ? 'O percurso começa' : 'O jogo começa') + ' quando os alunos começarem a pedalar.</div>';
+      return;
+    }
     gp.style.display = 'flex';
     const sc = gp.scrollTop;
-    gp.innerHTML = mode === 'percurso' ? percHtml() : jgHtml();
+    gp.innerHTML = mode === 'percurso' ? percTipoHtml(pk) : jgHtml();
     gp.scrollTop = sc;
   }
   // escolher jogo, forma das equipas, recomeçar
   document.addEventListener('click', e=>{
     const b = e.target.closest('#gamePanel button'); if(!b) return;
-    if(b.dataset.jg){ JG.tipo = b.dataset.jg; try{ localStorage.setItem('prJgTipo', JG.tipo); }catch(_){} }
     if(b.dataset.forma){
-      JG.forma = b.dataset.forma; try{ localStorage.setItem('prJgForma', JG.forma); }catch(_){}
+      JG.forma = b.dataset.forma;
       const k = jgChave();
       if(k){ if(JG.forma === 'professor'){ jgGrupos(); jgEditar(); } else { jgFormar(k, JG.forma); JG.st[JG.tipo] = {}; } }
     }
@@ -4962,9 +5279,32 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     if(livePreview || !current.id) return;
     const t = treinos.find(x=> x.id === current.id); if(!t) return;
     t.ultima = Date.now(); t.vezes = (t.vezes || 0) + 1;
-    current.ultima = t.ultima; current.vezes = t.vezes;
+    const ini = Date.now() - Math.round(elapsedNow() * 1000);   // dia e hora em que a aula começou
+    t.dadas = (t.dadas || []).concat(ini).slice(-300);
+    current.ultima = t.ultima; current.vezes = t.vezes; current.dadas = t.dadas.slice();
     if(planBase !== null && !planSujo()) marcaLimpo();   // a contagem não conta como alteração
     persist(); renderSaved(); usoAula(t);
+  }
+  // todas as vezes que a aula foi dada (registo novo + histórico das aulas antigas), da mais recente para a mais antiga
+  function datasDadas(t){
+    const out = (t.dadas || []).slice();
+    historico.forEach(h=>{
+      if(h.aulaId !== t.id) return;
+      const d = Date.parse(h.date) || 0;
+      if(d && !out.some(x=> Math.abs(x - d) < 3 * 3600e3)) out.push(d);   // o mesmo dia/hora já registado não conta duas vezes
+    });
+    return out.sort((a,b)=> b - a);
+  }
+  var dadasTodas = false;
+  function renderDadas(){
+    const el = $('edDadas'); if(!el) return;
+    const ds = current.id ? datasDadas(Object.assign({}, treinos.find(x=> x.id === current.id) || {}, current)) : [];
+    if(!ds.length){ el.innerHTML = '📅 <span>' + (current.id ? 'Esta aula ainda não foi dada. Quando a projetares (mais de 10 min), o dia e a hora ficam registados aqui.' : 'Guarda a aula para ir registando os dias e as horas em que é dada.') + '</span>'; return; }
+    const f = d=> new Date(d).toLocaleDateString('pt-PT', { weekday:'short', day:'numeric', month:'short', year:'numeric' }) + ' · ' + new Date(d).toLocaleTimeString('pt-PT', { hour:'2-digit', minute:'2-digit' });
+    const mostra = dadasTodas ? ds : ds.slice(0, 6);
+    el.innerHTML = '📅 <span>Dada <b>' + ds.length + (ds.length === 1 ? ' vez' : ' vezes') + '</b>:</span>' + mostra.map(d=> '<span class="dd">' + f(d) + '</span>').join('') +
+      (ds.length > 6 ? '<button id="edDadasMais">' + (dadasTodas ? 'mostrar menos' : 'ver todas (' + ds.length + ')') + '</button>' : '');
+    const b = $('edDadasMais'); if(b) b.onclick = ()=>{ dadasTodas = !dadasTodas; renderDadas(); };
   }
   function ultimaVez(t){   // timestamp da última vez (também procura no histórico das aulas antigas)
     let u = t.ultima || 0;
@@ -4986,7 +5326,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     liveRemaining = blockDurationSec(current.blocos[0]);
     livePlaying = false;
     audPrevStop();
-    jgReset();
+    jgReset(); JG.forma = current.equipas || 'equilibrado';
     summaryEntry = null;
     viewMode = 'auto';
     $('liveOverlay').classList.remove('finished');
@@ -5074,6 +5414,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     $('liveZone').textContent = b.teste ? 'Teste FTP · 20 min' : zone.name;
     if(liveLastIdx !== liveIdx){                       // mudou de bloco: clarão na cor da zona
       liveLastIdx = liveIdx;
+      jgMudouBloco(b);
       const body = $('liveBody');
       body.classList.remove('flash'); void body.offsetWidth; body.classList.add('flash');
     }
@@ -5396,8 +5737,6 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     if(e.key === '1'){ viewMode = 'aula'; applyMode(); }
     if(e.key === '2'){ viewMode = 'turma'; renderRiders(); }
     if(e.key === '3'){ viewMode = 'corrida'; renderRiders(); }
-    if(e.key === '4'){ viewMode = 'jogos'; renderRiders(); }
-    if(e.key === '5'){ viewMode = 'percurso'; renderRiders(); }
     if(e.key === 'm' || e.key === 'M'){ toggleMetric(); }
     if(e.key === 'q' || e.key === 'Q'){ $('qrPanel').classList.toggle('active'); }
   });
@@ -5412,8 +5751,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     if(!confirm(msg)) return;
     const key = existing ? existing.key : fbDb.ref('biblioteca').push().key;
     fbDb.ref('biblioteca/' + key).set(clean({
-      nome: t.nome, modo: t.modo || 'ftp', objetivo: t.objetivo || null, descricao: null, blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, alvo:alvoOf(b), teste:b.teste ? true : null, rpm:b.rpm, rpm2:b.rpm2||null, tipo:b.tipo||null, tecnica:b.tecnica||''})),
-      grupo: t.grupo || null,
+      nome: t.nome, modo: t.modo || 'ftp', objetivo: t.objetivo || null, descricao: null, blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, alvo:alvoOf(b), teste:b.teste ? true : null, rpm:b.rpm, rpm2:b.rpm2||null, tipo:b.tipo||null, tecnica:b.tecnica||'', jogo:b.jogo||null})),
+      grupo: t.grupo || null, equipas: t.equipas || null,
       autor: userUid, autorNome: userNome || '', origem: id, atualizado: Date.now()
     })).then(()=> toast(existing ? 'Biblioteca atualizada' : 'Aula partilhada na Biblioteca Playlife'))
       .catch(()=> toast('Não consegui partilhar.'));
@@ -5422,7 +5761,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   function copyShared(key){
     const p = partilhadas.find(x=>x.key===key);
     if(!p) return;
-    const copy = { id: uid(), origemBib: key, nome: p.nome, modo: p.modo || 'ftp', objetivo: p.objetivo || undefined, descricao: p.descricao || undefined, grupo: p.grupo || undefined, blocos: (p.blocos||[]).map(sanitizeBlock) };
+    const copy = { id: uid(), origemBib: key, nome: p.nome, modo: p.modo || 'ftp', objetivo: p.objetivo || undefined, descricao: p.descricao || undefined, grupo: p.grupo || undefined, equipas: p.equipas || undefined, blocos: (p.blocos||[]).map(sanitizeBlock) };
     treinos.push(copy);
     persist();
     current = clean(copy);
@@ -5746,6 +6085,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   $('logoutBtn').addEventListener('click', ()=>{ if(confirm('Sair da conta?')) doLogout(); });
   $('pendingLogout').addEventListener('click', doLogout);
   $('adminBtn').addEventListener('click', ()=>{ renderAdmin(); $('adminModal').classList.add('active'); });
+  $('jpOk').addEventListener('click', jpFechar); $('jpX').addEventListener('click', jpFechar);
+  $('jpModal').addEventListener('click', e=>{ if(e.target.id === 'jpModal') jpFechar(); });
   $('jgModalOk').addEventListener('click', ()=>{ $('jgModal').classList.remove('active'); JG.st[JG.tipo] = {}; renderRiders(); });
   $('adminClose').addEventListener('click', ()=> $('adminModal').classList.remove('active'));
   $('adminModal').addEventListener('click', (e)=>{ if(e.target.id==='adminModal') $('adminModal').classList.remove('active'); });

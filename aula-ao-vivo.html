@@ -525,6 +525,11 @@ body.solo-livre #progress{display:none;}
 .ftp-result{margin-top:8px;max-width:420px;background:rgba(255,214,10,.08);border:1px solid rgba(255,214,10,.4);border-radius:12px;padding:9px 12px;font-size:14px;line-height:1.4;}
 .bg-warn{display:none;position:relative;margin-top:8px;max-width:420px;background:rgba(255,59,59,.12);border:1px solid rgba(255,59,59,.5);border-radius:12px;padding:10px 34px 10px 12px;font-size:14px;line-height:1.4;text-align:left;}
 .bg-warn.on{display:block;}
+.jg-me{display:none;width:100%;max-width:420px;margin-top:10px;border-radius:14px;padding:10px 14px;background:color-mix(in srgb,var(--jc,#E8722C) 18%,#10141B);border:2px solid var(--jc,#E8722C);box-shadow:0 0 18px color-mix(in srgb,var(--jc,#E8722C) 35%,transparent);text-align:left;}
+.jg-me.on{display:block;}
+.jg-me .jg-j{font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:rgba(255,255,255,.7);}
+.jg-me .jg-t{font-family:'Barlow Condensed',sans-serif;font-size:clamp(22px,7vw,30px);font-weight:800;line-height:1.1;color:#fff;margin-top:2px;}
+.jg-me .jg-s{font-size:14px;color:rgba(255,255,255,.85);margin-top:3px;line-height:1.35;}
 .bg-warn button{position:absolute;top:6px;right:6px;background:none;border:none;color:var(--muted);font-size:16px;padding:4px;}
 .fin-ftp{font-size:15px;line-height:1.45;margin:0 0 8px;max-width:420px;}
 .fin-ftp:empty{display:none;}
@@ -961,6 +966,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       <div class="target" id="targetEl"></div>
       <div class="ftp-result" id="ftpResult" style="display:none"></div>
       <div class="bg-warn" id="bgWarn" role="alert"></div>
+      <div class="jg-me" id="jgMe" aria-live="polite"><div class="jg-j" id="jgJ"></div><div class="jg-t" id="jgT"></div><div class="jg-s" id="jgS"></div></div>
 
       <div class="me" id="meEl">
         <div class="me-w" id="myBig" role="button" tabindex="0" aria-label="Trocar entre valor e percentagem"><span id="myW">0</span><small id="myWUnit">W</small><span class="swap" id="mySwap">toca para ver %FTP</span></div>
@@ -1737,18 +1743,28 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       hadState = true; state = v;
     });
     add(base.child('rank/' + riderId), s=>{ myRank = s.val(); });
+    add(base.child('jogo/r/' + riderId), s=> jogoMostra(s.val()));
+  }
+  // jogo ou percurso do bloco: a tua equipa, o teu par ou a tua posição (vem da projeção)
+  function jogoMostra(v){
+    const el = $('jgMe'); if(!el) return;
+    if(!v || sessionEnded){ el.classList.remove('on'); return; }
+    $('jgJ').textContent = v.j || ''; $('jgT').textContent = v.t || ''; $('jgS').textContent = v.s || '';
+    el.style.setProperty('--jc', /^#[0-9a-f]{3,8}$/i.test(v.c || '') ? v.c : '#E8722C');
+    el.classList.add('on');
   }
 
   function detachListeners(){
     listeners.forEach(r=> r.off());
     listeners = [];
+    jogoMostra(null);
   }
 
   function endOfSession(){
     checkFtpTest();
     pushRider();
     saveTreino();
-    sessionEnded = true;
+    sessionEnded = true; jogoMostra(null);
     if(!state) state = {};
     state = Object.assign({}, state, {status:'finished', blockIndex: blocos.length});
   }
