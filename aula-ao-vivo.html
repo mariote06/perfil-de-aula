@@ -442,6 +442,7 @@ body.solo-livre #progress{display:none;}
 #setupScreen .sensor .s-status{font-size:15px;font-weight:600;margin-top:4px;}
 #setupScreen .sensor .s-status.on{font-weight:800;}
 #setupScreen .sensor button{font-size:16px;font-weight:700;padding:12px 18px;border-radius:10px;}
+#setupScreen .bt-ult{border-style:solid;border-color:rgba(61,212,92,.6);background:rgba(61,212,92,.1);margin-bottom:8px;}
 #setupScreen .bt-all{width:100%;background:transparent;border:1.5px dashed rgba(255,255,255,.28);color:#fff;border-radius:12px;padding:13px 14px;font-size:15px;font-weight:700;text-align:center;}
 #setupScreen .bt-all:hover{border-color:var(--accent);}
 #setupScreen #bikeHelp{font-size:14px;line-height:1.45;}
@@ -881,6 +882,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       <div><div class="s-name">♥ Cinta de FC</div><div class="s-status" id="hrStatus">opcional</div></div>
       <button id="hrBtn">Ligar</button>
     </div>
+    <button id="ultBikeBtn" class="bt-all bt-ult" style="display:none"></button>
     <button id="showAllBtn" class="bt-all">🔍 Não aparece? Mostrar todos os dispositivos Bluetooth</button>
     <div class="hint" id="bikeHelp">Antes de ligar: pedala um pouco para acordar a consola da bike. Tens de ter o Bluetooth e a Localização do telemóvel ligados.</div>
     <div class="warn" id="btWarn"></div>
@@ -1251,11 +1253,17 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   const U = (n)=> '0000' + n.toString(16).padStart(4, '0') + '-0000-1000-8000-00805f9b34fb';
   const SVC = { power:U(0x1818), ftms:U(0x1826), csc:U(0x1816), hr:U(0x180D) };
   const CHR = { power:U(0x2A63), ftms:U(0x2AD2), csc:U(0x2A5B), hr:U(0x2A37) };
-  // o iPhone falha muitas vezes a 1.ª ligação: tenta outra vez
-  async function gattConnect(device){
+  // promessa com limite de tempo (no Android uma ligação presa pode demorar 30 s até dar erro)
+  function comLimite(pr, ms, msg){
+    let h; return Promise.race([pr, new Promise((_, rej)=>{ h = setTimeout(()=> rej(Object.assign(new Error(msg || 'demorou demasiado'), { name:'TimeoutError' })), ms); })]).finally(()=> clearTimeout(h));
+  }
+  // a 1.ª ligação falha muitas vezes (iPhone e Android antigos): tenta outra vez, sem ficar preso
+  async function gattConnect(device, onTry){
     let last;
     for(let i = 0; i < 3; i++){
-      try{ return await device.gatt.connect(); }catch(e){ last = e; await new Promise(r=> setTimeout(r, 700 * (i+1))); }
+      if(onTry && i) onTry(i + 1);
+      try{ return await comLimite(device.gatt.connect(), i ? 12000 : 9000, 'a bike não respondeu'); }
+      catch(e){ last = e; try{ device.gatt.disconnect(); }catch(_){} await new Promise(r=> setTimeout(r, 350 * (i+1))); }
     }
     throw last;
   }
@@ -1341,25 +1349,58 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   }
 
   async function subscribe(server, svc, chr, handler){
-    const service = await server.getPrimaryService(svc);
+    const service = typeof svc === 'string' ? await server.getPrimaryService(svc) : svc;   // pode vir já o serviço
     const ch = await service.getCharacteristic(chr);
     ch.addEventListener('characteristicvaluechanged', (e)=>{ try{ handler(e.target.value); }catch(err){} });
     await ch.startNotifications();
   }
 
   async function setupBikeGatt(device){
-    const server = await gattConnect(device);
+    const server = await gattConnect(device, n=> setBikeStatus('a ligar a ' + (S.bikeName || 'bike') + '… (' + n + '.ª tentativa)', false));
+    // uma só procura dos serviços (no Android cada pedido de um serviço que não existe é lento)
+    let svcs = null;
+    try{ svcs = await comLimite(server.getPrimaryServices(), 10000); if(!svcs || !svcs.length) svcs = null; }catch(e){ svcs = null; }
+    const tem = u=> !svcs || svcs.some(x=> x.uuid === u);
+    const serv = u=> svcs ? svcs.find(x=> x.uuid === u) : u;
     let source = '';
-    try{ await subscribe(server, SVC.power, CHR.power, parsePower); source = 'potência'; }catch(e){}
-    if(!source){ try{ await subscribe(server, SVC.ftms, CHR.ftms, parseFtms); source = 'FTMS'; }catch(e){} }
-    try{ await subscribe(server, SVC.csc, CHR.csc, parseCsc); if(!source) source = 'cadência'; }catch(e){}
+    if(tem(SVC.power)){ try{ await subscribe(server, serv(SVC.power), CHR.power, parsePower); source = 'potência'; }catch(e){} }
+    if(!source && tem(SVC.ftms)){ try{ await subscribe(server, serv(SVC.ftms), CHR.ftms, parseFtms); source = 'FTMS'; }catch(e){} }
+    // a cadência separada só faz falta se a bike não a mandar com a potência (o FTMS já traz rpm)
+    if(source !== 'FTMS' && tem(SVC.csc)){ try{ await subscribe(server, serv(SVC.csc), CHR.csc, parseCsc); if(!source) source = 'cadência'; }catch(e){} }
     if(!source){
       let list = '';
-      try{ list = (await server.getPrimaryServices()).map(s=>s.uuid.slice(4,8)).join(', '); }catch(e){}
+      try{ list = (svcs || await server.getPrimaryServices()).map(s=>s.uuid.slice(4,8)).join(', '); }catch(e){}
       try{ device.gatt.disconnect(); }catch(e){}
       throw new Error('este dispositivo não envia potência' + (list ? ' (serviços: ' + list + ')' : '') + '. Escolhe outro.');
     }
     S.bikeSource = source;
+    try{ if(device.id) localStorage.setItem('prUltBike', JSON.stringify({ id: device.id, n: device.name || 'Bike', t: Date.now() })); }catch(e){}
+    ultBikeSync();
+  }
+  // ---- voltar a ligar à última bike sem abrir a lista de dispositivos (Chrome com getDevices) ----
+  function ultBike(){ try{ const u = JSON.parse(localStorage.getItem('prUltBike') || 'null'); return u && u.id && (Date.now() - (u.t || 0) < 12 * 3600e3) ? u : null; }catch(e){ return null; } }
+  function ultBikeSync(){
+    const b = $('ultBikeBtn'); if(!b) return;
+    const u = ultBike(), ok = u && navigator.bluetooth && navigator.bluetooth.getDevices && !bikeConnected();
+    b.style.display = ok ? '' : 'none';
+    if(ok) b.textContent = '⚡ Ligar outra vez à ' + u.n;
+  }
+  async function connectUltBike(){
+    const u = ultBike(); if(!u || !navigator.bluetooth.getDevices){ connectBike(false); return; }
+    try{
+      const devs = await navigator.bluetooth.getDevices(), device = devs.find(d=> d.id === u.id);
+      if(!device){ connectBike(false); return; }
+      S.bikeDev = device; S.bikeName = device.name || u.n; S.wantBike = true; S.crank = null;
+      device.removeEventListener('gattserverdisconnected', onBikeLost); device.addEventListener('gattserverdisconnected', onBikeLost);
+      setBikeStatus('a ligar a ' + S.bikeName + '…', false);
+      await setupBikeGatt(device);
+      setBikeStatus(S.bikeName + ' ligada', true); demo = false; ultBikeSync();
+    }catch(e){
+      console.error(e);
+      if(bikeConnected()){ setBikeStatus(S.bikeName + ' ligada', true); return; }
+      S.wantBike = false;
+      setBikeStatus('a ' + u.n + ' não respondeu: pedala para acordar a consola ou toca em "Ligar" para escolher a bike', false);
+    }
   }
 
   async function connectBike(showAll){
@@ -1407,7 +1448,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   async function onBikeLost(){
     setBikeStatus('ligação perdida, a tentar de novo…', false);
     for(let i=0; i<5 && S.wantBike && S.bikeDev; i++){
-      await new Promise(r=>setTimeout(r, 1500 * (i+1)));
+      await new Promise(r=>setTimeout(r, i ? 1200 * i : 300));   // a 1.ª tentativa é quase logo
       try{ await setupBikeGatt(S.bikeDev); setBikeStatus(S.bikeName + ' ligada', true); return; }catch(e){}
     }
     if(S.wantBike) setBikeStatus('desligada (toca para voltar a ligar)', false);
@@ -1431,7 +1472,8 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       const device = await navigator.bluetooth.requestDevice({ filters: [{services:[SVC.hr]}] });
       S.hrDev = device; S.hrName = device.name || 'Cinta'; S.wantHr = true;
       device.addEventListener('gattserverdisconnected', onHrLost);
-      const server = await gattConnect(device);
+      setHrStatus('a ligar a ' + S.hrName + '…', false);
+      const server = await gattConnect(device, n=> setHrStatus('a ligar a ' + S.hrName + '… (' + n + '.ª tentativa)', false));
       await subscribe(server, SVC.hr, CHR.hr, parseHr);
       setHrStatus(S.hrName + ' ligada', true);
     }catch(e){
@@ -1444,9 +1486,9 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   async function onHrLost(){
     setHrStatus('ligação perdida, a tentar de novo…', false);
     for(let i=0; i<5 && S.wantHr && S.hrDev; i++){
-      await new Promise(r=>setTimeout(r, 1500 * (i+1)));
+      await new Promise(r=>setTimeout(r, i ? 1200 * i : 300));
       try{
-        const server = await S.hrDev.gatt.connect();
+        const server = await comLimite(S.hrDev.gatt.connect(), 10000);
         await subscribe(server, SVC.hr, CHR.hr, parseHr);
         setHrStatus(S.hrName + ' ligada', true); return;
       }catch(e){}
@@ -1469,6 +1511,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     $('bikeStatus').textContent = txt; $('bikeStatus').classList.toggle('on', !!on);
     $('bikeBtn').textContent = on ? 'Ligada ✓' : 'Ligar'; $('bikeBtn').classList.toggle('on', !!on);
     $('chipBike').classList.toggle('on', !!on || demo);
+    if(typeof ultBikeSync === 'function') ultBikeSync();
   }
   function setHrStatus(txt, on){
     $('hrStatus').textContent = txt; $('hrStatus').classList.toggle('on', !!on);
@@ -2146,6 +2189,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   $('pinInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') checkPin(e.target.value.trim()); });
   $('bikeBtn').addEventListener('click', ()=> connectBike(false));
   $('showAllBtn').addEventListener('click', ()=> connectBike(true));
+  $('ultBikeBtn').addEventListener('click', connectUltBike); ultBikeSync();
   if(!hasBluetooth) $('showAllBtn').style.display = 'none';   // sem Bluetooth na web (iPhone fora do Bluefy) não serve
   $('hrBtn').addEventListener('click', connectHr);
   $('chipBike').addEventListener('click', ()=>{ if(!demo) connectBike(false); });
