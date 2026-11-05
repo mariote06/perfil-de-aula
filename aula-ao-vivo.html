@@ -569,26 +569,32 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
 .lamp .lwh{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:var(--lfs,15px);line-height:1;color:color-mix(in srgb,#FFE08A calc(var(--lv) * 100%),#AEB6C2);white-space:nowrap;font-variant-numeric:tabular-nums;}
 @media (prefers-reduced-motion:reduce){.lamp.on .lg{animation:none;}}
 .body{position:relative;}
-/* ---- ecrã 2 ---- */
-.e2{display:none;width:100%;max-width:520px;margin:4px auto 0;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:minmax(54px,calc((100dvh - 190px) / 12));gap:8px;grid-auto-flow:row dense;padding-bottom:44px;}
-#liveScreen.ecra2 .e2{display:grid;}
+/* ---- ecrã 2: montado no "PlayRide Ecrã 2" (mesma grelha: 6 colunas, linhas de 58 px, e depois ajusta ao ecrã) ---- */
+.e2{display:none;width:100%;margin:2px auto 0;padding-bottom:44px;}
+#liveScreen.ecra2 .e2{display:block;}
 #liveScreen.ecra2 #activeBlock,#liveScreen.ecra2 #myBatt,#liveScreen.ecra2 #myLamp,#liveScreen.ecra2 #className,#liveScreen.ecra2 #ocTag{display:none!important;}
-#liveScreen.ecra2 #bodyEl{background:#0B0E13!important;}
-.e2c{min-width:0;background:#12161D;border:1px solid #2B3341;border-top:3px solid var(--e2c,#E8722C);border-radius:14px;padding:6px 8px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;overflow:hidden;}
-.e2c.s6{grid-column:span 6;} .e2c.s3{grid-column:span 3;} .e2c.h1{grid-row:span 1;} .e2c.h2{grid-row:span 2;}
-.e2l{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);line-height:1.1;}
-.e2v{font-family:'Barlow Condensed',sans-serif;font-weight:800;line-height:.95;color:#fff;font-variant-numeric:tabular-nums;font-size:calc(var(--b) * var(--f));max-width:100%;}
-.e2v small{font-size:.36em;color:var(--muted);margin-left:2px;font-weight:700;}
-.e2c.s3 .e2v{font-size:min(calc(var(--b) * var(--f)), 15.5vw);white-space:nowrap;}
-.e2c.s6 .e2v{font-size:min(calc(var(--b) * var(--f)), 11vw);}
-.e2v.ok{color:#3DD45C;} .e2v.low{color:#FFB15C;}
-.e2s{font-size:12.5px;color:var(--muted);line-height:1.2;margin-top:2px;}
-.e2-prof{display:flex;align-items:flex-end;gap:2px;width:100%;flex:1;min-height:20px;position:relative;margin-top:3px;}
+#liveScreen.ecra2.e2escuro #bodyEl{background:#0B0E13!important;}
+.e2g{width:346px;margin:0 auto;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));grid-auto-rows:58px;gap:8px;grid-auto-flow:row dense;}
+.e2w{position:relative;min-width:0;background:rgba(18,22,29,.92);border:1px solid #2B3341;border-top:3px solid var(--wc,#E8722C);border-radius:14px;padding:6px 8px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;overflow:hidden;}
+.e2wi{display:flex;flex-direction:column;justify-content:center;align-items:center;width:100%;height:100%;min-width:0;}
+#ecra2 .l{font-family:'Barlow Condensed',sans-serif;font-weight:600;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);line-height:1;}
+#ecra2 .v{font-family:'Barlow Condensed',sans-serif;font-weight:800;line-height:.95;color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap;}
+#ecra2 .u{font-size:.42em;color:var(--muted);margin-left:2px;font-weight:700;}
+#ecra2 .s{font-size:11.5px;color:var(--muted);line-height:1.2;}
+#ecra2 .v.ok{color:#3DD45C!important;} #ecra2 .v.low{color:#FFB15C!important;}
+.e2w.sh-quad{border-radius:0;}
+.e2w.sh-redondo{border-radius:50%;padding:10px 14px;}
+.e2w.sh-pilula{border-radius:999px;padding:6px 18px;}
+.e2w.sh-tri{border:none;border-radius:0;clip-path:polygon(50% 0,100% 100%,0 100%);background:color-mix(in srgb,var(--wc) 30%,#12161D);padding:18% 14% 6px;}
+.e2w.sh-tri .e2wi{justify-content:flex-end;}
+.e2w.sh-hex{border:none;border-radius:0;clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);background:color-mix(in srgb,var(--wc) 22%,#12161D);padding:6px 16%;}
+.e2w.no-l .e2wi .l,.e2w.no-v .e2wi .v,.e2w.no-u .e2wi .u,.e2w.no-s .e2wi .s,.e2w.no-g .e2wi .e2-prof,.e2w.no-g .e2wi .e2-gauge,.e2w.no-g .e2wi svg{display:none!important;}
+.e2-prof{display:flex;align-items:flex-end;gap:2px;width:100%;flex:1;padding-top:4px;position:relative;}
 .e2-prof i{display:block;border-radius:2px 2px 0 0;}
-.e2-prof .pos{position:absolute;top:-2px;bottom:0;width:2px;background:#fff;box-shadow:0 0 6px #fff;}
-.e2-gauge{width:100%;height:12px;flex:0 0 12px;border-radius:999px;background:#2B3341;position:relative;margin:7px 0 3px;}
-.e2-gauge b{position:absolute;top:50%;width:18px;height:18px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);box-shadow:0 0 0 3px rgba(0,0,0,.55);left:0;transition:left .4s;}
-.e2-jogo{border-color:var(--e2c);background:color-mix(in srgb,var(--e2c) 14%,#12161D);}
+.e2-prof .pos{position:absolute;top:0;bottom:0;width:2px;background:#fff;box-shadow:0 0 6px #fff;}
+.e2-gauge{width:100%;height:10px;flex:0 0 10px;border-radius:999px;background:#2B3341;position:relative;margin:6px 0 2px;}
+.e2-gauge b{position:absolute;top:50%;width:16px;height:16px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);box-shadow:0 0 0 3px rgba(0,0,0,.5);}
+.e2-spark{width:100%;flex:1;}
 .e2-dots{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(10px + env(safe-area-inset-bottom,0px));display:none;gap:10px;z-index:30;background:rgba(5,7,10,.6);padding:7px 10px;border-radius:999px;}
 #liveScreen.e2on .e2-dots{display:flex;}
 .e2-dots button{width:10px;height:10px;border-radius:50%;border:none;padding:0;background:rgba(255,255,255,.35);}
@@ -1025,19 +1031,8 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       </div>
     </div>
 
-    <!-- ECRÃ 2 (desliza para o lado): layout escolhido pelo professor -->
-    <div class="e2" id="ecra2" aria-label="Ecrã 2 do treino">
-      <div class="e2c s6 h1"><div class="e2l">Técnica</div><div class="e2v" id="e2Tec" style="--f:1.35;--b:20px">—</div></div>
-      <div class="e2c s3 h2"><div class="e2l">Potência</div><div class="e2v" id="e2W" style="--f:1.55;--b:44px">—</div><div class="e2s" id="e2Ws"></div></div>
-      <div class="e2c s3 h2"><div class="e2l">Falta neste bloco</div><div class="e2v" id="e2T" style="--f:1.5;--b:44px">0:00</div></div>
-      <div class="e2c s3 h2"><div class="e2l" id="e2HrL">FC</div><div class="e2v" id="e2Hr" style="--f:1.5;--b:44px">—</div><div class="e2s" id="e2Hrs"></div></div>
-      <div class="e2c s3 h2"><div class="e2l">RPM</div><div class="e2v" id="e2Rpm" style="--f:1.5;--b:44px">—</div><div class="e2s" id="e2Rpms"></div></div>
-      <div class="e2c s3 h1"><div class="e2l">Velocidade</div><div class="e2v" id="e2Kmh" style="--f:1;--b:30px">—</div></div>
-      <div class="e2c s6 h1"><div class="e2l">Onde estou</div><div class="e2-gauge"><b id="e2Gd"></b></div><div class="e2s" id="e2Gz"></div></div>
-      <div class="e2c s6 h2"><div class="e2l" id="e2NxL">A seguir</div><div class="e2v" id="e2Nx" style="--f:1.75;--b:24px">—</div></div>
-      <div class="e2c s6 h2 e2-jogo" id="e2Jogo" hidden><div class="e2l" id="e2Jj"></div><div class="e2v" id="e2Jt" style="--f:1;--b:28px"></div><div class="e2s" id="e2Js"></div></div>
-      <div class="e2c s3 h1"><div class="e2l">Distância</div><div class="e2v" id="e2Km" style="--f:1;--b:30px">—</div></div>
-    </div>
+    <!-- ECRÃ 2: montado no "PlayRide Ecrã 2" -->
+    <div class="e2" id="ecra2" aria-label="Ecrã 2 do treino"><div class="e2g" id="e2Grid"></div></div>
     <div class="e2-dots" id="e2Dots" aria-label="Mudar de ecrã"><button data-e="1" class="on" aria-label="Ecrã 1"></button><button data-e="2" aria-label="Ecrã 2"></button></div>
     <div class="finished" id="finishedEl">
       <div class="blockline"><span class="zone" id="finTitle">Aula concluída</span></div>
@@ -1921,67 +1916,103 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     return st.remainingAtStart || 0;
   }
 
-  // ================= ECRÃ 2 (desliza para o lado) =================
-  let ecraAtual = 1, e2ProfKey = '';
+  // ================= ECRÃ 2 (desliza para o lado ou muda sozinho por bloco) =================
+  // configuração feita pelo professor no "PlayRide Ecrã 2": [peça, largura (de 6), altura (linhas), cor, letra, {forma, esconde, titulo, unidade, texto}]
+  const E2_CFG = {"ecra2":[["tec",6,2,0,2,{"forma":"quad","esconde":["l"]}],["alvo",4,1,0,1.15],["pot",4,2,0,1.75,{"forma":"quad","esconde":["s"]}],["gauge",6,1,0,2,{"forma":"quad","esconde":["s","l"]}],["rpm",4,2,0,1.8,{"forma":"quad","esconde":["s"]}],["timer",3,2,0,1.5,{"forma":"quad","esconde":["l"]}],["pfc",3,2,0,1.65,{"forma":"quad","esconde":["s"]}],["kmh",3,1,0,1,{"forma":"quad"}],["aftp",2,1,0,0.95,{"esconde":["s"]}],["pftp",2,2,0,2,{"forma":"quad","esconde":["s"]}],["arpm",2,1,0,1],["nz",2,1,0,1],["km",3,1,0,1,{"forma":"quad"}]],"fundo":"escuro","troca":"auto"};
+  let ecraAtual = 1, e2Zoom = 0, e2LastIdx = -1, e2Hist = [], e2HistT = 0;
   function ecraVai(n){
     const ls = $('liveScreen'); if(!ls) return;
     ecraAtual = n === 2 ? 2 : 1;
     ls.classList.toggle('ecra2', ecraAtual === 2);
+    ls.classList.toggle('e2escuro', E2_CFG.fundo === 'escuro');
     document.querySelectorAll('#e2Dots button').forEach(b=> b.classList.toggle('on', +b.dataset.e === ecraAtual));
     try{ localStorage.setItem('prEcra', String(ecraAtual)); }catch(e){}
-    if(ecraAtual === 2) e2ProfKey = '';
+    e2Zoom = 0;
+  }
+  // tamanho dos números como no montador
+  const e2Big = (h, w)=> Math.round(Math.min(h * 30 + 4, w * 13 + 6));
+  function e2Num(it, l, v, u, s, cls){
+    return '<div class="l">' + l + '</div><div class="v' + (cls ? ' ' + cls : '') + '" style="font-size:' + e2Big(it.h, it.w) + 'px;color:' + (it.c || '#fff') + '">' + v + (u ? '<span class="u">' + u + '</span>' : '') + '</div>' + (s && it.h > 1 ? '<div class="s">' + s + '</div>' : '');
   }
   function renderEcra2(b, next, remaining, range, totalSec, elapsed){
-    const zc = zoneColor(blkZone(b).css), powered = hasPowerSource();
-    document.querySelectorAll('#ecra2 .e2c:not(.e2-jogo)').forEach(c=> c.style.setProperty('--e2c', zc));
-    // gráfico da aula com a posição
-    const key = blocos.length + ':' + totalSec;
-    if($('e2Prof') && key !== e2ProfKey){
-      e2ProfKey = key;
-      const mx = Math.max(110, ...blocos.map(x=> x.ftp || 0));
-      $('e2Prof').innerHTML = blocos.map(x=> '<i style="flex:' + blockDurationSec(x) + ';height:' + Math.max(8, Math.round((x.ftp || 0) / mx * 100)) + '%;background:' + zoneColor(blkZone(x).css) + '"></i>').join('') + '<span class="pos" id="e2Pos"></span>';
-    }
-    const pos = $('e2Pos'); if(pos) pos.style.left = Math.min(100, elapsed / totalSec * 100) + '%';
-    if($('e2Pt')) $('e2Pt').textContent = fmtTime(Math.max(0, Math.round(elapsed))) + ' de ' + fmtTime(totalSec);
-    $('e2Kmh').innerHTML = powered ? (me.spd || 0).toFixed(1).replace('.', ',') + '<small>km/h</small>' : '—';
-    $('e2Km').innerHTML = powered ? fmtKm(me.km) + '<small>km</small>' : '—';
-    $('e2Tec').textContent = b.tecnica || blkZone(b).name;
-    const w = Math.round(dispPower);
-    $('e2W').innerHTML = powered ? w + '<small>W</small>' : '—';
-    $('e2Ws').textContent = powered && me.ftp ? Math.round(dispPower / me.ftp * 100) + '% do FTP' : (powered ? '' : 'liga a bike');
-    $('e2T').textContent = fmtCountdown(remaining);
-    $('e2T').classList.toggle('low', remaining <= 5 && remaining > 0 && state.status === 'playing');
-    const hr = Math.round(myHr());
-    $('e2Hr').innerHTML = hr ? hr + '<small>bpm</small>' : '—';
-    $('e2Hrs').textContent = hr && me.fc ? Math.round(hr / me.fc * 100) + '% da FCmáx' : (hr ? '' : 'sem cinta');
-    const cad = Math.round(S.cadence);
-    $('e2Rpm').textContent = powered ? cad : '—';
-    $('e2Rpm').className = 'e2v' + (powered && cad ? (rpmOk(cad, b) ? ' ok' : ' low') : '');
-    $('e2Rpms').textContent = 'alvo ' + rpmTxt(b);
-    // barra das zonas: onde estou agora
-    let pct = null;
-    if(modo === 'fc'){ if(hr && me.fc) pct = hr / me.fc * 100; }
-    else if(powered && me.ftp) pct = dispPower / me.ftp * 100;
-    else if(hr && me.fc) pct = null;
-    const g = modo === 'fc' ? [50, 100] : [0, 160];
-    if($('e2Gd').parentElement.dataset.m !== modo){   // faixa com as cores e os limites reais das zonas
-      const gEl = $('e2Gd').parentElement; gEl.dataset.m = modo; let a = g[0];
-      gEl.style.background = 'linear-gradient(90deg,' + zonesNow().map(z=>{ const lo = (Math.max(a, g[0]) - g[0]) / (g[1] - g[0]) * 100, hi = (Math.min(z.max, g[1]) - g[0]) / (g[1] - g[0]) * 100; a = z.max; const c = zoneColor(z.css); return c + ' ' + lo.toFixed(1) + '%,' + c + ' ' + Math.max(lo, hi).toFixed(1) + '%'; }).join(',') + ')';
-    }
-    $('e2Gd').style.left = pct == null ? '0%' : Math.min(100, Math.max(0, (pct - g[0]) / (g[1] - g[0]) * 100)) + '%';
-    if(pct == null) $('e2Gz').textContent = modo === 'fc' ? 'liga a cinta de FC' : 'liga a bike';
-    else { const z = getZone(pct), ok = !b.tipo && z === blkZone(b); $('e2Gz').innerHTML = '<b style="color:' + zoneColor(z.css) + '">' + escapeHtml(z.name) + '</b>' + (b.tipo ? '' : ok ? ' · <span style="color:#3DD45C">✓ na zona</span>' : ' · alvo ' + escapeHtml(blkZone(b).name.split(' ')[0])); }
-    // próximo bloco
-    if(next){
-      const nz = blkZone(next), nr = zoneRange(next.ftp);
-      $('e2NxL').textContent = 'A seguir · em ' + fmtCountdown(remaining);
-      $('e2Nx').innerHTML = '<span style="color:' + zoneColor(nz.css) + '">' + escapeHtml(nz.name.split(' ')[0]) + ' · ' + escapeHtml(pctTxt(next, nr)) + '</span> · ' + rpmTxt(next) + '<small>rpm</small>';
-    } else { $('e2NxL').textContent = 'Último bloco'; $('e2Nx').textContent = 'Força até ao fim! 💪'; }
-    // cartão do jogo (o mesmo do ecrã 1)
-    const jg = $('jgMe'), on = jg && jg.classList.contains('on');
-    $('e2Jogo').hidden = !on;
-    if(on){ $('e2Jj').textContent = $('jgJ').textContent; $('e2Jt').textContent = $('jgT').textContent; $('e2Js').textContent = $('jgS').textContent; $('e2Jogo').style.setProperty('--e2c', jg.style.getPropertyValue('--jc') || '#E8722C'); }
+    const zone = blkZone(b), zc = zoneColor(zone.css), powered = hasPowerSource();
+    const w = Math.round(dispPower), hr = Math.round(myHr()), cad = Math.round(S.cadence);
+    const pFtp = powered && me.ftp ? dispPower / me.ftp * 100 : null;
+    const pFc = hr && me.fc ? hr / me.fc * 100 : null;
+    const now = performance.now();
+    if(now - e2HistT > 1000){ e2HistT = now; e2Hist.push(powered ? dispPower : 0); if(e2Hist.length > 60) e2Hist.shift(); }
+    const rng = (lo, hi)=> range.open ? '≥ ' + lo : lo + '–' + hi;
+    const alvoW = modo === 'fc'
+      ? (me.fc ? [rng(Math.round(me.fc * range.min / 100), Math.round(me.fc * Math.min(range.max, 100) / 100)), 'bpm'] : [pctTxt(b, range), ''])
+      : (me.ftp ? [rng(Math.round(me.ftp * range.min / 100), Math.round(me.ftp * range.max / 100)), 'W'] : [pctTxt(b, range), '']);
+    const D = {
+      pot: it=> e2Num(it, 'Potência', powered ? w : '—', powered ? 'W' : '', pFtp != null ? Math.round(pFtp) + '% do FTP' : (powered ? '' : 'liga a bike')),
+      pftp: it=> e2Num(it, '%FTP', pFtp != null ? Math.round(pFtp) : '—', pFtp != null ? '%' : '', 'do teu FTP'),
+      rpm: it=> e2Num(it, 'RPM', powered ? cad : '—', '', 'alvo ' + rpmTxt(b), powered && cad ? (rpmOk(cad, b) ? 'ok' : 'low') : ''),
+      fc: it=> e2Num(it, 'FC', hr || '—', hr ? 'bpm' : '', pFc != null ? Math.round(pFc) + '% da FCmáx' : (hr ? '' : 'sem cinta')),
+      pfc: it=> e2Num(it, '%FCmáx', pFc != null ? Math.round(pFc) : '—', pFc != null ? '%' : '', hr ? hr + ' bpm' : 'sem cinta'),
+      kmh: it=> e2Num(it, 'km/h', powered ? (me.spd || 0).toFixed(1).replace('.', ',') : '—', '', 'velocidade'),
+      km: it=> e2Num(it, 'km', fmtKm(me.km || 0), '', 'desde o início'),
+      kcal: it=> e2Num(it, 'kcal', me.kj.toFixed(0), '', 'gastas'),
+      pts: it=> e2Num(it, 'Pontos', Math.round(me.pts), '', 'nesta aula'),
+      nz: it=> e2Num(it, 'Na zona', me.as ? Math.round(me.iz / me.as * 100) : 0, '%', 'do tempo da aula'),
+      med: it=> e2Num(it, 'W médios', me.as ? Math.round(me.sumW / me.as) : 0, 'W', 'desde o início'),
+      max: it=> e2Num(it, 'W máx', Math.round(me.mw), 'W', 'pico da aula'),
+      gauge: it=>{
+        let pct = modo === 'fc' ? pFc : pFtp; const g = modo === 'fc' ? [50, 100] : [0, 160]; let a = g[0];
+        const grad = 'linear-gradient(90deg,' + zonesNow().map(z=>{ const lo = (Math.max(a, g[0]) - g[0]) / (g[1] - g[0]) * 100, hi = (Math.min(z.max, g[1]) - g[0]) / (g[1] - g[0]) * 100; a = z.max; const c = zoneColor(z.css); return c + ' ' + lo.toFixed(1) + '%,' + c + ' ' + Math.max(lo, hi).toFixed(1) + '%'; }).join(',') + ')';
+        const left = pct == null ? 0 : Math.min(100, Math.max(0, (pct - g[0]) / (g[1] - g[0]) * 100));
+        let txt; if(pct == null) txt = modo === 'fc' ? 'liga a cinta de FC' : 'liga a bike';
+        else { const z = getZone(pct), ok = !b.tipo && z === zone; txt = '<b style="color:' + zoneColor(z.css) + '">' + escapeHtml(z.name) + '</b>' + (b.tipo ? '' : ok ? ' · <span style="color:#3DD45C">✓ na zona</span>' : ' · alvo ' + escapeHtml(zone.name.split(' ')[0])); }
+        return '<div class="l">Onde estou</div><div class="e2-gauge" style="background:' + grad + '"><b style="left:' + left + '%"></b></div><div class="s">' + txt + '</div>';
+      },
+      spark: it=>{ const mx = Math.max(50, ...e2Hist) * 1.1; const p = e2Hist.map((v, i)=> (i ? 'L' : 'M') + (i / 59 * 200).toFixed(1) + ' ' + (62 - v / mx * 58).toFixed(1)).join(' ');
+        return '<div class="l">Potência · último minuto</div>' + (p ? '<svg class="e2-spark" viewBox="0 0 200 64" preserveAspectRatio="none"><path d="' + p + ' L' + ((e2Hist.length - 1) / 59 * 200).toFixed(1) + ' 64 L0 64Z" fill="' + zc + '" opacity=".25"/><path d="' + p + '" fill="none" stroke="' + zc + '" stroke-width="2.5"/></svg>' : ''); },
+      zona: it=> '<div class="v" style="font-size:' + Math.min(34, it.w * 6) + 'px;color:' + zc + '">' + escapeHtml(zone.name) + '</div>' + (it.h > 1 ? '<div class="s">' + escapeHtml(zone.feel || '') + '</div>' : ''),
+      timer: it=> e2Num(it, 'Falta neste bloco', fmtCountdown(remaining), '', '', remaining <= 5 && remaining > 0 && state.status === 'playing' ? 'low' : ''),
+      alvo: it=> e2Num(it, 'Alvo', alvoW[0], alvoW[1], modo === 'fc' ? 'batimentos do bloco' : 'watts do bloco'),
+      aftp: it=> e2Num(it, modo === 'fc' ? '% FCmáx' : '% FTP', pctTxt(b, range).replace(/%$/, ''), '%', 'intensidade do bloco'),
+      arpm: it=> e2Num(it, 'RPM alvo', rpmTxt(b), '', 'cadência do bloco'),
+      tec: it=> '<div class="l">Técnica</div><div class="v" style="font-size:' + Math.min(28, it.h * 20, it.w * 5) + 'px;white-space:normal">' + escapeHtml(b.tecnica || zone.name) + '</div>',
+      prox: it=>{ if(!next) return '<div class="l">Último bloco</div><div class="v" style="font-size:' + Math.min(26, it.h * 20, it.w * 4.5) + 'px;white-space:normal">Força até ao fim! 💪</div>';
+        const nz = blkZone(next); return '<div class="l">A seguir · em ' + fmtCountdown(remaining) + '</div><div class="v" style="font-size:' + Math.min(26, it.h * 20, it.w * 4.5) + 'px;color:' + zoneColor(nz.css) + ';white-space:normal">' + escapeHtml(nz.name.split(' ')[0]) + ' · ' + escapeHtml(pctTxt(next, zoneRange(next.ftp))) + ' · ' + rpmTxt(next) + ' rpm</div>'; },
+      perfil: it=>{ const mx = Math.max(110, ...blocos.map(x=> x.ftp || 0));
+        return '<div class="l">A aula · ' + fmtTime(Math.max(0, Math.round(elapsed))) + ' de ' + fmtTime(totalSec) + '</div><div class="e2-prof">' + blocos.map(x=> '<i style="flex:' + blockDurationSec(x) + ';height:' + Math.max(8, Math.round((x.ftp || 0) / mx * 100)) + '%;background:' + zoneColor(blkZone(x).css) + '"></i>').join('') + '<span class="pos" style="left:' + Math.min(100, elapsed / totalSec * 100) + '%"></span></div>'; },
+      total: it=> e2Num(it, 'Decorrido', fmtTime(Math.max(0, Math.round(elapsed))), '', 'de ' + fmtTime(totalSec)),
+      falta: it=> e2Num(it, 'Falta', fmtTime(Math.max(0, Math.round(totalSec - elapsed))), '', 'para acabar a aula'),
+      bloco: it=> e2Num(it, 'Bloco', (state.blockIndex + 1) + '/' + blocos.length, '', ''),
+      rank: it=> e2Num(it, 'Posição', myRank ? myRank.p + 'º' : '—', myRank ? 'de ' + myRank.n : '', 'pela zona cumprida'),
+      jogo: it=>{ const jg = $('jgMe'); if(!jg || !jg.classList.contains('on')) return '<div class="s">Sem jogo neste bloco</div>';
+        return '<div class="l">' + escapeHtml($('jgJ').textContent) + '</div><div class="v" style="font-size:' + Math.min(30, it.h * 16) + 'px;color:' + (jg.style.getPropertyValue('--jc') || '#fff') + ';white-space:normal">' + escapeHtml($('jgT').textContent) + '</div><div class="s">' + escapeHtml($('jgS').textContent) + '</div>'; },
+      pilha: it=>{ const t = (document.querySelector('#myBatt .bmah') || {}).textContent || '0 mAh'; return e2Num(it, 'Energia', t.replace(/\s*mAh/, ''), 'mAh', (document.querySelector('#myBatt .bpb') || {}).textContent || ''); },
+      luz: it=>{ const t = (document.querySelector('#myLamp .lwh') || {}).textContent || '0 Wh'; return e2Num(it, 'Produziste', t.replace(/\s*Wh/, ''), 'Wh', (document.querySelector('#myLamp .leur') || {}).textContent || ''); },
+      mot: it=> '<div class="v" style="font-size:' + Math.min(24, it.h * 15) + 'px;white-space:normal">' + escapeHtml(zone.feel || 'Bora!') + '</div>',
+      hora: it=> e2Num(it, 'Hora', new Date().toLocaleTimeString('pt-PT', { hour:'2-digit', minute:'2-digit' }), '', ''),
+      vazio: it=> ''
+    };
+    const html = E2_CFG.ecra2.map(row=>{
+      const [k, cw, ch, cc, cf, x] = row, o = x || {}; const fn = D[k]; if(!fn) return '';
+      const it = { w: cw, h: ch, c: cc || null, f: cf || 1 };
+      const hide = (o.esconde || []).map(p=> ' no-' + p).join('');
+      let inner = fn(it);
+      if(o.titulo != null) inner = inner.replace(/<div class="l">[^<]*<\/div>/, '<div class="l">' + escapeHtml(o.titulo) + '</div>');
+      if(o.unidade != null) inner = inner.replace(/<span class="u">[^<]*<\/span>/, '<span class="u">' + escapeHtml(o.unidade) + '</span>');
+      if(o.texto != null) inner = inner.replace(/<div class="s">[\s\S]*?<\/div>$/, '<div class="s">' + escapeHtml(o.texto) + '</div>');
+      return '<div class="e2w sh-' + (o.forma || 'ret') + hide + '" style="grid-column:span ' + cw + ';grid-row:span ' + ch + ';--wc:' + (cc || zc) + '"><div class="e2wi" style="zoom:' + (cf || 1) + '">' + inner + '</div></div>';
+    }).join('');
+    const g = $('e2Grid');
+    if(g.innerHTML !== html) g.innerHTML = html;
+    if(!e2Zoom) e2Ajusta();
   }
+  // a grelha tem o tamanho do montador (346 px); aqui amplia/reduz para caber no ecrã do telemóvel sem deslizar
+  function e2Ajusta(){
+    const g = $('e2Grid'), body = $('bodyEl'); if(!g || !body || ecraAtual !== 2) return;
+    g.style.zoom = 1;
+    const aw = body.clientWidth - 24, ah = body.clientHeight - 84, h = g.offsetHeight || 1;
+    e2Zoom = Math.max(0.7, Math.min(aw / 346, ah / h, 1.6));
+    g.style.zoom = e2Zoom;
+  }
+  window.addEventListener('resize', ()=>{ e2Zoom = 0; });
   function render(){
     updateFtpChip();
     hdrSync();
@@ -2096,6 +2127,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const totalSec = blocos.reduce((s,bb)=>s+blockDurationSec(bb),0) || 1;
     const elapsedBefore = blocos.slice(0, state.blockIndex).reduce((s,bb)=>s+blockDurationSec(bb),0);
     updateMarker(state.blockIndex, (elapsedBefore + (blockDurationSec(b) - remaining)) / totalSec);
+    if(E2_CFG.troca === 'auto' && state.status === 'playing' && state.blockIndex !== e2LastIdx){ if(e2LastIdx >= 0) ecraVai(ecraAtual === 1 ? 2 : 1); e2LastIdx = state.blockIndex; }
     if(ecraAtual === 2) renderEcra2(b, next, remaining, range, totalSec, elapsedBefore + (blockDurationSec(b) - remaining));
   }
 
