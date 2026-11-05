@@ -223,6 +223,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .ed-nlab{flex:1;min-width:240px;display:flex;flex-direction:column;gap:3px;}
 .ed-nlab > span,.ed-flab{font-size:11px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--muted);}
 .ed-nlab .ed-name{min-width:0;width:100%;}
+.ed-nlab #treinoProj{font-weight:700;letter-spacing:.2px;}
 .ed-flab small{font-weight:500;letter-spacing:0;text-transform:none;margin-left:6px;opacity:.8;}
 .ed-ficha{margin:-6px 0 14px;}
 .ed-ficha .ed-desc{margin:4px 0 0;}
@@ -1542,7 +1543,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   <!-- EDITOR DE INTERVALOS -->
   <div class="panel editor" id="editor" data-sec="plan">
     <div class="ed-toolbar">
-      <label class="ed-nlab"><span>Nome da aula</span><input type="text" id="treinoNome" class="ed-name" maxlength="80" placeholder="Escreve o nome da aula (ex: Sprint Interval — Quarta 18h)"></label>
+      <label class="ed-nlab"><span>📚 Título na biblioteca</span><input type="text" id="treinoNome" class="ed-name" maxlength="80" placeholder="Como a aula aparece nas tuas aulas e na Biblioteca (ex: Sprint Interval — Quarta 18h)"></label>
+      <label class="ed-nlab"><span>📽️ Título na projeção</span><input type="text" id="treinoProj" class="ed-name" maxlength="60" placeholder="O que a turma vê no ecrã e no telemóvel (vazio = o da biblioteca)"></label>
       <select id="treinoObj" class="ed-obj" title="Objetivo da aula — define a frase motivacional do ecrã inicial"></select>
       <div class="seg" id="modeSeg" title="Como se constrói esta aula"><button data-m="zonas">Zonas Z1–Z7</button><button data-m="ftp">%FTP Z1–Z7</button><button data-m="fc">%FCmáx Z1–Z7</button></div>
     </div>
@@ -2026,9 +2028,11 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   }
   // ---- alterações por gravar: ao sair do Planeamento pergunta o que fazer ----
   var planBase = null, planBasePend = false, aposGuardar = null;
+  // título que a turma vê (projeção e telemóveis); se não houver, usa o da biblioteca
+  function nomeProj(c){ c = c || current; return String(c.tituloProj || '').trim() || String(c.nome || '').trim() || 'Aula de cycling'; }
   function planSnap(c){
     if(!c) return '';
-    const o = { nome: (c.nome || '').trim(), descricao: c.descricao || '', modo: c.modo || 'ftp', objetivo: c.objetivo || '', grupo: c.grupo || '',
+    const o = { nome: (c.nome || '').trim(), descricao: c.descricao || '', modo: c.modo || 'ftp', objetivo: c.objetivo || '', grupo: c.grupo || '', tituloProj: (c.tituloProj || '').trim(),
       blocos: (c.blocos || []).map(b=> [b.nome || '', b.min || 0, b.sec || 0, b.ftp || 0, b.alvo || 0, b.rpm || 0, b.rpm2 || 0, b.tecnica || '', b.tipo || '', b.teste ? 1 : 0, b.jogo || '']), equipas: c.equipas || '' };
     if(c.audio){ const a = c.audio; o.audio = [a.src || 'file', a.key || a.url || a.uri || '', a.modo || '', a.off || 0, a.vol == null ? 0.8 : a.vol]; }
     return JSON.stringify(o);
@@ -2377,6 +2381,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       lastCurrent = current; selIdx = current.blocos.length ? 0 : -1; undoStack = []; redoStack = []; updateUndoBtns();
     }
     if(document.activeElement !== $('treinoNome')) $('treinoNome').value = current.nome || '';
+    if(document.activeElement !== $('treinoProj')) $('treinoProj').value = current.tituloProj || '';
     if(document.activeElement !== $('treinoDesc')) $('treinoDesc').value = current.descricao || '';
     renderDadas();
     if(typeof renderModeUi === 'function') renderModeUi();
@@ -3603,7 +3608,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   function pushFullSession(pin){
     const b = current.blocos[0];
     return sessionRef(pin).set({
-      treinoNome: current.nome || 'Aula de cycling',
+      treinoNome: nomeProj(),
       descricao: null,   // a descrição é privada do professor: não vai para a aula ao vivo
       modo: modoAtual(),
       blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, alvo:alvoOf(x), teste:x.teste ? true : null, rpm:x.rpm, rpm2:x.rpm2||null, tipo:x.tipo||null, tecnica:x.tecnica||'', jogo:x.jogo||null})),
@@ -4490,7 +4495,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   function showLiveStart(){
     const k = objetivoAtual(), o = OBJETIVOS[k];
     $('lsObj').textContent = o.nome;
-    $('lsName').textContent = current.nome || 'Aula de cycling';
+    $('lsName').textContent = nomeProj();
     $('lsQuote').textContent = o.frases[Math.floor(Math.random() * o.frases.length)];
     $('lsDesc').textContent = '';   // descrição privada: não aparece no ecrã da sala
     drawProfileSvg($('lsChart'), current.blocos, 1000, 200, 4, modoAtual());
@@ -5336,7 +5341,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     $('liveControls').style.display = 'flex'; liveCtlEsconde();
     drawLiveProfile();
     liveLastIdx = -1;
-    $('lhClass').textContent = current.nome || 'Aula de cycling';
+    $('lhClass').textContent = nomeProj();
     $('lhSub').textContent = (userNome ? userNome + ' · ' : '') + ({zonas:'por zonas', ftp:'por %FTP', fc:'por %FC máx'}[modoAtual()] || '');
     $('liveBody').classList.remove('soon');
     updateLiveDisplay();
@@ -5680,6 +5685,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   window.addEventListener('scroll', ()=> $('appHead').classList.toggle('scrolled', window.scrollY > 4), {passive:true});
   $('exitLive').addEventListener('click', closeLive);
   $('treinoNome').addEventListener('input', (e)=>{ current.nome = e.target.value; });
+  $('treinoProj').addEventListener('input', (e)=>{ current.tituloProj = e.target.value; if(!current.tituloProj.trim()) delete current.tituloProj; });
   $('treinoDesc').addEventListener('input', (e)=>{ current.descricao = e.target.value; if(!current.descricao) delete current.descricao; });
   $('savedSearch').addEventListener('input', renderSaved);
   $('importBtn').addEventListener('click', ()=> $('importFile').click());
@@ -5752,7 +5758,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const key = existing ? existing.key : fbDb.ref('biblioteca').push().key;
     fbDb.ref('biblioteca/' + key).set(clean({
       nome: t.nome, modo: t.modo || 'ftp', objetivo: t.objetivo || null, descricao: null, blocos: t.blocos.map(b=>({nome:b.nome, min:b.min, sec:b.sec, ftp:b.ftp, alvo:alvoOf(b), teste:b.teste ? true : null, rpm:b.rpm, rpm2:b.rpm2||null, tipo:b.tipo||null, tecnica:b.tecnica||'', jogo:b.jogo||null})),
-      grupo: t.grupo || null, equipas: t.equipas || null,
+      grupo: t.grupo || null, equipas: t.equipas || null, tituloProj: (t.tituloProj || '').trim() || null,
       autor: userUid, autorNome: userNome || '', origem: id, atualizado: Date.now()
     })).then(()=> toast(existing ? 'Biblioteca atualizada' : 'Aula partilhada na Biblioteca Playlife'))
       .catch(()=> toast('Não consegui partilhar.'));
@@ -5761,7 +5767,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   function copyShared(key){
     const p = partilhadas.find(x=>x.key===key);
     if(!p) return;
-    const copy = { id: uid(), origemBib: key, nome: p.nome, modo: p.modo || 'ftp', objetivo: p.objetivo || undefined, descricao: p.descricao || undefined, grupo: p.grupo || undefined, equipas: p.equipas || undefined, blocos: (p.blocos||[]).map(sanitizeBlock) };
+    const copy = { id: uid(), origemBib: key, nome: p.nome, modo: p.modo || 'ftp', objetivo: p.objetivo || undefined, descricao: p.descricao || undefined, grupo: p.grupo || undefined, equipas: p.equipas || undefined, tituloProj: p.tituloProj || undefined, blocos: (p.blocos||[]).map(sanitizeBlock) };
     treinos.push(copy);
     persist();
     current = clean(copy);
