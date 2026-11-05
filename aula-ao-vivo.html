@@ -381,6 +381,12 @@ body:not(:has(#liveScreen.active)) .nx-float,body:not(:has(#liveScreen.active)) 
 @keyframes moodIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 .bora-btn{display:inline-block;margin-top:13px;padding:10px 18px;border-radius:999px;border:1.5px solid var(--mc,#A35CFF);background:color-mix(in srgb,var(--mc,#A35CFF) 25%,transparent);color:#fff;font-weight:800;font-size:16px;}
 .bora-btn:active{transform:scale(.97);}
+.bora-btn.off{opacity:.45;border-style:dashed;}
+#moodCard.pede{animation:moodPede .5s ease;}
+#moodCard.pede #moodOpts button{box-shadow:0 0 0 2px rgba(255,214,10,.75);}
+@keyframes moodPede{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@media (prefers-reduced-motion:reduce){#moodCard.pede{animation:none}}
+.rate-falta{font-size:13px;color:#FFD27A;text-align:center;min-height:1.2em;margin-top:6px;}
 /* folha "Como queres pedalar hoje?" */
 .go-sheet{position:fixed;inset:0;z-index:120;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s ease;}
 .go-sheet.on{opacity:1;pointer-events:auto;}
@@ -945,8 +951,9 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       <button type="button" data-v="4" data-u="1f4aa" data-c="💪" style="--mc:#3DD45C">Forte</button>
       <button type="button" data-v="5" data-u="1f525" data-c="🔥" style="--mc:#1FA8F0">Em grande</button>
     </div>
-    <button type="button" class="rate-ok" id="rateOk" disabled>Guardar</button>
-    <button type="button" class="rate-skip" id="rateSkip">Agora não</button>
+    <div class="rate-falta" id="rateFalta">Escolhe os 2 emojis para gravar o treino.</div>
+    <button type="button" class="rate-ok" id="rateOk" disabled>Gravar o treino</button>
+    <button type="button" class="rate-skip" id="rateSkip" hidden>Agora não</button>
   </div>
 </div>
 <div class="ftp-edit" id="ftpEdit" role="dialog" aria-modal="true" aria-label="Alterar o FTP">
@@ -2762,6 +2769,8 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     final = final !== false;
     if(final) savePending = false;
     if(savedThisClass || !fbDb || (!pin && !solo)) return;
+    // só grava depois de o aluno escolher os 2 emojis do fim
+    if(final && !rateDone && me.ts >= 60 && user){ gravarDepoisAval = true; if(!$('rateOv').classList.contains('on')) askRating(null); return; }
     if(me.ts < 60){ if(final && me.ts > 5) $('savedNote').textContent = 'Treino com menos de 1 minuto a pedalar: não foi guardado.'; return; }
     if(!user){ if(final) $('savedNote').innerHTML = 'Este treino não fica guardado porque não tens sessão iniciada. <a href="#" id="saveLink">Entra na tua conta</a> para guardares os próximos.'; return; }
     if(final) savedThisClass = true;
@@ -3304,18 +3313,22 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     rateThen = then || null;
     animarEmojis($('rateOv'));
     document.querySelectorAll('#rateOv .rate-opts button').forEach(b=> b.classList.remove('on'));
-    $('rateOk').disabled = true;
+    $('rateOk').disabled = true; $('rateFalta').textContent = 'Escolhe os 2 emojis para gravar o treino.';
     $('rateTitle').textContent = (solo ? 'Treino' : 'Aula') + ' terminad' + (solo ? 'o' : 'a') + '! 🎉';
     $('rateOv').classList.add('on');
   }
   function closeRating(){
     rateDone = true; $('rateOv').classList.remove('on');
     const f = rateThen; rateThen = null; if(f) f();
+    if(gravarDepoisAval){ gravarDepoisAval = false; saveTreino(); }   // o treino estava à espera da avaliação
   }
+  let gravarDepoisAval = false;
   ['rateExp','rateFeel'].forEach(id=> $(id).addEventListener('click', e=>{
     const b = e.target.closest('button'); if(!b) return;
     $(id).querySelectorAll('button').forEach(x=> x.classList.toggle('on', x === b));
-    $('rateOk').disabled = !(rateVal('rateExp') || rateVal('rateFeel'));
+    const ok = !!(rateVal('rateExp') && rateVal('rateFeel'));
+    $('rateOk').disabled = !ok;
+    $('rateFalta').textContent = ok ? '' : (!rateVal('rateExp') ? 'Falta escolher como foi o treino.' : 'Falta escolher como te sentes agora.');
   }));
   $('rateOk').addEventListener('click', ()=>{
     me.rx = rateVal('rateExp'); me.fa = rateVal('rateFeel');
@@ -3337,6 +3350,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const r = $('moodResp');
     $('moodCard').classList.toggle('done', !!m);
     const bb = $('boraBtn');
+    bb.classList.toggle('off', !m); bb.setAttribute('aria-disabled', m ? 'false' : 'true');
     if(!m){ r.innerHTML = ''; r.style.removeProperty('--mc'); bb.style.removeProperty('--mc'); bb.textContent = 'Bora pedalar →'; return; }
     const mo = MOODS[m], btn = document.querySelector('#moodOpts button[data-m="' + m + '"]');
     const mc = btn ? btn.style.getPropertyValue('--mc') : '#A35CFF';
@@ -3354,7 +3368,14 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     $('goSheet').classList.add('on'); $('goSheet').setAttribute('aria-hidden', 'false');
   }
   function closeGo(){ $('goSheet').classList.remove('on'); $('goSheet').setAttribute('aria-hidden', 'true'); }
-  $('boraBtn').addEventListener('click', openGo);
+  $('boraBtn').addEventListener('click', ()=>{
+    if(!moodHoje()){   // primeiro escolhe como se sente hoje
+      const c = $('moodCard'); c.classList.remove('pede'); void c.offsetWidth; c.classList.add('pede');
+      $('moodResp').innerHTML = '👆 Escolhe primeiro como te sentes hoje.';
+      return;
+    }
+    openGo();
+  });
   $('goClose').addEventListener('click', closeGo);
   $('goSheet').addEventListener('click', e=>{ if(e.target === $('goSheet') || e.target.closest('.tile.go')) closeGo(); });
   document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeGo(); });
