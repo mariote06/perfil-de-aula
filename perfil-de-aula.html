@@ -1200,7 +1200,7 @@ body[data-view="ano"] .legal{margin-top:8px;}
 .jg-g{font-size:11px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:rgba(255,255,255,.45);margin:0 2px 0 6px;}
 .jg-forma span{font-size:12px;color:rgba(255,255,255,.55);}
 .jg-area{flex:1;display:flex;flex-direction:column;gap:12px;min-height:0;}
-.jg-placar{text-align:center;font-size:clamp(16px,1.6vw,24px);color:rgba(255,255,255,.75);}
+.jg-placar{text-align:center;font-size:clamp(14px,1.7cqw,24px);color:rgba(255,255,255,.75);}
 .jg-placar b{font-family:'Barlow Condensed',sans-serif;font-size:1.8em;color:#fff;margin:0 6px;}
 .jg-placar small{display:block;font-size:.6em;color:rgba(255,255,255,.5);}
 .jg-chips{display:flex;flex-wrap:wrap;gap:5px;}
@@ -1246,21 +1246,35 @@ body[data-view="ano"] .legal{margin-top:8px;}
 .jg-pn.ok{background:rgba(61,212,92,.2);color:#B8F5C8;}
 .jg-pnomes .fogo{color:#FFAA2B;font-weight:800;font-size:13px;}
 /* percurso */
-.sr-box{position:relative;flex:1 1 auto;min-height:340px;border-radius:14px;overflow:hidden;border:1px solid #1B212B;background:#0A1424;}
+.sr-box{container-type:size;position:relative;flex:1 1 auto;min-height:340px;border-radius:14px;overflow:hidden;border:1px solid #1B212B;background:#0A1424;}
 .sr-box canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
 .sr-box.full{position:fixed;inset:0;z-index:4000;border-radius:0;border:none;}
 .sr-hud{position:absolute;left:12px;right:62px;top:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none;font-family:'Barlow Condensed',sans-serif;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.7);}
 .sr-hud .sr-a{display:flex;flex-direction:column;}
-.sr-hud .sr-a b{font-size:clamp(22px,2.6vw,40px);font-weight:800;line-height:1;}
-.sr-hud .sr-a span{font-size:clamp(16px,1.6vw,24px);font-weight:700;}
+.sr-hud .sr-a b{font-size:clamp(20px,2.7cqw,40px);font-weight:800;line-height:1;}
+.sr-hud .sr-a span{font-size:clamp(14px,1.7cqw,24px);font-weight:700;}
 .sr-hud .sr-b{display:flex;align-items:baseline;gap:4px;background:rgba(5,7,10,.55);border-radius:12px;padding:6px 12px;}
-.sr-hud .sr-b b{font-size:clamp(22px,2.4vw,36px);font-weight:800;margin-left:8px;}
+.sr-hud .sr-b b{font-size:clamp(18px,2.5cqw,36px);font-weight:800;margin-left:8px;}
 .sr-hud .sr-b small{font-size:13px;color:rgba(255,255,255,.7);}
 .sr-hud .sr-c{background:rgba(5,7,10,.55);border-radius:12px;padding:6px 12px;font-size:18px;}
+.sr-hud .sr-alvo{display:flex;gap:8px;margin-top:8px;}
+.sr-hud .sr-alvo div{display:flex;flex-direction:column;align-items:center;background:rgba(5,7,10,.6);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:5px 14px;line-height:1;}
+.sr-hud .sr-alvo b{font-size:clamp(22px,3.3cqw,48px);font-weight:800;}
+.sr-hud .sr-alvo small{font-size:12px;letter-spacing:1.2px;color:rgba(255,255,255,.7);}
+.sr-hud .sr-t{display:flex;flex-direction:column;align-items:center;background:rgba(5,7,10,.6);border-radius:14px;padding:6px 18px;line-height:1;}
+.sr-hud .sr-t small{font-size:12px;letter-spacing:1.4px;color:rgba(255,255,255,.7);}
+.sr-hud .sr-t b{font-size:clamp(34px,5.6cqw,84px);font-weight:800;font-variant-numeric:tabular-nums;}
+.sr-hud .sr-t b.quase{color:#FFB15C;}
+.sr-hud .sr-t span{font-size:clamp(14px,1.6cqw,24px);font-weight:700;font-variant-numeric:tabular-nums;}
+.sr-hud .sr-t i{font-style:normal;color:rgba(255,255,255,.6);font-weight:500;}
+.sr-hud .sr-d{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
 .sr-hud .sr-pc{font-size:1.25em;margin-left:4px;}
-.sr-rank{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:3px;min-width:170px;pointer-events:none;}
-.sr-rank div{display:flex;gap:8px;align-items:baseline;background:rgba(5,7,10,.62);border-radius:8px;padding:3px 10px;font-size:15px;color:#fff;}
-.sr-rank span{font-weight:800;min-width:14px;}
+.sr-rank{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:4px;min-width:min(330px,27cqw);pointer-events:none;font-family:'Barlow Condensed',sans-serif;}
+.sr-rank .sr-rt{background:none;font-size:17px;font-weight:800;letter-spacing:1px;color:rgba(255,255,255,.85);padding:0 4px;text-shadow:0 2px 6px rgba(0,0,0,.8);}
+.sr-rank div{display:flex;gap:10px;align-items:baseline;background:rgba(5,7,10,.66);border-radius:9px;padding:5px 14px;font-size:clamp(14px,1.75cqw,26px);color:#fff;}
+.sr-rank div:nth-child(2){background:rgba(255,214,10,.9);color:#0B0E13;}
+.sr-rank div:nth-child(2) i{color:#0B0E13;}
+.sr-rank span{font-weight:800;min-width:20px;}
 .sr-rank b{flex:1;}
 .sr-rank i{font-style:normal;color:rgba(255,255,255,.6);font-variant-numeric:tabular-nums;}
 .sr-rank i.ok{color:#7FD3A6;}
@@ -3965,6 +3979,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       if(JG_TIPOS[k]) JG.tipo = k;
       o = { k, r: {} };
       visRiders().forEach(r=>{ const x = jgInfoRider(k, r.id); if(x) o.r[r.id] = x; });
+      // Serra 3D: a posição de todos, para cada telemóvel desenhar a estrada vista do próprio guiador
+      if(k === 'p_serra'){ o.p = {}; visRiders().filter(jgPedala).forEach(r=>{ o.p[r.id] = [Math.round((JG.perc[r.id] || 0) * 10) / 10, (r.n || '?').split(' ')[0].slice(0, 14), JG.z[r.id] ? 1 : 0]; }); }
     }
     const sj = JSON.stringify(o); if(sj === JG.pushS) return; JG.pushS = sj;
     try{ sessionRef(sessionPin).child('jogo').set(o).catch(()=>{}); }catch(e){}
@@ -4227,11 +4243,15 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   // tipo de terreno de cada bloco
   function srTerreno(b){
     const mm = modoAtual() === 'fc' ? 'fc' : 'ftp', zs = zonesOf(mm), zi = b.tipo ? 0 : Math.max(0, zs.indexOf(getZone(b.ftp || 0, mm)));
-    const tec = b.tecnica || '', rpm = b.rpm2 ? (b.rpm + b.rpm2) / 2 : (b.rpm || 85);
-    if(b.tipo === 'cool' || zi === 0) return { t:'desce', slope:-0.05, kmh:42, zi };
+    const rpm = b.rpm2 ? (b.rpm + b.rpm2) / 2 : (b.rpm || 90), tec = b.tecnica || '';
+    if(rpm <= 75){   // subida: 75 rpm ≈ 3%, 60 rpm ≈ 10% (e um pouco mais nas zonas fortes)
+      const sl = 0.03 + Math.max(0, Math.min(1, (75 - rpm) / 15)) * 0.07 + Math.max(0, zi - 3) * 0.006;
+      return { t:'sobe', slope:sl, kmh:Math.round(Math.max(9, 26 - sl * 160)), zi };
+    }
+    if(rpm < 80) return { t:'falso', slope:0.015, kmh:22 + zi, zi };   // 76–79 rpm: falso plano
+    if(b.tipo === 'cool' || zi === 0) return { t:'desce', slope:-0.045, kmh:42, zi };
     if(zi >= 6 || /sprint/i.test(tec)) return { t:'sprint', slope:0, kmh:52, zi };
-    if(/subida/i.test(tec) || rpm <= 75) return { t:'sobe', slope:0.03 + Math.min(5, zi) * 0.016, kmh:Math.max(11, 24 - zi * 2.2), zi };
-    return { t:'plano', slope:0, kmh:27 + zi * 3, zi };
+    return { t:'plano', slope:0, kmh:Math.round(26 + zi * 3 + (rpm - 80) / 35 * 6), zi };   // 80–115 rpm: plano
   }
   function srPista(){
     const bl = current.blocos, segs = [], bStart = [];
@@ -4336,32 +4356,57 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const vis = Math.min(h, clip - (y - h)); if(vis <= 0) return;
     ctx.drawImage(img, 0, 0, img.width, img.height * vis / h, x - w / 2, y - h, w, vis);
   }
-  function srCiclista(ctx, x, y, s, cor, pedal){
-    const r = s * .33, a = pedal || 0;
-    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(x, y, s * .9, s * .12, 0, 0, 7); ctx.fill();
-    ctx.lineWidth = Math.max(1.2, s * .07); ctx.strokeStyle = '#0B0E13';
-    ctx.beginPath(); ctx.arc(x - s * .45, y - r, r, 0, 7); ctx.stroke(); ctx.beginPath(); ctx.arc(x + s * .45, y - r, r, 0, 7); ctx.stroke();
-    ctx.strokeStyle = '#2B3341'; ctx.beginPath(); ctx.moveTo(x - s * .45, y - r); ctx.lineTo(x - s * .05, y - s * .9); ctx.lineTo(x + s * .35, y - s * .95); ctx.lineTo(x + s * .45, y - r); ctx.moveTo(x - s * .05, y - s * .9); ctx.lineTo(x + .02 * s, y - r); ctx.stroke();
-    // pernas a pedalar
-    const px = x + Math.cos(a) * s * .18, py = y - r + Math.sin(a) * s * .18;
-    ctx.strokeStyle = '#1A1F28'; ctx.lineWidth = Math.max(1.5, s * .1); ctx.beginPath(); ctx.moveTo(x - s * .02, y - s * 1.0); ctx.lineTo(px + s * .08, py - s * .25); ctx.lineTo(px, py); ctx.stroke();
-    ctx.fillStyle = cor; ctx.beginPath(); ctx.ellipse(x + s * .05, y - s * 1.18, s * .2, s * .36, -0.85, 0, 7); ctx.fill();
-    ctx.strokeStyle = cor; ctx.lineWidth = Math.max(1.5, s * .09); ctx.beginPath(); ctx.moveTo(x + s * .18, y - s * 1.3); ctx.lineTo(x + s * .36, y - s * .98); ctx.stroke();
-    ctx.fillStyle = '#F2F2F2'; ctx.beginPath(); ctx.arc(x + s * .3, y - s * 1.5, s * .16, 0, 7); ctx.fill();
-    ctx.fillStyle = cor; ctx.beginPath(); ctx.arc(x + s * .3, y - s * 1.55, s * .16, Math.PI, 0); ctx.fill();
+  // ciclista visto de costas (como numa câmara atrás do selim): roda de trás, pernas a pedalar, camisola, capacete
+  function srCiclista(ctx, x, y, s, cor, pedal, emPe){
+    const a = pedal || 0, sw = emPe ? Math.sin(a) * s * .07 : Math.sin(a) * s * .015, lw = Math.max(1, s * .02);
+    const pele = '#E2B48E', calcao = '#15181E', esc = srMix(srHex(cor), '#000000', .35);
+    ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    // sombra
+    ctx.fillStyle = 'rgba(0,0,0,.32)'; ctx.beginPath(); ctx.ellipse(x, y, s * .42, s * .08, 0, 0, 7); ctx.fill();
+    // roda de trás (vista de trás: estreita e alta)
+    ctx.fillStyle = '#0D0F13'; ctx.beginPath(); ctx.ellipse(x, y - s * .42, s * .07, s * .42, 0, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#6B7280'; ctx.lineWidth = Math.max(1, s * .02); ctx.beginPath(); ctx.ellipse(x, y - s * .42, s * .035, s * .36, 0, 0, 7); ctx.stroke();
+    // quadro e selim
+    ctx.strokeStyle = '#2E3440'; ctx.lineWidth = Math.max(1.5, s * .06); ctx.beginPath(); ctx.moveTo(x, y - s * .45); ctx.lineTo(x, y - s * 1.0); ctx.stroke();
+    const hipY = y - s * (emPe ? 1.18 : 1.05), hx = x + sw;
+    // pernas: cada pé faz um círculo; joelho para fora e para cima
+    [-1, 1].forEach(l=>{
+      const fa = a + (l > 0 ? Math.PI : 0), fx = x + l * s * .13, fy = y - s * .5 + Math.sin(fa) * s * .17;
+      const kx = hx + l * s * .17, ky = (hipY + fy) / 2 - s * .06 + Math.sin(fa) * s * .08;
+      ctx.strokeStyle = calcao; ctx.lineWidth = s * .15; ctx.beginPath(); ctx.moveTo(hx + l * s * .08, hipY); ctx.lineTo(kx, ky); ctx.stroke();
+      ctx.strokeStyle = pele; ctx.lineWidth = s * .1; ctx.beginPath(); ctx.moveTo(kx, ky); ctx.lineTo(fx, fy - s * .04); ctx.stroke();
+      ctx.strokeStyle = '#F3F4F6'; ctx.lineWidth = s * .09; ctx.beginPath(); ctx.moveTo(fx, fy - s * .03); ctx.lineTo(fx, fy + s * .03); ctx.stroke();
+    });
+    // calção
+    ctx.fillStyle = calcao; ctx.beginPath(); ctx.ellipse(hx, hipY - s * .02, s * .2, s * .12, 0, 0, 7); ctx.fill();
+    // camisola (tronco inclinado para a frente: vemos as costas)
+    const ombY = hipY - s * (emPe ? .62 : .55);
+    const gr = ctx.createLinearGradient(hx - s * .3, 0, hx + s * .3, 0); gr.addColorStop(0, esc); gr.addColorStop(.5, cor); gr.addColorStop(1, esc);
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(hx - s * .2, hipY - s * .05); ctx.lineTo(hx + s * .2, hipY - s * .05); ctx.quadraticCurveTo(hx + s * .32, ombY + s * .2, hx + s * .3, ombY); ctx.lineTo(hx - s * .3, ombY); ctx.quadraticCurveTo(hx - s * .32, ombY + s * .2, hx - s * .2, hipY - s * .05); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(hx - s * .17, hipY - s * .14); ctx.lineTo(hx + s * .17, hipY - s * .14); ctx.moveTo(hx, hipY - s * .14); ctx.lineTo(hx, hipY - s * .05); ctx.stroke();   // bolsos
+    ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.fillRect(hx - s * .3, ombY + s * .1, s * .6, s * .05);   // risca
+    // braços para o guiador
+    ctx.strokeStyle = pele; ctx.lineWidth = s * .08; ctx.beginPath(); ctx.moveTo(hx - s * .27, ombY + s * .04); ctx.lineTo(x - s * .34, ombY + s * .34); ctx.moveTo(hx + s * .27, ombY + s * .04); ctx.lineTo(x + s * .34, ombY + s * .34); ctx.stroke();
+    ctx.strokeStyle = cor; ctx.lineWidth = s * .1; ctx.beginPath(); ctx.moveTo(hx - s * .27, ombY + s * .02); ctx.lineTo(hx - s * .31, ombY + s * .14); ctx.moveTo(hx + s * .27, ombY + s * .02); ctx.lineTo(hx + s * .31, ombY + s * .14); ctx.stroke();
+    // pescoço e capacete
+    ctx.fillStyle = pele; ctx.fillRect(hx - s * .05, ombY - s * .1, s * .1, s * .12);
+    ctx.fillStyle = '#F4F5F7'; ctx.beginPath(); ctx.ellipse(hx, ombY - s * .17, s * .14, s * .12, 0, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#1F2937'; ctx.lineWidth = lw * 1.2; ctx.beginPath(); ctx.moveTo(hx - s * .06, ombY - s * .26); ctx.lineTo(hx - s * .05, ombY - s * .1); ctx.moveTo(hx + s * .06, ombY - s * .26); ctx.lineTo(hx + s * .05, ombY - s * .1); ctx.stroke();
+    ctx.fillStyle = cor; ctx.fillRect(hx - s * .14, ombY - s * .14, s * .28, s * .035);
+    ctx.lineCap = 'butt';
   }
   // nomes grandes, sem se sobreporem: se bater noutro nome sobe um degrau (com traço até ao ciclista)
   function srNome(ctx, x, y, s, txt, lider, W){
     const fs = Math.round(Math.max(17, Math.min(30, s * .75)));
     ctx.font = '800 ' + fs + 'px Barlow Condensed, Arial Narrow, sans-serif';
     const w = ctx.measureText(txt).width + 16, h = fs + 8;
-    let bx = Math.max(4, Math.min(W - w - 4, x - w / 2)), by = y - s * 1.85 - h;
+    let bx = Math.max(4, Math.min(W - w - 4, x - w / 2)), by = y - s * 2.45 - h;
     for(let k = 0; k < 8; k++){
       if(!SR.lbls.some(o=> bx < o[0] + o[2] + 4 && o[0] < bx + w + 4 && by < o[1] + o[3] + 3 && o[1] < by + h + 3)) break;
       by -= h + 4; if(k === 7) return;
     }
     SR.lbls.push([bx, by, w, h]);
-    if(by + h < y - s * 1.85 - 2){ ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x, by + h); ctx.lineTo(x, y - s * 1.7); ctx.stroke(); }
+    if(by + h < y - s * 2.45 - 2){ ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x, by + h); ctx.lineTo(x, y - s * 2.35); ctx.stroke(); }
     ctx.fillStyle = lider ? 'rgba(255,214,10,.95)' : 'rgba(8,11,16,.82)';
     const rr = 7; ctx.beginPath(); ctx.moveTo(bx + rr, by); ctx.arcTo(bx + w, by, bx + w, by + h, rr); ctx.arcTo(bx + w, by + h, bx, by + h, rr); ctx.arcTo(bx, by + h, bx, by, rr); ctx.arcTo(bx, by, bx + w, by, rr); ctx.fill();
     ctx.fillStyle = lider ? '#0B0E13' : '#fff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(txt, bx + w / 2, by + h / 2 + 1); ctx.textBaseline = 'alphabetic';
@@ -4425,7 +4470,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       // a relva fica mais escura na subida e mais clara na descida (o terreno lê-se melhor)
       const tom = sg.tr.t === 'sobe' ? .0 : sg.tr.t === 'desce' ? .12 : .06;
       const relva = srMix(srMix(alt ? '#2C6B37' : '#327A3E', '#7FC46A', tom), haze, fog * .85);
-      const yA = Math.ceil(Math.min(maxY, p1.y)), yB = Math.floor(p2.y);   // em píxeis certos: sem riscos entre troços
+      const yA = Math.ceil(Math.min(maxY, p1.y) * dpr) / dpr, yB = Math.floor(p2.y * dpr) / dpr;   // em píxeis reais do ecrã (também com o Windows a 125%/150%): sem riscos
       ctx.fillStyle = relva; ctx.fillRect(0, yB, W, yA - yB);
       const quad = (xa, wa, xb, wb, c, oa, ob)=>{ ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(xa - wa + (oa || 0), yA); ctx.lineTo(xa + wa + (oa || 0), yA); ctx.lineTo(xb + wb + (ob || 0), yB); ctx.lineTo(xb - wb + (ob || 0), yB); ctx.closePath(); ctx.fill(); };
       const pA = { x: p1.x + (p2.x - p1.x) * ((p1.y - yA) / Math.max(1, p1.y - p2.y)), w: p1.w + (p2.w - p1.w) * ((p1.y - yA) / Math.max(1, p1.y - p2.y)) };
@@ -4447,7 +4492,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const lugares = {};
     rs.forEach((r, i)=>{ const gap = ((JG.perc[r.id] || 0) - media) * 12 * SR_M; const zz = camZ + SR_SEG * 18 + gap; const si = Math.floor(zz / SR_SEG); if(si > baseI + 2 && si < baseI + SR_DRAW) (lugares[si] = lugares[si] || []).push({ r, lado: (((i * 37) % 9) - 4) / 5.5 }); });
     const nomes = [];
-    const pedal = now / 180;
+    const pedal = livePlaying ? now / (60000 / Math.max(50, (b.rpm2 ? (b.rpm + b.rpm2) / 2 : b.rpm || 85)) / 6.283) : 0;   // as pernas rodam à cadência do bloco
+    const emPe = /p[ée]/i.test(b.tecnica || '') || base.tr.t === 'sprint';
     for(let k = proj.length - 1; k >= 0; k--){
       const { sg, p1, clip, n } = proj[k];
       if(p1.y < 0) continue;
@@ -4461,11 +4507,11 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       ctx.globalAlpha = 1;
       if(sg.fim){ const bb = current.blocos[sg.b + 1]; srArco(ctx, p1.x, p1.y, p1.w, bb ? 'BLOCO ' + (sg.b + 2) + ' · ' + blkZone(bb).name.split(' ')[0] + ' · ' + fmtTime(blockDurationSec(bb)) : '🏁 META', bb ? srHex(zoneColor(blkZone(bb).css)) : '#FFD60A', clip); }
       (lugares[sg.i] || []).forEach(({ r, lado })=>{ if(p1.y > clip + 2) return; const s = p1.w * .14, cx = p1.x + p1.w * lado * .75;
-        srCiclista(ctx, cx, p1.y, s, JG.z[r.id] ? '#3DD45C' : '#AEB6C2', pedal + r.id.length);
+        srCiclista(ctx, cx, p1.y, s * 1.05, JG.z[r.id] ? '#3DD45C' : '#AEB6C2', pedal + r.id.length, emPe);
         nomes.push({ x: cx, y: p1.y, s, txt: (ord.indexOf(r) + 1) + '. ' + (r.n || '?').split(' ')[0], lider: ord[0] === r }); });
     }
     // o "nosso" ciclista (a câmara) e os nomes por cima de tudo, dos mais perto para os mais longe
-    srCiclista(ctx, W / 2, H * .985, Math.min(W, H) * .085, zc, pedal);
+    srCiclista(ctx, W / 2, H * 1.02, Math.min(W, H) * .2, zc, pedal, emPe);
     SR.lbls = [];
     nomes.sort((a, c)=> c.y - a.y).forEach(o=> srNome(ctx, o.x, o.y, o.s, o.txt, o.lider, W));
     // riscos de velocidade nas descidas e sprints
@@ -4478,21 +4524,30 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     if(now - SR.lastT > 250){
       SR.lastT = now;
       const tr = base.tr, pc = Math.round(((ah.y - base.y) / (12 * SR_SEG * SR_EXG)) * 100);
-      const desc = tr.t === 'sobe' ? '⛰️ Subida <b class="sr-pc">' + Math.max(1, pc) + '%</b>' : tr.t === 'desce' ? '⬇️ Descida <b class="sr-pc">' + Math.min(-1, pc) + '%</b>' : tr.t === 'sprint' ? '⚡ Sprint em plano' : '➡️ Plano';
+      const desc = tr.t === 'falso' ? '↗️ Falso plano <b class="sr-pc">' + Math.max(1, pc) + '%</b>' : tr.t === 'sobe' ? '⛰️ Subida <b class="sr-pc">' + Math.max(1, pc) + '%</b>' : tr.t === 'desce' ? '⬇️ Descida <b class="sr-pc">' + Math.min(-1, pc) + '%</b>' : tr.t === 'sprint' ? '⚡ Sprint em plano' : '➡️ Plano';
       const nz = rs.filter(r=> JG.z[r.id]).length, kmh = livePlaying ? Math.round(tr.kmh) : 0, km = camZ / SR_M / 1000;
       let subiu = 0; for(let k = 1; k <= baseI; k++){ const d = segs[k].y - segs[k - 1].y; if(d > 0) subiu += d; }
-      $('srHud').innerHTML = '<div class="sr-a"><b style="color:' + srMix(zc, '#ffffff', .3) + '">' + escapeHtml(blkZone(b).name) + '</b><span>' + desc + '</span></div>' +
-        '<div class="sr-b"><b>' + kmh + '</b><small>km/h</small><b>' + km.toFixed(1).replace('.', ',') + '</b><small>km</small><b>' + Math.round(subiu / SR_M / SR_EXG) + '</b><small>m subidos</small></div>' +
-        '<div class="sr-c">' + (rs.length ? '<b>' + nz + '</b> de ' + rs.length + ' na zona' : 'à espera dos alunos') + '</div>';
-      $('srRank').innerHTML = ord.slice(0, 6).map((r, i)=> '<div><span>' + (i + 1) + '</span><b>' + escapeHtml((r.n || '?').split(' ')[0]) + '</b><i class="' + (JG.z[r.id] ? 'ok' : '') + '">' + (i ? '−' + fmtTime(Math.round((JG.perc[ord[0].id] || 0) - (JG.perc[r.id] || 0))) : 'líder') + '</i></div>').join('');
+      const bl = current.blocos, el = Math.max(0, elapsedNow()), tot = totalDuration(bl);
+      let ini = 0; for(let k = 0; k < liveIdx; k++) ini += blockDurationSec(bl[k]);
+      const bk = bl[liveIdx] || b, falta = Math.max(0, Math.round(ini + blockDurationSec(bk) - el));
+      const mz = modoAtual(), zf = bk.tipo ? 0 : Math.max(0, zonesOf(mz).indexOf(blkZone(bk)));
+      const alvo = String(bk.teste ? 'MÁX' : (mz === 'ftp' ? lblInt(bk) : ZONE_RANGE.ftp[zf])).replace(/\s*%$/, '');
+      $('srHud').innerHTML = '<div class="sr-a"><b style="color:' + srMix(zc, '#ffffff', .3) + '">' + escapeHtml(blkZone(b).name) + '</b><span>' + desc + '</span>' +
+          '<div class="sr-alvo"><div><small>ALVO</small><b>' + escapeHtml(String(alvo)) + '</b><small>%FTP</small></div><div><small>CADÊNCIA</small><b>' + rpmTxt(bk) + '</b><small>RPM</small></div></div></div>' +
+        '<div class="sr-t"><small>FALTA NESTE BLOCO</small><b class="' + (falta <= 5 && livePlaying ? 'quase' : '') + '">' + fmtTime(falta) + '</b><span>⏱ ' + fmtTime(Math.round(el)) + ' <i>de ' + fmtTime(tot) + '</i></span></div>' +
+        '<div class="sr-d"><div class="sr-b"><b>' + kmh + '</b><small>km/h</small><b>' + km.toFixed(1).replace('.', ',') + '</b><small>km</small><b>' + Math.round(subiu / SR_M / SR_EXG) + '</b><small>m subidos</small></div>' +
+        '<div class="sr-c">' + (rs.length ? '<b>' + nz + '</b> de ' + rs.length + ' na zona' : 'à espera dos alunos') + '</div></div>';
+      $('srRank').innerHTML = '<div class="sr-rt">CLASSIFICAÇÃO</div>' + ord.slice(0, SR.cv.clientWidth > 1400 ? 8 : 6).map((r, i)=> '<div><span>' + (i + 1) + '</span><b>' + escapeHtml((r.n || '?').split(' ')[0]) + '</b><i class="' + (JG.z[r.id] ? 'ok' : '') + '">' + (i ? '−' + fmtTime(Math.round((JG.perc[ord[0].id] || 0) - (JG.perc[r.id] || 0))) : 'líder') + '</i></div>').join('');
     }
   }
   function srPerfil(ctx, W, H, camZ){
-    const segs = SR.trk.segs, N = segs.length, w = Math.min(340, W * .3), h = Math.min(80, H * .12), x0 = 14, y0 = H - h - 14;
+    const segs = SR.trk.segs, N = segs.length, w = Math.min(620, W * (W > 1400 ? .4 : .34)), h = Math.min(170, H * (W > 1400 ? .22 : .16)), x0 = 18, y0 = H - h - 18;
     let mn = Infinity, mx = -Infinity; for(let k = 0; k < N; k += 4){ mn = Math.min(mn, segs[k].y); mx = Math.max(mx, segs[k].y); }
     const rg = Math.max(1, mx - mn);
-    ctx.fillStyle = 'rgba(5,7,10,.55)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0 - 6, y0 - 22, w + 12, h + 28, 10) : ctx.rect(x0 - 6, y0 - 22, w + 12, h + 28); ctx.fill();
-    ctx.font = '700 12px Barlow, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.textAlign = 'left'; ctx.fillText('PERFIL DA AULA', x0, y0 - 8);
+    ctx.fillStyle = 'rgba(5,7,10,.62)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0 - 10, y0 - 34, w + 20, h + 44, 12) : ctx.rect(x0 - 10, y0 - 34, w + 20, h + 44); ctx.fill();
+    ctx.font = '800 17px Barlow Condensed, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.textAlign = 'left'; ctx.fillText('ALTIMETRIA DA AULA', x0, y0 - 12);
+    ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.fillText('↑ ' + Math.round((mx - mn) / SR_M / SR_EXG) + ' m de desnível', x0 + w, y0 - 12); ctx.textAlign = 'left';
+    for(let q = 1; q < 4; q++){ ctx.fillStyle = 'rgba(255,255,255,.08)'; ctx.fillRect(x0, y0 + h * q / 4, w, 1); }
     const step = Math.max(1, Math.floor(N / w));
     for(let k = 0; k < N; k += step){
       const sg = segs[k], px = x0 + k / N * w, py = y0 + h - (sg.y - mn) / rg * (h - 8) - 4;
@@ -4500,13 +4555,14 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       ctx.fillRect(px, py, Math.max(1, w / N * step + .5), y0 + h - py);
     }
     ctx.globalAlpha = 1;
-    const cx = x0 + camZ / SR_SEG / N * w; ctx.fillStyle = '#fff'; ctx.fillRect(cx - 1, y0, 2, h); ctx.beginPath(); ctx.arc(cx, y0 + h - (segs[Math.min(N - 1, Math.floor(camZ / SR_SEG))].y - mn) / rg * (h - 8) - 4, 5, 0, 7); ctx.fill();
+    const cx = x0 + camZ / SR_SEG / N * w; ctx.fillStyle = '#fff'; ctx.fillRect(cx - 1.5, y0, 3, h); ctx.beginPath(); ctx.arc(cx, y0 + h - (segs[Math.min(N - 1, Math.floor(camZ / SR_SEG))].y - mn) / rg * (h - 8) - 4, 8, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#0B0E13'; ctx.lineWidth = 3; ctx.stroke();
   }
   function srMonta(gp){
     if(gp.dataset.serra === '1' && SR.cv && SR.cv.isConnected) return;
     gp.dataset.serra = '1';
     gp.innerHTML = '<div class="sr-box' + (SR.full ? ' full' : '') + '" id="srBox"><canvas id="srCv" aria-label="Estrada da serra a andar com a aula"></canvas><div class="sr-hud" id="srHud"></div><div class="sr-rank" id="srRank"></div><button class="sr-fs" id="srFs" title="Ecrã inteiro (tecla E ou duplo clique na estrada)">⛶</button></div>' +
-      '<div class="perc-info">🌲 Serra: a estrada nasce dos blocos da aula. Subidas na técnica "Subida" ou com cadência baixa, descida no Z1, sprint no Z7. Quem cumpre a zona vai à frente.</div>';
+      '<div class="perc-info">🌲 Serra: a estrada nasce da cadência dos blocos. 80–115 rpm é plano, 60–75 rpm é subida (quanto menos rpm, mais inclinada), Z1 e retorno à calma são descida, Z7 é sprint. Quem cumpre a zona vai à frente.</div>';
     SR.cv = $('srCv'); SR.ctx = SR.cv.getContext('2d'); SR.bgKey = '';
     const fsTroca = ()=>{ SR.full = !SR.full; $('srBox').classList.toggle('full', SR.full); $('srFs').textContent = SR.full ? '✕' : '⛶'; $('srFs').title = SR.full ? 'Sair da estrada em ecrã inteiro (tecla E ou Esc)' : 'Ecrã inteiro (tecla E ou duplo clique na estrada)'; };
     $('srFs').onclick = fsTroca; SR.cv.ondblclick = fsTroca; SR.fsTroca = fsTroca;
