@@ -2060,7 +2060,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   // técnicas por defeito (podes escolher "Outra…" e escrever a tua)
   const TECNICAS = ['Plano Sentado', 'Plano em Pé', 'Combinado no Plano', 'Subida Sentada', 'Subida em Pé', 'Combinado na Subida', 'Sprint'];
   const TEC_OUTRA = '__outra__';
-  var JOGO_KEYS = /^(cabo|escalada|sobre|cores|sinc|cpares|estafeta|p_etapa|p_circuito|p_contra|p_serp|p_serra|p_neon|p_paris)$/;
+  var JOGO_KEYS = /^(cabo|escalada|sobre|cores|sinc|cpares|estafeta|p_etapa|p_circuito|p_contra|p_serp|p_serra|p_neon|p_paris|p_lsdpnf|p_pnflsd)$/;
   function newBlock(overrides){
     return Object.assign({
       id: uid(), nome:'', min:2, sec:0, ftp:70, alvo:0, rpm:85, tecnica:'Plano Sentado'
@@ -4009,8 +4009,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       o = { k, r: {} };
       visRiders().forEach(r=>{ const x = jgInfoRider(k, r.id); if(x) o.r[r.id] = x; });
       // Serra 3D: a posição de todos, para cada telemóvel desenhar a estrada vista do próprio guiador
-      if((k === 'p_serra' || k === 'p_paris') && SR.met) o.m = [SR.met.fase, SR.met.tempo, SR.met.temp];   // hora e tempo da Serra, iguais nos telemóveis
-      if(k === 'p_serra' || k === 'p_neon' || k === 'p_paris'){ o.p = {}; visRiders().filter(jgPedala).forEach(r=>{ o.p[r.id] = [Math.round((JG.perc[r.id] || 0) * 10) / 10, (r.n || '?').split(' ')[0].slice(0, 14), JG.z[r.id] ? 1 : 0]; }); }
+      if(k !== 'p_neon' && (k === 'p_serra' || k === 'p_neon' || k === 'p_paris' || k === 'p_lsdpnf' || k === 'p_pnflsd') && SR.met) o.m = [SR.met.fase, SR.met.tempo, SR.met.temp];   // hora e tempo da Serra, iguais nos telemóveis
+      if((k === 'p_serra' || k === 'p_neon' || k === 'p_paris' || k === 'p_lsdpnf' || k === 'p_pnflsd')){ o.p = {}; visRiders().filter(jgPedala).forEach(r=>{ o.p[r.id] = [Math.round((JG.perc[r.id] || 0) * 10) / 10, (r.n || '?').split(' ')[0].slice(0, 14), JG.z[r.id] ? 1 : 0]; }); }
     }
     const sj = JSON.stringify(o); if(sj === JG.pushS) return; JG.pushS = sj;
     try{ sessionRef(sessionPin).child('jogo').set(o).catch(()=>{}); }catch(e){}
@@ -4183,6 +4183,10 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   var PERC_TIPOS = {
     p_serra:    { n:'Serra 3D', ico:'🌲', d:'Estrada em 3D vista do selim, desenhada com os blocos da aula: a técnica "Subida" ou a cadência baixa fazem a estrada subir, o Z1 desce e o Z7 é sprint. A velocidade da estrada vem da zona, cada fim de bloco tem um pórtico com o bloco seguinte e quem cumpre a zona aparece à frente no pelotão.',
       v:'A posição dele no pelotão e o tempo que está atrás do líder.', q:'Qualquer aula, do aquecimento ao fim. Fica melhor em ecrã inteiro (botão ⛶).' },
+    p_lsdpnf:   { n:'Lousada → Penafiel', ico:'🏘️', d:'A estrada real de Lousada a Penafiel (10 km, OpenStreetMap): parte da Praça das Pocinhas, atravessa Lousada pela Avenida Hans Isler e pela Rua do Comércio, segue pela Variante à EN 106 entre eucaliptos, carvalhos e vinha, e entra em Penafiel até à Praça do Município, com o Santuário do Sameiro no alto. O mini-mapa mostra a rota e a altimetria real (de 153 a 305 m); as subidas e os sprints continuam a vir dos blocos.',
+      v:'A posição dele no pelotão, a rua onde vai e a altitude real nesse ponto.', q:'Aulas da casa, para pedalar no caminho entre os dois clubes. Fica melhor em ecrã inteiro (botão ⛶).' },
+    p_pnflsd:   { n:'Penafiel → Lousada', ico:'🏘️', d:'O mesmo caminho real ao contrário: parte da Praça do Município, em Penafiel, desce para o vale pela EN 106 e pela Variante, atravessa Lousada e acaba na Praça das Pocinhas. Mini-mapa e altimetria real; as subidas e os sprints vêm dos blocos.',
+      v:'A posição dele no pelotão, a rua onde vai e a altitude real nesse ponto.', q:'Aulas da casa. Fica melhor em ecrã inteiro (botão ⛶).' },
     p_paris:    { n:'Paris', ico:'🗼', d:'Uma volta por Paris seguindo o mapa real da cidade: parte do Arco do Triunfo, desce os Campos Elísios até à Concórdia, segue a margem do Sena até à Torre Eiffel, volta ao Arco pelo Trocadéro e pela Avenue Kléber, passa o Parc Monceau e o Moulin Rouge e acaba no alto de Montmartre, no Sacré-Cœur. As curvas e os monumentos estão nas proporções reais do percurso (≈ 12 km), ajustados à duração da aula; as subidas e os sprints continuam a vir dos blocos. Com prédios haussmanianos, plátanos, mini-mapa, hora do dia e tempo.',
       v:'A posição dele no pelotão, a rua onde vai e o próximo monumento.', q:'Aulas temáticas e de resistência. Fica melhor em ecrã inteiro (botão ⛶).' },
     p_neon:     { n:'Estrada Néon', ico:'🌆', d:'A mesma estrada 3D da Serra, num mundo néon: grelha luminosa no chão, sol às riscas no horizonte, montanhas em linhas de luz e bermas que piscam em azul e magenta. As subidas, descidas, sprints e pórticos vêm dos blocos da aula, como na Serra.',
@@ -4313,7 +4317,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
           ini: k === 0, fim: k === n - 1 });
       }
     });
-    const marcos = SR.tema === 'paris' ? srParisAplica(segs) : null;   // Paris: curvas, ruas e monumentos do mapa real
+    const marcos = SR.tema === 'paris' ? srParisAplica(segs) : SR.tema === 'vale' ? srRotaAplica(segs, ROTAS[SR.rota] || ROTAS.lp) : null;   // Paris: curvas, ruas e monumentos do mapa real
     let cc = 0; segs.forEach(s=>{ cc += s.curve; s.cc = cc; });   // curvatura acumulada (paralaxe das montanhas)
     SR.trk = { segs, bStart, marcos };
   }
@@ -4330,6 +4334,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   const SR_PAL = {
     serra: { neon:false, relva:['#2C6B37', '#327A3E'], claro:'#7FC46A', berma:['#8C7B62', '#7D6E58'], zebra:['#F2F2F2', '#C8102E'], asf:['#454B54', '#40464E'],
       linha:'#E6E6E6', meio:'#F5F5F5', haze:'#9DB0C8', nevoa:'157,176,200', risco:'rgba(255,255,255,.22)', poste:'#D9DDE3', aro:'#6B7280', ceu:'#0C1A33' },
+    vale:  { neon:false, relva:['#4F8A3C', '#58934A'], claro:'#A6C96A', berma:['#9C978E', '#948F86'], zebra:['#EDEDED', '#D5D5D5'], asf:['#45494F', '#41454B'],
+      linha:'#F0F0F0', meio:'#F0F0F0', haze:'#A9BBCB', nevoa:'169,187,203', risco:'rgba(255,255,255,.22)', poste:'#A8ADB3', aro:'#6B7280', ceu:'#0C1A33' },
     paris: { neon:false, relva:['#A9A196', '#B0A89C'], claro:'#C9C1B4', berma:['#8F8A84', '#8A857F'], zebra:['#D7D2CA', '#C9C3BA'], asf:['#3E4248', '#3A3E44'],
       linha:'#EDEDED', meio:'#F2F2F2', haze:'#B7C3D2', nevoa:'183,195,210', risco:'rgba(255,255,255,.22)', poste:'#26312A', aro:'#6B7280', ceu:'#0C1A33' },
     neon:  { neon:true, relva:['#0B0618', '#0D071C'], claro:'#1E0B38', berma:['#1A0C30', '#1A0C30'], zebra:['#00E5FF', '#FF2BD6'], asf:['#160D28', '#130A24'],
@@ -4410,7 +4416,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   function srParisProx(baseI){
     const ms = SR.trk && SR.trk.marcos; if(!ms) return null;
     const m = ms.find(x=> x.i >= baseI - 2); if(!m) return null;
-    const km = Math.max(0, (m.i - baseI) * SR_SEG / SR_M / 1000);
+    // em km reais da rota (a estrada da aula é esticada ou encolhida para caber na duração)
+    const N = SR.trk.segs.length, kmR = SR.tema === 'vale' ? (ROTAS[SR.rota] || ROTAS.lp).km : PARIS_KM, km = Math.max(0, (m.i - baseI) / (N - 1) * kmR);
     return { txt: m.ico + ' ' + m.n, km, aqui: km < .06 };
   }
   // prédios haussmanianos de um troço: fachada de pedra, varandas, janelas (acesas à noite) e telhado de zinco
@@ -4424,19 +4431,20 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       const X = tipo === 'p' ? 1.32 : m.x, hb = tipo === 'p' ? .09 : m.h;
       const xn = p1.x + sd * p1.w * X, xf = q.x + sd * q.w * X, hn = p1.w * hb, hf = q.w * hb;
       if(tipo === 'p'){ quad([xn, p1.y], [xn, p1.y - hn], [xf, q.y - hf], [xf, q.y], tom('#BDB3A3')); return; }   // parapeito do Sena
-      const pedra = sd < 0 ? '#DCCFB6' : '#CDBFA4';
-      quad([xn, p1.y], [xn, p1.y - hn], [xf, q.y - hf], [xf, q.y], tom(sg.i % 9 < 4 ? pedra : srMix(pedra, '#B9A98E', .35)));
-      // telhado de mansarda (recua para fora) e chaminés
-      const xrn = p1.x + sd * p1.w * (X + .2), xrf = q.x + sd * q.w * (X + .2);
-      quad([xn, p1.y - hn], [xrn, p1.y - hn * 1.24], [xrf, q.y - hf * 1.24], [xf, q.y - hf], tom('#6F7B88'));
+      const pt = m.est === 'pt';   // casas portuguesas: paredes claras ou de azulejo, telhado de telha, rés-do-chão de granito
+      const pedra = pt ? srMix(['#F1ECE2', '#F2E1BD', '#DCE6EC', '#EDE4D6', '#F4F1EA'][Math.floor(sg.i / 6) % 5], '#000000', sd < 0 ? 0 : .06) : sd < 0 ? '#DCCFB6' : '#CDBFA4';
+      quad([xn, p1.y], [xn, p1.y - hn], [xf, q.y - hf], [xf, q.y], tom(pt || sg.i % 9 < 4 ? pedra : srMix(pedra, '#B9A98E', .35)));
+      // telhado (mansarda de zinco em Paris, telha em Portugal)
+      const rec = pt ? .1 : .2, alt = pt ? 1.14 : 1.24, xrn = p1.x + sd * p1.w * (X + rec), xrf = q.x + sd * q.w * (X + rec);
+      quad([xn, p1.y - hn], [xrn, p1.y - hn * alt], [xrf, q.y - hf * alt], [xf, q.y - hf], tom(pt ? '#B4582F' : '#6F7B88'));
       if(n < 140){
         // rés-do-chão (lojas, mais escuro) e varandas de ferro em dois andares
         const fx = (t, h)=>{ const x = xn + (xf - xn) * t, y = p1.y + (q.y - p1.y) * t, hh = hn + (hf - hn) * t; return [x, y - hh * h]; };
-        quad(fx(0, 0), fx(0, .2), fx(1, .2), fx(1, 0), tom('#5B4E43'));
-        [.42, .78].forEach(h=> quad(fx(0, h), fx(0, h + .03), fx(1, h + .03), fx(1, h), tom('#2B2F35')));
+        quad(fx(0, 0), fx(0, pt ? .12 : .2), fx(1, pt ? .12 : .2), fx(1, 0), tom(pt ? '#8F8A82' : '#5B4E43'));
+        if(!pt) [.42, .78].forEach(h=> quad(fx(0, h), fx(0, h + .03), fx(1, h + .03), fx(1, h), tom('#2B2F35')));
         if(n < 70 && Math.abs(xf - xn) > 6){   // janelas
           const vid = noite ? null : tom('#4A5664');
-          [.3, .5, .66, .86].forEach((h, a)=> [.2, .62].forEach((t, bi)=>{
+          (pt ? [.3, .66] : [.3, .5, .66, .86]).forEach((h, a)=> [.2, .62].forEach((t, bi)=>{
             const acesa = noite && ((sg.i * 7 + a * 3 + bi * 5 + (sd > 0 ? 11 : 0)) % 10) < 6;
             const p = fx(t, h), p2 = fx(t + .2, h + .1);
             ctx.fillStyle = acesa ? '#FFD58A' : (vid || '#1B2230'); ctx.fillRect(Math.min(p[0], p2[0]), p2[1], Math.abs(p2[0] - p[0]), p[1] - p2[1]);
@@ -4568,6 +4576,166 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     let i = 1; while(i < PARIS_ACC.length - 1 && PARIS_ACC[i] < alvo) i++;
     const t = (alvo - PARIS_ACC[i - 1]) / ((PARIS_ACC[i] - PARIS_ACC[i - 1]) || 1), la = PARIS[i - 1].la + (PARIS[i].la - PARIS[i - 1].la) * t, lo = PARIS[i - 1].lo + (PARIS[i].lo - PARIS[i - 1].lo) * t;
     const q = XY(la, lo); ctx.fillStyle = '#FFD60A'; ctx.strokeStyle = '#05070A'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x0 + q[0], y0 + q[1], 7, 0, 7); ctx.fill(); ctx.stroke();
+  }
+  // ================= LOUSADA ⇄ PENAFIEL: percurso pela estrada real (OpenStreetMap) =================
+  // km: distância real ao longo da estrada desde a Praça das Pocinhas (rota real: 10,0 km); amb: ambiente à volta
+  const VALE_PTS = [
+    { n:'Praça das Pocinhas', km:0, la:41.27818, lo:-8.28351, rua:'Avenida da Constituição da República · EN 207', amb:'vila' },
+    { n:'EM 320', km:.23, la:41.27700, lo:-8.28500, rua:'EM 320 · Lousada', amb:'vila' },
+    { n:'Rua de Visconde de Alentém', km:1.02, la:41.27250, lo:-8.28800, rua:'Rua de Visconde de Alentém · Lousada', amb:'vila' },
+    { n:'Avenida Hans Isler', km:1.17, la:41.27000, lo:-8.28700, rua:'Avenida Hans Isler · Lousada', amb:'vila' },
+    { n:'Rua do Comércio', km:1.64, la:41.26600, lo:-8.28650, rua:'Rua do Comércio · Lousada', amb:'vila' },
+    { n:'EM 106-1', km:2.35, la:41.26000, lo:-8.28700, rua:'EM 106-1', amb:'campo' },
+    { n:'Variante à EN 106', km:2.72, la:41.25700, lo:-8.28800, rua:'Variante à EN 106', amb:'campo' },
+    { n:'Variante à EN 106', km:5.6, la:41.23400, lo:-8.29200, rua:'Variante à EN 106', amb:'campo' },
+    { n:'Rotundas da EN 106', km:8.52, la:41.21500, lo:-8.29000, rua:'EN 106 · Penafiel', amb:'cidade' },
+    { n:'Rua "O Penafidelense"', km:9.14, la:41.21100, lo:-8.28700, rua:'Rua "O Penafidelense" · Penafiel', amb:'cidade' },
+    { n:'Praça do Município', km:10.01, la:41.20669, lo:-8.28416, rua:'Praça do Município · Penafiel', amb:'cidade' }
+  ];
+  // altitude real (m) de 125 em 125 m, da Praça das Pocinhas até à Praça do Município (Open-Meteo)
+  const VALE_ELE = [297,292,284,285,281,281,289,279,290,288,284,279,278,276,280,278,272,269,277,261,268,258,252,237,231,227,226,217,212,209,210,212,213,218,220,221,216,211,214,213,201,201,201,199,206,206,200,192,182,181,182,181,187,191,186,179,175,175,183,180,173,165,157,153,161,170,174,183,198,210,214,226,233,233,249,259,270,267,282,297,305,305];
+  const VALE_SANT = { n:'Santuário do Sameiro', la:41.20867, lo:-8.27531 };   // Santuário de N.ª Sr.ª da Piedade e Santos Passos
+  const ROTAS = {
+    lp: { titulo:'LOUSADA → PENAFIEL', km:10.0, pts: VALE_PTS, ele: VALE_ELE, ini:['PARTIDA', 'LOUSADA · PRAÇA DAS POCINHAS'], fim:['META', 'PENAFIEL · PRAÇA DO MUNICÍPIO'], nIni:'Partida · Praça das Pocinhas', nFim:'Meta · Praça do Município', santKm: 9.25, santLado: -1, vilas:[['Lousada', 0], ['Penafiel', 10]] },
+    pl: { titulo:'PENAFIEL → LOUSADA', km:10.0, pts: VALE_PTS.slice().reverse().map((p, i, a)=> Object.assign({}, p, { km: 10.01 - p.km, rua: (a[i + 1] || p).rua.replace(' · EN 207', '') })), ele: VALE_ELE.slice().reverse(),
+      ini:['PARTIDA', 'PENAFIEL · PRAÇA DO MUNICÍPIO'], fim:['META', 'LOUSADA · PRAÇA DAS POCINHAS'], nIni:'Partida · Praça do Município', nFim:'Meta · Praça das Pocinhas', santKm: .75, santLado: 1, vilas:[['Penafiel', 0], ['Lousada', 10]] }
+  };
+  ROTAS.pl.pts.forEach((p, i, a)=>{ p.amb = (a[i + 1] || p).amb; });
+  // altitude real no ponto da aula (fração 0..1 do percurso)
+  function srRotaAlt(R, f){ const e = R.ele; if(!e) return null; const x = Math.max(0, Math.min(1, f)) * (e.length - 1), i = Math.floor(x); return Math.round(e[i] + ((e[i + 1] ?? e[i]) - e[i]) * (x - i)); }
+  // aplica à estrada da aula as curvas, as ruas, os ambientes e os pontos de referência da rota real
+  function srRotaAplica(segs, R){
+    const N = segs.length, P = R.pts, kOf = km=> Math.round(km / R.km * (N - 1)), rnd = srRnd(N * 17 + 3);
+    segs.forEach(s=> s.curve = 0);
+    for(let i = 1; i < P.length - 1; i++){
+      let th = parisRumo(P[i], P[i + 1]) - parisRumo(P[i - 1], P[i]);
+      while(th > Math.PI) th -= 2 * Math.PI; while(th < -Math.PI) th += 2 * Math.PI;
+      const l = Math.max(14, Math.min(60, Math.round(Math.abs(th) * 42))), c = Math.max(-8, Math.min(8, th * 76 / (2 * l / Math.PI))), k0 = kOf(P[i].km) - Math.round(l / 2);
+      for(let k = 0; k < l; k++){ const q = k0 + k; if(q >= 0 && q < N) segs[q].curve += c * Math.sin(k / l * Math.PI); }
+    }
+    // a variante tem curvas largas e suaves entre os pontos
+    for(let k = 0; k < N; k++){ const f = k / (N - 1) * R.km; const L = P.find((p, i)=> P[i + 1] && f >= p.km && f < P[i + 1].km) || P[P.length - 2]; if(L.amb === 'campo') segs[k].curve += Math.sin(k / 140) * 1.6 + Math.sin(k / 53 + 1) * .7; }
+    let leg = 0;
+    segs.forEach((s, k)=>{
+      const f = k / (N - 1) * R.km; while(leg < P.length - 2 && f >= P[leg + 1].km) leg++;
+      const am = P[leg].amb; s.rua = P[leg].rua; s.amb = am;
+      const sp = [], r1 = rnd(), r2 = rnd(), r3 = rnd();
+      if(am === 'vila'){ const quintal = k % 19 < 5; s.muro = { L: !quintal, R: k % 23 >= 5, x: 1.5, h: 1.25, est:'pt' };
+        if(quintal && r1 < .5) sp.push({ x: -(1.6 + r2), t: 'p1', s: .8 }); }
+      else if(am === 'cidade'){ s.muro = { L: k % 29 >= 3, R: k % 31 >= 3, x: 1.6, h: 1.85, est:'pt' }; }
+      else {   // campo: eucaliptos, carvalhos, vinha em ramada e casas espalhadas
+        s.muro = null;
+        if(r1 < .55) sp.push({ x: -(1.5 + r2 * 3), t: r3 < .55 ? 'p0' : 'p1', s: .85 + r1 * .5 });
+        if(r2 < .55) sp.push({ x: 1.5 + r3 * 3, t: r1 < .55 ? 'p0' : 'p1', s: .85 + r2 * .5 });
+        if(k % 160 < 40 && k % 4 === 0) sp.push({ x: (Math.floor(k / 160) % 2 ? 1 : -1) * 1.9, t: 'p2', s: 1 });   // vinha
+        if(r3 < .06) sp.push({ x: (r1 < .5 ? -1 : 1) * (2.3 + r2 * 2), t: 'r', s: 1.6 });                       // casa
+      }
+      const passo = am === 'campo' ? 15 : 9;
+      if(k % passo === 0) sp.push({ x: -1.18, t: 'poste', s: 1 });
+      if(am !== 'campo' && k % passo === 4) sp.push({ x: 1.18, t: 'poste', s: 1 });
+      s.sp = sp;
+    });
+    const marcos = [], poe = (k, o, nome, ico, raio)=>{ k = Math.max(4, Math.min(N - 3, k)); for(let q = -raio; q <= raio; q++){ const sg = segs[k + q]; if(!sg) continue; sg.sp = sg.sp.filter(x=> x.t === 'poste' || x.t.startsWith('m_')); if(o.t !== 'm_sant') sg.muro = null; } segs[k].sp.push(o); marcos.push({ i: k, n: nome, ico }); };
+    poe(45, { x: 0, t: 'm_partida', s: 4.6 }, R.nIni, '🏁', 3);
+    poe(kOf(R.santKm), { x: R.santLado * 6.5, t: 'm_sant', s: 12 }, VALE_SANT.n, '⛪', 0);   // no alto do monte, por cima dos telhados
+    for(let q = -90; q <= 10; q++){ const sg = segs[kOf(R.santKm) + q]; if(sg && sg.muro) sg.muro[R.santLado < 0 ? 'L' : 'R'] = ((q % 7) + 7) % 7 < 2 ? sg.muro[R.santLado < 0 ? 'L' : 'R'] : false; }   // abertas nas casas desse lado para o ver
+    poe(N - 3, { x: 0, t: 'm_meta', s: 4.6 }, R.nFim, '🏁', 3);
+    marcos.sort((a, b)=> a.i - b.i);
+    return marcos;
+  }
+  // desenhos do Vale do Sousa: eucalipto, carvalho, vinha em ramada, casa, candeeiro, faixas de partida e meta, santuário
+  function srSpritesVale(noite, R){
+    const mk = (w, h, f)=>{ const c = document.createElement('canvas'); c.width = w; c.height = h; f(c.getContext('2d'), w, h); return c; };
+    const sombra = (g, w, h)=>{ g.fillStyle = 'rgba(0,0,0,.25)'; g.beginPath(); g.ellipse(w / 2, h - 6, w * .3, 7, 0, 0, 7); g.fill(); };
+    const eucalipto = mk(160, 320, (g, w, h)=>{ const r = srRnd(5); sombra(g, w, h);
+      g.strokeStyle = '#CDBFA6'; g.lineCap = 'round'; g.lineWidth = 9; g.beginPath(); g.moveTo(w / 2, h - 6); g.quadraticCurveTo(w / 2 + 8, h * .5, w / 2 - 4, h * .12); g.stroke();
+      g.lineWidth = 4; g.beginPath(); g.moveTo(w / 2 + 3, h * .45); g.lineTo(w / 2 + 30, h * .3); g.moveTo(w / 2, h * .32); g.lineTo(w / 2 - 28, h * .2); g.stroke();
+      for(let i = 0; i < 14; i++){ g.fillStyle = i % 2 ? '#5E8C6A' : '#7BA286'; g.beginPath(); g.ellipse(w / 2 + (r() - .5) * w * .7, h * (.06 + r() * .38), w * (.08 + r() * .1), h * (.04 + r() * .05), r() * 3, 0, 7); g.fill(); } });
+    const carvalho = mk(160, 320, (g, w, h)=>{ const r = srRnd(9); sombra(g, w, h); g.fillStyle = '#5A4632'; g.fillRect(w / 2 - 8, h * .5, 16, h * .5 - 6);
+      for(let i = 0; i < 20; i++){ g.fillStyle = i % 3 ? '#3F6E2F' : '#5A8A3E'; g.beginPath(); g.ellipse(w / 2 + (r() - .5) * w * .62, h * (.22 + r() * .32), w * (.14 + r() * .1), h * (.07 + r() * .05), 0, 0, 7); g.fill(); } });
+    const ramada = mk(240, 150, (g, w, h)=>{ g.fillStyle = '#9C968C'; [20, 120, 220].forEach(x=> g.fillRect(x - 5, 40, 10, h - 46)); sombra(g, w, h);
+      g.fillStyle = '#4C7F33'; g.fillRect(8, 30, w - 16, 26); g.fillStyle = '#6A9A45'; for(let x = 12; x < w - 12; x += 16){ g.beginPath(); g.arc(x, 34, 10, 0, 7); g.fill(); }
+      g.fillStyle = '#3B2A4F'; for(let x = 18; x < w - 18; x += 23){ g.beginPath(); g.arc(x, 62, 4, 0, 7); g.arc(x + 4, 66, 4, 0, 7); g.fill(); } });   // cachos
+    const casa = mk(200, 170, (g, w, h)=>{ sombra(g, w, h); g.fillStyle = '#F2EEE6'; g.fillRect(20, 62, 160, h - 68); g.fillStyle = '#B4582F'; g.beginPath(); g.moveTo(10, 66); g.lineTo(100, 18); g.lineTo(190, 66); g.closePath(); g.fill();
+      g.fillStyle = '#8F8A82'; g.fillRect(20, h - 20, 160, 14); g.fillStyle = noite ? '#FFD58A' : '#3E4A52'; [[40, 82], [130, 82]].forEach(([x, y])=> g.fillRect(x, y, 28, 26)); g.fillStyle = '#6B4A2E'; g.fillRect(88, 96, 26, h - 104); });
+    const poste = mk(24, 90, (g, w, h)=>{ g.fillStyle = '#A8ADB3'; g.fillRect(10, 8, 4, h - 8); g.fillRect(4, 6, 14, 4); g.fillStyle = noite ? '#FFE6A8' : '#DDE2E6'; g.fillRect(2, 8, 10, 5); });
+    const faixa = (t1, t2, cor)=> mk(640, 320, (g, w, h)=>{
+      g.fillStyle = '#2C3440'; g.fillRect(24, 40, 18, h - 40); g.fillRect(w - 42, 40, 18, h - 40);
+      g.fillStyle = cor; g.fillRect(14, 30, w - 28, 110); g.fillStyle = '#FFFFFF'; g.fillRect(14, 30, w - 28, 6); g.fillRect(14, 134, w - 28, 6);
+      g.textAlign = 'center'; g.fillStyle = '#FFFFFF'; g.font = '800 40px Barlow Condensed, Arial Narrow, sans-serif'; g.fillText(t1, w / 2, 78);
+      g.font = '700 30px Barlow Condensed, Arial Narrow, sans-serif'; g.fillText(t2, w / 2, 120);
+      g.fillStyle = 'rgba(255,255,255,.9)'; for(let x = 20; x < w - 20; x += 24){ g.fillRect(x, 146, 12, 12); g.fillRect(x + 12, 158, 12, 12); } });   // xadrez
+    const sant = mk(520, 600, (g, w, h)=>{
+      g.fillStyle = noite ? '#1E3A24' : '#4E8640'; g.beginPath(); g.moveTo(0, h); g.quadraticCurveTo(w * .5, h * .5, w, h); g.closePath(); g.fill();
+      const gr = noite ? '#E6D3A8' : '#CFC8BA', gs = noite ? '#B79E6E' : '#AFA799';
+      g.fillStyle = gr; g.fillRect(w / 2 - 120, 300, 240, 140);                                                 // corpo da igreja
+      g.fillStyle = gs; g.fillRect(w / 2 - 120, 300, 240, 16);
+      [-1, 1].forEach(l=>{ const x = w / 2 + l * 150; g.fillStyle = gr; g.fillRect(x - 32, 210, 64, 230); g.fillStyle = gs; g.fillRect(x - 32, 210, 64, 12);   // torres
+        g.beginPath(); g.moveTo(x - 30, 210); g.quadraticCurveTo(x, 150, x + 30, 210); g.fill(); g.fillRect(x - 3, 140, 6, 20);
+        g.fillStyle = noite ? '#7A6A48' : '#4E4A44'; g.fillRect(x - 12, 240, 24, 34); });
+      g.fillStyle = gr; g.fillRect(w / 2 - 60, 230, 120, 70); g.beginPath(); g.ellipse(w / 2, 230, 62, 80, 0, Math.PI, 0); g.fill();   // cúpula
+      g.fillStyle = gs; g.fillRect(w / 2 - 12, 130, 24, 26); g.beginPath(); g.arc(w / 2, 130, 12, Math.PI, 0); g.fill(); g.fillRect(w / 2 - 2, 104, 4, 16);   // lanterna e cruz
+      g.fillStyle = noite ? '#7A6A48' : '#5A554D'; g.beginPath(); g.moveTo(w / 2 - 26, 440); g.lineTo(w / 2 - 26, 380); g.arc(w / 2, 380, 26, Math.PI, 0); g.lineTo(w / 2 + 26, 440); g.fill();   // porta
+      g.strokeStyle = noite ? '#9EA6B0' : '#E5E1D8'; g.lineWidth = 6; g.beginPath(); for(let i = 0; i < 5; i++){ const y = 450 + i * 22; g.moveTo(w / 2 - 70 - i * 8, y); g.lineTo(w / 2 + 70 + i * 8, y); } g.stroke(); });   // escadório
+    SR.spr = { p0: eucalipto, p1: carvalho, p2: ramada, r: casa, poste, m_partida: faixa(R.ini[0], R.ini[1], '#1F5FA8'), m_meta: faixa(R.fim[0], R.fim[1], '#C8102E'), m_sant: sant };
+  }
+  // fundo do Vale do Sousa: colinas verdes com casas brancas de telhado vermelho e manchas de eucalipto
+  function srFundoVale(W, H, sky, mk, M){
+    const noite = M && M.fase === 'noite', nevo = M && M.tempo === 'nevoeiro', neve = M && M.tempo === 'neve', cam = [];
+    const cores = noite ? ['#1C2A32', '#18262A', '#132022', '#0F1A1A'] : ['#8FA8A6', '#6F9184', '#527C5C', '#3E6B3A'];
+    for(let l = 0; l < 4; l++){
+      const c = mk(W * 2, H), g = c.getContext('2d'), r = srRnd(500 + l * 23), base = H * (.5 + l * .012), amp = H * [.11, .09, .07, .05][l];
+      const f = x=> Math.sin(x * 2.1 + l) * .5 + Math.sin(x * 5.3 + l * 2) * .3 + Math.sin(x * 11 + l) * .2;
+      g.beginPath(); g.moveTo(0, H); const pts = [];
+      for(let x = 0; x <= W * 2; x += 8){ const y = base - (.6 + f(x / W * 3) * .4) * amp; pts.push([x, y]); g.lineTo(x, y); }
+      g.lineTo(W * 2, H); g.closePath(); g.fillStyle = nevo ? srMix(cores[l], '#C4C9D0', .6 - l * .1) : neve ? srMix(cores[l], '#E8EEF4', .6) : cores[l]; g.fill();
+      if(l > 0){   // casas e eucaliptais
+        for(let i = 0; i < 26 + l * 6; i++){ const p = pts[Math.floor(r() * pts.length)], s = 2 + l * 1.6, y = p[1] + 4 + r() * amp * .7;
+          if(r() < .55){ g.fillStyle = noite ? (r() < .6 ? '#FFD58A' : '#2A3234') : '#F2EEE6'; g.fillRect(p[0], y, s * 1.6, s); if(!noite){ g.fillStyle = '#B4582F'; g.fillRect(p[0] - .5, y - s * .4, s * 1.6 + 1, s * .45); } }
+          else { g.fillStyle = noite ? '#0D1813' : srMix(cores[l], '#24452A', .5); g.beginPath(); g.ellipse(p[0], y, s * 2.2, s * 1.2, 0, 0, 7); g.fill(); } }
+      }
+      cam.push(c);
+    }
+    const fl = mk(W * 2, H), fg = fl.getContext('2d'), rf = srRnd(91);
+    fg.fillStyle = noite ? '#0B160F' : '#2F5A2C';
+    for(let x = 0; x < W * 2; x += 7 + rf() * 10){ const rr = 5 + rf() * 8; fg.beginPath(); fg.ellipse(x, H * .53 - rr * .5, rr * .7, rr * 1.3, 0, 0, 7); fg.fill(); }
+    fg.fillRect(0, H * .53 - 2, W * 2, 6);
+    const junta = (ls)=>{ const c = mk(W * 2, H), g2 = c.getContext('2d'); ls.forEach(x=> g2.drawImage(x, 0, 0)); return c; };
+    const vin = mk(W, H), vg2 = vin.getContext('2d'), vg = vg2.createRadialGradient(W / 2, H * .6, Math.min(W, H) * .35, W / 2, H * .6, Math.max(W, H) * .8);
+    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.4)'); vg2.fillStyle = vg; vg2.fillRect(0, 0, W, H);
+    SR.bg = { sky, cam, fl, longe: junta([cam[0], cam[1]]), perto: junta([cam[2], cam[3], fl]), vin, y0: Math.max(0, Math.floor(H * .47 - H * .17 * 1.45)), y1: Math.ceil(H * .56) };
+    if(!SR.nuvens){ const rn = srRnd(9); SR.nuvens = Array.from({ length: 7 }, ()=> ({ x: rn(), y: .06 + rn() * .22, s: .6 + rn() * .9 })); }
+  }
+  // mini-mapa da rota real com a altimetria real por baixo
+  function srRotaMapa(ctx, W, H, camZ, R){
+    const w = Math.round(Math.min(560, W * (W > 1400 ? .34 : .3))), h = Math.round(Math.min(250, H * (W > 1400 ? .3 : .26))), x0 = 18, y0 = H - h - 18, hp = Math.round(h * .26);
+    const key = R.titulo + w + 'x' + h;
+    const k = Math.cos(41.24 * Math.PI / 180), P = R.pts.concat([VALE_SANT]);
+    let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity;
+    P.forEach(p=>{ a = Math.min(a, p.lo * k); b = Math.max(b, p.lo * k); c = Math.min(c, p.la); d = Math.max(d, p.la); });
+    const pad = 18, hm = h - hp - 16, sc = Math.min((w - pad * 2) / (b - a), (hm - pad) / (d - c)), ox = (w - (b - a) * sc) / 2, oy = 16 + (hm - (d - c) * sc) / 2;
+    const XY = (la, lo)=> [ox + (lo * k - a) * sc, oy + (d - la) * sc];
+    const e = R.ele, emin = Math.min(...e), emax = Math.max(...e), EY = v=> h - 8 - (v - emin) / ((emax - emin) || 1) * (hp - 12);
+    if(!SR.mapa || SR.mapa.key !== key){
+      const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const g = cv.getContext('2d');
+      g.fillStyle = 'rgba(5,7,10,.72)'; g.beginPath(); g.roundRect ? g.roundRect(0, 0, w, h, 12) : g.rect(0, 0, w, h); g.fill();
+      g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = 4; g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); R.pts.forEach((p, i)=>{ const q = XY(p.la, p.lo); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.stroke();
+      g.font = '700 12px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.85)';
+      R.vilas.forEach(([n, km])=>{ const p = km ? R.pts[R.pts.length - 1] : R.pts[0], q = XY(p.la, p.lo); g.textAlign = 'left'; g.fillText(n, q[0] + 10, q[1] + 4); g.fillStyle = '#FFD60A'; g.beginPath(); g.arc(q[0], q[1], 4, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,.85)'; });
+      { const q = XY(VALE_SANT.la, VALE_SANT.lo); g.font = '15px sans-serif'; g.textAlign = 'center'; g.fillText('⛪', q[0], q[1] + 5); }
+      g.font = '700 11px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'left'; g.fillText(R.titulo + ' · ' + R.km.toFixed(1).replace('.', ',') + ' km reais', 10, 12);
+      // altimetria real
+      g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(8, h - hp, w - 16, hp - 4);
+      g.fillStyle = 'rgba(120,190,120,.55)'; g.beginPath(); g.moveTo(8, h - 6); e.forEach((v, i)=> g.lineTo(8 + i / (e.length - 1) * (w - 16), EY(v))); g.lineTo(w - 8, h - 6); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(255,255,255,.6)'; g.font = '700 10px Barlow, sans-serif'; g.textAlign = 'right'; g.fillText('altitude real ' + emin + '–' + emax + ' m', w - 10, h - hp + 11);
+      SR.mapa = { key, cv };
+    }
+    ctx.drawImage(SR.mapa.cv, x0, y0);
+    const N = SR.trk.segs.length, f = Math.max(0, Math.min(1, camZ / ((N - 1) * SR_SEG))), alvo = f * R.km, Pt = R.pts;
+    let i = 1; while(i < Pt.length - 1 && Pt[i].km < alvo) i++;
+    const t = (alvo - Pt[i - 1].km) / ((Pt[i].km - Pt[i - 1].km) || 1), q = XY(Pt[i - 1].la + (Pt[i].la - Pt[i - 1].la) * t, Pt[i - 1].lo + (Pt[i].lo - Pt[i - 1].lo) * t);
+    ctx.fillStyle = '#FFD60A'; ctx.strokeStyle = '#05070A'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x0 + q[0], y0 + q[1], 7, 0, 7); ctx.fill(); ctx.stroke();
+    const ex = x0 + 8 + f * (w - 16), ey = y0 + EY(srRotaAlt(R, f)); ctx.beginPath(); ctx.arc(ex, ey, 5, 0, 7); ctx.fill(); ctx.stroke();
   }
   // ---- Serra 3D: hora do dia e meteorologia (manhã, tarde, pôr do sol, noite × sol, nublado, chuva, neve, nevoeiro) ----
   const MET_FASES = { manha:['🌅', 'Manhã'], tarde:['🏞️', 'Tarde'], por:['🌇', 'Pôr do sol'], noite:['🌙', 'Noite'] };
@@ -4720,9 +4888,9 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   }
   function srSpritesTema(){
     const tema = SR.tema || 'serra', noite = !!(SR.met && SR.met.fase === 'noite');
-    const k = tema + (tema !== 'neon' && SR.met && SR.met.tempo === 'neve' ? '-neve' : '') + (tema === 'paris' && noite ? '-noite' : '');
+    const k = tema + (tema === 'vale' ? SR.rota : '') + (tema !== 'neon' && SR.met && SR.met.tempo === 'neve' ? '-neve' : '') + ((tema === 'paris' || tema === 'vale') && noite ? '-noite' : '');
     if(SR.spr && SR.sprT === k) return; SR.sprT = k;
-    if(tema === 'neon') srSpritesNeon(); else { if(tema === 'paris') srSpritesParis(noite); else srSprites(); if(k.includes('-neve')) srSpritesNeve(); }
+    if(tema === 'neon') srSpritesNeon(); else { if(tema === 'paris') srSpritesParis(noite); else if(tema === 'vale') srSpritesVale(noite, ROTAS[SR.rota] || ROTAS.lp); else srSprites(); if(k.includes('-neve')) srSpritesNeve(); }
   }
   // fundo néon: céu roxo com estrelas, sol às riscas, montanhas escuras com a crista em linha de luz, linha do horizonte acesa
   function srFundoNeon(W, H){
@@ -4822,7 +4990,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       if(M && M.fase === 'noite'){ g.fillStyle = 'rgba(150,160,182,.35)'; [[-.3, -.2, .22], [.25, .1, .16], [-.05, .35, .12]].forEach(q=>{ g.beginPath(); g.arc(sx + q[0] * sr, sy + q[1] * sr, q[2] * sr, 0, 7); g.fill(); }); }   // crateras da lua
       g.globalAlpha = 1;
     }
-    if(SR.tema === 'paris') return srFundoParis(W, H, sky, mk, M);   // Paris: telhados em vez de montanhas
+    if(SR.tema === 'paris') return srFundoParis(W, H, sky, mk, M);
+    if(SR.tema === 'vale') return srFundoVale(W, H, sky, mk, M);   // Vale do Sousa: colinas verdes com casas   // Paris: telhados em vez de montanhas
     // montanhas: curvas suaves, mais claras e azuladas ao longe (névoa), neve nos picos de trás
     const ruido = (seed, oct)=>{ const r = srRnd(seed), ph = [], fr = []; for(let o = 0; o < oct; o++){ ph.push(r() * 6.28); fr.push(1 + o * 1.7 + r()); } return x=> ph.reduce((a, p, o)=> a + Math.sin(x * fr[o] * 6.28 + p) / (o + 1.2), 0); };
     const cam = [];
@@ -5117,7 +5286,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const tF = performance.now();
     if(cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)){ cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const key = current.blocos.length + ':' + totalDuration(current.blocos) + ':' + modoAtual() + ':' + SR.tema;
+    const key = current.blocos.length + ':' + totalDuration(current.blocos) + ':' + modoAtual() + ':' + SR.tema + (SR.rota || '');
     if(SR.key !== key){ SR.key = key; srPista(); }
     srSpritesTema();
     const T = srPal();
@@ -5241,7 +5410,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     // vinheta
     if(!SR.full) ctx.drawImage(SR.bg.vin, 0, 0, W, H);   // vinheta só na vista dividida (em ecrã inteiro poupa uma cópia do ecrã todo)
     // perfil da aula em baixo à esquerda: o que já subiste e o que vem aí
-    if(SR.tema === 'paris') srParisMapa(ctx, W, H, camZ); else srPerfil(ctx, W, H, camZ);   // Paris: mini-mapa da cidade
+    if(SR.tema === 'paris') srParisMapa(ctx, W, H, camZ); else if(SR.tema === 'vale') srRotaMapa(ctx, W, H, camZ, ROTAS[SR.rota] || ROTAS.lp); else srPerfil(ctx, W, H, camZ);   // Paris: mini-mapa da cidade
     const dt = performance.now() - t0; SR.draw = Math.max(90, Math.min(SR_DRAW, (SR.draw || SR_DRAW) + (dt > 22 ? -20 : dt < 10 ? 4 : 0)));
     // média do tempo de cada imagem; acima de ~22 ms (menos de 45 imagens/s) baixa a resolução, abaixo de 10 ms volta a subir
     const tt = performance.now() - tF; SR.ft = SR.ft == null ? tt : SR.ft * .9 + tt * .1;
@@ -5260,7 +5429,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       const mz = modoAtual(), zf = bk.tipo ? 0 : Math.max(0, zonesOf(mz).indexOf(blkZone(bk)));
       const alvo = String(bk.teste ? 'MÁX' : (mz === 'ftp' ? lblInt(bk) : ZONE_RANGE.ftp[zf])).replace(/\s*%$/, '');
       $('srHud').innerHTML = '<div class="sr-a"><b style="color:' + srMix(zc, '#ffffff', .3) + '">' + escapeHtml(blkZone(b).name) + '</b><span>' + desc + '</span>' +
-          (SR.tema === 'paris' ? (()=>{ const pr = srParisProx(baseI); return '<span class="sr-rua">📍 ' + escapeHtml(base.rua || '') + '</span>' + (pr ? '<span class="sr-rua">' + (pr.aqui ? '📸 ' + escapeHtml(pr.txt) + '!' : 'A seguir: ' + escapeHtml(pr.txt) + ' · ' + pr.km.toFixed(1).replace('.', ',') + ' km') + '</span>' : ''); })() : '') +
+          (SR.tema === 'paris' || SR.tema === 'vale' ? (()=>{ const pr = srParisProx(baseI), al = SR.tema === 'vale' ? srRotaAlt(ROTAS[SR.rota] || ROTAS.lp, baseI / (N - 1)) : null; return '<span class="sr-rua">📍 ' + escapeHtml(base.rua || '') + (al != null ? ' · ⛰️ ' + al + ' m' : '') + '</span>' + (pr ? '<span class="sr-rua">' + (pr.aqui ? '📸 ' + escapeHtml(pr.txt) + '!' : 'A seguir: ' + escapeHtml(pr.txt) + ' · ' + pr.km.toFixed(1).replace('.', ',') + ' km') + '</span>' : ''); })() : '') +
           '<div class="sr-alvo"><div><small>ALVO</small><b>' + escapeHtml(String(alvo)) + '</b><small>%FTP</small></div><div><small>CADÊNCIA</small><b>' + rpmTxt(bk) + '</b><small>RPM</small></div></div></div>' +
         '<div class="sr-t"><small>FALTA NESTE BLOCO</small><b class="' + (falta <= 5 && livePlaying ? 'quase' : '') + '">' + fmtTime(falta) + '</b><span>⏱ ' + fmtTime(Math.round(el)) + ' <i>de ' + fmtTime(tot) + '</i></span></div>' +
         '<div class="sr-d"><div class="sr-b"><b>' + kmh + '</b><small>km/h</small><b>' + km.toFixed(1).replace('.', ',') + '</b><small>km</small><b>' + Math.round(subiu / SR_M / SR_EXG) + '</b><small>m subidos</small></div>' +
@@ -5311,7 +5480,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const rs = visRiders();
     $('rpMeta').innerHTML = '<b>' + rs.filter(r=> JG.z[r.id]).length + '</b> de ' + rs.filter(jgPedala).length + ' dentro da zona agora';
     $('rpEmpty').style.display = 'none';
-    if(mode === 'percurso' && (pk === 'p_serra' || pk === 'p_neon' || pk === 'p_paris')){ SR.tema = pk === 'p_neon' ? 'neon' : pk === 'p_paris' ? 'paris' : 'serra'; gp.style.display = 'flex'; srMonta(gp); return; }   // estrada 3D: o desenho corre sozinho
+    if(mode === 'percurso' && ['p_serra', 'p_neon', 'p_paris', 'p_lsdpnf', 'p_pnflsd'].includes(pk)){ SR.tema = pk === 'p_neon' ? 'neon' : pk === 'p_paris' ? 'paris' : pk === 'p_lsdpnf' || pk === 'p_pnflsd' ? 'vale' : 'serra'; SR.rota = pk === 'p_lsdpnf' ? 'lp' : pk === 'p_pnflsd' ? 'pl' : null; gp.style.display = 'flex'; srMonta(gp); return; }   // estrada 3D: o desenho corre sozinho
     if(gp.dataset.serra) srPara();
     if(!rs.length){   // ainda sem alunos: já dá para escolher o jogo e a forma das equipas
       gp.style.display = 'flex';
