@@ -631,6 +631,47 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
 /* ---- ecrã 3 ---- */
 .e3{display:none;width:100%;}
 .e3 [hidden]{display:none!important;}
+/* ===== tema néon nos ecrãs 1 e 2 (liga sozinho nos blocos com a Estrada Néon) ===== */
+.neon-chao{display:none;position:absolute;left:-35%;right:-35%;bottom:0;height:40%;pointer-events:none;z-index:0;transform:perspective(240px) rotateX(60deg);transform-origin:50% 100%;
+  background-image:linear-gradient(rgba(162,59,255,.6) 2px,transparent 2px),linear-gradient(90deg,rgba(0,229,255,.45) 2px,transparent 2px);background-size:44px 44px;
+  -webkit-mask:linear-gradient(transparent,#000 40%);mask:linear-gradient(transparent,#000 40%);}
+#liveScreen.neon .neon-chao{display:block;}
+#liveScreen.neon:not(.ecra3) #bodyEl,#liveScreen.neon.ecra2.e2escuro #bodyEl{background:radial-gradient(120% 70% at 50% 0%,#2A0A4A 0%,#0A0418 62%)!important;}
+#liveScreen.neon #activeBlock{position:relative;z-index:1;}
+/* ecrã 1: cockpit néon */
+#liveScreen.neon .blockline .zone{text-shadow:0 0 10px currentColor,0 0 22px currentColor;}
+#liveScreen.neon .technique{border-color:#FF2BD6;background:rgba(255,43,214,.08);box-shadow:0 0 12px rgba(255,43,214,.5),inset 0 0 8px rgba(255,43,214,.3);}
+#liveScreen.neon .timer{position:relative;display:table;margin:10px auto 0;padding:2px 30px 6px;border-radius:999px;text-shadow:0 0 14px var(--zc,#00E5FF);}
+#liveScreen.neon .timer::before{content:'';position:absolute;inset:0;padding:4px;border-radius:inherit;background:conic-gradient(var(--zc,#00E5FF) calc(var(--tr,1) * 1turn),rgba(255,255,255,.1) 0);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);filter:drop-shadow(0 0 6px var(--zc,#00E5FF));}
+#liveScreen.neon .tg{background:rgba(10,4,24,.72);border:1px solid rgba(0,229,255,.45);border-top:3px solid var(--zc,#00E5FF);box-shadow:0 0 10px rgba(0,229,255,.2);}
+#liveScreen.neon .me{background:rgba(10,4,24,.72);border:1px solid rgba(0,229,255,.5);box-shadow:0 0 16px rgba(0,229,255,.25),inset 0 0 20px rgba(0,229,255,.06);}
+#liveScreen.neon .me-w #myW{text-shadow:0 0 14px currentColor,0 0 34px currentColor!important;}
+#liveScreen.neon .me.fora .me-w #myW{color:#FF2BD6!important;animation:neonFora .7s ease-in-out infinite alternate;}
+@keyframes neonFora{to{opacity:.55;}}
+#liveScreen.neon .gauge{background:#12081F repeating-linear-gradient(90deg,rgba(0,229,255,.28) 0 2px,transparent 2px 8.333%);box-shadow:inset 0 0 0 1px rgba(0,229,255,.4),0 0 10px rgba(0,229,255,.25);}
+#liveScreen.neon .gauge-band{opacity:1;box-shadow:0 0 14px 2px rgba(0,229,255,.55);}
+#liveScreen.neon .gauge-dot{background:#fff;border-color:#00E5FF;box-shadow:0 0 12px #00E5FF,0 0 26px #00E5FF;}
+#liveScreen.neon .me.fora .gauge-dot{border-color:#FF2BD6;box-shadow:0 0 12px #FF2BD6,0 0 26px #FF2BD6;}
+#liveScreen.neon .me-grid .v{text-shadow:0 0 8px rgba(0,229,255,.55);}
+/* ecrã 2: painel de circuito */
+#liveScreen.neon .n2{position:relative;overflow:hidden;background:radial-gradient(110% 60% at 50% 30%,#2A0A4A,#0A0418 70%)!important;border:1px solid rgba(0,229,255,.35);}
+#liveScreen.neon .n2 > :not(.neon-chao){position:relative;z-index:1;}
+#liveScreen.neon .n2-tempo b{text-shadow:0 0 12px var(--nc);}
+#liveScreen.neon .n2-alvos::after{content:'';position:absolute;left:25%;right:25%;bottom:-12px;height:12px;border-left:2px solid #00E5FF;border-right:2px solid #00E5FF;opacity:.75;filter:drop-shadow(0 0 4px #00E5FF);}
+#liveScreen.neon .n2-alvo{border-color:#00E5FF;background:rgba(10,4,24,.78);box-shadow:0 0 16px rgba(0,229,255,.55),inset 0 0 14px rgba(0,229,255,.18);}
+#liveScreen.neon .n2-atuais{background:linear-gradient(90deg,transparent 6%,rgba(0,229,255,.8) 6% 94%,transparent 94%) center/100% 2px no-repeat;}
+#liveScreen.neon .n2-atuais > div{position:relative;border:2px solid rgba(0,229,255,.35);background:rgba(10,4,24,.82);overflow:hidden;}
+#liveScreen.neon .n2-atuais > div.nz-ok{border-color:#00E5FF;box-shadow:0 0 14px rgba(0,229,255,.5);}
+#liveScreen.neon .n2-atuais > div.nz-fora{border-color:#FF2BD6;box-shadow:0 0 14px rgba(255,43,214,.6);}
+#liveScreen.neon .n2-atuais > div.nz-fora b{color:#FF7BEA;}
+.n2-anel{display:none;}
+#liveScreen.neon .n2-anel{display:block;position:absolute;left:50%;top:50%;width:min(86%,120px);aspect-ratio:1;margin:0;translate:-50% -50%;border-radius:50%;pointer-events:none;opacity:.55;
+  background:repeating-conic-gradient(var(--rc,#00E5FF) 0 16deg,transparent 16deg 30deg);-webkit-mask:radial-gradient(closest-side,transparent 78%,#000 80%);mask:radial-gradient(closest-side,transparent 78%,#000 80%);filter:drop-shadow(0 0 4px var(--rc,#00E5FF));}
+#liveScreen.neon .n2-atuais > div > :not(.n2-anel){position:relative;z-index:1;}
+.n2-rasto{display:none;}
+#liveScreen.neon .n2-rasto{display:block;flex:.8;min-height:70px;width:100%;border-radius:14px;background:rgba(10,4,24,.82);border:1px solid rgba(162,59,255,.5);}
+@media (prefers-reduced-motion:reduce){#liveScreen.neon .me.fora .me-w #myW{animation:none;}}
 #liveScreen.ecra3 .e3{display:block;}
 #liveScreen.ecra3 #activeBlock,#liveScreen.ecra3 #myBatt,#liveScreen.ecra3 #myLamp,#liveScreen.ecra3 #className,#liveScreen.ecra3 #ocTag,#liveScreen.ecra3 #jgMe{display:none!important;}
 #liveScreen.ecra3 #bodyEl{background:#0B0E13!important;}
@@ -1068,6 +1109,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   </div>
   <div class="safety safety-banner" id="safetyBanner" role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17.5v.01"/></svg><div id="safetyBannerTxt">Sentes <b>desconforto, dor no peito, tonturas ou falta de ar</b>? <b>Pára de pedalar</b> e pede ajuda ao professor da aula.</div><button id="safetyClose" aria-label="Fechar aviso">✕</button></div>
   <div class="body" id="bodyEl">
+    <div class="neon-chao" id="neonChao1" aria-hidden="true"></div>
     <div class="batt" id="myBatt"><div style="position:relative"><svg viewBox="0 0 44 80" aria-hidden="true"><defs><linearGradient id="btGradA" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#1FA84A"/><stop offset="1" stop-color="#7CF0A0"/></linearGradient><clipPath id="btClipA"><rect x="7" y="11" width="30" height="62" rx="4"/></clipPath></defs><rect class="bt-cap" x="15" y="1" width="14" height="7" rx="2"/><rect class="bt-body" x="4" y="8" width="36" height="68" rx="7"/><g clip-path="url(#btClipA)"><rect class="bt-fill" x="7" y="72" width="30" height="0" style="fill:url(#btGradA)"/><rect class="bt-shine" x="7" y="10" width="30" height="6"/></g><path class="bt-bolt" d="M25 20 L14 44 H22 L18 64 L31 36 H23 Z"/></svg><span class="bx"></span></div><span class="bmah">0 mAh</span><span class="bpb">≈ 0% de um powerbank</span></div>
     <div class="lamp" id="myLamp"><svg viewBox="0 0 64 80" aria-hidden="true"><g class="lrs"><line class="lr" x1="32" y1="-6" x2="32" y2="-14"/><line class="lr" x1="6" y1="6" x2="0" y2="0"/><line class="lr" x1="58" y1="6" x2="64" y2="0"/><line class="lr" x1="-4" y1="28" x2="-12" y2="28"/><line class="lr" x1="68" y1="28" x2="76" y2="28"/></g><path class="lg" d="M32 4a24 24 0 0 1 14 43.5c-2.8 2.1-4.2 4.6-4.2 7.4V57H22.2v-2.1c0-2.8-1.4-5.3-4.2-7.4A24 24 0 0 1 32 4z"/><path class="lf" d="M25 44l3.5-11 3.5 8 3.5-8L39 44"/><rect class="lb" x="22" y="59" width="20" height="5" rx="2"/><rect class="lb" x="23.5" y="66" width="17" height="5" rx="2"/><rect class="lb" x="27" y="73" width="10" height="4" rx="2"/></svg><span class="lwh">0 Wh</span><span class="leur">≈ 0,00 cêntimos</span></div>
     <div class="class-name" id="className"></div>
@@ -1105,6 +1147,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     <!-- ECRÃ 2: montado no "PlayRide Ecrã 2" -->
     <div class="e2" id="ecra2" aria-label="Ecrã 2 do treino">
       <div class="n2">
+        <div class="neon-chao" id="neonChao2" aria-hidden="true"></div>
         <div class="n2-top">
           <div class="n2-tit"><svg class="n2-bike" viewBox="0 0 64 48" aria-hidden="true"><circle cx="13" cy="34" r="10" fill="none" stroke="currentColor" stroke-width="4.5"/><circle cx="51" cy="34" r="10" fill="none" stroke="currentColor" stroke-width="4.5"/><path d="M13 34 L26 18 L40 18 L51 34 M26 18 L33 34 L40 18 M30 12 L38 12" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="7" r="5" fill="currentColor"/></svg><span id="n2Tec"><b>—</b></span></div>
           <div class="n2-tempo"><span class="n2-rel">⏱</span><b id="n2T">0:00</b><small>Tempo restante</small></div>
@@ -1115,10 +1158,11 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
           <div class="n2-alvo"><small>RPM PRETENDIDO</small><b id="n2ARpm">—</b></div>
         </div>
         <div class="n2-atuais">
-          <div><small id="n2WL">Watts atuais</small><b id="n2W">—</b></div>
-          <div><small id="n2PL">FTP atual</small><b id="n2P">—</b></div>
-          <div><small>RPM atual</small><b id="n2Rpm">—</b></div>
+          <div id="n2WBox"><small id="n2WL">Watts atuais</small><b id="n2W">—</b></div>
+          <div id="n2PBox"><small id="n2PL">FTP atual</small><b id="n2P">—</b></div>
+          <div id="n2RBox"><i class="n2-anel" id="n2Anel"></i><small>RPM atual</small><b id="n2Rpm">—</b></div>
         </div>
+        <canvas class="n2-rasto" id="n2Rasto" aria-label="Rasto de potência: os últimos 60 segundos"></canvas>
         <div class="n2-estado" id="n2Est"><span class="n2-ico" id="n2EstI">✓</span><b id="n2EstT">Na zona</b></div>
         <div class="n2-aula"><i id="n2AulaBar"></i></div>
       </div>
@@ -2104,7 +2148,72 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       if(pct < lo){ ec = '#FFB15C'; ico = '↑'; txt = 'Sobe'; }
       else if(pct > hi + 0.5){ ec = '#FF5A4E'; ico = '↓'; txt = 'Baixa'; }
     }
+    // tema néon: caixas acesas em azul (dentro do alvo) ou magenta (fora), anel das rpm na mesma lógica
+    const zEst = pct == null || b.tipo || b.teste ? '' : (ico === '✓' ? 'nz-ok' : 'nz-fora');
+    ['n2WBox', 'n2PBox'].forEach(id=>{ const e = $(id); if(e) e.className = zEst; });
+    const rOk = powered && cad ? rpmOk(cad, b) : null;
+    const rb = $('n2RBox'); if(rb){ rb.className = rOk == null ? '' : (rOk ? 'nz-ok' : 'nz-fora'); rb.style.setProperty('--rc', rOk === false ? '#FF2BD6' : '#00E5FF'); }
+    if(NE.on){ if(ico === '✓') ec = '#00E5FF'; else if(ico === '↑' || ico === '↓') ec = '#FF2BD6'; }
     const est = $('n2Est'); est.style.setProperty('--ec', ec); $('n2EstI').textContent = ico; $('n2EstT').textContent = txt;
+  }
+  // ===== tema néon (ecrãs 1 e 2): liga sozinho nos blocos com a Estrada Néon =====
+  const NE = { on:false, raf:0, last:0, off:0, ang:0, amT:0, hist:[], range:null, b:null };
+  function nePct(){
+    if(modo === 'fc'){ const hr = myHr(); return hr && me.fc ? hr / me.fc * 100 : null; }
+    return hasPowerSource() && me.ftp ? dispPower / me.ftp * 100 : null;
+  }
+  function neonDesliga(){ if(!NE.on && !$('liveScreen').classList.contains('neon')) return; NE.on = false; cancelAnimationFrame(NE.raf); NE.last = 0; $('liveScreen').classList.remove('neon'); const m = $('meEl'); if(m) m.classList.remove('fora'); }
+  function neonAtualiza(b, range, remaining){
+    if(!b || b.jogo !== 'p_neon'){ neonDesliga(); return; }
+    NE.b = b; NE.range = range;
+    $('liveScreen').classList.add('neon');
+    const dur = blockDurationSec(b) || 1, t = $('timerEl');
+    t.style.setProperty('--tr', Math.max(0, Math.min(1, remaining / dur)).toFixed(4));
+    t.style.setProperty('--zc', zoneColor(blkZone(b).css));
+    const pct = nePct(), hi = range.open ? Infinity : range.max;
+    $('meEl').classList.toggle('fora', pct != null && !b.tipo && !b.teste && state.status === 'playing' && (pct < range.min || pct > hi + .5));
+    if(!NE.on){ NE.on = true; NE.raf = requestAnimationFrame(neonLoop); }
+  }
+  // um só ciclo de animação: chão a correr com os watts, anel das rpm a rodar, rasto de potência (1 ponto por segundo)
+  function neonLoop(t){
+    if(!NE.on) return;
+    NE.raf = requestAnimationFrame(neonLoop);
+    const dt = NE.last ? Math.min(.1, (t - NE.last) / 1000) : 0; NE.last = t;
+    const pct = nePct(), andar = state && state.status === 'playing';
+    NE.off = (NE.off + (andar ? 25 + Math.min(2.2, (pct || 0) / 100) * 150 : 0) * dt) % 44;
+    const bp = '0 ' + NE.off.toFixed(1) + 'px, 0 0';
+    if(ecraAtual === 1){ const c = $('neonChao1'); if(c) c.style.backgroundPosition = bp; }
+    if(ecraAtual === 2){
+      const c = $('neonChao2'); if(c) c.style.backgroundPosition = bp;
+      const rpm = hasPowerSource() ? S.cadence || 0 : 0; NE.ang = (NE.ang + rpm / 60 * 360 * dt) % 360;
+      const a = $('n2Anel'); if(a) a.style.rotate = NE.ang.toFixed(1) + 'deg';
+    }
+    if(t - NE.amT > 1000){ NE.amT = t; if(andar){ NE.hist.push(pct); if(NE.hist.length > 60) NE.hist.shift(); } if(ecraAtual === 2) neonRasto(); }
+  }
+  function neonRasto(){
+    const cv = $('n2Rasto'); if(!cv || !NE.range) return;
+    const W = cv.clientWidth, H = cv.clientHeight; if(!W || !H) return;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    if(cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)){ cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+    const r = NE.range, lo = Math.max(0, r.min - 45), top = (r.open ? r.min * 1.35 : r.max) + 45, padT = 18, padB = 6;   // escala à volta da zona-alvo: a faixa vê-se bem
+    const Y = v=> padT + (H - padT - padB) * (1 - (Math.max(lo, Math.min(top, v)) - lo) / (top - lo)), X = i=> 8 + (W - 16) * i / 59;
+    const zc = zoneColor(blkZone(NE.b).css), ehAlvo = !NE.b.tipo && !NE.b.teste;
+    if(ehAlvo){   // faixa da zona-alvo
+      const y1 = Y(r.open ? top : r.max), y2 = Y(r.min);
+      g.fillStyle = zc; g.globalAlpha = .18; g.fillRect(0, y1, W, y2 - y1); g.globalAlpha = .7; g.fillRect(0, y1, W, 1); g.fillRect(0, y2 - 1, W, 1); g.globalAlpha = 1;
+    }
+    g.font = '700 11px Barlow Condensed, sans-serif'; g.fillStyle = 'rgba(255,255,255,.65)'; g.textAlign = 'left';
+    g.fillText('RASTO DE ' + (modo === 'fc' ? 'FC' : 'POTÊNCIA') + ' · 60 s', 10, 13);
+    const h = NE.hist, n0 = 60 - h.length;
+    g.lineCap = 'round'; g.lineJoin = 'round'; g.lineWidth = 3; g.shadowBlur = 8;
+    for(let i = 1; i < h.length; i++){
+      const a = h[i - 1], c = h[i]; if(a == null || c == null) continue;
+      const dentro = !ehAlvo || (c >= r.min && (r.open || c <= r.max + .5)), cor = dentro ? '#00E5FF' : '#FF2BD6';
+      g.strokeStyle = cor; g.shadowColor = cor; g.beginPath(); g.moveTo(X(n0 + i - 1), Y(a)); g.lineTo(X(n0 + i), Y(c)); g.stroke();
+    }
+    const u = h[h.length - 1]; if(u != null){ g.fillStyle = '#fff'; g.shadowColor = '#00E5FF'; g.beginPath(); g.arc(X(59), Y(u), 4, 0, 7); g.fill(); }
+    g.shadowBlur = 0;
   }
   // a grelha tem o tamanho do montador (346 px); aqui amplia/reduz para caber no ecrã do telemóvel sem deslizar
   function e2Ajusta(){
@@ -2610,7 +2719,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     if(!state) return;
     if(solo === 'guiado') soloAdvance();
     else if(!solo) aulaAvancaLocal();
-    if(solo === 'livre') return renderLivre();
+    if(solo === 'livre'){ neonDesliga(); return renderLivre(); }
     buildProgress();
 
     const finished = sessionEnded || state.status === 'finished' || state.blockIndex >= blocos.length;
@@ -2638,7 +2747,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       $('finAw').textContent = me.as ? Math.round(me.sumW/me.as) : 0;
       $('finMw').textContent = Math.round(me.mw);
       $('finZone').textContent = solo === 'livre' ? fmtTime(me.ts) : (me.as ? Math.round(me.iz/me.as*100) + '%' : '0%');
-      $('bodyEl').style.background = '#05070A';
+      $('bodyEl').style.background = '#05070A'; neonDesliga();
       updateMarker(blocos.length, 1);
       if(!savedThisClass){
         if(user && !savePending){ savePending = true; setTimeout(saveTreino, solo ? 300 : 2500); }   // espera pela posição final
@@ -2718,6 +2827,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const elapsedBefore = blocos.slice(0, state.blockIndex).reduce((s,bb)=>s+blockDurationSec(bb),0);
     updateMarker(state.blockIndex, (elapsedBefore + (blockDurationSec(b) - remaining)) / totalSec);
     if(E2_CFG.troca === 'auto' && state.status === 'playing' && state.blockIndex !== e2LastIdx){ if(e2LastIdx >= 0) ecraVai(ecraAtual === 1 ? 2 : 1); e2LastIdx = state.blockIndex; }
+    neonAtualiza(b, range, remaining);
     if(ecraAtual === 2) renderEcra2(b, next, remaining, range, totalSec, elapsedBefore + (blockDurationSec(b) - remaining));
     if(ecraAtual === 3) renderEcra3(b, next, remaining, range, totalSec, elapsedBefore + (blockDurationSec(b) - remaining));
     const temJogo = !!(b.jogo && JOGOS_ALUNO[b.jogo]); document.querySelectorAll('#e2Dots .d3').forEach(d=> d.classList.toggle('tem', temJogo));   // o 3.º ponto acende quando há jogo
