@@ -569,7 +569,36 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
 .lamp .lwh{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:var(--lfs,15px);line-height:1;color:color-mix(in srgb,#FFE08A calc(var(--lv) * 100%),#AEB6C2);white-space:nowrap;font-variant-numeric:tabular-nums;}
 @media (prefers-reduced-motion:reduce){.lamp.on .lg{animation:none;}}
 .body{position:relative;}
-/* ---- ecrã 2: montado no "PlayRide Ecrã 2" (mesma grelha: 6 colunas, linhas de 58 px, e depois ajusta ao ecrã) ---- */
+/* ---- ecrã 2: néon (alvos em cima, valores atuais por baixo, estado da zona) ---- */
+.n2{--nc:#3DD45C;display:flex;flex-direction:column;gap:12px;height:calc(100dvh - 150px);min-height:520px;padding:14px 12px 12px;border-radius:18px;background:radial-gradient(110% 60% at 50% 35%,color-mix(in srgb,var(--nc) 40%,#06120A) 0%,#050806 72%);font-family:'Barlow Condensed','Arial Narrow',sans-serif;color:#fff;}
+.n2-top{display:grid;grid-template-columns:1fr auto;align-items:center;gap:4px 10px;}
+.n2-tit{display:flex;align-items:center;gap:10px;min-width:0;}
+.n2-bike{width:clamp(38px,11vw,54px);flex:0 0 auto;color:#fff;}
+#n2Tec{text-align:left;font-size:clamp(24px,7.6vw,40px);font-weight:800;line-height:1.02;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+#n2Tec em{font-style:normal;color:var(--nc);}
+.n2-tempo{display:grid;grid-template-columns:auto auto;align-items:center;column-gap:6px;justify-items:end;}
+.n2-tempo .n2-rel{font-size:clamp(22px,6vw,30px);}
+.n2-tempo b{font-size:clamp(30px,9.5vw,46px);font-weight:800;font-variant-numeric:tabular-nums;line-height:1;}
+.n2-tempo b.quase{color:#FFB15C;}
+.n2-tempo small{grid-column:1 / -1;font-size:clamp(13px,3.8vw,17px);color:rgba(255,255,255,.85);font-weight:600;}
+.n2-bloco{grid-column:1;height:6px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden;margin-top:6px;}
+.n2-bloco i,.n2-aula i{display:block;height:100%;width:0;background:var(--nc);border-radius:999px;box-shadow:0 0 10px var(--nc);transition:width .3s linear;}
+.n2-alvos{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1.25;}
+.n2-alvo{display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid color-mix(in srgb,var(--nc) 70%,#E8FF6A);border-radius:22px;background:rgba(0,0,0,.45);box-shadow:0 0 18px color-mix(in srgb,var(--nc) 70%,transparent),inset 0 0 14px color-mix(in srgb,var(--nc) 30%,transparent);padding:6px;min-width:0;}
+.n2-alvo small{font-size:clamp(15px,4.6vw,22px);font-weight:800;letter-spacing:.5px;text-align:center;line-height:1.05;}
+.n2-alvo b{font-size:clamp(40px,14vw,74px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.n2-alvo b small,.n2-atuais b small{font-size:.45em;margin-left:2px;}
+.n2-atuais{display:grid;grid-template-columns:1.15fr 1fr 1fr;gap:8px;flex:1;}
+.n2-atuais > div{display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.12);border-radius:18px;background:rgba(0,0,0,.4);padding:6px 4px;min-width:0;}
+.n2-atuais small{font-size:clamp(14px,4.2vw,20px);font-weight:700;color:rgba(255,255,255,.9);white-space:nowrap;}
+.n2-atuais b{font-size:clamp(34px,11.5vw,60px);font-weight:800;line-height:1;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.n2-atuais b.ok{color:#7CF0A0;} .n2-atuais b.low{color:#FFB15C;}
+.n2-estado{display:flex;align-items:center;justify-content:center;gap:14px;border:3px solid var(--ec,#3DD45C);border-radius:999px;padding:8px 14px;box-shadow:0 0 14px color-mix(in srgb,var(--ec,#3DD45C) 55%,transparent);background:rgba(0,0,0,.35);}
+.n2-estado .n2-ico{width:clamp(40px,12vw,58px);height:clamp(40px,12vw,58px);border-radius:50%;background:var(--ec,#3DD45C);color:#06120A;display:flex;align-items:center;justify-content:center;font-size:clamp(24px,7vw,36px);font-weight:900;}
+.n2-estado b{font-size:clamp(34px,11vw,56px);font-weight:800;color:var(--ec,#3DD45C);line-height:1;}
+.n2-aula{height:7px;border-radius:999px;background:rgba(255,255,255,.12);overflow:hidden;}
+.n2-aula i{background:linear-gradient(90deg,#2E9BF0,var(--nc));box-shadow:none;}
+/* (antigo) ecrã 2 montado no "PlayRide Ecrã 2" (mesma grelha: 6 colunas, linhas de 58 px, e depois ajusta ao ecrã) ---- */
 .e2{display:none;width:100%;margin:2px auto 0;padding-bottom:44px;}
 #liveScreen.ecra2 .e2{display:block;}
 #liveScreen.ecra2 #activeBlock,#liveScreen.ecra2 #myBatt,#liveScreen.ecra2 #myLamp,#liveScreen.ecra2 #className,#liveScreen.ecra2 #ocTag{display:none!important;}
@@ -1058,7 +1087,26 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     </div>
 
     <!-- ECRÃ 2: montado no "PlayRide Ecrã 2" -->
-    <div class="e2" id="ecra2" aria-label="Ecrã 2 do treino"><div class="e2g" id="e2Grid"></div></div>
+    <div class="e2" id="ecra2" aria-label="Ecrã 2 do treino">
+      <div class="n2">
+        <div class="n2-top">
+          <div class="n2-tit"><svg class="n2-bike" viewBox="0 0 64 48" aria-hidden="true"><circle cx="13" cy="34" r="10" fill="none" stroke="currentColor" stroke-width="4.5"/><circle cx="51" cy="34" r="10" fill="none" stroke="currentColor" stroke-width="4.5"/><path d="M13 34 L26 18 L40 18 L51 34 M26 18 L33 34 L40 18 M30 12 L38 12" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="40" cy="7" r="5" fill="currentColor"/></svg><span id="n2Tec"><b>—</b></span></div>
+          <div class="n2-tempo"><span class="n2-rel">⏱</span><b id="n2T">0:00</b><small>Tempo restante</small></div>
+          <div class="n2-bloco"><i id="n2BlocoBar"></i></div>
+        </div>
+        <div class="n2-alvos">
+          <div class="n2-alvo"><small id="n2AlvoL">FTP PRETENDIDO</small><b id="n2Alvo">—</b></div>
+          <div class="n2-alvo"><small>RPM PRETENDIDO</small><b id="n2ARpm">—</b></div>
+        </div>
+        <div class="n2-atuais">
+          <div><small id="n2WL">Watts atuais</small><b id="n2W">—</b></div>
+          <div><small id="n2PL">FTP atual</small><b id="n2P">—</b></div>
+          <div><small>RPM atual</small><b id="n2Rpm">—</b></div>
+        </div>
+        <div class="n2-estado" id="n2Est"><span class="n2-ico" id="n2EstI">✓</span><b id="n2EstT">Na zona</b></div>
+        <div class="n2-aula"><i id="n2AulaBar"></i></div>
+      </div>
+    </div>
     <!-- ECRÃ 3: jogos e percurso virtual -->
     <div class="e3" id="ecra3" aria-label="Ecrã 3: jogos e percurso">
       <div class="e3-serra" id="e3Serra" hidden><canvas id="e3Cv" aria-label="A estrada vista do teu guiador"></canvas><div class="e3-hud" id="e3Hud"></div><div class="e3-msg" id="e3Msg"></div></div>
@@ -1970,78 +2018,51 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     return '<div class="l">' + l + '</div><div class="v' + (cls ? ' ' + cls : '') + '" style="font-size:' + e2Big(it.h, it.w) + 'px;color:' + (it.c || '#fff') + '">' + v + (u ? '<span class="u">' + u + '</span>' : '') + '</div>' + (s && it.h > 1 ? '<div class="s">' + s + '</div>' : '');
   }
   function renderEcra2(b, next, remaining, range, totalSec, elapsed){
-    const zone = blkZone(b), zc = zoneColor(zone.css), powered = hasPowerSource();
-    const w = Math.round(dispPower), hr = Math.round(myHr()), cad = Math.round(S.cadence);
-    const pFtp = powered && me.ftp ? dispPower / me.ftp * 100 : null;
-    const pFc = hr && me.fc ? hr / me.fc * 100 : null;
-    const now = performance.now();
-    if(now - e2HistT > 1000){ e2HistT = now; e2Hist.push(powered ? dispPower : 0); if(e2Hist.length > 60) e2Hist.shift(); }
-    const rng = (lo, hi)=> range.open ? '≥ ' + lo : lo + '–' + hi;
-    const alvoW = modo === 'fc'
-      ? (me.fc ? [rng(Math.round(me.fc * range.min / 100), Math.round(me.fc * Math.min(range.max, 100) / 100)), 'bpm'] : [pctTxt(b, range), ''])
-      : (me.ftp ? [rng(Math.round(me.ftp * range.min / 100), Math.round(me.ftp * range.max / 100)), 'W'] : [pctTxt(b, range), '']);
-    const D = {
-      pot: it=> e2Num(it, 'Potência', powered ? w : '—', powered ? 'W' : '', pFtp != null ? Math.round(pFtp) + '% do FTP' : (powered ? '' : 'liga a bike')),
-      pftp: it=> e2Num(it, '%FTP', pFtp != null ? Math.round(pFtp) : '—', pFtp != null ? '%' : '', 'do teu FTP'),
-      rpm: it=> e2Num(it, 'RPM', powered ? cad : '—', '', 'alvo ' + rpmTxt(b), powered && cad ? (rpmOk(cad, b) ? 'ok' : 'low') : ''),
-      fc: it=> e2Num(it, 'FC', hr || '—', hr ? 'bpm' : '', pFc != null ? Math.round(pFc) + '% da FCmáx' : (hr ? '' : 'sem cinta')),
-      pfc: it=> e2Num(it, '%FCmáx', pFc != null ? Math.round(pFc) : '—', pFc != null ? '%' : '', hr ? hr + ' bpm' : 'sem cinta'),
-      kmh: it=> e2Num(it, 'km/h', powered ? (me.spd || 0).toFixed(1).replace('.', ',') : '—', '', 'velocidade'),
-      km: it=> e2Num(it, 'km', fmtKm(me.km || 0), '', 'desde o início'),
-      kcal: it=> e2Num(it, 'kcal', me.kj.toFixed(0), '', 'gastas'),
-      pts: it=> e2Num(it, 'Pontos', Math.round(me.pts), '', 'nesta aula'),
-      nz: it=> e2Num(it, 'Na zona', me.as ? Math.round(me.iz / me.as * 100) : 0, '%', 'do tempo da aula'),
-      med: it=> e2Num(it, 'W médios', me.as ? Math.round(me.sumW / me.as) : 0, 'W', 'desde o início'),
-      max: it=> e2Num(it, 'W máx', Math.round(me.mw), 'W', 'pico da aula'),
-      gauge: it=>{
-        let pct = modo === 'fc' ? pFc : pFtp; const g = modo === 'fc' ? [50, 100] : [0, 160]; let a = g[0];
-        const grad = 'linear-gradient(90deg,' + zonesNow().map(z=>{ const lo = (Math.max(a, g[0]) - g[0]) / (g[1] - g[0]) * 100, hi = (Math.min(z.max, g[1]) - g[0]) / (g[1] - g[0]) * 100; a = z.max; const c = zoneColor(z.css); return c + ' ' + lo.toFixed(1) + '%,' + c + ' ' + Math.max(lo, hi).toFixed(1) + '%'; }).join(',') + ')';
-        const left = pct == null ? 0 : Math.min(100, Math.max(0, (pct - g[0]) / (g[1] - g[0]) * 100));
-        let txt; if(pct == null) txt = modo === 'fc' ? 'liga a cinta de FC' : 'liga a bike';
-        else { const z = getZone(pct), ok = !b.tipo && z === zone; txt = '<b style="color:' + zoneColor(z.css) + '">' + escapeHtml(z.name) + '</b>' + (b.tipo ? '' : ok ? ' · <span style="color:#3DD45C">✓ na zona</span>' : ' · alvo ' + escapeHtml(zone.name.split(' ')[0])); }
-        return '<div class="l">Onde estou</div><div class="e2-gauge" style="background:' + grad + '"><b style="left:' + left + '%"></b></div><div class="s">' + txt + '</div>';
-      },
-      spark: it=>{ const mx = Math.max(50, ...e2Hist) * 1.1; const p = e2Hist.map((v, i)=> (i ? 'L' : 'M') + (i / 59 * 200).toFixed(1) + ' ' + (62 - v / mx * 58).toFixed(1)).join(' ');
-        return '<div class="l">Potência · último minuto</div>' + (p ? '<svg class="e2-spark" viewBox="0 0 200 64" preserveAspectRatio="none"><path d="' + p + ' L' + ((e2Hist.length - 1) / 59 * 200).toFixed(1) + ' 64 L0 64Z" fill="' + zc + '" opacity=".25"/><path d="' + p + '" fill="none" stroke="' + zc + '" stroke-width="2.5"/></svg>' : ''); },
-      zona: it=> '<div class="v" style="font-size:' + Math.min(34, it.w * 6) + 'px;color:' + zc + '">' + escapeHtml(zone.name) + '</div>' + (it.h > 1 ? '<div class="s">' + escapeHtml(zone.feel || '') + '</div>' : ''),
-      timer: it=> e2Num(it, 'Falta neste bloco', fmtCountdown(remaining), '', '', remaining <= 5 && remaining > 0 && state.status === 'playing' ? 'low' : ''),
-      alvo: it=> e2Num(it, 'Alvo', alvoW[0], alvoW[1], modo === 'fc' ? 'batimentos do bloco' : 'watts do bloco'),
-      aftp: it=> e2Num(it, modo === 'fc' ? '% FCmáx' : '% FTP', pctTxt(b, range).replace(/%$/, ''), '%', 'intensidade do bloco'),
-      arpm: it=> e2Num(it, 'RPM alvo', rpmTxt(b), '', 'cadência do bloco'),
-      tec: it=> '<div class="l">Técnica</div><div class="v" style="font-size:' + Math.min(28, it.h * 20, it.w * 5) + 'px;white-space:normal">' + escapeHtml(b.tecnica || zone.name) + '</div>',
-      prox: it=>{ if(!next) return '<div class="l">Último bloco</div><div class="v" style="font-size:' + Math.min(26, it.h * 20, it.w * 4.5) + 'px;white-space:normal">Força até ao fim! 💪</div>';
-        const nz = blkZone(next); return '<div class="l">A seguir · em ' + fmtCountdown(remaining) + '</div><div class="v" style="font-size:' + Math.min(26, it.h * 20, it.w * 4.5) + 'px;color:' + zoneColor(nz.css) + ';white-space:normal">' + escapeHtml(nz.name.split(' ')[0]) + ' · ' + escapeHtml(pctTxt(next, zoneRange(next.ftp))) + ' · ' + rpmTxt(next) + ' rpm</div>'; },
-      perfil: it=>{ const mx = Math.max(110, ...blocos.map(x=> x.ftp || 0));
-        return '<div class="l">A aula · ' + fmtTime(Math.max(0, Math.round(elapsed))) + ' de ' + fmtTime(totalSec) + '</div><div class="e2-prof">' + blocos.map(x=> '<i style="flex:' + blockDurationSec(x) + ';height:' + Math.max(8, Math.round((x.ftp || 0) / mx * 100)) + '%;background:' + zoneColor(blkZone(x).css) + '"></i>').join('') + '<span class="pos" style="left:' + Math.min(100, elapsed / totalSec * 100) + '%"></span></div>'; },
-      total: it=> e2Num(it, 'Decorrido', fmtTime(Math.max(0, Math.round(elapsed))), '', 'de ' + fmtTime(totalSec)),
-      falta: it=> e2Num(it, 'Falta', fmtTime(Math.max(0, Math.round(totalSec - elapsed))), '', 'para acabar a aula'),
-      bloco: it=> e2Num(it, 'Bloco', (state.blockIndex + 1) + '/' + blocos.length, '', ''),
-      rank: it=> e2Num(it, 'Posição', myRank ? myRank.p + 'º' : '—', myRank ? 'de ' + myRank.n : '', 'pela zona cumprida'),
-      jogo: it=>{ const jg = $('jgMe'); if(!jg || !jg.classList.contains('on')) return '<div class="s">Sem jogo neste bloco</div>';
-        return '<div class="l">' + escapeHtml($('jgJ').textContent) + '</div><div class="v" style="font-size:' + Math.min(30, it.h * 16) + 'px;color:' + (jg.style.getPropertyValue('--jc') || '#fff') + ';white-space:normal">' + escapeHtml($('jgT').textContent) + '</div><div class="s">' + escapeHtml($('jgS').textContent) + '</div>'; },
-      pilha: it=>{ const t = (document.querySelector('#myBatt .bmah') || {}).textContent || '0 mAh'; return e2Num(it, 'Energia', t.replace(/\s*mAh/, ''), 'mAh', (document.querySelector('#myBatt .bpb') || {}).textContent || ''); },
-      luz: it=>{ const t = (document.querySelector('#myLamp .lwh') || {}).textContent || '0 Wh'; return e2Num(it, 'Produziste', t.replace(/\s*Wh/, ''), 'Wh', (document.querySelector('#myLamp .leur') || {}).textContent || ''); },
-      mot: it=> '<div class="v" style="font-size:' + Math.min(24, it.h * 15) + 'px;white-space:normal">' + escapeHtml(zone.feel || 'Bora!') + '</div>',
-      hora: it=> e2Num(it, 'Hora', new Date().toLocaleTimeString('pt-PT', { hour:'2-digit', minute:'2-digit' }), '', ''),
-      vazio: it=> ''
-    };
-    const html = E2_CFG.ecra2.map(row=>{
-      const [k, cw, ch, cc, cf, x] = row, o = x || {}; const fn = D[k]; if(!fn) return '';
-      const it = { w: cw, h: ch, c: cc || null, f: cf || 1 };
-      const hide = (o.esconde || []).map(p=> ' no-' + p).join('');
-      let inner = fn(it);
-      if(o.titulo != null) inner = inner.replace(/<div class="l">[^<]*<\/div>/, '<div class="l">' + escapeHtml(o.titulo) + '</div>');
-      if(o.unidade != null) inner = inner.replace(/<span class="u">[^<]*<\/span>/, '<span class="u">' + escapeHtml(o.unidade) + '</span>');
-      if(o.texto != null) inner = inner.replace(/<div class="s">[\s\S]*?<\/div>$/, '<div class="s">' + escapeHtml(o.texto) + '</div>');
-      return '<div class="e2w sh-' + (o.forma || 'ret') + hide + '" style="grid-column:span ' + cw + ';grid-row:span ' + ch + ';--wc:' + (cc || zc) + '"><div class="e2wi" style="zoom:' + (cf || 1) + '">' + inner + '</div></div>';
-    }).join('');
-    const g = $('e2Grid');
-    if(g.innerHTML !== html) g.innerHTML = html;
-    if(!e2Zoom) e2Ajusta();
+    const zone = blkZone(b), zc = zoneColor(zone.css), powered = hasPowerSource(), fc = modo === 'fc';
+    const box = document.querySelector('#ecra2 .n2'); if(!box) return;
+    box.style.setProperty('--nc', zc);
+    // título: 1.ª palavra branca, o resto na cor da zona (ex.: Subida Sentada)
+    const tec = (b.tecnica || zone.name || '').trim(), sp = tec.indexOf(' ');
+    $('n2Tec').innerHTML = sp > 0 ? escapeHtml(tec.slice(0, sp)) + ' <em>' + escapeHtml(tec.slice(sp + 1)) + '</em>' : '<em>' + escapeHtml(tec) + '</em>';
+    $('n2T').textContent = fmtCountdown(remaining);
+    $('n2T').classList.toggle('quase', remaining <= 5 && remaining > 0 && state.status === 'playing');
+    const dur = blockDurationSec(b) || 1;
+    $('n2BlocoBar').style.width = Math.min(100, (dur - remaining) / dur * 100) + '%';
+    $('n2AulaBar').style.width = Math.min(100, elapsed / (totalSec || 1) * 100) + '%';
+    // alvos
+    $('n2AlvoL').textContent = fc ? 'FC PRETENDIDA' : 'FTP PRETENDIDO';
+    const pt = b.teste ? 'MÁX' : pctTxt(b, range);
+    $('n2Alvo').innerHTML = escapeHtml(pt.replace(/%$/, '')) + (/%$/.test(pt) ? '<small>%</small>' : '');
+    $('n2ARpm').textContent = rpmTxt(b);
+    // atuais
+    const hr = Math.round(myHr()), cad = Math.round(S.cadence);
+    let pct = null;
+    if(fc){
+      $('n2WL').textContent = 'FC atual'; $('n2PL').textContent = '%FCmáx';
+      $('n2W').innerHTML = hr ? hr + '<small>bpm</small>' : '—';
+      pct = hr && me.fc ? hr / me.fc * 100 : null;
+    } else {
+      $('n2WL').textContent = 'Watts atuais'; $('n2PL').textContent = 'FTP atual';
+      $('n2W').innerHTML = powered ? Math.round(dispPower) + '<small>W</small>' : '—';
+      pct = powered && me.ftp ? dispPower / me.ftp * 100 : null;
+    }
+    $('n2P').innerHTML = pct != null ? Math.round(pct) + '<small>%</small>' : '—';
+    $('n2Rpm').textContent = powered ? cad : '—';
+    $('n2Rpm').className = powered && cad ? (rpmOk(cad, b) ? 'ok' : 'low') : '';
+    // estado: na zona / sobe / baixa
+    let ec = '#3DD45C', ico = '✓', txt = 'Na zona';
+    if(pct == null){ ec = '#8C96A6'; ico = '…'; txt = fc ? 'Liga a cinta' : 'Liga a bike'; }
+    else if(b.tipo || b.teste){ ec = zc; ico = '💪'; txt = b.teste ? 'Dá tudo!' : 'Recupera'; }
+    else {
+      const lo = range.min, hi = range.open ? Infinity : range.max;
+      if(pct < lo){ ec = '#FFB15C'; ico = '↑'; txt = 'Sobe'; }
+      else if(pct > hi + 0.5){ ec = '#FF5A4E'; ico = '↓'; txt = 'Baixa'; }
+    }
+    const est = $('n2Est'); est.style.setProperty('--ec', ec); $('n2EstI').textContent = ico; $('n2EstT').textContent = txt;
   }
   // a grelha tem o tamanho do montador (346 px); aqui amplia/reduz para caber no ecrã do telemóvel sem deslizar
   function e2Ajusta(){
-    const g = $('e2Grid'), body = $('bodyEl'); if(!g || !body || ecraAtual !== 2) return;
+    const g = $('e2Grid'), body = $('bodyEl'); if(!g || !body || ecraAtual !== 2) return;   // (só no ecrã montado; o néon ajusta-se sozinho)
     g.style.zoom = 1;
     const aw = body.clientWidth - 24, ah = body.clientHeight - 84, h = g.offsetHeight || 1;
     e2Zoom = Math.max(0.7, Math.min(aw / 346, ah / h, 1.6));
@@ -2057,7 +2078,9 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   const SR = { lbls:[], on:false, raf:0, trk:null, key:'', cv:null, ctx:null, lastT:0, camZ:0, full:false, bg:null, bgKey:'', spr:null, pitch:0, nuvens:null };
   const SR_SEG = 200, SR_ROAD = 2000, SR_CAMH = 900, SR_DEPTH = 1 / Math.tan(50 * Math.PI / 180), SR_DRAW = 320, SR_M = 40, SR_EXG = 3;   // 1 m = 40 unidades; relevo ×5 para se ver bem
   function srRnd(seed){ let s = seed >>> 0 || 1; return ()=>{ s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return ((s >>> 0) % 100000) / 100000; }; }
-  function srMix(a, b, f){ const p = c=> [parseInt(c.slice(1,3),16), parseInt(c.slice(3,5),16), parseInt(c.slice(5,7),16)], x = p(a), y = p(b); return '#' + x.map((v, i)=> Math.max(0, Math.min(255, Math.round(v + (y[i] - v) * f))).toString(16).padStart(2, '0')).join(''); }
+  const SR_MIXC = new Map();
+  function srMix(a, b, f){ f = Math.round(f * 50) / 50; const k = a + b + f; let v = SR_MIXC.get(k); if(v) return v; v = srMix0(a, b, f); if(SR_MIXC.size > 5000) SR_MIXC.clear(); SR_MIXC.set(k, v); return v; }
+  function srMix0(a, b, f){ const p = c=> [parseInt(c.slice(1,3),16), parseInt(c.slice(3,5),16), parseInt(c.slice(5,7),16)], x = p(a), y = p(b); return '#' + x.map((v, i)=> Math.max(0, Math.min(255, Math.round(v + (y[i] - v) * f))).toString(16).padStart(2, '0')).join(''); }
   function srHex(c){ c = (c || '').trim(); if(/^#[0-9a-f]{6}$/i.test(c)) return c; const m = c.match(/\d+/g); return m ? '#' + m.slice(0,3).map(v=> (+v).toString(16).padStart(2,'0')).join('') : '#E8722C'; }
   // tipo de terreno de cada bloco
   function srTerreno(b){
@@ -2170,11 +2193,14 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     fg.fillStyle = '#16301F';
     for(let x = 0; x < W * 2; x += 5 + rf() * 6){ const hh = 10 + rf() * 22, yb = H * .53; fg.beginPath(); fg.moveTo(x - hh * .3, yb); fg.lineTo(x, yb - hh); fg.lineTo(x + hh * .3, yb); fg.fill(); }
     fg.fillRect(0, H * .53 - 2, W * 2, 6);
-    SR.bg = { sky, cam, fl };
+    const junta = (ls)=>{ const c = mk(W * 2, H), g2 = c.getContext('2d'); ls.forEach(x=> g2.drawImage(x, 0, 0)); return c; };
+    const vin = mk(W, H), vg2 = vin.getContext('2d'), vg = vg2.createRadialGradient(W / 2, H * .6, Math.min(W, H) * .35, W / 2, H * .6, Math.max(W, H) * .8);
+    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.4)'); vg2.fillStyle = vg; vg2.fillRect(0, 0, W, H);
+    SR.bg = { sky, cam, fl, longe: junta([cam[0], cam[1]]), perto: junta([cam[2], cam[3], fl]), vin, y0: Math.max(0, Math.floor(H * .47 - H * .17 * 1.45)), y1: Math.ceil(H * .56) };
     if(!SR.nuvens){ const rn = srRnd(9); SR.nuvens = Array.from({ length: 7 }, ()=> ({ x: rn(), y: .06 + rn() * .22, s: .6 + rn() * .9 })); }
   }
   function srSprite(ctx, img, x, y, w, clip){
-    const h = w * img.height / img.width; if(w < 1 || y - h >= clip) return;
+    const h = w * img.height / img.width; if(w < 2.5 || y - h >= clip) return;   // ao longe não se vê: não desenha
     const vis = Math.min(h, clip - (y - h)); if(vis <= 0) return;
     ctx.drawImage(img, 0, 0, img.width, img.height * vis / h, x - w / 2, y - h, w, vis);
   }
@@ -2218,14 +2244,16 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     ctx.lineCap = 'butt';
   }
   // nomes grandes, sem se sobreporem: se bater noutro nome sobe um degrau (com traço até ao ciclista)
-  function srNome(ctx, x, y, s, txt, lider, W){
-    const fs = Math.round(Math.max(17, Math.min(30, s * .75)));
+  function srNome(ctx, x, y, s, txt, lider, W, maxDeg){
+    const fs = Math.round(Math.max(/^\d+$/.test(txt) ? 14 : 17, Math.min(30, s * .75)));
     ctx.font = '800 ' + fs + 'px Barlow Condensed, Arial Narrow, sans-serif';
     const w = ctx.measureText(txt).width + 16, h = fs + 8;
     let bx = Math.max(4, Math.min(W - w - 4, x - w / 2)), by = y - s * 2.45 - h;
-    for(let k = 0; k < 8; k++){
+    const deg = maxDeg || 6;
+    for(let k = 0; k <= deg; k++){
       if(!SR.lbls.some(o=> bx < o[0] + o[2] + 4 && o[0] < bx + w + 4 && by < o[1] + o[3] + 3 && o[1] < by + h + 3)) break;
-      by -= h + 4; if(k === 7) return;
+      if(k === deg) return;   // sem espaço: não desenha (fica na classificação)
+      by -= h + 4;
     }
     SR.lbls.push([bx, by, w, h]);
     if(by + h < y - s * 2.45 - 2){ ctx.strokeStyle = 'rgba(255,255,255,.5)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(x, by + h); ctx.lineTo(x, y - s * 2.35); ctx.stroke(); }
@@ -2239,7 +2267,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     ctx.fillStyle = '#D9DDE3'; ctx.fillRect(x - w * 1.08, y - h, w * .04, h); ctx.fillRect(x + w * 1.04, y - h, w * .04, h);
     ctx.fillStyle = 'rgba(10,13,18,.9)'; ctx.fillRect(x - w * 1.08, y - h, w * 2.16, h * .26);
     ctx.fillStyle = cor; ctx.fillRect(x - w * 1.08, y - h + h * .22, w * 2.16, h * .04);
-    if(w > 30){ ctx.font = '800 ' + Math.max(10, h * .15) + 'px Barlow Condensed, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.fillText(txt, x, y - h + h * .17); }
+    if(w > 30){ ctx.font = '800 ' + Math.min(44, Math.max(10, h * .15)) + 'px Barlow Condensed, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.fillText(txt, x, y - h + h * .17); }
     ctx.restore();
   }
   // ---- vista do guiador (telemóvel do aluno) ----
@@ -2272,10 +2300,11 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const hor = H * (.42 + SR.pitch);
     srFundo(W, H, zc);
     const dy = hor - H * .5;
-    ctx.drawImage(SR.bg.sky, 0, dy * .3); if(dy * .3 > 0){ ctx.fillStyle = '#0C1A33'; ctx.fillRect(0, 0, W, dy * .3 + 1); }
+    { const hs = Math.min(H, Math.ceil(hor + 30 - dy * .3)); if(hs > 0) ctx.drawImage(SR.bg.sky, 0, 0, W, hs, 0, dy * .3, W, hs); } if(dy * .3 > 0){ ctx.fillStyle = '#0C1A33'; ctx.fillRect(0, 0, W, dy * .3 + 1); }
     let curvAcc = 0; for(let k = Math.max(0, baseI - 250); k <= baseI; k++) curvAcc += segs[k].curve;
-    SR.bg.cam.forEach((c, l)=>{ const off = (((curvAcc * (1.2 + l * .9)) % W) + W) % W; ctx.drawImage(c, -off, dy * (.45 + l * .12)); });
-    { const off = (((curvAcc * 5) % W) + W) % W; ctx.drawImage(SR.bg.fl, -off, dy * .95); }
+    { const B = SR.bg, bh = B.y1 - B.y0;
+      let off = (((curvAcc * 1.6) % W) + W) % W; ctx.drawImage(B.longe, off, B.y0, W, bh, 0, B.y0 + dy * .5, W, bh);
+      off = (((curvAcc * 3.6) % W) + W) % W; ctx.drawImage(B.perto, off, B.y0, W, bh, 0, B.y0 + dy * .75, W, bh); }
     let maxY = H, x = 0, dx = -(base.curve * frac);
     const proj = [], haze = '#9DB0C8', t0 = performance.now();
     const Pj = (wx, wy, wz)=>{ const sc = SR_DEPTH / wz; return { x: W / 2 + sc * wx * W / 2, y: hor - sc * (wy - camY) * H / 2, w: sc * SR_ROAD * W / 2 }; };
