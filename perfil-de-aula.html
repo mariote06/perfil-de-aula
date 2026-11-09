@@ -4538,7 +4538,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     SR.gaps = SR.gaps || {};
     rs.forEach((r, i)=>{ const alvoG = ((JG.perc[r.id] || 0) - media) * 12 * SR_M;   // a posição de cada um muda 1×/s: aqui desliza suavemente
       const gap = SR.gaps[r.id] = SR.gaps[r.id] == null || Math.abs(alvoG - SR.gaps[r.id]) > SR_SEG * 30 ? alvoG : SR.gaps[r.id] + (alvoG - SR.gaps[r.id]) * .04;
-      const zz = camZ + SR_SEG * 18 + gap; const si = Math.floor(zz / SR_SEG); if(si > baseI + 2 && si < baseI + SR_DRAW) (lugares[si] = lugares[si] || []).push({ r, lado: (((i * 37) % 9) - 4) / 5.5 }); });
+      const zz = camZ + SR_SEG * 18 + gap; const si = Math.floor(zz / SR_SEG); if(si > baseI + 2 && si < baseI + SR_DRAW) (lugares[si] = lugares[si] || []).push({ r, lado: (((i * 37) % 9) - 4) / 5.5, f: zz / SR_SEG - si }); });   // f: onde fica dentro do troço
     const nomes = [];
     const pedal = livePlaying ? now / (60000 / Math.max(50, (b.rpm2 ? (b.rpm + b.rpm2) / 2 : b.rpm || 85)) / 6.283) : 0;   // as pernas rodam à cadência do bloco
     const emPe = /p[ée]/i.test(b.tecnica || '') || base.tr.t === 'sprint';
@@ -4554,10 +4554,12 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       });
       ctx.globalAlpha = 1;
       if(sg.fim){ const bb = current.blocos[sg.b + 1]; srArco(ctx, p1.x, p1.y, p1.w, bb ? 'BLOCO ' + (sg.b + 2) + ' · ' + blkZone(bb).name.split(' ')[0] + ' · ' + fmtTime(blockDurationSec(bb)) : '🏁 META', bb ? srHex(zoneColor(blkZone(bb).css)) : '#FFD60A', clip); }
-      (lugares[sg.i] || []).forEach(({ r, lado })=>{ if(p1.y > clip + 2) return; const s = p1.w * .14, cx = p1.x + p1.w * lado * .75;
-        srCiclista(ctx, cx, p1.y, s * 1.05, JG.z[r.id] ? '#3DD45C' : '#AEB6C2', pedal + r.id.length, emPe);
+      // o ciclista fica entre o início deste troço e o do seguinte (sem isto andava aos saltos, de troço em troço)
+      (lugares[sg.i] || []).forEach(({ r, lado, f })=>{ const q = proj[k + 1] ? proj[k + 1].p1 : p1, px = p1.x + (q.x - p1.x) * f, py = p1.y + (q.y - p1.y) * f, pw = p1.w + (q.w - p1.w) * f;
+        if(py > clip + 2) return; const s = pw * .14, cx = px + pw * lado * .75;
+        srCiclista(ctx, cx, py, s * 1.05, JG.z[r.id] ? '#3DD45C' : '#AEB6C2', pedal + r.id.length, emPe);
         const lug = ord.indexOf(r) + 1, curto = rs.length > 12 && lug > 5 && s < 20;
-        nomes.push({ x: cx, y: p1.y, s: curto ? Math.min(s, 14) : s, txt: curto ? String(lug) : lug + '. ' + (r.n || '?').split(' ')[0], lider: ord[0] === r, pri: curto ? 1 : 0 }); });
+        nomes.push({ x: cx, y: py, s: curto ? Math.min(s, 14) : s, txt: curto ? String(lug) : lug + '. ' + (r.n || '?').split(' ')[0], lider: ord[0] === r, pri: curto ? 1 : 0 }); });
     }
     // o "nosso" ciclista (a câmara) e os nomes por cima de tudo, dos mais perto para os mais longe
     srCiclista(ctx, W / 2, H * 1.02, Math.min(W, H) * .2, zc, pedal, emPe);

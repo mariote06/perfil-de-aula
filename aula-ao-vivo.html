@@ -2347,7 +2347,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       const zz = SR.camZ + SR_SEG * .6 + g, si = Math.floor(zz / SR_SEG);
       let h = 0; for(let c = 0; c < id.length; c++) h = (h * 31 + id.charCodeAt(c)) >>> 0;
       const lado = (h % 2 ? 1 : -1) * (.3 + (h % 5) * .1);   // nunca no meio: passam ao lado
-      if(si >= baseI && si < baseI + E3.draw) (lug[si] = lug[si] || []).push({ id, lado, z: zz });
+      if(si >= baseI && si < baseI + E3.draw) (lug[si] = lug[si] || []).push({ id, lado, z: zz, f: zz / SR_SEG - si });   // f: onde fica dentro do troço
     });
     SR.lbls = []; const nomes = [];
     for(let k = proj.length - 1; k >= 0; k--){
@@ -2356,9 +2356,11 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       sg.sp.forEach(o=>{ const img = SR.spr[o.t]; if(img) srSprite(ctx, img, p1.x + p1.w * o.x, p1.y, (o.t === 'poste' ? .03 : o.t === 'r' ? .55 : .62) * p1.w * o.s, clip); });
       ctx.globalAlpha = 1;
       if(sg.fim){ const bb = blocos[sg.b + 1]; srArco(ctx, p1.x, p1.y, p1.w, bb ? 'BLOCO ' + (sg.b + 2) + ' · ' + blkZone(bb).name.split(' ')[0] + ' · ' + fmtTime(blockDurationSec(bb)) : '🏁 META', bb ? srHex(zoneColor(blkZone(bb).css)) : '#FFD60A', clip); }
-      (lug[sg.i] || []).forEach(({ id, lado })=>{ if(p1.y > clip + 2) return; const s = p1.w * .14, cx = p1.x + p1.w * lado * .75;
-        srCiclista(ctx, cx, p1.y, s * 1.05, P[id][2] ? '#3DD45C' : '#AEB6C2', pedal + id.length, emPe);
-        nomes.push({ x: cx, y: p1.y, s, txt: (ord.indexOf(id) + 1) + '. ' + P[id][1], lider: ord[0] === id }); });
+      // entre o início deste troço e o do seguinte (sem isto os outros andavam aos saltos, de troço em troço)
+      (lug[sg.i] || []).forEach(({ id, lado, f })=>{ const q = proj[k + 1] ? proj[k + 1].p1 : p1, px = p1.x + (q.x - p1.x) * f, py = p1.y + (q.y - p1.y) * f, pw = p1.w + (q.w - p1.w) * f;
+        if(py > clip + 2) return; const s = pw * .14, cx = px + pw * lado * .75;
+        srCiclista(ctx, cx, py, s * 1.05, P[id][2] ? '#3DD45C' : '#AEB6C2', pedal + id.length, emPe);
+        nomes.push({ x: cx, y: py, s, txt: (ord.indexOf(id) + 1) + '. ' + P[id][1], lider: ord[0] === id }); });
     }
     nomes.sort((a, c)=> c.y - a.y).forEach(o=> srNome(ctx, o.x, o.y, o.s, o.txt, o.lider, W));
     // guiador e roda da frente (vista de quem pedala)
