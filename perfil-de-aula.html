@@ -4291,6 +4291,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
           ini: k === 0, fim: k === n - 1 });
       }
     });
+    let cc = 0; segs.forEach(s=>{ cc += s.curve; s.cc = cc; });   // curvatura acumulada (paralaxe das montanhas)
     SR.trk = { segs, bStart };
   }
   function srZ(t){
@@ -4463,11 +4464,14 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const alvo = srZ(Math.max(0, tEl));
     SR.camZ = Math.abs(alvo - SR.camZ) > SR_SEG * 3 ? (Math.abs(alvo - SR.camZ) > SR_SEG * 40 ? alvo : SR.camZ + (alvo - SR.camZ) * .15) : alvo;
     const camZ = SR.camZ, baseI = Math.min(N - 2, Math.floor(camZ / SR_SEG)), base = segs[baseI], frac = (camZ % SR_SEG) / SR_SEG;
-    const nxt = segs[baseI + 1], atras = segs[Math.max(0, baseI - 8)], yAqui = base.y + (nxt.y - base.y) * frac;
-    const camY = Math.max(yAqui + SR_CAMH * .45, atras.y + SR_CAMH);   // a câmara fica à altura de uns metros atrás: numa subida a estrada sobe à frente
+    // tudo o que depende do troço onde está a câmara é interpolado com "frac": sem isto a imagem dava um salto
+    // de cada vez que se passava para o troço seguinte (a 42 km/h, um solavanco a cada 0,43 s)
+    const yIn = i=>{ const s0 = segs[Math.max(0, Math.min(N - 1, i))], s1 = segs[Math.max(0, Math.min(N - 1, i + 1))]; return s0.y + (s1.y - s0.y) * frac; };
+    const nxt = segs[baseI + 1], yAqui = yIn(baseI), yAtras = yIn(baseI - 8);
+    const camY = Math.max(yAqui + SR_CAMH * .45, yAtras + SR_CAMH);   // a câmara fica à altura de uns metros atrás: numa subida a estrada sobe à frente
     const b = current.blocos[base.b] || current.blocos[liveIdx], zc = srHex(zoneColor(blkZone(b).css));
     // inclinação logo à frente: a câmara olha para cima na subida e para baixo na descida
-    const ah = segs[Math.min(N - 1, baseI + 12)], incl = (ah.y - base.y) / (12 * SR_SEG * SR_EXG);
+    const ah = segs[Math.min(N - 1, baseI + 12)], incl = (yIn(baseI + 12) - yAqui) / (12 * SR_SEG * SR_EXG);
     SR.pitch += (Math.max(-.16, Math.min(.16, incl * 2.6)) - SR.pitch) * .05;
     const hor = H * (.5 + SR.pitch);
     srFundo(W, H, zc);
@@ -4479,7 +4483,7 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     SR.nuvens.forEach(n=>{ const nx = ((n.x * W * 1.4 + now * .004 * n.s) % (W * 1.4)) - W * .2, ny = n.y * H + dy * .3, sz = n.s * Math.min(W, H) * .06;
       ctx.globalAlpha = .35 + n.s * .2; ctx.beginPath(); ctx.ellipse(nx, ny, sz * 2.2, sz * .55, 0, 0, 7); ctx.ellipse(nx + sz, ny - sz * .25, sz * 1.3, sz * .6, 0, 0, 7); ctx.ellipse(nx - sz, ny - sz * .1, sz * 1.1, sz * .45, 0, 0, 7); ctx.fill(); });
     ctx.globalAlpha = 1;
-    let curvAcc = 0; for(let k = Math.max(0, baseI - 250); k <= baseI; k++) curvAcc += segs[k].curve;
+    const curvAcc = base.cc + nxt.curve * frac;   // curvatura acumulada desde o início (contínua: as montanhas deslizam sem saltos)
     { const B = SR.bg, bh = B.y1 - B.y0;   // só a faixa das montanhas, só a largura do ecrã (muito menos píxeis a copiar)
       let off = (((curvAcc * 1.6) % W) + W) % W; ctx.drawImage(B.longe, off, B.y0, W, bh, 0, B.y0 + dy * .5, W, bh);
       off = (((curvAcc * 3.6) % W) + W) % W; ctx.drawImage(B.perto, off, B.y0, W, bh, 0, B.y0 + dy * .75, W, bh); }
@@ -4491,12 +4495,14 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     for(let n = 0; n < DRAW && baseI + n < N - 1; n++){
       const sg = segs[baseI + n];
       // ao longe (a partir do troço 60) desenha 2 troços de cada vez: metade do trabalho, a diferença não se vê
-      const dois = n >= 60 && baseI + n + 2 < N, sg2 = segs[baseI + n + (dois ? 2 : 1)];
+      // os pares são fixos na estrada (troço par + ímpar), não relativos à câmara: assim não mudam a cada troço e o horizonte não treme
+      const par = (baseI + n) % 2 === 0, salta = n > 60 && !par;
+      const dois = n >= 60 && par && baseI + n + 2 < N, sg2 = segs[baseI + n + (dois ? 2 : 1)];
       const z1 = (baseI + n) * SR_SEG - camZ, z2 = z1 + SR_SEG * (dois ? 2 : 1);
       const p1 = P(x * 2, sg.y, Math.max(SR_SEG * .25, z1)), p2 = P((x + dx + (dois ? dx + sg.curve : 0)) * 2, sg2.y, z2);
       x += dx; dx += sg.curve;
       proj.push({ sg, p1, clip: maxY, n });
-      if(n >= 60 && n % 2 === 1) continue;   // já desenhado com o anterior
+      if(salta) continue;   // já desenhado com o anterior
       if(p2.y >= maxY || z2 <= 0) continue;
       const alt = Math.floor((baseI + n) / 2) % 2, fog = Math.pow(Math.min(1, n / SR_DRAW), 1.4);
       // a relva fica mais escura na subida e mais clara na descida (o terreno lê-se melhor)

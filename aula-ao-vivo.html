@@ -2119,6 +2119,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
           ini: k === 0, fim: k === n - 1 });
       }
     });
+    let cc = 0; segs.forEach(s=>{ cc += s.curve; s.cc = cc; });   // curvatura acumulada (paralaxe das montanhas)
     SR.trk = { segs, bStart };
   }
   function srZ(t){
@@ -2292,16 +2293,18 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const alvoZ = srZ(Math.max(0, elC)) + SR_SEG * 18 + E3.meuS * 12 * SR_M - SR_SEG * .6;
     SR.camZ = Math.abs(alvoZ - SR.camZ) > SR_SEG * 40 ? alvoZ : SR.camZ + (alvoZ - SR.camZ) * .5;
     const camZ = Math.max(0, Math.min((N - 2) * SR_SEG, SR.camZ)), baseI = Math.floor(camZ / SR_SEG), base = segs[baseI], frac = (camZ % SR_SEG) / SR_SEG;
-    const nxt = segs[baseI + 1], atras = segs[Math.max(0, baseI - 8)], yAqui = base.y + (nxt.y - base.y) * frac;
-    const camY = Math.max(yAqui + SR_CAMH * .45, atras.y + SR_CAMH * .8);
+    // interpolado com "frac": sem isto a imagem dava um salto de cada vez que se passava para o troço seguinte
+    const yIn = i=>{ const s0 = segs[Math.max(0, Math.min(N - 1, i))], s1 = segs[Math.max(0, Math.min(N - 1, i + 1))]; return s0.y + (s1.y - s0.y) * frac; };
+    const nxt = segs[baseI + 1], yAqui = yIn(baseI), yAtras = yIn(baseI - 8);
+    const camY = Math.max(yAqui + SR_CAMH * .45, yAtras + SR_CAMH * .8);
     const b = blocos[base.b] || blocos[state.blockIndex] || {}, zc = srHex(zoneColor(blkZone(b).css));
-    const ah = segs[Math.min(N - 1, baseI + 12)], incl = (ah.y - base.y) / (12 * SR_SEG * SR_EXG);
+    const ah = segs[Math.min(N - 1, baseI + 12)], incl = (yIn(baseI + 12) - yAqui) / (12 * SR_SEG * SR_EXG);
     SR.pitch += (Math.max(-.16, Math.min(.16, incl * 2.6)) - SR.pitch) * .05;
     const hor = H * (.42 + SR.pitch);
     srFundo(W, H, zc);
     const dy = hor - H * .5;
     { const hs = Math.min(H, Math.ceil(hor + 30 - dy * .3)); if(hs > 0) ctx.drawImage(SR.bg.sky, 0, 0, W, hs, 0, dy * .3, W, hs); } if(dy * .3 > 0){ ctx.fillStyle = '#0C1A33'; ctx.fillRect(0, 0, W, dy * .3 + 1); }
-    let curvAcc = 0; for(let k = Math.max(0, baseI - 250); k <= baseI; k++) curvAcc += segs[k].curve;
+    const curvAcc = base.cc + nxt.curve * frac;   // curvatura acumulada desde o início: as montanhas deslizam sem saltos
     { const B = SR.bg, bh = B.y1 - B.y0;
       let off = (((curvAcc * 1.6) % W) + W) % W; ctx.drawImage(B.longe, off, B.y0, W, bh, 0, B.y0 + dy * .5, W, bh);
       off = (((curvAcc * 3.6) % W) + W) % W; ctx.drawImage(B.perto, off, B.y0, W, bh, 0, B.y0 + dy * .75, W, bh); }
