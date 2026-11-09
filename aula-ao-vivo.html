@@ -2279,7 +2279,9 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
           ini: k === 0, fim: k === n - 1 });
       }
     });
-    const marcos = SR.tema === 'paris' ? srParisAplica(segs) : SR.tema === 'vale' ? srRotaAplica(segs, ROTAS[SR.rota] || ROTAS.lp) : null;   // Paris: curvas, ruas e monumentos do mapa real
+    // percursos reais: se algo falhar, fica a estrada simples desta aula (nunca a de uma aula anterior, que andava a outro ritmo)
+    let marcos = null;
+    try{ marcos = SR.tema === 'paris' ? srParisAplica(segs) : SR.tema === 'vale' ? srRotaAplica(segs, ROTAS[SR.rota] || ROTAS.lp) : null; }catch(e){ console.warn('percurso', e); marcos = null; }   // Paris: curvas, ruas e monumentos do mapa real
     let cc = 0; segs.forEach(s=>{ cc += s.curve; s.cc = cc; });   // curvatura acumulada (paralaxe das montanhas)
     SR.trk = { segs, bStart, marcos };
   }
@@ -2633,7 +2635,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const tam = { igreja: 3.2, capela: 2.2, escola: 4.2, bombeiros: 3.4, publico: 3.4, camara: 4, museu: 3.2, monumento: 1 };
     let ult = -99;
     R.pois.forEach((p, i)=>{
-      let k = Math.max(50, Math.min(N - 8, kOf(p.km))); if(k - ult < 7) k = ult + 7; ult = k;
+      let k = Math.max(50, Math.min(N - 8, kOf(p.km))); if(k - ult < 7) k = ult + 7; if(k > N - 8) return; ult = k;   // aula curta: os pontos que não cabem ficam de fora
       const lado = p.lado || 1;
       const rua = segs[k].amb !== 'campo';   // na vila e na cidade abre-se uma clareira nas casas para se ver o edifício
       limpa(k, p.lado ? lado : 0, rua ? 11 : 4);
