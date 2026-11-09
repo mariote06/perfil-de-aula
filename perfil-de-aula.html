@@ -4470,72 +4470,200 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const vis = Math.min(h, clip - (y - h)); if(vis <= 0) return;
     ctx.drawImage(img, 0, 0, img.width, img.height * vis / h, x - w / 2, y - h, w, vis);
   }
-  // ciclista visto de trás em 3/4 (como numa câmara atrás do pelotão): a roda da frente fica mais longe, por isso aparece
-  // deslocada para o centro do ecrã (vx) e vêem-se as duas rodas, o quadro e o guiador. Quem está ao centro fica de costas.
+  // ciclista visto de trás em 3/4 (como numa câmara atrás do pelotão), com formas orgânicas: pernas com coxa e gémeo,
+  // costas em V, braços dobrados nos cotovelos e capacete aerodinâmico. A roda da frente fica mais longe, por isso aparece
+  // deslocada para o centro do ecrã (vx); quem está ao centro fica de costas. A bicicleta é um modelo 3D simples de uma
+  // bicicleta de estrada (quadro, forqueta, escoras, rodas de perfil alto com raios, transmissão, selim e guiador de curva),
+  // projetado para o ecrã com a mesma vista 3/4.
   function srCiclista(ctx, x, y, s, cor, pedal, emPe, vx){
     // tema néon: fato escuro com contornos de luz, rodas e quadro acesos; dentro da zona azul, fora magenta (como nos ecrãs)
     const N = SR.tema === 'neon';
     if(N) cor = cor === '#3DD45C' ? '#00E5FF' : cor === '#AEB6C2' ? '#FF2BD6' : cor;
     const luz = on=>{ ctx.shadowColor = cor; ctx.shadowBlur = N && on ? Math.min(14, Math.max(3, s * .12)) : 0; };
-    const a = pedal || 0, sw = emPe ? Math.sin(a) * s * .07 : Math.sin(a) * s * .015, lw = Math.max(1, s * .02);
-    const pele = N ? '#1B1233' : '#E2B48E', calcao = N ? '#0D0720' : '#15181E', esc = N ? '#120A22' : srMix(srHex(cor), '#000000', .35), quadro = N ? cor : '#2E3440';
-    const aro = N ? cor : srPal().aro, meia = N ? cor : '#F3F4F6', kAro = N ? 1.8 : 1;
+    const a = pedal || 0, lw = Math.max(1, s * .02);
+    const pele = N ? '#1B1233' : '#E0AE86', peleS = N ? '#120A24' : '#C28F69', calcao = N ? '#0D0720' : '#14171D', calcaoL = N ? '#1E1236' : '#2A2F38';
+    const esc = N ? '#120A22' : srMix(srHex(cor), '#000000', .38), sapato = N ? cor : '#F3F4F6';
+    const quadro = N ? cor : '#22262D', quadroL = N ? '#FFFFFF' : '#3C434E', metal = N ? cor : '#9AA3AE', pneu = N ? '#0B0618' : '#121418', aro = N ? cor : '#2A2F37';
     const off = vx == null ? 0 : Math.max(-1, Math.min(1, (vx - x) / (s * 3))) * s * .42, ao = Math.abs(off);
-    const fx0 = x + off, fy0 = y - s * .16, fr = s * .38;             // roda da frente
-    const gx = x + off * .4, gy = y - s * 1.22;                       // guiador
+    // modelo 3D: f = para a frente (0 = eixo de trás, 1 = eixo da frente), u = altura e l = para o lado (direita do ciclista +), ambos em s.
+    // Mais à frente = mais longe da câmara: fica deslocado para o ponto de fuga (off), um pouco mais acima e um pouco mais pequeno.
+    const WB = 1.22;   // distância entre eixos, em s
+    const P = (f, u, l)=>{ const k = 1 - .1 * f; return [x + off * f + (l || 0) * s * k, y - s * .16 * f - u * s * k]; };
+    const perto = off < 0 ? -1 : 1;   // lado da bicicleta virado para a câmara (+1 = direita, onde está a transmissão)
+    const RH = [0, .42], BB = [.4, .33], SC = [.22, .9], SEL = [.2, .99], HT = [.88, .99], HB = [.9, .8], FH = [1, .42], GUI = [.87, 1.1];
+    const [gx, gy] = P(GUI[0], GUI[1], 0);                            // guiador
+    // balanço do corpo: sentado quase nada, em pé balança de um lado para o outro
+    const bal = Math.sin(a) * s * (emPe ? .07 : .012), inc = Math.sin(a) * (emPe ? .1 : .02);
+    const hipY = y - s * (emPe ? 1.18 : 1.05), hx = x + bal + off * .2;
+    const ombY = hipY - s * (emPe ? .6 : .53), ox = hx + off * .3 + bal * .6;
+    const sh = s * .31;   // meia largura dos ombros
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    // pernas: cada pé faz um círculo; joelho para fora e para cima
-    const hipY = y - s * (emPe ? 1.18 : 1.05), hx = x + sw + off * .1, pernas = [-1, 1];
+    // membro com espessura variável (coxa, gémeo, braço); "barriga" opcional para o músculo
+    // lado: 1 = barriga maior do lado da normal, -1 = do lado oposto
+    const membro = (ax, ay, bx, by, wa, wb, fill, barriga, lado)=>{
+      const dx = bx - ax, dy = by - ay, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L, ra = wa / 2, rb = wb / 2;
+      const mx = (ax + bx) / 2, my = (ay + by) / 2, bb = barriga || 0, b1 = lado < 0 ? bb * .6 : bb, b2 = lado < 0 ? bb : bb * .6;
+      ctx.fillStyle = fill; ctx.beginPath();
+      ctx.moveTo(ax + nx * ra, ay + ny * ra);
+      ctx.quadraticCurveTo(mx + nx * (Math.max(ra, rb) + b1), my + ny * (Math.max(ra, rb) + b1), bx + nx * rb, by + ny * rb);
+      ctx.lineTo(bx - nx * rb, by - ny * rb);
+      ctx.quadraticCurveTo(mx - nx * (Math.max(ra, rb) + b2), my - ny * (Math.max(ra, rb) + b2), ax - nx * ra, ay - ny * ra);
+      ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.arc(ax, ay, ra, 0, 7); ctx.fill(); ctx.beginPath(); ctx.arc(bx, by, rb, 0, 7); ctx.fill();   // articulações redondas (preenchidas à parte: sem buracos)
+    };
     // em 3/4 uma das pernas fica do lado de lá da bicicleta: é desenhada primeiro (as rodas e o quadro tapam-na) e mais escura.
     // ciclista à esquerda do centro (off > 0): vemos o lado direito dele, a perna esquerda (l = -1) fica do lado de lá
     const longe = ao > s * .04 ? (off > 0 ? -1 : 1) : 0;
     const perna = (l, sombra)=>{
-      const fa = a + (l > 0 ? Math.PI : 0), fx = x + off * .35 + l * s * .13, fy = y - s * .5 + Math.sin(fa) * s * .17;
-      const kx = hx + off * .3 + l * s * .17, ky = (hipY + fy) / 2 - s * .06 + Math.sin(fa) * s * .08;
-      ctx.strokeStyle = calcao; ctx.lineWidth = s * .15; ctx.beginPath(); ctx.moveTo(hx + l * s * .08, hipY); ctx.lineTo(kx, ky); ctx.stroke();
-      ctx.strokeStyle = sombra ? srMix(pele, '#000000', .35) : pele; ctx.lineWidth = s * .1; ctx.beginPath(); ctx.moveTo(kx, ky); ctx.lineTo(fx, fy - s * .04); ctx.stroke();
-      ctx.strokeStyle = sombra ? (N ? srMix(srHex(cor), '#000000', .45) : '#9CA3AF') : meia; ctx.lineWidth = s * .09; ctx.beginPath(); ctx.moveTo(fx, fy - s * .03); ctx.lineTo(fx, fy + s * .03); ctx.stroke();
+      const fa = a + (l > 0 ? Math.PI : 0), tq = Math.cos(fa);
+      const [cx0, cy0] = P(BB[0], BB[1], l * .07);                                   // ponta do eixo da pedaleira
+      const [px, py] = P(BB[0] + tq * .17 / WB, BB[1] - Math.sin(fa) * .17, l * .125);   // pedal: dá a volta ao eixo
+      const ax = px + l * s * .006, ay = py - s * .095;                              // tornozelo
+      const kx = hx + off * .15 + l * s * .17, ky = (hipY + ay) / 2 - s * .06 + Math.sin(fa) * s * .05;   // joelho
+      const pc = sombra ? peleS : pele, cc = sombra ? srMix(calcao, '#000000', .3) : calcao, out = -l;   // out: lado de fora da perna
+      // pedivela: do eixo até ao pedal
+      ctx.strokeStyle = sombra ? '#2A2E35' : (N ? cor : '#8E97A3'); ctx.lineWidth = Math.max(1, s * .032);
+      ctx.beginPath(); ctx.moveTo(cx0, cy0); ctx.lineTo(px - l * s * .02, py); ctx.stroke();
+      // coxa com o calção (quadricípite para fora) e gémeo (barriga em cima, tendão fino junto ao tornozelo)
+      membro(hx + l * s * .1, hipY - s * .02, kx, ky, s * .21, s * .13, cc, s * .03, out);
+      membro(kx, ky, ax, ay, s * .125, s * .052, pc, s * .055, out);
+      if(s > 9 && !sombra){
+        const mx = kx + (ax - kx) * .38, my = ky + (ay - ky) * .38;
+        ctx.lineWidth = Math.max(1, s * .018);
+        ctx.strokeStyle = N ? srMix(srHex(cor), '#120A22', .5) : 'rgba(255,255,255,.2)';   // luz no gémeo (lado de fora)
+        ctx.beginPath(); ctx.moveTo(kx + l * s * .045, ky + s * .03); ctx.quadraticCurveTo(mx + l * s * .085, my, ax + l * s * .018, ay - s * .035); ctx.stroke();
+        if(!N){ ctx.strokeStyle = 'rgba(0,0,0,.16)'; ctx.beginPath(); ctx.moveTo(kx - l * s * .035, ky + s * .04); ctx.quadraticCurveTo(mx - l * s * .06, my, ax - l * s * .015, ay - s * .03); ctx.stroke(); }   // sombra por dentro
+        ctx.strokeStyle = N ? srMix(srHex(cor), '#120A22', .55) : 'rgba(255,255,255,.12)';   // vinco do calção sobre a coxa
+        ctx.beginPath(); ctx.moveTo(kx - l * s * .02, ky - s * .03); ctx.lineTo(hx + l * s * .07, hipY - s * .05); ctx.stroke();
+      }
+      // meia
+      ctx.fillStyle = sombra ? '#8C929A' : (N ? srMix(srHex(cor), '#120A22', .3) : '#F3F4F6');
+      ctx.beginPath(); ctx.ellipse(ax, ay + s * .012, s * .034, s * .022, 0, 0, 7); ctx.fill();
+      // sapato visto de trás: calcanhar arredondado, sola escura; inclina um pouco com a pedalada
+      const sw = s * .05, sH = s * .075;
+      ctx.save(); ctx.translate(px, py - s * .012); ctx.rotate(tq * .12 * l);
+      ctx.fillStyle = sombra ? (N ? srMix(srHex(cor), '#000000', .45) : '#A7ADB6') : sapato;
+      ctx.beginPath(); ctx.moveTo(-sw * .72, -sH); ctx.quadraticCurveTo(-sw * 1.06, -sH * .25, -sw, 0); ctx.quadraticCurveTo(0, sH * .22, sw, 0);
+      ctx.quadraticCurveTo(sw * 1.06, -sH * .25, sw * .72, -sH); ctx.quadraticCurveTo(0, -sH * 1.14, -sw * .72, -sH); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = N ? cor : '#1A1D23'; ctx.fillRect(-sw, -s * .006, sw * 2, s * .018);                      // sola
+      if(s > 9){ ctx.fillStyle = N ? '#120A22' : '#2B3038'; ctx.fillRect(-sw * .32, -sH * .62, sw * .64, sH * .22); }   // reforço do calcanhar
+      ctx.restore();
+      // pedal por baixo do sapato (corpo escuro, aresta clara)
+      ctx.fillStyle = N ? cor : '#1A1D23'; ctx.fillRect(px - s * .066, py + s * .004, s * .132, s * .024);
+      ctx.fillStyle = N ? '#120A22' : '#9AA3AE'; ctx.fillRect(px - s * .066, py + s * .004, s * .132, Math.max(.6, s * .007));
     };
-    // sombra (ao longo da bicicleta)
-    ctx.fillStyle = 'rgba(0,0,0,.32)'; ctx.beginPath(); ctx.ellipse(x + off * .5, y - s * .04, s * .42 + ao * .5, s * .09, 0, 0, 7); ctx.fill();
+    // ---- peças da bicicleta ----
+    const linha = (pts, w, c)=>{ ctx.strokeStyle = c; ctx.lineWidth = Math.max(1, s * w); ctx.beginPath(); pts.forEach((q, i)=>{ const p = P(q[0], q[1], q[2]); i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }); ctx.stroke(); };
+    const anel = (fc, uc, l, r)=>{ ctx.beginPath(); for(let i = 0; i <= 28; i++){ const t = i / 28 * 6.2832, p = P(fc + r / WB * Math.cos(t), uc + r * Math.sin(t), l); i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); } ctx.closePath(); };
+    const raios = ao > s * .06 && s > 14;
+    const roda = (c)=>{   // pneu, aro de perfil alto, pista de travagem, raios e cubo
+      const [fc, uc] = c;
+      if(raios){ ctx.strokeStyle = N ? srMix(srHex(cor), '#000000', .35) : 'rgba(205,210,218,.55)'; ctx.lineWidth = Math.max(.5, s * .006); ctx.beginPath();
+        for(let i = 0; i < 12; i++){ const t = i / 12 * 6.2832 + (i % 2) * .1, h0 = P(fc + .03 / WB * Math.cos(t), uc + .03 * Math.sin(t), (i % 2 ? .03 : -.03)), h1 = P(fc + .33 / WB * Math.cos(t), uc + .33 * Math.sin(t), 0);
+          ctx.moveTo(h0[0], h0[1]); ctx.lineTo(h1[0], h1[1]); } ctx.stroke(); }
+      luz(true); anel(fc, uc, 0, .36); ctx.strokeStyle = aro; ctx.lineWidth = Math.max(1, s * .065); ctx.stroke(); luz(false);   // aro alto
+      anel(fc, uc, 0, .4); ctx.strokeStyle = pneu; ctx.lineWidth = Math.max(1.2, s * .05); ctx.stroke();                         // pneu
+      if(s > 10){ anel(fc, uc, 0, .385); ctx.strokeStyle = N ? cor : '#7E8793'; ctx.lineWidth = Math.max(.6, s * .008); ctx.stroke(); }   // pista de travagem
+      if(raios){ const h = P(fc, uc, 0); ctx.fillStyle = metal; ctx.beginPath(); ctx.ellipse(h[0], h[1], s * .035 * Math.min(1, ao / (s * .3)), s * .035, 0, 0, 7); ctx.fill(); }   // cubo: só quando a roda se vê de lado (de costas não aparece)
+    };
+    const transmissao = ()=>{   // lado direito: prato, corrente, cassete e desviador
+      ctx.fillStyle = N ? '#120A22' : '#2B3038'; anel(BB[0], BB[1], .075, .14); ctx.fill(); ctx.strokeStyle = metal; ctx.lineWidth = Math.max(1, s * .016); ctx.stroke();
+      if(s > 12){ anel(BB[0], BB[1], .075, .07); ctx.strokeStyle = N ? cor : '#5A626D'; ctx.lineWidth = Math.max(.6, s * .01); ctx.stroke(); }
+      ctx.fillStyle = N ? '#120A22' : '#6B7380'; anel(RH[0], RH[1], .05, .075); ctx.fill(); ctx.strokeStyle = metal; ctx.lineWidth = Math.max(.6, s * .01); ctx.stroke();   // cassete
+      linha([[BB[0], BB[1] + .14, .072], [RH[0], RH[1] + .075, .052]], .012, N ? cor : '#4E555F');                                   // corrente (em cima)
+      linha([[BB[0], BB[1] - .14, .072], [-.01, .25, .075], [-.025, .33, .075], [RH[0], RH[1] - .075, .052]], .012, N ? cor : '#4E555F');   // corrente (em baixo, pelo desviador)
+      linha([[0, .4, .065], [-.03, .33, .08], [-.02, .24, .08]], .028, N ? '#120A22' : '#1C2026');                                   // desviador
+      [[-.025, .33], [-.01, .25]].forEach(q=>{ const p = P(q[0], q[1], .08); ctx.fillStyle = metal; ctx.beginPath(); ctx.arc(p[0], p[1], Math.max(.8, s * .018), 0, 7); ctx.fill(); });
+    };
+    const escoras = (l)=>{   // escoras de cima (selim → eixo) e de baixo (pedaleira → eixo) de um lado
+      linha([[SC[0], SC[1] - .02, l * .03], [RH[0], RH[1], l * .062]], .028, quadro);
+      linha([[BB[0], BB[1], l * .045], [RH[0], RH[1], l * .062]], .034, quadro);
+    };
+    const garfo = (l)=>{ ctx.strokeStyle = quadro; ctx.lineWidth = Math.max(1, s * .034); const a0 = P(HB[0], HB[1], l * .03), c0 = P(.98, .62, l * .05), b0 = P(FH[0], FH[1], l * .055);
+      ctx.beginPath(); ctx.moveTo(a0[0], a0[1]); ctx.quadraticCurveTo(c0[0], c0[1], b0[0], b0[1]); ctx.stroke(); };
+    // sombra no chão (ao longo da bicicleta)
+    { const c = P(.5, 0, 0); ctx.fillStyle = 'rgba(0,0,0,.32)'; ctx.beginPath(); ctx.ellipse(c[0], c[1] + s * .02, s * .3 + ao * .62, s * .085, 0, 0, 7); ctx.fill(); }
     if(longe) perna(longe, true);   // perna do lado de lá, atrás da bicicleta
-    // roda da frente
-    ctx.fillStyle = '#0D0F13'; ctx.beginPath(); ctx.ellipse(fx0, fy0 - fr, s * .06 + ao * .35, fr, 0, 0, 7); ctx.fill();
-    luz(true); ctx.strokeStyle = aro; ctx.lineWidth = Math.max(1, s * .018) * kAro; ctx.beginPath(); ctx.ellipse(fx0, fy0 - fr, s * .03 + ao * .28, fr * .86, 0, 0, 7); ctx.stroke();
-    // forqueta e quadro até ao guiador
-    ctx.strokeStyle = quadro; ctx.lineWidth = Math.max(1.5, s * .055);
-    ctx.beginPath(); ctx.moveTo(fx0, fy0 - fr); ctx.lineTo(gx, gy + s * .06); ctx.moveTo(x, y - s * 1.0); ctx.lineTo(gx, gy + s * .1); ctx.moveTo(x, y - s * .45); ctx.lineTo(gx, gy + s * .14); ctx.stroke();
+    // do mais longe para o mais perto: roda da frente, forqueta, quadro, transmissão e escoras, roda de trás, selim
+    luz(true); garfo(-perto); luz(false);
+    roda(FH);
+    luz(true); garfo(perto);
+    linha([HB, HT], .07, quadro);                                     // caixa de direção
+    linha([BB, HB], .068, quadro);                                    // tubo diagonal
+    linha([SC, HT], .046, quadro);                                    // tubo superior
+    linha([BB, SC], .056, quadro);                                    // tubo do selim
     luz(false);
-    // guiador de estrada
-    ctx.strokeStyle = '#1A1D23'; ctx.lineWidth = Math.max(1.5, s * .05);
-    ctx.beginPath(); ctx.moveTo(gx - s * .3, gy + s * .1); ctx.quadraticCurveTo(gx - s * .3, gy, gx - s * .2, gy); ctx.lineTo(gx + s * .2, gy); ctx.quadraticCurveTo(gx + s * .3, gy, gx + s * .3, gy + s * .1); ctx.stroke();
-    // roda de trás (em 3/4 vê-se um pouco de lado)
-    ctx.fillStyle = '#0D0F13'; ctx.beginPath(); ctx.ellipse(x, y - s * .42, s * .07 + ao * .3, s * .42, 0, 0, 7); ctx.fill();
-    luz(true); ctx.strokeStyle = aro; ctx.lineWidth = Math.max(1, s * .02) * kAro; ctx.beginPath(); ctx.ellipse(x, y - s * .42, s * .035 + ao * .24, s * .36, 0, 0, 7); ctx.stroke();
-    // espigão e selim
-    ctx.strokeStyle = quadro; ctx.lineWidth = Math.max(1.5, s * .06); ctx.beginPath(); ctx.moveTo(x, y - s * .45); ctx.lineTo(x, y - s * 1.0); ctx.stroke(); luz(false);
+    if(!N && s > 10){ linha([[BB[0] + .08, BB[1] + .1, 0], [HB[0] - .12, HB[1] - .08, 0]], .018, cor); linha([[SC[0] + .05, SC[1] + .01, 0], [HT[0] - .05, HT[1], 0]], .01, quadroL); }   // risca na cor da camisola e brilho
+    linha([HT, GUI], .04, N ? cor : '#1A1D23');                        // avanço
+    // guiador de curva: parte de cima, manetes (onde estão as mãos) e curvas para baixo
+    ctx.lineWidth = Math.max(1.2, s * .042); ctx.strokeStyle = N ? cor : '#16191E';
+    [-1, 1].forEach(l=>{ const t0 = P(GUI[0], GUI[1], 0), t1 = P(GUI[0], GUI[1], l * .22), c1 = P(GUI[0] + .08, GUI[1] - .02, l * .24), b1 = P(GUI[0] + .02, GUI[1] - .14, l * .23), e1 = P(GUI[0] - .04, GUI[1] - .12, l * .22);
+      ctx.beginPath(); ctx.moveTo(t0[0], t0[1]); ctx.lineTo(t1[0], t1[1]); ctx.quadraticCurveTo(c1[0], c1[1], b1[0], b1[1]); ctx.lineTo(e1[0], e1[1]); ctx.stroke(); });
+    if(perto < 0) transmissao();   // transmissão do lado de lá
+    escoras(-perto);
+    roda(RH);
+    escoras(perto);
+    if(perto > 0) transmissao();
+    // espigão e selim (de trás vê-se a ponta de trás do selim)
+    linha([SC, SEL], .04, N ? cor : '#2E343C');
+    { const p = P(SEL[0], SEL[1] + .02, 0); ctx.fillStyle = N ? '#150B28' : '#121418'; ctx.beginPath(); ctx.ellipse(p[0], p[1], s * .075, s * .028, 0, 0, 7); ctx.fill();
+      if(N){ luz(true); ctx.strokeStyle = cor; ctx.lineWidth = Math.max(1, s * .015); ctx.stroke(); luz(false); } }
     // perna do lado de cá (ou as duas, quando está de costas)
-    pernas.filter(l=> l !== longe).forEach(l=> perna(l, false));
-    // calção
-    ctx.fillStyle = calcao; ctx.beginPath(); ctx.ellipse(hx, hipY - s * .02, s * .2, s * .12, 0, 0, 7); ctx.fill();
-    // camisola (tronco inclinado para a frente: vemos as costas)
-    const ombY = hipY - s * (emPe ? .62 : .55), ox = hx + off * .25;
-    const gr = ctx.createLinearGradient(ox - s * .3, 0, ox + s * .3, 0); gr.addColorStop(0, esc); gr.addColorStop(.5, N ? srMix(srHex(cor), '#120A22', .65) : cor); gr.addColorStop(1, esc);
-    ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(hx - s * .2, hipY - s * .05); ctx.lineTo(hx + s * .2, hipY - s * .05); ctx.quadraticCurveTo(ox + s * .32, ombY + s * .2, ox + s * .3, ombY); ctx.lineTo(ox - s * .3, ombY); ctx.quadraticCurveTo(ox - s * .32, ombY + s * .2, hx - s * .2, hipY - s * .05); ctx.closePath(); ctx.fill();
-    if(N){ luz(true); ctx.strokeStyle = cor; ctx.lineWidth = Math.max(1, s * .04); ctx.stroke(); luz(false); }   // contorno de luz da camisola
-    ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(hx - s * .17, hipY - s * .14); ctx.lineTo(hx + s * .17, hipY - s * .14); ctx.moveTo(hx, hipY - s * .14); ctx.lineTo(hx, hipY - s * .05); ctx.stroke();   // bolsos
-    ctx.fillStyle = N ? cor : 'rgba(255,255,255,.22)'; ctx.fillRect(ox - s * .3, ombY + s * .1, s * .6, s * .05);   // risca
-    // braços até às mãos no guiador, mangas e luvas
-    const hL = [gx - s * .27, gy + s * .02], hR = [gx + s * .27, gy + s * .02];
-    ctx.strokeStyle = pele; ctx.lineWidth = s * .08; ctx.beginPath(); ctx.moveTo(ox - s * .27, ombY + s * .04); ctx.lineTo(hL[0], hL[1]); ctx.moveTo(ox + s * .27, ombY + s * .04); ctx.lineTo(hR[0], hR[1]); ctx.stroke();
-    ctx.strokeStyle = cor; ctx.lineWidth = s * .1; ctx.beginPath(); ctx.moveTo(ox - s * .27, ombY + s * .02); ctx.lineTo(ox - s * .31, ombY + s * .14); ctx.moveTo(ox + s * .27, ombY + s * .02); ctx.lineTo(ox + s * .31, ombY + s * .14); ctx.stroke();
-    ctx.fillStyle = '#1F2937'; ctx.beginPath(); ctx.arc(hL[0], hL[1], s * .055, 0, 7); ctx.arc(hR[0], hR[1], s * .055, 0, 7); ctx.fill();
-    // pescoço e capacete
-    ctx.fillStyle = pele; ctx.fillRect(ox - s * .05, ombY - s * .1, s * .1, s * .12);
-    ctx.fillStyle = N ? '#150B28' : '#F4F5F7'; ctx.beginPath(); ctx.ellipse(ox, ombY - s * .17, s * .14, s * .12, 0, 0, 7); ctx.fill();
+    [-1, 1].filter(l=> l !== longe).forEach(l=> perna(l, false));
+    // glúteos e calção (duas formas arredondadas sobre o selim)
+    ctx.fillStyle = calcao; ctx.beginPath();
+    ctx.ellipse(hx - s * .095, hipY - s * .03, s * .12, s * .115, -.15, 0, 7); ctx.ellipse(hx + s * .095, hipY - s * .03, s * .12, s * .115, .15, 0, 7); ctx.fill();
+    ctx.strokeStyle = calcaoL; ctx.lineWidth = Math.max(1, s * .02); ctx.beginPath(); ctx.moveTo(hx, hipY - s * .12); ctx.lineTo(hx, hipY + s * .06); ctx.stroke();
+    // braços: ombro → cotovelo (dobrado para fora) → mão no guiador; manga curta na cor da camisola.
+    // Vistos de trás ficam à frente do corpo, por isso são desenhados antes do tronco (as costas tapam-nos em parte)
+    const hL = P(GUI[0] + .05, GUI[1] - .03, -.235), hR = P(GUI[0] + .05, GUI[1] - .03, .235);   // mãos nas manetes
+    [[-1, hL], [1, hR]].forEach(([l, h])=>{
+      const sx0 = ox + l * (sh - s * .03), sy0 = ombY + s * .08;
+      const ex = (sx0 + h[0]) / 2 + l * s * .09, ey = (sy0 + h[1]) / 2 + s * .03;
+      membro(ex, ey, h[0], h[1], s * .085, s * .062, pele, s * .012);                // antebraço
+      membro(sx0, sy0, ex, ey, s * .11, s * .085, pele, s * .02);                     // braço
+      membro(sx0, sy0, sx0 + (ex - sx0) * .5, sy0 + (ey - sy0) * .5, s * .13, s * .11, cor);   // manga
+      ctx.fillStyle = '#1F2937'; ctx.beginPath(); ctx.ellipse(h[0], h[1], s * .055, s * .045, 0, 0, 7); ctx.fill();   // luva
+    });
+    // costas em V: cintura estreita, dorsais e ombros arredondados
+    const wY = hipY - s * .08;
+    const tronco = ()=>{
+      ctx.beginPath();
+      ctx.moveTo(hx - s * .19, wY + s * .04);
+      ctx.bezierCurveTo(hx - s * .2, wY - s * .12, ox - sh - s * .04, ombY + s * .26, ox - sh, ombY + s * .07);   // dorsal esquerdo
+      ctx.bezierCurveTo(ox - sh + s * .02, ombY - s * .04, ox - s * .14, ombY - s * .06, ox, ombY - s * .045);      // ombro e trapézio
+      ctx.bezierCurveTo(ox + s * .14, ombY - s * .06, ox + sh - s * .02, ombY - s * .04, ox + sh, ombY + s * .07);
+      ctx.bezierCurveTo(ox + sh + s * .04, ombY + s * .26, hx + s * .2, wY - s * .12, hx + s * .19, wY + s * .04);   // dorsal direito
+      ctx.quadraticCurveTo(hx, wY + s * .09, hx - s * .19, wY + s * .04);
+      ctx.closePath();
+    };
+    const gr = ctx.createLinearGradient(ox - sh, 0, ox + sh, 0);
+    gr.addColorStop(0, esc); gr.addColorStop(.42, N ? srMix(srHex(cor), '#120A22', .65) : cor); gr.addColorStop(.62, N ? srMix(srHex(cor), '#120A22', .55) : srMix(srHex(cor), '#FFFFFF', .12)); gr.addColorStop(1, esc);
+    tronco(); ctx.fillStyle = gr; ctx.fill();
+    if(N){ luz(true); ctx.strokeStyle = cor; ctx.lineWidth = Math.max(1, s * .035); ctx.stroke(); luz(false); }   // contorno de luz da camisola
+    if(s > 9){   // relevo das costas: coluna, omoplatas, bolsos e risca
+      ctx.strokeStyle = N ? srMix(srHex(cor), '#120A22', .4) : 'rgba(0,0,0,.22)'; ctx.lineWidth = Math.max(1, s * .022);
+      ctx.beginPath(); ctx.moveTo(ox, ombY + s * .03); ctx.quadraticCurveTo((ox + hx) / 2 + inc * s * .3, (ombY + wY) / 2, hx, wY);
+      ctx.moveTo(ox - s * .2, ombY + s * .08); ctx.quadraticCurveTo(ox - s * .12, ombY + s * .2, ox - s * .05, ombY + s * .16);
+      ctx.moveTo(ox + s * .2, ombY + s * .08); ctx.quadraticCurveTo(ox + s * .12, ombY + s * .2, ox + s * .05, ombY + s * .16);
+      ctx.stroke();
+      ctx.strokeStyle = N ? cor : 'rgba(0,0,0,.25)'; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(hx - s * .17, wY - s * .04); ctx.quadraticCurveTo(hx, wY - s * .01, hx + s * .17, wY - s * .04); ctx.stroke();
+    }
+    ctx.fillStyle = N ? srMix(srHex(cor), '#120A22', .25) : 'rgba(255,255,255,.18)';   // risca da camisola, a acompanhar a curva das costas
+    ctx.beginPath(); ctx.moveTo(ox - sh * .96, ombY + s * .13); ctx.quadraticCurveTo(ox, ombY + s * .09, ox + sh * .96, ombY + s * .13); ctx.lineTo(ox + sh * .95, ombY + s * .16); ctx.quadraticCurveTo(ox, ombY + s * .12, ox - sh * .95, ombY + s * .16); ctx.closePath(); ctx.fill();
+    // pescoço e capacete aerodinâmico (com a ponta para trás e aberturas)
+    ctx.fillStyle = pele; ctx.beginPath(); ctx.moveTo(ox - s * .065, ombY - s * .01); ctx.quadraticCurveTo(ox, ombY + s * .02, ox + s * .065, ombY - s * .01); ctx.lineTo(ox + s * .05, ombY - s * .12); ctx.lineTo(ox - s * .05, ombY - s * .12); ctx.closePath(); ctx.fill();
+    const cy = ombY - s * .18;
+    const capacete = ()=>{ ctx.beginPath(); ctx.moveTo(ox - s * .15, cy + s * .03);
+      ctx.bezierCurveTo(ox - s * .16, cy - s * .1, ox - s * .07, cy - s * .15, ox, cy - s * .15);
+      ctx.bezierCurveTo(ox + s * .07, cy - s * .15, ox + s * .16, cy - s * .1, ox + s * .15, cy + s * .03);
+      ctx.quadraticCurveTo(ox + s * .09, cy + s * .1, ox, cy + s * .115); ctx.quadraticCurveTo(ox - s * .09, cy + s * .1, ox - s * .15, cy + s * .03); ctx.closePath(); };
+    capacete(); ctx.fillStyle = N ? '#150B28' : '#F4F5F7'; ctx.fill();
     if(N){ luz(true); ctx.strokeStyle = cor; ctx.lineWidth = Math.max(1, s * .03); ctx.stroke(); luz(false); }
-    ctx.strokeStyle = N ? cor : '#1F2937'; ctx.lineWidth = lw * 1.2; ctx.beginPath(); ctx.moveTo(ox - s * .06, ombY - s * .26); ctx.lineTo(ox - s * .05, ombY - s * .1); ctx.moveTo(ox + s * .06, ombY - s * .26); ctx.lineTo(ox + s * .05, ombY - s * .1); ctx.stroke();
-    ctx.fillStyle = cor; ctx.fillRect(ox - s * .14, ombY - s * .14, s * .28, s * .035);
+    else { ctx.save(); capacete(); ctx.clip(); ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.fillRect(ox + s * .04, cy - s * .2, s * .2, s * .4); ctx.restore(); }   // sombra lateral
+    if(s > 7){ ctx.strokeStyle = N ? cor : '#1F2937'; ctx.lineWidth = lw * 1.2; ctx.beginPath();
+      [-1, 0, 1].forEach(k=>{ ctx.moveTo(ox + k * s * .065, cy - s * .12); ctx.quadraticCurveTo(ox + k * s * .08, cy - s * .03, ox + k * s * .055, cy + s * .05); }); ctx.stroke(); }
+    ctx.fillStyle = cor; ctx.beginPath(); ctx.moveTo(ox - s * .145, cy + s * .02); ctx.quadraticCurveTo(ox, cy + s * .07, ox + s * .145, cy + s * .02); ctx.lineTo(ox + s * .14, cy + s * .05); ctx.quadraticCurveTo(ox, cy + s * .1, ox - s * .14, cy + s * .05); ctx.closePath(); ctx.fill();   // faixa do capacete
     ctx.lineCap = 'butt'; luz(false);
   }
   // nomes grandes, sem se sobreporem: se bater noutro nome sobe um degrau (com traço até ao ciclista)
