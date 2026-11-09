@@ -2205,23 +2205,36 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const vis = Math.min(h, clip - (y - h)); if(vis <= 0) return;
     ctx.drawImage(img, 0, 0, img.width, img.height * vis / h, x - w / 2, y - h, w, vis);
   }
-  // ciclista visto de costas (como numa câmara atrás do selim): roda de trás, pernas a pedalar, camisola, capacete
-  function srCiclista(ctx, x, y, s, cor, pedal, emPe){
+  // ciclista visto de trás em 3/4 (como numa câmara atrás do pelotão): a roda da frente fica mais longe, por isso aparece
+  // deslocada para o centro do ecrã (vx) e vêem-se as duas rodas, o quadro e o guiador. Quem está ao centro fica de costas.
+  function srCiclista(ctx, x, y, s, cor, pedal, emPe, vx){
     const a = pedal || 0, sw = emPe ? Math.sin(a) * s * .07 : Math.sin(a) * s * .015, lw = Math.max(1, s * .02);
-    const pele = '#E2B48E', calcao = '#15181E', esc = srMix(srHex(cor), '#000000', .35);
+    const pele = '#E2B48E', calcao = '#15181E', esc = srMix(srHex(cor), '#000000', .35), quadro = '#2E3440';
+    const off = vx == null ? 0 : Math.max(-1, Math.min(1, (vx - x) / (s * 3))) * s * .42, ao = Math.abs(off);
+    const fx0 = x + off, fy0 = y - s * .16, fr = s * .38;             // roda da frente
+    const gx = x + off * .4, gy = y - s * 1.22;                       // guiador
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-    // sombra
-    ctx.fillStyle = 'rgba(0,0,0,.32)'; ctx.beginPath(); ctx.ellipse(x, y, s * .42, s * .08, 0, 0, 7); ctx.fill();
-    // roda de trás (vista de trás: estreita e alta)
-    ctx.fillStyle = '#0D0F13'; ctx.beginPath(); ctx.ellipse(x, y - s * .42, s * .07, s * .42, 0, 0, 7); ctx.fill();
-    ctx.strokeStyle = '#6B7280'; ctx.lineWidth = Math.max(1, s * .02); ctx.beginPath(); ctx.ellipse(x, y - s * .42, s * .035, s * .36, 0, 0, 7); ctx.stroke();
-    // quadro e selim
-    ctx.strokeStyle = '#2E3440'; ctx.lineWidth = Math.max(1.5, s * .06); ctx.beginPath(); ctx.moveTo(x, y - s * .45); ctx.lineTo(x, y - s * 1.0); ctx.stroke();
-    const hipY = y - s * (emPe ? 1.18 : 1.05), hx = x + sw;
+    // sombra (ao longo da bicicleta)
+    ctx.fillStyle = 'rgba(0,0,0,.32)'; ctx.beginPath(); ctx.ellipse(x + off * .5, y - s * .04, s * .42 + ao * .5, s * .09, 0, 0, 7); ctx.fill();
+    // roda da frente (atrás de tudo)
+    ctx.fillStyle = '#0D0F13'; ctx.beginPath(); ctx.ellipse(fx0, fy0 - fr, s * .06 + ao * .35, fr, 0, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#6B7280'; ctx.lineWidth = Math.max(1, s * .018); ctx.beginPath(); ctx.ellipse(fx0, fy0 - fr, s * .03 + ao * .28, fr * .86, 0, 0, 7); ctx.stroke();
+    // forqueta e quadro até ao guiador
+    ctx.strokeStyle = quadro; ctx.lineWidth = Math.max(1.5, s * .055);
+    ctx.beginPath(); ctx.moveTo(fx0, fy0 - fr); ctx.lineTo(gx, gy + s * .06); ctx.moveTo(x, y - s * 1.0); ctx.lineTo(gx, gy + s * .1); ctx.moveTo(x, y - s * .45); ctx.lineTo(gx, gy + s * .14); ctx.stroke();
+    // guiador de estrada
+    ctx.strokeStyle = '#1A1D23'; ctx.lineWidth = Math.max(1.5, s * .05);
+    ctx.beginPath(); ctx.moveTo(gx - s * .3, gy + s * .1); ctx.quadraticCurveTo(gx - s * .3, gy, gx - s * .2, gy); ctx.lineTo(gx + s * .2, gy); ctx.quadraticCurveTo(gx + s * .3, gy, gx + s * .3, gy + s * .1); ctx.stroke();
+    // roda de trás (em 3/4 vê-se um pouco de lado)
+    ctx.fillStyle = '#0D0F13'; ctx.beginPath(); ctx.ellipse(x, y - s * .42, s * .07 + ao * .3, s * .42, 0, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#6B7280'; ctx.lineWidth = Math.max(1, s * .02); ctx.beginPath(); ctx.ellipse(x, y - s * .42, s * .035 + ao * .24, s * .36, 0, 0, 7); ctx.stroke();
+    // espigão e selim
+    ctx.strokeStyle = quadro; ctx.lineWidth = Math.max(1.5, s * .06); ctx.beginPath(); ctx.moveTo(x, y - s * .45); ctx.lineTo(x, y - s * 1.0); ctx.stroke();
+    const hipY = y - s * (emPe ? 1.18 : 1.05), hx = x + sw + off * .1;
     // pernas: cada pé faz um círculo; joelho para fora e para cima
     [-1, 1].forEach(l=>{
-      const fa = a + (l > 0 ? Math.PI : 0), fx = x + l * s * .13, fy = y - s * .5 + Math.sin(fa) * s * .17;
-      const kx = hx + l * s * .17, ky = (hipY + fy) / 2 - s * .06 + Math.sin(fa) * s * .08;
+      const fa = a + (l > 0 ? Math.PI : 0), fx = x + off * .35 + l * s * .13, fy = y - s * .5 + Math.sin(fa) * s * .17;
+      const kx = hx + off * .3 + l * s * .17, ky = (hipY + fy) / 2 - s * .06 + Math.sin(fa) * s * .08;
       ctx.strokeStyle = calcao; ctx.lineWidth = s * .15; ctx.beginPath(); ctx.moveTo(hx + l * s * .08, hipY); ctx.lineTo(kx, ky); ctx.stroke();
       ctx.strokeStyle = pele; ctx.lineWidth = s * .1; ctx.beginPath(); ctx.moveTo(kx, ky); ctx.lineTo(fx, fy - s * .04); ctx.stroke();
       ctx.strokeStyle = '#F3F4F6'; ctx.lineWidth = s * .09; ctx.beginPath(); ctx.moveTo(fx, fy - s * .03); ctx.lineTo(fx, fy + s * .03); ctx.stroke();
@@ -2229,19 +2242,21 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     // calção
     ctx.fillStyle = calcao; ctx.beginPath(); ctx.ellipse(hx, hipY - s * .02, s * .2, s * .12, 0, 0, 7); ctx.fill();
     // camisola (tronco inclinado para a frente: vemos as costas)
-    const ombY = hipY - s * (emPe ? .62 : .55);
-    const gr = ctx.createLinearGradient(hx - s * .3, 0, hx + s * .3, 0); gr.addColorStop(0, esc); gr.addColorStop(.5, cor); gr.addColorStop(1, esc);
-    ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(hx - s * .2, hipY - s * .05); ctx.lineTo(hx + s * .2, hipY - s * .05); ctx.quadraticCurveTo(hx + s * .32, ombY + s * .2, hx + s * .3, ombY); ctx.lineTo(hx - s * .3, ombY); ctx.quadraticCurveTo(hx - s * .32, ombY + s * .2, hx - s * .2, hipY - s * .05); ctx.closePath(); ctx.fill();
+    const ombY = hipY - s * (emPe ? .62 : .55), ox = hx + off * .25;
+    const gr = ctx.createLinearGradient(ox - s * .3, 0, ox + s * .3, 0); gr.addColorStop(0, esc); gr.addColorStop(.5, cor); gr.addColorStop(1, esc);
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.moveTo(hx - s * .2, hipY - s * .05); ctx.lineTo(hx + s * .2, hipY - s * .05); ctx.quadraticCurveTo(ox + s * .32, ombY + s * .2, ox + s * .3, ombY); ctx.lineTo(ox - s * .3, ombY); ctx.quadraticCurveTo(ox - s * .32, ombY + s * .2, hx - s * .2, hipY - s * .05); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(hx - s * .17, hipY - s * .14); ctx.lineTo(hx + s * .17, hipY - s * .14); ctx.moveTo(hx, hipY - s * .14); ctx.lineTo(hx, hipY - s * .05); ctx.stroke();   // bolsos
-    ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.fillRect(hx - s * .3, ombY + s * .1, s * .6, s * .05);   // risca
-    // braços para o guiador
-    ctx.strokeStyle = pele; ctx.lineWidth = s * .08; ctx.beginPath(); ctx.moveTo(hx - s * .27, ombY + s * .04); ctx.lineTo(x - s * .34, ombY + s * .34); ctx.moveTo(hx + s * .27, ombY + s * .04); ctx.lineTo(x + s * .34, ombY + s * .34); ctx.stroke();
-    ctx.strokeStyle = cor; ctx.lineWidth = s * .1; ctx.beginPath(); ctx.moveTo(hx - s * .27, ombY + s * .02); ctx.lineTo(hx - s * .31, ombY + s * .14); ctx.moveTo(hx + s * .27, ombY + s * .02); ctx.lineTo(hx + s * .31, ombY + s * .14); ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.fillRect(ox - s * .3, ombY + s * .1, s * .6, s * .05);   // risca
+    // braços até às mãos no guiador, mangas e luvas
+    const hL = [gx - s * .27, gy + s * .02], hR = [gx + s * .27, gy + s * .02];
+    ctx.strokeStyle = pele; ctx.lineWidth = s * .08; ctx.beginPath(); ctx.moveTo(ox - s * .27, ombY + s * .04); ctx.lineTo(hL[0], hL[1]); ctx.moveTo(ox + s * .27, ombY + s * .04); ctx.lineTo(hR[0], hR[1]); ctx.stroke();
+    ctx.strokeStyle = cor; ctx.lineWidth = s * .1; ctx.beginPath(); ctx.moveTo(ox - s * .27, ombY + s * .02); ctx.lineTo(ox - s * .31, ombY + s * .14); ctx.moveTo(ox + s * .27, ombY + s * .02); ctx.lineTo(ox + s * .31, ombY + s * .14); ctx.stroke();
+    ctx.fillStyle = '#1F2937'; ctx.beginPath(); ctx.arc(hL[0], hL[1], s * .055, 0, 7); ctx.arc(hR[0], hR[1], s * .055, 0, 7); ctx.fill();
     // pescoço e capacete
-    ctx.fillStyle = pele; ctx.fillRect(hx - s * .05, ombY - s * .1, s * .1, s * .12);
-    ctx.fillStyle = '#F4F5F7'; ctx.beginPath(); ctx.ellipse(hx, ombY - s * .17, s * .14, s * .12, 0, 0, 7); ctx.fill();
-    ctx.strokeStyle = '#1F2937'; ctx.lineWidth = lw * 1.2; ctx.beginPath(); ctx.moveTo(hx - s * .06, ombY - s * .26); ctx.lineTo(hx - s * .05, ombY - s * .1); ctx.moveTo(hx + s * .06, ombY - s * .26); ctx.lineTo(hx + s * .05, ombY - s * .1); ctx.stroke();
-    ctx.fillStyle = cor; ctx.fillRect(hx - s * .14, ombY - s * .14, s * .28, s * .035);
+    ctx.fillStyle = pele; ctx.fillRect(ox - s * .05, ombY - s * .1, s * .1, s * .12);
+    ctx.fillStyle = '#F4F5F7'; ctx.beginPath(); ctx.ellipse(ox, ombY - s * .17, s * .14, s * .12, 0, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#1F2937'; ctx.lineWidth = lw * 1.2; ctx.beginPath(); ctx.moveTo(ox - s * .06, ombY - s * .26); ctx.lineTo(ox - s * .05, ombY - s * .1); ctx.moveTo(ox + s * .06, ombY - s * .26); ctx.lineTo(ox + s * .05, ombY - s * .1); ctx.stroke();
+    ctx.fillStyle = cor; ctx.fillRect(ox - s * .14, ombY - s * .14, s * .28, s * .035);
     ctx.lineCap = 'butt';
   }
   // nomes grandes, sem se sobreporem: se bater noutro nome sobe um degrau (com traço até ao ciclista)
@@ -2359,7 +2374,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       // entre o início deste troço e o do seguinte (sem isto os outros andavam aos saltos, de troço em troço)
       (lug[sg.i] || []).forEach(({ id, lado, f })=>{ const q = proj[k + 1] ? proj[k + 1].p1 : p1, px = p1.x + (q.x - p1.x) * f, py = p1.y + (q.y - p1.y) * f, pw = p1.w + (q.w - p1.w) * f;
         if(py > clip + 2) return; const s = pw * .14, cx = px + pw * lado * .75;
-        srCiclista(ctx, cx, py, s * 1.05, P[id][2] ? '#3DD45C' : '#AEB6C2', pedal + id.length, emPe);
+        srCiclista(ctx, cx, py, s * 1.05, P[id][2] ? '#3DD45C' : '#AEB6C2', pedal + id.length, emPe, W / 2);
         nomes.push({ x: cx, y: py, s, txt: (ord.indexOf(id) + 1) + '. ' + P[id][1], lider: ord[0] === id }); });
     }
     nomes.sort((a, c)=> c.y - a.y).forEach(o=> srNome(ctx, o.x, o.y, o.s, o.txt, o.lider, W));
