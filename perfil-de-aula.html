@@ -4386,9 +4386,22 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const fx0 = x + off, fy0 = y - s * .16, fr = s * .38;             // roda da frente
     const gx = x + off * .4, gy = y - s * 1.22;                       // guiador
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    // pernas: cada pé faz um círculo; joelho para fora e para cima
+    const hipY = y - s * (emPe ? 1.18 : 1.05), hx = x + sw + off * .1, pernas = [-1, 1];
+    // em 3/4 uma das pernas fica do lado de lá da bicicleta: é desenhada primeiro (as rodas e o quadro tapam-na) e mais escura.
+    // ciclista à esquerda do centro (off > 0): vemos o lado direito dele, a perna esquerda (l = -1) fica do lado de lá
+    const longe = ao > s * .04 ? (off > 0 ? -1 : 1) : 0;
+    const perna = (l, sombra)=>{
+      const fa = a + (l > 0 ? Math.PI : 0), fx = x + off * .35 + l * s * .13, fy = y - s * .5 + Math.sin(fa) * s * .17;
+      const kx = hx + off * .3 + l * s * .17, ky = (hipY + fy) / 2 - s * .06 + Math.sin(fa) * s * .08;
+      ctx.strokeStyle = calcao; ctx.lineWidth = s * .15; ctx.beginPath(); ctx.moveTo(hx + l * s * .08, hipY); ctx.lineTo(kx, ky); ctx.stroke();
+      ctx.strokeStyle = sombra ? srMix(pele, '#000000', .35) : pele; ctx.lineWidth = s * .1; ctx.beginPath(); ctx.moveTo(kx, ky); ctx.lineTo(fx, fy - s * .04); ctx.stroke();
+      ctx.strokeStyle = sombra ? '#9CA3AF' : '#F3F4F6'; ctx.lineWidth = s * .09; ctx.beginPath(); ctx.moveTo(fx, fy - s * .03); ctx.lineTo(fx, fy + s * .03); ctx.stroke();
+    };
     // sombra (ao longo da bicicleta)
     ctx.fillStyle = 'rgba(0,0,0,.32)'; ctx.beginPath(); ctx.ellipse(x + off * .5, y - s * .04, s * .42 + ao * .5, s * .09, 0, 0, 7); ctx.fill();
-    // roda da frente (atrás de tudo)
+    if(longe) perna(longe, true);   // perna do lado de lá, atrás da bicicleta
+    // roda da frente
     ctx.fillStyle = '#0D0F13'; ctx.beginPath(); ctx.ellipse(fx0, fy0 - fr, s * .06 + ao * .35, fr, 0, 0, 7); ctx.fill();
     ctx.strokeStyle = '#6B7280'; ctx.lineWidth = Math.max(1, s * .018); ctx.beginPath(); ctx.ellipse(fx0, fy0 - fr, s * .03 + ao * .28, fr * .86, 0, 0, 7); ctx.stroke();
     // forqueta e quadro até ao guiador
@@ -4402,15 +4415,8 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     ctx.strokeStyle = '#6B7280'; ctx.lineWidth = Math.max(1, s * .02); ctx.beginPath(); ctx.ellipse(x, y - s * .42, s * .035 + ao * .24, s * .36, 0, 0, 7); ctx.stroke();
     // espigão e selim
     ctx.strokeStyle = quadro; ctx.lineWidth = Math.max(1.5, s * .06); ctx.beginPath(); ctx.moveTo(x, y - s * .45); ctx.lineTo(x, y - s * 1.0); ctx.stroke();
-    const hipY = y - s * (emPe ? 1.18 : 1.05), hx = x + sw + off * .1;
-    // pernas: cada pé faz um círculo; joelho para fora e para cima
-    [-1, 1].forEach(l=>{
-      const fa = a + (l > 0 ? Math.PI : 0), fx = x + off * .35 + l * s * .13, fy = y - s * .5 + Math.sin(fa) * s * .17;
-      const kx = hx + off * .3 + l * s * .17, ky = (hipY + fy) / 2 - s * .06 + Math.sin(fa) * s * .08;
-      ctx.strokeStyle = calcao; ctx.lineWidth = s * .15; ctx.beginPath(); ctx.moveTo(hx + l * s * .08, hipY); ctx.lineTo(kx, ky); ctx.stroke();
-      ctx.strokeStyle = pele; ctx.lineWidth = s * .1; ctx.beginPath(); ctx.moveTo(kx, ky); ctx.lineTo(fx, fy - s * .04); ctx.stroke();
-      ctx.strokeStyle = '#F3F4F6'; ctx.lineWidth = s * .09; ctx.beginPath(); ctx.moveTo(fx, fy - s * .03); ctx.lineTo(fx, fy + s * .03); ctx.stroke();
-    });
+    // perna do lado de cá (ou as duas, quando está de costas)
+    pernas.filter(l=> l !== longe).forEach(l=> perna(l, false));
     // calção
     ctx.fillStyle = calcao; ctx.beginPath(); ctx.ellipse(hx, hipY - s * .02, s * .2, s * .12, 0, 0, 7); ctx.fill();
     // camisola (tronco inclinado para a frente: vemos as costas)

@@ -634,6 +634,22 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
 #liveScreen.ecra3 .e3{display:block;}
 #liveScreen.ecra3 #activeBlock,#liveScreen.ecra3 #myBatt,#liveScreen.ecra3 #myLamp,#liveScreen.ecra3 #className,#liveScreen.ecra3 #ocTag,#liveScreen.ecra3 #jgMe{display:none!important;}
 #liveScreen.ecra3 #bodyEl{background:#0B0E13!important;}
+/* mudança de bloco no Ecrã 3: faixa discreta por cima do jogo (sem o cartão a rebentar dos ecrãs 1 e 2) e clarão na cor da zona */
+#ecra3{position:relative;}
+.e3-nx{position:absolute;left:50%;top:120px;z-index:4;width:min(92%,440px);transform:translate(-50%,-14px);opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;
+  font-family:'Barlow Condensed',sans-serif;color:#fff;background:rgba(8,11,16,.82);border:2px solid var(--nc,#fff);border-left-width:9px;border-radius:12px;padding:6px 12px 7px;box-shadow:0 6px 20px rgba(0,0,0,.45),0 0 16px color-mix(in srgb,var(--nc,#fff) 35%,transparent);}
+.e3-nx.on{opacity:1;transform:translate(-50%,0);}
+.e3-nx .t{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.75);}
+.e3-nx .t b{font-size:22px;letter-spacing:0;text-transform:none;color:var(--nc,#fff);font-variant-numeric:tabular-nums;}
+.e3-nx .z{font-size:26px;font-weight:800;line-height:1.05;}
+.e3-nx .z span{font-size:18px;font-weight:700;color:rgba(255,255,255,.85);margin-left:8px;}
+.e3-nx .m{font-size:16px;font-weight:600;color:rgba(255,255,255,.8);}
+.e3-nx.quase{animation:e3NxPulse .5s ease-in-out infinite alternate;}
+@keyframes e3NxPulse{to{box-shadow:0 6px 20px rgba(0,0,0,.45),0 0 30px color-mix(in srgb,var(--nc,#fff) 75%,transparent);}}
+.e3-flash{position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:16px;opacity:0;background:radial-gradient(circle at 50% 45%,transparent 25%,var(--zc,#fff) 120%);}
+.e3-flash.on{animation:e3Flash .8s ease-out;}
+@keyframes e3Flash{0%{opacity:.95;}100%{opacity:0;}}
+@media (prefers-reduced-motion:reduce){.e3-nx.quase,.e3-flash.on{animation:none;}}
 .e3-serra{position:relative;width:100%;height:calc(100dvh - 150px);min-height:380px;border-radius:16px;overflow:hidden;background:#0C1A33;}
 .e3-serra canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
 .e3-hud{position:absolute;left:8px;right:8px;top:8px;display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:start;pointer-events:none;font-family:'Barlow Condensed',sans-serif;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.7);}
@@ -1112,6 +1128,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       <div class="e3-serra" id="e3Serra" hidden><canvas id="e3Cv" aria-label="A estrada vista do teu guiador"></canvas><div class="e3-hud" id="e3Hud"></div><div class="e3-msg" id="e3Msg"></div></div>
       <div class="e3-card" id="e3Card" hidden><div class="e3-ico" id="e3Ico"></div><div class="e3-j" id="e3J"></div><div class="e3-t" id="e3T"></div><div class="e3-s" id="e3S"></div><div class="e3-r" id="e3R"></div></div>
       <div class="e3-vazio" id="e3Vazio" hidden></div>
+      <div class="e3-nx" id="e3Nx" aria-live="polite"></div><div class="e3-flash" id="e3Flash"></div>
     </div>
     <div class="e2-dots" id="e2Dots" aria-label="Mudar de ecrã"><button data-e="1" class="on" aria-label="Ecrã 1"></button><button data-e="2" aria-label="Ecrã 2"></button><button data-e="3" aria-label="Ecrã 3: jogos e percurso" class="d3"></button></div>
     <div class="finished" id="finishedEl">
@@ -1236,9 +1253,34 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       if(over > 1) body.scrollTo({top: body.scrollTop + over, behavior:'smooth'});
     }, 600);
   }
+  // Ecrã 3 (jogo): em vez do cartão a subir e a rebentar, uma faixa discreta por cima do jogo nos últimos 10 s
+  const E3_NX = 10;
+  function renderNextJogo(next, remaining, playing){
+    const el = $('e3Nx'); if(!el) return;
+    const on = playing && next && remaining > 0 && remaining <= E3_NX;
+    if(!on){ if(el.classList.contains('on')) el.classList.remove('on', 'quase'); return; }
+    const z = blkZone(next), color = zoneColor(z.css);
+    const zl = next.tipo === 'seg' ? 'Segmento' : (next.tipo === 'cool' ? 'Retorno à calma' : z.name);
+    const meta = [next.tipo === 'seg' ? 'transição leve' : (next.teste ? 'o mais forte possível' : (modo === 'zonas' ? '' : pctTxt(next, zoneRange(next.ftp)) + (modo === 'fc' ? ' FCmáx' : ' FTP'))),
+      next.rpm ? rpmTxt(next) + ' rpm' : '', fmtTime(blockDurationSec(next))].filter(Boolean).join(' · ');
+    const html = '<div class="t">Próximo bloco<b>em ' + Math.ceil(remaining) + ' s</b></div>' +
+      '<div class="z">' + escapeHtml(next.teste ? 'Teste FTP' : zl) + (next.tecnica ? '<span>' + escapeHtml(next.tecnica) + '</span>' : '') + '</div>' +
+      '<div class="m">' + escapeHtml(meta) + '</div>';
+    if(el.innerHTML !== html) el.innerHTML = html;
+    el.style.setProperty('--nc', color);
+    el.classList.add('on'); el.classList.toggle('quase', remaining <= 3);
+  }
   function renderNext(next, remaining){
     const el = $('nxFloat');
     const playing = state.status === 'playing' && solo !== 'livre';
+    if(ecraAtual === 3){   // no jogo não aparece o cartão nem a explosão dos ecrãs 1 e 2
+      if(el.innerHTML || nxPhase){ el.innerHTML = ''; lastNextHtml = ''; nxPhase = ''; nxRoom(false); }
+      const bu = $('nxBurst'); if(bu && bu.innerHTML){ bu.className = 'nx-burst'; bu.innerHTML = ''; }
+      if(next && remaining <= NX_BOOM) nxBoomIdx = state.blockIndex;   // ao voltar ao ecrã 1/2 não rebenta atrasado
+      renderNextJogo(next, remaining, playing);
+      return;
+    }
+    renderNextJogo(null, 0, false);
     let phase = '';
     if(playing && remaining > 0){
       if(next && remaining <= NX_BOOM) phase = 'boom';
@@ -1276,6 +1318,10 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     lastBlockIdx = idx;
     if(first || state.status !== 'playing' || solo === 'livre') return;
     const body = $('bodyEl'); body.classList.remove('blk-in'); void body.offsetWidth; body.classList.add('blk-in');
+    if(ecraAtual === 3){   // no jogo: clarão na cor da zona nova, ao passar o pórtico
+      const fl = $('e3Flash'); if(fl){ fl.style.setProperty('--zc', zoneColor(blkZone(b).css)); fl.classList.remove('on'); void fl.offsetWidth; fl.classList.add('on'); }
+      const nx = $('e3Nx'); if(nx) nx.classList.remove('on', 'quase');
+    }
   }
 
   function setTarget(tiles, note, color){
@@ -2214,9 +2260,22 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const fx0 = x + off, fy0 = y - s * .16, fr = s * .38;             // roda da frente
     const gx = x + off * .4, gy = y - s * 1.22;                       // guiador
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    // pernas: cada pé faz um círculo; joelho para fora e para cima
+    const hipY = y - s * (emPe ? 1.18 : 1.05), hx = x + sw + off * .1, pernas = [-1, 1];
+    // em 3/4 uma das pernas fica do lado de lá da bicicleta: é desenhada primeiro (as rodas e o quadro tapam-na) e mais escura.
+    // ciclista à esquerda do centro (off > 0): vemos o lado direito dele, a perna esquerda (l = -1) fica do lado de lá
+    const longe = ao > s * .04 ? (off > 0 ? -1 : 1) : 0;
+    const perna = (l, sombra)=>{
+      const fa = a + (l > 0 ? Math.PI : 0), fx = x + off * .35 + l * s * .13, fy = y - s * .5 + Math.sin(fa) * s * .17;
+      const kx = hx + off * .3 + l * s * .17, ky = (hipY + fy) / 2 - s * .06 + Math.sin(fa) * s * .08;
+      ctx.strokeStyle = calcao; ctx.lineWidth = s * .15; ctx.beginPath(); ctx.moveTo(hx + l * s * .08, hipY); ctx.lineTo(kx, ky); ctx.stroke();
+      ctx.strokeStyle = sombra ? srMix(pele, '#000000', .35) : pele; ctx.lineWidth = s * .1; ctx.beginPath(); ctx.moveTo(kx, ky); ctx.lineTo(fx, fy - s * .04); ctx.stroke();
+      ctx.strokeStyle = sombra ? '#9CA3AF' : '#F3F4F6'; ctx.lineWidth = s * .09; ctx.beginPath(); ctx.moveTo(fx, fy - s * .03); ctx.lineTo(fx, fy + s * .03); ctx.stroke();
+    };
     // sombra (ao longo da bicicleta)
     ctx.fillStyle = 'rgba(0,0,0,.32)'; ctx.beginPath(); ctx.ellipse(x + off * .5, y - s * .04, s * .42 + ao * .5, s * .09, 0, 0, 7); ctx.fill();
-    // roda da frente (atrás de tudo)
+    if(longe) perna(longe, true);   // perna do lado de lá, atrás da bicicleta
+    // roda da frente
     ctx.fillStyle = '#0D0F13'; ctx.beginPath(); ctx.ellipse(fx0, fy0 - fr, s * .06 + ao * .35, fr, 0, 0, 7); ctx.fill();
     ctx.strokeStyle = '#6B7280'; ctx.lineWidth = Math.max(1, s * .018); ctx.beginPath(); ctx.ellipse(fx0, fy0 - fr, s * .03 + ao * .28, fr * .86, 0, 0, 7); ctx.stroke();
     // forqueta e quadro até ao guiador
@@ -2230,15 +2289,8 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     ctx.strokeStyle = '#6B7280'; ctx.lineWidth = Math.max(1, s * .02); ctx.beginPath(); ctx.ellipse(x, y - s * .42, s * .035 + ao * .24, s * .36, 0, 0, 7); ctx.stroke();
     // espigão e selim
     ctx.strokeStyle = quadro; ctx.lineWidth = Math.max(1.5, s * .06); ctx.beginPath(); ctx.moveTo(x, y - s * .45); ctx.lineTo(x, y - s * 1.0); ctx.stroke();
-    const hipY = y - s * (emPe ? 1.18 : 1.05), hx = x + sw + off * .1;
-    // pernas: cada pé faz um círculo; joelho para fora e para cima
-    [-1, 1].forEach(l=>{
-      const fa = a + (l > 0 ? Math.PI : 0), fx = x + off * .35 + l * s * .13, fy = y - s * .5 + Math.sin(fa) * s * .17;
-      const kx = hx + off * .3 + l * s * .17, ky = (hipY + fy) / 2 - s * .06 + Math.sin(fa) * s * .08;
-      ctx.strokeStyle = calcao; ctx.lineWidth = s * .15; ctx.beginPath(); ctx.moveTo(hx + l * s * .08, hipY); ctx.lineTo(kx, ky); ctx.stroke();
-      ctx.strokeStyle = pele; ctx.lineWidth = s * .1; ctx.beginPath(); ctx.moveTo(kx, ky); ctx.lineTo(fx, fy - s * .04); ctx.stroke();
-      ctx.strokeStyle = '#F3F4F6'; ctx.lineWidth = s * .09; ctx.beginPath(); ctx.moveTo(fx, fy - s * .03); ctx.lineTo(fx, fy + s * .03); ctx.stroke();
-    });
+    // perna do lado de cá (ou as duas, quando está de costas)
+    pernas.filter(l=> l !== longe).forEach(l=> perna(l, false));
     // calção
     ctx.fillStyle = calcao; ctx.beginPath(); ctx.ellipse(hx, hipY - s * .02, s * .2, s * .12, 0, 0, 7); ctx.fill();
     // camisola (tronco inclinado para a frente: vemos as costas)
