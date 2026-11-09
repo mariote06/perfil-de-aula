@@ -4578,47 +4578,70 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
     const q = XY(la, lo); ctx.fillStyle = '#FFD60A'; ctx.strokeStyle = '#05070A'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x0 + q[0], y0 + q[1], 7, 0, 7); ctx.fill(); ctx.stroke();
   }
   // ================= LOUSADA ⇄ PENAFIEL: percurso pela estrada real (OpenStreetMap) =================
-  // km: distância real ao longo da estrada desde a Praça das Pocinhas (rota real: 10,0 km); amb: ambiente à volta
-  const VALE_PTS = [
-    { n:'Praça das Pocinhas', km:0, la:41.27818, lo:-8.28351, rua:'Avenida da Constituição da República · EN 207', amb:'vila' },
-    { n:'EM 320', km:.23, la:41.27700, lo:-8.28500, rua:'EM 320 · Lousada', amb:'vila' },
-    { n:'Rua de Visconde de Alentém', km:1.02, la:41.27250, lo:-8.28800, rua:'Rua de Visconde de Alentém · Lousada', amb:'vila' },
-    { n:'Avenida Hans Isler', km:1.17, la:41.27000, lo:-8.28700, rua:'Avenida Hans Isler · Lousada', amb:'vila' },
-    { n:'Rua do Comércio', km:1.64, la:41.26600, lo:-8.28650, rua:'Rua do Comércio · Lousada', amb:'vila' },
-    { n:'EM 106-1', km:2.35, la:41.26000, lo:-8.28700, rua:'EM 106-1', amb:'campo' },
-    { n:'Variante à EN 106', km:2.72, la:41.25700, lo:-8.28800, rua:'Variante à EN 106', amb:'campo' },
-    { n:'Variante à EN 106', km:5.6, la:41.23400, lo:-8.29200, rua:'Variante à EN 106', amb:'campo' },
-    { n:'Rotundas da EN 106', km:8.52, la:41.21500, lo:-8.29000, rua:'EN 106 · Penafiel', amb:'cidade' },
-    { n:'Rua "O Penafidelense"', km:9.14, la:41.21100, lo:-8.28700, rua:'Rua "O Penafidelense" · Penafiel', amb:'cidade' },
-    { n:'Praça do Município', km:10.01, la:41.20669, lo:-8.28416, rua:'Praça do Município · Penafiel', amb:'cidade' }
+  // linha real da estrada (rota OSRM sobre o OpenStreetMap): [km, latitude, longitude], um ponto a cada 200 m
+  const VALE_GEO = [[0.00,41.27815,-8.28383],[0.20,41.27791,-8.28185],[0.40,41.27659,-8.2807],[0.60,41.27484,-8.28127],[0.80,41.27309,-8.28164],[1.00,41.27288,-8.28302],[1.20,41.27157,-8.28441],[1.40,41.2701,-8.2858],[1.60,41.26863,-8.28718],[1.80,41.26755,-8.28898],[2.00,41.26635,-8.29076],[2.20,41.26504,-8.2923],[2.40,41.26369,-8.29374],[2.60,41.26228,-8.29436],[2.80,41.26056,-8.29393],[3.00,41.2589,-8.29482],[3.20,41.25728,-8.29588],[3.40,41.25554,-8.29637],[3.60,41.25374,-8.29642],[3.80,41.25202,-8.29586],[4.00,41.25049,-8.29459],[4.20,41.24878,-8.294],[4.40,41.24698,-8.29383],[4.60,41.2452,-8.29406],[4.80,41.24369,-8.29529],[5.00,41.24273,-8.2973],[5.20,41.24186,-8.29939],[5.40,41.24044,-8.30074],[5.60,41.23865,-8.30069],[5.80,41.23686,-8.30047],[6.00,41.23509,-8.30008],[6.20,41.23333,-8.29956],[6.40,41.23158,-8.29904],[6.60,41.22984,-8.29845],[6.80,41.22806,-8.29812],[7.00,41.22626,-8.29791],[7.20,41.22449,-8.29754],[7.40,41.22293,-8.29638],[7.60,41.22148,-8.29497],[7.80,41.22003,-8.29354],[8.00,41.21859,-8.29212],[8.20,41.21714,-8.29071],[8.40,41.21591,-8.28896],[8.60,41.21485,-8.28713],[8.80,41.21378,-8.28531],[9.00,41.21226,-8.2846],[9.20,41.2122,-8.28341],[9.40,41.21083,-8.28191],[9.60,41.20915,-8.28277],[9.80,41.20768,-8.28201],[10.00,41.20665,-8.28396],[10.01,41.20659,-8.28407]];
+  // ruas e freguesias por onde passa (nomes do OpenStreetMap): [km de início, km de fim, nome, ambiente]
+  const VALE_RUAS = [
+    [0, .04, 'Praça das Pocinhas · Lousada', 'vila'], [.04, .23, 'Avenida da Constituição da República · EN 207', 'vila'],
+    [.23, 1.02, 'EM 320 · Silvares, Pias, Nogueira e Alvarenga', 'vila'], [1.02, 1.17, 'Rua de Visconde de Alentém · Lousada', 'vila'],
+    [1.17, 1.64, 'Avenida Hans Isler · Cristelos, Boim e Ordem', 'vila'], [1.64, 2.35, 'Rua do Comércio · Lousada', 'vila'],
+    [2.35, 2.72, 'EM 106-1 · Nespereira e Casais', 'campo'], [2.72, 4.2, 'Variante à EN 106 · Nespereira e Casais', 'campo'],
+    [4.2, 6.0, 'Variante à EN 106 · Lodares', 'campo'], [6.0, 7.0, 'Variante à EN 106', 'campo'],
+    [7.0, 8.52, 'Variante à EN 106 · Santiago de Subarrifana', 'campo'], [8.52, 9.14, 'EN 106 · Subarrifana, Penafiel', 'vila'],
+    [9.14, 9.76, 'Milhundos · Penafiel', 'cidade'], [9.76, 9.95, 'Rua "O Penafidelense" · Penafiel', 'cidade'], [9.95, 10.02, 'Praça do Município · Penafiel', 'cidade']
   ];
+  // pontos de interesse reais à beira da estrada (OpenStreetMap): km, lado (−1 esquerda, +1 direita, no sentido Lousada → Penafiel), distância à estrada (m)
+  const VALE_POI = [
+    { km:0, lado:-1, d:76, t:'museu', n:'Centro de Interpretação do Românico' },
+    { km:.1, lado:1, d:49, t:'igreja', n:'Igreja do Senhor dos Aflitos' },
+    { km:.14, lado:1, d:84, t:'monumento', n:'Monumento a D. António de Castro Meireles' },
+    { km:.2, lado:1, d:40, t:'publico', n:'Tribunal Judicial de Lousada' },
+    { km:.22, lado:-1, d:74, t:'publico', n:'Conservatório do Vale do Sousa' },
+    { km:.27, lado:1, d:106, t:'camara', n:'Câmara Municipal de Lousada' },
+    { km:.57, lado:1, d:150, t:'bombeiros', n:'Bombeiros Voluntários de Lousada' },
+    { km:.62, lado:1, d:150, t:'publico', n:'Biblioteca Municipal de Lousada' },
+    { km:2.35, lado:0, d:0, t:'rotunda', n:'Rotunda da Juventude' },
+    { km:3.81, lado:1, d:46, t:'escola', n:'Escola Básica de Nespereira' },
+    { km:4.43, lado:-1, d:150, t:'capela', n:'Capela de Santa Isabel' },
+    { km:6.3, lado:-1, d:125, t:'capela', n:'Capela da Casa da Lama' },
+    { km:9.62, lado:1, d:149, t:'igreja', n:'Igreja de Santo António dos Capuchos' },
+    { km:9.7, lado:-1, d:59, t:'escola', n:'Escola Básica de Penafiel' },
+    { km:9.79, lado:-1, d:36, t:'bombeiros', n:'Bombeiros Voluntários de Penafiel' },
+    { km:9.86, lado:-1, d:56, t:'museu', n:'Museu de Penafiel' },
+    { km:9.91, lado:-1, d:68, t:'capela', n:'Capela de Nossa Senhora da Ajuda' },
+    { km:9.95, lado:-1, d:28, t:'igreja', n:'Igreja da Misericórdia de Penafiel' },
+    { km:9.98, lado:1, d:135, t:'igreja', n:'Igreja Paroquial de São Martinho' }
+  ];
+  const VALE_ICO = { museu:'🏛️', igreja:'⛪', capela:'⛪', monumento:'🗿', publico:'🏛️', camara:'🏛️', bombeiros:'🚒', rotunda:'🔄', escola:'🏫' };
   // altitude real (m) de 125 em 125 m, da Praça das Pocinhas até à Praça do Município (Open-Meteo)
   const VALE_ELE = [297,292,284,285,281,281,289,279,290,288,284,279,278,276,280,278,272,269,277,261,268,258,252,237,231,227,226,217,212,209,210,212,213,218,220,221,216,211,214,213,201,201,201,199,206,206,200,192,182,181,182,181,187,191,186,179,175,175,183,180,173,165,157,153,161,170,174,183,198,210,214,226,233,233,249,259,270,267,282,297,305,305];
-  const VALE_SANT = { n:'Santuário do Sameiro', la:41.20867, lo:-8.27531 };   // Santuário de N.ª Sr.ª da Piedade e Santos Passos
+  const VALE_SANT = { n:'Santuário do Sameiro', la:41.20867, lo:-8.27531 };   // Santuário de N.ª Sr.ª da Piedade e Santos Passos, a 550 m da estrada
+  const VALE_KM = 10.01;
   const ROTAS = {
-    lp: { titulo:'LOUSADA → PENAFIEL', km:10.0, pts: VALE_PTS, ele: VALE_ELE, ini:['PARTIDA', 'LOUSADA · PRAÇA DAS POCINHAS'], fim:['META', 'PENAFIEL · PRAÇA DO MUNICÍPIO'], nIni:'Partida · Praça das Pocinhas', nFim:'Meta · Praça do Município', santKm: 9.25, santLado: -1, vilas:[['Lousada', 0], ['Penafiel', 10]] },
-    pl: { titulo:'PENAFIEL → LOUSADA', km:10.0, pts: VALE_PTS.slice().reverse().map((p, i, a)=> Object.assign({}, p, { km: 10.01 - p.km, rua: (a[i + 1] || p).rua.replace(' · EN 207', '') })), ele: VALE_ELE.slice().reverse(),
-      ini:['PARTIDA', 'PENAFIEL · PRAÇA DO MUNICÍPIO'], fim:['META', 'LOUSADA · PRAÇA DAS POCINHAS'], nIni:'Partida · Praça do Município', nFim:'Meta · Praça das Pocinhas', santKm: .75, santLado: 1, vilas:[['Penafiel', 0], ['Lousada', 10]] }
+    lp: { titulo:'LOUSADA → PENAFIEL', km: VALE_KM, pts: VALE_GEO.map(p=> ({ km: p[0], la: p[1], lo: p[2] })), ruas: VALE_RUAS, pois: VALE_POI, ele: VALE_ELE,
+      ini:['PARTIDA', 'LOUSADA · PRAÇA DAS POCINHAS'], fim:['META', 'PENAFIEL · PRAÇA DO MUNICÍPIO'], nIni:'Partida · Praça das Pocinhas', nFim:'Meta · Praça do Município',
+      santKm: 9.76, santLado: -1, vilas:['Lousada', 'Penafiel'] },
+    pl: { titulo:'PENAFIEL → LOUSADA', km: VALE_KM, pts: VALE_GEO.slice().reverse().map(p=> ({ km: +(VALE_KM - p[0]).toFixed(2), la: p[1], lo: p[2] })),
+      ruas: VALE_RUAS.slice().reverse().map(r=> [+(VALE_KM - r[1]).toFixed(2), +(VALE_KM - r[0]).toFixed(2), r[2], r[3]]),
+      pois: VALE_POI.map(p=> Object.assign({}, p, { km: +(VALE_KM - p.km).toFixed(2), lado: -p.lado })).sort((a, b)=> a.km - b.km), ele: VALE_ELE.slice().reverse(),
+      ini:['PARTIDA', 'PENAFIEL · PRAÇA DO MUNICÍPIO'], fim:['META', 'LOUSADA · PRAÇA DAS POCINHAS'], nIni:'Partida · Praça do Município', nFim:'Meta · Praça das Pocinhas',
+      santKm: .25, santLado: 1, vilas:['Penafiel', 'Lousada'] }
   };
-  ROTAS.pl.pts.forEach((p, i, a)=>{ p.amb = (a[i + 1] || p).amb; });
   // altitude real no ponto da aula (fração 0..1 do percurso)
   function srRotaAlt(R, f){ const e = R.ele; if(!e) return null; const x = Math.max(0, Math.min(1, f)) * (e.length - 1), i = Math.floor(x); return Math.round(e[i] + ((e[i + 1] ?? e[i]) - e[i]) * (x - i)); }
-  // aplica à estrada da aula as curvas, as ruas, os ambientes e os pontos de referência da rota real
+  // aplica à estrada da aula as curvas reais, as ruas e freguesias, os ambientes e os pontos de interesse
   function srRotaAplica(segs, R){
     const N = segs.length, P = R.pts, kOf = km=> Math.round(km / R.km * (N - 1)), rnd = srRnd(N * 17 + 3);
     segs.forEach(s=> s.curve = 0);
-    for(let i = 1; i < P.length - 1; i++){
+    for(let i = 1; i < P.length - 1; i++){   // curvas: mudança de direção real entre os pontos da estrada
       let th = parisRumo(P[i], P[i + 1]) - parisRumo(P[i - 1], P[i]);
       while(th > Math.PI) th -= 2 * Math.PI; while(th < -Math.PI) th += 2 * Math.PI;
-      const l = Math.max(14, Math.min(60, Math.round(Math.abs(th) * 42))), c = Math.max(-8, Math.min(8, th * 76 / (2 * l / Math.PI))), k0 = kOf(P[i].km) - Math.round(l / 2);
+      const l = Math.max(18, Math.min(60, Math.round(Math.abs(th) * 42))), c = Math.max(-7, Math.min(7, th * 76 / (2 * l / Math.PI))), k0 = kOf(P[i].km) - Math.round(l / 2);
       for(let k = 0; k < l; k++){ const q = k0 + k; if(q >= 0 && q < N) segs[q].curve += c * Math.sin(k / l * Math.PI); }
     }
-    // a variante tem curvas largas e suaves entre os pontos
-    for(let k = 0; k < N; k++){ const f = k / (N - 1) * R.km; const L = P.find((p, i)=> P[i + 1] && f >= p.km && f < P[i + 1].km) || P[P.length - 2]; if(L.amb === 'campo') segs[k].curve += Math.sin(k / 140) * 1.6 + Math.sin(k / 53 + 1) * .7; }
-    let leg = 0;
     segs.forEach((s, k)=>{
-      const f = k / (N - 1) * R.km; while(leg < P.length - 2 && f >= P[leg + 1].km) leg++;
-      const am = P[leg].amb; s.rua = P[leg].rua; s.amb = am;
+      const f = k / (N - 1) * R.km, rua = R.ruas.find(r=> f >= r[0] && f < r[1]) || R.ruas[R.ruas.length - 1], am = rua[3];
+      s.rua = rua[2]; s.amb = am;
       const sp = [], r1 = rnd(), r2 = rnd(), r3 = rnd();
       if(am === 'vila'){ const quintal = k % 19 < 5; s.muro = { L: !quintal, R: k % 23 >= 5, x: 1.5, h: 1.25, est:'pt' };
         if(quintal && r1 < .5) sp.push({ x: -(1.6 + r2), t: 'p1', s: .8 }); }
@@ -4627,26 +4650,55 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
         s.muro = null;
         if(r1 < .55) sp.push({ x: -(1.5 + r2 * 3), t: r3 < .55 ? 'p0' : 'p1', s: .85 + r1 * .5 });
         if(r2 < .55) sp.push({ x: 1.5 + r3 * 3, t: r1 < .55 ? 'p0' : 'p1', s: .85 + r2 * .5 });
-        if(k % 160 < 40 && k % 4 === 0) sp.push({ x: (Math.floor(k / 160) % 2 ? 1 : -1) * 1.9, t: 'p2', s: 1 });   // vinha
-        if(r3 < .06) sp.push({ x: (r1 < .5 ? -1 : 1) * (2.3 + r2 * 2), t: 'r', s: 1.6 });                       // casa
+        if(k % 160 < 40 && k % 4 === 0) sp.push({ x: (Math.floor(k / 160) % 2 ? 1 : -1) * 1.9, t: 'p2', s: 1 });
+        if(r3 < .06) sp.push({ x: (r1 < .5 ? -1 : 1) * (2.3 + r2 * 2), t: 'r', s: 1.6 });
       }
       const passo = am === 'campo' ? 15 : 9;
       if(k % passo === 0) sp.push({ x: -1.18, t: 'poste', s: 1 });
       if(am !== 'campo' && k % passo === 4) sp.push({ x: 1.18, t: 'poste', s: 1 });
       s.sp = sp;
     });
-    const marcos = [], poe = (k, o, nome, ico, raio)=>{ k = Math.max(4, Math.min(N - 3, k)); for(let q = -raio; q <= raio; q++){ const sg = segs[k + q]; if(!sg) continue; sg.sp = sg.sp.filter(x=> x.t === 'poste' || x.t.startsWith('m_')); if(o.t !== 'm_sant') sg.muro = null; } segs[k].sp.push(o); marcos.push({ i: k, n: nome, ico }); };
+    const marcos = [], limpa = (k, lado, raio)=>{ for(let q = -raio; q <= raio; q++){ const sg = segs[k + q]; if(!sg) continue;
+      sg.sp = sg.sp.filter(x=> x.t === 'poste' || x.t.startsWith('m_') || x.t.startsWith('v_') || x.t.startsWith('pl_') || (lado && Math.sign(x.x) !== lado));
+      if(sg.muro){ if(!lado) sg.muro = null; else sg.muro[lado < 0 ? 'L' : 'R'] = false; } } };
+    const poe = (k, o, nome, ico, raio)=>{ k = Math.max(4, Math.min(N - 3, k)); limpa(k, 0, raio); segs[k].sp.push(o); marcos.push({ i: k, n: nome, ico }); };
     poe(45, { x: 0, t: 'm_partida', s: 4.6 }, R.nIni, '🏁', 3);
-    poe(kOf(R.santKm), { x: R.santLado * 6.5, t: 'm_sant', s: 12 }, VALE_SANT.n, '⛪', 0);   // no alto do monte, por cima dos telhados
-    for(let q = -90; q <= 10; q++){ const sg = segs[kOf(R.santKm) + q]; if(sg && sg.muro) sg.muro[R.santLado < 0 ? 'L' : 'R'] = ((q % 7) + 7) % 7 < 2 ? sg.muro[R.santLado < 0 ? 'L' : 'R'] : false; }   // abertas nas casas desse lado para o ver
     poe(N - 3, { x: 0, t: 'm_meta', s: 4.6 }, R.nFim, '🏁', 3);
+    // santuário no alto do monte, com abertas nas casas desse lado para o ver
+    { const k = Math.max(60, Math.min(N - 10, kOf(R.santKm))); segs[k].sp.push({ x: R.santLado * 6.5, t: 'm_sant', s: 12 }); marcos.push({ i: k, n: VALE_SANT.n, ico: '⛪' });
+      for(let q = -90; q <= 10; q++){ const sg = segs[k + q]; if(sg && sg.muro) sg.muro[R.santLado < 0 ? 'L' : 'R'] = ((q % 7) + 7) % 7 < 2 ? sg.muro[R.santLado < 0 ? 'L' : 'R'] : false; } }
+    // pontos de interesse: o edifício (desenho genérico do tipo) e uma placa castanha com o nome, junto à estrada
+    const tam = { igreja: 3.2, capela: 2.2, escola: 4.2, bombeiros: 3.4, publico: 3.4, camara: 4, museu: 3.2, monumento: 1 };
+    let ult = -99;
+    R.pois.forEach((p, i)=>{
+      let k = Math.max(50, Math.min(N - 8, kOf(p.km))); if(k - ult < 7) k = ult + 7; ult = k;
+      const lado = p.lado || 1;
+      const rua = segs[k].amb !== 'campo';   // na vila e na cidade abre-se uma clareira nas casas para se ver o edifício
+      limpa(k, p.lado ? lado : 0, rua ? 11 : 4);
+      if(tam[p.t]) segs[k].sp.push({ x: lado * (rua ? 1.85 + Math.min(150, p.d) / 70 : 1.9 + Math.min(150, p.d) / 32), t: 'v_' + p.t, s: tam[p.t] });
+      segs[Math.max(0, k - 3)].sp.push({ x: lado * 1.28, t: 'pl_' + i, s: 1.15 });
+      marcos.push({ i: k, n: p.n, ico: VALE_ICO[p.t] || '📍' });
+    });
     marcos.sort((a, b)=> a.i - b.i);
     return marcos;
   }
-  // desenhos do Vale do Sousa: eucalipto, carvalho, vinha em ramada, casa, candeeiro, faixas de partida e meta, santuário
+  // placa castanha de turismo com o nome do sítio (como as das estradas portuguesas)
+  function srPlaca(txt){
+    const c = document.createElement('canvas'); c.width = 340; c.height = 230; const g = c.getContext('2d');
+    g.fillStyle = '#8E9399'; g.fillRect(162, 120, 16, 110);
+    g.font = '700 30px Barlow Condensed, Arial Narrow, sans-serif';
+    const pal = txt.split(' '), lin = []; let cur = '';
+    pal.forEach(w=>{ const t = cur ? cur + ' ' + w : w; if(g.measureText(t).width > 290 && cur){ lin.push(cur); cur = w; } else cur = t; }); if(cur) lin.push(cur);
+    const L = lin.slice(0, 3), hh = 22 + L.length * 34;
+    g.fillStyle = '#6B3E22'; g.fillRect(10, 128 - hh, 320, hh); g.strokeStyle = '#FFFFFF'; g.lineWidth = 4; g.strokeRect(16, 134 - hh, 308, hh - 12);
+    g.fillStyle = '#FFFFFF'; g.textAlign = 'center'; L.forEach((t, i)=> g.fillText(t, 170, 128 - hh + 44 + i * 34));
+    return c;
+  }
+  // desenhos do Vale do Sousa: eucalipto, carvalho, vinha em ramada, casa, candeeiro, faixas, santuário e os edifícios dos pontos de interesse
   function srSpritesVale(noite, R){
     const mk = (w, h, f)=>{ const c = document.createElement('canvas'); c.width = w; c.height = h; f(c.getContext('2d'), w, h); return c; };
     const sombra = (g, w, h)=>{ g.fillStyle = 'rgba(0,0,0,.25)'; g.beginPath(); g.ellipse(w / 2, h - 6, w * .3, 7, 0, 0, 7); g.fill(); };
+    const luz = noite ? '#FFD58A' : '#3E4A52', gran = '#A39D92', branco = '#F3F0E8';
     const eucalipto = mk(160, 320, (g, w, h)=>{ const r = srRnd(5); sombra(g, w, h);
       g.strokeStyle = '#CDBFA6'; g.lineCap = 'round'; g.lineWidth = 9; g.beginPath(); g.moveTo(w / 2, h - 6); g.quadraticCurveTo(w / 2 + 8, h * .5, w / 2 - 4, h * .12); g.stroke();
       g.lineWidth = 4; g.beginPath(); g.moveTo(w / 2 + 3, h * .45); g.lineTo(w / 2 + 30, h * .3); g.moveTo(w / 2, h * .32); g.lineTo(w / 2 - 28, h * .2); g.stroke();
@@ -4655,29 +4707,63 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       for(let i = 0; i < 20; i++){ g.fillStyle = i % 3 ? '#3F6E2F' : '#5A8A3E'; g.beginPath(); g.ellipse(w / 2 + (r() - .5) * w * .62, h * (.22 + r() * .32), w * (.14 + r() * .1), h * (.07 + r() * .05), 0, 0, 7); g.fill(); } });
     const ramada = mk(240, 150, (g, w, h)=>{ g.fillStyle = '#9C968C'; [20, 120, 220].forEach(x=> g.fillRect(x - 5, 40, 10, h - 46)); sombra(g, w, h);
       g.fillStyle = '#4C7F33'; g.fillRect(8, 30, w - 16, 26); g.fillStyle = '#6A9A45'; for(let x = 12; x < w - 12; x += 16){ g.beginPath(); g.arc(x, 34, 10, 0, 7); g.fill(); }
-      g.fillStyle = '#3B2A4F'; for(let x = 18; x < w - 18; x += 23){ g.beginPath(); g.arc(x, 62, 4, 0, 7); g.arc(x + 4, 66, 4, 0, 7); g.fill(); } });   // cachos
-    const casa = mk(200, 170, (g, w, h)=>{ sombra(g, w, h); g.fillStyle = '#F2EEE6'; g.fillRect(20, 62, 160, h - 68); g.fillStyle = '#B4582F'; g.beginPath(); g.moveTo(10, 66); g.lineTo(100, 18); g.lineTo(190, 66); g.closePath(); g.fill();
-      g.fillStyle = '#8F8A82'; g.fillRect(20, h - 20, 160, 14); g.fillStyle = noite ? '#FFD58A' : '#3E4A52'; [[40, 82], [130, 82]].forEach(([x, y])=> g.fillRect(x, y, 28, 26)); g.fillStyle = '#6B4A2E'; g.fillRect(88, 96, 26, h - 104); });
+      g.fillStyle = '#3B2A4F'; for(let x = 18; x < w - 18; x += 23){ g.beginPath(); g.arc(x, 62, 4, 0, 7); g.arc(x + 4, 66, 4, 0, 7); g.fill(); } });
+    const casa = mk(200, 170, (g, w, h)=>{ sombra(g, w, h); g.fillStyle = branco; g.fillRect(20, 62, 160, h - 68); g.fillStyle = '#B4582F'; g.beginPath(); g.moveTo(10, 66); g.lineTo(100, 18); g.lineTo(190, 66); g.closePath(); g.fill();
+      g.fillStyle = gran; g.fillRect(20, h - 20, 160, 14); g.fillStyle = luz; [[40, 82], [130, 82]].forEach(([x, y])=> g.fillRect(x, y, 28, 26)); g.fillStyle = '#6B4A2E'; g.fillRect(88, 96, 26, h - 104); });
     const poste = mk(24, 90, (g, w, h)=>{ g.fillStyle = '#A8ADB3'; g.fillRect(10, 8, 4, h - 8); g.fillRect(4, 6, 14, 4); g.fillStyle = noite ? '#FFE6A8' : '#DDE2E6'; g.fillRect(2, 8, 10, 5); });
     const faixa = (t1, t2, cor)=> mk(640, 320, (g, w, h)=>{
       g.fillStyle = '#2C3440'; g.fillRect(24, 40, 18, h - 40); g.fillRect(w - 42, 40, 18, h - 40);
       g.fillStyle = cor; g.fillRect(14, 30, w - 28, 110); g.fillStyle = '#FFFFFF'; g.fillRect(14, 30, w - 28, 6); g.fillRect(14, 134, w - 28, 6);
       g.textAlign = 'center'; g.fillStyle = '#FFFFFF'; g.font = '800 40px Barlow Condensed, Arial Narrow, sans-serif'; g.fillText(t1, w / 2, 78);
       g.font = '700 30px Barlow Condensed, Arial Narrow, sans-serif'; g.fillText(t2, w / 2, 120);
-      g.fillStyle = 'rgba(255,255,255,.9)'; for(let x = 20; x < w - 20; x += 24){ g.fillRect(x, 146, 12, 12); g.fillRect(x + 12, 158, 12, 12); } });   // xadrez
+      g.fillStyle = 'rgba(255,255,255,.9)'; for(let x = 20; x < w - 20; x += 24){ g.fillRect(x, 146, 12, 12); g.fillRect(x + 12, 158, 12, 12); } });
     const sant = mk(520, 600, (g, w, h)=>{
       g.fillStyle = noite ? '#1E3A24' : '#4E8640'; g.beginPath(); g.moveTo(0, h); g.quadraticCurveTo(w * .5, h * .5, w, h); g.closePath(); g.fill();
       const gr = noite ? '#E6D3A8' : '#CFC8BA', gs = noite ? '#B79E6E' : '#AFA799';
-      g.fillStyle = gr; g.fillRect(w / 2 - 120, 300, 240, 140);                                                 // corpo da igreja
-      g.fillStyle = gs; g.fillRect(w / 2 - 120, 300, 240, 16);
-      [-1, 1].forEach(l=>{ const x = w / 2 + l * 150; g.fillStyle = gr; g.fillRect(x - 32, 210, 64, 230); g.fillStyle = gs; g.fillRect(x - 32, 210, 64, 12);   // torres
+      g.fillStyle = gr; g.fillRect(w / 2 - 120, 300, 240, 140); g.fillStyle = gs; g.fillRect(w / 2 - 120, 300, 240, 16);
+      [-1, 1].forEach(l=>{ const x = w / 2 + l * 150; g.fillStyle = gr; g.fillRect(x - 32, 210, 64, 230); g.fillStyle = gs; g.fillRect(x - 32, 210, 64, 12);
         g.beginPath(); g.moveTo(x - 30, 210); g.quadraticCurveTo(x, 150, x + 30, 210); g.fill(); g.fillRect(x - 3, 140, 6, 20);
         g.fillStyle = noite ? '#7A6A48' : '#4E4A44'; g.fillRect(x - 12, 240, 24, 34); });
-      g.fillStyle = gr; g.fillRect(w / 2 - 60, 230, 120, 70); g.beginPath(); g.ellipse(w / 2, 230, 62, 80, 0, Math.PI, 0); g.fill();   // cúpula
-      g.fillStyle = gs; g.fillRect(w / 2 - 12, 130, 24, 26); g.beginPath(); g.arc(w / 2, 130, 12, Math.PI, 0); g.fill(); g.fillRect(w / 2 - 2, 104, 4, 16);   // lanterna e cruz
-      g.fillStyle = noite ? '#7A6A48' : '#5A554D'; g.beginPath(); g.moveTo(w / 2 - 26, 440); g.lineTo(w / 2 - 26, 380); g.arc(w / 2, 380, 26, Math.PI, 0); g.lineTo(w / 2 + 26, 440); g.fill();   // porta
-      g.strokeStyle = noite ? '#9EA6B0' : '#E5E1D8'; g.lineWidth = 6; g.beginPath(); for(let i = 0; i < 5; i++){ const y = 450 + i * 22; g.moveTo(w / 2 - 70 - i * 8, y); g.lineTo(w / 2 + 70 + i * 8, y); } g.stroke(); });   // escadório
-    SR.spr = { p0: eucalipto, p1: carvalho, p2: ramada, r: casa, poste, m_partida: faixa(R.ini[0], R.ini[1], '#1F5FA8'), m_meta: faixa(R.fim[0], R.fim[1], '#C8102E'), m_sant: sant };
+      g.fillStyle = gr; g.fillRect(w / 2 - 60, 230, 120, 70); g.beginPath(); g.ellipse(w / 2, 230, 62, 80, 0, Math.PI, 0); g.fill();
+      g.fillStyle = gs; g.fillRect(w / 2 - 12, 130, 24, 26); g.beginPath(); g.arc(w / 2, 130, 12, Math.PI, 0); g.fill(); g.fillRect(w / 2 - 2, 104, 4, 16);
+      g.fillStyle = noite ? '#7A6A48' : '#5A554D'; g.beginPath(); g.moveTo(w / 2 - 26, 440); g.lineTo(w / 2 - 26, 380); g.arc(w / 2, 380, 26, Math.PI, 0); g.lineTo(w / 2 + 26, 440); g.fill();
+      g.strokeStyle = noite ? '#9EA6B0' : '#E5E1D8'; g.lineWidth = 6; g.beginPath(); for(let i = 0; i < 5; i++){ const y = 450 + i * 22; g.moveTo(w / 2 - 70 - i * 8, y); g.lineTo(w / 2 + 70 + i * 8, y); } g.stroke(); });
+    // edifícios genéricos de cada tipo de ponto de interesse
+    const igreja = mk(300, 340, (g, w, h)=>{ sombra(g, w, h); g.fillStyle = branco; g.fillRect(50, 140, 200, h - 146);
+      g.beginPath(); g.moveTo(40, 144); g.lineTo(150, 80); g.lineTo(260, 144); g.closePath(); g.fill();
+      g.fillStyle = gran; g.fillRect(50, 140, 12, h - 146); g.fillRect(238, 140, 12, h - 146); g.fillRect(40, 140, 220, 8);
+      g.fillStyle = branco; g.fillRect(222, 40, 52, h - 46); g.fillStyle = gran; g.fillRect(222, 40, 52, 8); g.fillRect(222, 40, 6, h - 46); g.fillRect(268, 40, 6, h - 46);   // torre sineira
+      g.fillStyle = '#4E4A44'; g.beginPath(); g.arc(248, 78, 12, Math.PI, 0); g.lineTo(260, 96); g.lineTo(236, 96); g.fill();
+      g.fillStyle = gran; g.fillRect(146, 54, 8, 30); g.fillRect(136, 62, 28, 7);   // cruz
+      g.fillStyle = '#6B4A2E'; g.beginPath(); g.moveTo(130, h - 6); g.lineTo(130, 250); g.arc(150, 250, 20, Math.PI, 0); g.lineTo(170, h - 6); g.fill();
+      g.fillStyle = luz; g.beginPath(); g.arc(150, 180, 16, 0, 7); g.fill(); });
+    const capela = mk(220, 240, (g, w, h)=>{ sombra(g, w, h); g.fillStyle = branco; g.fillRect(40, 100, 140, h - 106);
+      g.beginPath(); g.moveTo(32, 104); g.lineTo(110, 50); g.lineTo(188, 104); g.closePath(); g.fill(); g.fillStyle = gran; g.fillRect(32, 100, 156, 6); g.fillRect(40, 100, 8, h - 106); g.fillRect(172, 100, 8, h - 106);
+      g.fillRect(96, 24, 28, 30); g.fillStyle = '#4E4A44'; g.beginPath(); g.arc(110, 42, 7, Math.PI, 0); g.fill(); g.fillStyle = gran; g.fillRect(107, 6, 6, 20); g.fillRect(100, 12, 20, 5);   // sineira e cruz
+      g.fillStyle = '#6B4A2E'; g.fillRect(94, 170, 32, h - 176); });
+    const escola = mk(420, 200, (g, w, h)=>{ sombra(g, w, h); g.fillStyle = '#EDE6D6'; g.fillRect(20, 60, 380, h - 66); g.fillStyle = '#C66A3D'; g.fillRect(14, 52, 392, 12);
+      g.fillStyle = luz; for(let x = 40; x < 380; x += 50){ g.fillRect(x, 82, 34, 30); g.fillRect(x, 128, 34, 30); }
+      g.strokeStyle = '#3F7A4A'; g.lineWidth = 3; g.beginPath(); for(let x = 0; x <= w; x += 14){ g.moveTo(x, h - 6); g.lineTo(x, h - 34); } g.moveTo(0, h - 34); g.lineTo(w, h - 34); g.stroke(); });
+    const bombeiros = mk(360, 260, (g, w, h)=>{ sombra(g, w, h); g.fillStyle = '#EFE9DD'; g.fillRect(20, 90, 320, h - 96); g.fillStyle = '#B3261E'; g.fillRect(20, 84, 320, 14);
+      g.fillStyle = '#B3261E'; for(let i = 0; i < 3; i++) g.fillRect(40 + i * 100, 150, 80, h - 156); g.fillStyle = 'rgba(255,255,255,.4)'; for(let i = 0; i < 3; i++) for(let y = 160; y < h - 10; y += 16) g.fillRect(44 + i * 100, y, 72, 3);
+      g.fillStyle = '#EFE9DD'; g.fillRect(290, 20, 46, 74); g.fillStyle = '#B3261E'; g.fillRect(290, 20, 46, 8); g.fillStyle = luz; g.fillRect(302, 40, 22, 22); });
+    const publico = mk(360, 260, (g, w, h)=>{ sombra(g, w, h); g.fillStyle = noite ? '#D8C8A0' : '#D9D2C2'; g.fillRect(20, 80, 320, h - 86); g.fillStyle = gran; g.fillRect(14, 70, 332, 14); g.fillRect(20, h - 24, 320, 18);
+      g.beginPath(); g.moveTo(110, 72); g.lineTo(180, 34); g.lineTo(250, 72); g.closePath(); g.fill();
+      g.fillStyle = noite ? '#EFE3C2' : '#ECE6D8'; for(let x = 120; x <= 240; x += 30) g.fillRect(x, 88, 12, h - 112);
+      g.fillStyle = luz; [[34, 100], [34, 160], [280, 100], [280, 160]].forEach(([x, y])=> g.fillRect(x, y, 44, 40)); });
+    const camara = mk(400, 300, (g, w, h)=>{ sombra(g, w, h); g.fillStyle = noite ? '#E2D3AE' : '#E4DDCF'; g.fillRect(20, 90, 360, h - 96); g.fillStyle = gran; g.fillRect(14, 82, 372, 12); g.fillRect(20, h - 24, 360, 18);
+      g.fillStyle = luz; for(let x = 40; x < 370; x += 46){ g.fillRect(x, 110, 28, 46); g.fillRect(x, 180, 28, 46); }
+      g.fillStyle = '#6B4A2E'; g.fillRect(178, 196, 44, h - 220); g.fillStyle = gran; g.fillRect(170, 30, 60, 56);
+      g.fillStyle = '#F7F7F7'; g.beginPath(); g.arc(200, 58, 18, 0, 7); g.fill(); g.strokeStyle = '#333'; g.lineWidth = 3; g.beginPath(); g.moveTo(200, 58); g.lineTo(200, 46); g.moveTo(200, 58); g.lineTo(209, 58); g.stroke();   // relógio
+      [[120, '#006600'], [280, '#1F5FA8']].forEach(([x, c])=>{ g.fillStyle = '#9AA0A6'; g.fillRect(x, 8, 4, 80); g.fillStyle = c; g.fillRect(x + 4, 10, 40, 26); }); });   // bandeiras
+    const museu = mk(340, 240, (g, w, h)=>{ sombra(g, w, h); g.fillStyle = noite ? '#D9C79C' : '#CFC5B0'; g.fillRect(20, 70, 300, h - 76); g.fillStyle = gran; g.fillRect(14, 62, 312, 12);
+      g.fillStyle = luz; for(let x = 40; x < 300; x += 52) g.fillRect(x, 96, 30, 50); g.fillStyle = '#5A4632'; g.fillRect(150, 160, 40, h - 166); });
+    const monumento = mk(120, 300, (g, w, h)=>{ sombra(g, w, h); g.fillStyle = gran; g.fillRect(30, 180, 60, h - 186); g.fillRect(22, 172, 76, 12); g.fillRect(22, h - 24, 76, 18);
+      g.fillStyle = noite ? '#8A7A5A' : '#5E6B5E'; g.beginPath(); g.ellipse(60, 70, 14, 16, 0, 0, 7); g.fill(); g.fillRect(44, 84, 32, 70); g.fillRect(40, 150, 40, 24); g.fillRect(74, 92, 22, 8); });
+    const spr = { p0: eucalipto, p1: carvalho, p2: ramada, r: casa, poste, m_partida: faixa(R.ini[0], R.ini[1], '#1F5FA8'), m_meta: faixa(R.fim[0], R.fim[1], '#C8102E'), m_sant: sant,
+      v_igreja: igreja, v_capela: capela, v_escola: escola, v_bombeiros: bombeiros, v_publico: publico, v_camara: camara, v_museu: museu, v_monumento: monumento };
+    R.pois.forEach((p, i)=>{ spr['pl_' + i] = srPlaca(p.n); });
+    SR.spr = spr;
   }
   // fundo do Vale do Sousa: colinas verdes com casas brancas de telhado vermelho e manchas de eucalipto
   function srFundoVale(W, H, sky, mk, M){
@@ -4721,7 +4807,9 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
       g.fillStyle = 'rgba(5,7,10,.72)'; g.beginPath(); g.roundRect ? g.roundRect(0, 0, w, h, 12) : g.rect(0, 0, w, h); g.fill();
       g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = 4; g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); R.pts.forEach((p, i)=>{ const q = XY(p.la, p.lo); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.stroke();
       g.font = '700 12px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.85)';
-      R.vilas.forEach(([n, km])=>{ const p = km ? R.pts[R.pts.length - 1] : R.pts[0], q = XY(p.la, p.lo); g.textAlign = 'left'; g.fillText(n, q[0] + 10, q[1] + 4); g.fillStyle = '#FFD60A'; g.beginPath(); g.arc(q[0], q[1], 4, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,.85)'; });
+      g.fillStyle = 'rgba(255,214,10,.8)'; R.pois.forEach(p=>{ const k0 = R.pts.reduce((m, q, i)=> Math.abs(q.km - p.km) < Math.abs(R.pts[m].km - p.km) ? i : m, 0), q = XY(R.pts[k0].la, R.pts[k0].lo); g.beginPath(); g.arc(q[0], q[1], 2.2, 0, 7); g.fill(); });
+      g.fillStyle = 'rgba(255,255,255,.85)';
+      R.vilas.forEach((n, ix)=>{ const p = ix ? R.pts[R.pts.length - 1] : R.pts[0], q = XY(p.la, p.lo); g.textAlign = 'left'; g.fillText(n, q[0] + 10, q[1] + 4); g.fillStyle = '#FFD60A'; g.beginPath(); g.arc(q[0], q[1], 4, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,.85)'; });
       { const q = XY(VALE_SANT.la, VALE_SANT.lo); g.font = '15px sans-serif'; g.textAlign = 'center'; g.fillText('⛪', q[0], q[1] + 5); }
       g.font = '700 11px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'left'; g.fillText(R.titulo + ' · ' + R.km.toFixed(1).replace('.', ',') + ' km reais', 10, 12);
       // altimetria real
