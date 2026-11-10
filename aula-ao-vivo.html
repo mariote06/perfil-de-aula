@@ -4165,7 +4165,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   // deslocada para o centro do ecrã (vx); quem está ao centro fica de costas. A bicicleta é um modelo 3D simples de uma
   // bicicleta de estrada (quadro, forqueta, escoras, rodas de perfil alto com raios, transmissão, selim e guiador de curva),
   // projetado para o ecrã com a mesma vista 3/4.
-  // ---- kart visto de trás (Grande Prémio do Cogumelo): pneus largos, para-choques, motor com escape, banco e piloto de capacete ----
+  // ---- kart a pedais visto de trás (Grande Prémio do Cogumelo): pneus largos, corrente para o eixo de trás, joelhos a pedalar, bandeirinha e piloto de capacete ----
   function srKart(ctx, x, y, s, cor, pedal, emPe, vx){
     s *= 1.25;   // o kart é baixo: um pouco maior para se ver bem no pelotão
     const per = vx == null ? 0 : Math.max(-1, Math.min(1, (vx - x) / (s * 3))), lean = 0, bob = Math.abs(Math.sin(pedal * 2)) * s * .012;
@@ -4189,9 +4189,17 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     ctx.fillStyle = '#1A1D23'; ctx.fillRect(x - s * .06, hy + s * .13, s * .12, s * .05);    // pescoço
     // banco (encosto) e motor com escape ao lado
     ctx.fillStyle = '#20232B'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - s * .22, y - s * .4, s * .44, s * .22, s * .06) : ctx.rect(x - s * .22, y - s * .4, s * .44, s * .22); ctx.fill();
-    ctx.fillStyle = '#5A606B'; ctx.fillRect(x + s * .22, y - s * .36, s * .16, s * .16); ctx.fillStyle = '#8A919C'; for(let k = 0; k < 4; k++) ctx.fillRect(x + s * .23, y - s * .34 + k * s * .035, s * .14, s * .012);
-    ctx.strokeStyle = '#B8BEC6'; ctx.lineWidth = s * .035; ctx.beginPath(); ctx.moveTo(x + s * .3, y - s * .2); ctx.quadraticCurveTo(x + s * .32, y - s * .08, x + s * .2, y - s * .1); ctx.stroke();
-    for(let k = 0; k < 3; k++){ const ph = (pedal * .8 + k * 1.3) % 3.9 / 3.9; ctx.fillStyle = 'rgba(220,224,230,' + (.45 * (1 - ph)) + ')'; ctx.beginPath(); ctx.arc(x + s * (.16 - ph * .12), y - s * (.1 - ph * .06), s * (.03 + ph * .07), 0, 7); ctx.fill(); }   // fumo do escape
+    // joelhos a subir e a descer ao ritmo da pedalada (um de cada lado do banco)
+    [-1, 1].forEach(l=>{ const up = (Math.sin(pedal + (l > 0 ? Math.PI : 0)) + 1) / 2, kx = x + l * s * .2, ky = y - s * (.36 + up * .1) - bob;
+      ctx.fillStyle = '#1A1D23'; ctx.beginPath(); ctx.ellipse(kx, ky, s * .07, s * .06, 0, 0, 7); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.beginPath(); ctx.ellipse(kx - s * .02, ky - s * .02, s * .03, s * .02, 0, 0, 7); ctx.fill(); });
+    // corrente do pedaleiro até ao carreto do eixo de trás
+    const cy2 = y - s * .14; ctx.strokeStyle = '#8A919C'; ctx.lineWidth = Math.max(1, s * .016); ctx.setLineDash([s * .02, s * .012]); ctx.lineDashOffset = -pedal * s * .05;
+    ctx.beginPath(); ctx.moveTo(x + s * .05, y - s * .3); ctx.lineTo(x + s * .14, cy2 - s * .05); ctx.moveTo(x + s * .05, y - s * .26); ctx.lineTo(x + s * .14, cy2 + s * .05); ctx.stroke(); ctx.setLineDash([]);
+    ctx.save(); ctx.translate(x + s * .14, cy2); ctx.rotate(pedal); ctx.fillStyle = '#B8BEC6'; ctx.beginPath(); for(let k = 0; k < 16; k++){ const a = k / 16 * 6.283, rr = k % 2 ? s * .06 : s * .072; ctx.lineTo(Math.cos(a) * rr, Math.sin(a) * rr); } ctx.closePath(); ctx.fill();
+    ctx.fillStyle = '#3A3F49'; ctx.beginPath(); ctx.arc(0, 0, s * .025, 0, 7); ctx.fill(); ctx.restore();
+    // bandeirinha de segurança num mastro flexível, a abanar
+    const fx = x - s * .2, ftop = y - s * 1.25, ond = Math.sin(pedal * 1.5) * s * .03; ctx.strokeStyle = '#E8EAED'; ctx.lineWidth = Math.max(1, s * .014); ctx.beginPath(); ctx.moveTo(fx, y - s * .38); ctx.quadraticCurveTo(fx - s * .02, ftop + s * .4, fx - s * .04, ftop); ctx.stroke();
+    ctx.fillStyle = '#FF7A00'; ctx.beginPath(); ctx.moveTo(fx - s * .04, ftop); ctx.lineTo(fx - s * .26, ftop + s * .05 + ond); ctx.lineTo(fx - s * .04, ftop + s * .13); ctx.closePath(); ctx.fill();
     // pneus de trás largos (com o piso a rodar) e jantes
     [-1, 1].forEach(l=>{ const px = x + l * s * .44, w = s * .2, h = s * .3, py = y - h;
       ctx.fillStyle = '#0F1115'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(px - w / 2, py, w, h, s * .05) : ctx.rect(px - w / 2, py, w, h); ctx.fill();
@@ -4572,6 +4580,9 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       ctx.fillStyle = '#0F1115'; [-1, 1].forEach(l=>{ ctx.beginPath(); ctx.roundRect ? ctx.roundRect(gx + l * W * .36 - W * .09, H * .9 + bob, W * .18, H * .14, 14) : ctx.rect(gx + l * W * .36 - W * .09, H * .9 + bob, W * .18, H * .14); ctx.fill(); });
       ctx.fillStyle = zc; ctx.beginPath(); ctx.moveTo(gx - W * .3, H * 1.02); ctx.quadraticCurveTo(gx - W * .26, H * .9 + bob, gx, H * .88 + bob); ctx.quadraticCurveTo(gx + W * .26, H * .9 + bob, gx + W * .3, H * 1.02); ctx.closePath(); ctx.fill();
       ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.ellipse(gx - W * .08, H * .92 + bob, W * .08, H * .012, -.1, 0, 7); ctx.fill();
+      [-1, 1].forEach(l=>{ const up = (Math.sin(pedal + (l > 0 ? Math.PI : 0)) + 1) / 2;   // os teus joelhos a pedalar
+        ctx.fillStyle = '#2E3440'; ctx.beginPath(); ctx.ellipse(gx + l * W * .2, H * (.97 - up * .09) + bob, W * .11, H * .06, 0, 0, 7); ctx.fill();
+        ctx.fillStyle = 'rgba(255,255,255,.22)'; ctx.beginPath(); ctx.ellipse(gx + l * W * .2 - W * .03, H * (.945 - up * .09) + bob, W * .05, H * .016, 0, 0, 7); ctx.fill(); });
       const vr = Math.min(W * .3, H * .17), vy = H * .99 + bob; ctx.lineCap = 'round';
       ctx.strokeStyle = '#15171C'; ctx.lineWidth = vr * .22; ctx.beginPath(); ctx.arc(gx, vy, vr, Math.PI * 1.05, Math.PI * 1.95); ctx.stroke();
       ctx.strokeStyle = '#2B2F37'; ctx.lineWidth = vr * .1; ctx.beginPath(); ctx.moveTo(gx - vr * .9, vy - vr * .3); ctx.lineTo(gx + vr * .9, vy - vr * .3); ctx.moveTo(gx, vy - vr * .3); ctx.lineTo(gx, vy); ctx.stroke();
