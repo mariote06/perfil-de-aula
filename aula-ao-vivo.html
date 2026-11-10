@@ -2395,8 +2395,8 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       const X = tipo === 'p' ? 1.32 : m.x, hb = tipo === 'p' ? .09 : m.h;
       const xn = p1.x + sd * p1.w * X, xf = q.x + sd * q.w * X, hn = p1.w * hb, hf = q.w * hb;
       if(tipo === 'p'){ quad([xn, p1.y], [xn, p1.y - hn], [xf, q.y - hf], [xf, q.y], tom('#BDB3A3')); return; }   // parapeito do Sena
-      const pt = m.est === 'pt';   // casas portuguesas: paredes claras ou de azulejo, telhado de telha, rés-do-chão de granito
-      const pedra = pt ? srMix(['#F1ECE2', '#F2E1BD', '#DCE6EC', '#EDE4D6', '#F4F1EA'][Math.floor(sg.i / 6) % 5], '#000000', sd < 0 ? 0 : .06) : sd < 0 ? '#DCCFB6' : '#CDBFA4';
+      const pt = m.est === 'pt' || m.est === 'porto';   // casas portuguesas: paredes claras ou de azulejo, telhado de telha, rés-do-chão de granito
+      const pedra = pt ? srMix((m.est === 'porto' ? ['#E7B94A', '#F1ECE2', '#C8553D', '#7FA3C8', '#E59A6B', '#F2E1BD', '#8FB08A', '#D9C6A0'] : ['#F1ECE2', '#F2E1BD', '#DCE6EC', '#EDE4D6', '#F4F1EA'])[Math.floor(sg.i / (m.est === 'porto' ? 4 : 6)) % (m.est === 'porto' ? 8 : 5)], '#000000', sd < 0 ? 0 : .06) : sd < 0 ? '#DCCFB6' : '#CDBFA4';
       quad([xn, p1.y], [xn, p1.y - hn], [xf, q.y - hf], [xf, q.y], tom(pt || sg.i % 9 < 4 ? pedra : srMix(pedra, '#B9A98E', .35)));
       // telhado (mansarda de zinco em Paris, telha em Portugal)
       const rec = pt ? .1 : .2, alt = pt ? 1.14 : 1.24, xrn = p1.x + sd * p1.w * (X + rec), xrf = q.x + sd * q.w * (X + rec);
@@ -2427,6 +2427,387 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       if(SR.met && SR.met.fase !== 'tarde'){ ctx.fillStyle = '#FFE08A'; for(let b = .3; b < 1; b += .14){ ctx.beginPath(); ctx.arc(L * .19, L * b, Math.max(.8, L * .018), 0, 7); ctx.fill(); } } }
     ctx.fillStyle = '#3A0E0E'; ctx.beginPath(); ctx.arc(0, 0, L * .07, 0, 7); ctx.fill();
     ctx.restore();
+  }
+  // ---- monumentos e edifícios dos percursos reais, desenhados em pormenor (o dobro da resolução, com luz, sombra e textura) ----
+  const srMk2 = (w, h, f)=>{ const c = document.createElement('canvas'); c.width = w * 2; c.height = h * 2; const g = c.getContext('2d'); g.scale(2, 2); f(g, w, h); return c; };
+  const srGrad = (g, x0, y0, x1, y1, st)=>{ const gr = g.createLinearGradient(x0, y0, x1, y1); st.forEach(([o, c])=> gr.addColorStop(o, c)); return gr; };
+  const srSombraChao = (g, cx, y, rx)=>{ const gr = g.createRadialGradient(cx, y, 0, cx, y, rx); gr.addColorStop(0, 'rgba(0,0,0,.32)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.save(); g.translate(cx, y); g.scale(1, .12); g.translate(-cx, -y); g.beginPath(); g.arc(cx, y, rx, 0, 7); g.fill(); g.restore(); };
+  // janela com moldura de pedra: de dia vidro escuro com reflexo, à noite acesa (umas sim, outras não)
+  function srJanela(g, x, y, w, h, o){
+    o = o || {}; const m = o.mold || 4, noite = o.noite, acesa = noite && (o.acesa ?? true);
+    if(o.moldCor){ g.fillStyle = o.moldCor; g.beginPath(); if(o.arco){ g.moveTo(x - m, y + h + m); g.lineTo(x - m, y + w / 2); g.arc(x + w / 2, y + w / 2, w / 2 + m, Math.PI, 0); g.lineTo(x + w + m, y + h + m); } else g.rect(x - m, y - m, w + m * 2, h + m * 2); g.fill(); }
+    const vid = ()=>{ g.beginPath(); if(o.arco){ g.moveTo(x, y + h); g.lineTo(x, y + w / 2); g.arc(x + w / 2, y + w / 2, w / 2, Math.PI, 0); g.lineTo(x + w, y + h); g.closePath(); } else g.rect(x, y, w, h); };
+    vid(); g.fillStyle = acesa ? srGrad(g, 0, y, 0, y + h, [[0, '#FFE3A3'], [1, '#F2B95C']]) : srGrad(g, x, y, x + w, y + h, [[0, '#5D7183'], [.45, '#33414E'], [1, '#26313B']]); g.fill();
+    if(!acesa){ g.save(); vid(); g.clip(); g.fillStyle = 'rgba(255,255,255,.16)'; g.beginPath(); g.moveTo(x, y + h * .55); g.lineTo(x + w * .6, y); g.lineTo(x + w, y); g.lineTo(x, y + h); g.fill(); g.restore(); }
+    if(o.caixilho !== false){ g.strokeStyle = acesa ? 'rgba(120,70,20,.55)' : 'rgba(235,235,230,.75)'; g.lineWidth = Math.max(1, w * .06); g.beginPath(); g.moveTo(x + w / 2, y + (o.arco ? w * .15 : 0)); g.lineTo(x + w / 2, y + h); g.moveTo(x, y + h * .5); g.lineTo(x + w, y + h * .5); g.stroke(); }
+    if(o.peitoril){ g.fillStyle = o.moldCor || '#A9A296'; g.fillRect(x - m - 3, y + h + m - 1, w + m * 2 + 6, 4); }
+  }
+  // juntas da cantaria (linhas finas de pedra)
+  function srJuntas(g, x, y, w, h, passo, cor, seed){
+    const r = srRnd(seed || 7); g.strokeStyle = cor; g.lineWidth = .8; g.beginPath();
+    for(let yy = y + passo, f = 0; yy < y + h; yy += passo, f++){ g.moveTo(x, yy); g.lineTo(x + w, yy); for(let xx = x + (f % 2 ? passo : passo * 1.8) + r() * 6; xx < x + w; xx += passo * 2.6 + r() * 8){ g.moveTo(xx, yy); g.lineTo(xx, yy - passo); } }
+    g.stroke();
+  }
+  // telhado de telha (marselha) visto de frente
+  function srTelhado(g, x0, y0, x1, y1, topo, noite){
+    g.fillStyle = noite ? '#6E3A26' : '#B4582F'; g.beginPath(); g.moveTo(x0, y1); g.lineTo(x0 + topo, y0); g.lineTo(x1 - topo, y0); g.lineTo(x1, y1); g.closePath(); g.fill();
+    g.strokeStyle = noite ? 'rgba(0,0,0,.3)' : 'rgba(110,40,20,.45)'; g.lineWidth = 1; g.beginPath();
+    for(let y = y0 + 4; y < y1; y += 5){ const k = (y - y0) / (y1 - y0), a = x0 + topo * (1 - k), b = x1 - topo * (1 - k); g.moveTo(a, y); g.lineTo(b, y); } g.stroke();
+  }
+  // figura esculpida (relevos e estátuas), em silhueta com volume
+  function srFigura(g, x, y, s, cor, luz, pose){
+    g.fillStyle = cor; g.beginPath(); g.ellipse(x, y - s * .9, s * .11, s * .13, 0, 0, 7); g.fill();
+    g.beginPath(); g.moveTo(x - s * .16, y - s * .74); g.quadraticCurveTo(x, y - s * .82, x + s * .16, y - s * .74);
+    g.lineTo(x + s * .2 + (pose || 0) * s * .12, y); g.lineTo(x - s * .22, y); g.closePath(); g.fill();
+    if(pose){ g.lineWidth = s * .07; g.strokeStyle = cor; g.lineCap = 'round'; g.beginPath(); g.moveTo(x + s * .12, y - s * .68); g.lineTo(x + s * .12 + pose * s * .3, y - s * (pose > 0 ? 1.05 : .4)); g.stroke(); }
+    if(luz){ g.fillStyle = luz; g.beginPath(); g.ellipse(x - s * .04, y - s * .93, s * .05, s * .07, 0, 0, 7); g.fill(); g.fillRect(x - s * .14, y - s * .7, s * .07, s * .6); }
+  }
+
+  // ================= PARIS =================
+  function srMonParis(noite){
+    const pedra = noite ? '#F1D9A4' : '#E2D4B8', claro = noite ? '#FFEBC0' : '#EEE4CF', esc = noite ? '#B98E52' : '#B9A684', fundo = noite ? '#7A5A30' : '#8E7E64';
+    // ---- Arco do Triunfo: ático com escudos, friso, cornijas, relevos nos pilares e o arco por onde se passa ----
+    const arco = srMk2(500, 420, (g, w, h)=>{
+      srSombraChao(g, 250, 416, 260);
+      g.fillStyle = srGrad(g, 40, 0, 460, 0, [[0, esc], [.08, pedra], [.3, claro], [.62, pedra], [.92, esc], [1, srMix(esc, '#000000', .15)]]); g.fillRect(40, 92, 420, 304);
+      srJuntas(g, 40, 128, 420, 266, 15, noite ? 'rgba(120,80,30,.18)' : 'rgba(110,95,70,.16)', 3);
+      // pilastras e cantos
+      g.fillStyle = 'rgba(0,0,0,.07)'; [[40, 10], [150, 12], [338, 12], [450, 10]].forEach(([x, ww])=> g.fillRect(x, 126, ww, 268));
+      g.fillStyle = 'rgba(255,255,255,.12)'; [52, 162, 350].forEach(x=> g.fillRect(x, 126, 3, 268));
+      // embasamento
+      g.fillStyle = srGrad(g, 0, 384, 0, 420, [[0, esc], [1, fundo]]); g.fillRect(32, 384, 436, 36); g.fillStyle = 'rgba(255,255,255,.18)'; g.fillRect(32, 384, 436, 3);
+      // cornija de imposta (onde nasce o arco)
+      g.fillStyle = esc; g.fillRect(36, 206, 428, 10); g.fillStyle = claro; g.fillRect(36, 205, 428, 3);
+      // grandes relevos nos pilares (grupos esculpidos) e painéis de cima
+      const relevo = (x, y, ww, hh, n, sc, seed)=>{ const r = srRnd(seed);
+        g.fillStyle = srMix(pedra, '#000000', .14); g.fillRect(x, y, ww, hh); g.fillStyle = srMix(pedra, '#000000', .06); g.fillRect(x + 4, y + 4, ww - 8, hh - 8);
+        g.strokeStyle = esc; g.lineWidth = 2; g.strokeRect(x + 1, y + 1, ww - 2, hh - 2);
+        for(let i = 0; i < n; i++) srFigura(g, x + 14 + (i + .5) * (ww - 28) / n + (r() - .5) * 6, y + hh - 6 - r() * 4, sc * (.8 + r() * .35), srMix(pedra, '#000000', .3), claro, (r() - .5) * 2.2);
+        if(n > 2){ g.fillStyle = srMix(pedra, '#000000', .25); g.beginPath(); g.moveTo(x + ww * .5, y + 10); g.lineTo(x + ww * .22, y + hh * .35); g.lineTo(x + ww * .5, y + hh * .28); g.lineTo(x + ww * .78, y + hh * .35); g.closePath(); g.fill(); }   // asas do génio
+      };
+      relevo(62, 236, 96, 140, 3, 62, 11); relevo(342, 236, 96, 140, 3, 62, 23);
+      relevo(62, 136, 96, 58, 5, 34, 31); relevo(342, 136, 96, 58, 5, 34, 41);
+      // friso do entablamento com o cortejo e cornija com dentículos
+      g.fillStyle = srMix(pedra, '#000000', .08); g.fillRect(40, 96, 420, 30);
+      { const r = srRnd(77); for(let x = 48; x < 452; x += 7) srFigura(g, x, 123, 20 + r() * 4, srMix(pedra, '#000000', .28), null, 0); }
+      g.fillStyle = srGrad(g, 0, 78, 0, 96, [[0, claro], [1, esc]]); g.fillRect(28, 78, 444, 18);
+      g.fillStyle = srMix(esc, '#000000', .2); for(let x = 32; x < 468; x += 8) g.fillRect(x, 92, 5, 4);
+      // ático com a fila de escudos
+      g.fillStyle = srGrad(g, 40, 0, 460, 0, [[0, esc], [.3, claro], [.7, pedra], [1, esc]]); g.fillRect(46, 30, 408, 48);
+      for(let x = 58; x < 446; x += 13){ g.fillStyle = srMix(pedra, '#000000', .2); g.beginPath(); g.moveTo(x, 44); g.lineTo(x + 9, 44); g.lineTo(x + 9, 56); g.quadraticCurveTo(x + 4.5, 66, x, 56); g.closePath(); g.fill(); g.fillStyle = claro; g.fillRect(x + 1, 45, 2, 9); }
+      g.fillStyle = srGrad(g, 0, 18, 0, 32, [[0, claro], [1, esc]]); g.fillRect(38, 18, 424, 14); g.fillStyle = esc; g.fillRect(46, 70, 408, 4);
+      // arco: recorte por onde passa a estrada
+      g.globalCompositeOperation = 'destination-out'; g.beginPath(); g.moveTo(160, 420); g.lineTo(160, 215); g.arc(250, 215, 90, Math.PI, 0); g.lineTo(340, 420); g.closePath(); g.fill();
+      g.globalCompositeOperation = 'source-over';
+      // espessura do arco vista de lado: abóbada com caixotões (rosetas)
+      g.save(); g.beginPath(); g.moveTo(160, 420); g.lineTo(160, 215); g.arc(250, 215, 90, Math.PI, 0); g.lineTo(340, 420); g.closePath();
+      g.moveTo(178, 420); g.lineTo(178, 222); g.arc(259, 222, 81, Math.PI, 0); g.lineTo(340, 420); g.closePath(); g.clip('evenodd');
+      g.fillStyle = srGrad(g, 160, 0, 260, 0, [[0, srMix(pedra, '#000000', .38)], [1, srMix(pedra, '#000000', .2)]]); g.fillRect(150, 120, 200, 300);
+      g.fillStyle = srMix(pedra, '#000000', .5); for(let a = Math.PI * 1.05; a < Math.PI * 1.95; a += .16){ g.beginPath(); g.arc(254 + Math.cos(a) * 85, 218 + Math.sin(a) * 85, 3, 0, 7); g.fill(); }
+      g.restore();
+      // arquivolta, fecho do arco e Vitórias nos tímpanos
+      g.strokeStyle = esc; g.lineWidth = 7; g.beginPath(); g.arc(250, 215, 94, Math.PI, 0); g.stroke(); g.strokeStyle = claro; g.lineWidth = 2; g.beginPath(); g.arc(250, 215, 98, Math.PI, 0); g.stroke();
+      g.fillStyle = claro; g.beginPath(); g.moveTo(242, 114); g.lineTo(258, 114); g.lineTo(255, 132); g.lineTo(245, 132); g.closePath(); g.fill();
+      [[198, 148, -1], [302, 148, 1]].forEach(([x, y, l])=>{ g.save(); g.translate(x, y); g.rotate(l * .62); g.fillStyle = srMix(pedra, '#000000', .16);   // Vitórias deitadas nos tímpanos, em baixo-relevo
+        g.beginPath(); g.ellipse(0, 0, 26, 5.5, 0, 0, 7); g.fill(); g.beginPath(); g.arc(-l * 26, -3, 4.2, 0, 7); g.fill();
+        g.beginPath(); g.moveTo(-l * 6, -3); g.quadraticCurveTo(0, -14, l * 12, -12); g.quadraticCurveTo(l * 4, -6, -l * 6, -3); g.fill();
+        g.strokeStyle = srMix(pedra, '#000000', .2); g.lineWidth = 2; g.beginPath(); g.moveTo(-l * 22, -5); g.lineTo(-l * 34, -12); g.stroke(); g.restore(); });
+      if(noite){ g.globalCompositeOperation = 'source-atop'; g.fillStyle = srGrad(g, 0, 420, 0, 0, [[0, 'rgba(255,190,90,.35)'], [.6, 'rgba(255,190,90,0)']]); g.fillRect(0, 0, w, h); g.globalCompositeOperation = 'source-over'; }
+    });
+    // ---- Obelisco de Luxor (Praça da Concórdia) ----
+    const obel = srMk2(60, 420, (g, w, h)=>{
+      srSombraChao(g, 30, 416, 30);
+      g.fillStyle = srGrad(g, 6, 0, 54, 0, [[0, '#7E7A74'], [.4, '#B4AFA6'], [1, '#6C6862']]); g.fillRect(6, 372, 48, 44); g.fillRect(10, 350, 40, 24); g.fillStyle = '#5E5A55'; g.fillRect(4, 410, 52, 8);
+      g.strokeStyle = noite ? '#F2C766' : '#C9A24A'; g.lineWidth = 1; g.strokeRect(14, 356, 32, 14); g.beginPath(); g.moveTo(16, 386); g.lineTo(44, 386); g.moveTo(16, 396); g.lineTo(44, 396); g.stroke();
+      const cor = noite ? '#E6C185' : '#D2B080';
+      g.fillStyle = srGrad(g, 18, 0, 42, 0, [[0, srMix(cor, '#000000', .25)], [.45, cor], [1, srMix(cor, '#000000', .3)]]); g.beginPath(); g.moveTo(18, 350); g.lineTo(23, 46); g.lineTo(37, 46); g.lineTo(42, 350); g.closePath(); g.fill();
+      g.fillStyle = 'rgba(80,55,25,.55)'; const r = srRnd(5); for(let y = 60; y < 340; y += 6){ g.fillRect(28 - 1 + (r() - .5) * 2, y, 2 + r() * 2, 3); if(r() < .5) g.fillRect(23 + (y - 46) / 304 * -4 + 3, y, 2, 2); if(r() < .5) g.fillRect(34 + (y - 46) / 304 * 4, y, 2, 2); }
+      g.fillStyle = srGrad(g, 23, 0, 37, 0, [[0, '#B8892A'], [.5, '#FFE08A'], [1, '#A77A22']]); g.beginPath(); g.moveTo(23, 46); g.lineTo(30, 22); g.lineTo(37, 46); g.closePath(); g.fill();
+    });
+    // ---- Torre Eiffel: treliça de ferro com as pernas curvas, os arcos da base, os três pisos e a antena ----
+    const eiffel = srMk2(360, 1000, (g, w, h)=>{
+      const cx = w / 2, topo = 54, H = h - topo, hw = y=>{ const t = (h - y) / H; return t > .93 ? w * .47 * Math.exp(-3 * .93) * (1 - (t - .93) / .07 * .85) : w * .47 * Math.exp(-3 * t); };
+      const ferro = noite ? '#F2B24A' : '#6B5545', ferroL = noite ? '#FFD98A' : '#8C735C', ferroE = noite ? '#B8761E' : '#4A3A2E';
+      const y1 = h - H * .17, y2 = h - H * .35, y3 = h - H * .84;
+      const forma = ()=>{ g.beginPath(); g.moveTo(cx - hw(h), h); for(let y = h; y >= topo; y -= 6) g.lineTo(cx - hw(y), y); for(let y = topo; y <= h; y += 6) g.lineTo(cx + hw(y), y); g.closePath(); };
+      // vazios: arco entre as pernas e janela entre o 1.º e o 2.º piso
+      const vazios = ()=>{ const a = hw(h) - w * .14; g.moveTo(cx - a, h); g.bezierCurveTo(cx - a * .95, h - H * .1, cx - a * .35, h - H * .135, cx, h - H * .137); g.bezierCurveTo(cx + a * .35, h - H * .135, cx + a * .95, h - H * .1, cx + a, h); g.closePath();
+        const b1 = hw(y1) - w * .085, b2 = hw(y2) - w * .045; g.moveTo(cx - b1, y1 - 14); g.lineTo(cx - b2, y2 + 10); g.lineTo(cx + b2, y2 + 10); g.lineTo(cx + b1, y1 - 14); g.closePath(); };
+      if(noite){ g.save(); g.shadowColor = 'rgba(255,190,80,.7)'; g.shadowBlur = 30; forma(); vazios(); g.fillStyle = 'rgba(242,178,74,.25)'; g.fill('evenodd'); g.restore(); }
+      g.save(); forma(); vazios(); g.clip('evenodd');
+      g.fillStyle = noite ? 'rgba(242,178,74,.3)' : 'rgba(107,85,69,.3)'; g.fillRect(0, 0, w, h);
+      // treliça: cruzes em X e travessas
+      g.strokeStyle = ferro; g.lineWidth = 1.3; g.beginPath(); for(let k = -h; k < w + h; k += 13){ g.moveTo(k, 0); g.lineTo(k + h * .55, h); g.moveTo(k, 0); g.lineTo(k - h * .55, h); } g.stroke();
+      g.lineWidth = 1.8; g.beginPath(); for(let y = topo + 20; y < h; y += y < y2 ? 16 : 22){ g.moveTo(cx - hw(y), y); g.lineTo(cx + hw(y), y); } g.stroke();
+      // as quatro arestas das pernas (vistas de frente duas a duas)
+      g.strokeStyle = ferroE; g.lineWidth = 4; [-1, 1].forEach(l=>{ g.beginPath(); for(let y = h; y >= topo; y -= 6) g.lineTo(cx + l * hw(y), y); g.stroke();
+        g.beginPath(); for(let y = h; y >= y2; y -= 6) g.lineTo(cx + l * (hw(y) - (y > y1 ? w * .14 * (1 - (h - y) / (h - y1) * .4) : w * .085 - (y1 - y) / (y1 - y2) * w * .04)), y); g.stroke(); });
+      g.strokeStyle = ferroL; g.lineWidth = 1.4; [-1, 1].forEach(l=>{ g.beginPath(); for(let y = h; y >= topo; y -= 6) g.lineTo(cx + l * (hw(y) - 3), y); g.stroke(); });
+      g.restore();
+      // arco decorativo da base (o grande arco entre as pernas)
+      { const a = hw(h) - w * .14; g.strokeStyle = ferroE; g.lineWidth = 5; g.beginPath(); g.moveTo(cx - a, h); g.bezierCurveTo(cx - a * .95, h - H * .1, cx - a * .35, h - H * .135, cx, h - H * .137); g.bezierCurveTo(cx + a * .35, h - H * .135, cx + a * .95, h - H * .1, cx + a, h); g.stroke();
+        g.strokeStyle = ferro; g.lineWidth = 1.2; g.beginPath(); for(let i = 1; i < 14; i++){ const t = i / 14, x = cx - a + 2 * a * t, yy = h - H * .137 * Math.sin(t * Math.PI) ** .7; g.moveTo(x, yy); g.lineTo(x, Math.min(h, yy + 26)); } g.stroke(); }
+      // pisos: varandas com arcadas (1.º), plataforma (2.º) e o topo
+      const piso = (y, ext, alt, arcos)=>{ const a = hw(y) + ext; g.fillStyle = srGrad(g, 0, y - alt, 0, y, [[0, ferroL], [1, ferroE]]); g.fillRect(cx - a, y - alt, a * 2, alt);
+        g.fillStyle = noite ? '#FFF0C0' : 'rgba(255,255,255,.25)'; g.fillRect(cx - a, y - alt, a * 2, 2);
+        if(arcos){ g.fillStyle = noite ? 'rgba(90,50,10,.6)' : 'rgba(30,22,16,.55)'; for(let x = cx - a + 4; x < cx + a - 10; x += 10){ g.beginPath(); g.moveTo(x, y - 3); g.lineTo(x, y - alt * .5); g.arc(x + 4, y - alt * .5, 4, Math.PI, 0); g.lineTo(x + 8, y - 3); g.fill(); } }
+        g.strokeStyle = ferroE; g.lineWidth = 1; g.beginPath(); for(let x = cx - a; x <= cx + a; x += 5){ g.moveTo(x, y - alt); g.lineTo(x, y - alt - 6); } g.moveTo(cx - a, y - alt - 6); g.lineTo(cx + a, y - alt - 6); g.stroke(); };
+      piso(y1, 12, 22, true); piso(y2, 7, 13, false); piso(y3, 5, 10, false);
+      g.fillStyle = ferroE; g.fillRect(cx - 7, topo - 12, 14, 14); g.fillStyle = ferroL; g.beginPath(); g.arc(cx, topo - 12, 7, Math.PI, 0); g.fill();
+      g.fillStyle = noite ? '#FFE6A8' : '#9AA0A6'; g.fillRect(cx - 1.5, 2, 3, topo - 14); g.fillRect(cx - 4, 14, 8, 3);
+      if(noite){ g.fillStyle = 'rgba(255,255,255,.95)'; g.beginPath(); g.arc(cx, 8, 5, 0, 7); g.fill(); const r = srRnd(77); for(let i = 0; i < 70; i++){ const y = topo + r() * (y1 - topo - 20), x = cx + (r() - .5) * 2 * hw(y) * .9; if(y > y2 && Math.abs(x - cx) < hw(y) - w * .07) continue; g.beginPath(); g.arc(x, y, .8 + r() * 1.2, 0, 7); g.fill(); } }
+    });
+    // ---- Moulin Rouge: o moinho vermelho (as pás rodam à parte), a fachada com o letreiro e as luzes ----
+    const moulin = srMk2(420, 420, (g, w, h)=>{
+      srSombraChao(g, 210, 416, 220);
+      const ver = noite ? '#C8202A' : '#A31C22', verE = noite ? '#7A0E14' : '#6E1216', verL = noite ? '#F04A50' : '#C8343A';
+      // prédio de trás (dois pisos) e fachada do cabaré
+      g.fillStyle = srGrad(g, 0, 150, 0, 300, [[0, noite ? '#3A2A2A' : '#D9CBB5'], [1, noite ? '#2A1E1E' : '#C8B89E']]); g.fillRect(14, 170, 392, 140);
+      for(let x = 30; x < 400; x += 34) for(let y = 188; y < 290; y += 46) srJanela(g, x, y, 16, 30, { noite, acesa: (x + y) % 3 !== 0, moldCor: noite ? '#4A3A3A' : '#B8A88E', mold: 2 });
+      g.fillStyle = noite ? '#22242A' : '#5C6470'; g.fillRect(10, 162, 400, 10);
+      // corpo vermelho do cabaré
+      g.fillStyle = srGrad(g, 0, 300, 0, 420, [[0, verL], [.3, ver], [1, verE]]); g.fillRect(14, 300, 392, 120);
+      g.fillStyle = noite ? '#1A0A0C' : '#2A1214'; g.fillRect(14, 362, 392, 58);
+      for(let x = 30; x < 400; x += 46){ g.fillStyle = noite ? '#FFCF6A' : '#5A2A20'; g.beginPath(); g.moveTo(x, 418); g.lineTo(x, 380); g.arc(x + 15, 380, 15, Math.PI, 0); g.lineTo(x + 30, 418); g.fill(); }
+      // marquise com lâmpadas
+      g.fillStyle = verE; g.fillRect(8, 348, 404, 16); g.fillStyle = noite ? '#FFE08A' : '#F2D7A0'; for(let x = 14; x < 410; x += 10){ g.beginPath(); g.arc(x, 352, 2.2, 0, 7); g.fill(); g.beginPath(); g.arc(x + 5, 361, 2.2, 0, 7); g.fill(); }
+      // letreiro luminoso
+      g.fillStyle = noite ? 'rgba(0,0,0,.3)' : 'rgba(0,0,0,.18)'; g.fillRect(40, 312, 340, 32);
+      g.font = '900 30px Georgia, "Times New Roman", serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      if(noite){ g.shadowColor = '#FF4D5A'; g.shadowBlur = 14; } g.fillStyle = noite ? '#FFE3E6' : '#FFF4E0'; g.fillText('MOULIN ROUGE', 210, 329); g.shadowBlur = 0;
+      g.strokeStyle = noite ? '#FF6A74' : '#F2D7A0'; g.lineWidth = 1.2; g.strokeText('MOULIN ROUGE', 210, 329);
+      // moinho: torre de madeira vermelha, varandim, telhado cónico (o eixo das pás fica em 282,150)
+      g.fillStyle = srGrad(g, 250, 0, 314, 0, [[0, verE], [.4, verL], [1, verE]]); g.beginPath(); g.moveTo(246, 302); g.lineTo(256, 160); g.lineTo(308, 160); g.lineTo(318, 302); g.closePath(); g.fill();
+      g.strokeStyle = 'rgba(0,0,0,.22)'; g.lineWidth = 1; g.beginPath(); for(let y = 166; y < 300; y += 7){ const k = (y - 160) / 142; g.moveTo(256 - 10 * k, y); g.lineTo(308 + 10 * k, y); } g.stroke();
+      srJanela(g, 272, 200, 20, 28, { noite, moldCor: '#F4E6D0', mold: 2, arco: true }); srJanela(g, 274, 250, 16, 22, { noite, moldCor: '#F4E6D0', mold: 2 });
+      g.fillStyle = '#2A1214'; g.fillRect(240, 236, 84, 4); g.strokeStyle = '#2A1214'; g.lineWidth = 1.5; g.beginPath(); for(let x = 242; x < 324; x += 6){ g.moveTo(x, 236); g.lineTo(x, 226); } g.moveTo(240, 226); g.lineTo(324, 226); g.stroke();
+      g.fillStyle = srGrad(g, 250, 0, 314, 0, [[0, '#4A0A0E'], [.45, '#8A1A20'], [1, '#3A080A']]); g.beginPath(); g.moveTo(248, 164); g.quadraticCurveTo(282, 92, 282, 96); g.quadraticCurveTo(282, 92, 316, 164); g.closePath(); g.fill();
+      g.strokeStyle = 'rgba(0,0,0,.3)'; g.beginPath(); for(let k = 1; k < 6; k++){ g.moveTo(282, 98); g.lineTo(248 + k * 11.3, 164); } g.stroke();
+      g.fillStyle = noite ? '#FFE08A' : '#F6D27A'; [[256, 160], [308, 160]].forEach(([x0, y0])=>{ for(let k = 0; k < 10; k++){ const t = k / 9; g.beginPath(); g.arc(x0 + (x0 < 282 ? -10 : 10) * t, y0 + 142 * t, 2.2, 0, 7); g.fill(); } });
+    });
+    // ---- Sacré-Cœur no alto de Montmartre: cúpulas romano-bizantinas, pórtico com as estátuas equestres, campanário, escadaria e jardins ----
+    const sacre = srMk2(700, 560, (g, w, h)=>{
+      const cx = w / 2, br = noite ? '#FBEFD2' : '#F6F3EC', md = noite ? '#E3CFA2' : '#E4DED2', sm = noite ? '#BFA371' : '#C8C0B0', esc = noite ? '#8A7550' : '#9A9285';
+      // colina com um terraço plano onde assenta a basílica
+      g.fillStyle = noite ? '#1C3524' : '#4C7E44'; g.beginPath(); g.moveTo(0, h); g.quadraticCurveTo(120, 470, 190, 432); g.lineTo(510, 432); g.quadraticCurveTo(580, 470, w, h); g.closePath(); g.fill();
+      const r = srRnd(13); for(let i = 0; i < 46; i++){ const x = r() < .5 ? 30 + r() * 170 : 500 + r() * 170, y = 470 + r() * 80 - (x < 200 ? (200 - x) * -.1 : (x - 500) * -.1); g.fillStyle = i % 3 ? (noite ? '#12261A' : '#3A6A35') : (noite ? '#1A3322' : '#5A8E4A'); g.beginPath(); g.arc(x, y - 20, 10 + r() * 10, 0, 7); g.fill(); }
+      // escadaria e rampas de Montmartre
+      g.fillStyle = noite ? '#A8A28E' : '#DAD3C4'; g.beginPath(); g.moveTo(cx - 70, 440); g.lineTo(cx + 70, 440); g.lineTo(cx + 120, h); g.lineTo(cx - 120, h); g.closePath(); g.fill();
+      g.strokeStyle = noite ? 'rgba(60,50,30,.5)' : 'rgba(120,110,95,.5)'; g.lineWidth = 1.2; g.beginPath(); for(let y = 446; y < h; y += 7){ const k = (y - 440) / (h - 440); g.moveTo(cx - 70 - 50 * k, y); g.lineTo(cx + 70 + 50 * k, y); } g.stroke();
+      g.fillStyle = noite ? '#2A4A30' : '#6FA65E'; g.beginPath(); g.moveTo(cx - 20, 470); g.lineTo(cx + 20, 470); g.lineTo(cx + 34, 520); g.lineTo(cx - 34, 520); g.closePath(); g.fill();
+      [[cx - 76, 446], [cx + 76, 446], [cx - 98, 500], [cx + 98, 500]].forEach(([x, y])=>{ g.fillStyle = '#2E3236'; g.fillRect(x - 1.5, y - 24, 3, 24); g.fillStyle = noite ? '#FFE6A8' : '#E8E2C8'; g.fillRect(x - 4, y - 30, 8, 7); });
+      // terraço com balaustrada
+      g.fillStyle = md; g.fillRect(180, 424, 340, 16); g.fillStyle = sm; for(let x = 184; x < 518; x += 6) g.fillRect(x, 428, 3, 9); g.fillStyle = br; g.fillRect(180, 422, 340, 4);
+      const luz = (x0, x1)=> srGrad(g, x0, 0, x1, 0, [[0, br], [.55, md], [1, sm]]);   // luz da esquerda
+      const cup = (x, yb, rx, ry, lant)=>{   // cúpula alongada com nervuras e lanterna
+        g.fillStyle = luz(x - rx, x + rx); g.beginPath(); g.moveTo(x - rx, yb); g.bezierCurveTo(x - rx, yb - ry * .7, x - rx * .45, yb - ry, x, yb - ry * 1.04); g.bezierCurveTo(x + rx * .45, yb - ry, x + rx, yb - ry * .7, x + rx, yb); g.closePath(); g.fill();
+        g.strokeStyle = 'rgba(120,110,95,.35)'; g.lineWidth = 1; g.beginPath(); [-.6, -.25, .25, .6].forEach(k=>{ g.moveTo(x + rx * k, yb); g.quadraticCurveTo(x + rx * k * .85, yb - ry * .7, x, yb - ry); }); g.stroke();
+        if(lant){ g.fillStyle = md; g.fillRect(x - lant, yb - ry - lant * 2.2, lant * 2, lant * 1.4); for(let k = -1; k <= 1; k++){ g.fillStyle = esc; g.fillRect(x + k * lant * .55 - 1, yb - ry - lant * 2, 2, lant); }
+          g.fillStyle = br; g.beginPath(); g.ellipse(x, yb - ry - lant * 2.2, lant * 1.05, lant * 1.1, 0, Math.PI, 0); g.fill(); g.fillStyle = noite ? '#F2C766' : '#B8A780'; g.fillRect(x - 1, yb - ry - lant * 4.4, 2, lant * 1.2); g.fillRect(x - lant * .4, yb - ry - lant * 4, lant * .8, 1.6); } };
+      const tambor = (x, y0, y1, rx)=>{ g.fillStyle = luz(x - rx, x + rx); g.fillRect(x - rx, y0, rx * 2, y1 - y0); g.fillStyle = 'rgba(120,110,95,.4)';
+        for(let k = -rx + 5; k < rx - 3; k += 9){ g.fillRect(x + k, y0 + 3, 2.4, y1 - y0 - 6); } g.fillStyle = esc; for(let k = -rx + 9; k < rx - 6; k += 18) srJanela(g, x + k - 2, y0 + (y1 - y0) * .3, 7, (y1 - y0) * .45, { noite, arco: true, caixilho: false });
+        g.fillStyle = sm; g.fillRect(x - rx - 3, y0 - 4, rx * 2 + 6, 5); };
+      // campanário (atrás, à direita)
+      g.fillStyle = luz(468, 508); g.fillRect(468, 150, 40, 274); g.fillStyle = sm; g.fillRect(465, 148, 46, 6); g.fillRect(465, 250, 46, 5);
+      for(const y of [170, 270]){ for(let k = 0; k < 2; k++) srJanela(g, 474 + k * 16, y, 9, 34, { noite, arco: true, caixilho: false }); }
+      cup(488, 148, 22, 34, 4);
+      // corpo da igreja
+      g.fillStyle = luz(230, 470); g.fillRect(232, 270, 236, 154); g.fillStyle = sm; g.fillRect(228, 266, 244, 6);
+      srJanela(g, 252, 300, 18, 46, { noite, arco: true, moldCor: md, mold: 3 }); srJanela(g, 430, 300, 18, 46, { noite, arco: true, moldCor: md, mold: 3 });
+      // cúpulas laterais e pequenas
+      tambor(258, 240, 270, 24); cup(258, 240, 26, 40, 4); tambor(442, 240, 270, 24); cup(442, 240, 26, 40, 4);
+      cup(214, 300, 18, 28, 3); g.fillStyle = luz(196, 232); g.fillRect(196, 300, 36, 124); cup(486, 300, 18, 28, 3); g.fillStyle = luz(468, 504); g.fillRect(468, 300, 36, 124);
+      // cúpula central sobre o tambor com colunata
+      tambor(cx, 170, 250, 52); cup(cx, 172, 56, 104, 8);
+      // pórtico: três arcos, frontão baixo e as duas estátuas equestres de bronze
+      g.fillStyle = luz(272, 428); g.fillRect(274, 336, 152, 88); g.fillStyle = sm; g.fillRect(268, 330, 164, 8); g.fillStyle = br; g.fillRect(268, 328, 164, 3);
+      for(let i = 0; i < 3; i++){ const x = 288 + i * 46; g.fillStyle = noite ? '#6A4A20' : '#5E574C'; g.beginPath(); g.moveTo(x, 424); g.lineTo(x, 368); g.arc(x + 16, 368, 16, Math.PI, 0); g.lineTo(x + 32, 424); g.fill();
+        if(noite){ g.fillStyle = 'rgba(255,200,110,.5)'; g.fillRect(x + 4, 380, 24, 44); } }
+      g.fillStyle = md; g.beginPath(); g.moveTo(300, 330); g.lineTo(cx, 300); g.lineTo(400, 330); g.closePath(); g.fill(); g.strokeStyle = sm; g.lineWidth = 2; g.stroke();
+      [[284, 328, 1], [416, 328, -1]].forEach(([x, y, l])=>{ g.fillStyle = noite ? '#3F5A44' : '#3C5A48'; g.beginPath(); g.ellipse(x, y - 12, 11, 6, 0, 0, 7); g.fill(); g.fillRect(x - 8, y - 9, 2.5, 9); g.fillRect(x + 6, y - 9, 2.5, 9);
+        g.beginPath(); g.moveTo(x + l * 8, y - 14); g.lineTo(x + l * 15, y - 24); g.lineTo(x + l * 12, y - 12); g.fill(); g.fillRect(x - 3, y - 28, 5, 14); g.beginPath(); g.arc(x - .5, y - 30, 3, 0, 7); g.fill(); });
+      if(noite){ g.globalCompositeOperation = 'source-atop'; g.fillStyle = srGrad(g, 0, 430, 0, 60, [[0, 'rgba(255,200,120,.25)'], [1, 'rgba(255,200,120,0)']]); g.fillRect(0, 0, w, 440); g.globalCompositeOperation = 'source-over'; }
+    });
+    return { m_arco: arco, m_obel: obel, m_eiffel: eiffel, m_moulin: moulin, m_sacre: sacre };
+  }
+
+  // ================= VALE DO SOUSA (Lousada ⇄ Penafiel) =================
+  function srMonVale(noite){
+    const cal = noite ? '#E9E0C8' : '#F6F3EC', calS = noite ? '#BFB08A' : '#DAD5CA', gran = noite ? '#C9B48A' : '#ABA597', granE = noite ? '#8E7A55' : '#857F72', granL = noite ? '#E3D0A6' : '#C8C2B4';
+    const luzCal = (x0, x1)=> srGrad(g0, x0, 0, x1, 0, [[0, cal], [.7, cal], [1, calS]]);
+    let g0;
+    const cruz = (g, x, y, s)=>{ g.fillStyle = granE; g.fillRect(x - s * .09, y, s * .18, s); g.fillRect(x - s * .35, y + s * .22, s * .7, s * .16); };
+    const pinaculo = (g, x, y, s)=>{ g.fillStyle = gran; g.fillRect(x - s * .25, y - s * .35, s * .5, s * .35); g.beginPath(); g.moveTo(x - s * .2, y - s * .35); g.quadraticCurveTo(x - s * .22, y - s * .8, x, y - s * 1.1); g.quadraticCurveTo(x + s * .22, y - s * .8, x + s * .2, y - s * .35); g.fill(); g.beginPath(); g.arc(x, y - s * 1.15, s * .1, 0, 7); g.fill(); };
+    const sino = (g, x, y, s)=>{ g.fillStyle = noite ? '#C89A40' : '#7A5A2A'; g.beginPath(); g.moveTo(x - s * .5, y + s * .55); g.quadraticCurveTo(x - s * .42, y - s * .1, x, y - s * .2); g.quadraticCurveTo(x + s * .42, y - s * .1, x + s * .5, y + s * .55); g.closePath(); g.fill(); g.fillStyle = 'rgba(255,230,160,.4)'; g.fillRect(x - s * .3, y, s * .08, s * .45); };
+    const porta = (g, x, y, w, h, arco)=>{ g.fillStyle = gran; g.beginPath(); if(arco){ g.moveTo(x - 5, y + h); g.lineTo(x - 5, y + w / 2); g.arc(x + w / 2, y + w / 2, w / 2 + 5, Math.PI, 0); g.lineTo(x + w + 5, y + h); } else g.rect(x - 5, y - 5, w + 10, h + 5); g.fill();
+      g.fillStyle = srGrad(g, x, 0, x + w, 0, [[0, '#4A2E1A'], [.5, '#6B4426'], [1, '#3E2614']]); g.beginPath(); if(arco){ g.moveTo(x, y + h); g.lineTo(x, y + w / 2); g.arc(x + w / 2, y + w / 2, w / 2, Math.PI, 0); g.lineTo(x + w, y + h); } else g.rect(x, y, w, h); g.fill();
+      g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 1; g.beginPath(); g.moveTo(x + w / 2, y + (arco ? 2 : 0)); g.lineTo(x + w / 2, y + h); for(let yy = y + h * .3; yy < y + h; yy += h * .25){ g.moveTo(x + 3, yy); g.lineTo(x + w - 3, yy); } g.stroke();
+      g.fillStyle = granE; g.fillRect(x - 10, y + h - 3, w + 20, 5); };
+    // ---- Santuário (Sameiro, Penafiel): fachada de granito, duas torres sineiras, cúpula, escadório com balaustradas no alto do monte ----
+    const sant = srMk2(520, 600, (g, w, h)=>{
+      g0 = g; const cx = w / 2;
+      g.fillStyle = noite ? '#1B3522' : '#4A7F3E'; g.beginPath(); g.moveTo(0, h); g.quadraticCurveTo(70, 500, 120, 476); g.lineTo(400, 476); g.quadraticCurveTo(450, 500, w, h); g.closePath(); g.fill();
+      const r = srRnd(29); for(let i = 0; i < 16; i++){ const l = i % 2 ? 1 : -1, x = cx + l * (150 + r() * 100), y = 470 + r() * 110; g.fillStyle = noite ? '#0F2216' : '#2F5A2C'; g.beginPath(); g.moveTo(x, y - 46 - r() * 20); g.quadraticCurveTo(x + 9, y - 20, x + 6, y); g.lineTo(x - 6, y); g.quadraticCurveTo(x - 9, y - 20, x, y - 46 - r() * 20); g.fill(); }   // ciprestes
+      // escadório em lanços com patamares e balaustradas
+      for(let k = 0; k < 4; k++){ const y0 = 476 + k * 31, a = 52 + k * 13; g.fillStyle = noite ? '#9D9479' : '#C9C2B2'; g.fillRect(cx - a, y0, a * 2, 24);
+        g.strokeStyle = noite ? 'rgba(60,50,30,.55)' : 'rgba(110,100,85,.55)'; g.lineWidth = 1; g.beginPath(); for(let y = y0 + 4; y < y0 + 24; y += 4){ g.moveTo(cx - a, y); g.lineTo(cx + a, y); } g.stroke();
+        g.fillStyle = gran; g.fillRect(cx - a - 8, y0 - 4, 8, 30); g.fillRect(cx + a, y0 - 4, 8, 30); g.fillStyle = granL; g.fillRect(cx - a - 10, y0 - 7, 12, 4); g.fillRect(cx + a - 2, y0 - 7, 12, 4);
+        g.fillStyle = noite ? '#9D9479' : '#BDB6A6'; g.fillRect(cx - a - 22, y0 + 24, a * 2 + 44, 7); }
+      // corpo: naves laterais, fachada, torres e cúpula
+      const gL = (x0, x1)=> srGrad(g, x0, 0, x1, 0, [[0, granL], [.5, gran], [1, granE]]);
+      g.fillStyle = gL(110, 410); g.fillRect(112, 380, 296, 96);
+      // tambor e cúpula atrás do frontão
+      g.fillStyle = gL(206, 314); g.fillRect(208, 222, 104, 60); for(let x = 214; x < 306; x += 15) srJanela(g, x, 236, 7, 30, { noite, arco: true, caixilho: false });
+      g.fillStyle = granE; g.fillRect(202, 216, 116, 7);
+      g.fillStyle = srGrad(g, 206, 0, 314, 0, [[0, noite ? '#7D8A86' : '#7E8C8A'], [.4, noite ? '#AAB7B0' : '#A8B6B2'], [1, noite ? '#56625E' : '#5C6866']]); g.beginPath(); g.moveTo(206, 218); g.bezierCurveTo(206, 160, 314, 160, 314, 218); g.fill();
+      g.strokeStyle = 'rgba(0,0,0,.18)'; g.beginPath(); [-38, -18, 0, 18, 38].forEach(k=>{ g.moveTo(cx + k, 218); g.quadraticCurveTo(cx + k * .7, 180, cx, 174); }); g.stroke();
+      g.fillStyle = gran; g.fillRect(cx - 9, 156, 18, 20); g.beginPath(); g.arc(cx, 156, 9, Math.PI, 0); g.fill(); cruz(g, cx, 120, 32);
+      // fachada principal com pilastras, frontão, rosácea e portal
+      g.fillStyle = gL(186, 334); g.fillRect(186, 282, 148, 194); srJuntas(g, 186, 282, 148, 194, 12, 'rgba(60,55,45,.18)', 9);
+      [186, 214, 300, 326].forEach(x=>{ g.fillStyle = granL; g.fillRect(x, 282, 8, 194); g.fillStyle = 'rgba(0,0,0,.12)'; g.fillRect(x + 6, 282, 2, 194); });
+      g.fillStyle = granE; g.fillRect(180, 278, 160, 8); g.fillRect(180, 382, 160, 6);
+      g.fillStyle = gL(180, 340); g.beginPath(); g.moveTo(180, 280); g.lineTo(cx, 238); g.lineTo(340, 280); g.closePath(); g.fill(); g.strokeStyle = granE; g.lineWidth = 3; g.stroke();
+      g.fillStyle = granE; g.beginPath(); g.arc(cx, 266, 8, 0, 7); g.fill(); cruz(g, cx, 210, 30); pinaculo(g, 184, 278, 20); pinaculo(g, 336, 278, 20);
+      g.fillStyle = granE; g.beginPath(); g.arc(cx, 322, 24, 0, 7); g.fill(); g.fillStyle = noite ? '#FFD58A' : '#3E4E60'; g.beginPath(); g.arc(cx, 322, 19, 0, 7); g.fill();
+      g.strokeStyle = granL; g.lineWidth = 2; g.beginPath(); for(let a = 0; a < 6.28; a += .52){ g.moveTo(cx, 322); g.lineTo(cx + Math.cos(a) * 19, 322 + Math.sin(a) * 19); } g.stroke(); g.beginPath(); g.arc(cx, 322, 7, 0, 7); g.stroke();
+      porta(g, cx - 22, 400, 44, 76, true); g.fillStyle = gran; g.fillRect(cx - 34, 392, 68, 6);
+      srJanela(g, 196, 300, 12, 40, { noite, arco: true, moldCor: granE, mold: 2 }); srJanela(g, 312, 300, 12, 40, { noite, arco: true, moldCor: granE, mold: 2 });
+      // torres sineiras com cupulinhas
+      [-1, 1].forEach(l=>{ const x0 = l < 0 ? 128 : 334, x1 = x0 + 58;
+        g.fillStyle = gL(x0, x1); g.fillRect(x0, 196, 58, 280); srJuntas(g, x0, 196, 58, 280, 12, 'rgba(60,55,45,.18)', 17 + l);
+        g.fillStyle = granL; g.fillRect(x0, 196, 6, 280); g.fillRect(x1 - 6, 196, 6, 280); g.fillStyle = granE; [196, 290, 382].forEach(y=> g.fillRect(x0 - 4, y, 66, 6));
+        srJanela(g, x0 + 21, 310, 16, 40, { noite, arco: true, moldCor: granE, mold: 2 });
+        g.fillStyle = noite ? '#2A2216' : '#3A3630'; g.beginPath(); g.moveTo(x0 + 14, 282); g.lineTo(x0 + 14, 226); g.arc(x0 + 29, 226, 15, Math.PI, 0); g.lineTo(x0 + 44, 282); g.fill(); sino(g, x0 + 29, 248, 22);
+        g.fillStyle = gran; g.fillRect(x0 - 3, 188, 64, 9);
+        g.fillStyle = srGrad(g, x0, 0, x1, 0, [[0, granL], [1, granE]]); g.beginPath(); g.moveTo(x0 + 4, 188); g.bezierCurveTo(x0 + 4, 150, x1 - 4, 150, x1 - 4, 188); g.fill();
+        g.fillStyle = gran; g.fillRect(x0 + 24, 146, 10, 14); g.beginPath(); g.arc(x0 + 29, 146, 6, Math.PI, 0); g.fill(); cruz(g, x0 + 29, 120, 24);
+        pinaculo(g, x0 + 2, 188, 14); pinaculo(g, x1 - 2, 188, 14); });
+      if(noite){ g.globalCompositeOperation = 'source-atop'; g.fillStyle = srGrad(g, 0, 480, 0, 120, [[0, 'rgba(255,200,120,.3)'], [1, 'rgba(255,200,120,0)']]); g.fillRect(0, 0, w, 480); g.globalCompositeOperation = 'source-over'; }
+    });
+    // ---- igreja paroquial: fachada caiada com cunhais de granito, frontão barroco com volutas, óculo, portal e torre sineira ----
+    const igreja = srMk2(300, 340, (g, w, h)=>{
+      g0 = g; srSombraChao(g, 150, 334, 150);
+      g.fillStyle = gran; g.fillRect(28, 318, 250, 18); g.fillStyle = granL; g.fillRect(28, 318, 250, 3);   // adro
+      // nave
+      g.fillStyle = luzCal(40, 204); g.fillRect(40, 132, 164, 188);
+      g.fillStyle = srGrad(g, 0, 0, 0, 1, [[0, gran], [1, gran]]); [[40, 12], [192, 12]].forEach(([x, ww])=>{ g.fillStyle = granL; g.fillRect(x, 132, ww, 188); g.fillStyle = 'rgba(0,0,0,.12)'; g.fillRect(x + ww - 2, 132, 2, 188); });
+      g.fillStyle = granE; g.fillRect(34, 126, 176, 8);
+      // frontão barroco com volutas
+      g.fillStyle = luzCal(44, 200); g.beginPath(); g.moveTo(44, 128); g.quadraticCurveTo(52, 110, 74, 108); g.quadraticCurveTo(92, 106, 98, 88); g.quadraticCurveTo(122, 66, 146, 88); g.quadraticCurveTo(152, 106, 170, 108); g.quadraticCurveTo(192, 110, 200, 128); g.closePath(); g.fill();
+      g.strokeStyle = gran; g.lineWidth = 5; g.stroke(); g.fillStyle = gran; [[52, 116], [192, 116]].forEach(([x, y])=>{ g.beginPath(); g.arc(x, y, 6, 0, 7); g.fill(); });
+      pinaculo(g, 44, 128, 16); pinaculo(g, 200, 128, 16); cruz(g, 122, 48, 30);
+      // óculo, nicho e portal
+      g.fillStyle = gran; g.beginPath(); g.arc(122, 108, 12, 0, 7); g.fill(); g.fillStyle = noite ? '#FFD58A' : '#3E4E60'; g.beginPath(); g.arc(122, 108, 8, 0, 7); g.fill();
+      srJanela(g, 110, 160, 24, 38, { noite, arco: true, moldCor: gran, mold: 4, peitoril: true });
+      porta(g, 102, 240, 40, 80, true); g.fillStyle = gran; g.fillRect(94, 226, 56, 6); g.fillRect(118, 214, 8, 12);
+      srJanela(g, 62, 222, 16, 30, { noite, moldCor: gran, mold: 3 }); srJanela(g, 166, 222, 16, 30, { noite, moldCor: gran, mold: 3 });
+      // torre sineira
+      g.fillStyle = luzCal(206, 270); g.fillRect(206, 72, 62, 248); g.fillStyle = granL; g.fillRect(206, 72, 8, 248); g.fillRect(260, 72, 8, 248);
+      g.fillStyle = granE; [72, 150, 230].forEach(y=> g.fillRect(202, y, 70, 6));
+      g.fillStyle = noite ? '#2A2216' : '#3A3630'; g.beginPath(); g.moveTo(222, 140); g.lineTo(222, 96); g.arc(237, 96, 15, Math.PI, 0); g.lineTo(252, 140); g.fill(); sino(g, 237, 116, 20);
+      g.strokeStyle = gran; g.lineWidth = 4; g.beginPath(); g.moveTo(222, 140); g.lineTo(222, 96); g.arc(237, 96, 15, Math.PI, 0); g.lineTo(252, 140); g.stroke();
+      srJanela(g, 230, 176, 14, 26, { noite, moldCor: gran, mold: 3 });
+      g.fillStyle = srGrad(g, 206, 0, 270, 0, [[0, granL], [1, granE]]); g.beginPath(); g.moveTo(208, 72); g.lineTo(237, 30); g.lineTo(266, 72); g.closePath(); g.fill();   // coruchéu
+      pinaculo(g, 208, 72, 14); pinaculo(g, 266, 72, 14); cruz(g, 237, 6, 26);
+    });
+    // ---- capela: frontão com cruz e pináculos, sineira com sino, portal e janela de granito ----
+    const capela = srMk2(220, 240, (g, w, h)=>{
+      g0 = g; srSombraChao(g, 110, 234, 110);
+      g.fillStyle = gran; g.fillRect(28, 222, 164, 14);
+      g.fillStyle = luzCal(40, 180); g.fillRect(42, 104, 136, 120); g.fillStyle = granL; g.fillRect(42, 104, 10, 120); g.fillRect(168, 104, 10, 120);
+      g.fillStyle = luzCal(36, 184); g.beginPath(); g.moveTo(36, 106); g.lineTo(110, 58); g.lineTo(184, 106); g.closePath(); g.fill(); g.strokeStyle = gran; g.lineWidth = 5; g.stroke();
+      pinaculo(g, 40, 106, 16); pinaculo(g, 180, 106, 16);
+      g.fillStyle = gran; g.fillRect(94, 26, 32, 38); g.fillStyle = noite ? '#2A2216' : '#3A3630'; g.beginPath(); g.moveTo(101, 56); g.lineTo(101, 40); g.arc(110, 40, 9, Math.PI, 0); g.lineTo(119, 56); g.fill(); sino(g, 110, 46, 12);
+      g.fillStyle = gran; g.beginPath(); g.moveTo(92, 28); g.lineTo(110, 16); g.lineTo(128, 28); g.closePath(); g.fill(); cruz(g, 110, -2, 20);
+      porta(g, 92, 160, 36, 64, true); srJanela(g, 102, 118, 16, 22, { noite, moldCor: gran, mold: 3 });
+      g.fillStyle = gran; g.beginPath(); g.arc(110, 90, 6, 0, 7); g.fill();
+    });
+    // ---- câmara municipal: palacete de dois pisos, cantaria, varanda com as bandeiras, relógio e frontão ----
+    const camara = srMk2(400, 300, (g, w, h)=>{
+      g0 = g; srSombraChao(g, 200, 294, 200);
+      srTelhado(g, 14, 70, 386, 92, 16, noite);
+      g.fillStyle = luzCal(20, 380); g.fillRect(20, 92, 360, 202); g.fillStyle = srGrad(g, 0, 210, 0, 294, [[0, granL], [1, gran]]); g.fillRect(20, 206, 360, 88);
+      srJuntas(g, 20, 206, 360, 88, 11, 'rgba(60,55,45,.2)', 5);
+      g.fillStyle = granE; g.fillRect(14, 86, 372, 8); g.fillRect(16, 200, 368, 8);
+      [20, 152, 240, 372].forEach(x=>{ g.fillStyle = granL; g.fillRect(x - (x === 372 ? 0 : 0), 92, 8, 202); });
+      // corpo central saliente com frontão e relógio
+      g.fillStyle = luzCal(150, 250); g.fillRect(152, 74, 96, 220); g.fillStyle = granE; g.fillRect(146, 70, 108, 8);
+      g.fillStyle = luzCal(146, 254); g.beginPath(); g.moveTo(146, 72); g.lineTo(200, 34); g.lineTo(254, 72); g.closePath(); g.fill(); g.strokeStyle = gran; g.lineWidth = 4; g.stroke();
+      g.fillStyle = '#F8F6F0'; g.beginPath(); g.arc(200, 58, 11, 0, 7); g.fill(); g.strokeStyle = granE; g.lineWidth = 2.5; g.stroke(); g.strokeStyle = '#222'; g.lineWidth = 1.6; g.beginPath(); g.moveTo(200, 58); g.lineTo(200, 50); g.moveTo(200, 58); g.lineTo(206, 58); g.stroke();
+      // janelas de sacada com cantaria no 1.º piso, e janelas e porta no rés-do-chão
+      for(const x of [42, 82, 122, 272, 312, 352]){ srJanela(g, x - 9, 118, 18, 52, { noite, acesa: (x / 40 | 0) % 3 !== 1, moldCor: gran, mold: 4, peitoril: true }); g.fillStyle = gran; g.fillRect(x - 15, 108, 30, 6); }
+      for(const x of [42, 82, 122, 272, 312, 352]) srJanela(g, x - 9, 226, 18, 36, { noite, acesa: false, moldCor: granE, mold: 3 });
+      srJanela(g, 180, 112, 40, 64, { noite, moldCor: gran, mold: 5, arco: true });
+      g.fillStyle = gran; g.fillRect(164, 176, 72, 6); g.strokeStyle = '#2A2E33'; g.lineWidth = 1.5; g.beginPath(); for(let x = 166; x <= 234; x += 6){ g.moveTo(x, 182); g.lineTo(x, 198); } g.moveTo(164, 198); g.lineTo(236, 198); g.stroke();   // varanda
+      porta(g, 180, 222, 40, 72, true);
+      // bandeiras de Portugal e do município
+      [[172, 'pt'], [228, 'm']].forEach(([x, k])=>{ g.strokeStyle = '#B8BCC0'; g.lineWidth = 2; g.beginPath(); g.moveTo(x, 186); g.lineTo(x + (k === 'pt' ? -26 : 26), 150); g.stroke();
+        g.save(); g.translate(x + (k === 'pt' ? -26 : 26), 150); g.rotate(k === 'pt' ? .3 : -.3);
+        if(k === 'pt'){ g.fillStyle = '#006600'; g.fillRect(-26, 0, 11, 18); g.fillStyle = '#E8112D'; g.fillRect(-15, 0, 17, 18); g.fillStyle = '#FFE000'; g.beginPath(); g.arc(-15, 9, 4.2, 0, 7); g.fill(); }
+        else { g.fillStyle = '#F4F4F4'; g.fillRect(0, 0, 28, 18); g.fillStyle = '#1F5FA8'; g.beginPath(); g.moveTo(8, 4); g.lineTo(20, 4); g.lineTo(20, 11); g.quadraticCurveTo(14, 16, 8, 11); g.closePath(); g.fill(); }
+        g.restore(); });
+    });
+    // ---- quartel de bombeiros: três portões vermelhos, torre de treino, letreiro, luz de emergência ----
+    const bombeiros = srMk2(360, 260, (g, w, h)=>{
+      g0 = g; srSombraChao(g, 180, 254, 180);
+      g.fillStyle = srGrad(g, 0, 90, 0, 254, [[0, noite ? '#E0D6BE' : '#F2EDE2'], [1, noite ? '#C8BC9E' : '#DCD5C6']]); g.fillRect(16, 92, 290, 162);
+      g.fillStyle = '#B3261E'; g.fillRect(12, 86, 298, 12); g.fillStyle = '#7A1712'; g.fillRect(12, 96, 298, 3);
+      g.fillStyle = '#B3261E'; g.font = '800 15px Barlow Condensed, Arial Narrow, sans-serif'; g.textAlign = 'center'; g.fillText('BOMBEIROS VOLUNTÁRIOS', 160, 122);
+      for(let i = 0; i < 3; i++){ const x = 30 + i * 92; g.fillStyle = gran; g.fillRect(x - 5, 140, 82, 114);
+        g.fillStyle = srGrad(g, 0, 144, 0, 254, [[0, '#D23A2E'], [1, '#8E1A14']]); g.fillRect(x, 144, 72, 110);
+        g.fillStyle = 'rgba(0,0,0,.22)'; for(let y = 152; y < 252; y += 11) g.fillRect(x, y, 72, 1.5);
+        for(let k = 0; k < 4; k++) srJanela(g, x + 5 + k * 17, 160, 12, 8, { noite, caixilho: false }); }
+      // torre de treino
+      g.fillStyle = srGrad(g, 306, 0, 350, 0, [[0, noite ? '#E0D6BE' : '#F2EDE2'], [1, noite ? '#B8AC8E' : '#CFC8B8']]); g.fillRect(306, 24, 44, 230); g.fillStyle = '#B3261E'; g.fillRect(302, 18, 52, 10);
+      for(let y = 46; y < 230; y += 40) srJanela(g, 318, y, 20, 22, { noite, acesa: y % 80 === 46, moldCor: '#B3261E', mold: 2 });
+      g.fillStyle = noite ? '#4AA8FF' : '#2B6FD0'; g.fillRect(320, 8, 16, 10); if(noite){ g.fillStyle = 'rgba(80,160,255,.35)'; g.beginPath(); g.arc(328, 12, 16, 0, 7); g.fill(); }
+      // bandeira
+      g.strokeStyle = '#B8BCC0'; g.lineWidth = 2; g.beginPath(); g.moveTo(20, 92); g.lineTo(20, 30); g.stroke(); g.fillStyle = '#006600'; g.fillRect(21, 30, 12, 20); g.fillStyle = '#E8112D'; g.fillRect(33, 30, 18, 20); g.fillStyle = '#FFE000'; g.beginPath(); g.arc(33, 40, 4.5, 0, 7); g.fill();
+    });
+    // ---- museu: solar de granito com brasão, janelas de cantaria e portal ----
+    const museu = srMk2(340, 240, (g, w, h)=>{
+      g0 = g; srSombraChao(g, 170, 234, 170);
+      srTelhado(g, 10, 50, 330, 70, 14, noite);
+      g.fillStyle = srGrad(g, 16, 0, 324, 0, [[0, granL], [.5, gran], [1, granE]]); g.fillRect(18, 70, 304, 164); srJuntas(g, 18, 70, 304, 164, 11, 'rgba(60,55,45,.22)', 23);
+      g.fillStyle = granE; g.fillRect(12, 66, 316, 7); g.fillRect(14, 148, 312, 5);
+      for(const x of [40, 90, 230, 280]){ srJanela(g, x, 86, 22, 46, { noite, acesa: x % 3 !== 0, moldCor: granE, mold: 4, peitoril: true }); srJanela(g, x, 166, 22, 40, { noite, acesa: false, moldCor: granE, mold: 4 }); }
+      // brasão
+      g.fillStyle = granE; g.beginPath(); g.moveTo(152, 84); g.lineTo(188, 84); g.lineTo(188, 112); g.quadraticCurveTo(170, 132, 152, 112); g.closePath(); g.fill();
+      g.fillStyle = granL; g.beginPath(); g.moveTo(157, 89); g.lineTo(183, 89); g.lineTo(183, 110); g.quadraticCurveTo(170, 125, 157, 110); g.closePath(); g.fill();
+      g.fillStyle = granE; g.fillRect(168, 92, 4, 26); g.fillRect(160, 100, 20, 4); g.beginPath(); g.arc(170, 80, 8, Math.PI, 0); g.fill();
+      porta(g, 150, 164, 40, 70, true);
+      g.fillStyle = '#7A2E2A'; g.fillRect(212, 156, 10, 66); g.fillStyle = '#F2E6D0'; g.font = '700 8px Barlow Condensed, sans-serif'; g.save(); g.translate(219, 189); g.rotate(Math.PI / 2); g.textAlign = 'center'; g.fillText('MUSEU', 0, 0); g.restore();
+    });
+    // ---- edifício público (tribunal, biblioteca, conservatório): pórtico com colunas e frontão ----
+    const publico = srMk2(360, 260, (g, w, h)=>{
+      g0 = g; srSombraChao(g, 180, 254, 180);
+      g.fillStyle = srGrad(g, 20, 0, 340, 0, [[0, cal], [.7, cal], [1, calS]]); g.fillRect(20, 80, 320, 154);
+      g.fillStyle = gran; g.fillRect(20, 214, 320, 20); for(let k = 0; k < 4; k++){ g.fillStyle = k % 2 ? gran : granL; g.fillRect(100 - k * 6, 234 + k * 5, 160 + k * 12, 5); }
+      g.fillStyle = granE; g.fillRect(14, 72, 332, 10);
+      for(const x of [34, 74, 268, 308]){ srJanela(g, x, 100, 20, 40, { noite, moldCor: gran, mold: 4, peitoril: true }); srJanela(g, x, 160, 20, 40, { noite, acesa: false, moldCor: gran, mold: 4 }); }
+      // pórtico
+      g.fillStyle = srGrad(g, 104, 0, 256, 0, [[0, granL], [1, gran]]); g.fillRect(104, 88, 152, 128);
+      g.fillStyle = noite ? '#4A3A22' : '#5A5650'; g.fillRect(110, 100, 140, 114);
+      for(let k = 0; k < 5; k++){ const x = 112 + k * 32; g.fillStyle = srGrad(g, x, 0, x + 14, 0, [[0, '#FFFFFF'], [.4, granL], [1, gran]]); g.fillRect(x, 100, 14, 114); g.fillStyle = gran; g.fillRect(x - 3, 96, 20, 6); g.fillRect(x - 3, 210, 20, 6); }
+      porta(g, 162, 150, 36, 64, false);
+      g.fillStyle = srGrad(g, 98, 0, 262, 0, [[0, granL], [1, gran]]); g.beginPath(); g.moveTo(96, 90); g.lineTo(180, 46); g.lineTo(264, 90); g.closePath(); g.fill(); g.strokeStyle = granE; g.lineWidth = 3; g.stroke();
+      g.fillStyle = granE; g.beginPath(); g.arc(180, 74, 8, 0, 7); g.fill();
+    });
+    // ---- monumento: estátua de bronze sobre pedestal de granito ----
+    const monumento = srMk2(120, 300, (g, w, h)=>{
+      g0 = g; srSombraChao(g, 60, 294, 60);
+      g.fillStyle = gran; g.fillRect(10, 280, 100, 16); g.fillStyle = granL; g.fillRect(18, 268, 84, 14);
+      g.fillStyle = srGrad(g, 28, 0, 92, 0, [[0, granL], [.5, gran], [1, granE]]); g.fillRect(30, 170, 60, 100); g.fillStyle = granE; g.fillRect(24, 162, 72, 10); g.fillRect(26, 258, 68, 8);
+      g.fillStyle = noite ? '#E6C77A' : '#7A6A48'; g.fillRect(40, 206, 40, 2); g.fillRect(44, 214, 32, 2); g.fillRect(42, 222, 36, 2);
+      const bz = noite ? '#6E7A5C' : '#3E5446', bzL = noite ? '#9FAE82' : '#6C8A70';
+      g.fillStyle = bz; g.beginPath(); g.moveTo(42, 162); g.quadraticCurveTo(40, 110, 50, 84); g.lineTo(70, 84); g.quadraticCurveTo(82, 110, 80, 162); g.closePath(); g.fill();   // túnica comprida
+      g.fillStyle = bzL; g.beginPath(); g.moveTo(48, 160); g.quadraticCurveTo(46, 112, 54, 88); g.lineTo(58, 88); g.quadraticCurveTo(54, 120, 56, 160); g.closePath(); g.fill();
+      g.fillStyle = bz; g.beginPath(); g.ellipse(60, 72, 9, 11, 0, 0, 7); g.fill(); g.beginPath(); g.moveTo(52, 64); g.lineTo(60, 44); g.lineTo(68, 64); g.closePath(); g.fill();   // cabeça com mitra
+      g.strokeStyle = bz; g.lineWidth = 6; g.lineCap = 'round'; g.beginPath(); g.moveTo(70, 94); g.quadraticCurveTo(84, 104, 86, 82); g.stroke();   // braço a abençoar
+      g.lineWidth = 3; g.beginPath(); g.moveTo(46, 96); g.lineTo(38, 160); g.stroke(); g.beginPath(); g.arc(38, 92, 6, Math.PI * .9, Math.PI * 2.1); g.stroke();   // báculo
+      g.fillStyle = bzL; g.beginPath(); g.ellipse(57, 70, 3, 5, 0, 0, 7); g.fill();
+    });
+    return { m_sant: sant, v_igreja: igreja, v_capela: capela, v_camara: camara, v_bombeiros: bombeiros, v_museu: museu, v_publico: publico, v_monumento: monumento };
   }
   // desenhos de Paris (feitos uma vez): plátanos, coluna Morris, candeeiro e os monumentos
   function srSpritesParis(noite){
@@ -2482,6 +2863,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       g.fillStyle = sm; g.fillRect(w * .5 + 210, 120, 34, 150); cup(w * .5 + 227, 120, 20, 30);      // campanário
       g.fillStyle = 'rgba(0,0,0,.08)'; g.fillRect(w * .5 + 10, 120, 52, 250); });
     SR.spr = { p0: platano(11, '#4F7A3B'), p1: platano(23, '#5C8742'), p2: platano(37, '#46703A'), r: morris, poste, m_arco: arco, m_obel: obel, m_eiffel: eiffel, m_moulin: moulin, m_sacre: sacre };
+    Object.assign(SR.spr, srMonParis(noite));   // monumentos em pormenor
   }
   // silhueta de Paris ao fundo: telhados, chaminés, a Torre Eiffel ao longe e o Sacré-Cœur no alto da colina
   function srFundoParis(W, H, sky, mk, M){
@@ -2606,6 +2988,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     segs.forEach((s, k)=>{
       const f = k / (N - 1) * R.km, rua = R.ruas.find(r=> f >= r[0] && f < r[1]) || R.ruas[R.ruas.length - 1], am = rua[3];
       s.rua = rua[2]; s.amb = am;
+      if(R.estilo === 'porto'){ srPortoTroco(s, k, f, am, R, rnd); return; }
       const sp = [], r1 = rnd(), r2 = rnd(), r3 = rnd();
       if(am === 'vila'){ const quintal = k % 19 < 5; s.muro = { L: !quintal, R: k % 23 >= 5, x: 1.5, h: 1.25, est:'pt' };
         if(quintal && r1 < .5) sp.push({ x: -(1.6 + r2), t: 'p1', s: .8 }); }
@@ -2629,13 +3012,23 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     poe(45, { x: 0, t: 'm_partida', s: 4.6 }, R.nIni, '🏁', 3);
     poe(N - 3, { x: 0, t: 'm_meta', s: 4.6 }, R.nFim, '🏁', 3);
     // santuário no alto do monte, com abertas nas casas desse lado para o ver
-    { const k = Math.max(60, Math.min(N - 10, kOf(R.santKm))); segs[k].sp.push({ x: R.santLado * 6.5, t: 'm_sant', s: 12 }); marcos.push({ i: k, n: VALE_SANT.n, ico: '⛪' });
+    if(R.santKm != null){ const k = Math.max(60, Math.min(N - 10, kOf(R.santKm))); segs[k].sp.push({ x: R.santLado * 6.5, t: 'm_sant', s: 12 }); marcos.push({ i: k, n: VALE_SANT.n, ico: '⛪' });
       for(let q = -90; q <= 10; q++){ const sg = segs[k + q]; if(sg && sg.muro) sg.muro[R.santLado < 0 ? 'L' : 'R'] = ((q % 7) + 7) % 7 < 2 ? sg.muro[R.santLado < 0 ? 'L' : 'R'] : false; } }
     // pontos de interesse: o edifício (desenho genérico do tipo) e uma placa castanha com o nome, junto à estrada
     const tam = { igreja: 3.2, capela: 2.2, escola: 4.2, bombeiros: 3.4, publico: 3.4, camara: 4, museu: 3.2, monumento: 1 };
     let ult = -99;
     R.pois.forEach((p, i)=>{
       let k = Math.max(50, Math.min(N - 8, kOf(p.km))); if(k - ult < 7) k = ult + 7; if(k > N - 8) return; ult = k;   // aula curta: os pontos que não cabem ficam de fora
+      if(R.estilo === 'porto'){   // Porto: pontes sobre o rio, a Ponte Luís I por cima da estrada e os monumentos
+        if(p.ponte){ const l = srPortoAgua(R, k / (N - 1) * R.km, segs[k].amb === 'gaia' ? 'gaia' : 'rio'), sc = { arrabida: 26, luislado: 20, mariapia: 22, infante: 20, sjoao: 16, freixo: 22 }[p.ponte] || 18;
+          limpa(k, l, 3); segs[k].sp.push({ x: l * (1.45 + .31 * sc), t: 'm_p' + p.ponte + (l < 0 ? 'E' : ''), s: sc }); segs[Math.max(0, k - 3)].sp.push({ x: l * 1.28, t: 'pl_' + i, s: 1.15 });
+          marcos.push({ i: k, n: p.n, ico: '🌉' }); return; }
+        if(p.t === 'luis'){ limpa(k, 0, 6); segs[k].sp.push({ x: 0, t: 'm_luis', s: 9.5 }); segs[Math.max(0, k - 3)].sp.push({ x: 1.28, t: 'pl_' + i, s: 1.15 }); marcos.push({ i: k, n: p.n, ico: '🌉' }); return; }
+        const tp = { anemona: 2.8, farol: 2.6, farolim: 1.7, pergola: 5, forte: 3.6, mosteiro: 9, eletrico: 3.2, vidro: 3.8, caves: 3.8, teleferico: 3, palacio: 3.8, jardim: 3.4, publico: 3.6, igreja: 3.2 }[p.t];
+        const ld = p.lado || 1; limpa(k, ld, tp ? 8 : 2);
+        if(tp) segs[k].sp.push({ x: ld * (1.9 + Math.min(260, p.d) / 45 + tp * .12), t: 'v_' + p.t, s: tp });
+        segs[Math.max(0, k - 3)].sp.push({ x: ld * 1.28, t: 'pl_' + i, s: 1.15 }); marcos.push({ i: k, n: p.n, ico: VALE_ICO[p.t] || '📍' }); return;
+      }
       const lado = p.lado || 1;
       const rua = segs[k].amb !== 'campo';   // na vila e na cidade abre-se uma clareira nas casas para se ver o edifício
       limpa(k, p.lado ? lado : 0, rua ? 11 : 4);
@@ -2727,7 +3120,423 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const spr = { p0: eucalipto, p1: carvalho, p2: ramada, r: casa, poste, m_partida: faixa(R.ini[0], R.ini[1], '#1F5FA8'), m_meta: faixa(R.fim[0], R.fim[1], '#C8102E'), m_sant: sant,
       v_igreja: igreja, v_capela: capela, v_escola: escola, v_bombeiros: bombeiros, v_publico: publico, v_camara: camara, v_museu: museu, v_monumento: monumento };
     R.pois.forEach((p, i)=>{ spr['pl_' + i] = srPlaca(p.n); });
+    Object.assign(spr, srMonVale(noite));   // santuário e edifícios em pormenor
     SR.spr = spr;
+  }
+  // ================= MARATONA DO PORTO: o percurso real da 22.ª EDP Maratona do Porto (8 nov 2026), 42,2 km =================
+  // SEA LIFE → Circunvalação → Matosinhos → Leça da Palmeira → Foz → Rua do Ouro → Ribeira → Ponte Luís I → Cais de Gaia → Freixo → Foz → Queimódromo
+  const PORTO_GEO = [[0,41.16872,-8.68717],[0.2,41.16798,-8.68792],[0.4,41.16957,-8.68721],[0.6,41.1713,-8.68738],[0.8,41.17293,-8.68832],[1,41.17343,-8.68624],[1.2,41.17348,-8.68386],[1.4,41.17256,-8.68182],[1.6,41.1716,-8.6798],[1.8,41.1716,-8.67747],[2,41.17208,-8.67519],[2.2,41.17333,-8.67347],[2.4,41.1745,-8.67167],[2.6,41.17524,-8.67099],[2.8,41.17394,-8.67258],[3,41.17271,-8.67432],[3.2,41.17178,-8.67628],[3.4,41.17143,-8.67863],[3.6,41.17208,-8.68079],[3.8,41.17304,-8.68281],[4,41.1735,-8.68503],[4.2,41.17336,-8.68742],[4.4,41.17402,-8.68911],[4.6,41.17552,-8.69041],[4.8,41.17698,-8.69165],[5,41.17849,-8.69286],[5.2,41.18002,-8.69391],[5.4,41.18124,-8.6932],[5.6,41.1827,-8.69459],[5.8,41.18416,-8.696],[6,41.1853,-8.69491],[6.2,41.18635,-8.69311],[6.4,41.18768,-8.69294],[6.6,41.18898,-8.69459],[6.8,41.1904,-8.69606],[7,41.19063,-8.69813],[7.2,41.19057,-8.70052],[7.4,41.19049,-8.7029],[7.6,41.19066,-8.70505],[7.8,41.19227,-8.70598],[8,41.19381,-8.70687],[8.2,41.1952,-8.70804],[8.4,41.19657,-8.70927],[8.6,41.19808,-8.70996],[8.8,41.19967,-8.7109],[9,41.20093,-8.71137],[9.2,41.2025,-8.71223],[9.4,41.20404,-8.71346],[9.6,41.20562,-8.71462],[9.8,41.20708,-8.71467],[10,41.20684,-8.71497],[10.2,41.20517,-8.71429],[10.4,41.2036,-8.71312],[10.6,41.20207,-8.71188],[10.8,41.20042,-8.71143],[11,41.19923,-8.71072],[11.2,41.19772,-8.71006],[11.4,41.19612,-8.70896],[11.6,41.19496,-8.70764],[11.8,41.19335,-8.70656],[12,41.19183,-8.70563],[12.2,41.19042,-8.70462],[12.4,41.19051,-8.70223],[12.6,41.19059,-8.69984],[12.8,41.19062,-8.69746],[13,41.18998,-8.69567],[13.2,41.1886,-8.69414],[13.4,41.18732,-8.6925],[13.6,41.18603,-8.6935],[13.8,41.18502,-8.69547],[14,41.18375,-8.6956],[14.2,41.18229,-8.6942],[14.4,41.18097,-8.69369],[14.6,41.17958,-8.69374],[14.8,41.17808,-8.69253],[15,41.17654,-8.69131],[15.2,41.17507,-8.6901],[15.4,41.1735,-8.68936],[15.6,41.17189,-8.68858],[15.8,41.17047,-8.68716],[16,41.16923,-8.68808],[16.2,41.1688,-8.68955],[16.4,41.16734,-8.68952],[16.6,41.16635,-8.68787],[16.8,41.16469,-8.68694],[17,41.16343,-8.68622],[17.2,41.16178,-8.68528],[17.4,41.16042,-8.68453],[17.6,41.1588,-8.68349],[17.8,41.15729,-8.68221],[18,41.15599,-8.68113],[18.2,41.1545,-8.67981],[18.4,41.15316,-8.67851],[18.6,41.15167,-8.67791],[18.8,41.15045,-8.67658],[19,41.14905,-8.67561],[19.2,41.14783,-8.67394],[19.4,41.14758,-8.67164],[19.6,41.14753,-8.66925],[19.8,41.14737,-8.66693],[20,41.14801,-8.6648],[20.2,41.14767,-8.66247],[20.4,41.14726,-8.6604],[20.6,41.14668,-8.65831],[20.8,41.14732,-8.65611],[21,41.14801,-8.65391],[21.2,41.14818,-8.65204],[21.4,41.14781,-8.64977],[21.6,41.14834,-8.64751],[21.8,41.14827,-8.64544],[22,41.14798,-8.64309],[22.2,41.14834,-8.64076],[22.4,41.14834,-8.63839],[22.6,41.14814,-8.63609],[22.8,41.14748,-8.63389],[23,41.14643,-8.63207],[23.2,41.14526,-8.63026],[23.4,41.14465,-8.62805],[23.6,41.14474,-8.62567],[23.8,41.14424,-8.6235],[24,41.14366,-8.6216],[24.2,41.14238,-8.61994],[24.4,41.14131,-8.61809],[24.6,41.14061,-8.61623],[24.8,41.14109,-8.61423],[25,41.14045,-8.61284],[25.2,41.14063,-8.61051],[25.4,41.13968,-8.60939],[25.6,41.1385,-8.61045],[25.8,41.13794,-8.61268],[26,41.13734,-8.61481],[26.2,41.13774,-8.61309],[26.4,41.13834,-8.61097],[26.6,41.13924,-8.60925],[26.8,41.14058,-8.60993],[27,41.14102,-8.60851],[27.2,41.14155,-8.60623],[27.4,41.14176,-8.60456],[27.6,41.14191,-8.60219],[27.8,41.14185,-8.59983],[28,41.14101,-8.59772],[28.2,41.14008,-8.59568],[28.4,41.13997,-8.59335],[28.6,41.14017,-8.59098],[28.8,41.14097,-8.58892],[29,41.14232,-8.58737],[29.2,41.14336,-8.58608],[29.4,41.14359,-8.58374],[29.6,41.14365,-8.58137],[29.8,41.14422,-8.57927],[30,41.14364,-8.58118],[30.2,41.14361,-8.58355],[30.4,41.14342,-8.58591],[30.6,41.14244,-8.58726],[30.8,41.14107,-8.58879],[31,41.14018,-8.59079],[31.2,41.13999,-8.59316],[31.4,41.14001,-8.59551],[31.6,41.14094,-8.59756],[31.8,41.1418,-8.59965],[32,41.14194,-8.602],[32.2,41.14174,-8.60437],[32.4,41.14159,-8.60605],[32.6,41.1412,-8.60831],[32.8,41.14123,-8.6105],[33,41.1416,-8.61283],[33.2,41.14104,-8.61484],[33.4,41.14077,-8.61699],[33.6,41.14165,-8.61877],[33.8,41.14284,-8.62051],[34,41.14395,-8.62234],[34.2,41.14441,-8.6242],[34.4,41.14472,-8.6265],[34.6,41.14474,-8.62888],[34.8,41.14568,-8.63087],[35,41.14679,-8.63274],[35.2,41.14775,-8.63463],[35.4,41.14823,-8.63686],[35.6,41.14839,-8.63922],[35.8,41.14815,-8.64156],[36,41.14809,-8.64391],[36.2,41.14833,-8.64597],[36.4,41.14819,-8.64832],[36.6,41.14792,-8.65059],[36.8,41.14817,-8.65241],[37,41.14777,-8.65468],[37.2,41.14707,-8.65688],[37.4,41.14683,-8.65912],[37.6,41.14751,-8.66116],[37.8,41.14782,-8.66328],[38,41.14782,-8.66559],[38.2,41.14753,-8.66773],[38.4,41.14755,-8.67009],[38.6,41.1476,-8.67247],[38.8,41.14814,-8.67467],[39,41.14959,-8.67602],[39.2,41.15091,-8.67715],[39.4,41.15224,-8.67827],[39.6,41.15369,-8.67896],[39.8,41.15502,-8.68027],[40,41.15653,-8.68158],[40.2,41.15782,-8.68266],[40.4,41.15935,-8.6839],[40.6,41.16071,-8.68467],[40.8,41.16235,-8.68561],[41,41.16401,-8.68655],[41.2,41.16527,-8.68727],[41.4,41.16693,-8.68819],[41.6,41.16833,-8.68777],[41.8,41.16971,-8.68722],[42,41.17041,-8.68554],[42.2,41.17164,-8.68438]];
+  const PORTO_ELE = [8,12,12,22,29,29,29,24,18,10,10,4,10,11,11,10,13,11,11,13,13,11,11,11,10,10,10,9,8,8,6,6,8,8,10,10,10,9,9,9,9,10,12,12,7,12,12,12,12,12,12,4,4,4,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,12,9,9,9,9,9,8,9,9,10,10,10,11,11];   // altitude (m) de 500 em 500 m
+  // troços: [km de início, km de fim, rua, ambiente] — mar: Atlântico ao lado; rio: Douro ao lado; ribeira: casario colorido e o rio; gaia: margem de Gaia
+  const PORTO_RUAS = [
+    [0, .8, 'Via do Castelo do Queijo · Porto', 'mar'], [.8, 4.3, 'Estrada da Circunvalação · Parque da Cidade', 'parque'],
+    [4.3, 5.2, 'Avenida General Norton de Matos · Matosinhos', 'mar'], [5.2, 6.5, 'Rua Heróis de França · Matosinhos', 'cidade'],
+    [6.5, 6.8, 'Ponte Móvel de Leixões', 'ponte'], [6.8, 7.6, 'Leça da Palmeira · Porto de Leixões', 'leixoes'],
+    [7.6, 12.2, 'Avenida da Liberdade · Leça da Palmeira', 'mar'], [12.2, 13.1, 'Leça da Palmeira · Porto de Leixões', 'leixoes'],
+    [13.1, 13.4, 'Ponte Móvel de Leixões', 'ponte'], [13.4, 14.6, 'Rua Heróis de França · Matosinhos', 'cidade'],
+    [14.6, 16.2, 'Avenida General Norton de Matos · Matosinhos Sul', 'mar'], [16.2, 17.6, 'Avenida de Montevideu · Foz', 'mar'],
+    [17.6, 18.9, 'Avenida do Brasil · Foz do Douro', 'mar'], [18.9, 19.9, 'Passeio Alegre · Foz do Douro', 'rio'],
+    [19.9, 22.6, 'Rua do Ouro · Arrábida', 'rio'], [22.6, 23.8, 'Massarelos · Cais das Pedras', 'rio'],
+    [23.8, 24.5, 'Rua Nova da Alfândega · Miragaia', 'rio'], [24.5, 25.2, 'Ribeira · Rua do Infante D. Henrique', 'ribeira'],
+    [25.2, 25.45, 'Ponte Luís I · tabuleiro inferior', 'ponte'], [25.45, 26.55, 'Cais de Gaia · Avenida Diogo Leite', 'gaia'],
+    [26.55, 26.8, 'Ponte Luís I · tabuleiro inferior', 'ponte'], [26.8, 28, 'Avenida Gustavo Eiffel', 'rio'],
+    [28, 31.6, 'Avenida Paiva Couceiro · Freixo', 'rio'], [31.6, 32.6, 'Avenida Gustavo Eiffel', 'rio'],
+    [32.6, 33.4, 'Túnel e Cais da Ribeira', 'ribeira'], [33.4, 34.1, 'Rua Nova da Alfândega · Miragaia', 'rio'],
+    [34.1, 35, 'Massarelos · Cais das Pedras', 'rio'], [35, 37.6, 'Rua do Ouro · Arrábida', 'rio'],
+    [37.6, 38.9, 'Passeio Alegre · Foz do Douro', 'rio'], [38.9, 40.3, 'Avenida do Brasil · Foz do Douro', 'mar'],
+    [40.3, 41.6, 'Avenida de Montevideu · Foz', 'mar'], [41.6, 42.21, 'Queimódromo · Parque da Cidade', 'parque']
+  ];
+  // pontos reais (OpenStreetMap): km, lado (−1 esquerda, +1 direita), distância à estrada (m), tipo e nome
+  // pontes vistas de lado: ficam sobre o rio (o lado do rio é calculado pela direção da estrada)
+  const PORTO_POI = [
+    { km:.25, lado:-1, d:160, t:'forte', n:'Castelo do Queijo' }, { km:.3, lado:1, d:31, t:'vidro', n:'SEA LIFE Porto' },
+    { km:.65, lado:-1, d:19, t:'vidro', n:'Edifício Transparente' }, { km:.82, lado:-1, d:48, t:'anemona', n:'Anémona "She Changes"' },
+    { km:1.22, lado:1, d:117, t:'sinal', n:'Queimódromo' }, { km:1.66, lado:1, d:200, t:'sinal', n:'Parque da Cidade do Porto' },
+    { km:4.28, lado:1, d:48, t:'anemona', n:'Anémona "She Changes"' }, { km:4.83, lado:-1, d:128, t:'sinal', n:'Praia de Matosinhos' },
+    { km:6.57, lado:1, d:0, t:'sinal', n:'Ponte Móvel de Leixões' }, { km:7.93, lado:-1, d:69, t:'sinal', n:'Piscina das Marés (Siza Vieira)' },
+    { km:9.08, lado:-1, d:59, t:'farol', n:'Farol de Leça' }, { km:9.36, lado:-1, d:177, t:'sinal', n:'Casa de Chá da Boa Nova (Siza Vieira)' },
+    { km:10.66, lado:1, d:59, t:'farol', n:'Farol de Leça' }, { km:13.17, lado:1, d:0, t:'sinal', n:'Ponte Móvel de Leixões' },
+    { km:15.42, lado:-1, d:50, t:'anemona', n:'Anémona "She Changes"' }, { km:16.25, lado:1, d:13, t:'forte', n:'Castelo do Queijo' },
+    { km:17.72, lado:1, d:28, t:'pergola', n:'Pérgola da Foz' }, { km:19.1, lado:1, d:262, t:'farolim', n:'Farolim de Felgueiras' },
+    { km:19.46, lado:-1, d:83, t:'jardim', n:'Jardim do Passeio Alegre' }, { km:21.95, ponte:'arrabida', n:'Ponte da Arrábida' },
+    { km:22.86, lado:-1, d:114, t:'eletrico', n:'Museu do Carro Eléctrico' }, { km:24.07, lado:1, d:69, t:'publico', n:'Alfândega do Porto' },
+    { km:24.16, lado:-1, d:55, t:'igreja', n:'Igreja de São Pedro de Miragaia' }, { km:24.6, lado:-1, d:27, t:'igreja', n:'Igreja de São Francisco' },
+    { km:24.68, lado:-1, d:69, t:'palacio', n:'Palácio da Bolsa' }, { km:24.97, lado:-1, d:12, t:'sinal', n:'Praça da Ribeira' },
+    { km:25.29, t:'luis', n:'Ponte Luís I' }, { km:25.4, lado:-1, d:126, t:'mosteiro', n:'Mosteiro da Serra do Pilar' },
+    { km:25.58, lado:-1, d:95, t:'teleferico', n:'Teleférico de Gaia' }, { km:25.82, lado:-1, d:39, t:'caves', n:'Caves do Vinho do Porto' },
+    { km:26.7, t:'luis', n:'Ponte Luís I' }, { km:27.25, ponte:'infante', n:'Ponte do Infante' },
+    { km:27.95, ponte:'mariapia', n:'Ponte Maria Pia' }, { km:28.2, ponte:'sjoao', n:'Ponte de São João' },
+    { km:29.45, ponte:'freixo', n:'Ponte do Freixo' }, { km:29.75, lado:-1, d:150, t:'palacio', n:'Palácio do Freixo' },
+    { km:31.6, ponte:'mariapia', n:'Ponte Maria Pia' }, { km:32.1, ponte:'infante', n:'Ponte do Infante' },
+    { km:32.55, ponte:'luislado', n:'Ponte Luís I' }, { km:33.28, lado:1, d:27, t:'igreja', n:'Igreja de São Francisco' },
+    { km:33.36, lado:1, d:69, t:'palacio', n:'Palácio da Bolsa' }, { km:33.77, lado:1, d:55, t:'igreja', n:'Igreja de São Pedro de Miragaia' },
+    { km:33.86, lado:-1, d:69, t:'publico', n:'Alfândega do Porto' }, { km:35.07, lado:1, d:114, t:'eletrico', n:'Museu do Carro Eléctrico' },
+    { km:35.45, ponte:'arrabida', n:'Ponte da Arrábida' }, { km:38.47, lado:1, d:83, t:'jardim', n:'Jardim do Passeio Alegre' },
+    { km:38.83, lado:-1, d:262, t:'farolim', n:'Farolim de Felgueiras' }, { km:40.21, lado:-1, d:28, t:'pergola', n:'Pérgola da Foz' },
+    { km:41.63, lado:1, d:36, t:'vidro', n:'SEA LIFE Porto' }
+  ];
+  Object.assign(VALE_ICO, { forte:'🏰', vidro:'🏢', anemona:'🎐', sinal:'📍', farol:'🗼', farolim:'🗼', pergola:'🏛️', jardim:'🌴', eletrico:'🚋', palacio:'🏛️', luis:'🌉', mosteiro:'⛪', teleferico:'🚡', caves:'🍷', ponte:'🌉' });
+  ROTAS.porto = { titulo:'MARATONA DO PORTO', km: 42.2, estilo:'porto', pts: PORTO_GEO.map(p=> ({ km: p[0], la: p[1], lo: p[2] })), ruas: PORTO_RUAS, pois: PORTO_POI, ele: PORTO_ELE,
+    ini:['PARTIDA', 'MARATONA DO PORTO · SEA LIFE'], fim:['META', 'QUEIMÓDROMO · PARQUE DA CIDADE'], nIni:'Partida · SEA LIFE Porto', nFim:'Meta · Queimódromo', santKm: null, vilas:[],
+    rotulos:[{ n:'Matosinhos', la:41.1825, lo:-8.6905 }, { n:'Leça', la:41.2035, lo:-8.7085 }, { n:'Foz', la:41.1525, lo:-8.6735 }, { n:'Ribeira', la:41.1420, lo:-8.6125 }, { n:'Gaia', la:41.1352, lo:-8.6110 }, { n:'Freixo', la:41.1452, lo:-8.5800 }] };
+  // de que lado fica a água neste ponto da estrada: o mar a oeste, o Douro a sul (em Gaia, a norte)
+  function srPortoAgua(R, f, am){
+    const P = R.pts, i = Math.max(0, Math.min(P.length - 2, Math.floor(f / .2))), th = parisRumo(P[i], P[i + 1]);
+    if(am === 'mar') return Math.cos(th) > 0 ? -1 : 1;
+    if(am === 'gaia') return Math.sin(th) > 0 ? -1 : 1;
+    return Math.sin(th) < 0 ? -1 : 1;
+  }
+  // um troço do Porto: o mar com areal e passeio, o rio com parapeito de granito e barcos rabelos, o casario da Ribeira, o porto de Leixões
+  function srPortoTroco(s, k, f, am, R, rnd){
+    const sp = [], r1 = rnd(), r2 = rnd(), r3 = rnd();
+    s.agua = null; s.muro = null;
+    if(am === 'mar'){ const l = srPortoAgua(R, f, am), o = -l;
+      s.agua = { [l < 0 ? 'L' : 'R']: 'mar' };
+      if(k % 4 === 0) sp.push({ x: l * 1.42, t: 'p0', s: 1.05 });   // palmeiras do passeio marítimo
+      if(k % 37 < 26) s.muro = { [o < 0 ? 'L' : 'R']: true, x: 2.3, h: 1.6, est: 'porto' };
+      else if(r1 < .5) sp.push({ x: o * (1.6 + r2), t: 'p1', s: 1 });
+      if(r3 < .05) sp.push({ x: l * (3.5 + r1 * 5), t: 'barco', s: 1.1 });
+    } else if(am === 'rio' || am === 'gaia' || am === 'ribeira'){ const l = srPortoAgua(R, f, am), o = -l;
+      s.agua = { [l < 0 ? 'L' : 'R']: 'rio' };
+      s.muro = { [l < 0 ? 'L' : 'R']: 'p', [o < 0 ? 'L' : 'R']: am === 'rio' ? (k % 41 < 30) : k % 29 >= 2, x: am === 'rio' ? 1.9 : 1.55, h: am === 'rio' ? 1.5 : 2.4, est: 'porto' };
+      if(am === 'rio' && k % 41 >= 30 && r1 < .6) sp.push({ x: o * (1.6 + r2 * 1.5), t: 'p1', s: 1.1 });
+      if(r2 < (am === 'gaia' ? .2 : .07)) sp.push({ x: l * (2.4 + r1 * 4.5), t: 'barco', s: 1.15 });   // rabelos (muitos no Cais de Gaia)
+    } else if(am === 'ponte'){ s.agua = { L: 'rio', R: 'rio' }; s.muro = { L: 'p', R: 'p', x: 1.3, h: .1 };
+    } else if(am === 'leixoes'){ s.muro = null;
+      if(k % 3 === 0) sp.push({ x: (k % 6 ? -1 : 1) * (1.8 + r1 * 2), t: 'cont', s: 1.3 });
+      if(k % 60 === 0) sp.push({ x: (r2 < .5 ? -1 : 1) * 4.5, t: 'grua', s: 4.5 });
+    } else if(am === 'parque'){ s.muro = null;
+      if(r1 < .85) sp.push({ x: -(1.45 + r2 * 2.6), t: r3 < .3 ? 'p2' : 'p1', s: .95 + r1 * .5 });
+      if(r2 < .85) sp.push({ x: 1.45 + r1 * 2.6, t: r1 < .3 ? 'p2' : 'p1', s: .95 + r2 * .5 });
+    } else { s.muro = { L: k % 29 >= 3, R: k % 31 >= 3, x: 1.6, h: 2.2, est: 'porto' }; if(r1 < .05) sp.push({ x: (r2 < .5 ? -1 : 1) * 1.35, t: 'r', s: .6 }); }
+    const passo = am === 'parque' || am === 'leixoes' ? 12 : 8;
+    if(k % passo === 0 && !(s.agua && s.agua.L)) sp.push({ x: -1.18, t: 'poste', s: 1 });
+    if(k % passo === passo / 2 && !(s.agua && s.agua.R)) sp.push({ x: 1.18, t: 'poste', s: 1 });
+    if(am === 'ponte' && k % 6 === 0){ sp.push({ x: -1.22, t: 'poste', s: 1 }); sp.push({ x: 1.22, t: 'poste', s: 1 }); }
+    s.sp = sp;
+  }
+  // cor da água (mar ou rio), conforme a hora e o tempo
+  function srPortoAguaCor(tipo, alt){
+    const m = SR.met || {}, noite = m.fase === 'noite', por = m.fase === 'por', cinza = m.tempo === 'chuva' || m.tempo === 'nublado' || m.tempo === 'nevoeiro';
+    let c = tipo === 'mar' ? (alt ? '#2A6A95' : '#2F73A0') : (alt ? '#2C5C72' : '#30627A');
+    if(por) c = srMix(c, '#B8705A', .25); if(cinza) c = srMix(c, '#6E7A84', .4); if(noite) c = srMix(c, '#08101E', .7);
+    return c;
+  }
+  // desenhos do Porto
+  function srSpritesPorto(noite, R){
+    const mk = (w, h, f)=>{ const c = document.createElement('canvas'); c.width = w; c.height = h; f(c.getContext('2d'), w, h); return c; };
+    const espelho = c=>{ const d = document.createElement('canvas'); d.width = c.width; d.height = c.height; const g = d.getContext('2d'); g.translate(c.width, 0); g.scale(-1, 1); g.drawImage(c, 0, 0); return d; };
+    const sombra = (g, w, h)=>{ g.fillStyle = 'rgba(0,0,0,.22)'; g.beginPath(); g.ellipse(w / 2, h - 5, w * .3, 6, 0, 0, 7); g.fill(); };
+    const gran = noite ? '#B8A47E' : '#ABA597', granE = noite ? '#7E6C4C' : '#857F72', granL = noite ? '#D6C39A' : '#C8C2B4', ferro = noite ? '#C9A060' : '#5C5650';
+    const palmeira = mk(160, 360, (g, w, h)=>{ sombra(g, w, h); g.strokeStyle = '#8A7356'; g.lineWidth = 9; g.lineCap = 'round'; g.beginPath(); g.moveTo(w / 2, h - 6); g.quadraticCurveTo(w / 2 + 12, h * .5, w / 2 - 2, h * .2); g.stroke();
+      g.strokeStyle = 'rgba(60,45,30,.4)'; g.lineWidth = 2; for(let y = h * .25; y < h - 10; y += 9){ g.beginPath(); g.moveTo(w / 2 - 5, y); g.lineTo(w / 2 + 6, y + 3); g.stroke(); }
+      const cx = w / 2 - 2, cy = h * .2; for(let i = 0; i < 11; i++){ const a = -Math.PI / 2 + (i - 5) * .32, L = 62 + (i % 3) * 8; g.strokeStyle = i % 2 ? '#3E7A3A' : '#4F8E45'; g.lineWidth = 5;
+        g.beginPath(); g.moveTo(cx, cy); g.quadraticCurveTo(cx + Math.cos(a) * L * .6, cy + Math.sin(a) * L * .6 - 12, cx + Math.cos(a) * L, cy + Math.sin(a) * L + 24); g.stroke(); } });
+    const arvore = mk(160, 300, (g, w, h)=>{ const r = srRnd(41); sombra(g, w, h); g.fillStyle = '#6A5A46'; g.fillRect(w / 2 - 6, h * .5, 12, h * .5 - 6);
+      for(let i = 0; i < 18; i++){ g.fillStyle = i % 3 ? '#4C7C3C' : '#628F4A'; g.beginPath(); g.ellipse(w / 2 + (r() - .5) * w * .6, h * (.22 + r() * .3), w * (.14 + r() * .1), h * (.07 + r() * .05), 0, 0, 7); g.fill(); } });
+    const arbusto = mk(140, 120, (g, w, h)=>{ const r = srRnd(43); sombra(g, w, h); for(let i = 0; i < 12; i++){ g.fillStyle = i % 3 ? '#3F6E35' : '#5A8E48'; g.beginPath(); g.arc(w * (.2 + r() * .6), h * (.45 + r() * .35), 18 + r() * 12, 0, 7); g.fill(); }
+      g.fillStyle = '#7FA6D8'; for(let i = 0; i < 8; i++){ g.beginPath(); g.arc(w * (.2 + r() * .6), h * (.4 + r() * .3), 5, 0, 7); g.fill(); } });   // hortênsias
+    const quiosque = mk(180, 170, (g, w, h)=>{ sombra(g, w, h); g.fillStyle = '#2F5A46'; g.fillRect(40, 60, 100, h - 66); g.fillStyle = noite ? '#FFD58A' : '#CFE0D8'; g.fillRect(52, 74, 76, 40); g.fillStyle = '#244636'; g.beginPath(); g.moveTo(30, 62); g.lineTo(90, 20); g.lineTo(150, 62); g.closePath(); g.fill(); });
+    const poste = mk(24, 90, (g, w, h)=>{ g.fillStyle = '#1F2A2A'; g.fillRect(10, 16, 4, h - 16); g.fillRect(6, h - 10, 12, 10); g.fillRect(3, 12, 18, 3); g.fillStyle = noite ? '#FFE2A0' : '#E8E2C8'; g.fillRect(6, 2, 12, 11); g.fillStyle = '#1F2A2A'; g.fillRect(5, 0, 14, 3); });
+    const barco = mk(260, 200, (g, w, h)=>{   // barco rabelo com a vela quadrada
+      g.fillStyle = 'rgba(0,0,0,.2)'; g.beginPath(); g.ellipse(w / 2, h - 10, 110, 9, 0, 0, 7); g.fill();
+      g.fillStyle = '#5A3A22'; g.beginPath(); g.moveTo(14, 150); g.quadraticCurveTo(w / 2, 196, 246, 150); g.lineTo(232, 176); g.quadraticCurveTo(w / 2, 194, 28, 176); g.closePath(); g.fill();
+      g.fillStyle = '#7A5230'; g.fillRect(30, 150, 200, 8); g.fillStyle = '#3E2A18'; g.fillRect(126, 30, 6, 124);
+      g.fillStyle = noite ? '#C8B998' : '#F1EAD8'; g.beginPath(); g.moveTo(70, 40); g.lineTo(190, 40); g.lineTo(184, 132); g.lineTo(76, 132); g.closePath(); g.fill();
+      g.fillStyle = '#7A1E1E'; g.fillRect(74, 72, 112, 10); g.fillStyle = '#5A3A22'; g.fillRect(36, 122, 34, 30); for(let i = 0; i < 4; i++){ g.fillStyle = '#8A6A40'; g.fillRect(150 + i * 18, 138, 14, 12); } });
+    const cont = mk(220, 170, (g, w, h)=>{ const cs = ['#B03A2E', '#2F6E9E', '#C88A2E', '#4E7D3A', '#7A7F86']; sombra(g, w, h);
+      for(let fila = 0; fila < 3; fila++) for(let c = 0; c < 2; c++){ const col = cs[(fila * 2 + c * 3) % 5]; g.fillStyle = noite ? srMix(col, '#0A1020', .55) : col; g.fillRect(10 + c * 102, h - 52 - fila * 50, 98, 46);
+        g.fillStyle = 'rgba(0,0,0,.2)'; for(let x = 16 + c * 102; x < 104 + c * 102; x += 7) g.fillRect(x, h - 50 - fila * 50, 2, 42); } });
+    const grua = mk(300, 520, (g, w, h)=>{ const cor = noite ? '#8A6A3A' : '#D8A23A'; g.strokeStyle = cor; g.lineWidth = 6;
+      g.beginPath(); g.moveTo(60, h); g.lineTo(110, 220); g.moveTo(180, h); g.lineTo(130, 220); g.moveTo(60, h); g.lineTo(180, h - 160); g.moveTo(180, h); g.lineTo(60, h - 160); g.stroke();
+      g.fillStyle = cor; g.fillRect(90, 200, 70, 40); g.fillRect(0, 196, 300, 14); g.lineWidth = 3; g.beginPath(); for(let x = 0; x < 300; x += 20){ g.moveTo(x, 196); g.lineTo(x + 10, 170); g.lineTo(x + 20, 196); } g.moveTo(0, 170); g.lineTo(300, 170); g.stroke();
+      g.strokeStyle = '#333'; g.lineWidth = 2; g.beginPath(); g.moveTo(250, 210); g.lineTo(250, 300); g.stroke(); g.fillStyle = noite ? '#FF4040' : '#C33'; g.beginPath(); g.arc(150, 168, 5, 0, 7); g.fill(); });
+    // faixas de partida e meta, placas
+    const faixa = (t1, t2, cor)=> mk(640, 320, (g, w, h)=>{ g.fillStyle = '#2C3440'; g.fillRect(24, 40, 18, h - 40); g.fillRect(w - 42, 40, 18, h - 40);
+      g.fillStyle = cor; g.fillRect(14, 30, w - 28, 110); g.fillStyle = '#FFFFFF'; g.fillRect(14, 30, w - 28, 6); g.fillRect(14, 134, w - 28, 6);
+      g.textAlign = 'center'; g.fillStyle = '#FFFFFF'; g.font = '800 40px Barlow Condensed, Arial Narrow, sans-serif'; g.fillText(t1, w / 2, 78); g.font = '700 28px Barlow Condensed, Arial Narrow, sans-serif'; g.fillText(t2, w / 2, 120);
+      g.fillStyle = 'rgba(255,255,255,.9)'; for(let x = 20; x < w - 20; x += 24){ g.fillRect(x, 146, 12, 12); g.fillRect(x + 12, 158, 12, 12); } });
+    const spr = { p0: palmeira, p1: arvore, p2: arbusto, r: quiosque, poste, barco, cont, grua, m_partida: faixa(R.ini[0], R.ini[1], '#1F5FA8'), m_meta: faixa(R.fim[0], R.fim[1], '#C8102E') };
+    R.pois.forEach((p, i)=>{ spr['pl_' + i] = srPlaca(p.n); });
+    Object.assign(spr, srMonVale(noite));   // igrejas e edifícios públicos
+    const M = srMonPorto(noite);
+    Object.keys(M).forEach(k=>{ spr[k] = M[k]; if(/^m_p/.test(k)) spr[k + 'E'] = espelho(M[k]); });
+    SR.spr = spr;
+  }
+  // monumentos do Porto, em pormenor
+  function srMonPorto(noite){
+    const gran = noite ? '#C9B48A' : '#ABA597', granE = noite ? '#8E7A55' : '#857F72', granL = noite ? '#E3D0A6' : '#C8C2B4';
+    const ferro = noite ? '#D9A85A' : '#4E4A46', ferroL = noite ? '#F2CB86' : '#6E6862';
+    const luz = noite ? '#FFD58A' : null;
+    // ---- ajudas para as pontes: treliça entre duas curvas e vigas em treliça ----
+    const treli = (g, cA, cB, t0, t1, n, cor, lw)=>{   // diagonais em ziguezague entre a curva A e a curva B (funções de t → [x,y])
+      g.strokeStyle = cor; g.lineWidth = lw; g.beginPath();
+      for(let i = 0; i <= n; i++){ const t = t0 + (t1 - t0) * i / n, a = cA(t), b = cB(t), t2 = t0 + (t1 - t0) * Math.min(n, i + 1) / n, a2 = cA(t2);
+        g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); if(i < n){ g.lineTo(a2[0], a2[1]); } }
+      g.stroke(); };
+    const curva = (g, c, t0, t1, cor, lw)=>{ g.strokeStyle = cor; g.lineWidth = lw; g.beginPath(); for(let i = 0; i <= 60; i++){ const p = c(t0 + (t1 - t0) * i / 60); i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); } g.stroke(); };
+    const viga = (g, x0, x1, y, alt, cor, corL, passo)=>{   // viga em treliça (tabuleiro)
+      g.fillStyle = cor; g.fillRect(x0, y, x1 - x0, 4); g.fillRect(x0, y + alt - 4, x1 - x0, 4);
+      g.strokeStyle = cor; g.lineWidth = 2; g.beginPath(); for(let x = x0; x < x1; x += passo){ g.moveTo(x, y + 2); g.lineTo(x + passo / 2, y + alt - 2); g.lineTo(x + passo, y + 2); } g.stroke();
+      g.strokeStyle = corL; g.lineWidth = 1; g.beginPath(); for(let x = x0; x <= x1; x += passo){ g.moveTo(x, y + 2); g.lineTo(x, y + alt - 2); } g.stroke(); };
+    const luzes = (g, x0, x1, y, passo)=>{ if(!noite) return; g.fillStyle = '#FFE6A8'; for(let x = x0; x < x1; x += passo){ g.beginPath(); g.arc(x, y, 2.2, 0, 7); g.fill(); } g.fillStyle = 'rgba(255,220,150,.25)'; g.fillRect(x0, y - 4, x1 - x0, 8); };
+    const ferroE = noite ? '#9A6E30' : '#3A3632', ferroM = noite ? '#D9A85A' : '#57514B', ferroC = noite ? '#F6D08E' : '#7E766C';
+    // ---- Ponte Luís I vista do tabuleiro de baixo: os dois arcos de ferro a subir dos lados, contraventados por cima, os pendurais e o tabuleiro de cima lá no alto ----
+    const luis = srMk2(600, 520, (g, w, h)=>{
+      const cx = w / 2, chao = h - 22;
+      // tabuleiro superior (visto por baixo, ao alto) com a treliça e o metro
+      g.fillStyle = srGrad(g, 0, 18, 0, 64, [[0, ferroC], [1, ferroE]]); g.fillRect(0, 22, w, 40); viga(g, 0, w, 22, 40, ferroE, ferroC, 22);
+      g.fillStyle = noite ? '#F6D08E' : '#2E2A26'; g.fillRect(0, 16, w, 7); luzes(g, 8, w, 14, 28);
+      // os dois arcos (em perspetiva): nascem ao lado da estrada e juntam-se lá em cima, debaixo do tabuleiro
+      const arcoE = t=>{ const a = Math.PI * t; return [cx - 270 * Math.cos(a * .5) - 10, chao - (chao - 70) * Math.sin(a * .5)]; };
+      const arcoEi = t=>{ const p = arcoE(t); return [p[0] + 30 - 22 * t, p[1] + 26 - 10 * t]; };
+      const arcoD = t=>{ const p = arcoE(t); return [w - p[0], p[1]]; }, arcoDi = t=>{ const p = arcoEi(t); return [w - p[0], p[1]]; };
+      [[arcoE, arcoEi], [arcoD, arcoDi]].forEach(([A, B])=>{
+        g.fillStyle = noite ? 'rgba(217,168,90,.18)' : 'rgba(87,81,75,.18)'; g.beginPath(); for(let i = 0; i <= 40; i++){ const p = A(i / 40); i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); } for(let i = 40; i >= 0; i--){ const p = B(i / 40); g.lineTo(p[0], p[1]); } g.fill();
+        treli(g, A, B, 0, 1, 18, ferroM, 2); curva(g, A, 0, 1, ferroE, 9); curva(g, B, 0, 1, ferroE, 6); curva(g, A, 0, 1, ferroC, 2); });
+      // contraventamento entre os arcos (as cruzes em X por cima da estrada)
+      for(let k = 1; k <= 5; k++){ const t = .32 + k * .12, a = arcoEi(t), b = arcoDi(t); if(b[0] - a[0] < 30) continue;
+        g.strokeStyle = ferroM; g.lineWidth = 3; g.beginPath(); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); g.moveTo(a[0], a[1] - 12); g.lineTo(b[0], b[1] + 12); g.moveTo(a[0], a[1] + 12); g.lineTo(b[0], b[1] - 12); g.stroke(); }
+      // pendurais que seguram o tabuleiro de baixo, e as guardas de ferro dos dois lados
+      g.strokeStyle = ferroE; g.lineWidth = 2.5; g.beginPath(); for(let t = .08; t < .62; t += .055){ const a = arcoEi(t), b = arcoDi(t); g.moveTo(a[0], a[1]); g.lineTo(a[0], chao - 30); g.moveTo(b[0], b[1]); g.lineTo(b[0], chao - 30); } g.stroke();
+      [[0, 150], [w - 150, w]].forEach(([x0, x1])=>{ g.fillStyle = ferroE; g.fillRect(x0, chao - 34, x1 - x0, 6); g.strokeStyle = ferroE; g.lineWidth = 1.6; g.beginPath(); for(let x = x0; x <= x1; x += 7){ g.moveTo(x, chao - 30); g.lineTo(x, chao - 4); } g.moveTo(x0, chao - 6); g.lineTo(x1, chao - 6); g.stroke(); });
+      // pés dos arcos: sapatas de granito
+      [[0, 70], [w - 70, w]].forEach(([x0, x1])=>{ g.fillStyle = srGrad(g, x0, 0, x1, 0, [[0, granL], [1, granE]]); g.fillRect(x0, chao - 60, x1 - x0, 82); srJuntas(g, x0, chao - 60, x1 - x0, 82, 13, 'rgba(60,55,45,.3)', x0 + 9); });
+      luzes(g, 150, w - 150, chao - 38, 30);
+    });
+    // ---- Ponte Luís I de lado: arco de ferro em treliça, tabuleiro de cima no fecho do arco com os pilares de treliça, tabuleiro de baixo pendurado, torres de granito nas pontas ----
+    const luisLado = srMk2(1000, 380, (g, w, h)=>{
+      const yS = 52, yI = 300, x0 = 120, x1 = w - 120, cx = w / 2;
+      const ext = t=>{ const x = x0 + (x1 - x0) * t; return [x, yI + 6 - (yI + 6 - yS - 26) * Math.sin(Math.PI * t)]; };       // banzo de cima do arco
+      const int = t=>{ const x = x0 + 18 + (x1 - x0 - 36) * t; return [x, yI + 6 - (yI + 6 - yS - 64) * Math.sin(Math.PI * t)]; };   // banzo de baixo (o arco é mais alto no fecho)
+      // torres de granito nas duas margens (onde assenta o tabuleiro de cima)
+      [[0, 78], [w - 78, w]].forEach(([a, b])=>{ g.fillStyle = srGrad(g, a, 0, b, 0, [[0, granL], [.5, gran], [1, granE]]); g.fillRect(a, yS + 18, b - a, h - yS - 18); srJuntas(g, a, yS + 18, b - a, h - yS - 18, 13, 'rgba(60,55,45,.3)', a + 5);
+        g.fillStyle = granE; g.fillRect(a - 3, yS + 16, b - a + 6, 8); g.fillRect(a - 3, 200, b - a + 6, 6); });
+      // arco com treliça
+      g.fillStyle = noite ? 'rgba(217,168,90,.2)' : 'rgba(87,81,75,.15)'; g.beginPath(); for(let i = 0; i <= 40; i++){ const p = ext(i / 40); i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); } for(let i = 40; i >= 0; i--){ const p = int(i / 40); g.lineTo(p[0], p[1]); } g.fill();
+      treli(g, ext, int, 0, 1, 34, ferroM, 1.8); curva(g, ext, 0, 1, ferroE, 7); curva(g, int, 0, 1, ferroE, 5); curva(g, ext, 0, 1, ferroC, 1.5);
+      // pilares de treliça entre o arco e o tabuleiro de cima (só onde o arco está abaixo dele)
+      for(const t of [.06, .13, .2, .27, .73, .8, .87, .94]){ const p = ext(t); if(p[1] - yS < 34) continue; const ww = 12; g.fillStyle = noite ? 'rgba(217,168,90,.25)' : 'rgba(87,81,75,.2)'; g.fillRect(p[0] - ww / 2, yS + 22, ww, p[1] - yS - 22);
+        g.strokeStyle = ferroM; g.lineWidth = 1.4; g.beginPath(); for(let y = yS + 24; y < p[1] - 8; y += 12){ g.moveTo(p[0] - ww / 2, y); g.lineTo(p[0] + ww / 2, y + 12); g.moveTo(p[0] + ww / 2, y); g.lineTo(p[0] - ww / 2, y + 12); } g.stroke();
+        g.strokeStyle = ferroE; g.lineWidth = 2.5; g.beginPath(); g.moveTo(p[0] - ww / 2, yS + 22); g.lineTo(p[0] - ww / 2, p[1]); g.moveTo(p[0] + ww / 2, yS + 22); g.lineTo(p[0] + ww / 2, p[1]); g.stroke(); }
+      // tabuleiro de cima (metro), por cima do fecho do arco
+      g.fillStyle = srGrad(g, 0, yS, 0, yS + 24, [[0, ferroC], [1, ferroE]]); g.fillRect(0, yS, w, 24); viga(g, 0, w, yS, 24, ferroE, ferroC, 18); luzes(g, 6, w, yS - 3, 26);
+      // tabuleiro de baixo, pendurado do arco
+      g.strokeStyle = ferroE; g.lineWidth = 2; g.beginPath(); for(let t = .1; t < .92; t += .04){ const p = int(t); if(yI - p[1] > 10){ g.moveTo(p[0], p[1]); g.lineTo(p[0], yI); } } g.stroke();
+      g.fillStyle = srGrad(g, 0, yI, 0, yI + 18, [[0, ferroC], [1, ferroE]]); g.fillRect(x0 - 40, yI, x1 - x0 + 80, 18); viga(g, x0 - 40, x1 + 40, yI, 18, ferroE, ferroC, 14); luzes(g, x0 - 34, x1 + 40, yI - 3, 24);
+      // encontros de pedra na base do arco
+      [[x0 - 60, x0 + 20], [x1 - 20, x1 + 60]].forEach(([a, b])=>{ g.fillStyle = srGrad(g, a, 0, b, 0, [[0, granL], [1, granE]]); g.fillRect(a, yI + 18, b - a, h - yI - 18); srJuntas(g, a, yI + 18, b - a, h - yI - 18, 12, 'rgba(60,55,45,.3)', a); });
+    });
+    // ---- Ponte da Arrábida: um só arco de betão enorme, em caixão (com volume), o tabuleiro largo em cima com os pilares e os candeeiros ----
+    const arrabida = srMk2(1200, 340, (g, w, h)=>{
+      const y0 = 36, base = h - 6, xa = 70, xb = w - 70;
+      const sup = t=> [xa + (xb - xa) * t, base - (base - y0 - 24) * Math.sin(Math.PI * t)];                    // extradorso
+      const inf = t=> [xa + 26 + (xb - xa - 52) * t, base - (base - y0 - 48) * Math.sin(Math.PI * t)];           // intradorso (mais fino no fecho)
+      const bet = noite ? '#E6D7B4' : '#E2DED6', betS = noite ? '#A8946C' : '#AFA99E', betE = noite ? '#7E6C4C' : '#8C867C';
+      // segundo arco atrás (a ponte tem dois), mais escuro: dá profundidade
+      g.save(); g.translate(14, -8); g.fillStyle = betS; g.beginPath(); for(let i = 0; i <= 60; i++){ const p = sup(i / 60); i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); } for(let i = 60; i >= 0; i--){ const p = inf(i / 60); g.lineTo(p[0], p[1]); } g.fill(); g.restore();
+      // pilares do tabuleiro (pares), com sombra de um lado
+      for(let x = 18; x < w - 10; x += 38){ const t = (x - xa) / (xb - xa); let yb = base; if(t > 0 && t < 1) yb = sup(t)[1]; if(yb - y0 < 34) continue;
+        g.fillStyle = srGrad(g, x, 0, x + 10, 0, [[0, bet], [1, betS]]); g.fillRect(x, y0 + 22, 10, yb - y0 - 22); g.fillStyle = betE; g.fillRect(x + 8, y0 + 22, 2, yb - y0 - 22); }
+      // arco principal, com luz por cima e sombra por baixo
+      g.fillStyle = srGrad(g, 0, y0 + 20, 0, base, [[0, '#FFFFFF'], [.25, bet], [1, betS]]); g.beginPath(); for(let i = 0; i <= 60; i++){ const p = sup(i / 60); i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); } for(let i = 60; i >= 0; i--){ const p = inf(i / 60); g.lineTo(p[0], p[1]); } g.closePath(); g.fill();
+      curva(g, inf, 0, 1, betE, 3); curva(g, sup, 0, 1, noite ? '#FFF4D8' : '#FFFFFF', 1.5);
+      g.strokeStyle = 'rgba(0,0,0,.08)'; g.lineWidth = 1; g.beginPath(); for(let t = .05; t < .96; t += .05){ const a = sup(t), b = inf(t); g.moveTo(a[0], a[1]); g.lineTo(b[0], b[1]); } g.stroke();   // juntas das aduelas
+      // sapatas nas margens
+      [[xa - 40, xa + 50], [xb - 50, xb + 40]].forEach(([a, b])=>{ g.fillStyle = srGrad(g, a, 0, b, 0, [[0, bet], [1, betE]]); g.beginPath(); g.moveTo(a, base); g.lineTo(a + 20, base - 40); g.lineTo(b - 20, base - 40); g.lineTo(b, base); g.fill(); });
+      // tabuleiro: laje com sombra, guardas e candeeiros
+      g.fillStyle = srGrad(g, 0, y0, 0, y0 + 22, [[0, '#FFFFFF'], [.3, bet], [1, betE]]); g.fillRect(0, y0, w, 22); g.fillStyle = betE; g.fillRect(0, y0 + 20, w, 3);
+      g.strokeStyle = noite ? '#C9B48A' : '#8F959B'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(0, y0 - 6); g.lineTo(w, y0 - 6); for(let x = 0; x < w; x += 9){ g.moveTo(x, y0 - 6); g.lineTo(x, y0); } g.stroke();
+      for(let x = 20; x < w; x += 60){ g.fillStyle = '#5E646A'; g.fillRect(x, y0 - 24, 2, 18); g.fillStyle = noite ? '#FFE6A8' : '#D8DDE0'; g.fillRect(x - 4, y0 - 27, 10, 4); }
+      luzes(g, 20, w, y0 - 25, 60);
+    });
+    // ---- Ponte Maria Pia (Eiffel, 1877): crescente de ferro vermelho rendado, tabuleiro em treliça e pilares em pirâmide ----
+    const mariapia = srMk2(1000, 360, (g, w, h)=>{
+      const yD = 54, base = h - 8, xa = 210, xb = w - 210, cx = w / 2;
+      const vm = noite ? '#E07A55' : '#9A3324', vmE = noite ? '#9A4A2E' : '#6A2016', vmL = noite ? '#FFB08A' : '#C25A40';
+      const sup = t=> [xa + (xb - xa) * t, base - (base - yD - 26) * Math.sin(Math.PI * t)];          // banzo de cima (toca no tabuleiro no fecho)
+      const inf = t=> [xa + (xb - xa) * t, base - (base - yD - 96) * Math.pow(Math.sin(Math.PI * t), 1.15)];   // banzo de baixo: crescente (as pontas juntam-se nas rótulas)
+      g.fillStyle = noite ? 'rgba(224,122,85,.2)' : 'rgba(154,51,36,.14)'; g.beginPath(); for(let i = 0; i <= 50; i++){ const p = sup(i / 50); i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); } for(let i = 50; i >= 0; i--){ const p = inf(i / 50); g.lineTo(p[0], p[1]); } g.fill();
+      treli(g, sup, inf, .02, .98, 46, vm, 1.4); treli(g, inf, sup, .02, .98, 46, vmL, .8); curva(g, sup, 0, 1, vmE, 5); curva(g, inf, 0, 1, vmE, 4);
+      // rótulas (apoios das pontas do arco)
+      [xa, xb].forEach(x=>{ g.fillStyle = granE; g.fillRect(x - 22, base - 10, 44, 18); g.fillStyle = vmE; g.beginPath(); g.arc(x, base - 10, 6, 0, 7); g.fill(); });
+      // pilares em pirâmide de treliça: nas margens (altos) e sobre o arco
+      const pilar = (x, yb, larg)=>{ const yt = yD + 26, a = larg / 2, b = 9; g.fillStyle = noite ? 'rgba(224,122,85,.2)' : 'rgba(154,51,36,.12)'; g.beginPath(); g.moveTo(x - a, yb); g.lineTo(x - b, yt); g.lineTo(x + b, yt); g.lineTo(x + a, yb); g.fill();
+        g.strokeStyle = vmE; g.lineWidth = 3; g.beginPath(); g.moveTo(x - a, yb); g.lineTo(x - b, yt); g.moveTo(x + a, yb); g.lineTo(x + b, yt); g.stroke();
+        g.strokeStyle = vm; g.lineWidth = 1.2; g.beginPath(); const n = Math.max(3, Math.round((yb - yt) / 16)); for(let i = 0; i < n; i++){ const t1 = i / n, t2 = (i + 1) / n, y1 = yb - (yb - yt) * t1, y2 = yb - (yb - yt) * t2, w1 = a - (a - b) * t1, w2 = a - (a - b) * t2;
+          g.moveTo(x - w1, y1); g.lineTo(x + w2, y2); g.moveTo(x + w1, y1); g.lineTo(x - w2, y2); g.moveTo(x - w1, y1); g.lineTo(x + w1, y1); } g.stroke(); };
+      pilar(70, base, 70); pilar(150, base, 60); pilar(w - 150, base, 60); pilar(w - 70, base, 70);
+      [.18, .32].forEach(t=>{ const p = sup(t); pilar(p[0], p[1], 26); const q = sup(1 - t); pilar(q[0], q[1], 26); });
+      // tabuleiro em treliça (a linha de comboio)
+      g.fillStyle = noite ? 'rgba(224,122,85,.25)' : 'rgba(154,51,36,.18)'; g.fillRect(0, yD, w, 26); viga(g, 0, w, yD, 26, vmE, vmL, 16);
+      g.fillStyle = vmE; g.fillRect(0, yD - 5, w, 5); g.strokeStyle = vm; g.lineWidth = 1; g.beginPath(); for(let x = 0; x < w; x += 6){ g.moveTo(x, yD - 5); g.lineTo(x, yD - 12); } g.moveTo(0, yD - 12); g.lineTo(w, yD - 12); g.stroke();
+      // encontros de granito nas pontas
+      [[0, 30], [w - 30, w]].forEach(([a, b])=>{ g.fillStyle = srGrad(g, a, 0, b, 0, [[0, granL], [1, granE]]); g.fillRect(a, yD - 2, b - a, h - yD); });
+    });
+    // ---- Ponte do Infante: tabuleiro fino e reto sobre um arco muito abatido de betão, com os pilares ----
+    const bet = noite ? '#E6D7B4' : '#E2DED6', betS = noite ? '#A8946C' : '#AFA99E', betE = noite ? '#7E6C4C' : '#8C867C';
+    const infante = srMk2(1000, 300, (g, w, h)=>{
+      const y0 = 40, base = h - 8, xa = 90, xb = w - 90;
+      const sup = t=> [xa + (xb - xa) * t, base - (base - y0 - 22) * Math.pow(Math.sin(Math.PI * t), .55)], inf = t=> [xa + 14 + (xb - xa - 28) * t, base - (base - y0 - 36) * Math.pow(Math.sin(Math.PI * t), .55)];
+      for(let x = 20; x < w; x += 46){ const t = (x - xa) / (xb - xa); const yb = t > 0 && t < 1 ? sup(t)[1] : base; if(yb - y0 < 30) continue; g.fillStyle = srGrad(g, x, 0, x + 12, 0, [[0, bet], [1, betS]]); g.fillRect(x, y0 + 18, 12, yb - y0 - 18); }
+      g.fillStyle = srGrad(g, 0, y0 + 20, 0, base, [[0, '#FFFFFF'], [.3, bet], [1, betS]]); g.beginPath(); for(let i = 0; i <= 60; i++){ const p = sup(i / 60); i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1]); } for(let i = 60; i >= 0; i--){ const p = inf(i / 60); g.lineTo(p[0], p[1]); } g.fill(); curva(g, inf, 0, 1, betE, 2);
+      g.fillStyle = srGrad(g, 0, y0, 0, y0 + 20, [[0, '#FFFFFF'], [.3, bet], [1, betE]]); g.fillRect(0, y0, w, 20); g.fillStyle = betE; g.fillRect(0, y0 + 18, w, 3);
+      g.strokeStyle = noite ? '#C9B48A' : '#8F959B'; g.lineWidth = 1; g.beginPath(); g.moveTo(0, y0 - 5); g.lineTo(w, y0 - 5); for(let x = 0; x < w; x += 8){ g.moveTo(x, y0 - 5); g.lineTo(x, y0); } g.stroke(); luzes(g, 10, w, y0 - 8, 50); });
+    // ---- Ponte de São João: viga-caixão de betão com dois grandes pilares no rio ----
+    const sjoao = srMk2(900, 300, (g, w, h)=>{
+      const y0 = 46, base = h - 8; g.fillStyle = srGrad(g, 0, y0, 0, y0 + 70, [[0, '#FFFFFF'], [.2, bet], [1, betS]]); g.beginPath(); g.moveTo(0, y0); g.lineTo(w, y0); g.lineTo(w, y0 + 24); g.quadraticCurveTo(w * .75, y0 + 26, 600, y0 + 66); g.quadraticCurveTo(w / 2, y0 + 30, 300, y0 + 66); g.quadraticCurveTo(w * .25, y0 + 26, 0, y0 + 24); g.closePath(); g.fill();
+      g.strokeStyle = betE; g.lineWidth = 2; g.stroke();
+      [300, 600].forEach(x=>{ g.fillStyle = srGrad(g, x - 20, 0, x + 20, 0, [[0, bet], [1, betE]]); g.fillRect(x - 20, y0 + 60, 40, base - y0 - 60); g.fillStyle = betS; g.fillRect(x - 28, base - 14, 56, 14); });
+      g.strokeStyle = noite ? '#C9B48A' : '#8F959B'; g.lineWidth = 1; g.beginPath(); g.moveTo(0, y0 - 5); g.lineTo(w, y0 - 5); g.stroke(); });
+    // ---- Ponte do Freixo: tabuleiro largo e baixo, com muitos pilares duplos ----
+    const freixo = srMk2(1100, 220, (g, w, h)=>{
+      const y0 = 58, base = h - 8; g.fillStyle = srGrad(g, 0, y0, 0, y0 + 30, [[0, '#FFFFFF'], [.25, bet], [1, betE]]); g.fillRect(0, y0, w, 30);
+      g.strokeStyle = noite ? '#C9B48A' : '#8F959B'; g.lineWidth = 1.2; g.beginPath(); g.moveTo(0, y0 - 6); g.lineTo(w, y0 - 6); for(let x = 0; x < w; x += 9){ g.moveTo(x, y0 - 6); g.lineTo(x, y0); } g.stroke();
+      for(let x = 60; x < w; x += 120){ [-12, 6].forEach(d=>{ g.fillStyle = srGrad(g, x + d, 0, x + d + 12, 0, [[0, bet], [1, betS]]); g.fillRect(x + d, y0 + 30, 12, base - y0 - 30); }); g.fillStyle = betS; g.fillRect(x - 20, y0 + 28, 46, 7); }
+      luzes(g, 10, w, y0 - 9, 40); });
+    // ---- Anémona "She Changes": rede vermelha e branca suspensa num anel, sobre três mastros ----
+    const anemona = srMk2(420, 420, (g, w, h)=>{
+      srSombraChao(g, 210, 414, 160);
+      g.strokeStyle = noite ? '#D0D4D8' : '#E9EDF0'; g.lineWidth = 6; [[60, 414, 170, 40], [360, 414, 250, 56], [230, 414, 210, 30]].forEach(([x0, y0, x1, y1])=>{ g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke(); });
+      g.strokeStyle = noite ? '#E8ECEF' : '#BFC5CC'; g.lineWidth = 4; g.beginPath(); g.ellipse(210, 70, 150, 26, 0, 0, 7); g.stroke();
+      const grd = g.createLinearGradient(0, 80, 0, 330); grd.addColorStop(0, noite ? 'rgba(255,90,90,.85)' : 'rgba(200,40,40,.85)'); grd.addColorStop(.6, noite ? 'rgba(255,170,140,.7)' : 'rgba(230,110,90,.7)'); grd.addColorStop(1, 'rgba(255,255,255,.55)');
+      g.fillStyle = grd; g.beginPath(); g.moveTo(60, 74); g.bezierCurveTo(70, 210, 140, 300, 220, 336); g.bezierCurveTo(300, 300, 350, 210, 360, 74); g.quadraticCurveTo(210, 100, 60, 74); g.fill();
+      g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 1.2; g.beginPath(); for(let i = 0; i < 16; i++){ const x = 66 + i * 19; g.moveTo(x, 78 + Math.abs(i - 8) * 1.5); g.quadraticCurveTo(x + (210 - x) * .3, 220, 220, 334); } for(let y = 110; y < 330; y += 22){ const k = (y - 74) / 262, a = 60 + 160 * k * k, b = 360 - 140 * k * k; g.moveTo(a, y); g.quadraticCurveTo(210, y + 12, b, y); } g.stroke();
+    });
+    // ---- Farol de Leça (Boa Nova): torre alta de betão, branca, com a lanterna no topo ----
+    const farol = srMk2(140, 620, (g, w, h)=>{
+      srSombraChao(g, 70, 616, 60); g.fillStyle = gran; g.fillRect(20, 580, 100, 40);
+      g.fillStyle = srGrad(g, 40, 0, 100, 0, [[0, '#FFFFFF'], [.5, noite ? '#E8DEC6' : '#ECEAE4'], [1, noite ? '#B8AA8A' : '#BFBBB2']]); g.beginPath(); g.moveTo(40, 584); g.lineTo(52, 80); g.lineTo(88, 80); g.lineTo(100, 584); g.closePath(); g.fill();
+      g.fillStyle = noite ? '#5A4A30' : '#9A9690'; for(let y = 140; y < 560; y += 70) g.fillRect(64, y, 12, 24);
+      g.fillStyle = '#3E3A36'; g.fillRect(40, 70, 60, 12); g.fillRect(48, 30, 44, 6); g.strokeStyle = '#3E3A36'; g.lineWidth = 2; g.strokeRect(50, 36, 40, 34);
+      g.fillStyle = noite ? '#FFF1B0' : '#BFD6E2'; g.fillRect(52, 38, 36, 30); g.fillStyle = '#3E3A36'; g.beginPath(); g.moveTo(46, 30); g.lineTo(70, 10); g.lineTo(94, 30); g.closePath(); g.fill();
+      if(noite){ const gr = g.createRadialGradient(70, 52, 2, 70, 52, 70); gr.addColorStop(0, 'rgba(255,240,180,.9)'); gr.addColorStop(1, 'rgba(255,240,180,0)'); g.fillStyle = gr; g.fillRect(0, 0, w, 130); } });
+    // ---- Farolim de Felgueiras: farolim hexagonal no molhe da Foz ----
+    const farolim = srMk2(220, 300, (g, w, h)=>{
+      g.fillStyle = gran; g.fillRect(0, 250, w, 50); g.fillStyle = granE; g.fillRect(0, 250, w, 6);
+      g.fillStyle = srGrad(g, 80, 0, 140, 0, [[0, '#FFFFFF'], [1, noite ? '#B8AA8A' : '#C9C4BA']]); g.beginPath(); g.moveTo(78, 252); g.lineTo(88, 90); g.lineTo(132, 90); g.lineTo(142, 252); g.closePath(); g.fill();
+      g.fillStyle = '#B3261E'; g.fillRect(86, 120, 48, 22); g.fillRect(84, 190, 52, 22);
+      g.fillStyle = '#2E2A26'; g.fillRect(82, 82, 56, 10); g.fillStyle = noite ? '#FFF1B0' : '#BFD6E2'; g.fillRect(94, 56, 32, 26); g.fillStyle = '#B3261E'; g.beginPath(); g.moveTo(88, 56); g.lineTo(110, 36); g.lineTo(132, 56); g.closePath(); g.fill(); });
+    // ---- Pérgola da Foz: colunata branca com balaustrada, à beira-mar ----
+    const pergola = srMk2(700, 220, (g, w, h)=>{
+      srSombraChao(g, 350, 216, 340); const br = noite ? '#F2E6C8' : '#F6F3EC', sm = noite ? '#BFAE88' : '#D6D0C4';
+      g.fillStyle = sm; g.fillRect(0, 196, w, 22); g.fillStyle = br; g.fillRect(0, 60, w, 16); g.fillStyle = sm; g.fillRect(0, 74, w, 4);
+      for(let x = 10; x < w; x += 46){ g.fillStyle = srGrad(g, x, 0, x + 16, 0, [[0, '#FFFFFF'], [1, sm]]); g.fillRect(x, 76, 16, 120); g.fillStyle = br; g.fillRect(x - 4, 72, 24, 8); g.fillRect(x - 4, 190, 24, 8); }
+      g.strokeStyle = noite ? '#6E8A4A' : '#5E8A3E'; g.lineWidth = 3; g.beginPath(); for(let x = 0; x < w; x += 10){ g.moveTo(x, 60); g.lineTo(x + 5, 46); } g.stroke(); });
+    // ---- Castelo do Queijo: pequeno forte de granito sobre o rochedo ----
+    const forte = srMk2(420, 260, (g, w, h)=>{
+      g.fillStyle = noite ? '#3A3A3A' : '#6E6A64'; g.beginPath(); g.moveTo(0, h); g.quadraticCurveTo(40, 200, 120, 196); g.lineTo(320, 194); g.quadraticCurveTo(390, 200, w, h); g.closePath(); g.fill();
+      g.fillStyle = srGrad(g, 60, 0, 360, 0, [[0, granL], [.5, gran], [1, granE]]); g.beginPath(); g.moveTo(60, 200); g.lineTo(80, 90); g.lineTo(340, 90); g.lineTo(360, 200); g.closePath(); g.fill(); srJuntas(g, 70, 92, 280, 106, 12, 'rgba(60,55,45,.25)', 51);
+      g.fillStyle = gran; for(let x = 82; x < 336; x += 26) g.fillRect(x, 74, 16, 18);
+      [[80, 90], [340, 90]].forEach(([x, y])=>{ g.fillStyle = granL; g.beginPath(); g.ellipse(x, y - 6, 18, 10, 0, 0, 7); g.fill(); g.fillRect(x - 14, y - 40, 28, 34); g.beginPath(); g.moveTo(x - 16, y - 40); g.lineTo(x, y - 60); g.lineTo(x + 16, y - 40); g.fill(); });
+      g.fillStyle = '#3E2A18'; g.beginPath(); g.moveTo(194, 200); g.lineTo(194, 160); g.arc(210, 160, 16, Math.PI, 0); g.lineTo(226, 200); g.fill();
+      g.strokeStyle = '#9AA0A6'; g.lineWidth = 2; g.beginPath(); g.moveTo(210, 74); g.lineTo(210, 20); g.stroke(); g.fillStyle = '#006600'; g.fillRect(211, 20, 14, 18); g.fillStyle = '#E8112D'; g.fillRect(225, 20, 20, 18); });
+    // ---- Mosteiro da Serra do Pilar: no alto da escarpa de granito, a igreja redonda com a cúpula, o claustro circular e o mosteiro ----
+    const mosteiro = srMk2(560, 520, (g, w, h)=>{
+      const br = noite ? '#F2E2BC' : '#EEEAE0', md = noite ? '#D6C18E' : '#D9D3C6', sm = noite ? '#A88E5E' : '#B3AC9C';
+      // escarpa de granito com mato e as muralhas
+      g.fillStyle = noite ? '#3E3A34' : '#7A746A'; g.beginPath(); g.moveTo(0, h); g.lineTo(0, 360); g.quadraticCurveTo(60, 310, 120, 300); g.lineTo(470, 300); g.quadraticCurveTo(520, 320, w, 380); g.lineTo(w, h); g.closePath(); g.fill();
+      const r = srRnd(81); g.strokeStyle = noite ? 'rgba(0,0,0,.35)' : 'rgba(60,55,48,.35)'; g.lineWidth = 2; g.beginPath(); for(let i = 0; i < 30; i++){ const x = 20 + r() * 520, y = 320 + r() * 180; g.moveTo(x, y); g.lineTo(x + 8 + r() * 20, y + 18 + r() * 30); } g.stroke();
+      for(let i = 0; i < 26; i++){ const x = r() * w, y = 340 + r() * 170; g.fillStyle = i % 2 ? (noite ? '#16281A' : '#4E7A3E') : (noite ? '#1E3322' : '#6A9450'); g.beginPath(); g.arc(x, y, 8 + r() * 12, 0, 7); g.fill(); }
+      g.fillStyle = srGrad(g, 0, 296, 0, 330, [[0, granL], [1, granE]]); g.fillRect(100, 296, 390, 30); for(let x = 104; x < 488; x += 18) g.fillRect(x, 288, 10, 10);   // muralha com ameias
+      // mosteiro (corpo comprido de dois pisos, à esquerda)
+      g.fillStyle = srGrad(g, 110, 0, 250, 0, [[0, br], [1, md]]); g.fillRect(110, 196, 140, 100); srTelhado(g, 104, 182, 256, 198, 10, noite);
+      for(let x = 122; x < 244; x += 24){ srJanela(g, x, 210, 12, 22, { noite, moldCor: sm, mold: 2 }); srJanela(g, x, 252, 12, 22, { noite, acesa: false, moldCor: sm, mold: 2 }); }
+      // claustro circular (anel baixo com arcadas), à direita
+      g.fillStyle = md; g.beginPath(); g.ellipse(430, 270, 70, 22, 0, 0, 7); g.fill(); g.fillStyle = br; g.fillRect(360, 238, 140, 34); g.beginPath(); g.ellipse(430, 238, 70, 16, 0, 0, 7); g.fill();
+      g.fillStyle = sm; for(let k = 0; k < 7; k++){ const x = 368 + k * 19; g.beginPath(); g.moveTo(x, 270); g.lineTo(x, 252); g.arc(x + 6, 252, 6, Math.PI, 0); g.lineTo(x + 12, 270); g.fill(); }
+      srTelhado(g, 360, 226, 500, 240, 8, noite);
+      // igreja redonda: tambor cilíndrico com pilastras, cúpula e lanterna
+      const cx = 300; g.fillStyle = srGrad(g, cx - 72, 0, cx + 72, 0, [[0, md], [.3, br], [.7, br], [1, sm]]); g.fillRect(cx - 72, 150, 144, 146);
+      g.fillStyle = 'rgba(120,110,95,.35)'; for(let k = -60; k <= 60; k += 24) g.fillRect(cx + k - 2, 156, 5, 140);
+      for(let k = -48; k <= 48; k += 48) srJanela(g, cx + k - 7, 176, 14, 30, { noite, arco: true, caixilho: false, moldCor: sm, mold: 2 });
+      g.fillStyle = sm; g.fillRect(cx - 78, 144, 156, 9); g.fillStyle = br; g.fillRect(cx - 74, 140, 148, 5);
+      g.fillStyle = srGrad(g, cx - 66, 0, cx + 66, 0, [[0, md], [.35, '#FFFFFF'], [1, sm]]); g.beginPath(); g.moveTo(cx - 66, 142); g.bezierCurveTo(cx - 66, 84, cx - 32, 62, cx, 60); g.bezierCurveTo(cx + 32, 62, cx + 66, 84, cx + 66, 142); g.fill();
+      g.strokeStyle = 'rgba(110,100,85,.4)'; g.lineWidth = 1.2; g.beginPath(); [-46, -22, 0, 22, 46].forEach(k=>{ g.moveTo(cx + k, 142); g.quadraticCurveTo(cx + k * .8, 90, cx, 62); }); g.stroke();
+      g.fillStyle = br; g.fillRect(cx - 12, 36, 24, 26); g.fillStyle = sm; for(let k = -8; k <= 8; k += 8) g.fillRect(cx + k - 1.5, 40, 3, 18); g.fillStyle = md; g.beginPath(); g.ellipse(cx, 36, 13, 12, 0, Math.PI, 0); g.fill();
+      g.fillStyle = granE; g.fillRect(cx - 1.5, 10, 3, 18); g.fillRect(cx - 6, 16, 12, 3);
+      // frontispício com frontão e as duas sineiras
+      g.fillStyle = srGrad(g, cx - 50, 0, cx + 50, 0, [[0, br], [1, md]]); g.fillRect(cx - 50, 196, 100, 100); g.fillStyle = sm; g.fillRect(cx - 54, 192, 108, 6);
+      g.fillStyle = br; g.beginPath(); g.moveTo(cx - 52, 194); g.lineTo(cx, 166); g.lineTo(cx + 52, 194); g.closePath(); g.fill(); g.strokeStyle = sm; g.lineWidth = 3; g.stroke();
+      [-1, 1].forEach(l=>{ const x = cx + l * 44; g.fillStyle = br; g.fillRect(x - 10, 166, 20, 30); g.fillStyle = noite ? '#2A2216' : '#3A3630'; g.beginPath(); g.moveTo(x - 5, 192); g.lineTo(x - 5, 178); g.arc(x, 178, 5, Math.PI, 0); g.lineTo(x + 5, 192); g.fill(); g.fillStyle = sm; g.beginPath(); g.moveTo(x - 12, 166); g.lineTo(x, 152); g.lineTo(x + 12, 166); g.fill(); });
+      g.fillStyle = '#4A2E1A'; g.beginPath(); g.moveTo(cx - 14, 296); g.lineTo(cx - 14, 254); g.arc(cx, 254, 14, Math.PI, 0); g.lineTo(cx + 14, 296); g.fill(); g.fillStyle = sm; g.fillRect(cx - 22, 244, 6, 52); g.fillRect(cx + 16, 244, 6, 52);
+      if(noite){ g.globalCompositeOperation = 'source-atop'; g.fillStyle = srGrad(g, 0, 300, 0, 40, [[0, 'rgba(255,200,120,.3)'], [1, 'rgba(255,200,120,0)']]); g.fillRect(0, 0, w, 300); g.globalCompositeOperation = 'source-over'; }
+    });
+    // ---- elétrico antigo do Porto (amarelo e creme), à porta do museu ----
+    const eletrico = srMk2(420, 260, (g, w, h)=>{
+      srSombraChao(g, 210, 254, 200); const cor = noite ? '#E8B84A' : '#E9B630';
+      g.fillStyle = noite ? '#8A7A5A' : '#B9AE98'; g.fillRect(10, 40, 400, 210); g.fillStyle = noite ? '#6E5E40' : '#9C9078'; g.fillRect(10, 40, 400, 12);
+      for(let x = 30; x < 400; x += 60) srJanela(g, x, 70, 34, 60, { noite, moldCor: noite ? '#5A4A30' : '#7E7460', mold: 3, arco: true });
+      g.fillStyle = cor; g.fillRect(60, 150, 300, 70); g.fillStyle = noite ? '#F2E6C8' : '#F4EEDC'; g.fillRect(60, 150, 300, 26);
+      for(let x = 76; x < 350; x += 36) srJanela(g, x, 154, 26, 20, { noite, caixilho: false });
+      g.fillStyle = '#7A2E1E'; g.fillRect(56, 214, 308, 8); g.fillStyle = '#2E2A26'; [110, 310].forEach(x=>{ g.beginPath(); g.arc(x, 232, 14, 0, 7); g.fill(); });
+      g.strokeStyle = '#2E2A26'; g.lineWidth = 2; g.beginPath(); g.moveTo(210, 150); g.lineTo(240, 100); g.stroke(); });
+    // ---- edifício moderno de vidro (SEA LIFE, Edifício Transparente) ----
+    const vidro = srMk2(400, 220, (g, w, h)=>{
+      srSombraChao(g, 200, 214, 190); g.fillStyle = noite ? '#2A3440' : '#D8DEE2'; g.fillRect(20, 40, 360, 174);
+      g.fillStyle = srGrad(g, 0, 50, 0, 210, [[0, noite ? '#FFD58A' : '#8FB4CC'], [1, noite ? '#C89048' : '#4F7690']]); g.fillRect(30, 56, 340, 150);
+      g.strokeStyle = noite ? 'rgba(80,60,30,.6)' : 'rgba(255,255,255,.6)'; g.lineWidth = 2; g.beginPath(); for(let x = 30; x <= 370; x += 34){ g.moveTo(x, 56); g.lineTo(x, 206); } g.moveTo(30, 130); g.lineTo(370, 130); g.stroke();
+      g.fillStyle = 'rgba(255,255,255,.18)'; g.beginPath(); g.moveTo(30, 206); g.lineTo(140, 56); g.lineTo(200, 56); g.lineTo(90, 206); g.fill(); g.fillStyle = noite ? '#4A5866' : '#9AA6AE'; g.fillRect(14, 30, 372, 12); });
+    // ---- caves do vinho do Porto no Cais de Gaia: armazém de granito com telhado e letreiro ----
+    const caves = srMk2(420, 240, (g, w, h)=>{
+      srSombraChao(g, 210, 234, 200); srTelhado(g, 10, 60, 410, 90, 20, noite);
+      g.fillStyle = srGrad(g, 20, 0, 400, 0, [[0, granL], [.5, gran], [1, granE]]); g.fillRect(20, 90, 380, 144); srJuntas(g, 20, 90, 380, 144, 12, 'rgba(60,55,45,.22)', 61);
+      for(let x = 44; x < 380; x += 66){ g.fillStyle = '#4A2E1A'; g.beginPath(); g.moveTo(x, 234); g.lineTo(x, 170); g.arc(x + 20, 170, 20, Math.PI, 0); g.lineTo(x + 40, 234); g.fill(); }
+      g.fillStyle = '#1E1A16'; g.fillRect(70, 104, 280, 40); g.font = '800 22px Barlow Condensed, Arial Narrow, sans-serif'; g.textAlign = 'center'; g.fillStyle = noite ? '#FFE3A0' : '#F2E6C8'; g.fillText('CAVES · VINHO DO PORTO', 210, 132);
+      g.fillStyle = '#5A3A22'; for(let i = 0; i < 5; i++){ g.beginPath(); g.ellipse(40 + i * 20, 228, 9, 8, 0, 0, 7); g.fill(); } });   // pipas
+    // ---- teleférico de Gaia: cabos e uma cabine ----
+    const teleferico = srMk2(400, 360, (g, w, h)=>{
+      g.strokeStyle = '#3A3632'; g.lineWidth = 2; g.beginPath(); g.moveTo(0, 60); g.lineTo(w, 220); g.moveTo(0, 70); g.lineTo(w, 230); g.stroke();
+      g.fillStyle = '#7A7F86'; g.fillRect(320, 210, 12, 150); g.fillRect(300, 206, 52, 10);
+      g.strokeStyle = '#3A3632'; g.beginPath(); g.moveTo(170, 150); g.lineTo(170, 176); g.stroke(); g.fillStyle = noite ? '#E8C060' : '#E4E8EC'; g.beginPath(); g.roundRect ? g.roundRect(140, 176, 60, 56, 10) : g.rect(140, 176, 60, 56); g.fill();
+      g.fillStyle = noite ? '#FFE3A0' : '#6E8AA0'; g.fillRect(148, 186, 44, 24); g.fillStyle = '#C8102E'; g.fillRect(140, 222, 60, 6); });
+    // ---- palácio (Bolsa, Freixo): fachada nobre de granito com frontão e janelas ----
+    const palacio = srMk2(400, 280, (g, w, h)=>{
+      srSombraChao(g, 200, 274, 200); srTelhado(g, 10, 54, 390, 76, 16, noite);
+      g.fillStyle = srGrad(g, 20, 0, 380, 0, [[0, granL], [.5, gran], [1, granE]]); g.fillRect(20, 76, 360, 198); srJuntas(g, 20, 76, 360, 198, 12, 'rgba(60,55,45,.2)', 71);
+      g.fillStyle = granE; g.fillRect(14, 72, 372, 8); g.fillRect(16, 172, 368, 6);
+      for(const x of [40, 86, 132, 248, 294, 340]){ srJanela(g, x - 10, 96, 20, 52, { noite, moldCor: granL, mold: 4, peitoril: true, arco: true }); srJanela(g, x - 10, 192, 20, 44, { noite, acesa: false, moldCor: granL, mold: 4 }); }
+      g.fillStyle = srGrad(g, 160, 0, 240, 0, [[0, granL], [1, gran]]); g.fillRect(160, 62, 80, 212); g.beginPath(); g.moveTo(150, 64); g.lineTo(200, 26); g.lineTo(250, 64); g.closePath(); g.fill(); g.strokeStyle = granE; g.lineWidth = 3; g.stroke();
+      for(let k = 0; k < 4; k++){ g.fillStyle = '#FFFFFF'; g.globalAlpha = .55; g.fillRect(166 + k * 20, 80, 6, 120); g.globalAlpha = 1; }
+      g.fillStyle = '#4A2E1A'; g.beginPath(); g.moveTo(184, 274); g.lineTo(184, 222); g.arc(200, 222, 16, Math.PI, 0); g.lineTo(216, 274); g.fill(); });
+    // ---- jardim do Passeio Alegre: palmeiras, coreto e os obeliscos ----
+    const jardim = srMk2(420, 320, (g, w, h)=>{
+      g.fillStyle = noite ? '#1E3324' : '#5E8C4A'; g.fillRect(0, 290, w, 30);
+      g.fillStyle = gran; [[40, 140], [380, 140]].forEach(([x, y])=>{ g.fillRect(x - 10, y + 100, 20, 50); g.beginPath(); g.moveTo(x - 7, y + 100); g.lineTo(x, y); g.lineTo(x + 7, y + 100); g.fill(); });   // obeliscos
+      g.fillStyle = noite ? '#C9A060' : '#2F4A3A'; g.beginPath(); g.moveTo(150, 190); g.lineTo(210, 140); g.lineTo(270, 190); g.closePath(); g.fill(); g.strokeStyle = noite ? '#C9A060' : '#2F4A3A'; g.lineWidth = 4; g.beginPath(); [160, 190, 230, 260].forEach(x=>{ g.moveTo(x, 190); g.lineTo(x, 270); }); g.stroke();
+      g.fillStyle = gran; g.fillRect(146, 268, 128, 22);   // coreto
+      [[100, .9], [320, 1]].forEach(([x, s])=>{ g.strokeStyle = '#8A7356'; g.lineWidth = 7; g.beginPath(); g.moveTo(x, 292); g.lineTo(x + 6, 80 * s); g.stroke();
+        for(let i = 0; i < 9; i++){ const a = -Math.PI / 2 + (i - 4) * .38; g.strokeStyle = i % 2 ? '#3E7A3A' : '#4F8E45'; g.lineWidth = 5; g.beginPath(); g.moveTo(x + 6, 80 * s); g.quadraticCurveTo(x + 6 + Math.cos(a) * 34, 80 * s + Math.sin(a) * 34 - 8, x + 6 + Math.cos(a) * 58, 80 * s + Math.sin(a) * 58 + 22); g.stroke(); } }); });
+    return { m_luis: luis, m_pluislado: luisLado, m_parrabida: arrabida, m_pmariapia: mariapia, m_pinfante: infante, m_psjoao: sjoao, m_pfreixo: freixo,
+      v_anemona: anemona, v_farol: farol, v_farolim: farolim, v_pergola: pergola, v_forte: forte, v_mosteiro: mosteiro, v_eletrico: eletrico, v_vidro: vidro, v_caves: caves, v_teleferico: teleferico, v_palacio: palacio, v_jardim: jardim };
+  }
+  // fundo do Porto: casario em socalcos com telhados de telha, a Torre dos Clérigos e a Sé ao longe
+  function srFundoPorto(W, H, sky, mk, M){
+    const noite = M && M.fase === 'noite', nevo = M && M.tempo === 'nevoeiro', cam = [];
+    const cores = noite ? ['#26304A', '#202A3E', '#1A2232', '#141A27'] : ['#9FB0C6', '#8C9AAE', '#7C8798', '#6A7484'];
+    const fach = noite ? ['#3A3A4A', '#2E3446', '#3E3A40'] : ['#E9DCC0', '#E7B94A', '#C8553D', '#7FA3C8', '#F1ECE2', '#D9A27A'];
+    for(let l = 0; l < 4; l++){
+      const c = mk(W * 2, H), g = c.getContext('2d'), r = srRnd(700 + l * 19), base = H * (.5 + l * .012), amp = H * [.12, .1, .08, .06][l];
+      const f = x=> Math.sin(x * 1.7 + l) * .5 + Math.sin(x * 4.1 + l * 2) * .3 + Math.sin(x * 9 + l) * .2;
+      g.fillStyle = nevo ? srMix(cores[l], '#C4C9D0', .6 - l * .1) : cores[l];
+      g.beginPath(); g.moveTo(0, H); for(let x = 0; x <= W * 2; x += 8) g.lineTo(x, base - (.55 + f(x / W * 3) * .45) * amp); g.lineTo(W * 2, H); g.closePath(); g.fill();
+      if(l > 0){ for(let x = 0; x < W * 2;){ const bw = 6 + r() * 10 + l * 4, y = base - (.55 + f(x / W * 3) * .45) * amp + r() * 6, bh = 6 + r() * 10 + l * 3;
+          g.fillStyle = nevo ? srMix(fach[Math.floor(r() * fach.length)], '#C4C9D0', .5) : fach[Math.floor(r() * fach.length)]; g.fillRect(x, y, bw, bh + amp);
+          if(!noite){ g.fillStyle = srMix('#B4582F', cores[l], .3); g.fillRect(x - .5, y - 2, bw + 1, 3); } else if(r() < .5){ g.fillStyle = 'rgba(255,214,140,.8)'; g.fillRect(x + bw * .3, y + 3, 2, 2); }
+          x += bw + r() * 3; } }
+      if(l === 1){   // Torre dos Clérigos e a Sé
+        const tx = W * .7, ty = base - amp * 1.05; g.fillStyle = noite ? '#E6D3A8' : '#BFB6A6'; g.fillRect(tx - 7, ty - H * .16, 14, H * .16 + amp); g.beginPath(); g.moveTo(tx - 9, ty - H * .16); g.quadraticCurveTo(tx, ty - H * .2, tx + 9, ty - H * .16); g.fill(); g.fillRect(tx - 1, ty - H * .22, 2, H * .03);
+        const sx = W * 1.45, sy = base - amp * .9; g.fillRect(sx - 30, sy - H * .05, 60, H * .05 + amp); g.fillRect(sx - 30, sy - H * .09, 14, H * .04); g.fillRect(sx + 16, sy - H * .09, 14, H * .04);
+      }
+      cam.push(c);
+    }
+    const fl = mk(W * 2, H), fg = fl.getContext('2d'), rf = srRnd(95);
+    fg.fillStyle = noite ? '#0E1A13' : '#3F6236'; for(let x = 0; x < W * 2; x += 12 + rf() * 16){ const rr = 5 + rf() * 8; fg.beginPath(); fg.arc(x, H * .53 - rr * .4, rr, 0, 7); fg.fill(); } fg.fillRect(0, H * .53 - 2, W * 2, 6);
+    const junta = (ls)=>{ const c = mk(W * 2, H), g2 = c.getContext('2d'); ls.forEach(x=> g2.drawImage(x, 0, 0)); return c; };
+    const vin = mk(W, H), vg2 = vin.getContext('2d'), vg = vg2.createRadialGradient(W / 2, H * .6, Math.min(W, H) * .35, W / 2, H * .6, Math.max(W, H) * .8);
+    vg.addColorStop(0, 'rgba(0,0,0,0)'); vg.addColorStop(1, 'rgba(0,0,0,.4)'); vg2.fillStyle = vg; vg2.fillRect(0, 0, W, H);
+    SR.bg = { sky, cam, fl, longe: junta([cam[0], cam[1]]), perto: junta([cam[2], cam[3], fl]), vin, y0: Math.max(0, Math.floor(H * .47 - H * .17 * 1.45)), y1: Math.ceil(H * .56) };
+    if(!SR.nuvens){ const rn = srRnd(9); SR.nuvens = Array.from({ length: 7 }, ()=> ({ x: rn(), y: .06 + rn() * .22, s: .6 + rn() * .9 })); }
   }
   // fundo do Vale do Sousa: colinas verdes com casas brancas de telhado vermelho e manchas de eucalipto
   function srFundoVale(W, H, sky, mk, M){
@@ -2760,7 +3569,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   function srRotaMapa(ctx, W, H, camZ, R){
     const w = Math.round(Math.min(560, W * (W > 1400 ? .34 : .3))), h = Math.round(Math.min(250, H * (W > 1400 ? .3 : .26))), x0 = 18, y0 = H - h - 18, hp = Math.round(h * .26);
     const key = R.titulo + w + 'x' + h;
-    const k = Math.cos(41.24 * Math.PI / 180), P = R.pts.concat([VALE_SANT]);
+    const k = Math.cos(41.24 * Math.PI / 180), P = R.pts.concat(R.santKm != null ? [VALE_SANT] : []);
     let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity;
     P.forEach(p=>{ a = Math.min(a, p.lo * k); b = Math.max(b, p.lo * k); c = Math.min(c, p.la); d = Math.max(d, p.la); });
     const pad = 18, hm = h - hp - 16, sc = Math.min((w - pad * 2) / (b - a), (hm - pad) / (d - c)), ox = (w - (b - a) * sc) / 2, oy = 16 + (hm - (d - c) * sc) / 2;
@@ -2774,7 +3583,8 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       g.fillStyle = 'rgba(255,214,10,.8)'; R.pois.forEach(p=>{ const k0 = R.pts.reduce((m, q, i)=> Math.abs(q.km - p.km) < Math.abs(R.pts[m].km - p.km) ? i : m, 0), q = XY(R.pts[k0].la, R.pts[k0].lo); g.beginPath(); g.arc(q[0], q[1], 2.2, 0, 7); g.fill(); });
       g.fillStyle = 'rgba(255,255,255,.85)';
       R.vilas.forEach((n, ix)=>{ const p = ix ? R.pts[R.pts.length - 1] : R.pts[0], q = XY(p.la, p.lo); g.textAlign = 'left'; g.fillText(n, q[0] + 10, q[1] + 4); g.fillStyle = '#FFD60A'; g.beginPath(); g.arc(q[0], q[1], 4, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,.85)'; });
-      { const q = XY(VALE_SANT.la, VALE_SANT.lo); g.font = '15px sans-serif'; g.textAlign = 'center'; g.fillText('⛪', q[0], q[1] + 5); }
+      if(R.rotulos){ g.font = '700 11px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'center'; R.rotulos.forEach(o=>{ const q = XY(o.la, o.lo); g.fillText(o.n, q[0], q[1]); }); }
+      if(R.santKm != null){ const q = XY(VALE_SANT.la, VALE_SANT.lo); g.font = '15px sans-serif'; g.textAlign = 'center'; g.fillText('⛪', q[0], q[1] + 5); }
       g.font = '700 11px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'left'; g.fillText(R.titulo + ' · ' + R.km.toFixed(1).replace('.', ',') + ' km reais', 10, 12);
       // altimetria real
       g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(8, h - hp, w - 16, hp - 4);
@@ -2918,7 +3728,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const tema = SR.tema || 'serra', noite = !!(SR.met && SR.met.fase === 'noite');
     const k = tema + (tema === 'vale' ? SR.rota : '') + (tema !== 'neon' && SR.met && SR.met.tempo === 'neve' ? '-neve' : '') + ((tema === 'paris' || tema === 'vale') && noite ? '-noite' : '');
     if(SR.spr && SR.sprT === k) return; SR.sprT = k;
-    if(tema === 'neon') srSpritesNeon(); else { if(tema === 'paris') srSpritesParis(noite); else if(tema === 'vale') srSpritesVale(noite, ROTAS[SR.rota] || ROTAS.lp); else srSprites(); if(k.includes('-neve')) srSpritesNeve(); }
+    if(tema === 'neon') srSpritesNeon(); else { if(tema === 'paris') srSpritesParis(noite); else if(tema === 'vale'){ if(SR.rota === 'porto') srSpritesPorto(noite, ROTAS.porto); else srSpritesVale(noite, ROTAS[SR.rota] || ROTAS.lp); } else srSprites(); if(k.includes('-neve')) srSpritesNeve(); }
   }
   // fundo néon: céu roxo com estrelas, sol às riscas, montanhas escuras com a crista em linha de luz, linha do horizonte acesa
   function srFundoNeon(W, H){
@@ -2992,7 +3802,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   // ---- fundo: céu, sol, nuvens e 4 cadeias de montanhas (refeito quando muda o tamanho ou a zona) ----
   function srFundo(W, H, zc){
     if(SR.tema === 'neon') return srFundoNeon(W, H);
-    const M = SR.met, key = W + 'x' + H + zc + (M ? M.fase + M.tempo : '') + SR.tema; if(SR.bgKey === key) return; SR.bgKey = key;
+    const M = SR.met, key = W + 'x' + H + zc + (M ? M.fase + M.tempo : '') + SR.tema + (SR.rota || ''); if(SR.bgKey === key) return; SR.bgKey = key;
     const mk = (w, h)=>{ const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
     const sky = mk(W, H), g = sky.getContext('2d');
     const gr = g.createLinearGradient(0, 0, 0, H * .62);
@@ -3019,7 +3829,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       g.globalAlpha = 1;
     }
     if(SR.tema === 'paris') return srFundoParis(W, H, sky, mk, M);
-    if(SR.tema === 'vale') return srFundoVale(W, H, sky, mk, M);   // Vale do Sousa: colinas verdes com casas   // Paris: telhados em vez de montanhas
+    if(SR.tema === 'vale') return SR.rota === 'porto' ? srFundoPorto(W, H, sky, mk, M) : srFundoVale(W, H, sky, mk, M);   // Vale do Sousa: colinas verdes com casas   // Paris: telhados em vez de montanhas
     // montanhas: curvas suaves, mais claras e azuladas ao longe (névoa), neve nos picos de trás
     const ruido = (seed, oct)=>{ const r = srRnd(seed), ph = [], fr = []; for(let o = 0; o < oct; o++){ ph.push(r() * 6.28); fr.push(1 + o * 1.7 + r()); } return x=> ph.reduce((a, p, o)=> a + Math.sin(x * fr[o] * 6.28 + p) / (o + 1.2), 0); };
     const cam = [];
@@ -3358,6 +4168,16 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       ctx.fillStyle = srMix(srMix(T.relva[alt], T.claro, tom), haze, fog * .85); ctx.fillRect(0, yB, W, yA - yB);
       const q = (xa, wa, xb, wb, c)=>{ ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(xa - wa, yA); ctx.lineTo(xa + wa, yA); ctx.lineTo(xb + wb, yB); ctx.lineTo(xb - wb, yB); ctx.closePath(); ctx.fill(); };
       const f = (p1.y - yA) / Math.max(1, p1.y - p2.y), pA = { x: p1.x + (p2.x - p1.x) * f, w: p1.w + (p2.w - p1.w) * f };
+      if(sg.agua){   // Porto: o mar (com areal) ou o rio de um lado, com o passeio de calçada
+        const lado = (sd, k1, k2, c)=>{ ctx.fillStyle = c; ctx.beginPath(); ctx.moveTo(pA.x + sd * pA.w * k1, yA); ctx.lineTo(pA.x + sd * pA.w * k2, yA); ctx.lineTo(p2.x + sd * p2.w * k2, yB); ctx.lineTo(p2.x + sd * p2.w * k1, yB); ctx.closePath(); ctx.fill(); };
+        const calc = srMix(srMix(alt ? '#D9D3C6' : '#CFC8BA', '#0A1020', SR.met && SR.met.fase === 'noite' ? .55 : 0), haze, fog * .85);
+        [-1, 1].forEach(sd=>{ const a = sd < 0 ? sg.agua.L : sg.agua.R; if(!a) return;
+          const ka = sg.amb === 'ponte' ? 1.3 : 1.7, aguaC = srMix(srPortoAguaCor(a, alt), haze, fog * .8);
+          lado(sd, 1.25, ka, calc);
+          if(a === 'mar'){ lado(sd, ka, 3.4, srMix(srMix(alt ? '#E6D6AE' : '#DFCDA2', '#0A1020', SR.met && SR.met.fase === 'noite' ? .6 : 0), haze, fog * .8)); lado(sd, 3.4, 1e5, aguaC); }
+          else lado(sd, ka, 1e5, aguaC);
+          if(n < 160 && (baseI + n) % 5 === 0) lado(sd, a === 'mar' ? 4.2 : ka + .6, a === 'mar' ? 5 : ka + 1.6, srMix(srMix(aguaC, '#FFFFFF', .22), haze, fog)); });   // reflexos na água
+      }
       if(T.neon && n < 170) srGrelha(ctx, W, pA, p2, yA, yB, baseI + n, fog);   // grelha néon no chão
       q(pA.x, pA.w * 1.25, p2.x, p2.w * 1.25, srMix(T.berma[alt], haze, fog * .8));
       q(pA.x, pA.w * 1.1, p2.x, p2.w * 1.1, srMix(T.zebra[alt], haze, fog * .7));
@@ -3459,15 +4279,16 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     p_serra:['🌲','Serra 3D','Quem cumpre a zona vai à frente no pelotão.'],
     p_lsdpnf:['🏘️','Lousada → Penafiel','Quem cumpre a zona vai à frente no pelotão, de Lousada a Penafiel.'],
     p_pnflsd:['🏘️','Penafiel → Lousada','Quem cumpre a zona vai à frente no pelotão, de Penafiel a Lousada.'],
+    p_porto:['🌉','Maratona do Porto','Quem cumpre a zona vai à frente no pelotão, pelo percurso da Maratona do Porto.'],
     p_paris:['🗼','Paris','Quem cumpre a zona vai à frente no pelotão, pelas ruas de Paris.'],
     p_neon:['🌆','Estrada Néon','Quem cumpre a zona vai à frente no pelotão.']
   };
   function renderEcra3(b, next, remaining, range, totalSec, elapsed){
     const k = b.jogo, J = JOGOS_ALUNO[k];
-    const estrada = ['p_serra', 'p_neon', 'p_paris', 'p_lsdpnf', 'p_pnflsd'].includes(k);
+    const estrada = ['p_serra', 'p_neon', 'p_paris', 'p_lsdpnf', 'p_pnflsd', 'p_porto'].includes(k);
     $('e3Serra').hidden = !estrada; $('e3Card').hidden = !J || estrada; $('e3Vazio').hidden = !!J;
     if(estrada){
-      SERRA3.tema(k === 'p_neon' ? 'neon' : k === 'p_paris' ? 'paris' : k === 'p_lsdpnf' || k === 'p_pnflsd' ? 'vale' : 'serra', k === 'p_lsdpnf' ? 'lp' : k === 'p_pnflsd' ? 'pl' : null);
+      SERRA3.tema(k === 'p_neon' ? 'neon' : k === 'p_paris' ? 'paris' : k === 'p_lsdpnf' || k === 'p_pnflsd' || k === 'p_porto' ? 'vale' : 'serra', k === 'p_lsdpnf' ? 'lp' : k === 'p_pnflsd' ? 'pl' : k === 'p_porto' ? 'porto' : null);
       const E = SERRA3.E3; if(E.el == null || Math.abs(elapsed - E.el) > .05){ E.el = elapsed; E.elT = performance.now(); } E.rem = remaining; E.alvo = pctTxt(b, range) + (modo === 'fc' ? ' FC' : ' FTP'); E.arpm = rpmTxt(b);
       E.w = hasPowerSource() ? Math.round(dispPower) : null; E.rpm = hasPowerSource() ? Math.round(S.cadence) : null;
       SERRA3.abre();
