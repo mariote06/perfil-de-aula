@@ -504,6 +504,25 @@ body.solo-livre #progress{display:none;}
 .chip.ftpchip b{font-family:'Barlow Condensed',sans-serif;font-size:21px;}
 .ae{width:1em;height:1em;display:inline-block;vertical-align:-.12em;object-fit:contain;}
 .mood-opts button i .ae{width:30px;height:30px;}
+/* ===== o meu ciclista: veículo e cores para os percursos virtuais ===== */
+.av-ov{position:fixed;inset:0;z-index:320;background:rgba(5,7,10,.84);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:14px;}
+.av-ov.on{display:flex;}
+.av-card{width:100%;max-width:440px;max-height:100%;overflow-y:auto;background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:16px 14px 14px;animation:rateIn .35s cubic-bezier(.2,1.3,.4,1);}
+.av-card h2{margin:0;font-size:22px;text-align:center;}
+.av-card .av-sub{margin:2px 0 8px;text-align:center;font-size:14px;color:var(--muted,#9AA4B2);}
+.av-prev{display:block;width:100%;height:200px;border-radius:16px;background:linear-gradient(180deg,#7CB7EA 0%,#BFE0F7 46%,#4C9A4A 46.5%,#3E7E3C 60%,#5B6070 60.5%,#535867 100%);}
+.av-lbl{margin:12px 2px 6px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted,#9AA4B2);}
+.av-veic{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.av-veic button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border-radius:12px;border:2px solid var(--border);background:var(--surface-2);color:var(--text);font:600 13px/1.15 'Inter',sans-serif;cursor:pointer;min-height:58px;}
+.av-veic button span{font-size:22px;}
+.av-veic button[aria-pressed="true"]{border-color:#3DD45C;background:rgba(61,212,92,.14);}
+.av-cores{display:flex;flex-wrap:wrap;gap:8px;}
+.av-cores button{width:36px;height:36px;border-radius:50%;border:3px solid rgba(255,255,255,.18);cursor:pointer;padding:0;}
+.av-cores button[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 3px #3DD45C;}
+.av-bts{display:flex;gap:8px;margin-top:14px;}
+.av-bts button{flex:1;min-height:46px;border-radius:12px;border:1px solid var(--border);background:var(--surface-2);color:var(--text);font:700 15px 'Inter',sans-serif;cursor:pointer;}
+.av-bts .av-ok{background:#3DD45C;border-color:#3DD45C;color:#06210D;}
+.e3-av{position:absolute;right:10px;bottom:calc(env(safe-area-inset-bottom,0px) + 10px);z-index:6;width:44px;height:44px;border-radius:50%;border:2px solid rgba(255,255,255,.6);background:rgba(5,7,10,.55);font-size:22px;cursor:pointer;}
 .rate-ov{position:fixed;inset:0;z-index:310;background:rgba(5,7,10,.82);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;padding:16px;}
 .rate-ov.on{display:flex;}
 .rate-card{width:100%;max-width:420px;background:#12161D;border:1px solid #2A3240;border-radius:22px;padding:20px 16px 14px;text-align:center;animation:rateIn .35s cubic-bezier(.2,1.3,.4,1);}
@@ -1096,6 +1115,18 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
 </div>
 
 <!-- 3. AULA -->
+<div class="av-ov" id="avOv" role="dialog" aria-modal="true" aria-labelledby="avTitle">
+  <div class="av-card">
+    <h2 id="avTitle">🎨 O teu ciclista</h2>
+    <p class="av-sub">Escolhe o veículo e as cores com que vais aparecer no percurso.</p>
+    <canvas class="av-prev" id="avPrev" aria-label="Pré-visualização do teu ciclista"></canvas>
+    <div class="av-lbl">Veículo</div><div class="av-veic" id="avVeic"></div>
+    <div class="av-lbl">Camisola / carroçaria</div><div class="av-cores" id="avCam"></div>
+    <div class="av-lbl">Capacete</div><div class="av-cores" id="avCap"></div>
+    <div class="av-lbl">Pele</div><div class="av-cores" id="avPele"></div>
+    <div class="av-bts"><button type="button" id="avNao">Agora não</button><button type="button" class="av-ok" id="avSim">Guardar</button></div>
+  </div>
+</div>
 <div class="rate-ov" id="rateOv" role="dialog" aria-modal="true" aria-labelledby="rateTitle">
   <div class="rate-card">
     <div class="rate-top" id="rateTitle">Treino terminado! 🎉</div>
@@ -1215,7 +1246,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     </div>
     <!-- ECRÃ 3: jogos e percurso virtual -->
     <div class="e3" id="ecra3" aria-label="Ecrã 3: jogos e percurso">
-      <div class="e3-serra" id="e3Serra" hidden><canvas id="e3Cv" aria-label="A estrada vista do teu guiador"></canvas><div class="e3-hud" id="e3Hud"></div><div class="e3-msg" id="e3Msg"></div></div>
+      <div class="e3-serra" id="e3Serra" hidden><canvas id="e3Cv" aria-label="A estrada vista do teu guiador"></canvas><button type="button" class="e3-av" id="e3Av" aria-label="Escolher o teu ciclista">🎨</button><div class="e3-hud" id="e3Hud"></div><div class="e3-msg" id="e3Msg"></div></div>
       <div class="e3-card" id="e3Card" hidden><div class="e3-ico" id="e3Ico"></div><div class="e3-j" id="e3J"></div><div class="e3-t" id="e3T"></div><div class="e3-s" id="e3S"></div><div class="e3-r" id="e3R"></div></div>
       <div class="e3-vazio" id="e3Vazio" hidden></div>
       <div class="e3-nx" id="e3Nx" aria-live="polite"></div><div class="e3-flash" id="e3Flash"></div>
@@ -1939,7 +1970,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       n: me.n, ftp: me.ftp || null, fc: me.fc || null,
       w: Math.round(dispPower), c: Math.round(S.cadence), hr: Math.round(myHr()) || null,
       kj: Math.round(me.kj * 10) / 10, pts: Math.round(me.pts), km: Math.round(me.km * 100) / 100, v: Math.round(me.spd * 10) / 10,
-      tw: me.tt ? Math.round(me.tw) : null, tt: me.tt ? Math.round(me.tt) : null,
+      tw: me.tt ? Math.round(me.tw) : null, tt: me.tt ? Math.round(me.tt) : null, av: me.av || null,
       bg: document.visibilityState === 'hidden' ? true : null,
       ftpT: me.ftpTest && me.ftpTest.ok ? me.ftpTest.ftp : null, m20: me.ftpTest ? me.ftpTest.m20 : null, ftpIni: me.ftpIni || null,
       aw: me.as ? Math.round(me.sumW / me.as) : 0, mw: Math.round(me.mw),
@@ -2062,6 +2093,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       blocos = s.val() || [];
       if(!Array.isArray(blocos)) blocos = Object.values(blocos);
       $('progress').dataset.built = '';
+      setTimeout(avTalvez, 600);   // aula com percurso: escolher o ciclista
     });
     add(base.child('state'), s=>{
       const v = s.val();
@@ -2204,6 +2236,47 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     if(NE.on){ if(ico === '✓') ec = NE.c1; else if(ico === '↑' || ico === '↓') ec = NE.c2; }
     const est = $('n2Est'); est.style.setProperty('--ec', ec); $('n2EstI').textContent = ico; $('n2EstT').textContent = txt;
   }
+  // ===== o meu ciclista: no início das aulas com percurso virtual, o aluno escolhe o veículo e as cores (fica guardado no telemóvel) =====
+  const AV_ESTRADAS = ['p_serra', 'p_neon', 'p_paris', 'p_lsdpnf', 'p_pnflsd', 'p_porto', 'p_cyber', 'p_kart'];
+  try{ me.av = localStorage.getItem('prAv') || null; }catch(e){}
+  const AVE = { a: null, raf: 0 };
+  function avAbre(){
+    const AV = SERRA3.av; AVE.a = AV.le(me.av) || { v: 'e', j: AV.CAM[Math.floor(Math.random() * 8)], h: '#F3F4F6', p: '#E0AE86' };
+    const chips = (id, cores, k)=>{ $(id).innerHTML = cores.map(c=> '<button type="button" style="background:' + c + '" data-c="' + c + '" aria-label="Cor ' + c + '"></button>').join('');
+      $(id).onclick = e=>{ const b = e.target.closest('button'); if(!b) return; AVE.a[k] = b.dataset.c; avMarca(); }; };
+    $('avVeic').innerHTML = Object.keys(AV.VEIC).map(k=> '<button type="button" data-v="' + k + '"><span>' + AV.VEIC[k][0] + '</span>' + AV.VEIC[k][1] + '</button>').join('');
+    $('avVeic').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; AVE.a.v = b.dataset.v; avMarca(); };
+    chips('avCam', AV.CAM, 'j'); chips('avCap', AV.CAP, 'h'); chips('avPele', AV.PELE, 'p');
+    avMarca(); $('avOv').classList.add('on'); $('avSim').focus();
+    cancelAnimationFrame(AVE.raf); const t0 = performance.now();
+    const anda = now=>{ if(!$('avOv').classList.contains('on')) return; const cv = $('avPrev'), r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1);
+      if(cv.width !== Math.round(r.width * d)){ cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d); }
+      const g = cv.getContext('2d'), W = cv.width, H = cv.height; g.clearRect(0, 0, W, H);
+      AV.desenha(g, W / 2, H * .94, H * .4, (now - t0) / 1000 * 85 / 60 * 6.283, W / 2 - H * .25, Object.assign({}, AVE.a, { z: true }));
+      AVE.raf = requestAnimationFrame(anda); };
+    AVE.raf = requestAnimationFrame(anda);
+  }
+  function avMarca(){
+    $('avVeic').querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.v === AVE.a.v));
+    [['avCam', 'j'], ['avCap', 'h'], ['avPele', 'p']].forEach(([id, k])=> $(id).querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.c === AVE.a[k])));
+    const kart = AVE.a.v === 'k' || AVE.a.v === 'c'; $('avPele').previousElementSibling.hidden = $('avPele').hidden = AVE.a.v === 'c';
+    $('avCam').previousElementSibling.textContent = kart ? 'Cor do ' + (AVE.a.v === 'c' ? 'carrinho' : 'kart') : 'Camisola';
+  }
+  function avFecha(guarda){
+    if(guarda && AVE.a){ me.av = SERRA3.av.txt(AVE.a); try{ localStorage.setItem('prAv', me.av); }catch(e){} try{ pushRider(); }catch(e){} }
+    try{ if(pin) sessionStorage.setItem('prAvV_' + pin, '1'); }catch(e){}
+    $('avOv').classList.remove('on'); cancelAnimationFrame(AVE.raf);
+  }
+  // abre sozinho no início de uma aula com percurso (uma vez por aula, antes de começar)
+  function avTalvez(){
+    if(!pin || !blocos.some(b=> b && AV_ESTRADAS.includes(b.jogo))) return;
+    if(state && state.status === 'playing') return;
+    try{ if(sessionStorage.getItem('prAvV_' + pin)) return; }catch(e){}
+    if(!$('avOv').classList.contains('on')) avAbre();
+  }
+  $('avSim').onclick = ()=> avFecha(true); $('avNao').onclick = ()=> avFecha(false);
+  $('avOv').addEventListener('keydown', e=>{ if(e.key === 'Escape') avFecha(false); });
+  $('e3Av').onclick = avAbre;
   // ===== Grande Prémio do Cogumelo (ecrãs 1, 2 e 3): contador de cogumelos, aviso para entrar na zona e "+1" quando apanha =====
   const KA = { n: null };
   function kartAtualiza(b){
@@ -4166,10 +4239,10 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   // bicicleta de estrada (quadro, forqueta, escoras, rodas de perfil alto com raios, transmissão, selim e guiador de curva),
   // projetado para o ecrã com a mesma vista 3/4.
   // ---- kart a pedais visto de trás (Grande Prémio do Cogumelo): pneus largos, corrente para o eixo de trás, joelhos a pedalar, bandeirinha e piloto de capacete ----
-  function srKart(ctx, x, y, s, cor, pedal, emPe, vx){
+  function srKart(ctx, x, y, s, cor, pedal, emPe, vx, av){
     s *= 1.25;   // o kart é baixo: um pouco maior para se ver bem no pelotão
     const per = vx == null ? 0 : Math.max(-1, Math.min(1, (vx - x) / (s * 3))), bob = Math.abs(Math.sin(pedal * 2)) * s * .01;
-    const body = cor === '#AEB6C2' ? '#8A93A3' : cor, bodyE = srMix(srHex(body), '#000000', .35), bodyL = srMix(srHex(body), '#FFFFFF', .4);
+    const body = av ? av.j : (cor === '#AEB6C2' ? '#8A93A3' : cor), hc = av ? av.h : body, bodyE = srMix(srHex(body), '#000000', .35), bodyL = srMix(srHex(body), '#FFFFFF', .4);
     const rr = (x0, y0, w, h, r)=>{ ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x0, y0, w, h, r); else ctx.rect(x0, y0, w, h); };
     ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(x, y, s * .6, s * .06, 0, 0, 7); ctx.fill();
     // rodas da frente (estreitas, desviadas para o fundo da estrada)
@@ -4198,9 +4271,9 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     ctx.lineTo(x + s * .08, sy - s * .04); ctx.quadraticCurveTo(x + s * .19, sy - s * .03, x + s * .21, sy + s * .03); ctx.bezierCurveTo(x + s * .25, sy + s * .1, x + s * .2, wy - s * .14, x + s * .16, wy); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,.22)'; ctx.lineWidth = Math.max(1, s * .01); ctx.beginPath(); ctx.moveTo(x, sy - s * .02); ctx.lineTo(x, wy); ctx.stroke();
     ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillRect(x - s * .16, sy + s * .12, s * .32, s * .03);   // faixa no peito/costas
-    ctx.fillStyle = '#C9A27E'; rr(x - s * .045, sy - s * .1, s * .09, s * .08, s * .02); ctx.fill();         // pescoço
+    ctx.fillStyle = av ? av.p : '#C9A27E'; rr(x - s * .045, sy - s * .1, s * .09, s * .08, s * .02); ctx.fill();         // pescoço
     const hy = sy - s * .19, hr = s * .13;
-    ctx.fillStyle = srGradL(ctx, x - hr, x + hr, [bodyL, body, bodyE]); ctx.beginPath(); ctx.ellipse(x, hy, hr, hr * 1.08, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = srGradL(ctx, x - hr, x + hr, [srMix(srHex(hc), '#FFFFFF', .4), hc, srMix(srHex(hc), '#000000', .35)]); ctx.beginPath(); ctx.ellipse(x, hy, hr, hr * 1.08, 0, 0, 7); ctx.fill();
     ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.ellipse(x, hy + hr * .15, hr * .98, hr * .16, 0, 0, Math.PI); ctx.fill();   // risca branca
     ctx.fillStyle = '#16181D'; ctx.beginPath(); ctx.ellipse(x, hy + hr * .95, hr * .78, hr * .2, 0, 0, 7); ctx.fill();          // aba de baixo do capacete
     ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(x - hr * .4, hy - hr * .45, hr * .3, hr * .18, -.5, 0, 7); ctx.fill();
@@ -4225,15 +4298,67 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   }
   function srGradL(ctx, x0, x1, cs){ const g = ctx.createLinearGradient(x0, 0, x1, 0); cs.forEach((c, i)=> g.addColorStop(i / (cs.length - 1), c)); return g; }
 
-  function srCiclista(ctx, x, y, s, cor, pedal, emPe, vx){
-    if(SR.tema === 'kart') return srKart(ctx, x, y, s, cor, pedal, emPe, vx);   // Grande Prémio do Cogumelo: vão de kart
+  // ===== o boneco de cada aluno: veículo e cores escolhidos no telemóvel (guardado como "v.camisola.capacete.pele") =====
+  const AV_VEIC = { e:['🚴', 'Bicicleta de estrada'], b:['🚵', 'BTT'], t:['⏱️', 'Contrarrelógio'], r:['🛞', 'Triciclo'], k:['🏎️', 'Kart a pedais'], c:['🚗', 'Carrinho a pedais'] };
+  const AV_CAM = ['#E5242B', '#FF7A00', '#FFD60A', '#3DD45C', '#00B3A4', '#1F7AE0', '#5B3FD9', '#E040A0', '#1F2937', '#F3F4F6'];
+  const AV_CAP = ['#F3F4F6', '#1F2937', '#E5242B', '#FFD60A', '#1F7AE0', '#3DD45C', '#FF7A00', '#E040A0'];
+  const AV_PELE = ['#F2C9A6', '#E0AE86', '#C68A5E', '#9A6440', '#6B4228'];
+  function avLe(t){ if(!t || typeof t !== 'string') return null; const q = t.split('.'); if(!AV_VEIC[q[0]]) return null;
+    const h = (v, d)=> /^[0-9A-Fa-f]{6}$/.test(v || '') ? '#' + v.toUpperCase() : d; return { v: q[0], j: h(q[1], '#1F7AE0'), h: h(q[2], '#F3F4F6'), p: h(q[3], '#E0AE86') }; }
+  function avTxt(a){ return a.v + '.' + a.j.slice(1) + '.' + a.h.slice(1) + '.' + a.p.slice(1); }
+  // aro de luz no chão, debaixo de quem está na zona
+  function srAro(ctx, x, y, s){
+    const g = ctx.createRadialGradient(x, y, s * .05, x, y, s * .75); g.addColorStop(0, 'rgba(61,212,92,.55)'); g.addColorStop(.6, 'rgba(61,212,92,.3)'); g.addColorStop(1, 'rgba(61,212,92,0)');
+    ctx.save(); ctx.translate(x, y); ctx.scale(1, .2); ctx.translate(-x, -y); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, s * .75, 0, 7); ctx.fill();
+    ctx.strokeStyle = '#7CFF95'; ctx.lineWidth = Math.max(1.5, s * .05); ctx.shadowColor = '#3DD45C'; ctx.shadowBlur = Math.max(4, s * .2); ctx.beginPath(); ctx.arc(x, y, s * .55, 0, 7); ctx.stroke(); ctx.restore();
+  }
+  // carrinho a pedais visto de trás: carroçaria arredondada, farolins, para-choques cromado, matrícula e o piloto por cima
+  function srCarrinho(ctx, x, y, s, pedal, av){
+    s *= 1.25; const bob = Math.abs(Math.sin(pedal * 2)) * s * .012, body = av.j, bE = srMix(srHex(body), '#000000', .35), bL = srMix(srHex(body), '#FFFFFF', .45);
+    const rr = (x0, y0, w, h, r)=>{ ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x0, y0, w, h, r); else ctx.rect(x0, y0, w, h); };
+    ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(x, y, s * .58, s * .06, 0, 0, 7); ctx.fill();
+    // piloto: ombros, pescoço e capacete, a balançar com a pedalada
+    const sy = y - s * .74 - bob, hc = av.h; ctx.save(); ctx.translate(x, y - s * .5); ctx.rotate(Math.sin(pedal) * .03); ctx.translate(-x, -(y - s * .5));
+    ctx.fillStyle = srGradL(ctx, x - s * .22, x + s * .22, [srMix(srHex(body), '#FFFFFF', .2), srMix(srHex(body), '#FFFFFF', .1), bE]);
+    ctx.beginPath(); ctx.moveTo(x - s * .22, y - s * .45); ctx.quadraticCurveTo(x - s * .24, sy + s * .04, x - s * .1, sy - s * .02); ctx.lineTo(x + s * .1, sy - s * .02); ctx.quadraticCurveTo(x + s * .24, sy + s * .04, x + s * .22, y - s * .45); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = av.p; rr(x - s * .045, sy - s * .1, s * .09, s * .09, s * .02); ctx.fill();
+    const hy = sy - s * .19, hr = s * .13; ctx.fillStyle = srGradL(ctx, x - hr, x + hr, [srMix(srHex(hc), '#FFFFFF', .45), hc, srMix(srHex(hc), '#000000', .3)]); ctx.beginPath(); ctx.ellipse(x, hy, hr, hr * 1.08, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(x - hr * .4, hy - hr * .45, hr * .3, hr * .18, -.5, 0, 7); ctx.fill();
+    ctx.fillStyle = '#16181D'; ctx.beginPath(); ctx.ellipse(x, hy + hr * .95, hr * .78, hr * .2, 0, 0, 7); ctx.fill(); ctx.restore();
+    // pneus de trás (aparecem dos lados, por baixo da carroçaria) com tampões
+    [-1, 1].forEach(l=>{ const px = x + l * s * .4; ctx.fillStyle = '#121418'; rr(px - s * .09, y - s * .26, s * .18, s * .26, s * .06); ctx.fill();
+      ctx.fillStyle = '#C9CED6'; ctx.beginPath(); ctx.ellipse(px + l * s * .085, y - s * .13, s * .015, s * .07, 0, 0, 7); ctx.fill(); });
+    // carroçaria: traseira arredondada com guarda-lamas
+    ctx.fillStyle = srGradL(ctx, x - s * .46, x + s * .46, [bL, body, body, bE]); ctx.beginPath();
+    ctx.moveTo(x - s * .46, y - s * .12); ctx.quadraticCurveTo(x - s * .48, y - s * .36, x - s * .36, y - s * .4); ctx.quadraticCurveTo(x - s * .26, y - s * .5, x - s * .18, y - s * .46);
+    ctx.lineTo(x + s * .18, y - s * .46); ctx.quadraticCurveTo(x + s * .26, y - s * .5, x + s * .36, y - s * .4); ctx.quadraticCurveTo(x + s * .48, y - s * .36, x + s * .46, y - s * .12); ctx.closePath(); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.ellipse(x - s * .22, y - s * .4, s * .12, s * .025, -.15, 0, 7); ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = Math.max(1, s * .01); ctx.beginPath(); ctx.moveTo(x - s * .3, y - s * .34); ctx.quadraticCurveTo(x, y - s * .3, x + s * .3, y - s * .34); ctx.stroke();   // tampa da mala
+    [-1, 1].forEach(l=>{ ctx.fillStyle = '#C8102E'; ctx.beginPath(); ctx.ellipse(x + l * s * .35, y - s * .27, s * .045, s * .035, 0, 0, 7); ctx.fill(); ctx.fillStyle = 'rgba(255,200,200,.7)'; ctx.beginPath(); ctx.ellipse(x + l * s * .35 - s * .012, y - s * .282, s * .015, s * .01, 0, 0, 7); ctx.fill(); });   // farolins
+    ctx.fillStyle = srGradL(ctx, x - s * .44, x + s * .44, ['#8A919C', '#EEF1F4', '#8A919C']); rr(x - s * .44, y - s * .13, s * .88, s * .055, s * .025); ctx.fill();   // para-choques cromado
+    ctx.fillStyle = '#FFFFFF'; rr(x - s * .1, y - s * .24, s * .2, s * .08, s * .015); ctx.fill(); ctx.fillStyle = '#1F5FA8'; ctx.fillRect(x - s * .1, y - s * .24, s * .03, s * .08);   // matrícula
+    ctx.fillStyle = '#1A1D23'; ctx.font = '800 ' + Math.max(5, s * .055).toFixed(0) + 'px Barlow Condensed, sans-serif'; ctx.textAlign = 'center'; ctx.fillText('PR-01', x + s * .015, y - s * .18);
+  }
+  // fase da pedalada de cada ciclista: avança à cadência real dele (rpm); parado (0 rpm) não pedala
+  function srFase(id, rpm, now, anda){
+    const F = SR.fases || (SR.fases = {}), f = F[id] || (F[id] = { a: (id.length * 1.7) % 6.283, t: now });
+    const dt = Math.min(.25, Math.max(0, (now - f.t) / 1000)); f.t = now;
+    if(anda && rpm > 0) f.a = (f.a + Math.min(200, rpm) / 60 * 6.283 * dt) % 62.83;
+    return f.a;
+  }
+  function srCiclista(ctx, x, y, s, cor, pedal, emPe, vx, av){
+    if(av && av.z) srAro(ctx, x, y, s);   // aro de luz: este aluno está na zona
+    if(av && av.v === 'c') return srCarrinho(ctx, x, y, s, pedal, av);
+    if(av ? av.v === 'k' : SR.tema === 'kart') return srKart(ctx, x, y, s, cor, pedal, emPe, vx, av);   // kart a pedais (o do Grande Prémio do Cogumelo, ou o que o aluno escolheu)
+    const V = av ? av.v : 'e', BTT = V === 'b', TT = V === 't', TRI = V === 'r';
+    if(av) cor = av.j;   // cores escolhidas pelo aluno
     // tema néon: fato escuro com contornos de luz, rodas e quadro acesos; dentro da zona azul, fora magenta (como nos ecrãs)
     const C = SR.tema === 'cyber', N = SR.tema === 'neon' || C;   // cidade do futuro: fato-armadura azul-noite com luzes laranja
     const NC = h=> C ? ({ '#1B1233':'#18203F', '#120A24':'#0F1530', '#0D0720':'#0A0F24', '#1E1236':'#1C2548', '#120A22':'#0C1230', '#0B0618':'#070B1A', '#150B28':'#0E1530' }[h] || h) : h;
-    if(N) cor = cor === '#3DD45C' ? (C ? '#FF8A2A' : '#00E5FF') : cor === '#AEB6C2' ? (C ? '#8FB0FF' : '#FF2BD6') : cor;
+    if(N && !av) cor = cor === '#3DD45C' ? (C ? '#FF8A2A' : '#00E5FF') : cor === '#AEB6C2' ? (C ? '#8FB0FF' : '#FF2BD6') : cor;
     const luz = on=>{ ctx.shadowColor = cor; ctx.shadowBlur = N && on ? Math.min(14, Math.max(3, s * .12)) : 0; };
     const a = pedal || 0, lw = Math.max(1, s * .02);
-    const pele = N ? NC('#1B1233') : '#E0AE86', peleS = N ? NC('#120A24') : '#C28F69', calcao = N ? NC('#0D0720') : '#14171D', calcaoL = N ? NC('#1E1236') : '#2A2F38';
+    const pele = N ? NC('#1B1233') : (av ? av.p : '#E0AE86'), peleS = N ? NC('#120A24') : (av ? srMix(srHex(av.p), '#000000', .14) : '#C28F69'), calcao = N ? NC('#0D0720') : '#14171D', calcaoL = N ? NC('#1E1236') : '#2A2F38';
     const esc = N ? NC('#120A22') : srMix(srHex(cor), '#000000', .38), sapato = N ? cor : '#F3F4F6';
     const quadro = N ? cor : '#22262D', quadroL = N ? '#FFFFFF' : '#3C434E', metal = N ? cor : '#9AA3AE', pneu = N ? NC('#0B0618') : '#121418', aro = N ? cor : '#2A2F37';
     const off = vx == null ? 0 : Math.max(-1, Math.min(1, (vx - x) / (s * 3))) * s * .42, ao = Math.abs(off);
@@ -4308,16 +4433,18 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const linha = (pts, w, c)=>{ ctx.strokeStyle = c; ctx.lineWidth = Math.max(1, s * w); ctx.beginPath(); pts.forEach((q, i)=>{ const p = P(q[0], q[1], q[2]); i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); }); ctx.stroke(); };
     const anel = (fc, uc, l, r)=>{ ctx.beginPath(); for(let i = 0; i <= 28; i++){ const t = i / 28 * 6.2832, p = P(fc + r / WB * Math.cos(t), uc + r * Math.sin(t), l); i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); } ctx.closePath(); };
     const raios = ao > s * .06 && s > 14;
-    const roda = (c)=>{   // pneu, aro de perfil alto, pista de travagem, raios e cubo
-      const [fc, uc] = c;
-      if(C){ anel(fc, uc, 0, .35); ctx.fillStyle = '#0C1230'; ctx.fill(); if(s > 8){ luz(true); anel(fc, uc, 0, .21); ctx.strokeStyle = cor; ctx.lineWidth = Math.max(.6, s * .014); ctx.stroke(); luz(false); } }   // rodas lenticulares com anel de luz
-      else if(raios){ ctx.strokeStyle = N ? srMix(srHex(cor), '#000000', .35) : 'rgba(205,210,218,.55)'; ctx.lineWidth = Math.max(.5, s * .006); ctx.beginPath();
-        for(let i = 0; i < 12; i++){ const t = i / 12 * 6.2832 + (i % 2) * .1, h0 = P(fc + .03 / WB * Math.cos(t), uc + .03 * Math.sin(t), (i % 2 ? .03 : -.03)), h1 = P(fc + .33 / WB * Math.cos(t), uc + .33 * Math.sin(t), 0);
+    const roda = (c, l0, tras)=>{   // pneu, aro de perfil alto, pista de travagem, raios e cubo (l0: desvio para o lado, no triciclo)
+      const [fc, uc] = c, lr = l0 || 0, anel0 = anel; const anel2 = (a, b, l, r)=> anel0(a, b, (l || 0) + lr, r);
+      if(TT && tras && !C){ anel2(fc, uc, 0, .36); ctx.fillStyle = srGradL(ctx, x - s * .1, x + s * .1, ['#3A404A', '#7E8793', '#2A2F37']); ctx.fill(); }   // contrarrelógio: roda lenticular atrás
+      if(C){ anel2(fc, uc, 0, .35); ctx.fillStyle = '#0C1230'; ctx.fill(); if(s > 8){ luz(true); anel2(fc, uc, 0, .21); ctx.strokeStyle = cor; ctx.lineWidth = Math.max(.6, s * .014); ctx.stroke(); luz(false); } }   // rodas lenticulares com anel de luz
+      else if(raios && !(TT && tras)){ ctx.strokeStyle = N ? srMix(srHex(cor), '#000000', .35) : 'rgba(205,210,218,.55)'; ctx.lineWidth = Math.max(.5, s * .006); ctx.beginPath();
+        for(let i = 0; i < 12; i++){ const t = i / 12 * 6.2832 + (i % 2) * .1, h0 = P(fc + .03 / WB * Math.cos(t), uc + .03 * Math.sin(t), (i % 2 ? .03 : -.03) + lr), h1 = P(fc + .33 / WB * Math.cos(t), uc + .33 * Math.sin(t), lr);
           ctx.moveTo(h0[0], h0[1]); ctx.lineTo(h1[0], h1[1]); } ctx.stroke(); }
-      luz(true); anel(fc, uc, 0, .36); ctx.strokeStyle = aro; ctx.lineWidth = Math.max(1, s * .065); ctx.stroke(); luz(false);   // aro alto
-      anel(fc, uc, 0, .4); ctx.strokeStyle = pneu; ctx.lineWidth = Math.max(1.2, s * .05); ctx.stroke();                         // pneu
-      if(s > 10){ anel(fc, uc, 0, .385); ctx.strokeStyle = N ? cor : '#7E8793'; ctx.lineWidth = Math.max(.6, s * .008); ctx.stroke(); }   // pista de travagem
-      if(raios){ const h = P(fc, uc, 0); ctx.fillStyle = metal; ctx.beginPath(); ctx.ellipse(h[0], h[1], s * .035 * Math.min(1, ao / (s * .3)), s * .035, 0, 0, 7); ctx.fill(); }   // cubo: só quando a roda se vê de lado (de costas não aparece)
+      luz(true); anel2(fc, uc, 0, .36); ctx.strokeStyle = aro; ctx.lineWidth = Math.max(1, s * .065); ctx.stroke(); luz(false);   // aro alto
+      anel2(fc, uc, 0, .4); ctx.strokeStyle = pneu; ctx.lineWidth = Math.max(1.2, s * (BTT ? .1 : .05)); ctx.stroke();
+      if(BTT && s > 10){ anel2(fc, uc, 0, .44); ctx.setLineDash([s * .02, s * .025]); ctx.strokeStyle = pneu; ctx.lineWidth = Math.max(1, s * .03); ctx.stroke(); ctx.setLineDash([]); }   // BTT: pneu grosso com pitons                         // pneu
+      if(s > 10){ anel2(fc, uc, 0, .385); ctx.strokeStyle = N ? cor : '#7E8793'; ctx.lineWidth = Math.max(.6, s * .008); ctx.stroke(); }   // pista de travagem
+      if(raios){ const h = P(fc, uc, lr); ctx.fillStyle = metal; ctx.beginPath(); ctx.ellipse(h[0], h[1], s * .035 * Math.min(1, ao / (s * .3)), s * .035, 0, 0, 7); ctx.fill(); }   // cubo: só quando a roda se vê de lado (de costas não aparece)
     };
     const transmissao = ()=>{   // lado direito: prato, corrente, cassete e desviador
       ctx.fillStyle = N ? NC('#120A22') : '#2B3038'; anel(BB[0], BB[1], .075, .14); ctx.fill(); ctx.strokeStyle = metal; ctx.lineWidth = Math.max(1, s * .016); ctx.stroke();
@@ -4341,6 +4468,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     luz(true); garfo(-perto); luz(false);
     roda(FH);
     luz(true); garfo(perto);
+    if(BTT){ [-1, 1].forEach(l=> linha([[HB[0], HB[1], l * .04], [.95, .66, l * .05]], .06, N ? cor : '#2B3038')); }   // BTT: suspensão da frente
     linha([HB, HT], .07, quadro);                                     // caixa de direção
     linha([BB, HB], .068, quadro);                                    // tubo diagonal
     linha([SC, HT], .046, quadro);                                    // tubo superior
@@ -4350,11 +4478,14 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     linha([HT, GUI], .04, N ? cor : '#1A1D23');                        // avanço
     // guiador de curva: parte de cima, manetes (onde estão as mãos) e curvas para baixo
     ctx.lineWidth = Math.max(1.2, s * .042); ctx.strokeStyle = N ? cor : '#16191E';
-    [-1, 1].forEach(l=>{ const t0 = P(GUI[0], GUI[1], 0), t1 = P(GUI[0], GUI[1], l * .22), c1 = P(GUI[0] + .08, GUI[1] - .02, l * .24), b1 = P(GUI[0] + .02, GUI[1] - .14, l * .23), e1 = P(GUI[0] - .04, GUI[1] - .12, l * .22);
+    if(BTT || TRI){ linha([[GUI[0], GUI[1] + .02, -.34], [GUI[0], GUI[1] + .02, .34]], .04, N ? cor : '#16191E'); [-1, 1].forEach(l=> linha([[GUI[0], GUI[1] + .02, l * .26], [GUI[0], GUI[1] + .02, l * .34]], .06, N ? cor : '#2E343C')); }   // guiador reto com punhos
+    else if(TT){ [-1, 1].forEach(l=>{ linha([[GUI[0], GUI[1], 0], [GUI[0], GUI[1], l * .2], [GUI[0] + .06, GUI[1] - .04, l * .22]], .042, N ? cor : '#16191E'); linha([[GUI[0] - .02, GUI[1] + .03, l * .07], [GUI[0] + .16, GUI[1] + .05, l * .06]], .036, N ? cor : '#16191E'); }); }   // extensões de contrarrelógio
+    else [-1, 1].forEach(l=>{ const t0 = P(GUI[0], GUI[1], 0), t1 = P(GUI[0], GUI[1], l * .22), c1 = P(GUI[0] + .08, GUI[1] - .02, l * .24), b1 = P(GUI[0] + .02, GUI[1] - .14, l * .23), e1 = P(GUI[0] - .04, GUI[1] - .12, l * .22);
       ctx.beginPath(); ctx.moveTo(t0[0], t0[1]); ctx.lineTo(t1[0], t1[1]); ctx.quadraticCurveTo(c1[0], c1[1], b1[0], b1[1]); ctx.lineTo(e1[0], e1[1]); ctx.stroke(); });
     if(perto < 0) transmissao();   // transmissão do lado de lá
     escoras(-perto);
-    roda(RH);
+    if(TRI){ roda(RH, -.34, true); linha([[RH[0], RH[1], -.34], [RH[0], RH[1], .34]], .045, quadro); roda(RH, .34, true); }   // triciclo: duas rodas atrás e o eixo
+    else roda(RH, 0, true);
     escoras(perto);
     if(perto > 0) transmissao();
     // espigão e selim (de trás vê-se a ponta de trás do selim)
@@ -4369,7 +4500,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     ctx.strokeStyle = calcaoL; ctx.lineWidth = Math.max(1, s * .02); ctx.beginPath(); ctx.moveTo(hx, hipY - s * .12); ctx.lineTo(hx, hipY + s * .06); ctx.stroke();
     // braços: ombro → cotovelo (dobrado para fora) → mão no guiador; manga curta na cor da camisola.
     // Vistos de trás ficam à frente do corpo, por isso são desenhados antes do tronco (as costas tapam-nos em parte)
-    const hL = P(GUI[0] + .05, GUI[1] - .03, -.235), hR = P(GUI[0] + .05, GUI[1] - .03, .235);   // mãos nas manetes
+    const mao = BTT || TRI ? [GUI[0], GUI[1] + .02, .3] : TT ? [GUI[0] + .14, GUI[1] + .05, .065] : [GUI[0] + .05, GUI[1] - .03, .235], hL = P(mao[0], mao[1], -mao[2]), hR = P(mao[0], mao[1], mao[2]);   // mãos: manetes, punhos (BTT/triciclo) ou extensões (contrarrelógio)
     [[-1, hL], [1, hR]].forEach(([l, h])=>{
       const sx0 = ox + l * (sh - s * .03), sy0 = ombY + s * .08;
       const ex = (sx0 + h[0]) / 2 + l * s * .07, ey = (sy0 + h[1]) / 2 + s * .03;
@@ -4427,12 +4558,13 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       ctx.quadraticCurveTo(ox - hw * .78, cy + s * .07, ox - hw, cy + s * .035); ctx.closePath(); };
     casca();
     if(N){ ctx.fillStyle = NC('#150B28'); ctx.fill(); luz(true); ctx.strokeStyle = cor; ctx.lineWidth = Math.max(1, s * .028); ctx.stroke(); luz(false); }
-    else { const hg = ctx.createRadialGradient(ox - hw * .35, cy - s * .08, s * .01, ox, cy - s * .02, hw * 1.25); hg.addColorStop(0, '#FFFFFF'); hg.addColorStop(.6, '#EDEFF2'); hg.addColorStop(1, '#BFC5CD'); ctx.fillStyle = hg; ctx.fill(); }
+    else { const hc = av ? av.h : '#EDEFF2', hg = ctx.createRadialGradient(ox - hw * .35, cy - s * .08, s * .01, ox, cy - s * .02, hw * 1.25); hg.addColorStop(0, '#FFFFFF'); hg.addColorStop(.6, hc); hg.addColorStop(1, srMix(srHex(hc), '#000000', .22)); ctx.fillStyle = hg; ctx.fill();
+      if(TT){ ctx.beginPath(); ctx.moveTo(ox - hw * .7, cy + s * .03); ctx.quadraticCurveTo(ox, cy + s * .26, ox + hw * .7, cy + s * .03); ctx.closePath(); ctx.fill(); } }   // contrarrelógio: capacete com cauda comprida
     if(s > 7){
       // aberturas de ventilação: rasgos alongados em leque
       if(C){ luz(true); ctx.strokeStyle = cor; ctx.lineWidth = Math.max(1, s * .032); ctx.beginPath(); ctx.moveTo(ox - hw * .85, cy - s * .015); ctx.quadraticCurveTo(ox, cy + s * .03, ox + hw * .85, cy - s * .015); ctx.stroke();   // capacete aero: faixa de luz e crista
         ctx.lineWidth = Math.max(.8, s * .018); ctx.beginPath(); ctx.moveTo(ox, cy - s * .135); ctx.lineTo(ox, cy - s * .035); ctx.stroke(); luz(false); }
-      else {
+      else if(!TT){
       ctx.fillStyle = N ? cor : '#2A2F37';
       [-2, -1, 0, 1, 2].forEach(k=>{ const tx = ox + k * hw * .3, bx = ox + k * hw * .42, ty = cy - s * .11 + Math.abs(k) * s * .018, by = cy + s * .028 - Math.abs(k) * s * .012, w = s * (k ? .017 : .02);
         ctx.beginPath(); ctx.moveTo(tx, ty); ctx.quadraticCurveTo(tx - w, (ty + by) / 2, bx, by); ctx.quadraticCurveTo(tx + w * 1.6, (ty + by) / 2, tx, ty); ctx.fill(); });
@@ -4553,7 +4685,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     }
     // os outros: distância a mim (suavizada); quem passa por trás aparece a ultrapassar pelo lado
     const emPe = /p[ée]/i.test(b.tecnica || '') || base.tr.t === 'sprint';
-    const rpmB = b.rpm2 ? (b.rpm + b.rpm2) / 2 : (b.rpm || 85), pedal = state && state.status === 'playing' ? now / (60000 / Math.max(50, rpmB) / 6.283) : 0;
+    const meuRpm = hasPowerSource() ? S.cadence || 0 : 0, pedal = srFase('_eu', meuRpm, now, state && state.status === 'playing');   // o teu guiador/joelhos à tua cadência
     const lug = {}, ord = ids.slice().sort((a, c)=> P[c][0] - P[a][0]);
     ids.forEach(id=>{
       if(id === riderId) return;
@@ -4580,7 +4712,8 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       // entre o início deste troço e o do seguinte (sem isto os outros andavam aos saltos, de troço em troço)
       (lug[sg.i] || []).forEach(({ id, lado, f })=>{ const q = proj[k + 1] ? proj[k + 1].p1 : p1, px = p1.x + (q.x - p1.x) * f, py = p1.y + (q.y - p1.y) * f, pw = p1.w + (q.w - p1.w) * f;
         if(py > clip + 2) return; const s = pw * .14, cx = px + pw * lado * .75;
-        srCiclista(ctx, cx, py, s * 1.05, P[id][2] ? '#3DD45C' : '#AEB6C2', pedal + id.length, emPe, W / 2);
+        const av = avLe(P[id][5]); if(av) av.z = !!P[id][2];
+        srCiclista(ctx, cx, py, s * 1.05, P[id][2] ? '#3DD45C' : '#AEB6C2', P[id][4] != null ? srFase(id, P[id][4], now, state && state.status === 'playing') : pedal + id.length, emPe, W / 2, av);   // à cadência real de cada um
         if(SR.met) luzes.push({ x: cx, y: py - s * .98, r: s * .05, t: 'r' });
         nomes.push({ x: cx, y: py, s, txt: (ord.indexOf(id) + 1) + '. ' + P[id][1], lider: ord[0] === id }); });
     }
@@ -4589,9 +4722,10 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     // guiador e roda da frente (vista de quem pedala)
     const bob = Math.sin(pedal * 2) * H * .004 * (emPe ? 2.5 : 1);
     const gy = H * .86 + bob, gx = W / 2;
-    if(SR.tema === 'kart'){   // Grande Prémio do Cogumelo: a frente do kart e o volante
+    const meuAv = avLe(me.av || null);
+    if(meuAv ? meuAv.v === 'k' || meuAv.v === 'c' : SR.tema === 'kart'){   // kart ou carrinho a pedais (escolhido, ou no Grande Prémio do Cogumelo): a frente e o volante
       ctx.fillStyle = '#0F1115'; [-1, 1].forEach(l=>{ ctx.beginPath(); ctx.roundRect ? ctx.roundRect(gx + l * W * .36 - W * .09, H * .9 + bob, W * .18, H * .14, 14) : ctx.rect(gx + l * W * .36 - W * .09, H * .9 + bob, W * .18, H * .14); ctx.fill(); });
-      ctx.fillStyle = zc; ctx.beginPath(); ctx.moveTo(gx - W * .3, H * 1.02); ctx.quadraticCurveTo(gx - W * .26, H * .9 + bob, gx, H * .88 + bob); ctx.quadraticCurveTo(gx + W * .26, H * .9 + bob, gx + W * .3, H * 1.02); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = meuAv ? meuAv.j : zc; ctx.beginPath(); ctx.moveTo(gx - W * .3, H * 1.02); ctx.quadraticCurveTo(gx - W * .26, H * .9 + bob, gx, H * .88 + bob); ctx.quadraticCurveTo(gx + W * .26, H * .9 + bob, gx + W * .3, H * 1.02); ctx.closePath(); ctx.fill();
       ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.ellipse(gx - W * .08, H * .92 + bob, W * .08, H * .012, -.1, 0, 7); ctx.fill();
       [-1, 1].forEach(l=>{ const up = (Math.sin(pedal + (l > 0 ? Math.PI : 0)) + 1) / 2;   // os teus joelhos a pedalar
         ctx.fillStyle = '#2E3440'; ctx.beginPath(); ctx.ellipse(gx + l * W * .2, H * (.97 - up * .09) + bob, W * .11, H * .06, 0, 0, 7); ctx.fill();
@@ -4640,7 +4774,8 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     SR.cv = $('e3Cv'); SR.ctx = SR.cv.getContext('2d'); SR.bgKey = ''; SR.on = true; SR.raf = requestAnimationFrame(e3Frame);
   }
   function para(){ SR.on = false; cancelAnimationFrame(SR.raf); }
-  return { abre, para, E3, ligado: ()=> SR.on, tema: (t, r)=>{ SR.tema = t; SR.rota = r || null; } };
+  return { abre, para, E3, ligado: ()=> SR.on, tema: (t, r)=>{ SR.tema = t; SR.rota = r || null; },
+    av: { le: avLe, txt: avTxt, VEIC: AV_VEIC, CAM: AV_CAM, CAP: AV_CAP, PELE: AV_PELE, desenha: (g, x, y, s, ped, vx, a)=>{ const t = SR.tema; SR.tema = 'serra'; try{ srCiclista(g, x, y, s, '#3DD45C', ped, false, vx, a); } finally { SR.tema = t; } } } };
   })();
   const JOGOS_ALUNO = {
     cabo:['🪢','Cabo de guerra','A tua equipa puxa a corda quando estão todos dentro da zona. Ganha a ronda quem levar o nó até ao fim.'],
