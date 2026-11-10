@@ -6176,12 +6176,12 @@ html.live-on #audExt .aud-sp{width:260px;opacity:.85;left:auto;right:14px;bottom
   // ---- kart visto de trás (Grande Prémio do Cogumelo): pneus largos, para-choques, motor com escape, banco e piloto de capacete ----
   function srKart(ctx, x, y, s, cor, pedal, emPe, vx){
     s *= 1.25;   // o kart é baixo: um pouco maior para se ver bem no pelotão
-    const lean = Math.max(-.12, Math.min(.12, (vx || 0) * .0025)), bob = Math.abs(Math.sin(pedal * 2)) * s * .012;
+    const per = vx == null ? 0 : Math.max(-1, Math.min(1, (vx - x) / (s * 3))), lean = 0, bob = Math.abs(Math.sin(pedal * 2)) * s * .012;
     const body = cor === '#AEB6C2' ? '#8A93A3' : cor, bodyE = srMix(srHex(body), '#000000', .35), bodyL = srMix(srHex(body), '#FFFFFF', .35);
     ctx.save(); ctx.translate(x, y); ctx.rotate(lean); ctx.translate(-x, -y);
     ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(x, y, s * .62, s * .07, 0, 0, 7); ctx.fill();
     // rodas da frente (mais estreitas, um pouco mais à frente)
-    [-1, 1].forEach(l=>{ ctx.fillStyle = '#16181D'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x + l * s * .36 - s * .07, y - s * .26, s * .14, s * .2, s * .04) : ctx.rect(x + l * s * .36 - s * .07, y - s * .26, s * .14, s * .2); ctx.fill(); });
+    [-1, 1].forEach(l=>{ const fx = x + l * s * .36 - s * .07 + per * s * .1; ctx.fillStyle = '#16181D'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(fx, y - s * .26, s * .14, s * .2, s * .04) : ctx.rect(fx, y - s * .26, s * .14, s * .2); ctx.fill(); });   // rodas da frente desviadas para o fundo da estrada
     // carenagem lateral e frontal (cor do kart)
     ctx.fillStyle = body; ctx.beginPath(); ctx.moveTo(x - s * .5, y - s * .14); ctx.lineTo(x - s * .44, y - s * .34); ctx.lineTo(x + s * .44, y - s * .34); ctx.lineTo(x + s * .5, y - s * .14); ctx.closePath(); ctx.fill();
     ctx.fillStyle = bodyL; ctx.fillRect(x - s * .44, y - s * .34, s * .88, s * .03);
