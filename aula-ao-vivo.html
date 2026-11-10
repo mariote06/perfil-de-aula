@@ -4181,11 +4181,16 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     // carenagem baixa (pontões laterais) na cor do kart
     ctx.fillStyle = body; ctx.beginPath(); ctx.moveTo(x - s * .44, y - s * .1); ctx.quadraticCurveTo(x - s * .44, y - s * .3, x - s * .3, y - s * .31); ctx.lineTo(x + s * .3, y - s * .31); ctx.quadraticCurveTo(x + s * .44, y - s * .3, x + s * .44, y - s * .1); ctx.closePath(); ctx.fill();
     ctx.fillStyle = bodyL; ctx.beginPath(); ctx.ellipse(x - s * .2, y - s * .27, s * .12, s * .018, 0, 0, 7); ctx.fill();
-    // joelhos a pedalar (por trás do tronco, aparecem dos lados)
-    [-1, 1].forEach(l=>{ const up = (Math.sin(pedal + (l > 0 ? Math.PI : 0)) + 1) / 2, kx = x + l * s * .31, ky = y - s * (.42 + up * .14) - bob;
-      ctx.fillStyle = '#2E3440'; ctx.beginPath(); ctx.ellipse(kx, ky, s * .075, s * .065, 0, 0, 7); ctx.fill();
-      ctx.fillStyle = 'rgba(255,255,255,.2)'; ctx.beginPath(); ctx.ellipse(kx - s * .02, ky - s * .025, s * .035, s * .02, 0, 0, 7); ctx.fill(); });
     // piloto: tronco com ombros, braços para a frente (ao volante), pescoço e capacete integral
+    // joelhos a subir e a descer à vez: ficam à frente do piloto (do outro lado do tronco): de costas vê-se só um terço de cada um, ao lado da cintura
+    [-1, 1].forEach(l=>{ const up = (Math.sin(pedal + (l > 0 ? Math.PI : 0)) + 1) / 2, kx = x + l * s * .27, ky = y - s * (.47 + up * .11) - bob;
+      const hx = x + l * s * .12, hy2 = y - s * .34;   // anca (escondida pelo banco)
+      ctx.fillStyle = '#262B35'; ctx.beginPath(); ctx.moveTo(hx - l * s * .07, hy2); ctx.quadraticCurveTo(hx + l * s * .02, ky - s * .02, kx - l * s * .02, ky - s * .07);   // coxa: da anca ao joelho
+      ctx.lineTo(kx + l * s * .07, ky + s * .02); ctx.quadraticCurveTo(hx + l * s * .12, hy2 - s * .02, hx + l * s * .07, hy2 + s * .04); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.moveTo(hx + l * s * .04, hy2 + s * .03); ctx.quadraticCurveTo(kx, ky + s * .04, kx + l * s * .06, ky + s * .03); ctx.lineTo(kx + l * s * .07, ky + s * .02); ctx.quadraticCurveTo(hx + l * s * .12, hy2 - s * .02, hx + l * s * .07, hy2 + s * .04); ctx.closePath(); ctx.fill();   // sombra por baixo da coxa
+      ctx.fillStyle = '#262B35'; ctx.beginPath(); ctx.ellipse(kx, ky, s * .09, s * .075, l * .2, 0, 7); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.beginPath(); ctx.ellipse(kx + l * s * .015, ky - s * .035, s * .04, s * .018, 0, 0, 7); ctx.fill(); });
+    ctx.save(); ctx.translate(x, y - s * .44); ctx.rotate(Math.sin(pedal) * .035); ctx.translate(-x, -(y - s * .44));   // o tronco balança um pouco a cada pedalada (as pernas ficam escondidas pelo banco)
     const sy = y - s * .8 - bob, wy = y - s * .44 - bob, jer = srMix(srHex(body), '#FFFFFF', .12), jerE = srMix(srHex(body), '#000000', .25);
     [-1, 1].forEach(l=>{ ctx.strokeStyle = jerE; ctx.lineCap = 'round'; ctx.lineWidth = s * .09; ctx.beginPath(); ctx.moveTo(x + l * s * .2, sy + s * .06); ctx.quadraticCurveTo(x + l * s * .29, sy + s * .16, x + l * s * .24, sy + s * .27); ctx.stroke(); });
     ctx.fillStyle = srGradL(ctx, x - s * .22, x + s * .22, [jer, jer, jerE]); ctx.beginPath(); ctx.moveTo(x - s * .16, wy);
@@ -4199,6 +4204,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.ellipse(x, hy + hr * .15, hr * .98, hr * .16, 0, 0, Math.PI); ctx.fill();   // risca branca
     ctx.fillStyle = '#16181D'; ctx.beginPath(); ctx.ellipse(x, hy + hr * .95, hr * .78, hr * .2, 0, 0, 7); ctx.fill();          // aba de baixo do capacete
     ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(x - hr * .4, hy - hr * .45, hr * .3, hr * .18, -.5, 0, 7); ctx.fill();
+    ctx.restore();
     // banco (encosto) à frente das costas, eixo, corrente e carreto
     ctx.fillStyle = srGradL(ctx, x - s * .2, x + s * .2, ['#3A3F4A', '#2A2E37', '#1C1F26']); rr(x - s * .2, y - s * .46, s * .4, s * .3, s * .07); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,.12)'; rr(x - s * .16, y - s * .43, s * .32, s * .04, s * .02); ctx.fill();
