@@ -517,6 +517,11 @@ body.solo-livre #progress{display:none;}
 .av-veic button span{font-size:22px;}
 .av-veic button[aria-pressed="true"]{border-color:#3DD45C;background:rgba(61,212,92,.14);}
 .av-cores{display:flex;flex-wrap:wrap;gap:8px;}
+.av-mini button{min-height:52px;font-size:12px;}
+.av-mini button span{font-size:20px;}
+.av-pub{display:flex;align-items:center;gap:10px;margin-top:14px;padding:10px 12px;border-radius:12px;border:1px solid var(--border);background:var(--surface-2);font:500 14px/1.3 'Inter',sans-serif;cursor:pointer;}
+.av-pub input{width:22px;height:22px;accent-color:#3DD45C;flex:none;}
+.av-pub b{color:#E5242B;}
 .av-cores button{width:36px;height:36px;border-radius:50%;border:3px solid rgba(255,255,255,.18);cursor:pointer;padding:0;}
 .av-cores button[aria-pressed="true"]{border-color:#fff;box-shadow:0 0 0 3px #3DD45C;}
 .av-bts{display:flex;gap:8px;margin-top:14px;}
@@ -1118,12 +1123,16 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
 <div class="av-ov" id="avOv" role="dialog" aria-modal="true" aria-labelledby="avTitle">
   <div class="av-card">
     <h2 id="avTitle">🎨 O teu ciclista</h2>
-    <p class="av-sub">Escolhe o veículo e as cores com que vais aparecer no percurso.</p>
+    <p class="av-sub">Escolhe o veículo, o que levas na cabeça, a roupa e as cores com que vais aparecer no percurso.</p>
     <canvas class="av-prev" id="avPrev" aria-label="Pré-visualização do teu ciclista"></canvas>
     <div class="av-lbl">Veículo</div><div class="av-veic" id="avVeic"></div>
-    <div class="av-lbl">Camisola / carroçaria</div><div class="av-cores" id="avCam"></div>
-    <div class="av-lbl">Capacete</div><div class="av-cores" id="avCap"></div>
+    <div class="av-lbl">Cor do veículo</div><div class="av-cores" id="avVc"></div>
+    <div class="av-lbl">Na cabeça</div><div class="av-veic av-mini" id="avCab"></div>
+    <div class="av-lbl" id="avCapL">Cor do capacete</div><div class="av-cores" id="avCap"></div>
+    <div class="av-lbl">No corpo</div><div class="av-veic av-mini" id="avCor"></div>
+    <div class="av-lbl" id="avCamL">Cor da roupa</div><div class="av-cores" id="avCam"></div>
     <div class="av-lbl">Pele</div><div class="av-cores" id="avPele"></div>
+    <label class="av-pub"><input type="checkbox" id="avPub"><span><b>Publicidade Playlife</b> nas costas e no veículo</span></label>
     <div class="av-bts"><button type="button" id="avNao">Agora não</button><button type="button" class="av-ok" id="avSim">Guardar</button></div>
   </div>
 </div>
@@ -1976,7 +1985,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       aw: me.as ? Math.round(me.sumW / me.as) : 0, mw: Math.round(me.mw),
       iz: Math.round(me.iz), as: Math.round(modo === 'fc' ? me.ts : me.as),
       dev: hasPowerSource() || (modo === 'fc' && myHr() > 0), demo: demo || null, left: null,
-      pw: hasPowerSource() ? true : false,   // tem bike/potenciómetro ligado (a projeção por zonas mostra %FTP)
+      pw: hasPowerSource() && (demo || performance.now() - S.lastPowerAt < 5000) ? true : false,   // bike ligada e a enviar watts; 5 s sem dados (ligação congelada) → o professor passa a contar a FC até os watts voltarem
       rx: me.rx || null, fa: me.fa || null,
       md: moodHoje(),   // emoji do "como te sentes hoje?" (aparece junto ao nome na projeção)
       oc: ocultoProj ? true : null,   // pediu para não aparecer no ecrã da projeção (continua no relatório do professor)
@@ -2241,12 +2250,19 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   try{ me.av = localStorage.getItem('prAv') || null; }catch(e){}
   const AVE = { a: null, raf: 0 };
   function avAbre(){
-    const AV = SERRA3.av; AVE.a = AV.le(me.av) || { v: 'e', j: AV.CAM[Math.floor(Math.random() * 8)], h: '#F3F4F6', p: '#E0AE86' };
+    const AV = SERRA3.av; AVE.a = AV.le(me.av) || AV.le('e.' + AV.CAM[Math.floor(Math.random() * 8)].slice(1) + '.F3F4F6.E0AE86');
     const chips = (id, cores, k)=>{ $(id).innerHTML = cores.map(c=> '<button type="button" style="background:' + c + '" data-c="' + c + '" aria-label="Cor ' + c + '"></button>').join('');
       $(id).onclick = e=>{ const b = e.target.closest('button'); if(!b) return; AVE.a[k] = b.dataset.c; avMarca(); }; };
     $('avVeic').innerHTML = Object.keys(AV.VEIC).map(k=> '<button type="button" data-v="' + k + '"><span>' + AV.VEIC[k][0] + '</span>' + AV.VEIC[k][1] + '</button>').join('');
-    $('avVeic').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; AVE.a.v = b.dataset.v; avMarca(); };
-    chips('avCam', AV.CAM, 'j'); chips('avCap', AV.CAP, 'h'); chips('avPele', AV.PELE, 'p');
+    $('avVeic').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; const kc = v=> v === 'k' || v === 'c', era = AVE.a.v; AVE.a.v = b.dataset.v;
+      if(kc(AVE.a.v) !== kc(era)){ if(AVE.a.H === (kc(era) ? 'pil' : 'cic')) AVE.a.H = kc(AVE.a.v) ? 'pil' : 'cic'; if(!kc(era) && AVE.a.vc === '#22262D') AVE.a.vc = AVE.a.j; } avMarca(); };
+    const tipos = (id, L, k)=>{ $(id).innerHTML = Object.keys(L).map(c=> '<button type="button" data-t="' + c + '"><span>' + L[c][0] + '</span>' + L[c][1] + '</button>').join('');
+      $(id).onclick = e=>{ const b = e.target.closest('button'); if(!b) return; const era = AVE.a[k]; AVE.a[k] = b.dataset.t;
+        const gc = H=> AV.eCabelo(H) || H === 'vik' || H === 'pn' || H === 'elf';   // cabeças que mostram cabelo usam a paleta de cabelo
+        if(k === 'H' && gc(AVE.a.H) !== gc(era)) AVE.a.h = gc(AVE.a.H) ? AV.CABELO[1] : AV.CAP[0]; avMarca(); }; };
+    tipos('avCab', AV.CAB, 'H'); tipos('avCor', AV.COR, 'T');
+    chips('avCam', AV.CAM, 'j'); chips('avPele', AV.PELE, 'p'); chips('avVc', AV.VCOR, 'vc');
+    $('avPub').onchange = ()=>{ AVE.a.pub = $('avPub').checked; };
     avMarca(); $('avOv').classList.add('on'); $('avSim').focus();
     cancelAnimationFrame(AVE.raf); const t0 = performance.now();
     const anda = now=>{ if(!$('avOv').classList.contains('on')) return; const cv = $('avPrev'), r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1);
@@ -2258,9 +2274,17 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   }
   function avMarca(){
     $('avVeic').querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.v === AVE.a.v));
-    [['avCam', 'j'], ['avCap', 'h'], ['avPele', 'p']].forEach(([id, k])=> $(id).querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.c === AVE.a[k])));
-    const kart = AVE.a.v === 'k' || AVE.a.v === 'c'; $('avPele').previousElementSibling.hidden = $('avPele').hidden = AVE.a.v === 'c';
-    $('avCam').previousElementSibling.textContent = kart ? 'Cor do ' + (AVE.a.v === 'c' ? 'carrinho' : 'kart') : 'Camisola';
+    const AV = SERRA3.av, a = AVE.a, cab = AV.eCabelo(a.H) || a.H === 'vik' || a.H === 'pn' || a.H === 'elf';
+    // a paleta da cabeça muda: cores de cabelo (cabelos, viking e gorros) ou de capacete/chapéu
+    const pal = cab ? AV.CABELO : AV.CAP; if($('avCap').dataset.p !== String(cab)){ $('avCap').dataset.p = String(cab); $('avCap').innerHTML = pal.map(c=> '<button type="button" style="background:' + c + '" data-c="' + c + '" aria-label="Cor ' + c + '"></button>').join('');
+      $('avCap').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; AVE.a.h = b.dataset.c; avMarca(); }; }
+    $('avCapL').textContent = cab ? 'Cor do cabelo' : a.H === 'cha' ? 'Cor do chapéu' : 'Cor do capacete';
+    [['avCam', 'j'], ['avCap', 'h'], ['avPele', 'p'], ['avVc', 'vc']].forEach(([id, k])=> $(id).querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.c === a[k])));
+    $('avCab').querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.t === a.H));
+    $('avCor').querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.t === a.T));
+    const fixa = a.T === 'pnc' || a.T === 'elc' || a.T === 'nu';   // Pai Natal, elfo e tronco nu têm cor própria
+    $('avCamL').hidden = $('avCam').hidden = fixa; $('avCamL').textContent = a.T === 'sus' ? 'Cor dos suspensórios' : 'Cor da roupa';
+    $('avPub').checked = !!a.pub;
   }
   function avFecha(guarda){
     if(guarda && AVE.a){ me.av = SERRA3.av.txt(AVE.a); try{ localStorage.setItem('prAv', me.av); }catch(e){} try{ pushRider(); }catch(e){} }
@@ -4242,7 +4266,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   function srKart(ctx, x, y, s, cor, pedal, emPe, vx, av){
     s *= 1.25;   // o kart é baixo: um pouco maior para se ver bem no pelotão
     const per = vx == null ? 0 : Math.max(-1, Math.min(1, (vx - x) / (s * 3))), bob = Math.abs(Math.sin(pedal * 2)) * s * .01;
-    const body = av ? av.j : (cor === '#AEB6C2' ? '#8A93A3' : cor), hc = av ? av.h : body, bodyE = srMix(srHex(body), '#000000', .35), bodyL = srMix(srHex(body), '#FFFFFF', .4);
+    const body = av ? av.vc : (cor === '#AEB6C2' ? '#8A93A3' : cor), dc = av ? avRoupa(av) : body, hc = av ? av.h : body, bodyE = srMix(srHex(body), '#000000', .35), bodyL = srMix(srHex(body), '#FFFFFF', .4);
     const rr = (x0, y0, w, h, r)=>{ ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x0, y0, w, h, r); else ctx.rect(x0, y0, w, h); };
     ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(x, y, s * .6, s * .06, 0, 0, 7); ctx.fill();
     // rodas da frente (estreitas, desviadas para o fundo da estrada)
@@ -4256,31 +4280,35 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     ctx.fillStyle = bodyL; ctx.beginPath(); ctx.ellipse(x - s * .2, y - s * .27, s * .12, s * .018, 0, 0, 7); ctx.fill();
     // piloto: tronco com ombros, braços para a frente (ao volante), pescoço e capacete integral
     // joelhos a subir e a descer à vez: ficam à frente do piloto (do outro lado do tronco): de costas vê-se só um terço de cada um, ao lado da cintura
+    const kn = av && 'ral f1 pnc elc'.includes(av.T) && av.T !== 'cam' ? srMix(srHex(dc), '#000000', .2) : '#262B35';   // calças do fato
     [-1, 1].forEach(l=>{ const up = (Math.sin(pedal + (l > 0 ? Math.PI : 0)) + 1) / 2, kx = x + l * s * .27, ky = y - s * (.47 + up * .11) - bob;
       const hx = x + l * s * .12, hy2 = y - s * .34;   // anca (escondida pelo banco)
-      ctx.fillStyle = '#262B35'; ctx.beginPath(); ctx.moveTo(hx - l * s * .07, hy2); ctx.quadraticCurveTo(hx + l * s * .02, ky - s * .02, kx - l * s * .02, ky - s * .07);   // coxa: da anca ao joelho
+      ctx.fillStyle = kn; ctx.beginPath(); ctx.moveTo(hx - l * s * .07, hy2); ctx.quadraticCurveTo(hx + l * s * .02, ky - s * .02, kx - l * s * .02, ky - s * .07);   // coxa: da anca ao joelho
       ctx.lineTo(kx + l * s * .07, ky + s * .02); ctx.quadraticCurveTo(hx + l * s * .12, hy2 - s * .02, hx + l * s * .07, hy2 + s * .04); ctx.closePath(); ctx.fill();
       ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.moveTo(hx + l * s * .04, hy2 + s * .03); ctx.quadraticCurveTo(kx, ky + s * .04, kx + l * s * .06, ky + s * .03); ctx.lineTo(kx + l * s * .07, ky + s * .02); ctx.quadraticCurveTo(hx + l * s * .12, hy2 - s * .02, hx + l * s * .07, hy2 + s * .04); ctx.closePath(); ctx.fill();   // sombra por baixo da coxa
-      ctx.fillStyle = '#262B35'; ctx.beginPath(); ctx.ellipse(kx, ky, s * .09, s * .075, l * .2, 0, 7); ctx.fill();
+      ctx.fillStyle = kn; ctx.beginPath(); ctx.ellipse(kx, ky, s * .09, s * .075, l * .2, 0, 7); ctx.fill();
       ctx.fillStyle = 'rgba(255,255,255,.18)'; ctx.beginPath(); ctx.ellipse(kx + l * s * .015, ky - s * .035, s * .04, s * .018, 0, 0, 7); ctx.fill(); });
     ctx.save(); ctx.translate(x, y - s * .44); ctx.rotate(Math.sin(pedal) * .035); ctx.translate(-x, -(y - s * .44));   // o tronco balança um pouco a cada pedalada (as pernas ficam escondidas pelo banco)
-    const sy = y - s * .8 - bob, wy = y - s * .44 - bob, jer = srMix(srHex(body), '#FFFFFF', .12), jerE = srMix(srHex(body), '#000000', .25);
-    [-1, 1].forEach(l=>{ ctx.strokeStyle = jerE; ctx.lineCap = 'round'; ctx.lineWidth = s * .09; ctx.beginPath(); ctx.moveTo(x + l * s * .2, sy + s * .06); ctx.quadraticCurveTo(x + l * s * .29, sy + s * .16, x + l * s * .24, sy + s * .27); ctx.stroke(); });
+    const sy = y - s * .8 - bob, wy = y - s * .44 - bob, jer = srMix(srHex(dc), '#FFFFFF', .12), jerE = srMix(srHex(dc), '#000000', .25), bNu = av && (av.T === 'nu' || av.T === 'sus');
+    [-1, 1].forEach(l=>{ ctx.strokeStyle = bNu ? av.p : jerE; ctx.lineCap = 'round'; ctx.lineWidth = s * .09; ctx.beginPath(); ctx.moveTo(x + l * s * .2, sy + s * .06); ctx.quadraticCurveTo(x + l * s * .29, sy + s * .16, x + l * s * .24, sy + s * .27); ctx.stroke(); });
     ctx.fillStyle = srGradL(ctx, x - s * .22, x + s * .22, [jer, jer, jerE]); ctx.beginPath(); ctx.moveTo(x - s * .16, wy);
     ctx.bezierCurveTo(x - s * .2, wy - s * .14, x - s * .25, sy + s * .1, x - s * .21, sy + s * .03); ctx.quadraticCurveTo(x - s * .19, sy - s * .03, x - s * .08, sy - s * .04);
     ctx.lineTo(x + s * .08, sy - s * .04); ctx.quadraticCurveTo(x + s * .19, sy - s * .03, x + s * .21, sy + s * .03); ctx.bezierCurveTo(x + s * .25, sy + s * .1, x + s * .2, wy - s * .14, x + s * .16, wy); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,.22)'; ctx.lineWidth = Math.max(1, s * .01); ctx.beginPath(); ctx.moveTo(x, sy - s * .02); ctx.lineTo(x, wy); ctx.stroke();
-    ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillRect(x - s * .16, sy + s * .12, s * .32, s * .03);   // faixa no peito/costas
+    if(av) srRoupa(ctx, av.T, x, sy, wy, s * .2, s, dc, av.j, av.pub);
+    if(!av || av.T === 'cam'){ ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.fillRect(x - s * .16, sy + s * .12, s * .32, s * .03); }   // faixa no peito/costas
     ctx.fillStyle = av ? av.p : '#C9A27E'; rr(x - s * .045, sy - s * .1, s * .09, s * .08, s * .02); ctx.fill();         // pescoço
     const hy = sy - s * .19, hr = s * .13;
+    if(av && av.H !== 'pil') srCabeca(ctx, x, hy + hr * .1, hr * .82, av.H, av.h, av.p); else {
     ctx.fillStyle = srGradL(ctx, x - hr, x + hr, [srMix(srHex(hc), '#FFFFFF', .4), hc, srMix(srHex(hc), '#000000', .35)]); ctx.beginPath(); ctx.ellipse(x, hy, hr, hr * 1.08, 0, 0, 7); ctx.fill();
     ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.ellipse(x, hy + hr * .15, hr * .98, hr * .16, 0, 0, Math.PI); ctx.fill();   // risca branca
     ctx.fillStyle = '#16181D'; ctx.beginPath(); ctx.ellipse(x, hy + hr * .95, hr * .78, hr * .2, 0, 0, 7); ctx.fill();          // aba de baixo do capacete
-    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(x - hr * .4, hy - hr * .45, hr * .3, hr * .18, -.5, 0, 7); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(x - hr * .4, hy - hr * .45, hr * .3, hr * .18, -.5, 0, 7); ctx.fill(); }
     ctx.restore();
     // banco (encosto) à frente das costas, eixo, corrente e carreto
     ctx.fillStyle = srGradL(ctx, x - s * .2, x + s * .2, ['#3A3F4A', '#2A2E37', '#1C1F26']); rr(x - s * .2, y - s * .46, s * .4, s * .3, s * .07); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,.12)'; rr(x - s * .16, y - s * .43, s * .32, s * .04, s * .02); ctx.fill();
+    if(av && av.pub) srPubVeic(ctx, x, y - s * .33, s * 1.2, '#2A2E37');   // publicidade no encosto do banco
     ctx.strokeStyle = '#4A505B'; ctx.lineWidth = s * .03; ctx.beginPath(); ctx.moveTo(x - s * .36, y - s * .12); ctx.lineTo(x + s * .36, y - s * .12); ctx.stroke();
     ctx.save(); ctx.translate(x + s * .13, y - s * .12); ctx.rotate(pedal); ctx.fillStyle = '#B8BEC6'; ctx.beginPath(); for(let k = 0; k < 16; k++){ const a = k / 16 * 6.283, r2 = k % 2 ? s * .05 : s * .062; ctx.lineTo(Math.cos(a) * r2, Math.sin(a) * r2); } ctx.closePath(); ctx.fill();
     ctx.fillStyle = '#3A3F49'; ctx.beginPath(); ctx.arc(0, 0, s * .02, 0, 7); ctx.fill(); ctx.restore();
@@ -4298,14 +4326,107 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   }
   function srGradL(ctx, x0, x1, cs){ const g = ctx.createLinearGradient(x0, 0, x1, 0); cs.forEach((c, i)=> g.addColorStop(i / (cs.length - 1), c)); return g; }
 
-  // ===== o boneco de cada aluno: veículo e cores escolhidos no telemóvel (guardado como "v.camisola.capacete.pele") =====
+  // ===== o boneco de cada aluno: veículo e cores escolhidos no telemóvel (guardado como "v.camisola.cabeça.pele.tipoCabeça.tipoRoupa.corVeículo.publicidade") =====
   const AV_VEIC = { e:['🚴', 'Bicicleta de estrada'], b:['🚵', 'BTT'], t:['⏱️', 'Contrarrelógio'], r:['🛞', 'Triciclo'], k:['🏎️', 'Kart a pedais'], c:['🚗', 'Carrinho a pedais'] };
   const AV_CAM = ['#E5242B', '#FF7A00', '#FFD60A', '#3DD45C', '#00B3A4', '#1F7AE0', '#5B3FD9', '#E040A0', '#1F2937', '#F3F4F6'];
   const AV_CAP = ['#F3F4F6', '#1F2937', '#E5242B', '#FFD60A', '#1F7AE0', '#3DD45C', '#FF7A00', '#E040A0'];
   const AV_PELE = ['#F2C9A6', '#E0AE86', '#C68A5E', '#9A6440', '#6B4228'];
   function avLe(t){ if(!t || typeof t !== 'string') return null; const q = t.split('.'); if(!AV_VEIC[q[0]]) return null;
-    const h = (v, d)=> /^[0-9A-Fa-f]{6}$/.test(v || '') ? '#' + v.toUpperCase() : d; return { v: q[0], j: h(q[1], '#1F7AE0'), h: h(q[2], '#F3F4F6'), p: h(q[3], '#E0AE86') }; }
-  function avTxt(a){ return a.v + '.' + a.j.slice(1) + '.' + a.h.slice(1) + '.' + a.p.slice(1); }
+    const h = (v, d)=> /^[0-9A-Fa-f]{6}$/.test(v || '') ? '#' + v.toUpperCase() : d, kc = q[0] === 'k' || q[0] === 'c', j = h(q[1], '#1F7AE0');
+    return { v: q[0], j, h: h(q[2], '#F3F4F6'), p: h(q[3], '#E0AE86'), H: AV_CAB[q[4]] ? q[4] : (kc ? 'pil' : 'cic'), T: AV_COR[q[5]] ? q[5] : 'cam', vc: h(q[6], kc ? j : '#22262D'), pub: q[7] === '1' }; }
+  function avTxt(a){ return [a.v, a.j.slice(1), a.h.slice(1), a.p.slice(1), a.H || 'cic', a.T || 'cam', (a.vc || '#22262D').slice(1), a.pub ? 1 : 0].join('.'); }
+  // ===== o que o aluno leva na cabeça e no corpo, vistos de costas =====
+  const AV_CAB = { cic:['⛑️', 'Capacete de ciclista'], pil:['🪖', 'Capacete de piloto'], vik:['🛡️', 'Capacete viking'], pn:['🎅', 'Gorro de Pai Natal'], elf:['🧝', 'Gorro de elfo'],
+    cha:['🤠', 'Chapéu'], moh:['🤘', 'Mohawk'], lon:['💁', 'Cabelo comprido'], rab:['🎀', 'Rabo de cavalo'], cur:['💈', 'Cabelo curto'] };
+  const AV_COR = { cam:['🚴', 'Camisola de ciclista'], nu:['💪', 'Tronco nu'], sus:['🩳', 'Suspensórios'], mot:['🏍️', 'Casaco de motociclista'], pun:['📌', 'Casaco punk com picos'],
+    ral:['🏁', 'Fato de rali'], f1:['🏎️', 'Fato de Fórmula 1'], pnc:['🎅', 'Casaco de Pai Natal'], elc:['🧝', 'Casaco de elfo'] };
+  const AV_CABELO = ['#1A1A1A', '#3B2A20', '#6B4A2E', '#C9A04A', '#E8D08A', '#B5462A', '#9AA0A6', '#E040A0', '#1F7AE0', '#3DD45C'];
+  const AV_VCOR = ['#E5242B', '#FF7A00', '#FFD60A', '#3DD45C', '#1F7AE0', '#5B3FD9', '#E040A0', '#22262D', '#F3F4F6', '#9AA3AE'];
+  const avCabelo = t=> t === 'moh' || t === 'lon' || t === 'rab' || t === 'cur';
+  // cor da roupa: Pai Natal sempre vermelho, elfo sempre verde, tronco nu da cor da pele
+  function avRoupa(av){ const T = av.T; return T === 'pnc' ? '#C8102E' : T === 'elc' ? '#1E9E46' : T === 'nu' || T === 'sus' ? av.p : av.j; }
+  // cabeça vista de trás: (x, cy) centro da cabeça, r raio
+  function srCabeca(ctx, x, cy, r, tipo, cor, pele){
+    const gL = (a, b, cs)=>{ const g = ctx.createLinearGradient(a, 0, b, 0); cs.forEach((c, i)=> g.addColorStop(i / (cs.length - 1), c)); return g; };
+    const claro = c=> srMix(srHex(c), '#FFFFFF', .4), escuro = c=> srMix(srHex(c), '#000000', .35);
+    const cabeca = ()=>{ ctx.fillStyle = pele; [-1, 1].forEach(l=>{ ctx.beginPath(); ctx.ellipse(x + l * r * .9, cy + r * .15, r * .15, r * .24, 0, 0, 7); ctx.fill(); });
+      ctx.fillStyle = gL(x - r, x + r, [claro(pele), pele, srMix(srHex(pele), '#000000', .18)]); ctx.beginPath(); ctx.ellipse(x, cy, r * .9, r, 0, 0, 7); ctx.fill(); };
+    const cabelo = (ate)=>{ ctx.fillStyle = gL(x - r, x + r, [claro(cor), cor, escuro(cor)]); ctx.beginPath(); ctx.moveTo(x - r * .93, cy + r * ate * .6);
+      ctx.bezierCurveTo(x - r * 1.05, cy - r * 1.42, x + r * 1.05, cy - r * 1.42, x + r * .93, cy + r * ate * .6); ctx.quadraticCurveTo(x, cy + r * ate, x - r * .93, cy + r * ate * .6); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,.18)'; ctx.lineWidth = Math.max(.6, r * .04); ctx.beginPath(); for(let k = -2; k <= 2; k++){ ctx.moveTo(x + k * r * .2, cy - r * .8); ctx.quadraticCurveTo(x + k * r * .3, cy, x + k * r * .32, cy + r * ate * .7); } ctx.stroke(); };
+    if(tipo === 'pil'){   // capacete integral de piloto
+      ctx.fillStyle = gL(x - r, x + r, [claro(cor), cor, escuro(cor)]); ctx.beginPath(); ctx.ellipse(x, cy, r * 1.05, r * 1.12, 0, 0, 7); ctx.fill();
+      ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.ellipse(x, cy + r * .15, r * 1.02, r * .17, 0, 0, Math.PI); ctx.fill();
+      ctx.fillStyle = '#16181D'; ctx.beginPath(); ctx.ellipse(x, cy + r * 1, r * .8, r * .2, 0, 0, 7); ctx.fill();
+      ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(x - r * .4, cy - r * .5, r * .3, r * .18, -.5, 0, 7); ctx.fill(); return; }
+    if(tipo === 'cic'){   // capacete de ciclista: casca com aberturas e fitas
+      cabeca(); ctx.strokeStyle = '#1A1D23'; ctx.lineWidth = Math.max(.7, r * .07); ctx.beginPath(); [-1, 1].forEach(l=>{ ctx.moveTo(x + l * r * .85, cy + r * .1); ctx.lineTo(x + l * r * .6, cy + r * .75); }); ctx.stroke();
+      ctx.fillStyle = gL(x - r, x + r, ['#FFFFFF', cor, escuro(cor)]); ctx.beginPath(); ctx.moveTo(x - r * 1.05, cy + r * .2); ctx.bezierCurveTo(x - r * 1.15, cy - r * .7, x - r * .6, cy - r * 1.12, x, cy - r * 1.12);
+      ctx.bezierCurveTo(x + r * .6, cy - r * 1.12, x + r * 1.15, cy - r * .7, x + r * 1.05, cy + r * .2); ctx.quadraticCurveTo(x, cy + r * .55, x - r * 1.05, cy + r * .2); ctx.fill();
+      ctx.fillStyle = '#2A2F37'; [-2, -1, 0, 1, 2].forEach(k=>{ ctx.beginPath(); ctx.ellipse(x + k * r * .36, cy - r * .35 + Math.abs(k) * r * .1, r * .07, r * .32, k * .25, 0, 7); ctx.fill(); });
+      ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.beginPath(); ctx.ellipse(x - r * .45, cy - r * .7, r * .25, r * .1, -.5, 0, 7); ctx.fill(); return; }
+    if(tipo === 'vik'){   // capacete viking: cúpula de metal, aro com rebites e dois cornos
+      cabeca(); cabelo(1.1);
+      [-1, 1].forEach(l=>{ ctx.fillStyle = gL(x, x + l * r * 2, ['#FFF6DE', '#E8D9B0', '#B9A57A']); ctx.beginPath(); ctx.moveTo(x + l * r * .8, cy - r * .2);
+        ctx.quadraticCurveTo(x + l * r * 1.8, cy - r * .1, x + l * r * 1.7, cy - r * 1.35); ctx.quadraticCurveTo(x + l * r * 1.5, cy - r * .5, x + l * r * .75, cy - r * .62); ctx.closePath(); ctx.fill(); });
+      ctx.fillStyle = gL(x - r, x + r, ['#E5E8EC', '#9AA3AE', '#5A626D']); ctx.beginPath(); ctx.moveTo(x - r * 1, cy - r * .05); ctx.bezierCurveTo(x - r * 1.05, cy - r * 1.1, x + r * 1.05, cy - r * 1.1, x + r * 1, cy - r * .05); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#8A5A2A'; ctx.fillRect(x - r * 1.02, cy - r * .2, r * 2.04, r * .24); ctx.fillStyle = '#E2B65A'; for(let k = -3; k <= 3; k++){ ctx.beginPath(); ctx.arc(x + k * r * .28, cy - r * .08, r * .05, 0, 7); ctx.fill(); }
+      ctx.fillStyle = '#8A5A2A'; ctx.fillRect(x - r * .09, cy - r * .98, r * .18, r * .8); return; }
+    if(tipo === 'pn' || tipo === 'elf'){   // gorros de Pai Natal (vermelho com pompom) e de elfo (verde, bico comprido e guizo)
+      cabeca(); cabelo(.7);
+      const elf = tipo === 'elf', cc = elf ? '#1E9E46' : '#C8102E', tip = elf ? [x + r * 1.7, cy - r * 1.9] : [x + r * 1.45, cy + r * .1];
+      ctx.fillStyle = gL(x - r, x + r * 1.6, [claro(cc), cc, escuro(cc)]); ctx.beginPath(); ctx.moveTo(x - r * 1, cy - r * .35);
+      ctx.quadraticCurveTo(x - r * .6, cy - r * (elf ? 2 : 1.7), x + r * .3, cy - r * (elf ? 2 : 1.45)); ctx.quadraticCurveTo(tip[0] - r * .2, tip[1] - r * .4, tip[0], tip[1]);
+      ctx.quadraticCurveTo(tip[0] - r * .55, tip[1] - r * .1, x + r * .55, cy - r * .9); ctx.quadraticCurveTo(x + r * .95, cy - r * .75, x + r * 1, cy - r * .35); ctx.closePath(); ctx.fill();
+      if(elf){ ctx.fillStyle = '#C8102E'; ctx.beginPath(); for(let k = 0; k <= 8; k++){ const xx = x - r * 1.05 + k * r * .2625; ctx.lineTo(xx, cy - r * (k % 2 ? .1 : .4)); } ctx.lineTo(x + r * 1.05, cy - r * .5); ctx.lineTo(x - r * 1.05, cy - r * .5); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = '#FFD60A'; ctx.beginPath(); ctx.arc(tip[0], tip[1], r * .2, 0, 7); ctx.fill(); ctx.fillStyle = '#7A5A00'; ctx.fillRect(tip[0] - r * .05, tip[1] + r * .05, r * .1, r * .08); }
+      else { ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.ellipse(x, cy - r * .3, r * 1.1, r * .26, 0, 0, 7); ctx.fill(); ctx.beginPath(); ctx.arc(tip[0], tip[1], r * .28, 0, 7); ctx.fill(); }
+      return; }
+    if(tipo === 'cha'){   // chapéu: copa, fita e aba larga
+      cabeca(); const hc = '#3B2A20'; ctx.fillStyle = hc; ctx.beginPath(); ctx.ellipse(x, cy + r * .2, r * .85, r * .7, 0, 0, Math.PI); ctx.fill();
+      ctx.fillStyle = gL(x - r * 1.7, x + r * 1.7, [claro(cor), cor, escuro(cor)]); ctx.beginPath(); ctx.ellipse(x, cy - r * .3, r * 1.75, r * .36, 0, 0, 7); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(x - r * .85, cy - r * .3); ctx.quadraticCurveTo(x - r * .95, cy - r * 1.45, x - r * .2, cy - r * 1.3); ctx.quadraticCurveTo(x, cy - r * 1.15, x + r * .2, cy - r * 1.3); ctx.quadraticCurveTo(x + r * .95, cy - r * 1.45, x + r * .85, cy - r * .3); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = escuro(cor); ctx.fillRect(x - r * .87, cy - r * .62, r * 1.74, r * .2); return; }
+    cabeca();
+    if(tipo === 'moh'){   // mohawk: lados rapados e uma crista do alto da cabeça até à nuca, com picos para cima
+      ctx.fillStyle = srMix(srHex(pele), '#000000', .12); ctx.beginPath(); ctx.ellipse(x, cy - r * .1, r * .86, r * .86, 0, Math.PI, 0); ctx.fill();
+      ctx.fillStyle = gL(x - r * .3, x + r * .3, [claro(cor), cor, escuro(cor)]); ctx.beginPath(); ctx.moveTo(x - r * .2, cy + r * .75); ctx.lineTo(x - r * .24, cy - r * .7);
+      [[-.5, -1.5], [-.16, -1.2], [-.22, -1.85], [0, -1.25], [.22, -1.85], [.16, -1.2], [.5, -1.5]].forEach(([dx, dy])=> ctx.lineTo(x + r * dx, cy + r * dy));
+      ctx.lineTo(x + r * .24, cy - r * .7); ctx.lineTo(x + r * .2, cy + r * .75); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,.2)'; ctx.lineWidth = Math.max(.6, r * .04); ctx.beginPath(); ctx.moveTo(x, cy - r * 1.1); ctx.lineTo(x, cy + r * .7); ctx.stroke(); return; }
+    if(tipo === 'lon'){ ctx.fillStyle = gL(x - r, x + r, [claro(cor), cor, escuro(cor)]); ctx.beginPath(); ctx.moveTo(x - r * .95, cy - r * .1);   // cabelo comprido até aos ombros
+      ctx.bezierCurveTo(x - r * 1.08, cy - r * 1.45, x + r * 1.08, cy - r * 1.45, x + r * .95, cy - r * .1); ctx.quadraticCurveTo(x + r * 1.25, cy + r * 1.6, x + r * 1.05, cy + r * 2.3);
+      ctx.quadraticCurveTo(x, cy + r * 2.55, x - r * 1.05, cy + r * 2.3); ctx.quadraticCurveTo(x - r * 1.25, cy + r * 1.6, x - r * .95, cy - r * .1); ctx.fill();
+      ctx.strokeStyle = 'rgba(0,0,0,.18)'; ctx.lineWidth = Math.max(.6, r * .05); ctx.beginPath(); for(let k = -3; k <= 3; k++){ ctx.moveTo(x + k * r * .15, cy - r * .7); ctx.quadraticCurveTo(x + k * r * .3, cy + r, x + k * r * .3, cy + r * 2.3); } ctx.stroke(); return; }
+    if(tipo === 'rab'){ cabelo(1); ctx.fillStyle = cor; ctx.beginPath(); ctx.moveTo(x - r * .2, cy + r * .4); ctx.quadraticCurveTo(x - r * .45, cy + r * 1.5, x + r * .05, cy + r * 2.2);   // rabo de cavalo
+      ctx.quadraticCurveTo(x + r * .4, cy + r * 1.4, x + r * .2, cy + r * .4); ctx.closePath(); ctx.fill(); ctx.fillStyle = '#E040A0'; ctx.fillRect(x - r * .22, cy + r * .35, r * .44, r * .16); return; }
+    cabelo(.95);   // cabelo curto
+  }
+  // a roupa nas costas: riscas, picos, fitas, pelo branco, cinto e a publicidade da Playlife
+  function srRoupa(ctx, T, cx, topY, botY, half, s, roupa, cor2, pub){
+    const sv = Math.max(1, s * .012);
+    if(T === 'sus'){ ctx.strokeStyle = cor2; ctx.lineWidth = Math.max(1.5, s * .035); ctx.beginPath(); [-1, 1].forEach(l=>{ ctx.moveTo(cx + l * half * .55, topY + s * .01); ctx.lineTo(cx - l * half * .25, botY - s * .02); }); ctx.stroke();
+      ctx.fillStyle = '#E2B65A'; [-1, 1].forEach(l=>{ ctx.beginPath(); ctx.arc(cx - l * half * .25, botY - s * .03, s * .018, 0, 7); ctx.fill(); }); return; }
+    if(T === 'nu'){ ctx.strokeStyle = 'rgba(0,0,0,.18)'; ctx.lineWidth = sv; ctx.beginPath(); ctx.moveTo(cx, topY + s * .03); ctx.lineTo(cx, botY - s * .02); [-1, 1].forEach(l=>{ ctx.moveTo(cx + l * half * .25, topY + s * .1); ctx.quadraticCurveTo(cx + l * half * .7, topY + s * .14, cx + l * half * .55, topY + s * .26); }); ctx.stroke(); return; }
+    if(T === 'pun' || T === 'mot'){ ctx.strokeStyle = 'rgba(255,255,255,.18)'; ctx.lineWidth = sv; ctx.beginPath(); ctx.moveTo(cx - half * .9, topY + s * .14); ctx.quadraticCurveTo(cx, topY + s * .2, cx + half * .9, topY + s * .14); ctx.stroke();
+      ctx.fillStyle = srMix(srHex(roupa), '#000000', .4); ctx.fillRect(cx - half * .75, botY - s * .05, half * 1.5, s * .045);   // cós
+      if(T === 'pun'){ ctx.fillStyle = '#D9DEE4'; [-1, 1].forEach(l=>{ for(let k = 0; k < 4; k++){ const px = cx + l * half * (.35 + k * .17), py = topY + s * (.02 + k * .012); ctx.beginPath(); ctx.moveTo(px - s * .018, py + s * .02); ctx.lineTo(px, py - s * .04); ctx.lineTo(px + s * .018, py + s * .02); ctx.fill(); } });
+        for(let k = 0; k < 5; k++){ ctx.beginPath(); ctx.arc(cx, topY + s * (.22 + k * .06), s * .012, 0, 7); ctx.fill(); } } }
+    if(T === 'ral' || T === 'f1'){ ctx.fillStyle = 'rgba(255,255,255,.85)'; [-1, 1].forEach(l=> ctx.fillRect(cx + l * half * .82 - s * .012, topY + s * .05, s * .024, botY - topY - s * .07));
+      if(T === 'f1'){ ctx.fillStyle = cor2; ctx.fillRect(cx - half * .9, topY + s * .05, half * 1.8, s * .04); ctx.fillStyle = '#FFFFFF'; ctx.fillRect(cx - half * .6, botY - s * .1, half * .35, s * .045); ctx.fillRect(cx + half * .25, botY - s * .1, half * .35, s * .045); } }
+    if(T === 'pnc' || T === 'elc'){ const pel = T === 'pnc';
+      ctx.fillStyle = '#FFFFFF'; if(pel){ ctx.beginPath(); ctx.ellipse(cx, botY - s * .01, half * .95, s * .04, 0, 0, 7); ctx.fill(); ctx.beginPath(); ctx.ellipse(cx, topY + s * .005, half * .55, s * .035, 0, 0, 7); ctx.fill(); }
+      else { ctx.fillStyle = '#C8102E'; ctx.beginPath(); ctx.moveTo(cx - half * .95, botY - s * .03); for(let k = 0; k <= 8; k++) ctx.lineTo(cx - half * .95 + k * half * .2375, botY + (k % 2 ? s * .04 : -s * .01)); ctx.lineTo(cx + half * .95, botY - s * .03); ctx.closePath(); ctx.fill(); }
+      ctx.fillStyle = pel ? '#1A1A1A' : '#6B4A2E'; ctx.fillRect(cx - half * .85, botY - s * .1, half * 1.7, s * .04); }
+    // publicidade da Playlife nas costas (contraste automático)
+    if(pub && T !== 'nu' && T !== 'sus' && s > 9){ const lum = (()=>{ const h = srHex(roupa).slice(1); return (parseInt(h.slice(0, 2), 16) * .3 + parseInt(h.slice(2, 4), 16) * .59 + parseInt(h.slice(4, 6), 16) * .11) / 255; })();
+      ctx.save(); ctx.font = '900 ' + Math.max(6, s * .072).toFixed(1) + 'px Barlow Condensed, Arial Narrow, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      const yy = topY + (botY - topY) * .45; ctx.fillStyle = lum > .6 ? '#E5242B' : '#FFFFFF'; ctx.fillText('PLAYLIFE', cx, yy);
+      ctx.font = '700 ' + Math.max(4, s * .03).toFixed(1) + 'px Barlow Condensed, Arial Narrow, sans-serif'; ctx.fillStyle = lum > .6 ? '#333' : 'rgba(255,255,255,.8)'; ctx.fillText('FITNESS CENTER', cx, yy + s * .055); ctx.restore(); }
+  }
+  // publicidade na carroçaria do kart ou do carrinho
+  function srPubVeic(ctx, x, y, s, cor){ if(s < 8) return; const h = srHex(cor).slice(1), lum = (parseInt(h.slice(0, 2), 16) * .3 + parseInt(h.slice(2, 4), 16) * .59 + parseInt(h.slice(4, 6), 16) * .11) / 255;
+    ctx.save(); ctx.font = '900 ' + Math.max(5, s * .06).toFixed(1) + 'px Barlow Condensed, Arial Narrow, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = lum > .6 ? '#E5242B' : '#FFFFFF'; ctx.fillText('PLAYLIFE', x, y); ctx.restore(); }
   // aro de luz no chão, debaixo de quem está na zona
   function srAro(ctx, x, y, s){
     const g = ctx.createRadialGradient(x, y, s * .05, x, y, s * .75); g.addColorStop(0, 'rgba(61,212,92,.55)'); g.addColorStop(.6, 'rgba(61,212,92,.3)'); g.addColorStop(1, 'rgba(61,212,92,0)');
@@ -4314,17 +4435,18 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   }
   // carrinho a pedais visto de trás: carroçaria arredondada, farolins, para-choques cromado, matrícula e o piloto por cima
   function srCarrinho(ctx, x, y, s, pedal, av){
-    s *= 1.25; const bob = Math.abs(Math.sin(pedal * 2)) * s * .012, body = av.j, bE = srMix(srHex(body), '#000000', .35), bL = srMix(srHex(body), '#FFFFFF', .45);
+    s *= 1.25; const bob = Math.abs(Math.sin(pedal * 2)) * s * .012, body = av.vc, dc = avRoupa(av), bE = srMix(srHex(body), '#000000', .35), bL = srMix(srHex(body), '#FFFFFF', .45);
     const rr = (x0, y0, w, h, r)=>{ ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(x0, y0, w, h, r); else ctx.rect(x0, y0, w, h); };
     ctx.fillStyle = 'rgba(0,0,0,.28)'; ctx.beginPath(); ctx.ellipse(x, y, s * .58, s * .06, 0, 0, 7); ctx.fill();
     // piloto: ombros, pescoço e capacete, a balançar com a pedalada
     const sy = y - s * .74 - bob, hc = av.h; ctx.save(); ctx.translate(x, y - s * .5); ctx.rotate(Math.sin(pedal) * .03); ctx.translate(-x, -(y - s * .5));
-    ctx.fillStyle = srGradL(ctx, x - s * .22, x + s * .22, [srMix(srHex(body), '#FFFFFF', .2), srMix(srHex(body), '#FFFFFF', .1), bE]);
+    ctx.fillStyle = srGradL(ctx, x - s * .22, x + s * .22, [srMix(srHex(dc), '#FFFFFF', .2), srMix(srHex(dc), '#FFFFFF', .1), srMix(srHex(dc), '#000000', .3)]);
     ctx.beginPath(); ctx.moveTo(x - s * .22, y - s * .45); ctx.quadraticCurveTo(x - s * .24, sy + s * .04, x - s * .1, sy - s * .02); ctx.lineTo(x + s * .1, sy - s * .02); ctx.quadraticCurveTo(x + s * .24, sy + s * .04, x + s * .22, y - s * .45); ctx.closePath(); ctx.fill();
+    srRoupa(ctx, av.T, x, sy, y - s * .45, s * .2, s, dc, av.j, av.pub);
     ctx.fillStyle = av.p; rr(x - s * .045, sy - s * .1, s * .09, s * .09, s * .02); ctx.fill();
-    const hy = sy - s * .19, hr = s * .13; ctx.fillStyle = srGradL(ctx, x - hr, x + hr, [srMix(srHex(hc), '#FFFFFF', .45), hc, srMix(srHex(hc), '#000000', .3)]); ctx.beginPath(); ctx.ellipse(x, hy, hr, hr * 1.08, 0, 0, 7); ctx.fill();
+    const hy = sy - s * .19, hr = s * .13; if(av.H !== 'pil'){ srCabeca(ctx, x, hy + hr * .1, hr * .82, av.H, av.h, av.p); ctx.restore(); } else { ctx.fillStyle = srGradL(ctx, x - hr, x + hr, [srMix(srHex(hc), '#FFFFFF', .45), hc, srMix(srHex(hc), '#000000', .3)]); ctx.beginPath(); ctx.ellipse(x, hy, hr, hr * 1.08, 0, 0, 7); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.beginPath(); ctx.ellipse(x - hr * .4, hy - hr * .45, hr * .3, hr * .18, -.5, 0, 7); ctx.fill();
-    ctx.fillStyle = '#16181D'; ctx.beginPath(); ctx.ellipse(x, hy + hr * .95, hr * .78, hr * .2, 0, 0, 7); ctx.fill(); ctx.restore();
+    ctx.fillStyle = '#16181D'; ctx.beginPath(); ctx.ellipse(x, hy + hr * .95, hr * .78, hr * .2, 0, 0, 7); ctx.fill(); ctx.restore(); }
     // pneus de trás (aparecem dos lados, por baixo da carroçaria) com tampões
     [-1, 1].forEach(l=>{ const px = x + l * s * .4; ctx.fillStyle = '#121418'; rr(px - s * .09, y - s * .26, s * .18, s * .26, s * .06); ctx.fill();
       ctx.fillStyle = '#C9CED6'; ctx.beginPath(); ctx.ellipse(px + l * s * .085, y - s * .13, s * .015, s * .07, 0, 0, 7); ctx.fill(); });
@@ -4334,6 +4456,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     ctx.lineTo(x + s * .18, y - s * .46); ctx.quadraticCurveTo(x + s * .26, y - s * .5, x + s * .36, y - s * .4); ctx.quadraticCurveTo(x + s * .48, y - s * .36, x + s * .46, y - s * .12); ctx.closePath(); ctx.fill();
     ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.ellipse(x - s * .22, y - s * .4, s * .12, s * .025, -.15, 0, 7); ctx.fill();
     ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = Math.max(1, s * .01); ctx.beginPath(); ctx.moveTo(x - s * .3, y - s * .34); ctx.quadraticCurveTo(x, y - s * .3, x + s * .3, y - s * .34); ctx.stroke();   // tampa da mala
+    if(av.pub) srPubVeic(ctx, x, y - s * .27, s * 1.1, body);   // publicidade na mala
     [-1, 1].forEach(l=>{ ctx.fillStyle = '#C8102E'; ctx.beginPath(); ctx.ellipse(x + l * s * .35, y - s * .27, s * .045, s * .035, 0, 0, 7); ctx.fill(); ctx.fillStyle = 'rgba(255,200,200,.7)'; ctx.beginPath(); ctx.ellipse(x + l * s * .35 - s * .012, y - s * .282, s * .015, s * .01, 0, 0, 7); ctx.fill(); });   // farolins
     ctx.fillStyle = srGradL(ctx, x - s * .44, x + s * .44, ['#8A919C', '#EEF1F4', '#8A919C']); rr(x - s * .44, y - s * .13, s * .88, s * .055, s * .025); ctx.fill();   // para-choques cromado
     ctx.fillStyle = '#FFFFFF'; rr(x - s * .1, y - s * .24, s * .2, s * .08, s * .015); ctx.fill(); ctx.fillStyle = '#1F5FA8'; ctx.fillRect(x - s * .1, y - s * .24, s * .03, s * .08);   // matrícula
@@ -4358,9 +4481,14 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     if(N && !av) cor = cor === '#3DD45C' ? (C ? '#FF8A2A' : '#00E5FF') : cor === '#AEB6C2' ? (C ? '#8FB0FF' : '#FF2BD6') : cor;
     const luz = on=>{ ctx.shadowColor = cor; ctx.shadowBlur = N && on ? Math.min(14, Math.max(3, s * .12)) : 0; };
     const a = pedal || 0, lw = Math.max(1, s * .02);
-    const pele = N ? NC('#1B1233') : (av ? av.p : '#E0AE86'), peleS = N ? NC('#120A24') : (av ? srMix(srHex(av.p), '#000000', .14) : '#C28F69'), calcao = N ? NC('#0D0720') : '#14171D', calcaoL = N ? NC('#1E1236') : '#2A2F38';
-    const esc = N ? NC('#120A22') : srMix(srHex(cor), '#000000', .38), sapato = N ? cor : '#F3F4F6';
-    const quadro = N ? cor : '#22262D', quadroL = N ? '#FFFFFF' : '#3C434E', metal = N ? cor : '#9AA3AE', pneu = N ? NC('#0B0618') : '#121418', aro = N ? cor : '#2A2F37';
+    const pele = N ? NC('#1B1233') : (av ? av.p : '#E0AE86'), peleS = N ? NC('#120A24') : (av ? srMix(srHex(av.p), '#000000', .14) : '#C28F69');
+    // roupa escolhida: casacos e fatos têm mangas compridas e calças; tronco nu e suspensórios deixam ver a pele
+    const T = !N && av ? av.T : 'cam', rc = T === 'cam' ? cor : avRoupa(av), mLonga = 'mot pun ral f1 pnc elc'.includes(T) && T !== 'cam';
+    const calca = T === 'ral' || T === 'f1' ? rc : T === 'pnc' ? '#C8102E' : T === 'elc' ? '#1E9E46' : T === 'mot' || T === 'pun' ? '#26324F' : null;
+    const pernaC = calca || pele, pernaS = calca ? srMix(srHex(calca), '#000000', .3) : peleS;
+    const calcao = N ? NC('#0D0720') : calca ? srMix(srHex(calca), '#000000', .1) : '#14171D', calcaoL = N ? NC('#1E1236') : calca ? srMix(srHex(calca), '#FFFFFF', .15) : '#2A2F38';
+    const esc = N ? NC('#120A22') : srMix(srHex(rc), '#000000', .38), sapato = N ? cor : T === 'pnc' || T === 'mot' || T === 'pun' ? '#1A1A1A' : T === 'elc' ? '#C8102E' : '#F3F4F6';
+    const quadro = N ? cor : (av ? av.vc : '#22262D'), quadroL = N ? '#FFFFFF' : '#3C434E', metal = N ? cor : '#9AA3AE', pneu = N ? NC('#0B0618') : '#121418', aro = N ? cor : '#2A2F37';
     const off = vx == null ? 0 : Math.max(-1, Math.min(1, (vx - x) / (s * 3))) * s * .42, ao = Math.abs(off);
     // modelo 3D: f = para a frente (0 = eixo de trás, 1 = eixo da frente), u = altura e l = para o lado (direita do ciclista +), ambos em s.
     // Mais à frente = mais longe da câmara: fica deslocado para o ponto de fuga (off), um pouco mais acima e um pouco mais pequeno.
@@ -4397,7 +4525,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       const [px, py] = P(BB[0] + tq * .17 / WB, BB[1] - Math.sin(fa) * .17, l * .125);   // pedal: dá a volta ao eixo
       const ax = px + l * s * .006, ay = py - s * .095;                              // tornozelo
       const kx = hx + off * .15 + l * s * .15, ky = (hipY + ay) / 2 - s * .06 + Math.sin(fa) * s * .05;   // joelho
-      const pc = sombra ? peleS : pele, cc = sombra ? srMix(calcao, '#000000', .3) : calcao, out = -l;   // out: lado de fora da perna
+      const pc = sombra ? pernaS : pernaC, cc = sombra ? srMix(calcao, '#000000', .3) : calcao, out = -l;   // out: lado de fora da perna
       // pedivela: do eixo até ao pedal
       ctx.strokeStyle = sombra ? '#2A2E35' : (N ? cor : '#8E97A3'); ctx.lineWidth = Math.max(1, s * .032);
       ctx.beginPath(); ctx.moveTo(cx0, cy0); ctx.lineTo(px - l * s * .02, py); ctx.stroke();
@@ -4504,9 +4632,10 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     [[-1, hL], [1, hR]].forEach(([l, h])=>{
       const sx0 = ox + l * (sh - s * .03), sy0 = ombY + s * .08;
       const ex = (sx0 + h[0]) / 2 + l * s * .07, ey = (sy0 + h[1]) / 2 + s * .03;
-      membro(ex, ey, h[0], h[1], s * .066, s * .05, pele, s * .01);                 // antebraço
-      membro(sx0, sy0, ex, ey, s * .085, s * .068, pele, s * .014);                   // braço
-      membro(sx0, sy0, sx0 + (ex - sx0) * .5, sy0 + (ey - sy0) * .5, s * .1, s * .086, cor);   // manga
+      membro(ex, ey, h[0], h[1], s * .066, s * .05, mLonga ? srMix(srHex(rc), '#000000', .12) : pele, s * .01);   // antebraço (ou manga comprida)
+      membro(sx0, sy0, ex, ey, s * .085, s * .068, mLonga ? rc : pele, s * .014);                   // braço
+      if(T === 'pnc' && s > 8){ ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.ellipse(h[0] + (ex - h[0]) * .25, h[1] + (ey - h[1]) * .25, s * .04, s * .035, 0, 0, 7); ctx.fill(); }   // punho de pelo
+      if(T === 'cam') membro(sx0, sy0, sx0 + (ex - sx0) * .5, sy0 + (ey - sy0) * .5, s * .1, s * .086, cor);   // manga curta
       ctx.fillStyle = '#1F2937'; ctx.beginPath(); ctx.ellipse(h[0], h[1], s * .045, s * .038, 0, 0, 7); ctx.fill();   // luva
     });
     // costas em V: cintura estreita, dorsais e ombros arredondados
@@ -4522,7 +4651,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       ctx.closePath();
     };
     const gr = ctx.createLinearGradient(ox - sh, 0, ox + sh, 0);
-    gr.addColorStop(0, esc); gr.addColorStop(.42, N ? srMix(srHex(cor), NC('#120A22'), .65) : cor); gr.addColorStop(.62, N ? srMix(srHex(cor), NC('#120A22'), .55) : srMix(srHex(cor), '#FFFFFF', .12)); gr.addColorStop(1, esc);
+    gr.addColorStop(0, esc); gr.addColorStop(.42, N ? srMix(srHex(cor), NC('#120A22'), .65) : rc); gr.addColorStop(.62, N ? srMix(srHex(cor), NC('#120A22'), .55) : srMix(srHex(rc), '#FFFFFF', .12)); gr.addColorStop(1, esc);
     tronco(); ctx.fillStyle = gr; ctx.fill();
     if(N){ luz(true); ctx.strokeStyle = cor; ctx.lineWidth = Math.max(1, s * .035); ctx.stroke(); luz(false); }   // contorno de luz da camisola
     if(C && s > 6){   // armadura: placas nos ombros, coluna de luz e célula de energia nas costas
@@ -4538,11 +4667,13 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       ctx.stroke();
       ctx.strokeStyle = N ? cor : 'rgba(0,0,0,.25)'; ctx.lineWidth = lw; ctx.beginPath(); ctx.moveTo(hx - s * .135, wY - s * .04); ctx.quadraticCurveTo(hx, wY - s * .01, hx + s * .135, wY - s * .04); ctx.stroke();
     }
-    ctx.fillStyle = N ? srMix(srHex(cor), NC('#120A22'), .25) : 'rgba(255,255,255,.18)';   // risca da camisola, a acompanhar a curva das costas
-    ctx.beginPath(); ctx.moveTo(ox - sh * .96, ombY + s * .13); ctx.quadraticCurveTo(ox, ombY + s * .09, ox + sh * .96, ombY + s * .13); ctx.lineTo(ox + sh * .95, ombY + s * .16); ctx.quadraticCurveTo(ox, ombY + s * .12, ox - sh * .95, ombY + s * .16); ctx.closePath(); ctx.fill();
+    if(T === 'cam'){ ctx.fillStyle = N ? srMix(srHex(cor), NC('#120A22'), .25) : 'rgba(255,255,255,.18)';   // risca da camisola, a acompanhar a curva das costas
+    ctx.beginPath(); ctx.moveTo(ox - sh * .96, ombY + s * .13); ctx.quadraticCurveTo(ox, ombY + s * .09, ox + sh * .96, ombY + s * .13); ctx.lineTo(ox + sh * .95, ombY + s * .16); ctx.quadraticCurveTo(ox, ombY + s * .12, ox - sh * .95, ombY + s * .16); ctx.closePath(); ctx.fill(); }
+    if(av && !N) srRoupa(ctx, T, ox, ombY, wY, sh, s, rc, av.j, av.pub);   // casacos, fatos, suspensórios e publicidade
     // pescoço e nuca
     ctx.fillStyle = pele; ctx.beginPath(); ctx.moveTo(ox - s * .055, ombY - s * .01); ctx.quadraticCurveTo(ox, ombY + s * .02, ox + s * .055, ombY - s * .01); ctx.lineTo(ox + s * .045, ombY - s * .12); ctx.lineTo(ox - s * .045, ombY - s * .12); ctx.closePath(); ctx.fill();
     const cy = ombY - s * .19, hw = s * .128;
+    if(av && av.H && av.H !== 'cic'){ srCabeca(ctx, ox, cy + s * .025, s * .1, av.H, av.h, pele); ctx.lineCap = 'butt'; luz(false); return; }   // capacete viking, gorros, chapéu ou cabelo
     ctx.fillStyle = N ? NC('#0D0720') : '#3A2A20'; ctx.beginPath(); ctx.ellipse(ox, cy + s * .075, s * .07, s * .045, 0, 0, 7); ctx.fill();   // cabelo por baixo do capacete
     if(s > 8){   // orelhas e fitas do capacete até ao queixo
       ctx.fillStyle = N ? NC('#1B1233') : '#D49F78'; [-1, 1].forEach(l=>{ ctx.beginPath(); ctx.ellipse(ox + l * s * .075, cy + s * .065, s * .016, s * .028, 0, 0, 7); ctx.fill(); });
@@ -4685,7 +4816,8 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     }
     // os outros: distância a mim (suavizada); quem passa por trás aparece a ultrapassar pelo lado
     const emPe = /p[ée]/i.test(b.tecnica || '') || base.tr.t === 'sprint';
-    const meuRpm = hasPowerSource() ? S.cadence || 0 : 0, pedal = srFase('_eu', meuRpm, now, state && state.status === 'playing');   // o teu guiador/joelhos à tua cadência
+    const meuRpm = hasPowerSource() ? S.cadence || 0 : myHr() > 0 ? (b.rpm || 85) : 0,   // sem bicicleta, só com FC: pedala à cadência alvo do bloco
+      pedal = srFase('_eu', meuRpm, now, state && state.status === 'playing');   // o teu guiador/joelhos à tua cadência
     const lug = {}, ord = ids.slice().sort((a, c)=> P[c][0] - P[a][0]);
     ids.forEach(id=>{
       if(id === riderId) return;
@@ -4725,7 +4857,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const meuAv = avLe(me.av || null);
     if(meuAv ? meuAv.v === 'k' || meuAv.v === 'c' : SR.tema === 'kart'){   // kart ou carrinho a pedais (escolhido, ou no Grande Prémio do Cogumelo): a frente e o volante
       ctx.fillStyle = '#0F1115'; [-1, 1].forEach(l=>{ ctx.beginPath(); ctx.roundRect ? ctx.roundRect(gx + l * W * .36 - W * .09, H * .9 + bob, W * .18, H * .14, 14) : ctx.rect(gx + l * W * .36 - W * .09, H * .9 + bob, W * .18, H * .14); ctx.fill(); });
-      ctx.fillStyle = meuAv ? meuAv.j : zc; ctx.beginPath(); ctx.moveTo(gx - W * .3, H * 1.02); ctx.quadraticCurveTo(gx - W * .26, H * .9 + bob, gx, H * .88 + bob); ctx.quadraticCurveTo(gx + W * .26, H * .9 + bob, gx + W * .3, H * 1.02); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = meuAv ? meuAv.vc : zc; ctx.beginPath(); ctx.moveTo(gx - W * .3, H * 1.02); ctx.quadraticCurveTo(gx - W * .26, H * .9 + bob, gx, H * .88 + bob); ctx.quadraticCurveTo(gx + W * .26, H * .9 + bob, gx + W * .3, H * 1.02); ctx.closePath(); ctx.fill();
       ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.ellipse(gx - W * .08, H * .92 + bob, W * .08, H * .012, -.1, 0, 7); ctx.fill();
       [-1, 1].forEach(l=>{ const up = (Math.sin(pedal + (l > 0 ? Math.PI : 0)) + 1) / 2;   // os teus joelhos a pedalar
         ctx.fillStyle = '#2E3440'; ctx.beginPath(); ctx.ellipse(gx + l * W * .2, H * (.97 - up * .09) + bob, W * .11, H * .06, 0, 0, 7); ctx.fill();
@@ -4775,7 +4907,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   }
   function para(){ SR.on = false; cancelAnimationFrame(SR.raf); }
   return { abre, para, E3, ligado: ()=> SR.on, tema: (t, r)=>{ SR.tema = t; SR.rota = r || null; },
-    av: { le: avLe, txt: avTxt, VEIC: AV_VEIC, CAM: AV_CAM, CAP: AV_CAP, PELE: AV_PELE, desenha: (g, x, y, s, ped, vx, a)=>{ const t = SR.tema; SR.tema = 'serra'; try{ srCiclista(g, x, y, s, '#3DD45C', ped, false, vx, a); } finally { SR.tema = t; } } } };
+    av: { le: avLe, txt: avTxt, VEIC: AV_VEIC, CAM: AV_CAM, CAP: AV_CAP, PELE: AV_PELE, CAB: AV_CAB, COR: AV_COR, CABELO: AV_CABELO, VCOR: AV_VCOR, eCabelo: avCabelo, desenha: (g, x, y, s, ped, vx, a)=>{ const t = SR.tema; SR.tema = 'serra'; try{ srCiclista(g, x, y, s, '#3DD45C', ped, false, vx, a); } finally { SR.tema = t; } } } };
   })();
   const JOGOS_ALUNO = {
     cabo:['🪢','Cabo de guerra','A tua equipa puxa a corda quando estão todos dentro da zona. Ganha a ronda quem levar o nó até ao fim.'],
