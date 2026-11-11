@@ -747,7 +747,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
 #liveScreen.ecra3 #bodyEl{background:#0B0E13!important;}
 /* mudança de bloco no Ecrã 3: faixa discreta por cima do jogo (sem o cartão a rebentar dos ecrãs 1 e 2) e clarão na cor da zona */
 #ecra3{position:relative;}
-.e3-nx{position:absolute;left:50%;top:196px;z-index:4;width:min(92%,440px);transform:translate(-50%,-14px);opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;
+.e3-nx{position:absolute;left:50%;top:262px;z-index:4;width:min(92%,440px);transform:translate(-50%,-14px);opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;
   font-family:'Barlow Condensed',sans-serif;color:#fff;background:rgba(8,11,16,.82);border:2px solid var(--nc,#fff);border-left-width:9px;border-radius:12px;padding:6px 12px 7px;box-shadow:0 6px 20px rgba(0,0,0,.45),0 0 16px color-mix(in srgb,var(--nc,#fff) 35%,transparent);}
 .e3-nx.on{opacity:1;transform:translate(-50%,0);}
 .e3-nx .t{display:flex;justify-content:space-between;align-items:baseline;font-size:17px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.75);}
@@ -769,6 +769,10 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
 .e3h-l b{font-size:36px;font-weight:800;} .e3h-l span{font-size:22px;font-weight:700;margin-top:2px;}
 .e3h-c{align-items:center;} .e3h-c small{font-size:15px;font-weight:700;letter-spacing:1.5px;color:#fff;} .e3h-c b{font-size:54px;font-weight:800;font-variant-numeric:tabular-nums;}
 .e3h-r{align-items:flex-end;justify-self:end;} .e3h-r b{font-size:48px;font-weight:800;color:#FFD60A;} .e3h-r small{font-size:18px;font-weight:700;color:#fff;}
+.e3h-alvo{grid-column:1 / -1;display:grid!important;grid-template-columns:1fr 1fr;gap:6px;background:none!important;border:0!important;padding:0!important;}
+.e3h-alvo span{display:flex;flex-direction:column;align-items:center;background:rgba(0,0,0,.8);border:2px solid rgba(255,255,255,.3);border-radius:14px;padding:4px 6px 6px;}
+.e3h-alvo small{font-size:15px;font-weight:800;letter-spacing:1.4px;color:#fff;}
+.e3h-alvo b{font-size:clamp(28px,10vw,44px);font-weight:800;line-height:1;white-space:nowrap;} .e3h-alvo i{font-style:normal;font-size:.5em;}
 .e3h-a{grid-column:1 / -1;flex-direction:row!important;flex-wrap:wrap;gap:6px 16px;font-size:24px;font-weight:800;background:rgba(0,0,0,.72)!important;justify-self:stretch;}
 .e3-msg{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%) scale(.9);background:rgba(8,11,16,.85);border:2px solid #FFD60A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:32px;line-height:1.1;text-align:center;width:max-content;max-width:88%;padding:10px 20px;border-radius:14px;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:normal;}
 .e3-msg.on{opacity:1;transform:translate(-50%,-50%) scale(1);}
@@ -5259,7 +5263,7 @@ body.ecra4-on #kartCog{display:none!important;}
       ctx.fillStyle = zc; ctx.beginPath(); ctx.ellipse(gx + l * W * .35, gy + H * .015, W * .055, H * .02, l * .3, 0, 7); ctx.fill(); });
     }
     // turbo e tartaruga em mim: riscos de velocidade e brilho laranja / tartaruga às voltas e frio azul
-    const fxE = (SR.tema === 'kart' && P[riderId] ? P[riderId][7] & 3 : 0) | godFlags(), PAR = E3.par || [20, 30, 50, 40, 5];
+    const fxE = (SR.tema === 'kart' && P[riderId] ? P[riderId][7] & 3 : 0) | godFlags(), PAR = E3.par || [20, 30, 50, 40, 5, 60];
     if(fxE & 1){ ctx.save(); ctx.strokeStyle = 'rgba(255,214,10,.8)'; ctx.lineWidth = 3; for(let k = 0; k < 18; k++){ const a = (k / 18) * 6.283 + now * .001, r1 = Math.min(W, H) * (.32 + ((now * .003 + k * .37) % 1) * .55); ctx.beginPath(); ctx.moveTo(gx + Math.cos(a) * r1, H * .5 + Math.sin(a) * r1 * .8); ctx.lineTo(gx + Math.cos(a) * (r1 + 60), H * .5 + Math.sin(a) * (r1 + 60) * .8); ctx.stroke(); }
       const gl = ctx.createRadialGradient(gx, H * .5, Math.min(W, H) * .3, gx, H * .5, Math.max(W, H) * .7); gl.addColorStop(0, 'rgba(255,140,0,0)'); gl.addColorStop(1, 'rgba(255,140,0,.5)'); ctx.fillStyle = gl; ctx.fillRect(0, 0, W, H); ctx.restore(); }
     if(fxE & 2){ ctx.save(); const gl = ctx.createRadialGradient(gx, H * .5, Math.min(W, H) * .25, gx, H * .5, Math.max(W, H) * .7); gl.addColorStop(0, 'rgba(60,150,255,0)'); gl.addColorStop(1, 'rgba(60,150,255,.5)'); ctx.fillStyle = gl; ctx.fillRect(0, 0, W, H);
@@ -5269,13 +5273,21 @@ body.ecra4-on #kartCog{display:none!important;}
     if(fxE & 8){ ctx.save(); ctx.lineCap = 'round'; for(let k = 0; k < 12; k++){ const f = (now * .0009 + k * .173) % 1, yy = H * (.25 + (k % 6) * .1), xx = W * (1.2 - f * 1.6), L = W * .35;
         ctx.strokeStyle = 'rgba(230,242,255,' + (.7 * Math.sin(f * Math.PI)).toFixed(2) + ')'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(xx, yy); ctx.bezierCurveTo(xx - L * .3, yy - 14, xx - L * .6, yy + 14, xx - L, yy); ctx.stroke(); }
       ctx.fillStyle = 'rgba(200,225,255,.12)'; ctx.fillRect(0, 0, W, H); ctx.restore(); }
-    // ciclocomputador no guiador: os teus watts e rpm
-    const cw = Math.min(W * .74, 380), chh = Math.max(64, H * .115), cx0 = gx - cw / 2, cy0 = gy - chh - H * .015;
-    ctx.fillStyle = '#0B0E13'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(cx0, cy0, cw, chh, 8) : ctx.rect(cx0, cy0, cw, chh); ctx.fill();
-    ctx.strokeStyle = zc; ctx.lineWidth = 2; ctx.stroke();
-    ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = '800 ' + Math.round(chh * .56) + 'px Barlow Condensed, sans-serif';
-    ctx.fillText((E3.w != null ? E3.w : '—') + 'W · ' + (E3.rpm != null ? E3.rpm : '—'), gx, cy0 + chh * .62);
-    ctx.font = '800 ' + Math.round(chh * .22) + 'px Barlow, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.fillText('WATTS · RPM', gx, cy0 + chh * .9);
+    // consola do veículo: potência, cadência, velocidade (a do percurso: terreno × o teu esforço e os efeitos) e %FC máxima
+    const eu7 = P[riderId] || null, fat = (eu7 ? (eu7[2] ? 1 : (PAR[5] || 60) / 100) : 0) * (fxE & 1 ? 1 + PAR[0] / 100 : 1) * (fxE & 2 ? 1 - PAR[1] / 100 : 1) * (fxE & 4 ? 1 + PAR[2] / 100 : 1) * (fxE & 8 ? 1 - PAR[3] / 100 : 1);
+    const kmhV = Math.round((base.tr ? base.tr.kmh : 0) * fat);
+    const cw = Math.min(W * .94, 460), chh = Math.max(116, H * .2), cx0 = gx - cw / 2, cy0 = gy - chh - H * .01;
+    ctx.fillStyle = 'rgba(8,10,15,.94)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(cx0, cy0, cw, chh, 14) : ctx.rect(cx0, cy0, cw, chh); ctx.fill();
+    ctx.strokeStyle = zc; ctx.lineWidth = 3; ctx.stroke();
+    ctx.strokeStyle = 'rgba(255,255,255,.14)'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(gx, cy0 + 8); ctx.lineTo(gx, cy0 + chh - 8); ctx.moveTo(cx0 + 10, cy0 + chh / 2); ctx.lineTo(cx0 + cw - 10, cy0 + chh / 2); ctx.stroke();
+    E3.cons = { x: cx0, y: cy0, w: cw, h: chh };   // tocar: potência ↔ %FTP (em cima à esquerda) e %FC máx ↔ bpm (em baixo à direita)
+    const potC = E3.vPct ? [E3.pftp != null ? E3.pftp : '—', E3.pftp != null ? '%' : '', '% FTP ⇄'] : [E3.w != null ? E3.w : '—', 'W', 'POTÊNCIA ⇄'];
+    const fcC = E3.vBpm ? [E3.bpm != null ? E3.bpm : '—', '', 'BPM ⇄'] : [E3.fcp != null ? E3.fcp : '—', E3.fcp != null ? '%' : '', '% FC MÁX ⇄'];
+    [potC, [E3.rpm != null ? E3.rpm : '—', '', 'RPM'], [kmhV, '', 'KM/H'], fcC].forEach((c, k)=>{
+      const x = cx0 + cw * (k % 2 ? .75 : .25), y = cy0 + chh * (k < 2 ? 0 : .5), hh = chh / 2;
+      ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.font = '800 ' + Math.round(hh * .62) + 'px Barlow Condensed, sans-serif';
+      ctx.fillText(String(c[0]) + c[1], x, y + hh * .62);
+      ctx.font = '800 ' + Math.round(hh * .2) + 'px Barlow, sans-serif'; ctx.fillStyle = k === 3 ? '#FF8A8A' : k === 2 ? '#7FD1FF' : 'rgba(255,255,255,.85)'; ctx.fillText(c[2], x, y + hh * .9); });
     ctx.lineCap = 'butt';
     const dt = performance.now() - t0; E3.draw = Math.max(90, Math.min(240, E3.draw + (dt > 28 ? -10 : dt < 12 ? 5 : 0)));
     // informação por cima
@@ -5287,7 +5299,8 @@ body.ecra4-on #kartCog{display:none!important;}
       $('e3Hud').innerHTML = '<div class="e3h-l"><b style="color:' + srMix(zc, '#ffffff', .3) + '">' + escapeHtml(blkZone(b).name.split(' ')[0]) + '</b><span>' + terr + '</span></div>' +
         '<div class="e3h-c"><small>FALTA</small><b>' + fmtCountdown(E3.rem || 0) + '</b></div>' +
         '<div class="e3h-r">' + (pos >= 0 ? '<b>' + (pos + 1) + 'º</b><small>de ' + ord.length + '</small>' : '<small>à espera</small>') + '</div>' +
-        '<div class="e3h-a"><span>🎯 ' + escapeHtml(E3.alvo || '') + '</span><span>🔄 ' + escapeHtml(E3.arpm || '') + ' rpm</span>' + (SR.met ? '<span>' + MET_TEMPOS[SR.met.tempo][0] + ' ' + SR.met.temp + ' °C</span>' : '') + (SR.tema === 'paris' || SR.tema === 'vale' ? (()=>{ const pr = srParisProx(baseI); return pr ? '<span>' + (pr.aqui ? '📸 ' + escapeHtml(pr.txt) : escapeHtml(pr.txt) + ' ' + pr.km.toFixed(1).replace('.', ',') + ' km') + '</span>' : ''; })() : '') + (fxE & 1 ? '<span style="color:#FFB000">🔥 TURBO +' + PAR[0] + '%</span>' : '') + (fxE & 2 ? '<span style="color:#7FC4FF">🐢 −' + PAR[1] + '% (' + escapeHtml(P[riderId][8] || '?') + ')</span>' : '') + (fxE & 4 ? '<span style="color:#C4B5FD">🚀 BOOST +' + PAR[2] + '%</span>' : '') + (fxE & 8 ? '<span style="color:#DCEBFF">🌬️ VENTO −' + PAR[3] + '%</span>' : '') + (PR ? '<span>📏 ' + srKm(meuM) + '</span>' : '') + (fr ? '<span>⬆️ ' + escapeHtml(P[fr][1]) + ' +' + (PR ? Math.max(0, Math.round((P[fr][6] || 0) - meuM)) + ' m' : fmtTime(Math.max(0, Math.round(P[fr][0] - meu)))) + '</span>' : pos === 0 ? '<span>🟡 Vais na frente!</span>' : '') + '</div>';
+        '<div class="e3h-alvo"><span style="border-color:' + zc + '"><small>🎯 ALVO</small><b style="color:' + srMix(zc, '#ffffff', .25) + '">' + escapeHtml(E3.alvo || '') + '</b></span><span><small>🔄 CADÊNCIA</small><b>' + escapeHtml(E3.arpm || '') + '<i> rpm</i></b></span></div>' +
+        '<div class="e3h-a">' + (SR.met ? '<span>' + MET_TEMPOS[SR.met.tempo][0] + ' ' + SR.met.temp + ' °C</span>' : '') + (SR.tema === 'paris' || SR.tema === 'vale' ? (()=>{ const pr = srParisProx(baseI); return pr ? '<span>' + (pr.aqui ? '📸 ' + escapeHtml(pr.txt) : escapeHtml(pr.txt) + ' ' + pr.km.toFixed(1).replace('.', ',') + ' km') + '</span>' : ''; })() : '') + (fxE & 1 ? '<span style="color:#FFB000">🔥 TURBO +' + PAR[0] + '%</span>' : '') + (fxE & 2 ? '<span style="color:#7FC4FF">🐢 −' + PAR[1] + '% (' + escapeHtml(P[riderId][8] || '?') + ')</span>' : '') + (fxE & 4 ? '<span style="color:#C4B5FD">🚀 BOOST +' + PAR[2] + '%</span>' : '') + (fxE & 8 ? '<span style="color:#DCEBFF">🌬️ VENTO −' + PAR[3] + '%</span>' : '') + (PR ? '<span>📏 ' + srKm(meuM) + '</span>' : '') + (fr ? '<span>⬆️ ' + escapeHtml(P[fr][1]) + ' +' + (PR ? Math.max(0, Math.round((P[fr][6] || 0) - meuM)) + ' m' : fmtTime(Math.max(0, Math.round(P[fr][0] - meu)))) + '</span>' : pos === 0 ? '<span>🟡 Vais na frente!</span>' : '') + '</div>';
       if(SR.tema === 'kart' && P[riderId]){ const q = P[riderId], f = q[7] || 0, A = E3.kfx || (E3.kfx = { f: 0, tiros: q[9] || 0 });   // avisos do turbo e das tartarugas
         if((f & 1) && !(A.f & 1)){ E3.msg = '🔥 TURBO! +' + ((E3.par || [])[0] || 20) + '% durante ' + ((E3.par || [])[4] || 5) + ' s'; E3.msgT = now; }
         if((q[9] || 0) > A.tiros){ E3.msg = q[10] ? '🐢 Acertaste em ' + q[10] + '!' : '🐢 Vais na frente: a tartaruga não apanhou ninguém'; E3.msgT = now; }
@@ -5332,7 +5345,12 @@ body.ecra4-on #kartCog{display:none!important;}
     if(estrada){
       SERRA3.tema(k === 'p_neon' ? 'neon' : k === 'p_cyber' ? 'cyber' : k === 'p_kart' ? 'kart' : k === 'p_paris' ? 'paris' : k === 'p_lsdpnf' || k === 'p_pnflsd' || k === 'p_porto' ? 'vale' : 'serra', k === 'p_lsdpnf' ? 'lp' : k === 'p_pnflsd' ? 'pl' : k === 'p_porto' ? 'porto' : null);
       const E = SERRA3.E3; if(E.el == null || Math.abs(elapsed - E.el) > .05){ E.el = elapsed; E.elT = performance.now(); } E.rem = remaining; E.alvo = pctTxt(b, range) + (modo === 'fc' ? ' FC' : ' FTP'); E.arpm = rpmTxt(b);
-      E.w = hasPowerSource() ? Math.round(dispPower) : null; E.rpm = hasPowerSource() ? Math.round(S.cadence) : null;
+      E.w = hasPowerSource() ? Math.round(dispPower) : null; E.rpm = hasPowerSource() ? Math.round(S.cadence) : null; E.fcp = me.fc && myHr() > 0 ? Math.round(myHr() / me.fc * 100) : null; E.bpm = myHr() > 0 ? Math.round(myHr()) : null; E.pftp = hasPowerSource() && me.ftp ? Math.round(dispPower / me.ftp * 100) : null;
+      if(!E.toqueOk){ E.toqueOk = true; try{ E.vPct = localStorage.getItem('prConsP') === '1'; E.vBpm = localStorage.getItem('prConsF') === '1'; }catch(e){}
+        $('e3Cv').addEventListener('click', ev=>{ const c = E.cons; if(!c) return; const r = ev.currentTarget.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;   // tocar na consola: W ↔ %FTP e %FC máx ↔ bpm
+          if(x < c.x || x > c.x + c.w || y < c.y || y > c.y + c.h) return; const dir = x > c.x + c.w / 2, baixo = y > c.y + c.h / 2;
+          if(!dir && !baixo){ E.vPct = !E.vPct; try{ localStorage.setItem('prConsP', E.vPct ? '1' : '0'); }catch(e){} }
+          if(dir && baixo){ E.vBpm = !E.vBpm; try{ localStorage.setItem('prConsF', E.vBpm ? '1' : '0'); }catch(e){} } }); }
       SERRA3.abre();
       return;
     }
