@@ -747,14 +747,14 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
 #liveScreen.ecra3 #bodyEl{background:#0B0E13!important;}
 /* mudança de bloco no Ecrã 3: faixa discreta por cima do jogo (sem o cartão a rebentar dos ecrãs 1 e 2) e clarão na cor da zona */
 #ecra3{position:relative;}
-.e3-nx{position:absolute;left:50%;top:120px;z-index:4;width:min(92%,440px);transform:translate(-50%,-14px);opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;
+.e3-nx{position:absolute;left:50%;top:196px;z-index:4;width:min(92%,440px);transform:translate(-50%,-14px);opacity:0;pointer-events:none;transition:opacity .35s ease,transform .35s ease;
   font-family:'Barlow Condensed',sans-serif;color:#fff;background:rgba(8,11,16,.82);border:2px solid var(--nc,#fff);border-left-width:9px;border-radius:12px;padding:6px 12px 7px;box-shadow:0 6px 20px rgba(0,0,0,.45),0 0 16px color-mix(in srgb,var(--nc,#fff) 35%,transparent);}
 .e3-nx.on{opacity:1;transform:translate(-50%,0);}
-.e3-nx .t{display:flex;justify-content:space-between;align-items:baseline;font-size:14px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.75);}
-.e3-nx .t b{font-size:22px;letter-spacing:0;text-transform:none;color:var(--nc,#fff);font-variant-numeric:tabular-nums;}
-.e3-nx .z{font-size:26px;font-weight:800;line-height:1.05;}
-.e3-nx .z span{font-size:18px;font-weight:700;color:rgba(255,255,255,.85);margin-left:8px;}
-.e3-nx .m{font-size:16px;font-weight:600;color:rgba(255,255,255,.8);}
+.e3-nx .t{display:flex;justify-content:space-between;align-items:baseline;font-size:17px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:rgba(255,255,255,.75);}
+.e3-nx .t b{font-size:30px;letter-spacing:0;text-transform:none;color:var(--nc,#fff);font-variant-numeric:tabular-nums;}
+.e3-nx .z{font-size:34px;font-weight:800;line-height:1.05;}
+.e3-nx .z span{font-size:22px;font-weight:700;color:rgba(255,255,255,.85);margin-left:8px;}
+.e3-nx .m{font-size:20px;font-weight:700;color:#fff;}
 .e3-nx.quase{animation:e3NxPulse .5s ease-in-out infinite alternate;}
 @keyframes e3NxPulse{to{box-shadow:0 6px 20px rgba(0,0,0,.45),0 0 30px color-mix(in srgb,var(--nc,#fff) 75%,transparent);}}
 .e3-flash{position:absolute;inset:0;z-index:5;pointer-events:none;border-radius:16px;opacity:0;background:radial-gradient(circle at 50% 45%,transparent 25%,var(--zc,#fff) 120%);}
@@ -763,13 +763,14 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
 @media (prefers-reduced-motion:reduce){.e3-nx.quase,.e3-flash.on{animation:none;}}
 .e3-serra{position:relative;width:100%;height:calc(100dvh - 150px);min-height:380px;border-radius:16px;overflow:hidden;background:#0C1A33;}
 .e3-serra canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
-.e3-hud{position:absolute;left:8px;right:8px;top:8px;display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:start;pointer-events:none;font-family:'Barlow Condensed',sans-serif;color:#fff;text-shadow:0 2px 6px rgba(0,0,0,.7);}
-.e3-hud > div{background:rgba(5,7,10,.55);border-radius:12px;padding:4px 10px;display:flex;flex-direction:column;line-height:1.05;}
-.e3h-l b{font-size:24px;font-weight:800;} .e3h-l span{font-size:17px;font-weight:700;}
-.e3h-c{align-items:center;} .e3h-c small{font-size:11px;letter-spacing:1.3px;color:rgba(255,255,255,.7);} .e3h-c b{font-size:38px;font-weight:800;font-variant-numeric:tabular-nums;}
-.e3h-r{align-items:flex-end;justify-self:end;} .e3h-r b{font-size:34px;font-weight:800;color:#FFD60A;} .e3h-r small{font-size:13px;color:rgba(255,255,255,.75);}
-.e3h-a{grid-column:1 / -1;flex-direction:row!important;flex-wrap:wrap;gap:4px 12px;font-size:17px;font-weight:700;background:rgba(5,7,10,.45)!important;justify-self:start;}
-.e3-msg{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%) scale(.9);background:rgba(8,11,16,.85);border:2px solid #FFD60A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;padding:8px 18px;border-radius:14px;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:nowrap;}
+.e3-hud{position:absolute;left:6px;right:6px;top:6px;display:grid;grid-template-columns:1fr auto 1fr;gap:6px;align-items:start;pointer-events:none;font-family:'Barlow Condensed',sans-serif;color:#fff;text-shadow:0 2px 4px rgba(0,0,0,.9);}
+/* letra grande e fundo escuro: lê-se a pedalar e sem óculos */
+.e3-hud > div{background:rgba(0,0,0,.78);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:6px 12px;display:flex;flex-direction:column;line-height:1;}
+.e3h-l b{font-size:36px;font-weight:800;} .e3h-l span{font-size:22px;font-weight:700;margin-top:2px;}
+.e3h-c{align-items:center;} .e3h-c small{font-size:15px;font-weight:700;letter-spacing:1.5px;color:#fff;} .e3h-c b{font-size:54px;font-weight:800;font-variant-numeric:tabular-nums;}
+.e3h-r{align-items:flex-end;justify-self:end;} .e3h-r b{font-size:48px;font-weight:800;color:#FFD60A;} .e3h-r small{font-size:18px;font-weight:700;color:#fff;}
+.e3h-a{grid-column:1 / -1;flex-direction:row!important;flex-wrap:wrap;gap:6px 16px;font-size:24px;font-weight:800;background:rgba(0,0,0,.72)!important;justify-self:stretch;}
+.e3-msg{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%) scale(.9);background:rgba(8,11,16,.85);border:2px solid #FFD60A;color:#fff;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:32px;line-height:1.1;text-align:center;width:max-content;max-width:88%;padding:10px 20px;border-radius:14px;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;white-space:normal;}
 .e3-msg.on{opacity:1;transform:translate(-50%,-50%) scale(1);}
 .e3-card{min-height:calc(100dvh - 170px);border-radius:20px;padding:22px 18px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px;background:radial-gradient(120% 80% at 50% 0%,color-mix(in srgb,var(--jc,#E8722C) 45%,#0B0E13),#0B0E13 75%);border:3px solid var(--jc,#E8722C);}
 .e3-ico{font-size:64px;line-height:1;}
@@ -1125,6 +1126,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     <h2 id="avTitle">🎨 O teu ciclista</h2>
     <p class="av-sub">Escolhe o veículo, o que levas na cabeça, a roupa e as cores com que vais aparecer no percurso.</p>
     <canvas class="av-prev" id="avPrev" aria-label="Pré-visualização do teu ciclista"></canvas>
+    <div class="av-lbl">Corpo</div><div class="av-veic av-mini" id="avGen"><button type="button" data-t="m"><span>🙋‍♂️</span>Masculino</button><button type="button" data-t="f"><span>🙋‍♀️</span>Feminino</button></div>
     <div class="av-lbl">Veículo</div><div class="av-veic" id="avVeic"></div>
     <div class="av-lbl">Cor do veículo</div><div class="av-cores" id="avVc"></div>
     <div class="av-lbl">Na cabeça</div><div class="av-veic av-mini" id="avCab"></div>
@@ -2254,15 +2256,17 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const chips = (id, cores, k)=>{ $(id).innerHTML = cores.map(c=> '<button type="button" style="background:' + c + '" data-c="' + c + '" aria-label="Cor ' + c + '"></button>').join('');
       $(id).onclick = e=>{ const b = e.target.closest('button'); if(!b) return; AVE.a[k] = b.dataset.c; avMarca(); }; };
     $('avVeic').innerHTML = Object.keys(AV.VEIC).map(k=> '<button type="button" data-v="' + k + '"><span>' + AV.VEIC[k][0] + '</span>' + AV.VEIC[k][1] + '</button>').join('');
-    $('avVeic').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; const kc = v=> v === 'k' || v === 'c', era = AVE.a.v; AVE.a.v = b.dataset.v;
+    $('avVeic').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; const kc = v=> v === 'k' || v === 'c' || v === 'n', era = AVE.a.v; AVE.a.v = b.dataset.v;
       if(kc(AVE.a.v) !== kc(era)){ if(AVE.a.H === (kc(era) ? 'pil' : 'cic')) AVE.a.H = kc(AVE.a.v) ? 'pil' : 'cic'; if(!kc(era) && AVE.a.vc === '#22262D') AVE.a.vc = AVE.a.j; } avMarca(); };
     const tipos = (id, L, k)=>{ $(id).innerHTML = Object.keys(L).map(c=> '<button type="button" data-t="' + c + '"><span>' + L[c][0] + '</span>' + L[c][1] + '</button>').join('');
       $(id).onclick = e=>{ const b = e.target.closest('button'); if(!b) return; const era = AVE.a[k]; AVE.a[k] = b.dataset.t;
-        const gc = H=> AV.eCabelo(H) || H === 'vik' || H === 'pn' || H === 'elf';   // cabeças que mostram cabelo usam a paleta de cabelo
-        if(k === 'H' && gc(AVE.a.H) !== gc(era)) AVE.a.h = gc(AVE.a.H) ? AV.CABELO[1] : AV.CAP[0]; avMarca(); }; };
+        if(k === 'H'){ const g0 = AV.grupo(era), g1 = AV.grupo(AVE.a.H); if(g0 !== g1) AVE.a.h = g1 === 'cab' ? (AVE.a.H === 'ush' ? AV.CABELO[6] : AV.CABELO[1]) : g1 === 'chap' ? AV.CHAP[0] : AVE.a.H === 'cog' ? '#E5242B' : AV.CAP[0];
+          if(AV.PAR[AVE.a.H]) AVE.a.T = AV.PAR[AVE.a.H]; else if(AV.PAR[era] === AVE.a.T) AVE.a.T = 'cam'; }   // cada chapéu traz a sua roupa
+        avMarca(); }; };
     tipos('avCab', AV.CAB, 'H'); tipos('avCor', AV.COR, 'T');
     chips('avCam', AV.CAM, 'j'); chips('avPele', AV.PELE, 'p'); chips('avVc', AV.VCOR, 'vc');
     $('avPub').onchange = ()=>{ AVE.a.pub = $('avPub').checked; };
+    $('avGen').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; AVE.a.g = b.dataset.t; avMarca(); };
     avMarca(); $('avOv').classList.add('on'); $('avSim').focus();
     cancelAnimationFrame(AVE.raf); const t0 = performance.now();
     const anda = now=>{ if(!$('avOv').classList.contains('on')) return; const cv = $('avPrev'), r = cv.getBoundingClientRect(), d = Math.min(2, window.devicePixelRatio || 1);
@@ -2274,16 +2278,19 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   }
   function avMarca(){
     $('avVeic').querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.v === AVE.a.v));
-    const AV = SERRA3.av, a = AVE.a, cab = AV.eCabelo(a.H) || a.H === 'vik' || a.H === 'pn' || a.H === 'elf';
-    // a paleta da cabeça muda: cores de cabelo (cabelos, viking e gorros) ou de capacete/chapéu
-    const pal = cab ? AV.CABELO : AV.CAP; if($('avCap').dataset.p !== String(cab)){ $('avCap').dataset.p = String(cab); $('avCap').innerHTML = pal.map(c=> '<button type="button" style="background:' + c + '" data-c="' + c + '" aria-label="Cor ' + c + '"></button>').join('');
+    const AV = SERRA3.av, a = AVE.a, grp = AV.grupo(a.H);
+    // a paleta da cabeça muda: cabelo/pelo, chapéu ou capacete (a mitra e o cocar têm cores próprias)
+    const pal = grp === 'cab' ? AV.CABELO : grp === 'chap' ? AV.CHAP : AV.CAP; if($('avCap').dataset.p !== grp){ $('avCap').dataset.p = grp; $('avCap').innerHTML = pal.map(c=> '<button type="button" style="background:' + c + '" data-c="' + c + '" aria-label="Cor ' + c + '"></button>').join('');
       $('avCap').onclick = e=>{ const b = e.target.closest('button'); if(!b) return; AVE.a.h = b.dataset.c; avMarca(); }; }
-    $('avCapL').textContent = cab ? 'Cor do cabelo' : a.H === 'cha' ? 'Cor do chapéu' : 'Cor do capacete';
+    $('avCapL').textContent = a.H === 'ush' ? 'Cor do pelo' : grp === 'cab' ? 'Cor do cabelo' : grp === 'chap' ? 'Cor do chapéu' : a.H === 'cog' ? 'Cor do cogumelo' : 'Cor do capacete';
+    $('avCapL').hidden = $('avCap').hidden = grp === 'fixo';
+    $('avGen').querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.t === (a.g || 'm')));
     [['avCam', 'j'], ['avCap', 'h'], ['avPele', 'p'], ['avVc', 'vc']].forEach(([id, k])=> $(id).querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.c === a[k])));
     $('avCab').querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.t === a.H));
     $('avCor').querySelectorAll('button').forEach(b=> b.setAttribute('aria-pressed', b.dataset.t === a.T));
-    const fixa = a.T === 'pnc' || a.T === 'elc' || a.T === 'nu';   // Pai Natal, elfo e tronco nu têm cor própria
-    $('avCamL').hidden = $('avCam').hidden = fixa; $('avCamL').textContent = a.T === 'sus' ? 'Cor dos suspensórios' : 'Cor da roupa';
+    const fixa = ['pnc', 'elc', 'pap', 'ush', 'coc', 'cog'].includes(a.T) || (a.T === 'nu' && a.g !== 'f');   // estas roupas têm cor própria
+    $('avCamL').hidden = $('avCam').hidden = fixa;
+    $('avCamL').textContent = a.T === 'sus' ? 'Cor dos suspensórios' : a.T === 'col' ? 'Cor da camisola por baixo' : a.T === 'cow' ? 'Cor da camisa' : a.T === 'nu' ? 'Cor do top' : 'Cor da roupa';
     $('avPub').checked = !!a.pub;
   }
   function avFecha(guarda){
@@ -2314,7 +2321,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     el.hidden = false;
     const P = (SERRA3.E3 && SERRA3.E3.p) || {}, eu = P[riderId], n = eu && eu[3] != null ? eu[3] : 0, dentro = eu ? !!eu[2] : null;
     el.querySelector('b').textContent = n;
-    el.querySelector('span').textContent = dentro === false ? 'Entra na zona para apanhar!' : '';
+    const fx = eu ? eu[7] || 0 : 0; el.querySelector('span').textContent = fx & 2 ? '🐢 Tartaruga! −30%' : fx & 1 ? '🚀 TURBO +20%' : dentro === false ? 'Entra na zona para apanhar!' : '';
     el.classList.toggle('fora', dentro === false);
     if(KA.n != null && n > KA.n){ el.dataset.mais = '+' + (n - KA.n); el.classList.remove('pum'); void el.offsetWidth; el.classList.add('pum'); }
     KA.n = n;
@@ -2444,6 +2451,13 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     let cc = 0; segs.forEach(s=>{ cc += s.curve; s.cc = cc; });   // curvatura acumulada (paralaxe das montanhas)
     SR.trk = { segs, bStart, marcos };
   }
+  // percursos inventados (Serra, Néon, Cidade do Futuro, Cogumelo): o terreno segue o relógio da aula e cada aluno faz a sua distância.
+  // Percursos reais (Lousada⇄Penafiel, Porto, Paris): a geografia é fixa, conta o avanço em relação ao grupo.
+  // cor da zona de treino do bloco de cada troço (para o traço do meio da estrada)
+  function srCorBloco(bi){ const BL = blocos, b = BL[bi]; if(!b) return '#FFFFFF'; const C = SR.corB || (SR.corB = {}), k = bi + ':' + b.ftp + ':' + (b.tipo || '');
+    return C[k] || (C[k] = srHex(zoneColor(blkZone(b).css))); }
+  function srProprio(){ return SR.tema === 'serra' || SR.tema === 'neon' || SR.tema === 'cyber' || SR.tema === 'kart'; }
+  function srKm(m){ return (Math.max(0, m) / 1000).toFixed(2).replace('.', ',') + ' km'; }
   function srZ(t){
     const bl = current.blocos, tk = SR.trk; let acc = 0;
     for(let i = 0; i < bl.length; i++){
@@ -2473,6 +2487,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   // a pista: zonas que se repetem, cogumelos em linha à frente do pelotão (dourados nos blocos duros), setas de turbo e bancadas
   function srKartAplica(segs){
     const rnd = srRnd(segs.length * 53 + 5);
+    let tTart = 0, proxTart = 100;   // tartarugas: uma a cada 200 s de aula (3 em cada 10 minutos), a primeira aos 100 s
     segs.forEach((s, k)=>{
       const zi = Math.floor(k / 360) % KART_ZONAS.length, Z = KART_ZONAS[zi], r1 = rnd(), r2 = rnd(), sp = [];
       s.rua = Z.n; s.amb = 'kart'; s.chao = Z.chao; s.agua = Z.mar ? { R: 'mar' } : null; s.lava = !!Z.lava; s.muro = null;
@@ -2486,6 +2501,8 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       if(k > 60 && k % 55 === 0 && k < segs.length - 20){   // linha de cogumelos
         const duro = s.tr && (s.tr.zi >= 4 || s.tr.t === 'sprint'), ouro = duro && (k / 55) % 2 === 0;
         s.cog = { ouro }; [-.5, 0, .5].forEach(x=> sp.push({ x, t: ouro ? 'cogOuro' : 'cog', s: .55 })); }
+      tTart += SR_SEG / SR_M / Math.max(1, (s.tr ? s.tr.kmh : 25) / 3.6);   // segundos de aula até este troço
+      if(tTart >= proxTart && k > 20 && k % 55 !== 0 && k < segs.length - 20){ proxTart += 200; s.tart = true; sp.push({ x: Math.floor(k / 110) % 2 ? -.35 : .35, t: 'tart', s: .62 }); }   // tartarugas: quem apanha atira-a a quem vai logo à frente
       s.sp = sp;
     });
     SR.kc = null;
@@ -2513,6 +2530,17 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     ctx.strokeText(txt, cx, y); ctx.fillStyle = p.v > 1 ? '#FFD60A' : '#FFFFFF'; ctx.fillText(txt, cx, y);
     for(let i = 0; i < 6; i++){ const a = now * .006 + i * 1.05, rr = s * (.4 + t * .5); ctx.fillStyle = i % 2 ? '#FFD60A' : '#FFFFFF'; srEstrela(ctx, cx + Math.cos(a) * rr, cy - s * 1.1 + Math.sin(a) * rr * .5, Math.max(2, s * .06)); }
     ctx.restore();
+  }
+  // efeitos do circuito em cada kart: turbo (chamas e riscos atrás) e tartaruga (a tartaruga às voltas por cima, a abrandar)
+  function srKartFx(ctx, x, y, s, turbo, lento, now){
+    if(turbo){ ctx.save(); [-1, 1].forEach(l=>{ const fl = .7 + .3 * Math.sin(now * .05 + l), fx = x + l * s * .26, fy = y - s * .12;
+        const g = ctx.createLinearGradient(0, fy, 0, fy + s * .5 * fl); g.addColorStop(0, '#FFF6B0'); g.addColorStop(.4, '#FFB000'); g.addColorStop(1, 'rgba(255,60,0,0)');
+        ctx.fillStyle = g; ctx.beginPath(); ctx.moveTo(fx - s * .07, fy); ctx.quadraticCurveTo(fx + l * s * .05, fy + s * .3 * fl, fx + l * s * .1, fy + s * .55 * fl); ctx.quadraticCurveTo(fx + s * .02, fy + s * .25 * fl, fx + s * .07, fy); ctx.closePath(); ctx.fill(); });
+      ctx.strokeStyle = 'rgba(255,214,10,.8)'; ctx.lineWidth = Math.max(1, s * .02); ctx.beginPath(); for(let k = 0; k < 5; k++){ const xx = x + (k - 2) * s * .2, yy = y - s * (.2 + ((now * .004 + k * .3) % 1) * .8); ctx.moveTo(xx, yy); ctx.lineTo(xx, yy + s * .25); } ctx.stroke(); ctx.restore(); }
+    if(lento){ const img = SR.spr && SR.spr.tart, a = now * .004, tx = x + Math.cos(a) * s * .35, ty = y - s * 1.75 + Math.sin(a) * s * .08, w = s * .55;
+      ctx.save(); ctx.strokeStyle = 'rgba(80,170,255,.75)'; ctx.lineWidth = Math.max(1, s * .03); ctx.beginPath(); ctx.ellipse(x, y - s * 1.7, s * .4, s * .1, 0, 0, 7); ctx.stroke();
+      if(img) ctx.drawImage(img, tx - w / 2, ty - w * img.height / img.width, w, w * img.height / img.width);
+      ctx.restore(); }
   }
   function srEstrela(g, x, y, r){ g.beginPath(); for(let i = 0; i < 10; i++){ const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * .45 : r; g.lineTo(x + Math.cos(a) * rr, y + Math.sin(a) * rr); } g.closePath(); g.fill(); }
   // chão do circuito: setas de turbo e, nos troços da lava, o brilho da lava
@@ -2559,7 +2587,18 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       g.fillStyle = '#FFE14D'; [[250, 240], [330, 240], [100, 280], [470, 280]].forEach(([x, y])=>{ g.beginPath(); g.arc(x, y, 18, 0, 7); g.fill(); contorno(g, 4); }); });
     const rocha = mk(200, 160, (g, w, h)=>{ g.fillStyle = '#2E2420'; g.beginPath(); g.moveTo(10, h - 6); g.lineTo(40, 50); g.lineTo(90, 20); g.lineTo(150, 40); g.lineTo(190, h - 6); g.closePath(); g.fill(); contorno(g, 5);
       g.strokeStyle = '#FF7A1A'; g.lineWidth = 5; g.beginPath(); g.moveTo(60, h - 10); g.lineTo(80, 80); g.lineTo(110, 60); g.moveTo(130, h - 10); g.lineTo(120, 90); g.stroke(); });
-    SR.spr = { p0: arvore, p1: flor, p2: bancada, r: flor, poste: sinal, palma, pirulito, bengala, castelo, rocha, cog: cogumelo(false), cogOuro: cogumelo(true) };
+    // tartaruga (desenho nosso): carapaça verde com placas, cabeça e patas de fora, a andar
+    const tartaruga = mk(230, 170, (g, w, h)=>{ sombra(g, w, h);
+      const hex = (cx, cy, r)=>{ g.beginPath(); for(let i = 0; i < 6; i++){ const a = Math.PI / 6 + i * Math.PI / 3; g.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r); } g.closePath(); };
+      g.fillStyle = '#86D47A'; [[48, 132], [176, 132], [74, 148], [152, 148]].forEach(([px, py])=>{ g.beginPath(); g.ellipse(px, py, 22, 15, 0, 0, 7); g.fill(); contorno(g, 4); });
+      g.beginPath(); g.ellipse(200, 92, 27, 23, -.2, 0, 7); g.fill(); contorno(g, 5);
+      g.fillStyle = '#1E2230'; g.beginPath(); g.arc(210, 85, 4.5, 0, 7); g.fill(); g.lineWidth = 3; g.beginPath(); g.arc(214, 98, 7, .2, 1.4); g.stroke();
+      const gc = g.createLinearGradient(0, 28, 0, 136); gc.addColorStop(0, '#45B556'); gc.addColorStop(1, '#1D6A2C'); g.fillStyle = gc;
+      g.beginPath(); g.moveTo(26, 132); g.bezierCurveTo(26, 22, 194, 22, 194, 132); g.closePath(); g.fill(); contorno(g, 6);
+      g.strokeStyle = '#B5EB8E'; g.lineWidth = 4; [[110, 70, 22], [66, 100, 18], [154, 100, 18], [110, 112, 15]].forEach(([cx, cy, r])=>{ hex(cx, cy, r); g.stroke(); });
+      g.fillStyle = '#F3E7B8'; g.beginPath(); g.moveTo(22, 128); g.lineTo(198, 128); g.lineTo(194, 140); g.lineTo(26, 140); g.closePath(); g.fill(); contorno(g, 4);
+      g.fillStyle = 'rgba(255,255,255,.5)'; g.beginPath(); g.ellipse(80, 50, 22, 10, -.4, 0, 7); g.fill(); });
+    SR.spr = { p0: arvore, p1: flor, p2: bancada, r: flor, poste: sinal, palma, pirulito, bengala, castelo, rocha, cog: cogumelo(false), cogOuro: cogumelo(true), tart: tartaruga };
   }
   // fundo: céu azul com nuvens fofas, colinas arredondadas às riscas e um castelo ao longe
   function srFundoKart(W, H){
@@ -4280,7 +4319,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     ctx.fillStyle = bodyL; ctx.beginPath(); ctx.ellipse(x - s * .2, y - s * .27, s * .12, s * .018, 0, 0, 7); ctx.fill();
     // piloto: tronco com ombros, braços para a frente (ao volante), pescoço e capacete integral
     // joelhos a subir e a descer à vez: ficam à frente do piloto (do outro lado do tronco): de costas vê-se só um terço de cada um, ao lado da cintura
-    const kn = av && 'ral f1 pnc elc'.includes(av.T) && av.T !== 'cam' ? srMix(srHex(dc), '#000000', .2) : '#262B35';   // calças do fato
+    const kn = av && avCalca(av.T, dc) ? srMix(srHex(avCalca(av.T, dc)), '#000000', .2) : '#262B35';   // calças do fato
     [-1, 1].forEach(l=>{ const up = (Math.sin(pedal + (l > 0 ? Math.PI : 0)) + 1) / 2, kx = x + l * s * .27, ky = y - s * (.47 + up * .11) - bob;
       const hx = x + l * s * .12, hy2 = y - s * .34;   // anca (escondida pelo banco)
       ctx.fillStyle = kn; ctx.beginPath(); ctx.moveTo(hx - l * s * .07, hy2); ctx.quadraticCurveTo(hx + l * s * .02, ky - s * .02, kx - l * s * .02, ky - s * .07);   // coxa: da anca ao joelho
@@ -4327,31 +4366,42 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   function srGradL(ctx, x0, x1, cs){ const g = ctx.createLinearGradient(x0, 0, x1, 0); cs.forEach((c, i)=> g.addColorStop(i / (cs.length - 1), c)); return g; }
 
   // ===== o boneco de cada aluno: veículo e cores escolhidos no telemóvel (guardado como "v.camisola.cabeça.pele.tipoCabeça.tipoRoupa.corVeículo.publicidade") =====
-  const AV_VEIC = { e:['🚴', 'Bicicleta de estrada'], b:['🚵', 'BTT'], t:['⏱️', 'Contrarrelógio'], r:['🛞', 'Triciclo'], k:['🏎️', 'Kart a pedais'], c:['🚗', 'Carrinho a pedais'] };
+  const AV_VEIC = { e:['🚴', 'Bicicleta de estrada'], b:['🚵', 'BTT'], t:['⏱️', 'Contrarrelógio'], r:['🛞', 'Triciclo'], k:['🏎️', 'Kart a pedais'], c:['🚗', 'Carrinho a pedais'], n:['🛷', 'Trenó com rena'] };
   const AV_CAM = ['#E5242B', '#FF7A00', '#FFD60A', '#3DD45C', '#00B3A4', '#1F7AE0', '#5B3FD9', '#E040A0', '#1F2937', '#F3F4F6'];
   const AV_CAP = ['#F3F4F6', '#1F2937', '#E5242B', '#FFD60A', '#1F7AE0', '#3DD45C', '#FF7A00', '#E040A0'];
   const AV_PELE = ['#F2C9A6', '#E0AE86', '#C68A5E', '#9A6440', '#6B4228'];
   function avLe(t){ if(!t || typeof t !== 'string') return null; const q = t.split('.'); if(!AV_VEIC[q[0]]) return null;
-    const h = (v, d)=> /^[0-9A-Fa-f]{6}$/.test(v || '') ? '#' + v.toUpperCase() : d, kc = q[0] === 'k' || q[0] === 'c', j = h(q[1], '#1F7AE0');
-    return { v: q[0], j, h: h(q[2], '#F3F4F6'), p: h(q[3], '#E0AE86'), H: AV_CAB[q[4]] ? q[4] : (kc ? 'pil' : 'cic'), T: AV_COR[q[5]] ? q[5] : 'cam', vc: h(q[6], kc ? j : '#22262D'), pub: q[7] === '1' }; }
-  function avTxt(a){ return [a.v, a.j.slice(1), a.h.slice(1), a.p.slice(1), a.H || 'cic', a.T || 'cam', (a.vc || '#22262D').slice(1), a.pub ? 1 : 0].join('.'); }
+    const h = (v, d)=> /^[0-9A-Fa-f]{6}$/.test(v || '') ? '#' + v.toUpperCase() : d, kc = q[0] === 'k' || q[0] === 'c' || q[0] === 'n', j = h(q[1], '#1F7AE0');
+    return { v: q[0], j, h: h(q[2], '#F3F4F6'), p: h(q[3], '#E0AE86'), H: AV_CAB[q[4]] ? q[4] : (kc ? 'pil' : 'cic'), T: AV_COR[q[5]] ? q[5] : 'cam', vc: h(q[6], kc ? j : '#22262D'), pub: q[7] === '1', g: q[8] === 'f' ? 'f' : 'm' }; }
+  function avTxt(a){ return [a.v, a.j.slice(1), a.h.slice(1), a.p.slice(1), a.H || 'cic', a.T || 'cam', (a.vc || '#22262D').slice(1), a.pub ? 1 : 0, a.g === 'f' ? 'f' : 'm'].join('.'); }
   // ===== o que o aluno leva na cabeça e no corpo, vistos de costas =====
   const AV_CAB = { cic:['⛑️', 'Capacete de ciclista'], pil:['🪖', 'Capacete de piloto'], vik:['🛡️', 'Capacete viking'], pn:['🎅', 'Gorro de Pai Natal'], elf:['🧝', 'Gorro de elfo'],
-    cha:['🤠', 'Chapéu'], moh:['🤘', 'Mohawk'], lon:['💁', 'Cabelo comprido'], rab:['🎀', 'Rabo de cavalo'], cur:['💈', 'Cabelo curto'] };
+    cha:['🎩', 'Chapéu'], cow:['🤠', 'Chapéu de cowboy'], cog:['🍄', 'Chapéu de cogumelo'], pap:['⛪', 'Mitra do Papa'], ush:['🧣', 'Ushanka'], coc:['🪶', 'Cocar de penas'],
+    moh:['🤘', 'Mohawk'], lon:['💁', 'Cabelo comprido'], rab:['🎀', 'Rabo de cavalo'], cur:['💈', 'Cabelo curto'] };
   const AV_COR = { cam:['🚴', 'Camisola de ciclista'], nu:['💪', 'Tronco nu'], sus:['🩳', 'Suspensórios'], mot:['🏍️', 'Casaco de motociclista'], pun:['📌', 'Casaco punk com picos'],
-    ral:['🏁', 'Fato de rali'], f1:['🏎️', 'Fato de Fórmula 1'], pnc:['🎅', 'Casaco de Pai Natal'], elc:['🧝', 'Casaco de elfo'] };
+    ral:['🏁', 'Fato de rali'], f1:['🏎️', 'Fato de Fórmula 1'], pnc:['🎅', 'Casaco de Pai Natal'], elc:['🧝', 'Casaco de elfo'], col:['🦺', 'Colete fluorescente'],
+    cow:['🤠', 'Camisa aos quadrados e ganga'], cog:['🍄', 'Jardineiras de cogumelo'], pap:['⛪', 'Batina e estola'], ush:['🧥', 'Capote militar soviético'], coc:['🪶', 'Túnica com franjas'] };
   const AV_CABELO = ['#1A1A1A', '#3B2A20', '#6B4A2E', '#C9A04A', '#E8D08A', '#B5462A', '#9AA0A6', '#E040A0', '#1F7AE0', '#3DD45C'];
   const AV_VCOR = ['#E5242B', '#FF7A00', '#FFD60A', '#3DD45C', '#1F7AE0', '#5B3FD9', '#E040A0', '#22262D', '#F3F4F6', '#9AA3AE'];
   const avCabelo = t=> t === 'moh' || t === 'lon' || t === 'rab' || t === 'cur';
+  const AV_CHAP = ['#6B4A2E', '#3B2A20', '#C9A04A', '#E8D9B0', '#1A1A1A', '#F3F4F6', '#E5242B', '#1F7AE0'];
+  // cada chapéu tem a sua roupa (escolhida logo, mas pode mudar-se)
+  const AV_PAR = { pn: 'pnc', elf: 'elc', cow: 'cow', cog: 'cog', pap: 'pap', ush: 'ush', coc: 'coc' };
+  // paleta da cabeça: cabelo/pelo, chapéu, capacete, ou cores fixas (mitra e cocar)
+  function avGrupo(H){ return avCabelo(H) || H === 'vik' || H === 'pn' || H === 'elf' || H === 'ush' ? 'cab' : H === 'cha' || H === 'cow' ? 'chap' : H === 'pap' || H === 'coc' ? 'fixo' : 'cap'; }
+  const AV_MLONGA = ['mot', 'pun', 'ral', 'f1', 'pnc', 'elc', 'cow', 'pap', 'ush', 'coc'];
+  // calças de cada roupa (null = calção de ciclista) e calçado
+  function avCalca(T, rc){ return T === 'ral' || T === 'f1' ? rc : ({ pnc: '#C8102E', elc: '#1E9E46', mot: '#26324F', pun: '#26324F', cow: '#2F4A7A', cog: '#8A5A2E', pap: '#F7F5EE', ush: '#3E4634', coc: '#B88A58' })[T] || null; }
+  function avSapato(T){ return ({ pnc: '#1A1A1A', mot: '#1A1A1A', pun: '#1A1A1A', ush: '#1A1A1A', elc: '#C8102E', cow: '#6B4423', cog: '#6B4423', coc: '#8A5A2E', pap: '#B0141E' })[T] || '#F3F4F6'; }
   // cor da roupa: Pai Natal sempre vermelho, elfo sempre verde, tronco nu da cor da pele
-  function avRoupa(av){ const T = av.T; return T === 'pnc' ? '#C8102E' : T === 'elc' ? '#1E9E46' : T === 'nu' || T === 'sus' ? av.p : av.j; }
+  function avRoupa(av){ const T = av.T; return T === 'nu' || T === 'sus' ? av.p : ({ pnc: '#C8102E', elc: '#1E9E46', col: '#D4FF1E', pap: '#F7F5EE', ush: '#5B6648', coc: '#C79A66', cog: '#F2E6CF' })[T] || av.j; }
   // cabeça vista de trás: (x, cy) centro da cabeça, r raio
   function srCabeca(ctx, x, cy, r, tipo, cor, pele){
     const gL = (a, b, cs)=>{ const g = ctx.createLinearGradient(a, 0, b, 0); cs.forEach((c, i)=> g.addColorStop(i / (cs.length - 1), c)); return g; };
     const claro = c=> srMix(srHex(c), '#FFFFFF', .4), escuro = c=> srMix(srHex(c), '#000000', .35);
     const cabeca = ()=>{ ctx.fillStyle = pele; [-1, 1].forEach(l=>{ ctx.beginPath(); ctx.ellipse(x + l * r * .9, cy + r * .15, r * .15, r * .24, 0, 0, 7); ctx.fill(); });
       ctx.fillStyle = gL(x - r, x + r, [claro(pele), pele, srMix(srHex(pele), '#000000', .18)]); ctx.beginPath(); ctx.ellipse(x, cy, r * .9, r, 0, 0, 7); ctx.fill(); };
-    const cabelo = (ate)=>{ ctx.fillStyle = gL(x - r, x + r, [claro(cor), cor, escuro(cor)]); ctx.beginPath(); ctx.moveTo(x - r * .93, cy + r * ate * .6);
+    const cabelo = (ate, cc)=>{ cc = cc || cor; ctx.fillStyle = gL(x - r, x + r, [claro(cc), cc, escuro(cc)]); ctx.beginPath(); ctx.moveTo(x - r * .93, cy + r * ate * .6);
       ctx.bezierCurveTo(x - r * 1.05, cy - r * 1.42, x + r * 1.05, cy - r * 1.42, x + r * .93, cy + r * ate * .6); ctx.quadraticCurveTo(x, cy + r * ate, x - r * .93, cy + r * ate * .6); ctx.closePath(); ctx.fill();
       ctx.strokeStyle = 'rgba(0,0,0,.18)'; ctx.lineWidth = Math.max(.6, r * .04); ctx.beginPath(); for(let k = -2; k <= 2; k++){ ctx.moveTo(x + k * r * .2, cy - r * .8); ctx.quadraticCurveTo(x + k * r * .3, cy, x + k * r * .32, cy + r * ate * .7); } ctx.stroke(); };
     if(tipo === 'pil'){   // capacete integral de piloto
@@ -4387,6 +4437,56 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       ctx.fillStyle = gL(x - r * 1.7, x + r * 1.7, [claro(cor), cor, escuro(cor)]); ctx.beginPath(); ctx.ellipse(x, cy - r * .3, r * 1.75, r * .36, 0, 0, 7); ctx.fill();
       ctx.beginPath(); ctx.moveTo(x - r * .85, cy - r * .3); ctx.quadraticCurveTo(x - r * .95, cy - r * 1.45, x - r * .2, cy - r * 1.3); ctx.quadraticCurveTo(x, cy - r * 1.15, x + r * .2, cy - r * 1.3); ctx.quadraticCurveTo(x + r * .95, cy - r * 1.45, x + r * .85, cy - r * .3); ctx.closePath(); ctx.fill();
       ctx.fillStyle = escuro(cor); ctx.fillRect(x - r * .87, cy - r * .62, r * 1.74, r * .2); return; }
+    if(tipo === 'cow'){   // chapéu de cowboy: copa com vinco ao meio, fita escura e aba larga virada para cima dos lados
+      cabeca(); cabelo(.8, '#3B2A20');
+      ctx.fillStyle = gL(x - r * 1.1, x + r * 1.1, [claro(cor), cor, escuro(cor)]); ctx.beginPath(); ctx.moveTo(x - r * .9, cy - r * .38);
+      ctx.quadraticCurveTo(x - r * 1.05, cy - r * 1.5, x - r * .35, cy - r * 1.55); ctx.quadraticCurveTo(x, cy - r * 1.28, x + r * .35, cy - r * 1.55); ctx.quadraticCurveTo(x + r * 1.05, cy - r * 1.5, x + r * .9, cy - r * .38); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = escuro(cor); ctx.lineWidth = Math.max(.6, r * .07); ctx.beginPath(); ctx.moveTo(x, cy - r * 1.33); ctx.lineTo(x, cy - r * .85); ctx.stroke();   // vinco
+      ctx.fillStyle = '#2A1A10'; ctx.beginPath(); ctx.moveTo(x - r * .93, cy - r * .66); ctx.quadraticCurveTo(x, cy - r * .55, x + r * .93, cy - r * .66); ctx.lineTo(x + r * .91, cy - r * .42); ctx.quadraticCurveTo(x, cy - r * .32, x - r * .91, cy - r * .42); ctx.closePath(); ctx.fill();   // fita
+      ctx.fillStyle = gL(x - r * 2.1, x + r * 2.1, [claro(cor), cor, escuro(cor)]); ctx.beginPath(); ctx.moveTo(x - r * 2.1, cy - r * .85);   // aba
+      ctx.quadraticCurveTo(x - r * 1.75, cy - r * .02, x, cy - r * .1); ctx.quadraticCurveTo(x + r * 1.75, cy - r * .02, x + r * 2.1, cy - r * .85);
+      ctx.quadraticCurveTo(x + r * 1.6, cy - r * .32, x, cy - r * .42); ctx.quadraticCurveTo(x - r * 1.6, cy - r * .32, x - r * 2.1, cy - r * .85); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = escuro(cor); ctx.lineWidth = Math.max(.6, r * .05); ctx.stroke(); return; }
+    if(tipo === 'cog'){   // chapéu de cogumelo: cúpula larga com pintas brancas e as lamelas por baixo
+      cabeca(); cabelo(.85, '#3B2A20');
+      ctx.fillStyle = '#F2E6CF'; ctx.beginPath(); ctx.ellipse(x, cy - r * .22, r * 1.55, r * .3, 0, 0, 7); ctx.fill();
+      ctx.strokeStyle = 'rgba(120,90,50,.35)'; ctx.lineWidth = Math.max(.5, r * .03); ctx.beginPath(); for(let k = -6; k <= 6; k++){ ctx.moveTo(x + k * r * .2, cy - r * .3); ctx.lineTo(x + k * r * .24, cy - r * .02); } ctx.stroke();
+      ctx.fillStyle = gL(x - r * 1.7, x + r * 1.7, [claro(cor), cor, escuro(cor)]); ctx.beginPath(); ctx.moveTo(x - r * 1.7, cy - r * .25);
+      ctx.bezierCurveTo(x - r * 1.75, cy - r * 2.05, x + r * 1.75, cy - r * 2.05, x + r * 1.7, cy - r * .25); ctx.quadraticCurveTo(x, cy - r * .55, x - r * 1.7, cy - r * .25); ctx.fill();
+      ctx.fillStyle = '#FFFFFF'; [[-1, -.62, .27], [0, -1.15, .36], [1, -.62, .27], [-.55, -1.42, .17], [.6, -1.45, .19], [0, -.55, .17], [-1.35, -.45, .1], [1.35, -.45, .1]].forEach(([dx, dy, rr])=>{ ctx.beginPath(); ctx.ellipse(x + r * dx, cy + r * dy, r * rr * 1.2, r * rr, 0, 0, 7); ctx.fill(); });
+      return; }
+    if(tipo === 'pap'){   // mitra: alta e branca, galões dourados com a cruz e as duas ínfulas a cair sobre a nuca
+      cabeca(); cabelo(.7, '#B9BDC2');
+      ctx.fillStyle = gL(x - r, x + r, ['#FFFFFF', '#F7F3E6', '#D6CFBA']); ctx.beginPath(); ctx.moveTo(x - r * .98, cy - r * .28);
+      ctx.quadraticCurveTo(x - r * 1.08, cy - r * 1.6, x, cy - r * 2.55); ctx.quadraticCurveTo(x + r * 1.08, cy - r * 1.6, x + r * .98, cy - r * .28); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#D4A83A'; ctx.beginPath(); ctx.moveTo(x - r * 1.0, cy - r * .55); ctx.quadraticCurveTo(x, cy - r * .62, x + r * 1.0, cy - r * .55); ctx.lineTo(x + r * .99, cy - r * .3); ctx.quadraticCurveTo(x, cy - r * .36, x - r * .99, cy - r * .3); ctx.fill();
+      ctx.fillRect(x - r * .11, cy - r * 2.3, r * .22, r * 1.75); ctx.fillRect(x - r * .4, cy - r * 1.62, r * .8, r * .17);   // galão ao meio e a cruz
+      ctx.strokeStyle = '#D4A83A'; ctx.lineWidth = Math.max(.6, r * .05); ctx.beginPath(); ctx.moveTo(x - r * .98, cy - r * .3); ctx.quadraticCurveTo(x - r * 1.08, cy - r * 1.6, x, cy - r * 2.55); ctx.quadraticCurveTo(x + r * 1.08, cy - r * 1.6, x + r * .98, cy - r * .3); ctx.stroke();
+      [-1, 1].forEach(l=>{ const fx = x + l * r * .42; ctx.fillStyle = '#F7F3E6'; ctx.fillRect(fx - r * .14, cy - r * .32, r * .28, r * 1.55);   // ínfulas
+        ctx.fillStyle = '#D4A83A'; ctx.fillRect(fx - r * .14, cy + r * 1.03, r * .28, r * .2); ctx.fillRect(fx - r * .025, cy - r * .3, r * .05, r * 1.33);
+        ctx.strokeStyle = '#D4A83A'; ctx.lineWidth = Math.max(.5, r * .03); ctx.beginPath(); for(let k = 0; k < 4; k++){ ctx.moveTo(fx - r * .12 + k * r * .08, cy + r * 1.23); ctx.lineTo(fx - r * .12 + k * r * .08, cy + r * 1.36); } ctx.stroke(); });
+      return; }
+    if(tipo === 'ush'){   // ushanka: gorro de pelo, abas dos lados atadas no alto e a aba de trás dobrada para cima
+      cabeca(); cabelo(.95, '#3B2A20');
+      const pc = [claro(cor), cor, escuro(cor)], felpa = (cx0, cy0, rx, ry)=>{ ctx.strokeStyle = 'rgba(0,0,0,.18)'; ctx.lineWidth = Math.max(.5, r * .035); ctx.beginPath(); for(let k = 0; k < 14; k++){ const t = k * 2.39996, px = cx0 + Math.cos(t) * rx * ((k % 5) / 5), py = cy0 + Math.sin(t) * ry * ((k % 4) / 4); ctx.moveTo(px, py); ctx.lineTo(px + r * .04, py + r * .08); } ctx.stroke(); };
+      [-1, 1].forEach(l=>{ ctx.fillStyle = gL(x + l * r * .6, x + l * r * 1.5, pc); ctx.beginPath(); ctx.ellipse(x + l * r * .98, cy - r * .62, r * .34, r * .5, l * .9, 0, 7); ctx.fill(); felpa(x + l * r * .98, cy - r * .62, r * .26, r * .4); });   // abas dobradas para cima, dos lados
+      ctx.fillStyle = gL(x - r * 1.05, x + r * 1.05, [srMix(srHex(cor), '#000000', .05), srMix(srHex(cor), '#000000', .2), srMix(srHex(cor), '#000000', .4)]); ctx.beginPath(); ctx.ellipse(x, cy - r * .5, r * .98, r * 1.0, 0, Math.PI, 0); ctx.lineTo(x + r * .98, cy - r * .2); ctx.lineTo(x - r * .98, cy - r * .2); ctx.closePath(); ctx.fill();   // copa
+      ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = Math.max(.6, r * .04); ctx.beginPath(); ctx.moveTo(x, cy - r * 1.48); ctx.lineTo(x, cy - r * .5); ctx.stroke();   // costura
+      ctx.fillStyle = gL(x - r * 1.2, x + r * 1.2, pc); ctx.beginPath(); ctx.ellipse(x, cy - r * .22, r * 1.18, r * .38, 0, 0, 7); ctx.fill(); felpa(x, cy - r * .22, r * 1, r * .3);   // aba de trás dobrada
+      return; }
+    if(tipo === 'coc'){   // cocar: penas em leque à volta da cabeça e fita de contas coloridas
+      const nP = 13;
+      for(let k = 0; k < nP; k++){ const th = Math.PI * (.06 + k / (nP - 1) * .88), bx = x + Math.cos(th) * r * .85, by = cy - r * .35 - Math.sin(th) * r * .55, L = r * 1.55;
+        ctx.save(); ctx.translate(bx, by); ctx.rotate(-th + Math.PI / 2);   // a pena aponta para fora, a partir da fita
+        ctx.fillStyle = '#FAF6EC'; ctx.beginPath(); ctx.ellipse(0, -L * .5, r * .15, L * .5, 0, 0, 7); ctx.fill();
+        ctx.fillStyle = '#1A1A1A'; ctx.beginPath(); ctx.ellipse(0, -L * .86, r * .13, L * .16, 0, 0, 7); ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,.25)'; ctx.lineWidth = Math.max(.5, r * .025); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(0, -L * .95); ctx.stroke();
+        ctx.fillStyle = k % 2 ? '#C8102E' : '#1E8FA0'; ctx.fillRect(-r * .06, -r * .2, r * .12, r * .2); ctx.restore(); }
+      cabeca(); cabelo(1.15, '#1A1A1A');
+      [-1, 1].forEach(l=>{ ctx.fillStyle = '#1A1A1A'; ctx.beginPath(); ctx.ellipse(x + l * r * .55, cy + r * 1.1, r * .16, r * .6, 0, 0, 7); ctx.fill(); ctx.fillStyle = '#C8102E'; ctx.fillRect(x + l * r * .55 - r * .14, cy + r * 1.1, r * .28, r * .12); });   // tranças
+      ctx.fillStyle = '#6B4423'; ctx.beginPath(); ctx.moveTo(x - r * .98, cy - r * .5); ctx.quadraticCurveTo(x, cy - r * .62, x + r * .98, cy - r * .5); ctx.lineTo(x + r * .97, cy - r * .25); ctx.quadraticCurveTo(x, cy - r * .36, x - r * .97, cy - r * .25); ctx.fill();
+      ['#C8102E', '#FFD60A', '#1E8FA0', '#FAF6EC'].forEach((c, i)=>{ ctx.fillStyle = c; for(let k = i - 8; k <= 8; k += 4){ ctx.beginPath(); ctx.arc(x + k * r * .11, cy - r * .42 + Math.abs(k) * r * .004, r * .045, 0, 7); ctx.fill(); } });
+      return; }
     cabeca();
     if(tipo === 'moh'){   // mohawk: lados rapados e uma crista do alto da cabeça até à nuca, com picos para cima
       ctx.fillStyle = srMix(srHex(pele), '#000000', .12); ctx.beginPath(); ctx.ellipse(x, cy - r * .1, r * .86, r * .86, 0, Math.PI, 0); ctx.fill();
@@ -4405,6 +4505,47 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   // a roupa nas costas: riscas, picos, fitas, pelo branco, cinto e a publicidade da Playlife
   function srRoupa(ctx, T, cx, topY, botY, half, s, roupa, cor2, pub){
     const sv = Math.max(1, s * .012);
+    const H0 = botY - topY, trap = ()=>{ ctx.beginPath(); ctx.moveTo(cx - half * .97, topY + s * .03); ctx.lineTo(cx + half * .97, topY + s * .03); ctx.lineTo(cx + half * .6, botY + s * .02); ctx.lineTo(cx - half * .6, botY + s * .02); ctx.closePath(); };
+    if(T === 'col'){   // colete de alta visibilidade: faixas refletoras prateadas
+      ctx.fillStyle = '#C9CED6'; [.24, .8].forEach(f=> ctx.fillRect(cx - half * (1 - f * .4), topY + H0 * f - s * .018, half * 2 * (1 - f * .4), s * .036));
+      [-1, 1].forEach(l=> ctx.fillRect(cx + l * half * .48 - s * .018, topY + s * .01, s * .036, H0 * .24));
+      ctx.fillStyle = 'rgba(255,255,255,.7)'; [.24, .8].forEach(f=> ctx.fillRect(cx - half * (1 - f * .4), topY + H0 * f - s * .018, half * 2 * (1 - f * .4), Math.max(.6, s * .009)));
+      ctx.strokeStyle = 'rgba(0,0,0,.15)'; ctx.lineWidth = sv; ctx.beginPath(); ctx.moveTo(cx, topY + s * .02); ctx.lineTo(cx, botY); ctx.stroke(); }
+    if(T === 'cow'){   // camisa aos quadrados com pala de cowboy e cinto
+      ctx.save(); trap(); ctx.clip();
+      ctx.globalAlpha = .38; ctx.fillStyle = srMix(srHex(roupa), '#000000', .55); for(let k = -5; k <= 5; k++) ctx.fillRect(cx + k * half * .24 - s * .013, topY, s * .026, H0 + s * .05);
+      for(let k = 0; k <= 7; k++) ctx.fillRect(cx - half, topY + k * H0 / 7 - s * .013, half * 2, s * .026);
+      ctx.globalAlpha = .3; ctx.fillStyle = '#FFFFFF'; for(let k = -5; k <= 5; k++) ctx.fillRect(cx + k * half * .24 + half * .12 - s * .004, topY, s * .008, H0); ctx.restore();
+      ctx.fillStyle = srMix(srHex(roupa), '#000000', .3); ctx.beginPath(); ctx.moveTo(cx - half * .97, topY + s * .03); ctx.lineTo(cx + half * .97, topY + s * .03); ctx.lineTo(cx + half * .9, topY + s * .09); ctx.lineTo(cx, topY + s * .17); ctx.lineTo(cx - half * .9, topY + s * .09); ctx.closePath(); ctx.fill();   // pala em bico
+      ctx.fillStyle = '#4A2E1A'; ctx.fillRect(cx - half * .66, botY - s * .045, half * 1.32, s * .045); }
+    if(T === 'cog'){   // jardineiras castanhas por cima de uma camisola creme
+      const oc = '#8A5A2E', py = topY + H0 * .42;
+      ctx.strokeStyle = oc; ctx.lineWidth = Math.max(1.5, s * .034); ctx.beginPath(); [-1, 1].forEach(l=>{ ctx.moveTo(cx + l * half * .55, topY + s * .01); ctx.lineTo(cx - l * half * .3, py + s * .02); }); ctx.stroke();
+      ctx.fillStyle = oc; ctx.beginPath(); ctx.moveTo(cx - half * .48, py); ctx.lineTo(cx + half * .48, py); ctx.lineTo(cx + half * .62, botY + s * .02); ctx.lineTo(cx - half * .62, botY + s * .02); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = srMix(srHex(oc), '#000000', .3); ctx.fillRect(cx - half * .25, py + (botY - py) * .35, half * .5, (botY - py) * .35);   // bolso
+      ctx.fillStyle = '#E2B65A'; [-1, 1].forEach(l=>{ ctx.beginPath(); ctx.arc(cx + l * half * .3, py + s * .02, s * .016, 0, 7); ctx.fill(); }); }
+    if(T === 'pap'){   // batina branca com murça, faixa à cintura e a estola vermelha e dourada à volta do pescoço
+      ctx.strokeStyle = 'rgba(0,0,0,.08)'; ctx.lineWidth = sv; ctx.beginPath(); for(let k = -2; k <= 2; k++){ ctx.moveTo(cx + k * half * .3, topY + H0 * .4); ctx.lineTo(cx + k * half * .26, botY); } ctx.stroke();
+      ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.moveTo(cx - half * 1.05, topY + s * .05); ctx.quadraticCurveTo(cx - half * 1.1, topY + H0 * .42, cx - half * .7, topY + H0 * .45); ctx.quadraticCurveTo(cx, topY + H0 * .55, cx + half * .7, topY + H0 * .45);
+      ctx.quadraticCurveTo(cx + half * 1.1, topY + H0 * .42, cx + half * 1.05, topY + s * .05); ctx.quadraticCurveTo(cx, topY - s * .04, cx - half * 1.05, topY + s * .05); ctx.fill();   // murça
+      ctx.strokeStyle = 'rgba(0,0,0,.1)'; ctx.stroke();
+      ctx.strokeStyle = '#B0141E'; ctx.lineWidth = Math.max(2, s * .05); ctx.beginPath(); ctx.moveTo(cx - half * .62, topY + s * .015); ctx.quadraticCurveTo(cx, topY + s * .13, cx + half * .62, topY + s * .015); ctx.stroke();   // estola
+      ctx.strokeStyle = '#D4A83A'; ctx.lineWidth = Math.max(.6, s * .01); ctx.beginPath(); ctx.moveTo(cx - half * .62, topY - s * .01); ctx.quadraticCurveTo(cx, topY + s * .1, cx + half * .62, topY - s * .01); ctx.moveTo(cx - half * .62, topY + s * .04); ctx.quadraticCurveTo(cx, topY + s * .155, cx + half * .62, topY + s * .04); ctx.stroke();
+      ctx.fillStyle = '#D4A83A'; ctx.fillRect(cx - s * .008, topY + s * .045, s * .016, s * .05); ctx.fillRect(cx - s * .022, topY + s * .058, s * .044, s * .014);   // cruz
+      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(cx - half * .66, botY - s * .07, half * 1.32, s * .045); ctx.fillRect(cx - half * .4, botY - s * .07, s * .04, s * .16);   // faixa
+      ctx.strokeStyle = 'rgba(0,0,0,.12)'; ctx.strokeRect(cx - half * .66, botY - s * .07, half * 1.32, s * .045); }
+    if(T === 'ush'){   // capote militar: gola, prega ao meio das costas, meio-cinto com dois botões dourados
+      ctx.fillStyle = srMix(srHex(roupa), '#000000', .3); ctx.beginPath(); ctx.ellipse(cx, topY + s * .02, half * .55, s * .05, 0, 0, 7); ctx.fill();   // gola
+      ctx.strokeStyle = 'rgba(0,0,0,.3)'; ctx.lineWidth = Math.max(1, s * .016); ctx.beginPath(); ctx.moveTo(cx, topY + H0 * .35); ctx.lineTo(cx, botY + s * .02); ctx.stroke();
+      ctx.fillStyle = srMix(srHex(roupa), '#000000', .22); ctx.fillRect(cx - half * .6, botY - s * .11, half * 1.2, s * .045);
+      ctx.fillStyle = '#C9A04A'; [-1, 1].forEach(l=>{ ctx.beginPath(); ctx.arc(cx + l * half * .45, botY - s * .088, s * .016, 0, 7); ctx.fill(); });
+      ctx.fillStyle = '#C8102E'; [-1, 1].forEach(l=> ctx.fillRect(cx + l * half * .85 - s * .02, topY + s * .03, s * .04, s * .025)); }   // divisas nos ombros
+    if(T === 'coc'){   // túnica de camurça com pala bordada a contas e franjas
+      ctx.fillStyle = srMix(srHex(roupa), '#000000', .12); ctx.beginPath(); ctx.moveTo(cx - half * 1, topY + s * .04); ctx.lineTo(cx + half * 1, topY + s * .04); ctx.lineTo(cx + half * .9, topY + H0 * .3); ctx.quadraticCurveTo(cx, topY + H0 * .42, cx - half * .9, topY + H0 * .3); ctx.closePath(); ctx.fill();
+      const cs = ['#C8102E', '#1E8FA0', '#FAF6EC', '#FFD60A']; for(let k = -5; k <= 5; k++){ ctx.fillStyle = cs[(k + 8) % 4]; ctx.beginPath(); const px = cx + k * half * .16, py = topY + H0 * .2 + Math.abs(k) * s * .003; ctx.moveTo(px - s * .02, py + s * .02); ctx.lineTo(px, py - s * .02); ctx.lineTo(px + s * .02, py + s * .02); ctx.fill(); }
+      ctx.strokeStyle = srMix(srHex(roupa), '#000000', .3); ctx.lineWidth = Math.max(.6, s * .01); ctx.beginPath();
+      for(let k = -9; k <= 9; k++){ const px = cx + k * half * .1, py = topY + H0 * .32 + (1 - Math.abs(k) / 9) * H0 * .08; ctx.moveTo(px, py); ctx.lineTo(px + s * .004, py + s * .06); }
+      for(let k = -6; k <= 6; k++){ const px = cx + k * half * .1; ctx.moveTo(px, botY - s * .01); ctx.lineTo(px, botY + s * .05); } ctx.stroke(); }
     if(T === 'sus'){ ctx.strokeStyle = cor2; ctx.lineWidth = Math.max(1.5, s * .035); ctx.beginPath(); [-1, 1].forEach(l=>{ ctx.moveTo(cx + l * half * .55, topY + s * .01); ctx.lineTo(cx - l * half * .25, botY - s * .02); }); ctx.stroke();
       ctx.fillStyle = '#E2B65A'; [-1, 1].forEach(l=>{ ctx.beginPath(); ctx.arc(cx - l * half * .25, botY - s * .03, s * .018, 0, 7); ctx.fill(); }); return; }
     if(T === 'nu'){ ctx.strokeStyle = 'rgba(0,0,0,.18)'; ctx.lineWidth = sv; ctx.beginPath(); ctx.moveTo(cx, topY + s * .03); ctx.lineTo(cx, botY - s * .02); [-1, 1].forEach(l=>{ ctx.moveTo(cx + l * half * .25, topY + s * .1); ctx.quadraticCurveTo(cx + l * half * .7, topY + s * .14, cx + l * half * .55, topY + s * .26); }); ctx.stroke(); return; }
@@ -4419,7 +4560,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       else { ctx.fillStyle = '#C8102E'; ctx.beginPath(); ctx.moveTo(cx - half * .95, botY - s * .03); for(let k = 0; k <= 8; k++) ctx.lineTo(cx - half * .95 + k * half * .2375, botY + (k % 2 ? s * .04 : -s * .01)); ctx.lineTo(cx + half * .95, botY - s * .03); ctx.closePath(); ctx.fill(); }
       ctx.fillStyle = pel ? '#1A1A1A' : '#6B4A2E'; ctx.fillRect(cx - half * .85, botY - s * .1, half * 1.7, s * .04); }
     // publicidade da Playlife nas costas (contraste automático)
-    if(pub && T !== 'nu' && T !== 'sus' && s > 9){ const lum = (()=>{ const h = srHex(roupa).slice(1); return (parseInt(h.slice(0, 2), 16) * .3 + parseInt(h.slice(2, 4), 16) * .59 + parseInt(h.slice(4, 6), 16) * .11) / 255; })();
+    if(pub && T !== 'nu' && T !== 'sus' && T !== 'pap' && s > 9){ const lum = (()=>{ const h = srHex(roupa).slice(1); return (parseInt(h.slice(0, 2), 16) * .3 + parseInt(h.slice(2, 4), 16) * .59 + parseInt(h.slice(4, 6), 16) * .11) / 255; })();
       ctx.save(); ctx.font = '900 ' + Math.max(6, s * .072).toFixed(1) + 'px Barlow Condensed, Arial Narrow, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       const yy = topY + (botY - topY) * .45; ctx.fillStyle = lum > .6 ? '#E5242B' : '#FFFFFF'; ctx.fillText('PLAYLIFE', cx, yy);
       ctx.font = '700 ' + Math.max(4, s * .03).toFixed(1) + 'px Barlow Condensed, Arial Narrow, sans-serif'; ctx.fillStyle = lum > .6 ? '#333' : 'rgba(255,255,255,.8)'; ctx.fillText('FITNESS CENTER', cx, yy + s * .055); ctx.restore(); }
@@ -4432,6 +4573,80 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const g = ctx.createRadialGradient(x, y, s * .05, x, y, s * .75); g.addColorStop(0, 'rgba(61,212,92,.55)'); g.addColorStop(.6, 'rgba(61,212,92,.3)'); g.addColorStop(1, 'rgba(61,212,92,0)');
     ctx.save(); ctx.translate(x, y); ctx.scale(1, .2); ctx.translate(-x, -y); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(x, y, s * .75, 0, 7); ctx.fill();
     ctx.strokeStyle = '#7CFF95'; ctx.lineWidth = Math.max(1.5, s * .05); ctx.shadowColor = '#3DD45C'; ctx.shadowBlur = Math.max(4, s * .2); ctx.beginPath(); ctx.arc(x, y, s * .55, 0, 7); ctx.stroke(); ctx.restore();
+  }
+  // rena vista de trás, a galopar: uma passada por cada volta aos pedais (patas da frente e de trás em oposição).
+  // (x, ry) = chão debaixo da rena, rs = tamanho; devolve onde ficam o arreio e o freio (para as rédeas e os tirantes)
+  function srRena(ctx, x, ry, rs, a){
+    const bob = Math.abs(Math.sin(a)) * rs * .07, pelo = '#8A5A36', peloE = '#5E3B22', peloC = '#C69A6B';
+    ctx.fillStyle = 'rgba(0,0,0,.25)'; ctx.beginPath(); ctx.ellipse(x, ry, rs * .3, rs * .06, 0, 0, 7); ctx.fill();
+    const pata = (l, frente)=>{ const ph = a + (frente ? Math.PI : 0) + (l > 0 ? .35 : 0), up = (Math.sin(ph) + 1) / 2, sw = Math.cos(ph);
+      const hx0 = x + l * rs * (frente ? .09 : .15), hy0 = ry - rs * (frente ? .52 : .58) - bob;
+      const kx = hx0 + l * rs * .035, ky = hy0 + rs * (.26 - up * .1);
+      const fx = hx0 + l * rs * (.015 + sw * .02), fy = ry - (frente ? rs * .05 : 0) - up * rs * .17;
+      ctx.lineCap = 'round'; ctx.strokeStyle = frente ? peloE : pelo;
+      ctx.lineWidth = rs * (frente ? .075 : .11); ctx.beginPath(); ctx.moveTo(hx0, hy0); ctx.lineTo(kx, ky); ctx.stroke();
+      ctx.lineWidth = rs * (frente ? .05 : .065); ctx.beginPath(); ctx.moveTo(kx, ky); ctx.lineTo(fx, fy); ctx.stroke();
+      ctx.fillStyle = '#EFE3CF'; ctx.beginPath(); ctx.ellipse(fx, fy - rs * .02, rs * .035, rs * .02, 0, 0, 7); ctx.fill();   // pelo claro por cima do casco
+      ctx.fillStyle = '#2A1A10'; ctx.beginPath(); ctx.ellipse(fx, fy, rs * .042, rs * .026, 0, 0, 7); ctx.fill(); };
+    [-1, 1].forEach(l=> pata(l, true));
+    // pescoço, cabeça, orelhas e hastes
+    const hy = ry - rs * 1.08 - bob * 1.3, gy0 = ry - rs * .64 - bob;
+    ctx.fillStyle = peloE; ctx.beginPath(); ctx.ellipse(x, hy + rs * .17, rs * .11, rs * .2, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = '#EFE3CF'; ctx.beginPath(); ctx.ellipse(x, hy + rs * .24, rs * .1, rs * .07, 0, 0, 7); ctx.fill();   // juba clara do pescoço
+    ctx.fillStyle = srGradL(ctx, x - rs * .1, x + rs * .1, [peloC, pelo, peloE]); ctx.beginPath(); ctx.ellipse(x, hy, rs * .1, rs * .11, 0, 0, 7); ctx.fill();
+    [-1, 1].forEach(l=>{ ctx.fillStyle = pelo; ctx.beginPath(); ctx.ellipse(x + l * rs * .14, hy + rs * .02, rs * .075, rs * .032, l * .45, 0, 7); ctx.fill();
+      ctx.strokeStyle = '#DCC9A0'; ctx.lineWidth = Math.max(1, rs * .03); ctx.lineCap = 'round'; ctx.beginPath();
+      ctx.moveTo(x + l * rs * .05, hy - rs * .07); ctx.quadraticCurveTo(x + l * rs * .3, hy - rs * .18, x + l * rs * .33, hy - rs * .48);
+      ctx.moveTo(x + l * rs * .17, hy - rs * .16); ctx.quadraticCurveTo(x + l * rs * .12, hy - rs * .26, x + l * rs * .12, hy - rs * .36);
+      ctx.moveTo(x + l * rs * .27, hy - rs * .26); ctx.quadraticCurveTo(x + l * rs * .38, hy - rs * .3, x + l * rs * .45, hy - rs * .4);
+      ctx.moveTo(x + l * rs * .31, hy - rs * .38); ctx.lineTo(x + l * rs * .24, hy - rs * .52); ctx.stroke(); });
+    // dorso, garupa, mancha branca e cauda
+    ctx.fillStyle = srGradL(ctx, x - rs * .22, x + rs * .22, [peloC, pelo, peloE]); ctx.beginPath(); ctx.ellipse(x, gy0 - rs * .1, rs * .19, rs * .15, 0, 0, 7); ctx.fill();
+    [-1, 1].forEach(l=> pata(l, false));
+    ctx.fillStyle = srGradL(ctx, x - rs * .27, x + rs * .27, [peloC, pelo, peloE]); ctx.beginPath(); ctx.ellipse(x - rs * .1, gy0, rs * .15, rs * .18, .15, 0, 7); ctx.ellipse(x + rs * .1, gy0, rs * .15, rs * .18, -.15, 0, 7); ctx.fill();
+    ctx.fillStyle = '#EFE3CF'; ctx.beginPath(); ctx.ellipse(x, gy0 + rs * .03, rs * .1, rs * .13, 0, 0, 7); ctx.fill();
+    ctx.fillStyle = '#FAF6EC'; ctx.beginPath(); ctx.ellipse(x, gy0 - rs * .11 + Math.sin(a * 2) * rs * .012, rs * .045, rs * .07, 0, 0, 7); ctx.fill();
+    // arreio vermelho com guizos dourados
+    ctx.strokeStyle = '#C8102E'; ctx.lineWidth = Math.max(1.5, rs * .045); ctx.beginPath(); ctx.moveTo(x - rs * .25, gy0 - rs * .06); ctx.quadraticCurveTo(x, gy0 + rs * .1, x + rs * .25, gy0 - rs * .06); ctx.stroke();
+    ctx.fillStyle = '#FFD60A'; [-.17, 0, .17].forEach(d=>{ ctx.beginPath(); ctx.arc(x + d * rs, gy0 + rs * (.04 - Math.abs(d) * .5) + rs * .02, rs * .028, 0, 7); ctx.fill(); });
+    return { arreio: [x - rs * .25, x + rs * .25, gy0 - rs * .06], freio: [x - rs * .1, x + rs * .1, hy + rs * .1] };
+  }
+  // trenó puxado por uma rena, vistos de trás: o aluno vai sentado e segura as rédeas
+  function srTreno(ctx, x, y, s, pedal, av){
+    s *= 1.1; const a = pedal || 0, body = av.vc, dc = avRoupa(av), ouro = '#E2B65A', FEM = av.g === 'f';
+    const R = srRena(ctx, x, y - s * .95, s * .6, a);   // a rena vai à frente: mais acima e mais pequena, por cima da cabeça do piloto
+    ctx.strokeStyle = '#4A2E1A'; ctx.lineWidth = Math.max(1, s * .016); ctx.beginPath();   // tirantes do trenó ao arreio
+    ctx.moveTo(x - s * .3, y - s * .5); ctx.lineTo(R.arreio[0], R.arreio[2]); ctx.moveTo(x + s * .3, y - s * .5); ctx.lineTo(R.arreio[1], R.arreio[2]); ctx.stroke();
+    // piloto sentado: rédeas, braços para a frente, costas, roupa, pescoço e cabeça
+    const sy = y - s * .97, wy = y - s * .55, half = s * (FEM ? .165 : .19), hL = [x - s * .15, sy + s * .1], hR = [x + s * .15, sy + s * .1];
+    ctx.strokeStyle = '#2A1A10'; ctx.lineWidth = Math.max(.8, s * .01); ctx.beginPath(); ctx.moveTo(hL[0], hL[1]); ctx.lineTo(R.freio[0], R.freio[2]); ctx.moveTo(hR[0], hR[1]); ctx.lineTo(R.freio[1], R.freio[2]); ctx.stroke();
+    const bNu = av.T === 'nu' || av.T === 'sus', manga = bNu ? av.p : srMix(srHex(dc), '#000000', .15);
+    [[-1, hL], [1, hR]].forEach(([l, h])=>{ ctx.strokeStyle = manga; ctx.lineCap = 'round'; ctx.lineWidth = s * .075; ctx.beginPath(); ctx.moveTo(x + l * half * .85, sy + s * .06); ctx.quadraticCurveTo(x + l * half * 1.25, sy + s * .16, h[0], h[1]); ctx.stroke();
+      ctx.fillStyle = '#C8102E'; ctx.beginPath(); ctx.ellipse(h[0], h[1], s * .04, s * .035, 0, 0, 7); ctx.fill(); });   // luvas
+    ctx.fillStyle = srGradL(ctx, x - half, x + half, [srMix(srHex(dc), '#FFFFFF', .18), dc, srMix(srHex(dc), '#000000', .32)]);
+    ctx.beginPath(); ctx.moveTo(x - half * .85, wy); ctx.quadraticCurveTo(x - half * 1.1, sy + s * .1, x - half * .9, sy + s * .01); ctx.quadraticCurveTo(x, sy - s * .05, x + half * .9, sy + s * .01);
+    ctx.quadraticCurveTo(x + half * 1.1, sy + s * .1, x + half * .85, wy); ctx.closePath(); ctx.fill();
+    if(FEM && av.T === 'nu'){ ctx.fillStyle = av.j; ctx.fillRect(x - half * .92, sy + s * .1, half * 1.84, s * .06); }   // top desportivo
+    srRoupa(ctx, av.T, x, sy, wy, half, s, dc, av.j, av.pub);
+    ctx.fillStyle = av.p; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x - s * .045, sy - s * .1, s * .09, s * .1, s * .02) : ctx.rect(x - s * .045, sy - s * .1, s * .09, s * .1); ctx.fill();
+    srCabeca(ctx, x, sy - s * .17, s * .1, av.H, av.h, av.p);
+    // patins: compridos, para a frente, com a curva na ponta e uma volta atrás
+    ctx.strokeStyle = '#C9CED6'; ctx.lineCap = 'round'; ctx.lineWidth = Math.max(1.2, s * .025); ctx.beginPath();
+    [-1, 1].forEach(l=>{ ctx.moveTo(x + l * s * .34, y - s * .03); ctx.lineTo(x + l * s * .28, y - s * .32); ctx.quadraticCurveTo(x + l * s * .25, y - s * .48, x + l * s * .3, y - s * .5);
+      ctx.moveTo(x + l * s * .34, y - s * .03); ctx.quadraticCurveTo(x + l * s * .36, y + s * .04, x + l * s * .31, y + s * .02); }); ctx.stroke();
+    ctx.fillStyle = 'rgba(0,0,0,.3)'; ctx.beginPath(); ctx.ellipse(x, y, s * .4, s * .06, 0, 0, 7); ctx.fill();
+    // caixa do trenó, vista de trás: costas altas com volutas douradas, na cor escolhida
+    const bE = srMix(srHex(body), '#000000', .35);
+    ctx.fillStyle = srGradL(ctx, x - s * .38, x + s * .38, [srMix(srHex(body), '#FFFFFF', .2), body, bE]); ctx.beginPath();
+    ctx.moveTo(x - s * .36, y - s * .1); ctx.lineTo(x - s * .38, y - s * .52); ctx.quadraticCurveTo(x - s * .44, y - s * .66, x - s * .3, y - s * .66);
+    ctx.quadraticCurveTo(x - s * .22, y - s * .58, x - s * .1, y - s * .6); ctx.quadraticCurveTo(x, y - s * .64, x + s * .1, y - s * .6); ctx.quadraticCurveTo(x + s * .22, y - s * .58, x + s * .3, y - s * .66);
+    ctx.quadraticCurveTo(x + s * .44, y - s * .66, x + s * .38, y - s * .52); ctx.lineTo(x + s * .36, y - s * .1); ctx.quadraticCurveTo(x, y - s * .05, x - s * .36, y - s * .1); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = ouro; ctx.lineWidth = Math.max(1, s * .018); ctx.stroke();
+    ctx.lineWidth = Math.max(.8, s * .012); ctx.beginPath(); [-1, 1].forEach(l=>{ ctx.moveTo(x + l * s * .36, y - s * .58); ctx.arc(x + l * s * .33, y - s * .58, s * .035, 0, 6); });
+    ctx.moveTo(x - s * .26, y - s * .2); ctx.quadraticCurveTo(x, y - s * .14, x + s * .26, y - s * .2); ctx.stroke();
+    ctx.fillStyle = ouro; [-1, 1].forEach(l=>{ ctx.beginPath(); ctx.arc(x + l * s * .2, y - s * .48, s * .02, 0, 7); ctx.fill(); });
+    if(av.pub) srPubVeic(ctx, x, y - s * .35, s * 1.25, body);
+    ctx.fillStyle = '#D9DEE4'; [-1, 1].forEach(l=> ctx.fillRect(x + l * s * .3 - s * .015, y - s * .1, s * .03, s * .08));   // apoios dos patins
   }
   // carrinho a pedais visto de trás: carroçaria arredondada, farolins, para-choques cromado, matrícula e o piloto por cima
   function srCarrinho(ctx, x, y, s, pedal, av){
@@ -4472,6 +4687,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   function srCiclista(ctx, x, y, s, cor, pedal, emPe, vx, av){
     if(av && av.z) srAro(ctx, x, y, s);   // aro de luz: este aluno está na zona
     if(av && av.v === 'c') return srCarrinho(ctx, x, y, s, pedal, av);
+    if(av && av.v === 'n') return srTreno(ctx, x, y, s, pedal, av);
     if(av ? av.v === 'k' : SR.tema === 'kart') return srKart(ctx, x, y, s, cor, pedal, emPe, vx, av);   // kart a pedais (o do Grande Prémio do Cogumelo, ou o que o aluno escolheu)
     const V = av ? av.v : 'e', BTT = V === 'b', TT = V === 't', TRI = V === 'r';
     if(av) cor = av.j;   // cores escolhidas pelo aluno
@@ -4483,11 +4699,11 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const a = pedal || 0, lw = Math.max(1, s * .02);
     const pele = N ? NC('#1B1233') : (av ? av.p : '#E0AE86'), peleS = N ? NC('#120A24') : (av ? srMix(srHex(av.p), '#000000', .14) : '#C28F69');
     // roupa escolhida: casacos e fatos têm mangas compridas e calças; tronco nu e suspensórios deixam ver a pele
-    const T = !N && av ? av.T : 'cam', rc = T === 'cam' ? cor : avRoupa(av), mLonga = 'mot pun ral f1 pnc elc'.includes(T) && T !== 'cam';
-    const calca = T === 'ral' || T === 'f1' ? rc : T === 'pnc' ? '#C8102E' : T === 'elc' ? '#1E9E46' : T === 'mot' || T === 'pun' ? '#26324F' : null;
+    const T = !N && av ? av.T : 'cam', rc = T === 'cam' ? cor : avRoupa(av), mLonga = AV_MLONGA.includes(T), FEM = !!(av && av.g === 'f');
+    const calca = avCalca(T, rc);
     const pernaC = calca || pele, pernaS = calca ? srMix(srHex(calca), '#000000', .3) : peleS;
     const calcao = N ? NC('#0D0720') : calca ? srMix(srHex(calca), '#000000', .1) : '#14171D', calcaoL = N ? NC('#1E1236') : calca ? srMix(srHex(calca), '#FFFFFF', .15) : '#2A2F38';
-    const esc = N ? NC('#120A22') : srMix(srHex(rc), '#000000', .38), sapato = N ? cor : T === 'pnc' || T === 'mot' || T === 'pun' ? '#1A1A1A' : T === 'elc' ? '#C8102E' : '#F3F4F6';
+    const esc = N ? NC('#120A22') : srMix(srHex(rc), '#000000', .38), sapato = N ? cor : avSapato(T);
     const quadro = N ? cor : (av ? av.vc : '#22262D'), quadroL = N ? '#FFFFFF' : '#3C434E', metal = N ? cor : '#9AA3AE', pneu = N ? NC('#0B0618') : '#121418', aro = N ? cor : '#2A2F37';
     const off = vx == null ? 0 : Math.max(-1, Math.min(1, (vx - x) / (s * 3))) * s * .42, ao = Math.abs(off);
     // modelo 3D: f = para a frente (0 = eixo de trás, 1 = eixo da frente), u = altura e l = para o lado (direita do ciclista +), ambos em s.
@@ -4501,7 +4717,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const bal = Math.sin(a) * s * (emPe ? .07 : .012), inc = Math.sin(a) * (emPe ? .1 : .02);
     const hipY = y - s * (emPe ? 1.18 : 1.05), hx = x + bal + off * .2;
     const ombY = hipY - s * (emPe ? .6 : .53), ox = hx + off * .3 + bal * .6;
-    const sh = s * .255;   // meia largura dos ombros (corpo de ciclista: magro)
+    const sh = s * (FEM ? .222 : .255);   // meia largura dos ombros (corpo de ciclista: magro; no feminino, ombros mais estreitos)
     ctx.lineCap = 'round'; ctx.lineJoin = 'round';
     // membro com espessura variável (coxa, gémeo, braço); "barriga" opcional para o músculo
     // lado: 1 = barriga maior do lado da normal, -1 = do lado oposto
@@ -4624,7 +4840,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     [-1, 1].filter(l=> l !== longe).forEach(l=> perna(l, false));
     // glúteos e calção (duas formas arredondadas sobre o selim)
     ctx.fillStyle = calcao; ctx.beginPath();
-    ctx.ellipse(hx - s * .074, hipY - s * .03, s * .094, s * .1, -.15, 0, 7); ctx.ellipse(hx + s * .074, hipY - s * .03, s * .094, s * .1, .15, 0, 7); ctx.fill();
+    { const gw = FEM ? .105 : .094, gx0 = FEM ? .082 : .074; ctx.ellipse(hx - s * gx0, hipY - s * .03, s * gw, s * .1, -.15, 0, 7); ctx.ellipse(hx + s * gx0, hipY - s * .03, s * gw, s * .1, .15, 0, 7); } ctx.fill();
     ctx.strokeStyle = calcaoL; ctx.lineWidth = Math.max(1, s * .02); ctx.beginPath(); ctx.moveTo(hx, hipY - s * .12); ctx.lineTo(hx, hipY + s * .06); ctx.stroke();
     // braços: ombro → cotovelo (dobrado para fora) → mão no guiador; manga curta na cor da camisola.
     // Vistos de trás ficam à frente do corpo, por isso são desenhados antes do tronco (as costas tapam-nos em parte)
@@ -4635,19 +4851,20 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       membro(ex, ey, h[0], h[1], s * .066, s * .05, mLonga ? srMix(srHex(rc), '#000000', .12) : pele, s * .01);   // antebraço (ou manga comprida)
       membro(sx0, sy0, ex, ey, s * .085, s * .068, mLonga ? rc : pele, s * .014);                   // braço
       if(T === 'pnc' && s > 8){ ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.ellipse(h[0] + (ex - h[0]) * .25, h[1] + (ey - h[1]) * .25, s * .04, s * .035, 0, 0, 7); ctx.fill(); }   // punho de pelo
-      if(T === 'cam') membro(sx0, sy0, sx0 + (ex - sx0) * .5, sy0 + (ey - sy0) * .5, s * .1, s * .086, cor);   // manga curta
+      if(T === 'cam' || T === 'col' || T === 'cog') membro(sx0, sy0, sx0 + (ex - sx0) * .5, sy0 + (ey - sy0) * .5, s * .1, s * .086, T === 'cog' ? rc : cor);   // manga curta
       ctx.fillStyle = '#1F2937'; ctx.beginPath(); ctx.ellipse(h[0], h[1], s * .045, s * .038, 0, 0, 7); ctx.fill();   // luva
     });
     // costas em V: cintura estreita, dorsais e ombros arredondados
     const wY = hipY - s * .08;
     const tronco = ()=>{
       ctx.beginPath();
-      ctx.moveTo(hx - s * .15, wY + s * .04);
-      ctx.bezierCurveTo(hx - s * .16, wY - s * .12, ox - sh - s * .015, ombY + s * .26, ox - sh, ombY + s * .07);   // dorsal esquerdo
+      const cb = s * (FEM ? .162 : .15), ci = s * (FEM ? .118 : .16);   // feminino: cintura mais fina e anca mais larga
+      ctx.moveTo(hx - cb, wY + s * .04);
+      ctx.bezierCurveTo(hx - ci, wY - s * .12, ox - sh - s * .015, ombY + s * .26, ox - sh, ombY + s * .07);   // dorsal esquerdo
       ctx.bezierCurveTo(ox - sh + s * .02, ombY - s * .035, ox - s * .11, ombY - s * .055, ox, ombY - s * .045);      // ombro e trapézio
       ctx.bezierCurveTo(ox + s * .11, ombY - s * .055, ox + sh - s * .02, ombY - s * .035, ox + sh, ombY + s * .07);
-      ctx.bezierCurveTo(ox + sh + s * .015, ombY + s * .26, hx + s * .16, wY - s * .12, hx + s * .15, wY + s * .04);   // dorsal direito
-      ctx.quadraticCurveTo(hx, wY + s * .08, hx - s * .15, wY + s * .04);
+      ctx.bezierCurveTo(ox + sh + s * .015, ombY + s * .26, hx + ci, wY - s * .12, hx + cb, wY + s * .04);   // dorsal direito
+      ctx.quadraticCurveTo(hx, wY + s * .08, hx - cb, wY + s * .04);
       ctx.closePath();
     };
     const gr = ctx.createLinearGradient(ox - sh, 0, ox + sh, 0);
@@ -4670,6 +4887,8 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     if(T === 'cam'){ ctx.fillStyle = N ? srMix(srHex(cor), NC('#120A22'), .25) : 'rgba(255,255,255,.18)';   // risca da camisola, a acompanhar a curva das costas
     ctx.beginPath(); ctx.moveTo(ox - sh * .96, ombY + s * .13); ctx.quadraticCurveTo(ox, ombY + s * .09, ox + sh * .96, ombY + s * .13); ctx.lineTo(ox + sh * .95, ombY + s * .16); ctx.quadraticCurveTo(ox, ombY + s * .12, ox - sh * .95, ombY + s * .16); ctx.closePath(); ctx.fill(); }
     if(av && !N) srRoupa(ctx, T, ox, ombY, wY, sh, s, rc, av.j, av.pub);   // casacos, fatos, suspensórios e publicidade
+    if(FEM && T === 'nu' && !N){ ctx.fillStyle = av.j; ctx.beginPath(); ctx.moveTo(ox - sh * .9, ombY + s * .14); ctx.quadraticCurveTo(ox, ombY + s * .11, ox + sh * .9, ombY + s * .14); ctx.lineTo(ox + sh * .86, ombY + s * .21); ctx.quadraticCurveTo(ox, ombY + s * .18, ox - sh * .86, ombY + s * .21); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = av.j; ctx.lineWidth = Math.max(1.2, s * .03); ctx.beginPath(); [-1, 1].forEach(l=>{ ctx.moveTo(ox + l * sh * .55, ombY + s * .01); ctx.lineTo(ox + l * sh * .15, ombY + s * .14); }); ctx.stroke(); }   // top desportivo
     // pescoço e nuca
     ctx.fillStyle = pele; ctx.beginPath(); ctx.moveTo(ox - s * .055, ombY - s * .01); ctx.quadraticCurveTo(ox, ombY + s * .02, ox + s * .055, ombY - s * .01); ctx.lineTo(ox + s * .045, ombY - s * .12); ctx.lineTo(ox - s * .045, ombY - s * .12); ctx.closePath(); ctx.fill();
     const cy = ombY - s * .19, hw = s * .128;
@@ -4755,10 +4974,11 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const tk = SR.trk, segs = tk.segs, N = segs.length;
     // posição na estrada: o relógio da aula + o que ganhaste ou perdeste por cumprir a zona (igual à projeção)
     const P = E3.p || {}, ids = Object.keys(P), media = ids.length ? ids.reduce((a, k)=> a + P[k][0], 0) / ids.length : 0;
-    const meu = P[riderId] ? P[riderId][0] : media;
+    const meu = P[riderId] ? P[riderId][0] : media, PR = srProprio();
+    const dmM = ids.length ? ids.reduce((a, k)=> a + (P[k][6] || 0), 0) / ids.length : 0, meuM = P[riderId] ? P[riderId][6] || 0 : dmM;   // metros (percursos inventados)
     const elC = (E3.el || 0) + (state && state.status === 'playing' && E3.elT ? Math.min(1.5, (now - E3.elT) / 1000) : 0);   // tempo contínuo entre atualizações
     E3.meuS = E3.meuS == null ? (meu - media) : E3.meuS + ((meu - media) - E3.meuS) * .04;   // o teu avanço muda 1×/s: aqui desliza
-    const alvoZ = srZ(Math.max(0, elC)) + SR_SEG * 18 + E3.meuS * 12 * SR_M - SR_SEG * .6;
+    const alvoZ = srZ(Math.max(0, elC)) + SR_SEG * 18 + (PR ? 0 : E3.meuS * 12 * SR_M) - SR_SEG * .6;   // inventados: estás sempre no terreno do bloco atual
     SR.camZ = Math.abs(alvoZ - SR.camZ) > SR_SEG * 40 ? alvoZ : SR.camZ + (alvoZ - SR.camZ) * .5;
     const camZ = Math.max(0, Math.min((N - 2) * SR_SEG, SR.camZ)), baseI = Math.floor(camZ / SR_SEG), base = segs[baseI], frac = (camZ % SR_SEG) / SR_SEG;
     // interpolado com "frac": sem isto a imagem dava um salto de cada vez que se passava para o troço seguinte
@@ -4810,7 +5030,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       if(T.kart && n < 200) srKartChao(ctx, pA, p2, yA, yB, sg, fog, now);   // circuito: setas de turbo e lava   // cidade do futuro: lajes e rios de luz
       q(pA.x - pA.w * .94, pA.w * .018, p2.x - p2.w * .94, p2.w * .018, srMix(T.linha, haze, fog));
       q(pA.x + pA.w * .94, pA.w * .018, p2.x + p2.w * .94, p2.w * .018, srMix(T.linha, haze, fog));
-      if(Math.floor((baseI + n) / 3) % 2) q(pA.x, pA.w * .016, p2.x, p2.w * .016, srMix(T.meio, haze, fog));
+      if(Math.floor((baseI + n) / 3) % 2) q(pA.x, pA.w * .022, p2.x, p2.w * .022, srMix(srCorBloco(sg.b), haze, fog));   // traço do meio, na cor da zona do bloco
       if(sg.ini && sg.b > 0) q(pA.x, pA.w, p2.x, p2.w, 'rgba(255,255,255,.92)');
       maxY = yB;
     }
@@ -4818,10 +5038,10 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const emPe = /p[ée]/i.test(b.tecnica || '') || base.tr.t === 'sprint';
     const meuRpm = hasPowerSource() ? S.cadence || 0 : myHr() > 0 ? (b.rpm || 85) : 0,   // sem bicicleta, só com FC: pedala à cadência alvo do bloco
       pedal = srFase('_eu', meuRpm, now, state && state.status === 'playing');   // o teu guiador/joelhos à tua cadência
-    const lug = {}, ord = ids.slice().sort((a, c)=> P[c][0] - P[a][0]);
+    const lug = {}, ord = ids.slice().sort((a, c)=> PR ? (P[c][6] || 0) - (P[a][6] || 0) : P[c][0] - P[a][0]);
     ids.forEach(id=>{
       if(id === riderId) return;
-      const alvo = (P[id][0] - meu) * 12 * SR_M; E3.gaps[id] = E3.gaps[id] == null ? alvo : E3.gaps[id] + (alvo - E3.gaps[id]) * .06;
+      const alvo = PR ? ((P[id][6] || 0) - meuM) * SR_M : (P[id][0] - meu) * 12 * SR_M; E3.gaps[id] = E3.gaps[id] == null ? alvo : E3.gaps[id] + (alvo - E3.gaps[id]) * .06;
       const g = E3.gaps[id], antes = E3.antes[id];
       if(antes != null && antes < -SR_SEG * .3 && g >= SR_SEG * .3){ E3.msg = '🚴 ' + P[id][1] + ' passou-te!'; E3.msgT = now; }
       if(antes != null && antes > SR_SEG * .3 && g <= -SR_SEG * .3){ E3.msg = '💪 Passaste ' + P[id][1] + '!'; E3.msgT = now; }
@@ -4836,7 +5056,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       const { sg, p1, clip, n } = proj[k]; if(p1.y < 0) continue;
       if(sg.muro) srParisMuro(ctx, sg, p1, proj[k + 1] && proj[k + 1].p1, n, clip, T);   // Paris: prédios dos dois lados
       ctx.globalAlpha = 1 - Math.min(1, n / E3.draw) * .55;
-      sg.sp.forEach(o=>{ const img = SR.spr[o.t], cogs = o.t === 'cog' || o.t === 'cogOuro', ww = (o.t === 'poste' ? .03 : o.t === 'r' ? .55 : .62) * p1.w * o.s; if(img) srSprite(ctx, img, p1.x + p1.w * o.x, cogs ? p1.y - ww * (.35 + .12 * Math.sin(now * .006 + sg.i)) : p1.y, (o.t === 'poste' ? .03 : o.t === 'r' ? .55 : .62) * p1.w * o.s, clip);
+      sg.sp.forEach(o=>{ const img = SR.spr[o.t], cogs = o.t === 'cog' || o.t === 'cogOuro' || o.t === 'tart', ww = (o.t === 'poste' ? .03 : o.t === 'r' ? .55 : .62) * p1.w * o.s; if(img) srSprite(ctx, img, p1.x + p1.w * o.x, cogs ? p1.y - ww * (.35 + .12 * Math.sin(now * .006 + sg.i)) : p1.y, (o.t === 'poste' ? .03 : o.t === 'r' ? .55 : .62) * p1.w * o.s, clip);
         if(o.t === 'm_moulin') srParisPas(ctx, p1.x + p1.w * o.x, p1.y, .62 * p1.w * o.s, now, clip);
         if(o.t === 'poste' && SR.met){ const w = .03 * p1.w * o.s; if(p1.y - w * 3.6 < clip) luzes.push({ x: p1.x + p1.w * o.x, y: p1.y - w * 3.6, r: w * .6, t: 'p' }); } });
       ctx.globalAlpha = 1;
@@ -4846,6 +5066,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
         if(py > clip + 2) return; const s = pw * .14, cx = px + pw * lado * .75;
         const av = avLe(P[id][5]); if(av) av.z = !!P[id][2];
         srCiclista(ctx, cx, py, s * 1.05, P[id][2] ? '#3DD45C' : '#AEB6C2', P[id][4] != null ? srFase(id, P[id][4], now, state && state.status === 'playing') : pedal + id.length, emPe, W / 2, av);   // à cadência real de cada um
+        if(SR.tema === 'kart' && P[id][7]) srKartFx(ctx, cx, py, s * 1.05, P[id][7] & 1, P[id][7] & 2, now);   // turbo ou tartaruga nos outros
         if(SR.met) luzes.push({ x: cx, y: py - s * .98, r: s * .05, t: 'r' });
         nomes.push({ x: cx, y: py, s, txt: (ord.indexOf(id) + 1) + '. ' + P[id][1], lider: ord[0] === id }); });
     }
@@ -4855,7 +5076,16 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     const bob = Math.sin(pedal * 2) * H * .004 * (emPe ? 2.5 : 1);
     const gy = H * .86 + bob, gx = W / 2;
     const meuAv = avLe(me.av || null);
-    if(meuAv ? meuAv.v === 'k' || meuAv.v === 'c' : SR.tema === 'kart'){   // kart ou carrinho a pedais (escolhido, ou no Grande Prémio do Cogumelo): a frente e o volante
+    if(meuAv && meuAv.v === 'n'){   // trenó: a rena a galopar à frente (ao ritmo da tua cadência), as rédeas nas tuas mãos e a frente do trenó
+      const rs = Math.min(W * .48, H * .21), R = srRena(ctx, gx, H * .68 + bob, rs, pedal);
+      const mL = [gx - W * .3, H * .9 + bob], mR = [gx + W * .3, H * .9 + bob];
+      ctx.strokeStyle = '#2A1A10'; ctx.lineWidth = Math.max(2, W * .008); ctx.beginPath(); ctx.moveTo(mL[0], mL[1]); ctx.lineTo(R.freio[0], R.freio[2]); ctx.moveTo(mR[0], mR[1]); ctx.lineTo(R.freio[1], R.freio[2]); ctx.stroke();
+      ctx.strokeStyle = '#4A2E1A'; ctx.beginPath(); ctx.moveTo(gx - W * .42, H * .9); ctx.lineTo(R.arreio[0], R.arreio[2]); ctx.moveTo(gx + W * .42, H * .9); ctx.lineTo(R.arreio[1], R.arreio[2]); ctx.stroke();
+      ctx.fillStyle = meuAv.vc; ctx.beginPath(); ctx.moveTo(-W * .02, H * 1.02); ctx.lineTo(-W * .02, H * .9); ctx.quadraticCurveTo(gx - W * .45, H * .84 + bob, gx - W * .3, H * .88 + bob); ctx.quadraticCurveTo(gx, H * .92 + bob, gx + W * .3, H * .88 + bob);
+      ctx.quadraticCurveTo(gx + W * .45, H * .84 + bob, W * 1.02, H * .9); ctx.lineTo(W * 1.02, H * 1.02); ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = '#E2B65A'; ctx.lineWidth = Math.max(2, W * .01); ctx.stroke();
+      [mL, mR].forEach(m=>{ ctx.fillStyle = '#4A2E1A'; ctx.beginPath(); ctx.ellipse(m[0], m[1], W * .065, H * .035, 0, 0, 7); ctx.fill(); ctx.fillStyle = '#FFFFFF'; ctx.beginPath(); ctx.ellipse(m[0], m[1] + H * .035, W * .07, H * .018, 0, 0, 7); ctx.fill(); });   // luvas com punho de pelo
+    } else if(meuAv ? meuAv.v === 'k' || meuAv.v === 'c' : SR.tema === 'kart'){   // kart ou carrinho a pedais (escolhido, ou no Grande Prémio do Cogumelo): a frente e o volante
       ctx.fillStyle = '#0F1115'; [-1, 1].forEach(l=>{ ctx.beginPath(); ctx.roundRect ? ctx.roundRect(gx + l * W * .36 - W * .09, H * .9 + bob, W * .18, H * .14, 14) : ctx.rect(gx + l * W * .36 - W * .09, H * .9 + bob, W * .18, H * .14); ctx.fill(); });
       ctx.fillStyle = meuAv ? meuAv.vc : zc; ctx.beginPath(); ctx.moveTo(gx - W * .3, H * 1.02); ctx.quadraticCurveTo(gx - W * .26, H * .9 + bob, gx, H * .88 + bob); ctx.quadraticCurveTo(gx + W * .26, H * .9 + bob, gx + W * .3, H * 1.02); ctx.closePath(); ctx.fill();
       ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.beginPath(); ctx.ellipse(gx - W * .08, H * .92 + bob, W * .08, H * .012, -.1, 0, 7); ctx.fill();
@@ -4879,13 +5109,19 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     [-1, 1].forEach(l=>{ ctx.fillStyle = '#1F2937'; ctx.beginPath(); ctx.ellipse(gx + l * W * .35, gy + H * .025, W * .07, H * .045, l * .3, 0, 7); ctx.fill();
       ctx.fillStyle = zc; ctx.beginPath(); ctx.ellipse(gx + l * W * .35, gy + H * .015, W * .055, H * .02, l * .3, 0, 7); ctx.fill(); });
     }
+    // turbo e tartaruga em mim: riscos de velocidade e brilho laranja / tartaruga às voltas e frio azul
+    const fxE = SR.tema === 'kart' && P[riderId] ? P[riderId][7] || 0 : 0;
+    if(fxE & 1){ ctx.save(); ctx.strokeStyle = 'rgba(255,214,10,.8)'; ctx.lineWidth = 3; for(let k = 0; k < 18; k++){ const a = (k / 18) * 6.283 + now * .001, r1 = Math.min(W, H) * (.32 + ((now * .003 + k * .37) % 1) * .55); ctx.beginPath(); ctx.moveTo(gx + Math.cos(a) * r1, H * .5 + Math.sin(a) * r1 * .8); ctx.lineTo(gx + Math.cos(a) * (r1 + 60), H * .5 + Math.sin(a) * (r1 + 60) * .8); ctx.stroke(); }
+      const gl = ctx.createRadialGradient(gx, H * .5, Math.min(W, H) * .3, gx, H * .5, Math.max(W, H) * .7); gl.addColorStop(0, 'rgba(255,140,0,0)'); gl.addColorStop(1, 'rgba(255,140,0,.5)'); ctx.fillStyle = gl; ctx.fillRect(0, 0, W, H); ctx.restore(); }
+    if(fxE & 2){ ctx.save(); const gl = ctx.createRadialGradient(gx, H * .5, Math.min(W, H) * .25, gx, H * .5, Math.max(W, H) * .7); gl.addColorStop(0, 'rgba(60,150,255,0)'); gl.addColorStop(1, 'rgba(60,150,255,.5)'); ctx.fillStyle = gl; ctx.fillRect(0, 0, W, H);
+      const img = SR.spr.tart; if(img){ const a = now * .004, w = Math.min(W * .3, 130), tx = gx + Math.cos(a) * W * .22, ty = H * .6 + Math.sin(a) * H * .02; ctx.drawImage(img, tx - w / 2, ty - w * .74, w, w * .74); } ctx.restore(); }
     // ciclocomputador no guiador: os teus watts e rpm
-    const cw = Math.min(W * .5, 260), chh = H * .08, cx0 = gx - cw / 2, cy0 = gy - chh - H * .015;
+    const cw = Math.min(W * .74, 380), chh = Math.max(64, H * .115), cx0 = gx - cw / 2, cy0 = gy - chh - H * .015;
     ctx.fillStyle = '#0B0E13'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(cx0, cy0, cw, chh, 8) : ctx.rect(cx0, cy0, cw, chh); ctx.fill();
     ctx.strokeStyle = zc; ctx.lineWidth = 2; ctx.stroke();
-    ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = '800 ' + Math.round(chh * .48) + 'px Barlow Condensed, sans-serif';
+    ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.font = '800 ' + Math.round(chh * .56) + 'px Barlow Condensed, sans-serif';
     ctx.fillText((E3.w != null ? E3.w : '—') + 'W · ' + (E3.rpm != null ? E3.rpm : '—'), gx, cy0 + chh * .62);
-    ctx.font = '700 ' + Math.round(chh * .2) + 'px Barlow, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.6)'; ctx.fillText('WATTS · RPM', gx, cy0 + chh * .88);
+    ctx.font = '800 ' + Math.round(chh * .22) + 'px Barlow, sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.fillText('WATTS · RPM', gx, cy0 + chh * .9);
     ctx.lineCap = 'butt';
     const dt = performance.now() - t0; E3.draw = Math.max(90, Math.min(240, E3.draw + (dt > 28 ? -10 : dt < 12 ? 5 : 0)));
     // informação por cima
@@ -4897,7 +5133,12 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       $('e3Hud').innerHTML = '<div class="e3h-l"><b style="color:' + srMix(zc, '#ffffff', .3) + '">' + escapeHtml(blkZone(b).name.split(' ')[0]) + '</b><span>' + terr + '</span></div>' +
         '<div class="e3h-c"><small>FALTA</small><b>' + fmtCountdown(E3.rem || 0) + '</b></div>' +
         '<div class="e3h-r">' + (pos >= 0 ? '<b>' + (pos + 1) + 'º</b><small>de ' + ord.length + '</small>' : '<small>à espera</small>') + '</div>' +
-        '<div class="e3h-a"><span>🎯 ' + escapeHtml(E3.alvo || '') + '</span><span>🔄 ' + escapeHtml(E3.arpm || '') + ' rpm</span>' + (SR.met ? '<span>' + MET_TEMPOS[SR.met.tempo][0] + ' ' + SR.met.temp + ' °C</span>' : '') + (SR.tema === 'paris' || SR.tema === 'vale' ? (()=>{ const pr = srParisProx(baseI); return pr ? '<span>' + (pr.aqui ? '📸 ' + escapeHtml(pr.txt) : escapeHtml(pr.txt) + ' ' + pr.km.toFixed(1).replace('.', ',') + ' km') + '</span>' : ''; })() : '') + (fr ? '<span>⬆️ ' + escapeHtml(P[fr][1]) + ' +' + fmtTime(Math.max(0, Math.round(P[fr][0] - meu))) + '</span>' : pos === 0 ? '<span>🟡 Vais na frente!</span>' : '') + '</div>';
+        '<div class="e3h-a"><span>🎯 ' + escapeHtml(E3.alvo || '') + '</span><span>🔄 ' + escapeHtml(E3.arpm || '') + ' rpm</span>' + (SR.met ? '<span>' + MET_TEMPOS[SR.met.tempo][0] + ' ' + SR.met.temp + ' °C</span>' : '') + (SR.tema === 'paris' || SR.tema === 'vale' ? (()=>{ const pr = srParisProx(baseI); return pr ? '<span>' + (pr.aqui ? '📸 ' + escapeHtml(pr.txt) : escapeHtml(pr.txt) + ' ' + pr.km.toFixed(1).replace('.', ',') + ' km') + '</span>' : ''; })() : '') + (fxE & 1 ? '<span style="color:#FFB000">🚀 TURBO +20%</span>' : '') + (fxE & 2 ? '<span style="color:#7FC4FF">🐢 −30% (' + escapeHtml(P[riderId][8] || '?') + ')</span>' : '') + (PR ? '<span>📏 ' + srKm(meuM) + '</span>' : '') + (fr ? '<span>⬆️ ' + escapeHtml(P[fr][1]) + ' +' + (PR ? Math.max(0, Math.round((P[fr][6] || 0) - meuM)) + ' m' : fmtTime(Math.max(0, Math.round(P[fr][0] - meu)))) + '</span>' : pos === 0 ? '<span>🟡 Vais na frente!</span>' : '') + '</div>';
+      if(SR.tema === 'kart' && P[riderId]){ const q = P[riderId], f = q[7] || 0, A = E3.kfx || (E3.kfx = { f: 0, tiros: q[9] || 0 });   // avisos do turbo e das tartarugas
+        if((f & 1) && !(A.f & 1)){ E3.msg = '🚀 TURBO! +20% durante 5 s'; E3.msgT = now; }
+        if((q[9] || 0) > A.tiros){ E3.msg = q[10] ? '🐢 Acertaste em ' + q[10] + '!' : '🐢 Vais na frente: a tartaruga não apanhou ninguém'; E3.msgT = now; }
+        if((f & 2) && !(A.f & 2)){ E3.msg = '🐢 ' + (q[8] || 'Alguém') + ' atirou-te uma tartaruga! −30%'; E3.msgT = now; }
+        A.f = f; A.tiros = q[9] || 0; }
       const m = $('e3Msg'); const vis = E3.msg && now - E3.msgT < 3200; m.textContent = vis ? E3.msg : ''; m.classList.toggle('on', !!vis);
     }
   }
@@ -4907,7 +5148,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   }
   function para(){ SR.on = false; cancelAnimationFrame(SR.raf); }
   return { abre, para, E3, ligado: ()=> SR.on, tema: (t, r)=>{ SR.tema = t; SR.rota = r || null; },
-    av: { le: avLe, txt: avTxt, VEIC: AV_VEIC, CAM: AV_CAM, CAP: AV_CAP, PELE: AV_PELE, CAB: AV_CAB, COR: AV_COR, CABELO: AV_CABELO, VCOR: AV_VCOR, eCabelo: avCabelo, desenha: (g, x, y, s, ped, vx, a)=>{ const t = SR.tema; SR.tema = 'serra'; try{ srCiclista(g, x, y, s, '#3DD45C', ped, false, vx, a); } finally { SR.tema = t; } } } };
+    av: { le: avLe, txt: avTxt, VEIC: AV_VEIC, CAM: AV_CAM, CAP: AV_CAP, PELE: AV_PELE, CAB: AV_CAB, COR: AV_COR, CABELO: AV_CABELO, VCOR: AV_VCOR, CHAP: AV_CHAP, PAR: AV_PAR, grupo: avGrupo, eCabelo: avCabelo, desenha: (g, x, y, s, ped, vx, a)=>{ const t = SR.tema; SR.tema = 'serra'; try{ srCiclista(g, x, y, s, '#3DD45C', ped, false, vx, a); } finally { SR.tema = t; } } } };
   })();
   const JOGOS_ALUNO = {
     cabo:['🪢','Cabo de guerra','A tua equipa puxa a corda quando estão todos dentro da zona. Ganha a ronda quem levar o nó até ao fim.'],
@@ -4924,7 +5165,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     p_serra:['🌲','Serra 3D','Quem cumpre a zona vai à frente no pelotão.'],
     p_lsdpnf:['🏘️','Lousada → Penafiel','Quem cumpre a zona vai à frente no pelotão, de Lousada a Penafiel.'],
     p_pnflsd:['🏘️','Penafiel → Lousada','Quem cumpre a zona vai à frente no pelotão, de Penafiel a Lousada.'],
-    p_kart:['🍄','Grande Prémio do Cogumelo','Fica na zona para apanhar os cogumelos que aparecem à frente do pelotão!'],
+    p_kart:['🍄','Grande Prémio do Cogumelo','Fica na zona para apanhar cogumelos, ganhar turbo nas setas e atirar tartarugas a quem vai à tua frente!'],
     p_cyber:['🌆','Cidade do Futuro','Quem cumpre a zona vai à frente no pelotão, entre os arranha-céus da cidade do futuro.'],
     p_porto:['🌉','Maratona do Porto','Quem cumpre a zona vai à frente no pelotão, pelo percurso da Maratona do Porto.'],
     p_paris:['🗼','Paris','Quem cumpre a zona vai à frente no pelotão, pelas ruas de Paris.'],
