@@ -876,6 +876,30 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
 .raio-ov b{font-size:48px;font-weight:800;} .raio-ov span{font-size:24px;font-weight:700;color:#C9D6EA;} .raio-ov i{font-style:normal;color:#FFD60A;}
 @keyframes raioFl{0%{background:#000}6%{background:#DDE8FF}10%{background:#000}52%{background:#000}56%{background:#AFC6F5}59%{background:#000}}
 @keyframes raioSv{0%{opacity:1}30%{opacity:.25}35%{opacity:1}70%{opacity:.4}75%{opacity:1}}
+
+/* ---- ecrã 4: God Mode (só a conta a quem o professor deu acesso) ---- */
+.e4{display:none;width:100%;max-width:520px;margin:0 auto;padding-bottom:56px;}
+#liveScreen.ecra4 .e4{display:block;}
+#liveScreen.ecra4 #activeBlock,#liveScreen.ecra4 #myBatt,#liveScreen.ecra4 #myLamp,#liveScreen.ecra4 #className,#liveScreen.ecra4 #ocTag,#liveScreen.ecra4 #jgMe,#liveScreen.ecra4 #neonChao1{display:none!important;}
+#liveScreen.ecra4.ecra4.ecra4 #bodyEl{background:#0A0C14!important;}
+body.ecra4-on #kartCog{display:none!important;}
+.e4 .god{background:#0A0C14;border-radius:16px;padding:10px 12px 16px;}
+.e2-dots .d4{background:linear-gradient(90deg,#FFD60A,#A855F7)!important;}
+.god{color:#fff;font-family:'Inter',sans-serif;text-align:left;}
+.god-top{display:flex;align-items:baseline;gap:10px;margin:4px 0 2px;} .god-top b{font:800 28px 'Barlow Condensed',sans-serif;background:linear-gradient(90deg,#FFD60A,#C77DFF);-webkit-background-clip:text;background-clip:text;color:transparent;} .god-top span{font-size:12px;color:#9AA3B2;}
+.god-est em{font-style:normal;font-size:13px;color:#FFB000;} .god-est em.ok{color:#3DD45C;}
+.god-sec{font:800 13px 'Barlow Condensed',sans-serif;letter-spacing:1.5px;color:#C4B5FD;text-transform:uppercase;margin:14px 0 6px;}
+.god-acts{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.god-acts button,.god-b button,.god-ftp button,.god-rep{background:#232838;border:1px solid #39405A;color:#fff;border-radius:12px;padding:12px 4px;font:700 14px/1.3 'Inter',sans-serif;cursor:pointer;}
+.god-acts button:active,.god-b button:active,.god-ftp button:active{background:#3B2F66;border-color:#A78BFA;}
+.god-nota{font-size:12px;color:#8C95A6;margin:6px 0 0;}
+.god-par{display:grid;grid-template-columns:1fr;gap:6px;} .god-par label{display:flex;align-items:center;gap:8px;font-size:14px;color:#D6DBE4;} .god-par label span{flex:1;} .god-par i{font-style:normal;color:#8C95A6;width:24px;}
+.god input{background:#151926;border:1px solid #39405A;color:#fff;border-radius:8px;padding:7px 8px;font:700 16px 'Inter',sans-serif;width:72px;}
+.god-rep{padding:9px;font-size:13px;margin-top:4px;}
+.god-lst{display:flex;flex-direction:column;gap:6px;} .god-al{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#151926;border:1px solid #262C3E;border-radius:12px;padding:9px 10px;}
+.god-n{flex-basis:100%;min-width:0;} .god-n b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .god-n small{font-size:12px;color:#9AA3B2;} .god-n em{font-style:normal;color:#FF8A8A;} .god-n em.ok{color:#3DD45C;}
+.god-ftp{display:flex;align-items:center;gap:4px;font-size:11px;color:#9AA3B2;flex:1;} .god-ftp button{padding:7px 10px;}
+.god-b{display:flex;gap:4px;} .god-b button{padding:8px 11px;font-size:19px;}
 </style>
 </head>
 <body>
@@ -1270,7 +1294,9 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
       <div class="e3-vazio" id="e3Vazio" hidden></div>
       <div class="e3-nx" id="e3Nx" aria-live="polite"></div><div class="e3-flash" id="e3Flash"></div>
     </div>
-    <div class="e2-dots" id="e2Dots" aria-label="Mudar de ecrã"><button data-e="1" class="on" aria-label="Ecrã 1"></button><button data-e="2" aria-label="Ecrã 2"></button><button data-e="3" aria-label="Ecrã 3: jogos e percurso" class="d3"></button></div>
+    <!-- ECRÃ 4: God Mode (só na conta a quem o professor deu acesso na app PlayRide Coach) -->
+    <div class="e4" id="ecra4" aria-label="Ecrã 4: God Mode"><div class="god" id="godPanel"></div></div>
+    <div class="e2-dots" id="e2Dots" aria-label="Mudar de ecrã"><button data-e="1" class="on" aria-label="Ecrã 1"></button><button data-e="2" aria-label="Ecrã 2"></button><button data-e="3" aria-label="Ecrã 3: jogos e percurso" class="d3"></button><button data-e="4" aria-label="Ecrã 4: God Mode" class="d4" hidden></button></div>
     <div class="finished" id="finishedEl">
       <div class="blockline"><span class="zone" id="finTitle">Aula concluída</span></div>
       <div class="big" id="totalTimeEl">0:00</div>
@@ -1986,7 +2012,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   function pushRider(){
     if(!riderRef || sessionEnded) return;
     riderRef.update({
-      n: me.n, ftp: me.ftp || null, fc: me.fc || null,
+      n: me.n, u: user ? user.uid : null, ftp: me.ftp || null, fc: me.fc || null,
       w: Math.round(dispPower), c: Math.round(S.cadence), hr: Math.round(myHr()) || null,
       kj: Math.round(me.kj * 10) / 10, pts: Math.round(me.pts), km: Math.round(me.km * 100) / 100, v: Math.round(me.spd * 10) / 10,
       tw: me.tt ? Math.round(me.tw) : null, tt: me.tt ? Math.round(me.tt) : null, av: me.av || null,
@@ -2124,7 +2150,9 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     add(base.child('jogo/p'), s=>{ SERRA3.E3.p = s.val() || {}; });
     add(base.child('jogo/m'), s=>{ SERRA3.E3.m = s.val() || null; });
     add(base.child('jogo/par'), s=>{ SERRA3.E3.par = s.val() || null; });   // percentagens do turbo, tartaruga, boost e vento
-    add(base.child('jogo/g/' + riderId), s=> godRecebe(s.val()));   // God Mode do professor   // hora do dia e tempo escolhidos na projeção
+    add(base.child('jogo/g/' + riderId), s=> godRecebe(s.val()));   // God Mode do professor
+    add(base.child('jogo/gm'), s=> godDono(s.val()));   // se este telemóvel tem o God Mode (dado na app PlayRide Coach)
+    add(base.child('jogo/gv'), s=>{ GV = s.val() || null; if(ecraAtual === 4) godRender(); });   // hora do dia e tempo escolhidos na projeção
   }
 
   // ===== God Mode do professor: relâmpago (apaga a consola), boost, vento e FTP ajustado pelo professor =====
@@ -2151,6 +2179,64 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     if(g.v > t && GODA.v !== g.v){ GODA.v = g.v; toast('🌬️ Vento contra! −' + (par[3] || 40) + '% de velocidade'); }
   }
   setInterval(godVer, 250);
+
+  // ===== Ecrã 4: God Mode na conta a quem o professor deu acesso (na app PlayRide Coach) =====
+  // os pedidos vão para o registo deste telemóvel na aula (riders/ID/gc); o PC da projeção executa-os
+  var GM_EU = false, GV = null, GM_AVISO = false;
+  const GOD_PAR0 = { fora: 60, topo: 10, turbo: 20, tart: 30, boost: 50, vento: 40, dur: 5 };
+  const GOD_PAR_TXT = { fora: ['Velocidade fora da zona', '%'], topo: ['Bónus no topo da zona', '+%'], turbo: ['Setas de turbo', '+%'], tart: ['Tartaruga', '−%'], boost: ['Boost do professor', '+%'], vento: ['Vento do professor', '−%'], dur: ['Duração dos efeitos', 's'] };
+  const GOD_LIM = { fora: [20, 100], topo: [0, 50], turbo: [0, 100], tart: [0, 90], boost: [0, 200], vento: [0, 90], dur: [1, 30] };
+  function godDono(v){
+    GM_EU = !!v && v === riderId;
+    const d = document.querySelector('#e2Dots .d4'); if(d) d.hidden = !GM_EU;
+    if(!GM_EU && ecraAtual === 4) ecraVai(1);
+    if(GM_EU && !GM_AVISO){ GM_AVISO = true; toast('⚡ Tens o God Mode nesta aula: desliza para o ecrã 4'); }
+    if(GM_EU) godRender();
+  }
+  const GOD_ENV = [];
+  function godEnvia(c){
+    if(!riderRef) return; c.t = Date.now();
+    const k = 'k' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    riderRef.child('gc/' + k).set(c).catch(()=> toast('⚠ Não consegui enviar. Verifica a internet.'));
+    GOD_ENV.push([k, Date.now()]);
+    while(GOD_ENV.length && Date.now() - GOD_ENV[0][1] > 30000){ const o = GOD_ENV.shift(); try{ riderRef.child('gc/' + o[0]).remove(); }catch(e){} }   // limpa os pedidos antigos
+  }
+  function godPronto(p){
+    p.addEventListener('click', e=>{ const b = e.target.closest('[data-g]'); if(!b) return; const a = b.dataset.g, id = b.dataset.id;
+      const nome = id && GV ? (((GV.r || []).find(x=> x[0] === id) || [])[1] || '').split(' ')[0] : '';
+      if(a === 'r' || a === 'g' || a === 'v'){ godEnvia(id ? { a, id } : { a }); toast(({ r: '⚡ Relâmpago', g: '🚀 Boost', v: '🌬️ Vento' })[a] + (nome ? ' em ' + nome : ' em todos')); }
+      if(a === 'sorte'){ godEnvia({ a }); toast('🎲 Surpresa enviada'); }
+      if(a === 'ftp'){ const inp = p.querySelector('input[data-ftp="' + CSS.escape(id) + '"]'), v = Math.round(Number(inp && inp.value) || 0);
+        if(v < 50 || v > 600){ toast('O FTP tem de estar entre 50 e 600 W.'); return; } godEnvia({ a, id, v }); inp.blur(); toast('FTP de ' + nome + ' → ' + v + ' W'); }
+      if(a === 'par0'){ godEnvia({ a }); toast('Valores repostos'); } });
+    p.addEventListener('change', e=>{ const i = e.target; if(i.dataset.par){ const L = GOD_LIM[i.dataset.par]; let v = Math.round(Number(i.value)); if(!isFinite(v)) v = GOD_PAR0[i.dataset.par]; v = Math.max(L[0], Math.min(L[1], v)); i.value = v; godEnvia({ a: 'par', k: i.dataset.par, v }); } });
+    p.addEventListener('keydown', e=>{ if(e.key === 'Enter' && e.target.dataset.ftp) e.target.closest('.god-ftp').querySelector('button').click(); });
+  }
+  function godRender(){
+    const p = $('godPanel'); if(!p || !GM_EU) return;
+    const par = (GV && GV.par) || GOD_PAR0;
+    if(!p.dataset.pronto){   // a estrutura só se monta uma vez (para não apagar o que se está a escrever)
+      p.dataset.pronto = '1'; godPronto(p);
+      p.innerHTML = '<div class="god-top"><b>⚡ God Mode</b><span>só tu vês este ecrã</span></div><div class="god-est" id="godEst"></div>' +
+        '<div class="god-sec">Para todos</div><div class="god-acts"><button data-g="r">⚡<br>Relâmpago</button><button data-g="g">🚀<br>Boost</button><button data-g="v">🌬️<br>Vento</button><button data-g="sorte">🎲<br>Surpresa</button></div>' +
+        '<p class="god-nota">⚡ apaga a consola do aluno · 🚀 e 🌬️ mudam a velocidade no percurso</p>' +
+        '<div class="god-sec">Alunos</div><div class="god-lst" id="godLst"></div>' +
+        '<div class="god-sec">Parâmetros do percurso</div><div class="god-par">' + Object.keys(GOD_PAR0).map(k=> '<label><span>' + GOD_PAR_TXT[k][0] + '</span><input type="number" inputmode="numeric" data-par="' + k + '" value="' + par[k] + '" min="' + GOD_LIM[k][0] + '" max="' + GOD_LIM[k][1] + '"><i>' + GOD_PAR_TXT[k][1] + '</i></label>').join('') +
+        '<button class="god-rep" data-g="par0">Repor valores</button></div>';
+    }
+    $('godEst').innerHTML = GV ? '<em class="ok">● ligado à projeção</em>' : '<em>● à espera da projeção…</em>';
+    p.querySelectorAll('input[data-par]').forEach(i=>{ if(i !== document.activeElement) i.value = par[i.dataset.par]; });
+    const L = $('godLst'); if(!L) return;
+    const foco = document.activeElement && document.activeElement.dataset ? document.activeElement.dataset.ftp : null;
+    const rs = ((GV && GV.r) || []).slice().sort((a, b)=> String(a[1]).localeCompare(String(b[1])));
+    const linha = q=>{ const [id, n, on, w, ftp, hr, z, fx] = q, pct = ftp && w ? Math.round(w / ftp * 100) : null;
+      const ef = (fx & 16 ? '⚡' : '') + (fx & 4 ? '🚀' : '') + (fx & 8 ? '🌬️' : '') + (fx & 1 ? '🔥' : '') + (fx & 2 ? '🐢' : '');
+      return '<div class="god-al" data-row="' + escapeHtml(id) + '"><div class="god-n"><b>' + escapeHtml(n) + (id === riderId ? ' (tu)' : '') + '</b><small>' + (on ? w + ' W' + (pct != null ? ' · ' + pct + '%' : '') + (hr ? ' · ' + hr + ' bpm' : '') : 'desligado') + ' ' + (z ? '<em class="ok">na zona</em>' : '<em>fora</em>') + ' ' + ef + '</small></div>' +
+        '<label class="god-ftp">FTP<input type="number" inputmode="numeric" data-ftp="' + escapeHtml(id) + '" value="' + (ftp || '') + '"><button data-g="ftp" data-id="' + escapeHtml(id) + '">✔</button></label>' +
+        '<div class="god-b"><button data-g="r" data-id="' + escapeHtml(id) + '">⚡</button><button data-g="g" data-id="' + escapeHtml(id) + '">🚀</button><button data-g="v" data-id="' + escapeHtml(id) + '">🌬️</button></div></div>'; };
+    if(foco){ rs.forEach(q=>{ if(q[0] === foco) return; const el = L.querySelector('[data-row="' + CSS.escape(q[0]) + '"]'); if(el){ const t = document.createElement('div'); t.innerHTML = linha(q); el.replaceWith(t.firstChild); } }); }
+    else L.innerHTML = rs.length ? rs.map(linha).join('') : '<p class="god-nota">' + (GV ? 'Ainda ninguém ligado.' : '') + '</p>';
+  }
   // jogo ou percurso do bloco: a tua equipa, o teu par ou a tua posição (vem da projeção)
   function jogoMostra(v){
     const el = $('jgMe'); if(!el) return;
@@ -2218,10 +2304,11 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
   let ecraAtual = 1, e2Zoom = 0, e2LastIdx = -1, e2Hist = [], e2HistT = 0;
   function ecraVai(n){
     const ls = $('liveScreen'); if(!ls) return;
-    ecraAtual = n === 2 || n === 3 ? n : 1;
+    ecraAtual = n === 2 || n === 3 || (n === 4 && GM_EU) ? n : 1;
     const bd = $('bodyEl'); if(bd) bd.scrollLeft = 0;
     ls.classList.toggle('ecra2', ecraAtual === 2);
     ls.classList.toggle('ecra3', ecraAtual === 3);
+    ls.classList.toggle('ecra4', ecraAtual === 4); document.body.classList.toggle('ecra4-on', ecraAtual === 4); if(ecraAtual === 4) godRender();
     if(ecraAtual !== 3 && typeof SERRA3 !== 'undefined') SERRA3.para();
     ls.classList.toggle('e2escuro', E2_CFG.fundo === 'escuro');
     document.querySelectorAll('#e2Dots button').forEach(b=> b.classList.toggle('on', +b.dataset.e === ecraAtual));
@@ -5618,7 +5705,7 @@ body.oculto:not(.solo) .oc-tag{display:inline-block;}
     body.addEventListener('touchstart', e=>{ if(e.touches.length !== 1 || !$('liveScreen').classList.contains('e2on')) { x0 = null; return; } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now(); }, {passive:true});
     body.addEventListener('touchend', e=>{
       if(x0 == null) return; const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; x0 = null;
-      if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && Date.now() - t0 < 800) ecraVai(Math.max(1, Math.min(3, ecraAtual + (dx < 0 ? 1 : -1))));
+      if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && Date.now() - t0 < 800) ecraVai(Math.max(1, Math.min(GM_EU ? 4 : 3, ecraAtual + (dx < 0 ? 1 : -1))));
     }, {passive:true});
     $('e2Dots').addEventListener('click', e=>{ const b = e.target.closest('button'); if(b) ecraVai(+b.dataset.e); });
     let ini = 1; try{ const v = +localStorage.getItem('prEcra'); ini = v === 2 || v === 3 ? v : 1; }catch(err){}

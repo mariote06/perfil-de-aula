@@ -1549,7 +1549,13 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 .god-qr-c{background:#fff;color:#111;border-radius:22px;padding:26px 28px;text-align:center;max-width:440px;font-family:'Inter',sans-serif;}
 .god-qr-c b{font:800 30px 'Barlow Condensed',sans-serif;} .god-qr-c p{margin:6px 0 10px;color:#444;} .god-qr-c small{display:block;word-break:break-all;color:#777;font-size:12px;margin-top:8px;}
 #godQrImg img,#godQrImg canvas{margin:0 auto;display:block;width:300px;height:300px;}
-.god-qr-c button{margin-top:14px;background:#111;color:#fff;border:0;border-radius:12px;padding:10px 22px;font:700 15px 'Inter',sans-serif;cursor:pointer;}
+.god-sw{display:inline-flex;align-items:center;gap:10px;margin:6px 0 10px;cursor:pointer;font:700 17px 'Inter',sans-serif;} .god-sw input{display:none;}
+.god-sw i{width:52px;height:30px;border-radius:999px;background:#C9CED6;position:relative;transition:.2s;} .god-sw i::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:.2s;}
+.god-sw input:checked + i{background:#A855F7;} .god-sw input:checked + i::after{left:25px;}
+.god-conta{font-size:14px;color:#333;} .god-conta em{font-style:normal;color:#C2410C;} .god-conta em.ok{color:#15803D;}
+.god-esc{margin-top:12px;text-align:left;} .god-esc small{display:block;color:#666;margin-bottom:6px;} .god-esc div{display:flex;flex-wrap:wrap;gap:6px;max-height:40vh;overflow:auto;}
+.god-esc button{margin:0!important;background:#EEF0F4!important;color:#111!important;padding:8px 12px!important;font-size:14px!important;} .god-esc button.on{background:#A855F7!important;color:#fff!important;}
+.god-qr-c .god-fecha{margin-top:14px;background:#111;color:#fff;border:0;border-radius:12px;padding:10px 22px;font:700 15px 'Inter',sans-serif;cursor:pointer;}
 /* ===== Pódio no fim do percurso ===== */
 .podio{position:fixed;inset:0;z-index:100001;display:grid;grid-template-columns:1.15fr 1fr;background:#070B24;color:#fff;font-family:'Barlow Condensed',sans-serif;}
 .podio canvas{width:100%;height:100%;display:block;}
@@ -1865,7 +1871,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       <button data-mode="aula" title="Tecla 1">Aula</button>
       <button data-mode="turma" title="Tecla 2">Turma</button>
       <button data-mode="corrida" title="Tecla 3">Corrida</button>
-      <button class="god-btn" id="godBtn" title="God Mode no teu telemóvel: mostra o QR code (tecla 4)">⚡ God</button>
+      <button class="god-btn" id="godBtn" title="God Mode na tua app PlayRide: ligar, desligar e escolher a conta (tecla 4)">⚡ God</button>
     </div>
     <button class="ctrl" id="liveBack" title="Bloco anterior">⏮</button>
     <button class="ctrl play" id="livePlay" title="Play/Pausa">▶</button>
@@ -3771,8 +3777,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function startRidersSync(pin){
     riders = {};
     ridersRef = sessionRef(pin).child('riders');
-    ridersRef.on('value', s=>{ riders = s.val() || {}; });
-    godOuvir(pin);   // pedidos do God Mode no telemóvel do professor
+    ridersRef.on('value', s=>{ riders = s.val() || {}; try{ godProcessa(); }catch(e){} });   // + pedidos do God Mode na app PlayRide do professor
     offsetRef = fbDb.ref('.info/serverTimeOffset');
     offsetRef.on('value', s=>{ serverOffset = s.val() || 0; });
     ridersUiHandle = setInterval(()=>{ renderRiders(); updateLiveHead(); }, 1000);
@@ -3782,7 +3787,6 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 
   function stopRidersSync(){
     if(ridersRef) ridersRef.off();
-    if(JG.cmdRef){ JG.cmdRef.off(); JG.cmdRef = null; }
     if(offsetRef) offsetRef.off();
     ridersRef = null; offsetRef = null;
     clearInterval(ridersUiHandle); clearInterval(rankHandle);
@@ -3901,8 +3905,6 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   const GOD_PAR_TXT = { fora: ['Velocidade fora da zona', '%'], topo: ['Bónus no topo da zona', '+%'], turbo: ['Setas de turbo', '+%'], tart: ['Tartaruga', '−%'], boost: ['Boost do professor', '+%'], vento: ['Vento do professor', '−%'], dur: ['Duração dos efeitos', 's'] };
   const GOD_LIM = { fora: [20, 100], topo: [0, 50], turbo: [0, 100], tart: [0, 90], boost: [0, 200], vento: [0, 90], dur: [1, 30] };
   JG.par = (()=>{ try{ return Object.assign({}, GOD_PAR0, JSON.parse(localStorage.getItem('prGodPar') || '{}')); }catch(e){ return Object.assign({}, GOD_PAR0); } })();
-  const GOD_TEL = (()=>{ try{ const p = new URLSearchParams(location.search).get('god'); return /^\d{3,8}$/.test(p || '') ? p : null; }catch(e){ return null; } })();   // este aparelho é o comando
-  let GV = null;   // no telemóvel: o que o PC publica (alunos e parâmetros)
   function godDur(){ return (JG.par.dur || 5) * 1000; }
   JG.god = JG.god || {};   // no PC, por aluno: até quando (hora do servidor) dura o relâmpago (r), o boost (g) e o vento (v), e o FTP enviado (f)
   // ---------- no PC: executar ----------
@@ -3923,7 +3925,6 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   }
   function godCmd(c){
     if(!c || typeof c !== 'object') return;
-    JG.godTel = Date.now();
     const todos = ()=> ridingRiders().map(r=> r.id);
     if(c.a === 'r' || c.a === 'g' || c.a === 'v') godAcao(c.a, c.id ? [String(c.id)] : todos());
     else if(c.a === 'sorte'){ const L = todos(); if(L.length) godAcao(['r', 'g', 'v'][Math.floor(Math.random() * 3)], [L[Math.floor(Math.random() * L.length)]]); }
@@ -3932,11 +3933,6 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     else if(c.a === 'par0') JG.par = Object.assign({}, GOD_PAR0);
     if(c.a === 'par' || c.a === 'par0'){ try{ localStorage.setItem('prGodPar', JSON.stringify(JG.par)); }catch(e){} }
     JG.pushT = 0; jgPush();
-  }
-  function godOuvir(pin){
-    if(JG.cmdRef) JG.cmdRef.off();
-    JG.cmdRef = sessionRef(pin).child('jogo/cmd');
-    JG.cmdRef.on('child_added', s=>{ const c = s.val(); try{ s.ref.remove(); }catch(e){} if(c && Date.now() - (c.t || 0) < 60000) godCmd(c); });
   }
   // o que vai para os telemóveis dos alunos (dentro de "jogo", que já é escrito pela projeção)
   function godOut(){
@@ -3947,71 +3943,44 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       if(Object.keys(o).length) g[id] = o; });
     return Object.keys(g).length ? g : null;
   }
-  // o que vai para o telemóvel do professor (só enquanto ele está ligado)
+  // ---------- a conta da app PlayRide com o God Mode (escolhida e ligada/desligada aqui, fica no perfil do professor) ----------
+  JG.godCfg = { on: false, uid: null, rid: null, n: '' };
+  function godCfgGuarda(){ if(fbDb && userUid) fbDb.ref('profiles/' + userUid + '/god').set(JG.godCfg).catch(()=>{}); JG.pushT = 0; jgPush(); }
+  // quem, nesta aula, é a conta com o God Mode (pela conta da app; se o aluno não tiver conta, pelo telemóvel)
+  function godDono(){ const c = JG.godCfg; if(!c || !c.on) return null; return Object.keys(riders).find(id=> c.uid ? riders[id] && riders[id].u === c.uid : id === c.rid) || null; }
+  // pedidos que a app PlayRide do professor escreve no seu próprio registo da aula (riders/ID/gc)
+  function godProcessa(){
+    const id = godDono(); if(!id) return; const gc = (riders[id] || {}).gc; if(!gc || typeof gc !== 'object') return;
+    const F = JG.gcFeito || (JG.gcFeito = new Set());
+    Object.keys(gc).forEach(k=>{ if(F.has(k)) return; F.add(k); const c = gc[k]; if(c && Math.abs(Date.now() - (c.t || 0)) < 120000) godCmd(c); });
+  }
+  // o que vai para o ecrã 4 da app PlayRide do professor
   function godVista(){
-    if(!JG.godTel || Date.now() - JG.godTel > 40000) return null;
+    if(!godDono()) return null;
     const t0 = performance.now();
     return { par: JG.par, r: ridingRiders().map(r=>{ const F = (JG.fx || {})[r.id] || {};
       return [r.id, r.n || 'Aluno', r.online ? 1 : 0, Math.round(r.w || 0), r.ftp || 0, r.hr || 0, JG.z && JG.z[r.id] ? 1 : 0, (F.b > t0 ? 1 : 0) + (F.t > t0 ? 2 : 0) + (F.G > t0 ? 4 : 0) + (F.V > t0 ? 8 : 0) + (F.R > t0 ? 16 : 0)]; }) };
   }
-  // no PC: o botão ⚡ God mostra o QR code para abrir o comando no telemóvel
-  function godQr(){
+  // botão ⚡ God (tecla 4): ligar/desligar e escolher a conta
+  function godConfig(){
     let m = $('godQr'); if(m){ m.remove(); return; }
-    if(!sessionPin){ toast('Começa a aula primeiro.'); return; }
-    const url = location.origin + location.pathname + '?god=' + sessionPin;
-    m = document.createElement('div'); m.id = 'godQr'; m.className = 'god-qr';
-    m.innerHTML = '<div class="god-qr-c"><b>⚡ God Mode no telemóvel</b><p>Lê o código com o teu telemóvel e entra com a tua conta de professor.</p><div id="godQrImg"></div><small>' + escapeHtml(url) + '</small><button title="Fechar">Fechar</button></div>';
-    document.body.appendChild(m);
-    m.querySelector('button').onclick = ()=> m.remove(); m.onclick = e=>{ if(e.target === m) m.remove(); };
-    if(window.QRCode) new QRCode($('godQrImg'), { text: url, width: 300, height: 300, colorDark: '#0A0D12', colorLight: '#ffffff' });
-  }
-  // ---------- no telemóvel: comandar ----------
-  function godEnvia(c){
-    c.t = Date.now();
-    fbDb.ref('sessions/' + GOD_TEL + '/jogo/cmd').push(c).catch(()=> toast('⚠ Não consegui enviar. Verifica a internet.'));
-  }
-  function godTelAbre(){
-    document.body.classList.add('god-tel-on');
-    let p = $('godPanel'); if(!p){ p = document.createElement('div'); p.id = 'godPanel'; p.className = 'god tel on'; document.body.appendChild(p); }
-    p.addEventListener('click', e=>{ const b = e.target.closest('[data-g]'); if(!b) return; const a = b.dataset.g, id = b.dataset.id;
-      const nome = id && GV ? ((GV.r.find(x=> x[0] === id) || [])[1] || '').split(' ')[0] : '';
-      if(a === 'r' || a === 'g' || a === 'v'){ godEnvia(id ? { a, id } : { a }); toast(({ r: '⚡ Relâmpago', g: '🚀 Boost', v: '🌬️ Vento' })[a] + (nome ? ' em ' + nome : ' em todos')); }
-      if(a === 'sorte'){ godEnvia({ a }); toast('🎲 Surpresa enviada'); }
-      if(a === 'ftp'){ const inp = p.querySelector('input[data-ftp="' + CSS.escape(id) + '"]'), v = Math.round(Number(inp && inp.value) || 0);
-        if(v < 50 || v > 600){ toast('O FTP tem de estar entre 50 e 600 W.'); return; } godEnvia({ a, id, v }); inp.blur(); toast('FTP de ' + nome + ' → ' + v + ' W'); }
-      if(a === 'par0'){ godEnvia({ a }); p.dataset.pronto = ''; toast('Valores repostos'); } });
-    p.addEventListener('change', e=>{ const i = e.target; if(i.dataset.par){ godEnvia({ a: 'par', k: i.dataset.par, v: Number(i.value) }); } });
-    p.addEventListener('keydown', e=>{ if(e.key === 'Enter' && e.target.dataset.ftp){ e.target.closest('.god-ftp').querySelector('button').click(); } });
-    godEnvia({ a: 'ping' }); setInterval(()=> godEnvia({ a: 'ping' }), 12000);   // diz ao PC que o comando está ligado
-    fbDb.ref('sessions/' + GOD_TEL + '/jogo/gv').on('value', s=>{ GV = s.val(); godRender(); });
-    fbDb.ref('sessions/' + GOD_TEL + '/state').on('value', s=>{ if(!s.val()){ GV = null; godRender(); } });
-    godRender();
-  }
-  function godRender(){
-    const p = $('godPanel'); if(!p) return;
-    const par = (GV && GV.par) || JG.par;
-    if(!p.dataset.pronto){   // a estrutura só se monta uma vez (para não apagar o que se está a escrever)
-      p.dataset.pronto = '1';
-      p.innerHTML = '<div class="god-top"><b>⚡ God Mode</b><span>Aula ' + escapeHtml(GOD_TEL || '') + '</span></div><div class="god-est" id="godEst"></div>' +
-        '<div class="god-sec">Para todos</div><div class="god-acts"><button data-g="r">⚡<br>Relâmpago</button><button data-g="g">🚀<br>Boost</button><button data-g="v">🌬️<br>Vento</button><button data-g="sorte">🎲<br>Surpresa</button></div>' +
-        '<p class="god-nota">⚡ apaga a consola do aluno · 🚀 e 🌬️ mudam a velocidade no percurso</p>' +
-        '<div class="god-sec">Alunos</div><div class="god-lst" id="godLst"></div>' +
-        '<div class="god-sec">Parâmetros do percurso</div><div class="god-par">' + Object.keys(GOD_PAR0).map(k=> '<label><span>' + GOD_PAR_TXT[k][0] + '</span><input type="number" inputmode="numeric" data-par="' + k + '" value="' + par[k] + '" min="' + GOD_LIM[k][0] + '" max="' + GOD_LIM[k][1] + '"><i>' + GOD_PAR_TXT[k][1] + '</i></label>').join('') +
-        '<button class="god-rep" data-g="par0">Repor valores</button></div>';
-    }
-    $('godEst').innerHTML = GV ? '<em class="ok">● ligado à projeção</em>' : '<em>● à espera da projeção… (a aula tem de estar a decorrer no PC)</em>';
-    const foco = document.activeElement && document.activeElement.dataset;
-    p.querySelectorAll('input[data-par]').forEach(i=>{ if(i !== document.activeElement) i.value = par[i.dataset.par]; });
-    const L = $('godLst'); if(!L) return;
-    const rs = (GV && GV.r || []).slice().sort((a, b)=> String(a[1]).localeCompare(String(b[1])));
-    const linha = q=>{ const [id, n, on, w, ftp, hr, z, fx] = q, pct = ftp && w ? Math.round(w / ftp * 100) : null;
-      const ef = (fx & 16 ? '⚡' : '') + (fx & 4 ? '🚀' : '') + (fx & 8 ? '🌬️' : '') + (fx & 1 ? '🔥' : '') + (fx & 2 ? '🐢' : '');
-      return '<div class="god-al" data-row="' + escapeHtml(id) + '"><div class="god-n"><b>' + escapeHtml(n) + '</b><small>' + (on ? w + ' W' + (pct != null ? ' · ' + pct + '%' : '') + (hr ? ' · ' + hr + ' bpm' : '') : 'desligado') + ' ' + (z ? '<em class="ok">na zona</em>' : '<em>fora</em>') + ' ' + ef + '</small></div>' +
-        '<label class="god-ftp">FTP<input type="number" inputmode="numeric" data-ftp="' + escapeHtml(id) + '" value="' + (ftp || '') + '"><button data-g="ftp" data-id="' + escapeHtml(id) + '" title="Enviar o FTP para o telemóvel do aluno">✔</button></label>' +
-        '<div class="god-b"><button data-g="r" data-id="' + escapeHtml(id) + '">⚡</button><button data-g="g" data-id="' + escapeHtml(id) + '">🚀</button><button data-g="v" data-id="' + escapeHtml(id) + '">🌬️</button></div></div>'; };
-    if(foco && foco.ftp){   // a escrever um FTP: só atualiza as outras linhas
-      rs.forEach(q=>{ if(q[0] === foco.ftp) return; const el = L.querySelector('[data-row="' + CSS.escape(q[0]) + '"]'); if(el){ const tmp = document.createElement('div'); tmp.innerHTML = linha(q); el.replaceWith(tmp.firstChild); } });
-    } else L.innerHTML = rs.length ? rs.map(linha).join('') : '<p class="god-nota">' + (GV ? 'Ainda ninguém ligado.' : '') + '</p>';
+    m = document.createElement('div'); m.id = 'godQr'; m.className = 'god-qr'; document.body.appendChild(m);
+    const desenha = ()=>{ if(!m.isConnected){ clearInterval(iv); return; }
+      const c = JG.godCfg, dono = godDono(), rs = riderList().filter(r=> r.online).sort((a, b)=> (a.n || '').localeCompare(b.n || ''));
+      m.innerHTML = '<div class="god-qr-c"><b>⚡ God Mode na app PlayRide</b><p>A conta escolhida ganha um 4.º ecrã na app PlayRide para comandar a aula: relâmpagos, boost, vento, parâmetros do percurso e FTP dos alunos.</p>' +
+        '<label class="god-sw"><input type="checkbox" id="godOn"' + (c.on ? ' checked' : '') + '><i></i><span>' + (c.on ? 'Ligado' : 'Desligado') + '</span></label>' +
+        '<div class="god-conta">Conta com acesso: <b>' + (c.n ? escapeHtml(c.n) : 'nenhuma') + '</b>' + (c.on && c.n ? (dono ? ' · <em class="ok">ligada nesta aula</em>' : ' · <em>não está nesta aula</em>') : '') + '</div>' +
+        '<div class="god-esc"><small>Para escolher a tua conta, entra na aula com a tua app PlayRide e toca no teu nome:</small><div>' +
+        (rs.length ? rs.map(r=> '<button data-rid="' + escapeHtml(r.id) + '" class="' + (r.id === dono ? 'on' : '') + '">' + escapeHtml(r.n || 'Aluno') + (r.u ? '' : ' <small>(sem conta)</small>') + '</button>').join('') : '<i>Ainda ninguém ligado.</i>') + '</div></div>' +
+        '<button class="god-fecha">Fechar</button></div>';
+      m.querySelector('#godOn').onchange = e=>{ JG.godCfg.on = e.target.checked; godCfgGuarda(); desenha(); toast(JG.godCfg.on ? '⚡ God Mode ligado' : 'God Mode desligado'); };
+      m.querySelectorAll('[data-rid]').forEach(b=> b.onclick = ()=>{ const r = riders[b.dataset.rid] || {};
+        JG.godCfg = { on: true, uid: r.u || null, rid: b.dataset.rid, n: r.n || 'Aluno' };
+        JG.gcFeito = new Set(Object.keys(r.gc || {}));   // pedidos antigos não contam
+        godCfgGuarda(); desenha(); toast('⚡ God Mode dado a ' + (r.n || 'Aluno')); });
+      m.querySelector('.god-fecha').onclick = ()=> m.remove(); };
+    m.onclick = e=>{ if(e.target === m) m.remove(); };
+    const iv = setInterval(desenha, 2000); desenha();
   }
   function jgPedala(r){ return r && r.online && ((r.w || 0) > 0 || (r.hr || 0) > 0); }
   // cadência para o boneco: a real (bicicleta ligada); sem bicicleta mas com FC, pedala à cadência alvo do bloco (ou 85 rpm)
@@ -4201,7 +4170,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     }
     const gg = godOut();   // God Mode: relâmpagos, boosts, vento e FTP enviados pelo professor
     if(gg){ o = o || {}; o.g = gg; }
-    const gv = godVista(); if(gv){ o = o || {}; o.gv = gv; }   // estado dos alunos para o God Mode no telemóvel do professor
+    const gv = godVista(); if(gv){ o = o || {}; o.gv = gv; o.gm = godDono(); }   // God Mode: quem o tem e o estado dos alunos para o ecrã 4 dele
     if(o && o.p) o.par = [JG.par.turbo, JG.par.tart, JG.par.boost, JG.par.vento, JG.par.dur];
     const sj = JSON.stringify(o); if(sj === JG.pushS) return; JG.pushS = sj;
     try{ sessionRef(sessionPin).child('jogo').set(o).catch(()=>{}); }catch(e){}
@@ -8935,7 +8904,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   $('sessionBadge').addEventListener('click', ()=> $('qrPanel').classList.toggle('active'));
   $('setupCloseBtn').addEventListener('click', ()=> $('setupBanner').classList.remove('active'));
 
-  $('godBtn').onclick = godQr;   // God Mode no telemóvel do professor: mostra o QR code (tecla 4)
+  $('godBtn').onclick = godConfig;   // God Mode na app PlayRide do professor: ligar/desligar e escolher a conta (tecla 4)
   document.querySelectorAll('.ctrl-group [data-mode]').forEach(btn=>{
     btn.addEventListener('click', ()=>{ viewMode = btn.dataset.mode; renderRiders(); applyMode(); });
   });
@@ -8981,7 +8950,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     if(e.key === '1'){ viewMode = 'aula'; applyMode(); }
     if(e.key === '2'){ viewMode = 'turma'; renderRiders(); }
     if(e.key === '3'){ viewMode = 'corrida'; renderRiders(); }
-    if(e.key === '4'){ godQr(); }
+    if(e.key === '4'){ godConfig(); }
     if((e.key === 'e' || e.key === 'E') && SR.on && SR.fsTroca) SR.fsTroca();
     if(e.key === 'm' || e.key === 'M'){ toggleMetric(); }
     if(e.key === 'q' || e.key === 'Q'){ $('qrPanel').classList.toggle('active'); }
@@ -9115,6 +9084,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       }
       pendingRegName = '';
       userNome = prof.nome || user.email;
+      if(prof.god) JG.godCfg = Object.assign({ on: false, uid: null, rid: null, n: '' }, prof.god);   // God Mode na app PlayRide
       gruposMeus = Array.isArray(prof.grupos) ? prof.grupos.filter(Boolean) : Object.values(prof.grupos || {});
       isAdmin = (await fbDb.ref('admins/' + user.uid).once('value')).val() === true;
     }catch(e){
@@ -9167,7 +9137,6 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function enterApp(){
     if(entered) return;
     entered = true;
-    if(GOD_TEL){ $('authOverlay').classList.remove('active'); godTelAbre(); return; }   // aberto pelo QR code do God Mode: este telemóvel é o comando
     usoInicio();
     $('authOverlay').classList.remove('active');
     $('userName').textContent = userNome;
