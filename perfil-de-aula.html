@@ -1260,10 +1260,14 @@ body.sr-full-on #liveOverlay #srBox,body.sr-full-on #liveOverlay #srBox *{visibi
 .sr-hud .sr-b b{font-size:clamp(18px,2.5cqw,36px);font-weight:800;margin-left:8px;}
 .sr-hud .sr-b small{font-size:13px;color:rgba(255,255,255,.7);}
 .sr-hud .sr-c{background:rgba(5,7,10,.55);border-radius:12px;padding:6px 12px;font-size:18px;}
-.sr-hud .sr-alvo{display:flex;gap:8px;margin-top:8px;}
-.sr-hud .sr-alvo div{display:flex;flex-direction:column;align-items:center;background:rgba(5,7,10,.6);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:5px 14px;line-height:1;}
-.sr-hud .sr-alvo b{font-size:clamp(22px,3.3cqw,48px);font-weight:800;}
-.sr-hud .sr-alvo small{font-size:12px;letter-spacing:1.2px;color:rgba(255,255,255,.7);}
+.sr-hud .sr-alvo{display:flex;gap:10px;margin-top:10px;}
+.sr-hud .sr-alvo div{display:flex;flex-direction:column;align-items:center;background:rgba(5,7,10,.72);border:2px solid rgba(255,255,255,.28);border-radius:16px;padding:8px 22px;line-height:1;}
+.sr-hud .sr-alvo b{font-size:clamp(34px,5.4cqw,84px);font-weight:800;}
+.sr-hud .sr-alvo small{font-size:clamp(13px,1.35cqw,20px);font-weight:700;letter-spacing:1.4px;color:rgba(255,255,255,.85);}
+.sr-hud .sr-pin{background:#FFD60A;color:#111;text-shadow:none;border-radius:12px;padding:4px 14px;font-size:clamp(15px,1.7cqw,24px);font-weight:700;}
+.sr-hud .sr-pin b{font-size:clamp(24px,3cqw,44px);font-weight:800;letter-spacing:2px;margin-left:6px;}
+.sr-neob.off,.sr-drb.off{opacity:.45;filter:grayscale(1);}
+.sr-metb.sr-drb{top:106px;}
 .sr-hud .sr-t{display:flex;flex-direction:column;align-items:center;background:rgba(5,7,10,.6);border-radius:14px;padding:6px 18px;line-height:1;}
 .sr-hud .sr-t small{font-size:12px;letter-spacing:1.4px;color:rgba(255,255,255,.7);}
 .sr-hud .sr-t b{font-size:clamp(34px,5.6cqw,84px);font-weight:800;font-variant-numeric:tabular-nums;}
@@ -1556,6 +1560,20 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 .god-esc{margin-top:12px;text-align:left;} .god-esc small{display:block;color:#666;margin-bottom:6px;} .god-esc div{display:flex;flex-wrap:wrap;gap:6px;max-height:40vh;overflow:auto;}
 .god-esc button{margin:0!important;background:#EEF0F4!important;color:#111!important;padding:8px 12px!important;font-size:14px!important;} .god-esc button.on{background:#A855F7!important;color:#fff!important;}
 .god-qr-c .god-fecha{margin-top:14px;background:#111;color:#fff;border:0;border-radius:12px;padding:10px 22px;font:700 15px 'Inter',sans-serif;cursor:pointer;}
+
+/* fim da aula: pódio e números à esquerda, tabela grande à direita, sem arrastar */
+.live-done .sum-wrap#liveSummary{width:98%;max-width:none;display:grid;grid-template-columns:minmax(260px,26%) 1fr;grid-template-areas:'l r' 'l2 r';gap:4px 22px;align-items:start;}
+#liveSummary .sum-l{grid-area:l;} #liveSummary .sum-l2{grid-area:l2;} #liveSummary .sum-r{grid-area:r;min-width:0;overflow:hidden;}
+#liveSummary .sum-table{font-size:22px;width:100%;}
+#liveSummary .sum-table th{font-size:.62em;padding:.3em .5em;} #liveSummary .sum-table td{padding:.22em .5em;}
+#liveSummary .sum-table td:nth-child(2){max-width:9em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#liveSummary .podium{margin:8px 0 6px;} #liveSummary .pod{min-width:0;flex:1;} #liveSummary .pod .pn{font-size:clamp(15px,1.4vw,22px);}
+.live-done.active:has(#liveSummary .sum-r){overflow:hidden;}
+.live-done:has(#liveSummary .sum-r){gap:0;padding-top:2px;}
+.live-done:has(#liveSummary .sum-r) .live-zone{font-size:clamp(18px,2vw,28px);margin:0;} .live-done:has(#liveSummary .sum-r) .big{font-size:clamp(26px,3vw,42px);line-height:1;} .live-done:has(#liveSummary .sum-r) .live-name{font-size:13px;margin-bottom:4px;}
+#liveSummary .sum-wh{font-size:clamp(14px,1.3vw,20px);margin:4px 0;} #liveSummary .pod .step{font-size:26px;} #liveSummary .pod.p1 .step{height:84px;} #liveSummary .pod.p2 .step{height:62px;} #liveSummary .pod.p3 .step{height:46px;}
+@media (max-width:820px){ .live-done .sum-wrap#liveSummary{grid-template-columns:1fr;grid-template-areas:'l' 'r' 'l2';} .live-done.active:has(#liveSummary .sum-r){overflow:auto;} }
+.podio-t li b small{font-size:.5em;color:#B7C0D6;font-weight:600;margin-left:.4em;}
 /* ===== Pódio no fim do percurso ===== */
 .podio{position:fixed;inset:0;z-index:100001;display:grid;grid-template-columns:1.15fr 1fr;background:#070B24;color:#fff;font-family:'Barlow Condensed',sans-serif;}
 .podio canvas{width:100%;height:100%;display:block;}
@@ -3880,7 +3898,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function jogoInfo(k){ return JG_TIPOS[k] || PERC_TIPOS[k] || { n:'', ico:'' }; }
   var EQ_COR = ['#3B82F6', '#EF4444', '#22C55E', '#EAB308'], EQ_NOME = ['Azul', 'Vermelha', 'Verde', 'Amarela'];
   var JG = { tipo: 'cabo', ptipo: 'p_etapa', forma: 'equilibrado', grupos: {}, st: {}, perc: {}, lastT: 0, z: {}, blocoVisto: -1, editado: {}, pushT: 0, pushS: '' };
-  function jgReset(){ JG.grupos = {}; JG.st = {}; JG.perc = {}; JG.dm = {}; JG.fx = {}; JG.ativos = null; JG.lastT = 0; JG.z = {}; JG.blocoVisto = -1; JG.editado = {}; JG.ptipo = 'p_etapa'; JG.pushT = 0; JG.pushS = ''; JG.cog = {}; SR.kc = null; }
+  function jgReset(){ JG.grupos = {}; JG.st = {}; JG.perc = {}; JG.dm = {}; JG.fx = {}; JG.podioVisto = false; JG.ativos = null; JG.lastT = 0; JG.z = {}; JG.blocoVisto = -1; JG.editado = {}; JG.ptipo = 'p_etapa'; JG.pushT = 0; JG.pushS = ''; JG.cog = {}; SR.kc = null; }
 
   // está dentro da zona do bloco agora? (mesma regra dos cartões da Turma)
   // o que conta para a zona de cada aluno: a potência quando tem bicicleta/potenciómetro; sem watts, a FC (convertida para a zona equivalente).
@@ -4035,6 +4053,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     const rs = visRiders();
     JG.z = {}; rs.forEach(r=> JG.z[r.id] = jgNaZona(r));
     jgPush();
+    { const bA = current.blocos[liveIdx]; if(!JG.podioVisto && livePlaying && bA && bA.tipo === 'cool' && current.blocos.slice(0, liveIdx).some(x=> x.jogo)){ JG.podioVisto = true; try{ podioMostra(); }catch(e){} } }   // retorno à calma: pódio do percurso ou do jogo
     if(!livePlaying || !dt) return;
     // percurso: quem entra com a aula já a decorrer (ou volta depois de uma falha da bike) começa na cauda do pelotão,
     // 3 s atrás do último (≈ 36 m), em vez de começar do zero e ficar quilómetros para trás
@@ -4048,7 +4067,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     const kmhB = srTerreno(current.blocos[liveIdx] || {}).kmh;
     const Pp = JG.par;
     ped.forEach(r=>{ const F = (JG.fx || {})[r.id] || {}, v = jgVel(r) * (F.b > now ? 1 + Pp.turbo / 100 : 1) * (F.t > now ? 1 - Pp.tart / 100 : 1) * (F.G > now ? 1 + Pp.boost / 100 : 1) * (F.V > now ? 1 - Pp.vento / 100 : 1);   // turbo, tartaruga, boost e vento
-      JG.perc[r.id] = (JG.perc[r.id] || 0) + dt * v; DM[r.id] = (DM[r.id] || 0) + dt * v * kmhB / 3.6; });
+      JG.perc[r.id] = (JG.perc[r.id] || 0) + dt * v; DM[r.id] = (DM[r.id] || 0) + dt * v * (r.v > 0 ? r.v : kmhB) / 3.6; });   // a velocidade simulada no telemóvel de cada aluno (física de estrada)
     const jk = (current.blocos[liveIdx] || {}).jogo;
     if(!JG_TIPOS[jk]) return;            // este bloco não tem jogo
     JG.tipo = jk;
@@ -4171,7 +4190,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     const gg = godOut();   // God Mode: relâmpagos, boosts, vento e FTP enviados pelo professor
     if(gg){ o = o || {}; o.g = gg; }
     const gv = godVista(); if(gv){ o = o || {}; o.gv = gv; o.gm = godDono(); }   // God Mode: quem o tem e o estado dos alunos para o ecrã 4 dele
-    if(o && o.p) o.par = [JG.par.turbo, JG.par.tart, JG.par.boost, JG.par.vento, JG.par.dur];
+    if(o && o.p) o.par = [JG.par.turbo, JG.par.tart, JG.par.boost, JG.par.vento, JG.par.dur, JG.par.fora];
     const sj = JSON.stringify(o); if(sj === JG.pushS) return; JG.pushS = sj;
     try{ sessionRef(sessionPin).child('jogo').set(o).catch(()=>{}); }catch(e){}
   }
@@ -4444,6 +4463,8 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   // Cada bloco vira um troço: a técnica e a cadência fazem subida, plano ou descida; a zona dá a velocidade.
   // A câmara anda com o relógio da aula (o fim de cada bloco é um pórtico); os alunos aparecem à frente conforme cumprem a zona.
   const SR = { lbls:[], on:false, raf:0, trk:null, key:'', cv:null, ctx:null, lastT:0, camZ:0, full:false, bg:null, bgKey:'', spr:null, pitch:0, nuvens:null };
+  SR.drone = (()=>{ try{ return localStorage.getItem('prSrDrone') !== '0'; }catch(e){ return true; } })();   // câmara drone na projeção (o professor escolhe)
+  SR.neonB = (()=>{ try{ return localStorage.getItem('prSrNeon') !== '0'; }catch(e){ return true; } })();   // bonecos em néon na Estrada Néon e na Cidade do Futuro (o professor escolhe)
   const SR_SEG = 200, SR_ROAD = 2000, SR_CAMH = 900, SR_DEPTH = 1 / Math.tan(50 * Math.PI / 180), SR_DRAW = 320, SR_M = 40, SR_EXG = 3;   // 1 m = 40 unidades; relevo ×5 para se ver bem
   function srRnd(seed){ let s = seed >>> 0 || 1; return ()=>{ s ^= s << 13; s ^= s >>> 17; s ^= s << 5; return ((s >>> 0) % 100000) / 100000; }; }
   const SR_MIXC = new Map();
@@ -4454,17 +4475,24 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function srTerreno(b){
     const mm = modoAtual() === 'fc' ? 'fc' : 'ftp', zs = zonesOf(mm), zi = b.tipo ? 0 : Math.max(0, zs.indexOf(getZone(b.ftp || 0, mm)));
     const rpm = b.rpm2 ? (b.rpm + b.rpm2) / 2 : (b.rpm || 90), tec = b.tecnica || '', tecSobe = /subida|escalada|montanha/i.test(tec);
-    // Subida: 60–80 rpm (com técnica de subida até 80; sem ela, abaixo de 80). Menos rpm e zona mais alta = mais inclinada.
-    // Referências: 80 rpm em Z2 ≈ 3% · 60 rpm em Z4 ≈ 20%. Mais rpm e zona mais alta = sobe mais depressa.
+    // Subida: 60–80 rpm (com técnica de subida até 80; sem ela, abaixo de 80). Inclinações de estrada a sério:
+    // 80 rpm ≈ 3% · 70 rpm ≈ 6,5% · 60 rpm ≈ 10%, e um pouco mais nas zonas altas (máximo 12%).
+    // A velocidade do terreno é a de um ciclista-padrão (78 kg, FTP 230 W) a meio da zona, pela física da estrada.
+    const P = 230 * [45, 65, 83, 98, 113, 135, 160][Math.min(6, zi)] / 100;
     if(b.tipo !== 'cool' && zi > 0 && (rpm < 80 || (tecSobe && rpm <= 80))){
       const r = Math.max(60, Math.min(80, rpm));
-      const sl = Math.max(0.02, Math.min(0.22, 0.03 + (80 - r) * 0.0055 + (zi - 1) * 0.03));
-      return { t:'sobe', slope:sl, kmh:Math.round(8 + (r - 60) * 0.35 + zi * 1.5), zi };
+      const sl = Math.max(0.02, Math.min(0.12, 0.03 + (80 - r) * 0.0035 + (zi - 1) * 0.005));
+      return { t:'sobe', slope:sl, kmh:Math.round(srVRef(P, sl)), zi };
     }
-    if(b.tipo === 'cool' || zi === 0) return { t:'desce', slope:-0.045, kmh:42, zi };   // Z1 e retorno à calma
-    if(zi >= 6 || /sprint/i.test(tec)) return { t:'sprint', slope:0, kmh:52, zi };        // Z7: sprint em plano
-    // Plano: 80–115 rpm, mais rápido com mais rpm e zona mais alta
-    return { t:'plano', slope:0, kmh:Math.round(24 + (Math.min(115, rpm) - 80) * 0.25 + zi * 3), zi };
+    if(b.tipo === 'cool' || zi === 0) return { t:'desce', slope:-0.045, kmh:Math.round(srVRef(P, -0.045)), zi };   // Z1 e retorno à calma
+    if(zi >= 6 || /sprint/i.test(tec)) return { t:'sprint', slope:0, kmh:Math.round(srVRef(Math.max(P, 230 * 1.5), 0)), zi };   // Z7: sprint em plano
+    return { t:'plano', slope:0, kmh:Math.round(srVRef(P, 0)), zi };   // plano: 80–115 rpm
+  }
+  // velocidade estável (km/h) de um ciclista-padrão (78 kg + 9 kg de bicicleta, CdA 0,30) com P watts numa inclinação sl
+  function srVRef(P, sl){
+    const m = 87, g = 9.81, th = Math.atan(sl), a = .5 * 1.225 * .30, b = .004 * m * g * Math.cos(th) + m * g * Math.sin(th), Pe = P * .976;
+    let v = 15; for(let i = 0; i < 25; i++){ const f = a * v * v * v + b * v - Pe, d = 3 * a * v * v + b; v = Math.max(.5, v - f / d); }
+    return v * 3.6;
   }
   function srPista(){
     const bl = current.blocos, segs = [], bStart = [];
@@ -6794,7 +6822,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     const V = av ? av.v : 'e', BTT = V === 'b', TT = V === 't', TRI = V === 'r';
     if(av) cor = av.j;   // cores escolhidas pelo aluno
     // tema néon: fato escuro com contornos de luz, rodas e quadro acesos; dentro da zona azul, fora magenta (como nos ecrãs)
-    const C = SR.tema === 'cyber', N = SR.tema === 'neon' || C;   // cidade do futuro: fato-armadura azul-noite com luzes laranja
+    const C = SR.tema === 'cyber' && SR.neonB !== false, N = (SR.tema === 'neon' && SR.neonB !== false) || C;   // (o professor pode desligar os bonecos em néon) cidade do futuro: fato-armadura azul-noite com luzes laranja
     const NC = h=> C ? ({ '#1B1233':'#18203F', '#120A24':'#0F1530', '#0D0720':'#0A0F24', '#1E1236':'#1C2548', '#120A22':'#0C1230', '#0B0618':'#070B1A', '#150B28':'#0E1530' }[h] || h) : h;
     if(N && !av) cor = cor === '#3DD45C' ? (C ? '#FF8A2A' : '#00E5FF') : cor === '#AEB6C2' ? (C ? '#8FB0FF' : '#FF2BD6') : cor;
     const luz = on=>{ ctx.shadowColor = cor; ctx.shadowBlur = N && on ? Math.min(14, Math.max(3, s * .12)) : 0; };
@@ -7081,15 +7109,24 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     // a câmara fica sempre atrás do último aluno, para se verem todos à frente
     const zG = SR.zG = srZ(Math.max(0, tEl)), gs0 = SR.gaps || {}, vis0 = visRiders().filter(jgPedala);
     const minG = vis0.length ? Math.min(0, ...vis0.map(r=> gs0[r.id] != null ? gs0[r.id] : 0)) : 0;
-    const alvo = Math.max(0, zG + minG - SR_SEG * 12);
+    // câmara "drone": voa à volta do pelotão — umas vezes atrás de todos, outras no meio do grupo ou mesmo junto à roda,
+    // mais alta ou rasante, de um lado ou do outro da estrada. Tudo a deslizar devagar (sem cortes nem saltos).
+    const maxG = vis0.length ? Math.max(0, ...vis0.map(r=> gs0[r.id] != null ? gs0[r.id] : 0)) : 0, ts = now / 1000 * 2.2;
+    const rui = (a, b, c)=> (Math.sin(ts * a) + Math.sin(ts * b + c) + 2) / 4;   // 0..1, suave e sem padrão à vista
+    let alvo;
+    if(SR.drone !== false){
+      const foco = minG + (maxG - minG) * rui(.05, .031, 2.1), dist = 3 + 14 * rui(.083, .047, .7);
+      alvo = Math.max(0, zG + foco - SR_SEG * dist); SR.dH = .5 + 1.6 * rui(.061, .029, 4.2); SR.dX = (rui(.043, .071, 1.1) - .5) * SR_ROAD * .9;
+    } else { alvo = Math.max(0, zG + minG - SR_SEG * 12); SR.dH = 1; SR.dX = 0; }   // câmara fixa atrás do último
     SR.camZ = Math.abs(alvo - SR.camZ) > SR_SEG * 3 ? (Math.abs(alvo - SR.camZ) > SR_SEG * 40 ? alvo : SR.camZ + (alvo - SR.camZ) * .15) : alvo;
     const camZ = SR.camZ, baseI = Math.min(N - 2, Math.floor(camZ / SR_SEG)), base = segs[baseI], frac = (camZ % SR_SEG) / SR_SEG;
     // tudo o que depende do troço onde está a câmara é interpolado com "frac": sem isto a imagem dava um salto
     // de cada vez que se passava para o troço seguinte (a 42 km/h, um solavanco a cada 0,43 s)
     const yIn = i=>{ const s0 = segs[Math.max(0, Math.min(N - 1, i))], s1 = segs[Math.max(0, Math.min(N - 1, i + 1))]; return s0.y + (s1.y - s0.y) * frac; };
     const nxt = segs[baseI + 1], yAqui = yIn(baseI), yAtras = yIn(baseI - 8);
-    const camY = Math.max(yAqui + SR_CAMH * .45, yAtras + SR_CAMH);   // a câmara fica à altura de uns metros atrás: numa subida a estrada sobe à frente
-    const b = current.blocos[base.b] || current.blocos[liveIdx], zc = srHex(zoneColor(blkZone(b).css));
+    const camY = Math.max(yAqui + SR_CAMH * .45 * (SR.dH || 1), yAtras + SR_CAMH * (SR.dH || 1));   // a câmara fica à altura de uns metros atrás: numa subida a estrada sobe à frente
+    const gI = Math.max(0, Math.min(N - 2, Math.floor(zG / SR_SEG))), gSeg = segs[gI];   // onde está o pelotão (o relógio da aula), venha a câmara onde vier
+    const b = current.blocos[gSeg.b] || current.blocos[liveIdx], zc = srHex(zoneColor(blkZone(b).css));
     // inclinação logo à frente: a câmara olha para cima na subida e para baixo na descida
     const ah = segs[Math.min(N - 1, baseI + 12)], incl = (yIn(baseI + 12) - yAqui) / (12 * SR_SEG * SR_EXG);
     SR.pitch += (Math.max(-.16, Math.min(.16, incl * 2.6)) - SR.pitch) * .05;
@@ -7110,7 +7147,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     // estrada: da frente para trás, com recorte nos montes
     let maxY = H, x = 0, dx = -(base.curve * frac);
     const proj = [], haze = T.haze;
-    const P = (wx, wy, wz)=>{ const sc = SR_DEPTH / wz; return { x: W / 2 + sc * wx * W / 2, y: hor - sc * (wy - camY) * H / 2, w: sc * SR_ROAD * W / 2 }; };
+    const dXc = SR.dX || 0, P = (wx, wy, wz)=>{ const sc = SR_DEPTH / wz; return { x: W / 2 + sc * (wx - dXc) * W / 2, y: hor - sc * (wy - camY) * H / 2, w: sc * SR_ROAD * W / 2 }; };
     const t0 = performance.now(), DRAW = SR.draw || SR_DRAW;
     for(let n = 0; n < DRAW && baseI + n < N - 1; n++){
       const sg = segs[baseI + n];
@@ -7176,7 +7213,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       const zz = SR.zG + gap; const si = Math.floor(zz / SR_SEG); if(si > baseI + 2 && si < baseI + SR_DRAW) (lugares[si] = lugares[si] || []).push({ r, lado: (((i * 37) % 9) - 4) / 5.5, f: zz / SR_SEG - si }); });   // f: onde fica dentro do troço
     const nomes = [], luzes = [], kpops = [];   // kpops: quem acabou de apanhar um cogumelo   // luzes: farolins e candeeiros (acendem à noite, com chuva e nevoeiro)
     const pedal = livePlaying ? now / (60000 / Math.max(50, (b.rpm2 ? (b.rpm + b.rpm2) / 2 : b.rpm || 85)) / 6.283) : 0;   // as pernas rodam à cadência do bloco
-    const emPe = /p[ée]/i.test(b.tecnica || '') || base.tr.t === 'sprint';
+    const emPe = /p[ée]/i.test(b.tecnica || '') || gSeg.tr.t === 'sprint';
     for(let k = proj.length - 1; k >= 0; k--){
       const { sg, p1, clip, n } = proj[k];
       if(p1.y < 0) continue;
@@ -7212,11 +7249,11 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     kpops.forEach(a=> srKartPop(ctx, a[0], a[1] - a[2] * 1.4, Math.max(a[2] * 1.3, 26), a[3], now));
     if(SR.flash && performance.now() - SR.flash < 450){ ctx.fillStyle = 'rgba(225,235,255,' + ((1 - (performance.now() - SR.flash) / 450) * .75).toFixed(2) + ')'; ctx.fillRect(0, 0, W, H); }   // clarão do relâmpago   // "+1 🍄" por cima do nome   // primeiro os nomes inteiros
     // riscos de velocidade nas descidas e sprints
-    if(livePlaying && base.tr.kmh >= 38){ ctx.strokeStyle = T.risco; ctx.lineWidth = 2; for(let k = 0; k < 14; k++){ const a = (k / 14) * 6.28 + now * .0007, r1 = Math.min(W, H) * (.55 + ((now * .002 + k * .37) % 1) * .4); ctx.beginPath(); ctx.moveTo(W / 2 + Math.cos(a) * r1, hor + Math.sin(a) * r1 * .6); ctx.lineTo(W / 2 + Math.cos(a) * (r1 + 40), hor + Math.sin(a) * (r1 + 40) * .6); ctx.stroke(); } }
+    if(livePlaying && gSeg.tr.kmh >= 38){ ctx.strokeStyle = T.risco; ctx.lineWidth = 2; for(let k = 0; k < 14; k++){ const a = (k / 14) * 6.28 + now * .0007, r1 = Math.min(W, H) * (.55 + ((now * .002 + k * .37) % 1) * .4); ctx.beginPath(); ctx.moveTo(W / 2 + Math.cos(a) * r1, hor + Math.sin(a) * r1 * .6); ctx.lineTo(W / 2 + Math.cos(a) * (r1 + 40), hor + Math.sin(a) * (r1 + 40) * .6); ctx.stroke(); } }
     // vinheta
     if(!SR.full) ctx.drawImage(SR.bg.vin, 0, 0, W, H);   // vinheta só na vista dividida (em ecrã inteiro poupa uma cópia do ecrã todo)
     // perfil da aula em baixo à esquerda: o que já subiste e o que vem aí
-    if(SR.tema === 'paris') srParisMapa(ctx, W, H, camZ); else if(SR.tema === 'vale') srRotaMapa(ctx, W, H, camZ, ROTAS[SR.rota] || ROTAS.lp); else srPerfil(ctx, W, H, camZ);   // Paris: mini-mapa da cidade
+    if(SR.tema === 'paris') srParisMapa(ctx, W, H, zG); else if(SR.tema === 'vale') srRotaMapa(ctx, W, H, zG, ROTAS[SR.rota] || ROTAS.lp); else srPerfil(ctx, W, H, zG);   // mapas e altimetria no ponto do relógio (como os alunos)   // Paris: mini-mapa da cidade
     const dt = performance.now() - t0; SR.draw = Math.max(90, Math.min(SR_DRAW, (SR.draw || SR_DRAW) + (dt > 22 ? -20 : dt < 10 ? 4 : 0)));
     // média do tempo de cada imagem; acima de ~22 ms (menos de 45 imagens/s) baixa a resolução, abaixo de 10 ms volta a subir
     const tt = performance.now() - tF; SR.ft = SR.ft == null ? tt : SR.ft * .9 + tt * .1;
@@ -7224,11 +7261,12 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     if(now - SR.lastT > 250){
       SR.lastT = now;
       if(SR.tema !== 'neon' && SR.tema !== 'cyber' && SR.tema !== 'kart'){ metBuscar(); SR.met = metEstado(MET.cfg, MET.real); } else SR.met = null;
+      const nb = $('srNeo'); if(nb){ nb.hidden = !(SR.tema === 'neon' || SR.tema === 'cyber'); nb.classList.toggle('off', SR.neonB === false); }
       const mb = $('srMet'); if(mb){ mb.hidden = SR.tema === 'neon' || SR.tema === 'cyber' || SR.tema === 'kart'; if(SR.met) mb.textContent = MET_TEMPOS[SR.met.tempo][0]; }
-      const tr = base.tr, pc = Math.round(((ah.y - base.y) / (12 * SR_SEG * SR_EXG)) * 100);
+      const tr = gSeg.tr, pc = Math.round(((segs[Math.min(N - 1, gI + 12)].y - gSeg.y) / (12 * SR_SEG * SR_EXG)) * 100);   // o terreno onde está o pelotão
       const desc = tr.t === 'falso' ? '↗️ Falso plano <b class="sr-pc">' + Math.max(1, pc) + '%</b>' : tr.t === 'sobe' ? '⛰️ Subida <b class="sr-pc">' + Math.max(1, pc) + '%</b>' : tr.t === 'desce' ? '⬇️ Descida <b class="sr-pc">' + Math.min(-1, pc) + '%</b>' : tr.t === 'sprint' ? '⚡ Sprint em plano' : '➡️ Plano';
-      const nz = rs.filter(r=> JG.z[r.id]).length, kmh = livePlaying ? Math.round(tr.kmh) : 0, km = camZ / SR_M / 1000;
-      let subiu = 0; for(let k = 1; k <= baseI; k++){ const d = segs[k].y - segs[k - 1].y; if(d > 0) subiu += d; }
+      const nz = rs.filter(r=> JG.z[r.id]).length, vsR = rs.map(r=> r.v).filter(v=> v > 0), kmh = livePlaying ? Math.round(vsR.length ? vsR.reduce((a, b)=> a + b, 0) / vsR.length : tr.kmh) : 0, km = zG / SR_M / 1000;   // média das velocidades simuladas dos alunos
+      let subiu = 0; for(let k = 1; k <= gI; k++){ const d = segs[k].y - segs[k - 1].y; if(d > 0) subiu += d; }
       const bl = current.blocos, el = Math.max(0, elapsedNow()), tot = totalDuration(bl);
       let ini = 0; for(let k = 0; k < liveIdx; k++) ini += blockDurationSec(bl[k]);
       const bk = bl[liveIdx] || b, falta = Math.max(0, Math.round(ini + blockDurationSec(bk) - el));
@@ -7239,6 +7277,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
           '<div class="sr-alvo"><div><small>ALVO</small><b>' + escapeHtml(String(alvo)) + '</b><small>%FTP</small></div><div><small>CADÊNCIA</small><b>' + rpmTxt(bk) + '</b><small>RPM</small></div></div></div>' +
         '<div class="sr-t"><small>FALTA NESTE BLOCO</small><b class="' + (falta <= 5 && livePlaying ? 'quase' : '') + '">' + fmtTime(falta) + '</b><span>⏱ ' + fmtTime(Math.round(el)) + ' <i>de ' + fmtTime(tot) + '</i></span></div>' +
         '<div class="sr-d"><div class="sr-b"><b>' + kmh + '</b><small>km/h</small><b>' + km.toFixed(1).replace('.', ',') + '</b><small>km</small><b>' + Math.round(subiu / SR_M / SR_EXG) + '</b><small>m subidos</small></div>' +
+        (sessionPin ? '<div class="sr-pin">PIN <b>' + escapeHtml(String(sessionPin)) + '</b></div>' : '') +
         '<div class="sr-c">' + (rs.length ? '<b>' + nz + '</b> de ' + rs.length + ' na zona' : 'à espera dos alunos') + '</div>' +
         (SR.met ? '<div class="sr-m">' + MET_TEMPOS[SR.met.tempo][0] + ' <b>' + SR.met.temp + ' °C</b><span>' + MET_FASES[SR.met.fase][1] + ' · ' + MET_TEMPOS[SR.met.tempo][1] + '</span></div>' : '') + '</div>';
       $('srRank').innerHTML = '<div class="sr-rt">CLASSIFICAÇÃO</div>' + ord.slice(0, SR.cv.clientWidth > 1400 ? 8 : 6).map((r, i)=> '<div><span>' + (i + 1) + '</span><b>' + escapeHtml((r.n || '?').split(' ')[0]) + '</b>' + (SR.tema === 'kart' ? '<em class="sr-cog">🍄 ' + ((JG.cog || {})[r.id] || 0) + '</em>' : '') + '<i class="' + (JG.z[r.id] ? 'ok' : '') + '">' + (PR ? srKm(DMv(r.id)) : i ? '−' + fmtTime(Math.round((JG.perc[ord[0].id] || 0) - (JG.perc[r.id] || 0))) : 'líder') + '</i></div>').join('');
@@ -7269,11 +7308,14 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function srMonta(gp){
     if(gp.dataset.serra === '1' && SR.cv && SR.cv.isConnected) return;
     gp.dataset.serra = '1';
-    gp.innerHTML = '<div class="sr-box' + (SR.full ? ' full' : '') + '" id="srBox"><canvas id="srCv" aria-label="Estrada da serra a andar com a aula"></canvas><div class="sr-hud" id="srHud"></div><div class="sr-rank" id="srRank"></div><button class="sr-fs" id="srFs" title="Ecrã inteiro (tecla E ou duplo clique na estrada)">⛶</button><button class="sr-metb" id="srMet" title="Hora do dia e tempo da Serra">🌤️</button><div class="sr-metm" id="srMetM" hidden></div></div>' +
+    gp.innerHTML = '<div class="sr-box' + (SR.full ? ' full' : '') + '" id="srBox"><canvas id="srCv" aria-label="Estrada da serra a andar com a aula"></canvas><div class="sr-hud" id="srHud"></div><div class="sr-rank" id="srRank"></div><button class="sr-fs" id="srFs" title="Ecrã inteiro (tecla E ou duplo clique na estrada)">⛶</button><button class="sr-metb" id="srMet" title="Hora do dia e tempo da Serra">🌤️</button><button class="sr-metb sr-neob" id="srNeo" title="Bonecos em néon ou com a roupa escolhida" hidden>✨</button><button class="sr-metb sr-drb" id="srDr" title="Câmara drone (a voar à volta dos alunos) ou fixa atrás do último">🚁</button><div class="sr-metm" id="srMetM" hidden></div></div>' +
       '<div class="perc-info">🌲 Serra: a estrada nasce da cadência dos blocos. 80–115 rpm é plano; 60–80 rpm com técnica de subida é subida (menos rpm e zona mais alta = mais inclinada: 80 rpm em Z2 ≈ 3%, 60 rpm em Z4 ≈ 20%); Z1 e retorno à calma são descida; Z7 é sprint. Quem cumpre a zona vai à frente.</div>';
     SR.cv = $('srCv'); SR.ctx = SR.cv.getContext('2d'); SR.bgKey = '';
     const fsTroca = ()=>{ SR.full = !SR.full; $('srBox').classList.toggle('full', SR.full); document.body.classList.toggle('sr-full-on', SR.full); $('srFs').textContent = SR.full ? '✕' : '⛶'; $('srFs').title = SR.full ? 'Sair da estrada em ecrã inteiro (tecla E ou Esc)' : 'Ecrã inteiro (tecla E ou duplo clique na estrada)'; };
     $('srFs').onclick = fsTroca; SR.cv.ondblclick = fsTroca; SR.fsTroca = fsTroca;
+    $('srDr').classList.toggle('off', SR.drone === false);
+    $('srDr').onclick = ()=>{ SR.drone = SR.drone === false; try{ localStorage.setItem('prSrDrone', SR.drone ? '1' : '0'); }catch(e){} $('srDr').classList.toggle('off', !SR.drone); toast(SR.drone ? '🚁 Câmara drone' : '🎥 Câmara fixa atrás do último'); };
+    $('srNeo').onclick = ()=>{ SR.neonB = SR.neonB === false; try{ localStorage.setItem('prSrNeon', SR.neonB ? '1' : '0'); }catch(e){} toast(SR.neonB ? '✨ Bonecos em néon' : '🚴 Bonecos com a roupa escolhida'); };
     $('srMet').onclick = ()=>{ const mm = $('srMetM'); mm.hidden = !mm.hidden; if(!mm.hidden) metMenu(); };
     $('srFs').textContent = SR.full ? '✕' : '⛶';
     if(!SR.on){ SR.on = true; SR.raf = requestAnimationFrame(srFrame); }
@@ -7493,17 +7535,27 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     const order = [1,0,2].filter(i=> top[i]);
     const unit = 'na zona';
     const val = (r)=> riderZonePct(r) + '%';
-    wrap.innerHTML =
+    wrap.style.setProperty('--sumN', entry.riders.length);
+    wrap.innerHTML = '<div class="sum-l">' +
       '<div class="sum-crit">🏆 Classificação: tempo a pedalar dentro da zona pedida</div>' +
       '<div class="podium" style="justify-content:center">' + order.map(i=>
         '<div class="pod p' + (i+1) + '"><div class="pn">' + escapeHtml(top[i].n) + '</div><div class="pv">' + val(top[i]) + ' ' + unit + '</div><div class="step">' + (i+1) + '</div></div>'
       ).join('') + '</div>' +
       (function(){ const wh = full.riders.reduce((a,r)=> a + whFromKj(r.kj), 0); return wh >= 0.05 ? '<div class="sum-wh">⚡ Hoje a turma gerou ' + fmtWh(wh) + ' de eletricidade <small>(' + phonesTxt(wh) + ' · vale ≈ ' + fmtEur(wh) + ')</small><br>🔋 ' + fmtMah(mahFromWh(wh)) + ' <small>(' + pbTxt(mahFromWh(wh)) + ')</small></div>' : ''; })() +
-      summaryTableHtml(entry) +
+      '</div><div class="sum-r">' + summaryTableHtml(entry) + '</div><div class="sum-l2">' +
       (nOc ? '<div class="sum-oc">🙈 + ' + nOc + ' aluno' + (nOc > 1 ? 's' : '') + ' que pediu para não aparecer no ecrã: está' + (nOc > 1 ? 'o' : '') + ' no relatório em Treinos realizados.</div>' : '') +
-      '<div class="sum-actions"><button id="sumCsvBtn">⤓ Exportar CSV</button></div>';
+      '<div class="sum-actions"><button id="sumCsvBtn">⤓ Exportar CSV</button></div></div>';
     $('sumCsvBtn').addEventListener('click', ()=> exportHistCsv(full.id));
+    requestAnimationFrame(sumAjusta); setTimeout(sumAjusta, 350);
   }
+  // a tabela do fim da aula cabe no ecrã: começa com letra grande e encolhe até se verem todos (sem arrastar)
+  function sumAjusta(){
+    const t = document.querySelector('#liveSummary .sum-table'), box = document.querySelector('#liveSummary .sum-r'); if(!t || !box || !$('liveDone').classList.contains('active')) return;
+    let fs = 34; t.style.fontSize = fs + 'px';
+    const lim = ()=> window.innerHeight - box.getBoundingClientRect().top - 14;
+    while(fs > 11 && (t.offsetHeight > lim() || t.scrollWidth > box.clientWidth + 1)){ fs -= 1; t.style.fontSize = fs + 'px'; }
+  }
+  window.addEventListener('resize', ()=>{ if($('liveDone') && $('liveDone').classList.contains('active')) sumAjusta(); });
 
   // ================= SOUND =================
   let audioCtx = null;
@@ -8743,6 +8795,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     $('liveActive').style.display = 'none';
     $('liveControls').style.display = 'none';
     $('liveNext').textContent = '';
+    if(SR.full && SR.fsTroca){ try{ SR.fsTroca(); }catch(e){} }   // sai do percurso em ecrã inteiro para se ver o resumo
     $('liveDone').classList.add('active');
     $('liveTotalTime').textContent = fmtTime(totalDuration(current.blocos));
     $('liveBody').style.background = '#05070A';
@@ -8752,7 +8805,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     pushFinished();
     pushRanking();
     renderLiveSummary();
-    try{ podioMostra(); }catch(e){}   // percurso: pódio com os 3 primeiros e a classificação toda
+    if(!JG.podioVisto){ try{ podioMostra(); }catch(e){} }   // sem retorno à calma: o pódio aparece no fim
     // os telemóveis enviam o último valor até 2 s depois — atualiza o resumo
     setTimeout(()=>{ if(sessionPin) renderLiveSummary(); }, 3500);
   }
@@ -8813,21 +8866,42 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     return { x: maoR[0] + dx * s * .17, y: maoR[1] + dy * s * .17, dx, dy };
   }
   const POD = { on: false };
+  // resultados para o pódio: o último percurso feito; se não houve percurso, o último jogo
+  function podioDados(){
+    const bl = current.blocos, ate = Math.min(bl.length - 1, liveIdx >= 0 ? liveIdx : bl.length - 1), feitos = bl.slice(0, ate + 1).reverse();
+    const nome = id=> (riders[id] && riders[id].n) || 'Aluno', avDe = (id, i)=> avLe((riders[id] || {}).av) || avLe('e.' + ['F5C542', 'C9D1DB', 'CD8A4A'][i] + '.F3F4F6.E0AE86');
+    const pb = feitos.find(b=> b.jogo && PERC_TIPOS[b.jogo]);
+    if(pb){
+      const PR = srProprio(), val = id=> PR ? (JG.dm || {})[id] || 0 : JG.perc[id] || 0;
+      const ord = riderList().filter(r=> val(r.id) > 0 && !r.oc).sort((a, b)=> val(b.id) - val(a.id)); if(!ord.length) return null;
+      const lider = val(ord[0].id), kart = SR.tema === 'kart';
+      return { tit: '🏁 Classificação final', sub: PERC_TIPOS[pb.jogo].n, linhas: ord.map((r, i)=> ({ n: r.n || 'Aluno', ids: [r.id], x: kart ? '🍄 ' + ((JG.cog || {})[r.id] || 0) : '', v: PR ? srKm(val(r.id)) : i ? '−' + fmtTime(Math.round(lider - val(r.id))) : 'vencedor' })), avDe };
+    }
+    const gb = feitos.find(b=> b.jogo && JG_TIPOS[b.jogo]); if(!gb) return null;
+    const t = gb.jogo, T = JG_TIPOS[t], st = JG.st[t] || {}, key = T.g === 'pares' ? 'p' : t === 'cabo' ? '2' : t === 'cores' ? 'n' : null, g = key ? (JG.grupos[key] || []) : [];
+    const ind = ()=> riderList().filter(r=> !r.oc && ((r.as || 0) > 0 || r.dev));
+    let L = [];
+    if(t === 'cabo') L = g.map((e, i)=> ({ n: 'Equipa ' + EQ_NOME[i], ids: e, cor: EQ_COR[i], s: (st.vit || [])[i] || 0, v: ((st.vit || [])[i] || 0) + ' rondas' }));
+    else if(t === 'cores') L = g.map((e, i)=> ({ n: 'Equipa ' + EQ_NOME[i], ids: e, cor: EQ_COR[i], s: (st.pts || [])[i] || 0, v: Math.round((st.pts || [])[i] || 0) + ' pts' }));
+    else if(key === 'p'){ const vv = t === 'cpares' ? (st.kj || []) : (st.pts || []); L = g.map((e, i)=> ({ n: e.map(id=> nome(id).split(' ')[0]).join(' & '), ids: e, s: vv[i] || 0, v: t === 'cpares' ? (vv[i] || 0).toFixed(1) + ' kJ' : fmtTime(Math.round(vv[i] || 0)) + ' juntos' })); }
+    else if(t === 'sobre'){ const es = st.estr || {}, vd = st.vidas || {}; L = ind().map(r=> ({ n: r.n || 'Aluno', ids: [r.id], s: (es[r.id] || 0) * 10 + (vd[r.id] == null ? 3 : vd[r.id]), v: '★ ' + (es[r.id] || 0) })); }
+    else L = ind().map(r=> ({ n: r.n || 'Aluno', ids: [r.id], s: r.iz || 0, v: fmtTime(Math.round(r.iz || 0)) + ' na zona' }));
+    L = L.filter(x=> x.ids && x.ids.length).sort((a, b)=> b.s - a.s); if(!L.length) return null;
+    return { tit: '🏆 ' + T.n, sub: 'Resultado final', linhas: L, avDe, eq: t === 'cabo' || t === 'cores' };
+  }
   function podioMostra(){
-    if(!current.blocos.some(b=> b.jogo && PERC_TIPOS[b.jogo])) return;   // só nas aulas com percurso
-    const PR = srProprio(), val = id=> PR ? (JG.dm || {})[id] || 0 : JG.perc[id] || 0;
-    const rs = riderList().filter(r=> val(r.id) > 0 && !r.oc); if(!rs.length) return;
-    const ord = rs.slice().sort((a, b)=> val(b.id) - val(a.id)), kart = SR.tema === 'kart', lider = val(ord[0].id);
-    const nomeP = (PERC_TIPOS[(current.blocos.find(b=> b.jogo && PERC_TIPOS[b.jogo]) || {}).jogo] || {}).n || 'Percurso';
+    const D = podioDados(); if(!D) return;
+    JG.podioVisto = true;
     let el = $('podio'); if(el) el.remove();
     el = document.createElement('div'); el.id = 'podio'; el.className = 'podio';
-    el.innerHTML = '<canvas id="podioCv"></canvas><div class="podio-t"><div class="podio-h"><b>🏁 Classificação final</b><span>' + escapeHtml(nomeP) + ((current.nome || '').trim() ? ' · ' + escapeHtml(current.nome.trim()) : '') + '</span></div><ol style="--n:' + ord.length + '">' +
-      ord.map((r, i)=> '<li class="' + (i < 3 ? 'p' + (i + 1) : '') + '"><span>' + (i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1)) + '</span><b>' + escapeHtml(r.n || 'Aluno') + '</b>' +
-        (kart ? '<i>🍄 ' + ((JG.cog || {})[r.id] || 0) + '</i>' : '') + '<em>' + (PR ? srKm(val(r.id)) : i ? '−' + fmtTime(Math.round(lider - val(r.id))) : 'vencedor') + '</em></li>').join('') + '</ol></div>' +
+    el.innerHTML = '<canvas id="podioCv"></canvas><div class="podio-t"><div class="podio-h"><b>' + escapeHtml(D.tit) + '</b><span>' + escapeHtml(D.sub) + ((current.nome || '').trim() ? ' · ' + escapeHtml(current.nome.trim()) : '') + '</span></div><ol style="--n:' + D.linhas.length + '">' +
+      D.linhas.map((x, i)=> '<li class="' + (i < 3 ? 'p' + (i + 1) : '') + '"' + (x.cor ? ' style="border-left:8px solid ' + x.cor + '"' : '') + '><span>' + (i < 3 ? ['🥇', '🥈', '🥉'][i] : (i + 1)) + '</span><b>' + escapeHtml(x.n) +
+        (D.eq ? ' <small>' + x.ids.map(id=> escapeHtml(((riders[id] || {}).n || '').split(' ')[0])).join(', ') + '</small>' : '') + '</b>' + (x.x ? '<i>' + x.x + '</i>' : '') + '<em>' + escapeHtml(x.v) + '</em></li>').join('') + '</ol></div>' +
       '<button class="podio-x" title="Fechar (Esc)">✕</button>';
     document.body.appendChild(el);
     el.querySelector('.podio-x').onclick = podioFecha;
-    POD.on = true; POD.ord = ord.slice(0, 3).map((r, i)=> ({ n: (r.n || 'Aluno').split(' ')[0], av: avLe(r.av) || avLe('e.' + ['F5C542', 'C9D1DB', 'CD8A4A'][i] + '.F3F4F6.E0AE86'), v: PR ? srKm(val(r.id)) : i ? '−' + fmtTime(Math.round(lider - val(r.id))) : '' }));
+    POD.on = true; POD.ord = D.linhas.slice(0, 3).map((x, i)=>{ const av = D.avDe(x.ids[0], i); if(D.eq && x.cor){ av.j = x.cor; av.T = 'cam'; }
+      return { n: D.eq ? x.n.replace('Equipa ', '') : x.ids.length === 1 ? x.n.split(' ')[0] : x.n, av, v: x.v }; });
     POD.fw = []; POD.cf = []; POD.sp = []; POD.t = 0; POD.ultFw = 0;
     cancelAnimationFrame(POD.raf); POD.raf = requestAnimationFrame(podioFrame);
   }

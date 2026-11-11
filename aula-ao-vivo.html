@@ -904,6 +904,16 @@ body.ecra4-on #kartCog{display:none!important;}
 .god-n{flex-basis:100%;min-width:0;} .god-n b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .god-n small{font-size:12px;color:#9AA3B2;} .god-n em{font-style:normal;color:#FF8A8A;} .god-n em.ok{color:#3DD45C;}
 .god-ftp{display:flex;align-items:center;gap:4px;font-size:11px;color:#9AA3B2;flex:1;} .god-ftp button{padding:7px 10px;}
 .god-b{display:flex;gap:4px;} .god-b button{padding:8px 11px;font-size:19px;}
+
+/* peso e altura para a simulação da velocidade */
+.cp-ov{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.72);padding:16px;}
+.cp-ov.on{display:flex;}
+.cp-card{background:#12151C;border:1px solid #2A303D;border-radius:20px;padding:20px 18px;max-width:380px;width:100%;color:#fff;font-family:'Inter',sans-serif;}
+.cp-card b{display:block;font:800 26px 'Barlow Condensed',sans-serif;margin-bottom:6px;} .cp-card p{font-size:14px;color:#C9D0DC;margin:0 0 12px;line-height:1.4;}
+.cp-card label{display:flex;align-items:center;justify-content:space-between;gap:10px;font-weight:600;margin:8px 0;}
+.cp-card input{width:120px;background:#1B2030;border:1px solid #39405A;color:#fff;border-radius:10px;padding:10px;font:700 18px 'Inter',sans-serif;text-align:center;}
+.cp-bts{display:flex;gap:8px;margin-top:14px;} .cp-bts button{flex:1;border-radius:12px;padding:12px;font:700 16px 'Inter',sans-serif;border:1px solid #39405A;background:#232838;color:#fff;cursor:pointer;}
+.cp-bts #cpSim{background:#3DD45C;border-color:#3DD45C;color:#0A0C10;} .cp-card small{display:block;margin-top:10px;color:#8C95A6;font-size:12px;} .cp-card .cp-err{color:#FF8A8A;font-size:13px;min-height:16px;margin-top:6px;}
 </style>
 </head>
 <body>
@@ -1157,6 +1167,10 @@ body.ecra4-on #kartCog{display:none!important;}
 </div>
 
 <!-- 3. AULA -->
+<div class="cp-ov" id="cpOv" role="dialog" aria-modal="true" aria-labelledby="cpT"><div class="cp-card"><b id="cpT">⚖️ Para a velocidade ser real</b><p>A app simula a estrada com o teu peso e a tua altura: quem é mais leve sobe mais depressa e quem é mais alto apanha mais ar.</p>
+<label>Peso (kg)<input type="number" id="cpPeso" inputmode="decimal" min="30" max="250" step="0.5" placeholder="ex: 70"></label>
+<label>Altura (cm)<input type="number" id="cpAlt" inputmode="numeric" min="120" max="230" placeholder="ex: 172"></label>
+<div class="cp-err" id="cpErr"></div><div class="cp-bts"><button type="button" id="cpNao">Agora não</button><button type="button" id="cpSim">Guardar</button></div><small>Só serve para calcular a velocidade. Podes mudar na tua ficha.</small></div></div>
 <div class="av-ov" id="avOv" role="dialog" aria-modal="true" aria-labelledby="avTitle">
   <div class="av-card">
     <h2 id="avTitle">🎨 O teu ciclista</h2>
@@ -1662,6 +1676,36 @@ body.ecra4-on #kartCog{display:none!important;}
     for(let i = 0; i < 12; i++){ const f = k*v*v*v + crr*m*g*v - P, d = 3*k*v*v + crr*m*g; v = Math.max(0.1, v - f/d); }
     return v * 3.6;   // km/h
   }
+
+  // ===== Simulação da velocidade (física de estrada, para toda a app) =====
+  // Força dos pedais = gravidade + rolamento dos pneus + ar + aceleração. Usa o teu peso e altura (perfil),
+  // a inclinação do terreno do bloco (a mesma da estrada da projeção) e a inércia (não muda de velocidade de repente).
+  const SIM = { v: 0 };
+  function simCorpo(){
+    const p = Object.assign({}, perfil || {}, (typeof ficha !== 'undefined' && ficha) || {}), F = /^f/i.test(p.sexo || '');   // peso, altura e sexo da tua ficha
+    const kg = Number(p.peso) > 30 && Number(p.peso) < 250 ? Number(p.peso) : (F ? 65 : 78);
+    let h = Number(p.altura) || 0; if(h > 3) h = h / 100; if(!(h > 1.2 && h < 2.3)) h = F ? 1.65 : 1.76;
+    const A = 0.0293 * Math.pow(h, .725) * Math.pow(kg, .425) + .0604;   // área frontal do ciclista (fórmula de Heil)
+    return { kg, m: kg + 9, cda: A * .88 };   // + 9 kg de bicicleta; sentado com as mãos em cima do guiador
+  }
+  function simInclina(){ const b = currentBlock(); if(!b || solo === 'livre') return 0; try{ return SERRA3.terreno(b).slope || 0; }catch(e){ return 0; } }
+  // watts para a simulação: os da bicicleta; só com cinta, estimados pela %FC máx (65% ≈ 56% FTP · 85% ≈ 91% FTP · 92% ≈ 103% FTP)
+  function simWatts(){
+    if(hasPowerSource()) return dispPower;
+    const hr = myHr(); if(!(hr > 0) || !me.fc) return 0;
+    const pct = Math.max(30, Math.min(130, 1.75 * (hr / me.fc * 100) - 58));
+    return (me.ftp || 2.5 * simCorpo().kg) * pct / 100;
+  }
+  function simPasso(P, dt){
+    const C = simCorpo(), g = 9.81, rho = 1.225, crr = .004, ef = .976, sl = simInclina(), th = Math.atan(sl);
+    let v = SIM.v; const n = Math.max(1, Math.ceil(dt / .2)), h = dt / n;
+    for(let i = 0; i < n; i++){
+      const Fp = P > 0 ? P * ef / Math.max(v, 1.5) : 0, Fr = v > .05 ? crr * C.m * g * Math.cos(th) : 0, Fg = C.m * g * Math.sin(th), Fa = .5 * rho * C.cda * v * v;
+      v = Math.max(0, v + h * (Fp - Fr - Fg - Fa) / (C.m + 1.5));   // + 1,5 kg: inércia das rodas
+    }
+    if(P <= 0 && sl >= 0) v *= Math.pow(.7, dt);   // sem pedalar, em plano ou a subir, vai parando
+    SIM.v = v; return v * 3.6;   // km/h
+  }
   function fmtKm(km){ return (km < 10 ? km.toFixed(2) : km.toFixed(1)).replace('.', ','); }
 
   function parseFtms(dv){
@@ -1996,9 +2040,9 @@ body.ecra4-on #kartCog{display:none!important;}
         if(inTarget(pctFc)) me.iz += dt;
       }
     }
+    if(isPlaying() && !powered && myHr() > 0 && me.fc){ me.spd = simPasso(simWatts(), dt); me.km += me.spd * dt / 3600; }   // só com cinta: watts estimados pela FC
     if(isPlaying() && powered){
-      const fresh = S.bikeSpeed > 0 && now - (S.lastSpeedAt || 0) < 3000;
-      me.spd = fresh ? S.bikeSpeed : speedFromPower(dispPower);   // usa a da bike se ela a enviar
+      me.spd = simPasso(simWatts(), dt);   // simulação de estrada (peso, altura, inclinação, ar, inércia)
       me.km += me.spd * dt / 3600;
       const cbT = currentBlock(); if(cbT && cbT.teste){ me.tw += w * dt; me.tt += dt; }
       me.kj += w * dt / 1000;
@@ -2142,7 +2186,7 @@ body.ecra4-on #kartCog{display:none!important;}
       blocos = s.val() || [];
       if(!Array.isArray(blocos)) blocos = Object.values(blocos);
       $('progress').dataset.built = '';
-      setTimeout(avTalvez, 600);   // aula com percurso: escolher o ciclista
+      setTimeout(avTalvez, 600); setTimeout(corpoTalvez, 1200);   // aula com percurso: escolher o ciclista
     });
     add(base.child('state'), s=>{
       const v = s.val();
@@ -2431,6 +2475,27 @@ body.ecra4-on #kartCog{display:none!important;}
     try{ if(sessionStorage.getItem('prAvV_' + pin)) return; }catch(e){}
     if(!$('avOv').classList.contains('on')) avAbre();
   }
+
+  // peso e altura: pede-os uma vez por aula a quem ainda não os tem na ficha (a velocidade é simulada com eles)
+  function corpoTalvez(){
+    if(!pin) return;
+    const f = ficha || {}; if(f.peso && f.altura) return;
+    try{ if(sessionStorage.getItem('prCorpoV_' + pin)) return; }catch(e){}
+    if($('avOv') && $('avOv').classList.contains('on')){ setTimeout(corpoTalvez, 1500); return; }   // primeiro o boneco, depois isto
+    $('cpPeso').value = f.peso || ''; $('cpAlt').value = f.altura || ''; $('cpErr').textContent = '';
+    $('cpOv').classList.add('on');
+  }
+  function corpoFecha(){ try{ if(pin) sessionStorage.setItem('prCorpoV_' + pin, '1'); }catch(e){} $('cpOv').classList.remove('on'); }
+  $('cpNao').onclick = corpoFecha;
+  $('cpSim').onclick = ()=>{
+    const kg = Number($('cpPeso').value), cm = Number($('cpAlt').value);
+    if(!(kg >= 30 && kg <= 250)){ $('cpErr').textContent = 'Escreve o peso em kg (entre 30 e 250).'; return; }
+    if(!(cm >= 120 && cm <= 230)){ $('cpErr').textContent = 'Escreve a altura em cm (entre 120 e 230).'; return; }
+    ficha = Object.assign({}, ficha || {}, { peso: Math.round(kg * 2) / 2, altura: Math.round(cm) });
+    lsSet('prFicha', JSON.stringify(ficha));
+    if(user && fbDb) fbDb.ref('alunos/' + user.uid + '/ficha').update({ peso: ficha.peso, altura: ficha.altura }).catch(()=>{});
+    corpoFecha(); toast('Obrigado! A tua velocidade passa a ser calculada com ' + ficha.peso + ' kg e ' + ficha.altura + ' cm.');
+  };
   $('avSim').onclick = ()=> avFecha(true); $('avNao').onclick = ()=> avFecha(false);
   $('avOv').addEventListener('keydown', e=>{ if(e.key === 'Escape') avFecha(false); });
   $('e3Av').onclick = avAbre;
@@ -2538,17 +2603,24 @@ body.ecra4-on #kartCog{display:none!important;}
   function srTerreno(b){
     const mm = modoAtual() === 'fc' ? 'fc' : 'ftp', zs = zonesOf(mm), zi = b.tipo ? 0 : Math.max(0, zs.indexOf(getZone(b.ftp || 0, mm)));
     const rpm = b.rpm2 ? (b.rpm + b.rpm2) / 2 : (b.rpm || 90), tec = b.tecnica || '', tecSobe = /subida|escalada|montanha/i.test(tec);
-    // Subida: 60–80 rpm (com técnica de subida até 80; sem ela, abaixo de 80). Menos rpm e zona mais alta = mais inclinada.
-    // Referências: 80 rpm em Z2 ≈ 3% · 60 rpm em Z4 ≈ 20%. Mais rpm e zona mais alta = sobe mais depressa.
+    // Subida: 60–80 rpm (com técnica de subida até 80; sem ela, abaixo de 80). Inclinações de estrada a sério:
+    // 80 rpm ≈ 3% · 70 rpm ≈ 6,5% · 60 rpm ≈ 10%, e um pouco mais nas zonas altas (máximo 12%).
+    // A velocidade do terreno é a de um ciclista-padrão (78 kg, FTP 230 W) a meio da zona, pela física da estrada.
+    const P = 230 * [45, 65, 83, 98, 113, 135, 160][Math.min(6, zi)] / 100;
     if(b.tipo !== 'cool' && zi > 0 && (rpm < 80 || (tecSobe && rpm <= 80))){
       const r = Math.max(60, Math.min(80, rpm));
-      const sl = Math.max(0.02, Math.min(0.22, 0.03 + (80 - r) * 0.0055 + (zi - 1) * 0.03));
-      return { t:'sobe', slope:sl, kmh:Math.round(8 + (r - 60) * 0.35 + zi * 1.5), zi };
+      const sl = Math.max(0.02, Math.min(0.12, 0.03 + (80 - r) * 0.0035 + (zi - 1) * 0.005));
+      return { t:'sobe', slope:sl, kmh:Math.round(srVRef(P, sl)), zi };
     }
-    if(b.tipo === 'cool' || zi === 0) return { t:'desce', slope:-0.045, kmh:42, zi };   // Z1 e retorno à calma
-    if(zi >= 6 || /sprint/i.test(tec)) return { t:'sprint', slope:0, kmh:52, zi };        // Z7: sprint em plano
-    // Plano: 80–115 rpm, mais rápido com mais rpm e zona mais alta
-    return { t:'plano', slope:0, kmh:Math.round(24 + (Math.min(115, rpm) - 80) * 0.25 + zi * 3), zi };
+    if(b.tipo === 'cool' || zi === 0) return { t:'desce', slope:-0.045, kmh:Math.round(srVRef(P, -0.045)), zi };   // Z1 e retorno à calma
+    if(zi >= 6 || /sprint/i.test(tec)) return { t:'sprint', slope:0, kmh:Math.round(srVRef(Math.max(P, 230 * 1.5), 0)), zi };   // Z7: sprint em plano
+    return { t:'plano', slope:0, kmh:Math.round(srVRef(P, 0)), zi };   // plano: 80–115 rpm
+  }
+  // velocidade estável (km/h) de um ciclista-padrão (78 kg + 9 kg de bicicleta, CdA 0,30) com P watts numa inclinação sl
+  function srVRef(P, sl){
+    const m = 87, g = 9.81, th = Math.atan(sl), a = .5 * 1.225 * .30, b = .004 * m * g * Math.cos(th) + m * g * Math.sin(th), Pe = P * .976;
+    let v = 15; for(let i = 0; i < 25; i++){ const f = a * v * v * v + b * v - Pe, d = 3 * a * v * v + b; v = Math.max(.5, v - f / d); }
+    return v * 3.6;
   }
   function srPista(){
     const bl = current.blocos, segs = [], bStart = [];
@@ -5273,9 +5345,9 @@ body.ecra4-on #kartCog{display:none!important;}
     if(fxE & 8){ ctx.save(); ctx.lineCap = 'round'; for(let k = 0; k < 12; k++){ const f = (now * .0009 + k * .173) % 1, yy = H * (.25 + (k % 6) * .1), xx = W * (1.2 - f * 1.6), L = W * .35;
         ctx.strokeStyle = 'rgba(230,242,255,' + (.7 * Math.sin(f * Math.PI)).toFixed(2) + ')'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(xx, yy); ctx.bezierCurveTo(xx - L * .3, yy - 14, xx - L * .6, yy + 14, xx - L, yy); ctx.stroke(); }
       ctx.fillStyle = 'rgba(200,225,255,.12)'; ctx.fillRect(0, 0, W, H); ctx.restore(); }
-    // consola do veículo: potência, cadência, velocidade (a do percurso: terreno × o teu esforço e os efeitos) e %FC máxima
+    // consola do veículo: potência, cadência, velocidade e %FC máxima
     const eu7 = P[riderId] || null, fat = (eu7 ? (eu7[2] ? 1 : (PAR[5] || 60) / 100) : 0) * (fxE & 1 ? 1 + PAR[0] / 100 : 1) * (fxE & 2 ? 1 - PAR[1] / 100 : 1) * (fxE & 4 ? 1 + PAR[2] / 100 : 1) * (fxE & 8 ? 1 - PAR[3] / 100 : 1);
-    const kmhV = Math.round((base.tr ? base.tr.kmh : 0) * fat);
+    const kmhV = E3.kmh != null ? Math.round(E3.kmh) : Math.round((base.tr ? base.tr.kmh : 0) * fat);   // a velocidade simulada (igual ao ecrã 1)
     const cw = Math.min(W * .94, 460), chh = Math.max(116, H * .2), cx0 = gx - cw / 2, cy0 = gy - chh - H * .01;
     ctx.fillStyle = 'rgba(8,10,15,.94)'; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(cx0, cy0, cw, chh, 14) : ctx.rect(cx0, cy0, cw, chh); ctx.fill();
     ctx.strokeStyle = zc; ctx.lineWidth = 3; ctx.stroke();
@@ -5314,7 +5386,7 @@ body.ecra4-on #kartCog{display:none!important;}
     SR.cv = $('e3Cv'); SR.ctx = SR.cv.getContext('2d'); SR.bgKey = ''; SR.on = true; SR.raf = requestAnimationFrame(e3Frame);
   }
   function para(){ SR.on = false; cancelAnimationFrame(SR.raf); }
-  return { abre, para, E3, ligado: ()=> SR.on, tema: (t, r)=>{ SR.tema = t; SR.rota = r || null; },
+  return { abre, para, E3, terreno: srTerreno, ligado: ()=> SR.on, tema: (t, r)=>{ SR.tema = t; SR.rota = r || null; },
     av: { le: avLe, txt: avTxt, VEIC: AV_VEIC, CAM: AV_CAM, CAP: AV_CAP, PELE: AV_PELE, CAB: AV_CAB, COR: AV_COR, CABELO: AV_CABELO, VCOR: AV_VCOR, CHAP: AV_CHAP, PAR: AV_PAR, grupo: avGrupo, eCabelo: avCabelo, desenha: (g, x, y, s, ped, vx, a)=>{ const t = SR.tema; SR.tema = 'serra'; try{ srCiclista(g, x, y, s, '#3DD45C', ped, false, vx, a); } finally { SR.tema = t; } } } };
   })();
   const JOGOS_ALUNO = {
@@ -5345,7 +5417,7 @@ body.ecra4-on #kartCog{display:none!important;}
     if(estrada){
       SERRA3.tema(k === 'p_neon' ? 'neon' : k === 'p_cyber' ? 'cyber' : k === 'p_kart' ? 'kart' : k === 'p_paris' ? 'paris' : k === 'p_lsdpnf' || k === 'p_pnflsd' || k === 'p_porto' ? 'vale' : 'serra', k === 'p_lsdpnf' ? 'lp' : k === 'p_pnflsd' ? 'pl' : k === 'p_porto' ? 'porto' : null);
       const E = SERRA3.E3; if(E.el == null || Math.abs(elapsed - E.el) > .05){ E.el = elapsed; E.elT = performance.now(); } E.rem = remaining; E.alvo = pctTxt(b, range) + (modo === 'fc' ? ' FC' : ' FTP'); E.arpm = rpmTxt(b);
-      E.w = hasPowerSource() ? Math.round(dispPower) : null; E.rpm = hasPowerSource() ? Math.round(S.cadence) : null; E.fcp = me.fc && myHr() > 0 ? Math.round(myHr() / me.fc * 100) : null; E.bpm = myHr() > 0 ? Math.round(myHr()) : null; E.pftp = hasPowerSource() && me.ftp ? Math.round(dispPower / me.ftp * 100) : null;
+      E.w = hasPowerSource() ? Math.round(dispPower) : null; E.rpm = hasPowerSource() ? Math.round(S.cadence) : null; E.fcp = me.fc && myHr() > 0 ? Math.round(myHr() / me.fc * 100) : null; E.bpm = myHr() > 0 ? Math.round(myHr()) : null; E.kmh = hasPowerSource() || myHr() > 0 ? (me.spd || 0) : null;   // a mesma velocidade do ecrã 1 (simulação de estrada) E.pftp = hasPowerSource() && me.ftp ? Math.round(dispPower / me.ftp * 100) : null;
       if(!E.toqueOk){ E.toqueOk = true; try{ E.vPct = localStorage.getItem('prConsP') === '1'; E.vBpm = localStorage.getItem('prConsF') === '1'; }catch(e){}
         $('e3Cv').addEventListener('click', ev=>{ const c = E.cons; if(!c) return; const r = ev.currentTarget.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;   // tocar na consola: W ↔ %FTP e %FC máx ↔ bpm
           if(x < c.x || x > c.x + c.w || y < c.y || y > c.y + c.h) return; const dir = x > c.x + c.w / 2, baixo = y > c.y + c.h / 2;
