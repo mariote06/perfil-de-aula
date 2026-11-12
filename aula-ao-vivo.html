@@ -89,6 +89,17 @@ body:has(#liveScreen.active) .legal{display:none;}
   padding:9px 12px;font-size:13px;font-weight:600;white-space:nowrap;
 }
 .sensor button.on{border-color:var(--ok);color:var(--ok);}
+.ssn-row{flex-direction:column;align-items:stretch;}
+.ssn-b{display:flex;gap:8px;}
+.ssn-b button{flex:1;}
+.ssn{--zc:#FFD60A;position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 118px);z-index:60;display:flex;align-items:stretch;gap:0;background:rgba(14,17,23,.92);border:2px solid var(--zc);border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.5);overflow:hidden;}
+.ssn button{width:58px;border:none;background:rgba(255,255,255,.06);color:#fff;font:800 30px/1 system-ui,sans-serif;cursor:pointer;touch-action:manipulation;}
+.ssn button:active{background:var(--zc);color:#111;}
+.ssn-m{min-width:150px;padding:6px 12px;text-align:center;display:flex;flex-direction:column;justify-content:center;}
+.ssn-m div{display:flex;align-items:baseline;justify-content:center;gap:7px;}
+.ssn-m b{font:800 30px/1 'Barlow Condensed',system-ui,sans-serif;color:var(--zc);}
+.ssn-m span{font-weight:800;font-size:14px;color:#fff;}
+.ssn-m small{font-size:11.5px;color:#AAB4C3;font-weight:600;margin-top:2px;white-space:nowrap;}
 .warn{
   font-size:12px;color:#FFD27A;background:rgba(217,164,65,.1);border:1px solid rgba(217,164,65,.35);
   border-radius:10px;padding:10px 12px;line-height:1.45;text-align:left;display:none;
@@ -1153,6 +1164,10 @@ body.ecra4-on #kartCog{display:none!important;}
       <div><div class="s-name">♥ Cinta de FC</div><div class="s-status" id="hrStatus">opcional</div></div>
       <button id="hrBtn">Ligar</button>
     </div>
+    <div class="sensor ssn-row">
+      <div><div class="s-name">📱 Sem sensores</div><div class="s-status" id="ssnSt">sem bike nem cinta ligadas</div></div>
+      <div class="ssn-b"><button id="ssnBolso" title="O acelerómetro do telemóvel conta as pedaladas">No bolso</button><button id="ssnGuiador" title="Usa a cadência alvo">No guiador</button></div>
+    </div>
     <button id="ultBikeBtn" class="bt-all bt-ult" style="display:none"></button>
     <button id="showAllBtn" class="bt-all">🔍 Não aparece? Mostrar todos os dispositivos Bluetooth</button>
     <div class="hint" id="bikeHelp">Antes de ligar: pedala um pouco para acordar a consola da bike. Tens de ter o Bluetooth e a Localização do telemóvel ligados.</div>
@@ -1223,6 +1238,11 @@ body.ecra4-on #kartCog{display:none!important;}
 </div>
 <div class="nx-burst" id="nxBurst" aria-hidden="true"></div><div class="nx-float" id="nxFloat"></div>
 <div id="liveScreen">
+  <div class="ssn" id="ssnBox" style="display:none" aria-label="O teu esforço">
+    <button id="ssnMenos" aria-label="Menos esforço">−</button>
+    <div class="ssn-m"><div><b id="ssnN">5</b><span id="ssnT">Difícil</span></div><small id="ssnI"></small></div>
+    <button id="ssnMais" aria-label="Mais esforço">+</button>
+  </div>
   <div class="progress" id="progress"></div>
   <button class="hdr-handle" id="hdrHandle" aria-label="Desliza para baixo para abrir o menu" title="Desliza para baixo para abrir o menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
   <div class="topbar">
@@ -1910,7 +1930,7 @@ body.ecra4-on #kartCog{display:none!important;}
 
   function bikeConnected(){ return !!(S.bikeDev && S.bikeDev.gatt && S.bikeDev.gatt.connected); }
   function hrConnected(){ return !!(S.hrDev && S.hrDev.gatt && S.hrDev.gatt.connected); }
-  function hasPowerSource(){ return demo || bikeConnected(); }
+  function hasPowerSource(){ return demo || bikeConnected() || !!semSens; }
 
   function setBikeStatus(txt, on){
     $('bikeStatus').textContent = txt; $('bikeStatus').classList.toggle('on', !!on);
@@ -2003,6 +2023,91 @@ body.ecra4-on #kartCog{display:none!important;}
     return pct > r.min && pct <= r.max + 0.0001;
   }
 
+  // =====================================================================
+  // SEM SENSORES (bike sem Bluetooth, sem potenciómetro e sem cinta)
+  // Cadência: o acelerómetro do telemóvel no bolso da calça (ou preso à coxa) conta as pedaladas;
+  //   com o telemóvel no guiador usa-se a cadência alvo do bloco.
+  // Esforço: o que o aluno sente (escala de Borg 0–10). Em cada bloco começa no esforço do alvo e o aluno ajusta com − e +.
+  // Daí estimam-se os watts (pelo FTP) e, nas aulas por FC, a FC. Na projeção fica marcado como estimado (📱≈).
+  // =====================================================================
+  let semSens = null;   // null | 'bolso' | 'guiador'
+  const BORG = ['Parado', 'Muito leve', 'Leve', 'Moderado', 'Algo difícil', 'Difícil', 'Difícil +', 'Muito difícil', 'Muito difícil +', 'Quase máximo', 'Máximo'];
+  const RPE_FTP = [0, 45, 55, 65, 75, 83, 91, 100, 108, 118, 135], RPE_FC = [0, 55, 60, 66, 72, 78, 83, 88, 92, 95, 98];
+  const SSN = { rpe: 5, rpe0: -1, pct0: 0, bloco: -1, cad: null };
+  const ACC = { x: [], y: [], z: [], t: [], ult: 0, rpm: 0, zeros: 0 };
+  function accEv(e){
+    const a = e.accelerationIncludingGravity; if(!a || a.x == null) return;
+    const t = performance.now(); ACC.x.push(a.x); ACC.y.push(a.y || 0); ACC.z.push(a.z || 0); ACC.t.push(t); ACC.ult = t;
+    if(ACC.t.length > 900) ['x', 'y', 'z', 't'].forEach(k=> ACC[k].splice(0, 300));
+  }
+  // pedaladas por minuto pelos últimos 5 s do acelerómetro: com o telemóvel no bolso, a coxa sobe e desce uma vez
+  // por cada volta ao pedal, por isso o sinal repete-se a cada volta (autocorrelação: o atraso em que o sinal mais se parece consigo próprio)
+  function accCad(){
+    const now = performance.now(); if(now - ACC.ult > 2500 || ACC.t.length < 40) return null;   // o acelerómetro não está a enviar
+    const FS = 25, t0 = Math.max(now - 5000, ACC.t[0]), N = Math.floor((now - t0) / 1000 * FS); if(N < 3 * FS) return null;
+    const T = ACC.t, C = [ACC.x, ACC.y, ACC.z], ch = C.map(()=> new Float32Array(N));
+    let j = 0;
+    for(let i = 0; i < N; i++){ const t = t0 + i * 1000 / FS; while(j < T.length - 2 && T[j + 1] < t) j++;
+      const ta = T[j], tb = T[j + 1] != null ? T[j + 1] : ta, f = tb > ta ? Math.max(0, Math.min(1, (t - ta) / (tb - ta))) : 0;
+      for(let k = 0; k < 3; k++){ const a = C[k][j], b = C[k][j + 1] != null ? C[k][j + 1] : a; ch[k][i] = a + (b - a) * f; } }
+    let E = 0; ch.forEach(x=>{ let m = 0; for(let i = 0; i < N; i++) m += x[i]; m /= N; for(let i = 0; i < N; i++){ x[i] -= m; E += x[i] * x[i]; } });
+    if(Math.sqrt(E / N) < .35) return 0;   // quase sem movimento: parado
+    { const n2 = 2 * FS; let e2 = 0; ch.forEach(x=>{ let m = 0; for(let i = N - n2; i < N; i++) m += x[i]; m /= n2; for(let i = N - n2; i < N; i++) e2 += (x[i] - m) * (x[i] - m); }); if(Math.sqrt(e2 / n2) < .35) return 0; }   // parou agora (últimos 2 s quietos)
+    const L0 = Math.round(60 * FS / 150), L1 = Math.min(Math.round(60 * FS / 35), N - FS), R = new Float32Array(L1 + 2);
+    for(let L = L0 - 1; L <= L1 + 1; L++){ let s = 0; ch.forEach(x=>{ for(let i = 0; i + L < N; i++) s += x[i] * x[i + L]; }); R[L] = s * N / (N - L) / E; }
+    let mx = -1; for(let L = L0; L <= L1; L++) if(R[L] > mx) mx = R[L];
+    if(mx < .3) return 0;   // movimento sem ritmo (não está a pedalar)
+    // o primeiro pico forte (evita contar 2 voltas como 1)
+    let Lb = 0; for(let L = L0; L <= L1; L++) if(R[L] >= .8 * mx && R[L] >= R[L - 1] && R[L] >= R[L + 1]){ Lb = L; break; }
+    if(!Lb) return 0;
+    const den = R[Lb - 1] - 2 * R[Lb] + R[Lb + 1], d = den ? .5 * (R[Lb - 1] - R[Lb + 1]) / den : 0;
+    return 60 * FS / (Lb + Math.max(-.5, Math.min(.5, d)));
+  }
+  async function accLiga(){
+    if(!('DeviceMotionEvent' in window)) return false;
+    try{ if(typeof DeviceMotionEvent.requestPermission === 'function' && await DeviceMotionEvent.requestPermission() !== 'granted') return false; }catch(e){ return false; }   // iPhone: pede autorização
+    window.removeEventListener('devicemotion', accEv); window.addEventListener('devicemotion', accEv); return true;
+  }
+  function accDesliga(){ window.removeEventListener('devicemotion', accEv); ACC.ult = 0; ACC.rpm = 0; }
+  function rpeDoBloco(b){ const T = modo === 'fc' ? RPE_FC : RPE_FTP, v = (b && b.ftp) || 0; let k = 1; for(let i = 1; i <= 10; i++) if(Math.abs(T[i] - v) < Math.abs(T[k] - v)) k = i; return k; }
+  function genSemSens(){
+    const b = currentBlock(), now = performance.now();
+    if(b && state && state.blockIndex !== SSN.bloco){ SSN.bloco = state.blockIndex; SSN.rpe = SSN.rpe0 = rpeDoBloco(b);   // bloco novo: começa no esforço do alvo, a meio da zona
+      const zr = zoneRange(b.ftp || 0); SSN.pct0 = zr.open ? Math.max(b.ftp || 0, zr.min + 2) : Math.max(zr.min + 2, Math.min(zr.max - 2, b.ftp || 0)); }
+    const noAlvo = SSN.rpe === SSN.rpe0 && SSN.rpe > 0;
+    const alvo = b ? ((b.rpm || 85) + (b.rpm2 || b.rpm || 85)) / 2 : 85;
+    let rpm;
+    if(semSens === 'bolso'){ const c = accCad();
+      if(c == null) rpm = SSN.rpe > 0 ? alvo : 0;   // o acelerómetro parou (ecrã desligou?): segue a cadência alvo
+      else if(c === 0){ ACC.zeros++; rpm = ACC.zeros >= 2 ? 0 : ACC.rpm; }   // 2 s sem ritmo = parou
+      else { ACC.zeros = 0; rpm = ACC.rpm ? ACC.rpm * .5 + c * .5 : c; }
+      ACC.rpm = rpm; SSN.cad = c == null ? null : rpm;
+    } else { rpm = SSN.rpe > 0 ? alvo : 0; SSN.cad = null; }
+    const cf = rpm >= 25 ? Math.max(.85, Math.min(noAlvo ? 1 : 1.08, .75 + .25 * rpm / alvo)) : 0;   // pedalar abaixo da cadência alvo conta um pouco menos
+    S.cadence = rpm; S.power = (me.ftp || 150) * (noAlvo && modo !== 'fc' ? SSN.pct0 : RPE_FTP[SSN.rpe]) / 100 * cf;
+    if(modo === 'fc' && me.fc && !hrConnected()){ S.bikeHr = cf ? me.fc * (noAlvo ? SSN.pct0 : RPE_FC[SSN.rpe]) / 100 * (cf < 1 ? .97 : 1) : 0; S.lastBikeHrAt = now; }   // aula por FC: a FC estimada pelo esforço
+    S.lastPowerAt = S.lastCadAt = now;
+    ssnUi();
+  }
+  function ssnUi(){
+    const el = $('ssnBox'); if(!el) return;
+    const on = !!semSens && !bikeConnected() && $('liveScreen').classList.contains('active');
+    el.style.display = on ? '' : 'none'; if(!on) return;
+    $('ssnN').textContent = SSN.rpe; $('ssnT').textContent = BORG[SSN.rpe];
+    $('ssnI').textContent = '≈ ' + Math.round(S.power) + ' W · ' + (semSens === 'bolso' ? (SSN.cad == null ? '📱 sem sinal' : '📱 ' + Math.round(S.cadence) + ' rpm') : 'rpm alvo');
+    el.style.setProperty('--zc', SSN.rpe >= 9 ? '#E5484D' : SSN.rpe >= 7 ? '#FF8A2A' : SSN.rpe >= 5 ? '#FFD60A' : SSN.rpe >= 3 ? '#3DD45C' : '#7FA8FF');
+  }
+  function ssnMuda(d){ SSN.rpe = Math.max(0, Math.min(10, SSN.rpe + d)); if(semSens && !bikeConnected()) genSemSens(); ssnUi(); try{ navigator.vibrate && navigator.vibrate(15); }catch(e){} }
+  async function ssnEscolhe(m){
+    if(semSens === m){ semSens = null; accDesliga(); }
+    else { semSens = m; demo = false; if(m === 'bolso'){ if(!await accLiga()){ semSens = 'guiador'; toast('Este telemóvel não deixa usar o acelerómetro: fica com a cadência alvo'); } } else accDesliga(); }
+    $('ssnBolso').classList.toggle('on', semSens === 'bolso'); $('ssnGuiador').classList.toggle('on', semSens === 'guiador');
+    $('ssnSt').classList.toggle('on', !!semSens);
+    $('ssnSt').textContent = semSens === 'bolso' ? 'telemóvel no bolso da calça: conta as tuas pedaladas' : semSens === 'guiador' ? 'telemóvel no guiador: usa a cadência alvo' : 'sem bike nem cinta ligadas';
+    if(semSens && !$('ftpInput').value) $('ftpInput').value = lsGet(LS.ftp) || '';
+    if(semSens) $('setupError').textContent = '';
+  }
+
   function genDemo(){
     const b = currentBlock();
     const ftp = me.ftp || 150;
@@ -2020,6 +2125,7 @@ body.ecra4-on #kartCog{display:none!important;}
     const dt = Math.min(3, (now - lastSampleAt) / 1000);
     lastSampleAt = now;
     if(demo) genDemo();
+    else if(semSens && !bikeConnected()) genSemSens();   // sem sensores: cadência do acelerómetro e esforço declarado
     // sem dados frescos = parado
     if(now - S.lastPowerAt > 3000) S.power = 0;
     if(now - S.lastCadAt > 3000) S.cadence = 0;
@@ -2143,6 +2249,7 @@ body.ecra4-on #kartCog{display:none!important;}
       dev: hasPowerSource() || (modo === 'fc' && myHr() > 0), demo: demo || null, left: null,
       pw: hasPowerSource() && (demo || performance.now() - S.lastPowerAt < 5000) ? true : false,   // bike ligada e a enviar watts; 5 s sem dados (ligação congelada) → o professor passa a contar a FC até os watts voltarem
       rx: me.rx || null, fa: me.fa || null,
+      est: semSens && !bikeConnected() && !demo ? (semSens === 'bolso' ? 'b' : 'g') : null,   // sem sensores: watts (e FC) estimados pelo esforço
       md: moodHoje(),   // emoji do "como te sentes hoje?" (aparece junto ao nome na projeção)
       oc: ocultoProj ? true : null,   // pediu para não aparecer no ecrã da projeção (continua no relatório do professor)
       t: firebase.database.ServerValue.TIMESTAMP
@@ -2415,6 +2522,7 @@ body.ecra4-on #kartCog{display:none!important;}
     document.body.classList.remove('solo','solo-livre');
     $('finHomeBtn').style.display = 'none';
     disconnectBike(); disconnectHr();
+    if(semSens) ssnEscolhe(semSens);   // desliga o "sem sensores"
     releaseWakeLock();
     $('pinInput').value = '';
     showJoinError('');
@@ -6028,7 +6136,12 @@ body.ecra4-on #kartCog{display:none!important;}
   $('ftpEditVal').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') saveFtpEdit(); });
   $('ftpEdit').addEventListener('click', (e)=>{ if(e.target.id === 'ftpEdit') closeFtpEdit(); });
   $('enterBtn').addEventListener('click', ()=>{ tryFullscreen(); if(solo) startSolo(); else enterClass(); });
+  $('ssnBolso').addEventListener('click', ()=> ssnEscolhe('bolso'));
+  $('ssnGuiador').addEventListener('click', ()=> ssnEscolhe('guiador'));
+  $('ssnMenos').addEventListener('click', ()=> ssnMuda(-1));
+  $('ssnMais').addEventListener('click', ()=> ssnMuda(1));
   $('demoBtn').addEventListener('click', ()=>{
+    if(semSens) ssnEscolhe(semSens);   // o modo teste substitui o "sem sensores"
     demo = true;
     if(!$('ftpInput').value) $('ftpInput').value = lsGet(LS.ftp) || 150;
     setBikeStatus('modo teste (valores simulados)', true);

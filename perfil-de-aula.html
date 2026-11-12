@@ -1597,6 +1597,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 .podio-t li i{font-style:normal;color:#FFD60A;margin-right:1vw;} .podio-t li em{font-style:normal;font-weight:800;font-variant-numeric:tabular-nums;}
 .podio-t li.p1{background:linear-gradient(90deg,rgba(245,197,66,.45),rgba(245,197,66,.12));} .podio-t li.p2{background:linear-gradient(90deg,rgba(201,209,219,.4),rgba(201,209,219,.1));} .podio-t li.p3{background:linear-gradient(90deg,rgba(205,138,74,.45),rgba(205,138,74,.1));}
 .podio-x{position:absolute;top:14px;right:14px;width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:20px;cursor:pointer;}
+.est-em{font-size:.72em;opacity:.8;font-weight:700;white-space:nowrap;}
 </style>
 </head>
 <body data-view="home">
@@ -3652,7 +3653,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     const hasMood = entry.riders.some(r=> r.md || r.rx || r.fa);
     const rows = entry.riders.map((r,i)=>{
       const pct = riderAvgPct(r);
-      return '<tr><td>' + (i+1) + '</td><td>' + escapeHtml(r.n) + (r.oc ? ' <span title="Escolheu não aparecer na projeção">🙈</span>' : '') + '</td>' +
+      return '<tr><td>' + (i+1) + '</td><td>' + escapeHtml(r.n) + estEm(r) + (r.oc ? ' <span title="Escolheu não aparecer na projeção">🙈</span>' : '') + '</td>' +
         '<td class="sum-zona">' + riderZonePct(r) + '%</td>' +
         '<td>' + (r.ftp ? r.ftp + (r.ftpIni && r.ftpIni !== r.ftp ? ' <small title="alterou o FTP na aula">✎ era ' + r.ftpIni + '</small>' : '') : '—') + '</td>' +
         (hasTest ? '<td>' + (r.ftpT ? '<b>' + r.ftpT + ' W</b> <small>(média ' + r.m20 + ')</small>' : (r.m20 ? '<small>incompleto</small>' : '—')) + '</td>' : '') +
@@ -3833,6 +3834,8 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   }
   // aluno com a app em segundo plano (ou que deixou de enviar dados sem sair da aula)
   function outApp(r){ return !r.left && (r.bg || !r.online); }
+  // aluno sem sensores (sem bike ligada nem cinta): watts estimados pelo esforço que sente e cadência do telemóvel no bolso
+  function estEm(r){ return r && r.est ? ' <span class="est-em" title="Sem sensores: valores estimados (' + (r.est === 'b' ? 'cadência do telemóvel no bolso' : 'telemóvel no guiador') + ' e esforço que o aluno indica)">📱≈</span>' : ''; }
   function ridingRiders(){ return riderList().filter(r=> r.dev || (r.as||0) > 0); }
   // alunos que escolheram não aparecer na projeção: contam para o relatório e para a energia da turma, mas não aparecem no ecrã
   function visRiders(){ return ridingRiders().filter(r=> !r.oc); }
@@ -7602,7 +7605,7 @@ const SR3 = (()=>{
         (sessionPin ? '<div class="sr-pin">PIN <b>' + escapeHtml(String(sessionPin)) + '</b></div>' : '') +
         '<div class="sr-c">' + (rs.length ? '<b>' + nz + '</b> de ' + rs.length + ' na zona' : 'à espera dos alunos') + '</div>' +
         (SR.met ? '<div class="sr-m">' + MET_TEMPOS[SR.met.tempo][0] + ' <b>' + SR.met.temp + ' °C</b><span>' + MET_FASES[SR.met.fase][1] + ' · ' + MET_TEMPOS[SR.met.tempo][1] + '</span></div>' : '') + '</div>';
-      $('srRank').innerHTML = '<div class="sr-rt">CLASSIFICAÇÃO</div>' + ord.slice(0, SR.cv.clientWidth > 1400 ? 8 : 6).map((r, i)=> '<div><span>' + (i + 1) + '</span><b>' + escapeHtml((r.n || '?').split(' ')[0]) + '</b>' + (SR.tema === 'kart' ? '<em class="sr-cog">🍄 ' + ((JG.cog || {})[r.id] || 0) + '</em>' : '') + '<i class="' + (JG.z[r.id] ? 'ok' : '') + '">' + (PR ? srKm(DMv(r.id)) : i ? '−' + fmtTime(Math.round((JG.perc[ord[0].id] || 0) - (JG.perc[r.id] || 0))) : 'líder') + '</i></div>').join('');
+      $('srRank').innerHTML = '<div class="sr-rt">CLASSIFICAÇÃO</div>' + ord.slice(0, SR.cv.clientWidth > 1400 ? 8 : 6).map((r, i)=> '<div><span>' + (i + 1) + '</span><b>' + escapeHtml((r.n || '?').split(' ')[0]) + (r.est ? ' <small class="est-em">≈</small>' : '') + '</b>' + (SR.tema === 'kart' ? '<em class="sr-cog">🍄 ' + ((JG.cog || {})[r.id] || 0) + '</em>' : '') + '<i class="' + (JG.z[r.id] ? 'ok' : '') + '">' + (PR ? srKm(DMv(r.id)) : i ? '−' + fmtTime(Math.round((JG.perc[ord[0].id] || 0) - (JG.perc[r.id] || 0))) : 'líder') + '</i></div>').join('');
     }
   }
   // altimetria: desenhada uma vez numa imagem; em cada imagem só se escurece o que já foi feito e se põe o ponto
@@ -7754,7 +7757,7 @@ const SR3 = (()=>{
         const inZone = r.online && pct!=null && targetZone === z.name && (fcMode ? r.hr > 0 : (r.w||0) > 0);
         const bigFc = fcMode && !(r.w > 0);
         return '<div class="rtile' + (r.online ? '' : ' offline') + (inZone ? ' inzone' : '') + '" style="--zc:' + zc + ';--zc-a:' + zc + '55">' +
-          '<div class="rt-top"><span class="rt-pos">' + (i+1) + '</span><span class="rt-name">' + escapeHtml(r.n||'?') + '</span>' + moodEm(r) + (outApp(r) ? '<span class="rt-bg">📵 fora da app</span>' : '') + '</div>' +
+          '<div class="rt-top"><span class="rt-pos">' + (i+1) + '</span><span class="rt-name">' + escapeHtml(r.n||'?') + '</span>' + estEm(r) + moodEm(r) + (outApp(r) ? '<span class="rt-bg">📵 fora da app</span>' : '') + '</div>' +
           '<div class="rt-w">' + (r.online ? Math.round(bigFc ? (r.hr||0) : (r.w||0)) : '—') + '<small>' + (bigFc ? 'bpm' : 'W') + '</small></div>' +
           '<div class="rt-sub">' +
             (pct==null ? '' : '<span class="pct">' + pct + '%' + (fcMode ? ' FC' : '') + '</span>') +
@@ -7779,7 +7782,7 @@ const SR3 = (()=>{
         const w = (metricVal(r)/max*100).toFixed(1);
         return '<div class="lane p' + (i+1) + (r.online ? '' : ' offline') + '">' +
           '<div class="ln-pos">' + (i+1) + '</div>' +
-          '<div class="ln-name">' + (outApp(r) ? '📵 ' : '') + escapeHtml(r.n||'?') + moodEm(r) + '</div>' +
+          '<div class="ln-name">' + (outApp(r) ? '📵 ' : '') + escapeHtml(r.n||'?') + estEm(r) + moodEm(r) + '</div>' +
           '<div class="ln-track"><div class="ln-bar" style="width:' + w + '%;background:' + zc + '"></div></div>' +
           '<div class="ln-val">' + metricFmt(metricVal(r)) + '</div></div>';
       }).join('');
@@ -7806,7 +7809,7 @@ const SR3 = (()=>{
     if(temH) halves += half('h', cH, pH, pH != null ? '%FC' : 'FC', zH, r.online ? '♥ ' + Math.round(r.hr) + (pH == null ? ' bpm' : '') : '');
     if(!halves) halves = half('p', '#3A4353', null, 'sem dados', null, '');
     return '<div class="rtile rz' + (r.online ? '' : ' offline') + (inZone ? ' inzone' : '') + '" style="--zc:' + zc + ';--zc-a:' + zc + '33">' +
-      '<div class="rt-top"><span class="rt-pos">' + (i+1) + '</span><span class="rt-name">' + escapeHtml(r.n||'?') + '</span>' + moodEm(r) + (outApp(r) ? '<span class="rt-bg">📵 fora da app</span>' : '') + '</div>' +
+      '<div class="rt-top"><span class="rt-pos">' + (i+1) + '</span><span class="rt-name">' + escapeHtml(r.n||'?') + '</span>' + estEm(r) + moodEm(r) + (outApp(r) ? '<span class="rt-bg">📵 fora da app</span>' : '') + '</div>' +
       '<div class="rz-dual' + (temP && temH ? ' two' : '') + '">' + halves + '</div>' +
       '<div class="rt-sub">' +
         ((r.c || 0) > 0 ? '<span>' + Math.round(r.c) + ' rpm</span>' : '') +
