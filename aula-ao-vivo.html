@@ -2057,8 +2057,80 @@ body.ecra4-on #kartCog{display:none!important;}
     }
   }
 
+  // =====================================================================
+  // SEM INTERNET: a aula continua no telemóvel
+  // A bike e a cinta falam com o telemóvel por Bluetooth (não precisam de internet), o relógio da aula
+  // continua a contar e os blocos avançam sozinhos. Quando a internet volta, o telemóvel volta a ligar-se
+  // sozinho à aula, acerta o bloco com o do professor e envia o que pedalaste entretanto, para a projeção
+  // pôr o teu boneco onde ele devia estar.
+  // =====================================================================
+  let netOk = null, netFoi = false, netCaiu = 0, OFF = null;
+  const AMO = [];   // 1 amostra por segundo: [hora do servidor (s), W, FC, rpm, km/h×10, bloco, a bike envia watts 1/0]
+  const SNAP_KEY = 'prAulaSnap';
+  function horaSrv(){ return Date.now() + (serverOffset || 0); }
+  function comPrazo(pr, ms){ return Promise.race([pr, new Promise((_, rej)=> setTimeout(()=> rej(new Error('sem-rede')), ms))]); }
+  function amostra(){
+    if(!riderRef || solo || sessionEnded || !isPlaying()) return;
+    AMO.push([Math.round(horaSrv() / 1000), Math.round(dispPower) || 0, Math.round(myHr()) || 0, Math.round(S.cadence) || 0, Math.round((me.spd || 0) * 10), state.blockIndex,
+      hasPowerSource() && (demo || performance.now() - S.lastPowerAt < 5000) ? 1 : 0]);
+    if(AMO.length > 3600) AMO.splice(0, AMO.length - 3600);
+  }
+  // cópia da aula neste telemóvel: se a app fechar (ou o telemóvel reiniciar) sem internet, volta a entrar com ela
+  let snapN = 0;
+  function snapGuarda(forca){
+    if(!pin || solo || sessionEnded || !blocos.length) return;
+    if(!forca && (snapN++ % 3)) return;   // de 6 em 6 segundos
+    try{
+      const caiu = netOk === false ? Math.floor((netCaiu || horaSrv()) / 1000) - 20 : 0;
+      localStorage.setItem(SNAP_KEY, JSON.stringify({ pin, t: Date.now(), off: serverOffset || 0, nome: treinoNome, modo, blocos, state,
+        me: { kj: me.kj, pts: me.pts, as: me.as, iz: me.iz, km: me.km, tw: me.tw, tt: me.tt, mw: me.mw, sumW: me.sumW, ts: me.ts },
+        caiu: netOk === false ? netCaiu : 0, amo: caiu ? AMO.filter(a=> a[0] >= caiu).slice(-1800) : [] }));
+    }catch(e){}
+  }
+  function snapLe(p){
+    try{ const v = JSON.parse(localStorage.getItem(SNAP_KEY) || 'null'); return v && v.pin === p && Date.now() - v.t < 4 * 3600e3 && Array.isArray(v.blocos) && v.blocos.length ? v : null; }catch(e){ return null; }
+  }
+  function snapApaga(){ try{ localStorage.removeItem(SNAP_KEY); }catch(e){} }
+  function redeAviso(on){
+    let el = $('netAviso');
+    if(!el){ el = document.createElement('div'); el.id = 'netAviso';
+      el.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:99999;background:rgba(122,74,0,.92);color:#FFE3A3;padding:calc(env(safe-area-inset-top,0px) + 3px) 10px 3px;font:700 11.5px/1.3 system-ui,sans-serif;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;pointer-events:none;';
+      document.body.appendChild(el); }
+    el.textContent = '📶 Sem internet · o treino continua · liga-se sozinho quando voltar';
+    el.style.display = on && riderRef && !solo && !sessionEnded ? '' : 'none';
+  }
+  function redeAcorda(){ if(netOk === false && fbDb){ try{ fbDb.goOffline(); fbDb.goOnline(); }catch(e){} } }   // o Firebase às vezes demora minutos a tentar outra vez: força já
+  function redeLiga(){
+    if(!fbDb || redeLiga.feito) return; redeLiga.feito = true;
+    fbDb.ref('.info/connected').on('value', s=>{
+      const ok = !!s.val(); if(ok === netOk) return;
+      const antes = netOk; netOk = ok;
+      if(!ok){ if(antes){ netCaiu = horaSrv(); netFoi = true; snapGuarda(true); } redeAviso(riderRef && antes !== null); return; }
+      redeAviso(false);
+      if(netFoi && riderRef && !sessionEnded && !solo){ netFoi = false; redeRepoe(); }
+    });
+    window.addEventListener('online', ()=> setTimeout(redeAcorda, 400));
+    document.addEventListener('visibilitychange', ()=>{ if(document.visibilityState === 'visible' && navigator.onLine) redeAcorda(); });
+    setInterval(()=>{ if(netOk === false && navigator.onLine && riderRef) redeAcorda(); }, 20000);
+  }
+  async function redeRepoe(){
+    const ref = riderRef; if(!ref) return;
+    // 1) acertar a aula com a do professor (bloco, pausa, fim)
+    try{ const v = (await comPrazo(fbDb.ref('sessions/' + pin + '/state').once('value'), 8000)).val();
+      if(ref !== riderRef) return;
+      if(v){ state = v; hadState = true; } else if(hadState){ endOfSession(); return; } }catch(e){}
+    // 2) o que pedalaste sem internet segue para a projeção (o PC usa só os segundos que ainda não contou)
+    const desde = Math.floor((netCaiu || horaSrv()) / 1000) - 20, s = AMO.filter(a=> a[0] >= desde);
+    if(s.length){ const t0 = s[0][0];
+      ref.child('rp').set({ k: Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t0, s: s.map(a=> [a[0] - t0, a[1], a[2], a[3], a[4], a[5], a[6]]) }).catch(()=>{}); }
+    pushRider(); snapGuarda(true);
+    flushPendentes();
+    toast('✓ Internet de volta · ligado outra vez à aula');
+  }
+
   function pushRider(){
     if(!riderRef || sessionEnded) return;
+    if(netOk === false) return;   // sem internet não se acumulam envios: quando voltar, segue tudo de uma vez (redeRepoe)
     riderRef.update({
       n: me.n, u: user ? user.uid : null, ftp: me.ftp || null, fc: me.fc || null,
       w: Math.round(dispPower), c: Math.round(S.cadence), hr: Math.round(myHr()) || null,
@@ -2088,23 +2160,30 @@ body.ecra4-on #kartCog{display:none!important;}
     showJoinError('A ligar…');
     $('joinBtn').disabled = true;
     try{
-      const snap = await fbDb.ref('sessions/' + p + '/state').once('value');
-      if(!snap.exists()){ showJoinError('PIN inválido ou a aula ainda não começou.'); return; }
+      let nomeV, modoV; OFF = null;
+      try{
+        const snap = await comPrazo(fbDb.ref('sessions/' + p + '/state').once('value'), 8000);
+        if(!snap.exists()){ showJoinError('PIN inválido ou a aula ainda não começou.'); return; }
+        nomeV = (await comPrazo(fbDb.ref('sessions/' + p + '/treinoNome').once('value'), 8000)).val();
+        modoV = (await comPrazo(fbDb.ref('sessions/' + p + '/modo').once('value'), 8000)).val();
+      }catch(e){
+        const sn = snapLe(p); if(!sn) throw e;
+        OFF = sn; nomeV = sn.nome; modoV = sn.modo;   // sem internet, mas este telemóvel já estava nesta aula: entra com a cópia guardada
+      }
       pin = p;
       solo = null;
       $('nameLabel').style.display = ''; $('enterBtn').textContent = 'Entrar na aula';
       $('setupP').textContent = 'Os teus dados aparecem no ecrã da sala, junto com o resto da turma.';
-      const nameSnap = await fbDb.ref('sessions/' + p + '/treinoNome').once('value');
-      $('setupTitle').textContent = nameSnap.val() || 'Aula de cycling';
+      $('setupTitle').textContent = nomeV || 'Aula de cycling';
       $('nameInput').value = (perfil && perfil.nome) || lsGet(LS.name) || '';
       $('ftpInput').value = (perfil && perfil.ftp) || lsGet(LS.ftp) || '';
-      modo = parseModo((await fbDb.ref('sessions/' + p + '/modo').once('value')).val());
+      modo = parseModo(modoV);
       $('fcInput').value = (perfil && perfil.fcMax) || lsGet('aavFcMax') || '';
       $('fcLabel').style.display = modo === 'fc' ? '' : 'none';
       $('fcHint').style.display = modo === 'fc' ? '' : 'none';
       $('ftpLabel').firstChild.textContent = modo === 'fc' ? 'O teu FTP (watts, opcional)' : 'O teu FTP (watts)';
       renderAcctLine();
-      showJoinError('');
+      showJoinError(OFF ? '📶 Sem internet: entras com a aula guardada neste telemóvel e ligas-te sozinho quando a internet voltar.' : '');
       showScreen('setupScreen');
       if(!hasBluetooth) showBtWarning();
       else if(/MiuiBrowser|XiaoMi|SamsungBrowser|OPR\/|HeyTapBrowser|HuaweiBrowser|VivoBrowser|Firefox/i.test(navigator.userAgent)){
@@ -2152,24 +2231,33 @@ body.ecra4-on #kartCog{display:none!important;}
     riderRef =fbDb.ref('sessions/' + pin + '/riders/' + riderId);
     // se recarregaste a página a meio, continua de onde ficaste
     try{
-      const prev = (await riderRef.once('value')).val();
+      if(OFF) throw 0;
+      const prev = (await comPrazo(riderRef.once('value'), 6000)).val();
       if(prev){
         me.kj = prev.kj || 0; me.pts = prev.pts || 0; me.as = prev.as || 0; me.iz = prev.iz || 0; me.km = prev.km || 0; me.tw = prev.tw || 0; me.tt = prev.tt || 0;
         me.mw = prev.mw || 0; me.sumW = (prev.aw || 0) * (prev.as || 0); me.ts = prev.as || 0;
       } else {
         me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = me.ts = me.km = me.spd = me.tw = me.tt = 0; me.ftpIni = null; me.ftpTest = null; me.testDone = false;
       }
-    }catch(e){}
+    }catch(e){ const sn = OFF || snapLe(pin); if(sn && sn.me) Object.assign(me, sn.me); }
 
     sessionEnded = false; hadState = false; myRank = null;
     $('myZoneLbl').textContent = 'na zona';
     attachListeners();
+    redeLiga();
+    if(OFF){   // sem internet: a aula guardada (blocos, bloco atual e relógio) até o Firebase responder
+      blocos = OFF.blocos; state = OFF.state; hadState = true; treinoNome = OFF.nome || ''; serverOffset = OFF.off || 0;
+      $('className').textContent = treinoNome; $('progress').dataset.built = '';
+      AMO.length = 0; (OFF.amo || []).forEach(a=> AMO.push(a));
+      netFoi = true; netCaiu = OFF.caiu || OFF.t + serverOffset; if(netOk !== true) redeAviso(true);
+      OFF = null;
+    }
     showScreen('liveScreen');
     $('chipBike').classList.toggle('on', bikeConnected() || demo);
     lastSampleAt = performance.now();
     renderHandle = setInterval(render, 250);
-    sampleHandle = setInterval(sample, 1000);
-    pushHandle = setInterval(pushRider, 2000);
+    sampleHandle = setInterval(()=>{ sample(); amostra(); }, 1000);
+    pushHandle = setInterval(()=>{ pushRider(); snapGuarda(); }, 2000);
     pushRider();
     requestWakeLock();
     try{ history.replaceState(null, '', location.pathname + '?pin=' + pin); }catch(e){}
@@ -2304,7 +2392,7 @@ body.ecra4-on #kartCog{display:none!important;}
     checkFtpTest();
     pushRider();
     saveTreino();
-    sessionEnded = true; jogoMostra(null);
+    sessionEnded = true; jogoMostra(null); snapApaga(); redeAviso(false);
     if(!state) state = {};
     state = Object.assign({}, state, {status:'finished', blockIndex: blocos.length});
   }
@@ -2321,7 +2409,7 @@ body.ecra4-on #kartCog{display:none!important;}
     if(riderRef && !sessionEnded){ riderRef.update({left:true, w:0, t:firebase.database.ServerValue.TIMESTAMP}).catch(()=>{}); }
     detachListeners();
     stopLoops();
-    riderRef = null; state = null; blocos = [];
+    riderRef = null; state = null; blocos = []; snapApaga(); redeAviso(false); AMO.length = 0;
     demo = false;
     const wasSolo = solo; solo = null; soloClock.acc = 0; soloClock.since = 0;
     document.body.classList.remove('solo','solo-livre');
@@ -6263,15 +6351,17 @@ body.ecra4-on #kartCog{display:none!important;}
     };
     const key = getTreinoKey();
     const uid = user.uid, clean = cleanVals(t);
+    const pendPoe = ()=>{ const l = pendList().filter(x=> x.key !== key); l.push({uid: uid, key: key, t: clean}); pendSave(l); };
+    if(final) pendPoe();   // sem internet o Firebase fica à espera: assim, mesmo que a app feche, o treino segue da próxima vez
     const falhou = (e)=>{
       if(!final) return;   // guardar intermédio: tenta outra vez daqui a um minuto
-      const l = pendList(); l.push({uid: uid, key: key, t: clean}); pendSave(l);
+      pendPoe();
       $('savedNote').innerHTML = 'Não consegui guardar agora' + (e && e.code ? ' (' + escapeHtml(String(e.code)) + ')' : '') + '. O treino ficou neste telemóvel e é enviado sozinho da próxima vez que abrires a app com internet.';
       console.error('saveTreino', e);
     };
     try{
       fbDb.ref('alunos/' + uid + '/treinos/' + key).set(clean)
-        .then(()=>{ if(final){ $('savedNote').innerHTML = '<b>✓ Treino guardado na tua conta</b>'; flushPendentes(); } })
+        .then(()=>{ if(final){ pendSave(pendList().filter(x=> x.key !== key)); $('savedNote').innerHTML = '<b>✓ Treino guardado na tua conta</b>'; flushPendentes(); } })
         .catch(falhou);
     }catch(e){ falhou(e); }
   }

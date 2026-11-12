@@ -3910,7 +3910,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function jogoInfo(k){ return JG_TIPOS[k] || PERC_TIPOS[k] || { n:'', ico:'' }; }
   var EQ_COR = ['#3B82F6', '#EF4444', '#22C55E', '#EAB308'], EQ_NOME = ['Azul', 'Vermelha', 'Verde', 'Amarela'];
   var JG = { tipo: 'cabo', ptipo: 'p_etapa', forma: 'equilibrado', grupos: {}, st: {}, perc: {}, lastT: 0, z: {}, blocoVisto: -1, editado: {}, pushT: 0, pushS: '' };
-  function jgReset(){ JG.grupos = {}; JG.st = {}; JG.perc = {}; JG.dm = {}; JG.fx = {}; JG.podioVisto = false; JG.ativos = null; JG.lastT = 0; JG.z = {}; JG.blocoVisto = -1; JG.editado = {}; JG.ptipo = 'p_etapa'; JG.pushT = 0; JG.pushS = ''; JG.cog = {}; SR.kc = null; }
+  function jgReset(){ JG.grupos = {}; JG.st = {}; JG.perc = {}; JG.dm = {}; JG.ult = {}; JG.rpK = {}; JG.fx = {}; JG.podioVisto = false; JG.ativos = null; JG.lastT = 0; JG.z = {}; JG.blocoVisto = -1; JG.editado = {}; JG.ptipo = 'p_etapa'; JG.pushT = 0; JG.pushS = ''; JG.cog = {}; SR.kc = null; }
 
   // está dentro da zona do bloco agora? (mesma regra dos cartões da Turma)
   // o que conta para a zona de cada aluno: a potência quando tem bicicleta/potenciómetro; sem watts, a FC (convertida para a zona equivalente).
@@ -4024,6 +4024,28 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     return isFinite(t) ? 1 + (JG.par ? JG.par.topo : 10) / 100 * t : 1;
   }
 
+  // a mesma velocidade, para um segundo pedalado noutro bloco (o que o telemóvel guardou enquanto esteve sem internet)
+  function jgVelEm(x, b){
+    const fora = (JG.par ? JG.par.fora : 60) / 100, me = jgMede(x); if(!me) return fora;
+    const Z = zonesOf(me.m), z = getZone(me.pct, me.m), i = Z.indexOf(z);
+    if(i !== zonesOf().indexOf(getZone(b.ftp || 0))) return fora;
+    const lo = i > 0 ? Z[i - 1].max : (me.m === 'fc' ? 50 : 0), hi = z.max >= 9999 ? (me.m === 'fc' ? 100 : lo + 30) : z.max;
+    const t = hi > lo ? Math.max(0, Math.min(1, (me.pct - lo) / (hi - lo))) : 0;
+    return isFinite(t) ? 1 + (JG.par ? JG.par.topo : 10) / 100 * t : 1;
+  }
+  // telemóvel que esteve sem internet: envia (em riders/ID/rp) 1 amostra por segundo do que pedalou; o PC conta só os segundos que ainda não tinha contado
+  function jgRepoe(rs){
+    const U = JG.ult || (JG.ult = {}), K = JG.rpK || (JG.rpK = {}), DM = JG.dm || (JG.dm = {}), out = [];
+    rs.forEach(r=>{ const rp = r.rp; if(!rp || !rp.k || K[r.id] === rp.k || !Array.isArray(rp.s)) return; K[r.id] = rp.k;
+      const desde = U[r.id]; if(desde == null) return;   // o PC ainda não contava este aluno (foi aberto depois): nada a repor
+      let n = 0;
+      rp.s.forEach(a=>{ if(!Array.isArray(a)) return; const t = (rp.t0 || 0) + (a[0] || 0); if(t <= U[r.id]) return; U[r.id] = t;
+        const b = current.blocos[a[5]]; if(!b || !((a[1] || 0) > 0 || (a[2] || 0) > 0)) return;
+        const x = { id: r.id, online: true, w: a[1] || 0, hr: a[2] || 0, c: a[3] || 0, v: (a[4] || 0) / 10, pw: !!a[6], ftp: r.ftp, fc: r.fc }, f = jgVelEm(x, b);
+        JG.perc[r.id] = (JG.perc[r.id] || 0) + f; DM[r.id] = (DM[r.id] || 0) + f * (x.v > 0 ? x.v : srTerreno(b).kmh) / 3.6; n++; });
+      if(n) out.push(r.id); });
+    return out;
+  }
 
   // ---- equipas e pares: equilibrado (pelo FTP), aleatório ou escolhidos pelo professor ----
   function jgChave(){ const g = JG_TIPOS[JG.tipo].g; return g === 'pares' ? 'p' : (JG.tipo === 'cabo' ? '2' : JG.tipo === 'cores' ? 'n' : null); }
@@ -4070,6 +4092,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     // percurso: quem entra com a aula já a decorrer (ou volta depois de uma falha da bike) começa na cauda do pelotão,
     // 3 s atrás do último (≈ 36 m), em vez de começar do zero e ficar quilómetros para trás
     const ped = rs.filter(jgPedala), antes = JG.ativos || new Set();
+    jgRepoe(rs).forEach(id=> antes.add(id));   // voltou a internet a um telemóvel: o que pedalou sem rede já está contado (não vai para a cauda)
     const cauda = ped.filter(r=> antes.has(r.id)).reduce((m, r)=> Math.min(m, JG.perc[r.id] || 0), Infinity);
     const DM = JG.dm || (JG.dm = {}), caudaM = ped.filter(r=> antes.has(r.id)).reduce((m, r)=> Math.min(m, DM[r.id] || 0), Infinity);
     if(cauda !== Infinity) ped.forEach(r=>{ if(!antes.has(r.id) && (JG.perc[r.id] || 0) < cauda - 3){ JG.perc[r.id] = Math.max(0, cauda - 3); DM[r.id] = Math.max(DM[r.id] || 0, caudaM - 25); } });
@@ -4078,7 +4101,9 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     // e os metros de cada um: a velocidade do terreno deste bloco × o seu esforço (percursos inventados: cada aluno faz a sua distância)
     const kmhB = srTerreno(current.blocos[liveIdx] || {}).kmh;
     const Pp = JG.par;
-    ped.forEach(r=>{ const F = (JG.fx || {})[r.id] || {}, v = jgVel(r) * (F.b > now ? 1 + Pp.turbo / 100 : 1) * (F.t > now ? 1 - Pp.tart / 100 : 1) * (F.G > now ? 1 + Pp.boost / 100 : 1) * (F.V > now ? 1 - Pp.vento / 100 : 1);   // turbo, tartaruga, boost e vento
+    const U = JG.ult || (JG.ult = {}), agoraS = Math.floor(serverNow() / 1000);
+    ped.forEach(r=>{ if(serverNow() - (r.t || 0) > 6000) return;   // sem dados há mais de 6 s (telemóvel sem internet): não se inventa; repõe-se quando ele voltar
+      U[r.id] = agoraS; const F = (JG.fx || {})[r.id] || {}, v = jgVel(r) * (F.b > now ? 1 + Pp.turbo / 100 : 1) * (F.t > now ? 1 - Pp.tart / 100 : 1) * (F.G > now ? 1 + Pp.boost / 100 : 1) * (F.V > now ? 1 - Pp.vento / 100 : 1);   // turbo, tartaruga, boost e vento
       JG.perc[r.id] = (JG.perc[r.id] || 0) + dt * v; DM[r.id] = (DM[r.id] || 0) + dt * v * (r.v > 0 ? r.v : kmhB) / 3.6; });   // a velocidade simulada no telemóvel de cada aluno (física de estrada)
     const jk = (current.blocos[liveIdx] || {}).jogo;
     if(!JG_TIPOS[jk]) return;            // este bloco não tem jogo
