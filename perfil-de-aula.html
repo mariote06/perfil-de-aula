@@ -1267,7 +1267,19 @@ body.sr-full-on #liveOverlay #srBox,body.sr-full-on #liveOverlay #srBox *{visibi
 .sr-hud .sr-pin{background:#FFD60A;color:#111;text-shadow:none;border-radius:12px;padding:4px 14px;font-size:clamp(15px,1.7cqw,24px);font-weight:700;}
 .sr-hud .sr-pin b{font-size:clamp(24px,3cqw,44px);font-weight:800;letter-spacing:2px;margin-left:6px;}
 .sr-neob.off,.sr-drb.off{opacity:.45;filter:grayscale(1);}
-.sr-metb.sr-drb{top:106px;}
+.sr-metb.sr-drb{top:106px;} .sr-metb.sr-drc{top:154px;font-size:17px;} .sr-metb.sr-3d{top:202px;} .sr-3d.off{opacity:.45;filter:grayscale(1);}
+/* painel de configuração do drone */
+.drc{position:fixed;inset:0;z-index:100002;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;}
+.drc-c{background:#12151C;color:#fff;border:1px solid #2A303D;border-radius:18px;width:min(720px,94vw);max-height:92vh;overflow:auto;padding:16px 18px;font-family:'Inter',sans-serif;font-size:14px;}
+.drc-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;} .drc-top b{font:800 24px 'Barlow Condensed',sans-serif;} .drc-top span{flex:1;font-size:12px;color:#9AA3B2;} .drc-x{background:#232838;border:0;color:#fff;width:32px;height:32px;border-radius:9px;cursor:pointer;}
+.drc-vel{background:#181C26;border-radius:12px;padding:10px 12px;margin-bottom:10px;} .drc-vel label{display:flex;justify-content:space-between;font-weight:600;} .drc-vel b{color:#FFD60A;} .drc-vel input[type=range]{width:100%;margin:6px 0 2px;accent-color:#FFD60A;} .drc-vel small{color:#8C95A6;font-size:11px;}
+.drc-al{margin-top:8px;font-weight:500!important;justify-content:flex-start!important;gap:8px;} .drc-al input{accent-color:#3DD45C;width:18px;height:18px;}
+.drc-lst{display:flex;flex-direction:column;gap:6px;} .drc-pl{display:grid;grid-template-columns:1fr auto auto;gap:8px 12px;align-items:center;background:#181C26;border:1px solid #262C3E;border-radius:12px;padding:8px 10px;} .drc-pl.off{opacity:.55;}
+.drc-on{display:flex;align-items:center;gap:8px;cursor:pointer;} .drc-on input{width:20px;height:20px;accent-color:#3DD45C;flex:none;} .drc-on span{display:flex;flex-direction:column;line-height:1.2;min-width:190px;} .drc-on b{white-space:nowrap;} .drc-on small{color:#9AA3B2;font-size:11px;}
+.drc-nums{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:12px;color:#C9D0DC;} .drc-nums label{display:flex;align-items:center;gap:3px;} .drc-nums input{width:54px;background:#0F121A;border:1px solid #39405A;color:#fff;border-radius:7px;padding:4px 5px;font:700 13px 'Inter',sans-serif;text-align:center;}
+.drc-mv{display:flex;gap:4px;} .drc-mv button{background:#232838;border:1px solid #39405A;color:#fff;border-radius:8px;width:30px;height:30px;cursor:pointer;} .drc-mv button[data-ir]{background:#1F7AE0;border-color:#1F7AE0;}
+.drc-leg{font-size:11px;color:#8C95A6;margin:8px 0;} .drc-bts{display:flex;align-items:center;gap:12px;} .drc-bts button{background:#232838;border:1px solid #39405A;color:#fff;border-radius:10px;padding:8px 12px;font:600 13px 'Inter',sans-serif;cursor:pointer;} .drc-bts span{color:#3DD45C;font-weight:600;}
+@media (max-width:640px){ .drc-pl{grid-template-columns:1fr;} }
 .sr-hud .sr-t{display:flex;flex-direction:column;align-items:center;background:rgba(5,7,10,.6);border-radius:14px;padding:6px 18px;line-height:1;}
 .sr-hud .sr-t small{font-size:12px;letter-spacing:1.4px;color:rgba(255,255,255,.7);}
 .sr-hud .sr-t b{font-size:clamp(34px,5.6cqw,84px);font-weight:800;font-variant-numeric:tabular-nums;}
@@ -4463,6 +4475,42 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   // Cada bloco vira um troço: a técnica e a cadência fazem subida, plano ou descida; a zona dá a velocidade.
   // A câmara anda com o relógio da aula (o fim de cada bloco é um pórtico); os alunos aparecem à frente conforme cumprem a zona.
   const SR = { lbls:[], on:false, raf:0, trk:null, key:'', cv:null, ctx:null, lastT:0, camZ:0, full:false, bg:null, bgKey:'', spr:null, pitch:0, nuvens:null };
+  // ===== Drone da projeção: planos, trajeto e velocidade (o professor define no ⚙️) =====
+  const DR = { salta: false, atual: '' };
+  DR.PLANOS = { alto: ['🛰️', 'Plano alto', 'sobe e recua: vê-se o pelotão todo'], trav: ['🎢', 'Travelling', 'rente ao chão, atravessa o pelotão de trás para a frente'],
+    close: ['🔍', 'Grandes planos', 'encosta-se a cada aluno, um de cada vez'], lado: ['↔️', 'Lateral', 'de um lado da estrada, a meia altura (alterna o lado)'],
+    lider: ['🥇', 'Atrás do líder', 'segue o primeiro de perto'], cauda: ['🎥', 'Atrás do último', 'a vista clássica, atrás de todos'], frente: ['🔄', 'De frente', 'à frente do pelotão, virado para trás (só em 3D)'] };
+  DR.PAD = { vel: 1, aleat: false, ordem: ['alto', 'trav', 'close', 'lado'], c: { alto: { on: 1, d: 9, h: 3.4, ds: 12 }, trav: { on: 1, d: 12, h: .42, ds: 2.6 }, close: { on: 1, d: 13.5, h: .36, ds: 2.7, n: 3 }, lado: { on: 1, d: 9, h: 1.4, ds: 7 }, lider: { on: 0, d: 8, h: .8, ds: 4 }, cauda: { on: 0, d: 8, h: 1, ds: 12 }, frente: { on: 1, d: 10, h: .6, ds: 5 } } };
+  DR.cfg = (()=>{ const base = JSON.parse(JSON.stringify(DR.PAD)); try{ const g = JSON.parse(localStorage.getItem('prDrone') || 'null'); if(g){ base.vel = g.vel || 1; base.aleat = !!g.aleat; if(Array.isArray(g.ordem)) base.ordem = g.ordem.filter(k=> DR.PLANOS[k]); Object.keys(base.c).forEach(k=>{ if(g.c && g.c[k]) Object.assign(base.c[k], g.c[k]); }); } }catch(e){} return base; })();
+  DR.guarda = ()=>{ try{ localStorage.setItem('prDrone', JSON.stringify(DR.cfg)); }catch(e){} };
+  DR.trajeto = ()=>{ const o = DR.cfg.ordem.filter(k=> DR.cfg.c[k] && DR.cfg.c[k].on && (k !== 'frente' || (SR.m3 && SR3.ok()))); Object.keys(DR.PLANOS).forEach(k=>{ if(!DR.cfg.ordem.includes(k)) DR.cfg.ordem.push(k); }); return o.length ? o : ['cauda']; };
+  function droneCfgAbre(){
+    let m = $('drCfg'); if(m){ m.remove(); return; }
+    m = document.createElement('div'); m.id = 'drCfg'; m.className = 'drc'; document.body.appendChild(m);
+    const CF = DR.cfg, mkRow = k=>{ const P = DR.PLANOS[k], c = CF.c[k]; return '<div class="drc-pl' + (c.on ? '' : ' off') + '" data-k="' + k + '"><label class="drc-on"><input type="checkbox" data-on="' + k + '"' + (c.on ? ' checked' : '') + '><span>' + P[0] + ' <b>' + P[1] + '</b><small>' + P[2] + '</small></span></label>' +
+      '<div class="drc-nums"><label>⏱ <input type="number" data-f="d" data-k="' + k + '" value="' + c.d + '" min="3" max="60" step="1"> s</label><label>↕ <input type="number" data-f="h" data-k="' + k + '" value="' + c.h + '" min="0.3" max="6" step="0.1"> alt.</label><label>↔ <input type="number" data-f="ds" data-k="' + k + '" value="' + c.ds + '" min="1.5" max="30" step="0.5"> dist.</label>' +
+      (k === 'close' ? '<label>👤 <input type="number" data-f="n" data-k="close" value="' + (c.n || 3) + '" min="1" max="8" step="1"> alunos</label>' : '') + '</div>' +
+      '<div class="drc-mv"><button data-mv="-1" data-k="' + k + '" title="Subir no trajeto">▲</button><button data-mv="1" data-k="' + k + '" title="Descer no trajeto">▼</button><button data-ir="' + k + '" title="Ir já para este plano">▶</button></div></div>'; };
+    const desenha = ()=>{ DR.trajeto();
+      m.innerHTML = '<div class="drc-c"><div class="drc-top"><b>🚁 Câmara drone</b><span>Define a velocidade, os planos e o trajeto. Os planos ativos repetem-se pela ordem da lista.</span><button class="drc-x" title="Fechar">✕</button></div>' +
+        '<div class="drc-vel"><label>Velocidade do drone <b id="drVelT">' + CF.vel.toFixed(2).replace('.', ',') + '×</b></label><input type="range" id="drVel" min="0.25" max="3" step="0.05" value="' + CF.vel + '"><small>lento ◀︎ ▶︎ rápido · mais velocidade = voa e troca de plano mais depressa</small>' +
+        '<label class="drc-al"><input type="checkbox" id="drAleat"' + (CF.aleat ? ' checked' : '') + '> Ordem aleatória (em vez da ordem da lista)</label></div>' +
+        '<div class="drc-lst">' + CF.ordem.map(mkRow).join('') + '</div>' +
+        '<div class="drc-leg">⏱ duração do plano · ↕ altura (1 = altura de um ciclista) · ↔ distância ao aluno/pelotão (em troços de 5 m)</div>' +
+        '<div class="drc-bts"><button id="drRep">Repor os valores de origem</button><span id="drAt">' + (DR.atual ? 'Agora: ' + DR.PLANOS[DR.atual][1] : '') + '</span></div></div>';
+      m.querySelector('.drc-x').onclick = ()=> m.remove();
+      m.querySelector('#drVel').oninput = e=>{ CF.vel = Number(e.target.value); $('drVelT').textContent = CF.vel.toFixed(2).replace('.', ',') + '×'; DR.guarda(); };
+      m.querySelector('#drAleat').onchange = e=>{ CF.aleat = e.target.checked; DR.guarda(); };
+      m.querySelector('#drRep').onclick = ()=>{ DR.cfg = JSON.parse(JSON.stringify(DR.PAD)); DR.guarda(); m.remove(); droneCfgAbre(); toast('Drone reposto'); };
+      m.querySelectorAll('[data-on]').forEach(i=> i.onchange = ()=>{ CF.c[i.dataset.on].on = i.checked ? 1 : 0; DR.guarda(); i.closest('.drc-pl').classList.toggle('off', !i.checked); });
+      m.querySelectorAll('[data-f]').forEach(i=> i.onchange = ()=>{ const mn = Number(i.min), mx = Number(i.max); let v = Number(i.value); if(!isFinite(v)) v = DR.PAD.c[i.dataset.k][i.dataset.f]; v = Math.max(mn, Math.min(mx, v)); i.value = v; CF.c[i.dataset.k][i.dataset.f] = v; DR.guarda(); });
+      m.querySelectorAll('[data-mv]').forEach(b=> b.onclick = ()=>{ const k = b.dataset.k, o = CF.ordem, i = o.indexOf(k), j = i + Number(b.dataset.mv); if(j < 0 || j >= o.length) return; o.splice(i, 1); o.splice(j, 0, k); DR.guarda(); desenha(); });
+      m.querySelectorAll('[data-ir]').forEach(b=> b.onclick = ()=>{ const k = b.dataset.ir, TR = DR.trajeto(), i = TR.indexOf(k); if(i < 0){ toast('Ativa primeiro este plano'); return; } if(SR.dr){ SR.dr.p = i - 1; DR.salta = true; } if(SR.drone === false) $('srDr').click(); toast('▶ ' + DR.PLANOS[k][1]); });
+    };
+    m.onclick = e=>{ if(e.target === m) m.remove(); }; desenha();
+    clearInterval(DR.iv); DR.iv = setInterval(()=>{ if(!m.isConnected){ clearInterval(DR.iv); return; } const a = $('drAt'); if(a && SR.drone !== false) a.textContent = DR.atual ? 'Agora: ' + DR.PLANOS[DR.atual][1] : ''; }, 500);
+  }
+  SR.m3 = (()=>{ try{ return localStorage.getItem('prSr3D') !== '0'; }catch(e){ return true; } })();   // projeção em 3D (Three.js) — o professor escolhe
   SR.drone = (()=>{ try{ return localStorage.getItem('prSrDrone') !== '0'; }catch(e){ return true; } })();   // câmara drone na projeção (o professor escolhe)
   SR.neonB = (()=>{ try{ return localStorage.getItem('prSrNeon') !== '0'; }catch(e){ return true; } })();   // bonecos em néon na Estrada Néon e na Cidade do Futuro (o professor escolhe)
   const SR_SEG = 200, SR_ROAD = 2000, SR_CAMH = 900, SR_DEPTH = 1 / Math.tan(50 * Math.PI / 180), SR_DRAW = 320, SR_M = 40, SR_EXG = 3;   // 1 m = 40 unidades; relevo ×5 para se ver bem
@@ -7086,6 +7134,232 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     if(w > 30){ ctx.font = '800 ' + Math.min(44, Math.max(10, h * .15)) + 'px Barlow Condensed, sans-serif'; ctx.textAlign = 'center'; ctx.fillStyle = '#fff'; ctx.fillText(txt, x, y - h + h * .17); }
     ctx.restore();
   }
+// ===================== PROJEÇÃO EM 3D (Three.js) =====================
+// Só no PC da projeção. Usa a mesma pista, os mesmos troços, blocos, cenário (as imagens dos temas viram "cartazes" 3D),
+// os bonecos de cada aluno e a câmara drone do modo 2D. Os telemóveis continuam em 2D (mais leves).
+const SR3 = (()=>{
+  const S = { ok: false, aCarregar: false, scene: null, cam: null, ren: null, key: '', spr: {}, riders: {}, texCache: new Map(), hW: 5 };
+  const M = 1 / SR_M;   // unidades da pista → metros
+  function carrega(){
+    if(S.ok || S.aCarregar) return; S.aCarregar = true;
+    const sc = document.createElement('script'); sc.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    sc.onload = ()=>{ S.aCarregar = false; try{ inicia(); S.ok = true; toast('🧊 Projeção em 3D'); }catch(e){ console.error(e); toast('⚠ Não consegui ligar o 3D: ' + e.message); SR.m3 = false; } };
+    sc.onerror = ()=>{ S.aCarregar = false; SR.m3 = false; toast('⚠ Sem ligação à internet para carregar o 3D'); };
+    document.head.appendChild(sc);
+  }
+  function inicia(){
+    const cv = document.createElement('canvas'); cv.id = 'sr3Cv'; cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;';
+    S.cv = cv;
+    S.ren = new THREE.WebGLRenderer({ canvas: cv, antialias: true, alpha: false, powerPreference: 'high-performance' });
+    S.ren.shadowMap.enabled = true; S.ren.shadowMap.type = THREE.PCFSoftShadowMap;
+    S.scene = new THREE.Scene();
+    S.cam = new THREE.PerspectiveCamera(58, 16 / 9, .3, 2500);
+    S.hemi = new THREE.HemisphereLight(0xdfe9ff, 0x4a5a3a, .9); S.scene.add(S.hemi);
+    S.sol = new THREE.DirectionalLight(0xfff2dc, 1.1); S.sol.castShadow = true; S.sol.shadow.mapSize.set(2048, 2048);
+    const sc = S.sol.shadow.camera; sc.left = -60; sc.right = 60; sc.top = 60; sc.bottom = -60; sc.near = 1; sc.far = 400; S.sol.shadow.bias = -.0008;
+    S.scene.add(S.sol); S.scene.add(S.sol.target);
+    S.gTrk = new THREE.Group(); S.scene.add(S.gTrk);   // estrada, bermas, arcos, cartazes
+    S.gRid = new THREE.Group(); S.scene.add(S.gRid);   // alunos
+    S.gCeu = new THREE.Group(); S.scene.add(S.gCeu);   // montanhas (seguem a câmara)
+  }
+  function liga(){ if(!S.cv || !SR.cv || !SR.cv.parentNode) return; if(S.cv.parentNode !== SR.cv.parentNode) SR.cv.parentNode.insertBefore(S.cv, SR.cv); S.cv.style.display = ''; }
+  function desliga(){ if(S.cv) S.cv.style.display = 'none'; }
+  const tex = img=>{ let t = S.texCache.get(img); if(!t){ t = new THREE.CanvasTexture(img); t.minFilter = THREE.LinearMipmapLinearFilter; t.anisotropy = 4; S.texCache.set(img, t); } return t; };
+  const cor = c=> new THREE.Color(c);
+  // ---------- a pista em 3D: um ponto por troço (posição e rumo) ----------
+  function pista(segs){
+    const N = segs.length, px = new Float32Array(N), py = new Float32Array(N), pz = new Float32Array(N), hd = new Float32Array(N);
+    let x = 0, z = 0, h = 0, L = SR_SEG * M;
+    for(let i = 0; i < N; i++){ px[i] = x; pz[i] = z; py[i] = segs[i].y * M / SR_EXG * 1.15; hd[i] = h; h += segs[i].curve * .0042; x += Math.sin(h) * L; z += Math.cos(h) * L; }
+    return { px, py, pz, hd, N };
+  }
+  function ponto(d){   // d em unidades da pista → { x, y, z, h }
+    const P = S.P, i = Math.max(0, Math.min(P.N - 2, Math.floor(d / SR_SEG))), f = Math.max(0, Math.min(1, d / SR_SEG - i));
+    return { x: P.px[i] + (P.px[i + 1] - P.px[i]) * f, y: P.py[i] + (P.py[i + 1] - P.py[i]) * f, z: P.pz[i] + (P.pz[i + 1] - P.pz[i]) * f, h: P.hd[i] + (P.hd[i + 1] - P.hd[i]) * f };
+  }
+  function texAsfalto(T){
+    const c = document.createElement('canvas'); c.width = 256; c.height = 256; const g = c.getContext('2d');
+    g.fillStyle = T.asf[0]; g.fillRect(0, 0, 256, 256); g.fillStyle = T.asf[1]; for(let k = 0; k < 900; k++){ g.fillRect(Math.random() * 256, Math.random() * 256, 2, 2); }
+    g.fillStyle = T.linha; g.fillRect(4, 0, 5, 256); g.fillRect(247, 0, 5, 256);
+    const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8; return t;
+  }
+  function fita(segs, meiaL, yOff, matFn, uvRep){   // uma faixa ao longo da pista (estrada, berma, relva)
+    const P = S.P, N = P.N, pos = new Float32Array(N * 6), uv = new Float32Array(N * 4), col = new Float32Array(N * 6), idx = [];
+    for(let i = 0; i < N; i++){ const h = P.hd[i], rx = Math.cos(h), rz = -Math.sin(h), c = matFn(i);
+      pos.set([P.px[i] - rx * meiaL, P.py[i] + yOff, P.pz[i] - rz * meiaL, P.px[i] + rx * meiaL, P.py[i] + yOff, P.pz[i] + rz * meiaL], i * 6);
+      uv.set([0, i * uvRep, 1, i * uvRep], i * 4); col.set([c.r, c.g, c.b, c.r, c.g, c.b], i * 6);
+      if(i < N - 1){ const a = i * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); } }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2)); geo.setAttribute('color', new THREE.BufferAttribute(col, 3)); geo.setIndex(idx); geo.computeVertexNormals();
+    return geo;
+  }
+  function texto(txt, corF, corT, w, h, fs){
+    const c = document.createElement('canvas'); c.width = w; c.height = h; const g = c.getContext('2d');
+    g.fillStyle = corF; g.fillRect(0, 0, w, h); g.fillStyle = corT; g.font = '800 ' + fs + 'px Barlow Condensed, Arial Narrow, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(txt, w / 2, h / 2);
+    return new THREE.CanvasTexture(c);
+  }
+  // ---------- construir o cenário de uma pista ----------
+  function constroi(segs, T){
+    const g = S.gTrk; while(g.children.length) g.remove(g.children[0]); S.spr = {};
+    S.P = pista(segs); const N = S.P.N, hW = S.hW;
+    // relva larga, berma, asfalto, traço do meio na cor da zona
+    const relva = new THREE.Mesh(fita(segs, 160, -.08, i=> cor(T.relva[i % 2]), 1), new THREE.MeshLambertMaterial({ vertexColors: true })); relva.receiveShadow = true; g.add(relva);
+    g.add(new THREE.Mesh(fita(segs, hW + 1.6, -.02, i=> cor(T.berma[i % 2]), 1), new THREE.MeshLambertMaterial({ vertexColors: true })));
+    const asf = new THREE.Mesh(fita(segs, hW, 0, ()=> cor('#ffffff'), .5), new THREE.MeshLambertMaterial({ map: texAsfalto(T), vertexColors: true })); asf.receiveShadow = true; g.add(asf);
+    const meio = new THREE.Mesh(fita(segs, .12, .012, i=> i % 2 ? cor(srCorBloco(segs[i].b)) : cor(T.asf[0]), 1), new THREE.MeshBasicMaterial({ vertexColors: true })); g.add(meio);
+    if(T.neon){ const gr = new THREE.GridHelper(3000, 300, cor(T.grelha || '#A23BFF'), cor(T.grelha || '#A23BFF')); gr.position.y = -.07; gr.material.transparent = true; gr.material.opacity = .35; S.grelha = gr; g.add(gr); }
+    // arcos no fim de cada bloco
+    segs.forEach((sg, i)=>{ if(!sg.fim) return; const bb = current.blocos[sg.b + 1], p = ponto(i * SR_SEG), rx = Math.cos(p.h), rz = -Math.sin(p.h);
+      const txt = bb ? 'BLOCO ' + (sg.b + 2) + ' · ' + blkZone(bb).name.split(' ')[0] + ' · ' + fmtTime(blockDurationSec(bb)) : '🏁 META', c = bb ? srCorBloco(sg.b + 1) : '#FFD60A';
+      const ar = new THREE.Group(); ar.position.set(p.x, p.y, p.z); ar.rotation.y = p.h;
+      const post = new THREE.CylinderGeometry(.12, .12, 6, 8), mp = new THREE.MeshLambertMaterial({ color: 0xdddddd });
+      [-1, 1].forEach(l=>{ const m = new THREE.Mesh(post, mp); m.position.set(l * (hW + .6), 3, 0); ar.add(m); });
+      const ban = new THREE.Mesh(new THREE.BoxGeometry((hW + .6) * 2, 1.1, .2), [null, null, null, null, new THREE.MeshBasicMaterial({ map: texto(txt, '#111418', c, 1024, 128, 86) }), new THREE.MeshBasicMaterial({ map: texto(txt, '#111418', c, 1024, 128, 86) })].map(m=> m || new THREE.MeshLambertMaterial({ color: 0x111418 })));
+      ban.position.y = 6.2; ar.add(ban);
+      const risca = new THREE.Mesh(new THREE.PlaneGeometry(hW * 2, 1.2), new THREE.MeshBasicMaterial({ color: cor(c) })); risca.rotation.x = -Math.PI / 2; risca.position.y = .02; ar.add(risca);
+      g.add(ar); });
+    // prédios (Paris, Cidade do Futuro): caixas simples dos dois lados
+    const muros = []; segs.forEach((sg, i)=>{ if(sg.muro) ['L', 'R'].forEach(l=>{ if(sg.muro[l] && sg.muro[l] !== 'p') muros.push([i, l === 'L' ? -1 : 1, sg.muro]); }); });
+    if(muros.length){ const geo = new THREE.BoxGeometry(1, 1, 1), mat = new THREE.MeshLambertMaterial({ color: 0xffffff }), im = new THREE.InstancedMesh(geo, mat, muros.length), mtx = new THREE.Matrix4(), q = new THREE.Quaternion(), vv = new THREE.Vector3(), sv = new THREE.Vector3(), rnd = srRnd(77);
+      muros.forEach(([i, l, mu], k)=>{ const p = ponto(i * SR_SEG), rx = Math.cos(p.h), rz = -Math.sin(p.h), alt = (mu.est === 'cyber' ? 14 + rnd() * 40 : mu.h * 4.5 + rnd() * 6), lx = mu.x * hW + 4;
+        vv.set(p.x + rx * l * lx, p.y + alt / 2, p.z + rz * l * lx); q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), p.h); sv.set(8, alt, SR_SEG * M * 1.02); mtx.compose(vv, q, sv); im.setMatrixAt(k, mtx);
+        im.setColorAt(k, mu.est === 'cyber' ? cor(['#1A1038', '#241548', '#121030'][k % 3]) : cor(['#C9BFAF', '#B8AE9E', '#D2C8B8', '#A89E8E'][k % 4])); });
+      im.castShadow = true; g.add(im); }
+    // cenário: as imagens dos temas como cartazes 3D (árvores, candeeiros, monumentos, cogumelos…)
+    const base = { poste: [.3, 6.5], r: [2.6, 0], cog: [1.3, 0], cogOuro: [1.3, 0], tart: [1.1, 0] };
+    segs.forEach((sg, i)=> sg.sp.forEach((o, j)=>{ const img = SR.spr[o.t]; if(!img) return;
+      const p = ponto(i * SR_SEG), rx = Math.cos(p.h), rz = -Math.sin(p.h), b = base[o.t] || [3.4, 0], w = (b[1] ? b[1] * img.width / img.height : b[0] * o.s * (o.t[0] === 'm' ? 2.2 : 1)), h = w * img.height / img.width;
+      const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex(img), transparent: true, alphaTest: .08, fog: true })); sp.scale.set(w, h, 1);
+      const flut = o.t === 'cog' || o.t === 'cogOuro' || o.t === 'tart';
+      sp.position.set(p.x + rx * o.x * hW, p.y + h / 2 + (flut ? 1 : 0), p.z + rz * o.x * hW); sp.userData = { i, t: o.t, flut, y0: p.y + h / 2 + (flut ? 1 : 0) };
+      g.add(sp); (S.spr[i] = S.spr[i] || []).push(sp); }));
+    // chão lá em baixo (para não se ver o vazio) e nevoeiro
+    const ymin = Math.min(...S.P.py) - 30, ch = new THREE.Mesh(new THREE.PlaneGeometry(6000, 6000), new THREE.MeshLambertMaterial({ color: cor(T.relva[0]) })); ch.rotation.x = -Math.PI / 2; ch.position.y = ymin; S.chao = ch; g.add(ch);
+    S.scene.fog = new THREE.Fog(cor(T.haze), 70, T.neon ? 420 : 650);
+    S.scene.background = cor(T.ceu);
+    S.recomp = 2;   // recompilar os shaders depois da 1.ª imagem (o nevoeiro só pega depois)
+  }
+  // montanhas e céu: as mesmas imagens do 2D, num cilindro à volta da câmara
+  function ceu(T){
+    const B = SR.bg; if(!B || S.ceuKey === SR.bgKey) return; S.ceuKey = SR.bgKey;
+    const g = S.gCeu; while(g.children.length) g.remove(g.children[0]);
+    const faixa = (src, r, h, y)=>{ const bh = B.y1 - B.y0, c = document.createElement('canvas'); c.width = src.width; c.height = bh; c.getContext('2d').drawImage(src, 0, B.y0, src.width, bh, 0, 0, src.width, bh);
+      const t = new THREE.CanvasTexture(c); t.wrapS = THREE.RepeatWrapping; t.repeat.x = 3;
+      const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 64, 1, true), new THREE.MeshBasicMaterial({ map: t, transparent: true, side: THREE.BackSide, fog: false, depthWrite: false })); m.position.y = y; g.add(m); };
+    faixa(B.longe, 1900, 420, 150); faixa(B.perto, 1300, 260, 80);
+    const sk = new THREE.CanvasTexture(B.sky); S.scene.background = sk;
+  }
+  // ---------- os alunos ----------
+  function mat(c, extra){ return new THREE.MeshLambertMaterial(Object.assign({ color: cor(c) }, extra || {})); }
+  function cil(r0, r1, L, c){ const m = new THREE.Mesh(new THREE.CylinderGeometry(r0, r1, L, 10), mat(c)); m.castShadow = true; return m; }
+  function esf(r, c, sx, sy, sz){ const m = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 12), mat(c)); if(sx) m.scale.set(sx, sy, sz); m.castShadow = true; return m; }
+  function caixa(w, h, d, c){ const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)); m.castShadow = true; return m; }
+  function roda(r, larg, c){ const m = new THREE.Mesh(new THREE.TorusGeometry(r - larg / 2, larg / 2, 10, 28), mat(c || '#1A1D23')); m.castShadow = true; return m; }
+  function cabeca(av){   // cabeça com o que o aluno escolheu (versão 3D simplificada)
+    const g = new THREE.Group(), H = av.H || 'cic', pele = av.p, c = av.h;
+    g.add(esf(.12, pele));
+    const topo = (r, cc, sy)=>{ const m = esf(r, cc, 1, sy || 1, 1); m.position.y = .03; g.add(m); return m; };
+    if(H === 'cic'){ topo(.135, c, .85); } else if(H === 'pil'){ topo(.145, c); const v = caixa(.2, .07, .02, '#16181D'); v.position.set(0, .0, .14); g.add(v); }
+    else if(H === 'vik'){ topo(.135, '#9AA3AE', .8); [-1, 1].forEach(l=>{ const h = cil(.0, .035, .22, '#EFE3CF'); h.position.set(l * .15, .12, 0); h.rotation.z = -l * .9; g.add(h); }); }
+    else if(H === 'pn' || H === 'elf'){ const cc = H === 'pn' ? '#C8102E' : '#1E9E46', k = cil(0, .13, .32, cc); k.position.y = .2; k.rotation.x = .25; g.add(k); const b = esf(.04, H === 'pn' ? '#FFFFFF' : '#FFD60A'); b.position.set(0, .36, -.08); g.add(b); if(H === 'pn'){ const f = new THREE.Mesh(new THREE.TorusGeometry(.12, .035, 8, 20), mat('#FFFFFF')); f.rotation.x = Math.PI / 2; f.position.y = .05; g.add(f); } }
+    else if(H === 'cha' || H === 'cow'){ const aba = new THREE.Mesh(new THREE.CylinderGeometry(H === 'cow' ? .25 : .2, H === 'cow' ? .25 : .2, .02, 20), mat(c)); aba.position.y = .07; g.add(aba); const copa = cil(.11, .12, .13, c); copa.position.y = .14; g.add(copa); }
+    else if(H === 'cog'){ const m = esf(.24, c, 1, .55, 1); m.position.y = .1; g.add(m); [[.1, .17, .1], [-.12, .15, .08], [0, .2, -.14]].forEach(([x, y, z])=>{ const d = esf(.045, '#FFFFFF'); d.position.set(x, y, z); g.add(d); }); }
+    else if(H === 'pap'){ const m = cil(0, .12, .4, '#F7F3E6'); m.position.y = .22; g.add(m); const r = caixa(.03, .22, .01, '#D4A83A'); r.position.set(0, .2, .12); g.add(r); }
+    else if(H === 'ush'){ topo(.15, c, .9); const ab = new THREE.Mesh(new THREE.TorusGeometry(.13, .05, 8, 20), mat(srMix(srHex(c), '#000000', .2))); ab.rotation.x = Math.PI / 2; ab.position.y = .02; g.add(ab); }
+    else if(H === 'coc'){ topo(.125, '#1A1A1A', .85); for(let k = -3; k <= 3; k++){ const p = cil(.0, .025, .3, k % 2 ? '#FAF6EC' : '#C8102E'); p.position.set(k * .05, .2, -.06 - Math.abs(k) * .02); p.rotation.x = -.3 - Math.abs(k) * .12; p.rotation.z = -k * .18; g.add(p); } }
+    else if(H === 'moh'){ topo(.122, pele, .9); const m = caixa(.04, .16, .22, c); m.position.y = .16; g.add(m); }
+    else if(H === 'lon'){ topo(.13, c, 1); const m = caixa(.2, .25, .08, c); m.position.set(0, -.08, -.1); g.add(m); }
+    else if(H === 'rab'){ topo(.128, c, .95); const m = cil(.03, .015, .22, c); m.position.set(0, -.06, -.13); m.rotation.x = .5; g.add(m); }
+    else topo(.128, c, .9);
+    return g;
+  }
+  function modelo(av){   // um aluno completo; devolve o grupo e as partes que se animam
+    const g = new THREE.Group(), v = av.v, roupa = avRoupa(av), calca = avCalca(av.T, roupa) || av.p, vc = av.vc, FEM = av.g === 'f';
+    const parts = { pernas: [], rodas: [], patas: [] };
+    const pessoa = (y0, incl)=>{   // tronco, braços, cabeça e pernas
+      const tr = caixa(FEM ? .32 : .36, .5, .2, roupa); tr.position.set(0, y0 + .25, 0); tr.rotation.x = incl; g.add(tr);
+      const cab = cabeca(av); cab.position.set(0, y0 + .5 + .18, -Math.sin(incl) * .45); g.add(cab);
+      [-1, 1].forEach(l=>{ const b = cil(.045, .04, .5, AV_MLONGA.includes(av.T) ? roupa : av.p); b.position.set(l * .2, y0 + .3, -.22); b.rotation.x = -1.1; g.add(b); });
+      [-1, 1].forEach(l=>{ const pv = new THREE.Group(); pv.position.set(l * .1, y0, 0); const c = cil(.065, .055, .42, calca); c.position.y = -.21; pv.add(c);
+        const pe = caixa(.08, .06, .22, avSapato(av.T)); pe.position.set(0, -.44, .04); pv.add(pe); g.add(pv); parts.pernas.push([pv, l]); });
+    };
+    if(v === 'k' || v === 'c'){   // kart / carrinho: carroçaria, 4 rodas, piloto sentado
+      const corpo = caixa(1.2, .35, 1.9, vc); corpo.position.y = .3; g.add(corpo); const nz = caixa(.9, .2, .6, vc); nz.position.set(0, .4, -.9); g.add(nz);
+      [[-.6, .7], [.6, .7], [-.6, -.7], [.6, -.7]].forEach(([x, z])=>{ const r = roda(.3, .22); r.rotation.y = Math.PI / 2; r.position.set(x, .3, z); g.add(r); parts.rodas.push(r); });
+      pessoa(.55, .15); const vol = new THREE.Mesh(new THREE.TorusGeometry(.17, .025, 8, 20), mat('#222')); vol.position.set(0, .95, -.4); vol.rotation.x = -.8; g.add(vol);
+    } else if(v === 'n'){   // trenó com rena
+      const tr = caixa(1.1, .5, 1.6, vc); tr.position.y = .5; g.add(tr); const enc = caixa(1.1, .7, .15, vc); enc.position.set(0, 1.05, .75); g.add(enc);
+      [-1, 1].forEach(l=>{ const p = cil(.04, .04, 2.2, '#C9CED6'); p.rotation.x = Math.PI / 2; p.position.set(l * .5, .08, 0); g.add(p); });
+      pessoa(.75, .1);
+      const rn = new THREE.Group(); rn.position.set(0, 0, -3); const cp = esf(.3, '#8A5A36', 1.1, .9, 1.9); cp.position.y = 1; rn.add(cp); const pes = cil(.12, .14, .7, '#6B4426'); pes.position.set(0, 1.35, -.6); pes.rotation.x = .6; rn.add(pes);
+      const cb = esf(.16, '#8A5A36', 1, .9, 1.4); cb.position.set(0, 1.7, -.85); rn.add(cb); const nr = esf(.06, '#C8102E'); nr.position.set(0, 1.68, -1.08); rn.add(nr);
+      [-1, 1].forEach(l=>{ const h = cil(.0, .03, .5, '#DCC9A0'); h.position.set(l * .12, 2.02, -.8); h.rotation.z = -l * .6; rn.add(h); const h2 = cil(0, .02, .3, '#DCC9A0'); h2.position.set(l * .25, 2.12, -.8); h2.rotation.z = -l * 1.4; rn.add(h2); });
+      [[-.18, .45], [.18, .45], [-.18, -.45], [.18, -.45]].forEach(([x, z], k)=>{ const pv = new THREE.Group(); pv.position.set(x, .95, z); const p = cil(.05, .04, .9, '#5E3B22'); p.position.y = -.45; pv.add(p); rn.add(pv); parts.patas.push([pv, k]); });
+      g.add(rn); [-1, 1].forEach(l=>{ const t = cil(.012, .012, 2.4, '#4A2E1A'); t.rotation.x = Math.PI / 2; t.position.set(l * .3, .9, -1.6); g.add(t); });
+    } else {   // bicicletas: estrada, BTT, contrarrelógio, triciclo
+      const R = v === 'b' ? .36 : .34, larg = v === 'b' ? .09 : .045, tras = v === 'r' ? [[-.4], [.4]] : [[0]];
+      tras.forEach(([x])=>{ const r = roda(R, larg); r.position.set(x, R, .5); g.add(r); parts.rodas.push(r); if(v === 't'){ const d = new THREE.Mesh(new THREE.CircleGeometry(R - .04, 24), mat('#1F2937', { side: THREE.DoubleSide })); d.position.set(x, R, .5); g.add(d); } });
+      const rf = roda(R, larg); rf.position.set(0, R, -.55); g.add(rf); parts.rodas.push(rf);
+      const q = [[0, R + .15, .45, 0, .95, 0], [0, .95, 0, 0, .55, -.55], [0, R + .15, .45, 0, .55, -.55], [0, .55, -.55, 0, R, -.55], [0, .95, 0, 0, R + .1, .5]];
+      q.forEach(([x0, y0, z0, x1, y1, z1])=>{ const a = new THREE.Vector3(x0, y0, z0), b = new THREE.Vector3(x1, y1, z1), L = a.distanceTo(b), m = cil(.025, .025, L, vc); m.position.copy(a).lerp(b, .5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), b.clone().sub(a).normalize()); g.add(m); });
+      const sel = caixa(.1, .04, .26, '#1A1D23'); sel.position.set(0, .98, .05); g.add(sel);
+      const gu = cil(.015, .015, v === 'b' || v === 'r' ? .6 : .42, '#1A1D23'); gu.rotation.z = Math.PI / 2; gu.position.set(0, .98, -.55); g.add(gu);
+      pessoa(.95, v === 't' ? .95 : .7);
+    }
+    const aro = new THREE.Mesh(new THREE.RingGeometry(.9, 1.15, 40), new THREE.MeshBasicMaterial({ color: 0x3DD45C, transparent: true, opacity: .75, side: THREE.DoubleSide })); aro.rotation.x = -Math.PI / 2; aro.position.y = .03; g.add(aro); parts.aro = aro;
+    g.userData.parts = parts; return g;
+  }
+  function rider(r){
+    const avt = r.av || '0', R = S.riders[r.id];
+    if(R && R.avt === avt) return R;
+    if(R) S.gRid.remove(R.g);
+    const av = avLe(r.av) || avLe('e.AEB6C2.F3F4F6.E0AE86'), g = modelo(av); S.gRid.add(g);
+    return S.riders[r.id] = { g, avt, av, p: g.userData.parts };
+  }
+  // ---------- uma imagem ----------
+  function frame(o){
+    const { W, H, now, segs, T, zG, rs, ord, zc, gI } = o; liga();
+    const dpr = Math.min(1.5, window.devicePixelRatio || 1) * (SR.res || 1);
+    if(S.cv.width !== Math.round(W * dpr) || S.cv.height !== Math.round(H * dpr)){ S.ren.setPixelRatio(1); S.ren.setSize(Math.round(W * dpr), Math.round(H * dpr), false); S.cam.aspect = W / H; S.cam.updateProjectionMatrix(); }
+    const key = SR.key + '|' + (SR.sprT || '') + '|' + (SR.met ? SR.met.fase : '');
+    if(S.key !== key){ S.key = key; constroi(segs, T); }
+    ceu(T);
+    // luz: hora do dia
+    const fase = SR.met ? SR.met.fase : 'tarde', noite = fase === 'noite', esc = T.neon ? .35 : noite ? .22 : fase === 'por' ? .8 : 1;
+    S.hemi.intensity = .9 * esc; S.sol.intensity = 1.1 * esc; S.sol.color.set(fase === 'por' ? '#ffc48a' : noite ? '#8fa6d6' : '#fff2dc');
+    // câmara: a mesma lógica do drone (SR.dr) ou a fixa atrás do último
+    const D = SR.dr, gaps = SR.gaps || {}, drone = SR.drone !== false && D;
+    const minG = rs.length ? Math.min(0, ...rs.map(r=> gaps[r.id] || 0)) : 0;
+    const foco = drone ? D.f : minG, ds = drone ? D.ds : 12, dH = drone ? D.dH : 1, dX = drone ? (D.dX / SR_ROAD) * S.hW * 2 : 0;
+    const pf = ponto(zG + foco), pc = ponto(zG + foco - ds * SR_SEG), rx = Math.cos(pc.h), rz = -Math.sin(pc.h);
+    const camY = pc.y + .9 + 3 * dH, cx = pc.x + rx * dX, cz = pc.z + rz * dX;
+    S.cam.position.set(cx, camY, cz); S.cam.lookAt(pf.x, pf.y + 1 + (dH > 2 ? 2 : 0), pf.z); if(S.chao){ S.chao.position.x = cx; S.chao.position.z = cz; }
+    S.sol.position.set(pf.x + 60, pf.y + 120, pf.z - 40); S.sol.target.position.set(pf.x, pf.y, pf.z);
+    S.gCeu.position.set(cx, 0, cz); if(S.grelha) S.grelha.position.set(Math.round(cx / 10) * 10, -.07, Math.round(cz / 10) * 10);
+    // cenário visível: só os cartazes perto (e os cogumelos/tartarugas já apanhados desaparecem)
+    const feito = SR.kc && SR.kc.feito; for(let i = Math.max(0, gI - 400); i < Math.min(S.P.N, gI + 600); i++){ const L = S.spr[i]; if(!L) continue; const vis = i > gI - 80 && i < gI + 330; L.forEach(sp=>{ sp.visible = vis && !(sp.userData.flut && feito && feito.has(i)); if(vis && sp.userData.flut) sp.position.y = sp.userData.y0 + .25 * Math.sin(now * .004 + i); }); }
+    if(S.vis0 != null) for(let i = S.vis0; i < Math.max(0, gI - 400); i++){ const L = S.spr[i]; if(L) L.forEach(sp=> sp.visible = false); } S.vis0 = Math.max(0, gI - 400);
+    // alunos
+    const vivos = new Set(), nomes = [], fx = [], f0 = new THREE.Vector3(), focal = H / 2 / Math.tan(S.cam.fov * Math.PI / 360), b = o.b;
+    rs.forEach((r, i)=>{ vivos.add(r.id); const R = rider(r), d = zG + (gaps[r.id] || 0), p = ponto(d), lado = ((SR.lado || {})[r.id] || 0) * .75 * S.hW, lrx = Math.cos(p.h), lrz = -Math.sin(p.h);
+      R.g.position.set(p.x + lrx * lado, p.y, p.z + lrz * lado); R.g.rotation.y = p.h + Math.PI; R.g.visible = true;   // os modelos têm a frente em −z
+      const ph = srFase(r.id, jgRpm(r), now, livePlaying), z = !!JG.z[r.id];
+      R.p.pernas.forEach(([pv, l])=>{ pv.rotation.x = Math.sin(ph + (l > 0 ? Math.PI : 0)) * .75 - .35; });
+      R.p.rodas.forEach(w=>{ w.rotation.z = (w.rotation.z || 0) - (livePlaying ? (jgRpm(r) || 0) / 60 * .11 : 0); });
+      R.p.patas.forEach(([pv, k])=>{ pv.rotation.x = Math.sin(ph + (k % 2 ? Math.PI : 0) + (k < 2 ? 0 : .6)) * .7; });
+      R.p.aro.visible = z; R.p.aro.material.opacity = .55 + .25 * Math.sin(now * .006);
+      // nome e efeitos: na posição do ecrã
+      f0.set(R.g.position.x, R.g.position.y + 1.1, R.g.position.z); const dist = f0.distanceTo(S.cam.position); f0.project(S.cam);
+      if(f0.z < 1 && f0.z > -1){ const sx = (f0.x + 1) / 2 * W, sy = (1 - f0.y) / 2 * H, s = Math.max(6, 1.05 * focal / dist);
+        const lug = ord.indexOf(r) + 1, curto = rs.length > 12 && lug > 5 && s < 20;
+        nomes.push({ x: sx, y: sy, s: curto ? Math.min(s, 14) : s, txt: curto ? String(lug) : lug + '. ' + (r.n || '?').split(' ')[0], lider: ord[0] === r, pri: curto ? 1 : 0 });
+        fx.push({ id: r.id, x: sx, y: sy + s * 1.1, s }); } });
+    Object.keys(S.riders).forEach(id=>{ if(!vivos.has(id)) S.riders[id].g.visible = false; });
+    S.ren.render(S.scene, S.cam);
+    if(S.recomp > 0){ S.recomp--; S.gTrk.traverse(o=>{ if(o.material) o.material.needsUpdate = true; }); }
+    return { nomes, fx };
+  }
+  return { carrega, frame, ok: ()=> S.ok, liga, desliga, get S(){ return S; } };
+})();
   function srFrame(now){
     if(!SR.on) return;
     if(!$('liveOverlay').classList.contains('active') || !SR.cv || !SR.cv.isConnected){ srPara(); return; }
@@ -7109,29 +7383,32 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     // a câmara fica sempre atrás do último aluno, para se verem todos à frente
     const zG = SR.zG = srZ(Math.max(0, tEl)), gs0 = SR.gaps || {}, vis0 = visRiders().filter(jgPedala), dtF = SR.tF ? Math.min(.1, (now - SR.tF) / 1000) : 0; SR.tF = now;
     const minG = vis0.length ? Math.min(0, ...vis0.map(r=> gs0[r.id] != null ? gs0[r.id] : 0)) : 0;
-    // câmara "drone": um realizador automático que vai trocando de plano, sempre a deslizar (sem cortes):
-    //  1. alto: sobe e recua para se ver o pelotão inteiro
-    //  2. travelling: desce rente à estrada e atravessa o pelotão de trás para a frente, a passar por entre os alunos
-    //  3. grandes planos: encosta-se a 3 alunos, um de cada vez
-    //  4. lateral: de um dos lados da estrada, a meia altura
+    // câmara "drone": um realizador automático que percorre o trajeto de planos definido pelo professor (⚙️ ao lado do 🚁),
+    // sempre a deslizar, sem cortes. Cada plano tem duração, altura e distância próprias; a velocidade do voo também se regula.
     const maxG = vis0.length ? Math.max(0, ...vis0.map(r=> gs0[r.id] != null ? gs0[r.id] : 0)) : 0;
     let alvo;
     if(SR.drone !== false){
-      const D = SR.dr || (SR.dr = { p: 0, t0: now, k: 0, f: null, dH: 1, dX: 0, ds: 12 }), PL = [['alto', 9], ['trav', 12], ['close', 13.5], ['lado', 9]];
-      let el = (now - D.t0) / 1000; if(el > PL[D.p][1]){ D.p = (D.p + 1) % PL.length; D.t0 = now; el = 0; if(PL[D.p][0] === 'lado') D.lado = D.lado === 1 ? -1 : 1; }
-      const pl = PL[D.p][0], LD = SR.lado || {}, ids = vis0.map(r=> r.id), ease = x=> x * x * (3 - 2 * x);
-      let foco, ds, h, xx;
-      if(pl === 'alto'){ foco = minG; ds = 12; h = 3.4; xx = 0; }
-      else if(pl === 'trav'){ const q = ease(Math.min(1, el / PL[D.p][1])); foco = minG + (maxG - minG + SR_SEG * 1.5) * q; ds = 2.6; h = .42; xx = Math.sin(el * .8) * SR_ROAD * .4; }
-      else if(pl === 'close'){ const n = Math.max(1, Math.min(3, ids.length)), k = Math.min(n - 1, Math.floor(el / (PL[D.p][1] / n))), id = ids.length ? ids[(D.k + k) % ids.length] : null;
-        if(el + 1 / 60 >= PL[D.p][1]) D.k = (D.k + n) % Math.max(1, ids.length);
-        foco = id && gs0[id] != null ? gs0[id] : 0; ds = 2.7; h = .36; xx = (LD[id] || 0) * .75 * SR_ROAD + SR_ROAD * .16; }
-      else { foco = (minG + maxG) / 2; ds = 7; h = 1.4; xx = (D.lado || 1) * SR_ROAD * .95; }
-      const k1 = Math.min(1, dtF * 1.6);   // aproxima-se dos valores do plano aos poucos
-      D.dH += (h - D.dH) * k1; D.dX += (xx - D.dX) * k1; D.ds += (ds - D.ds) * k1; D.f = D.f == null ? foco : D.f + (foco - D.f) * Math.min(1, dtF * 2.2);
-      alvo = Math.max(0, zG + D.f - SR_SEG * D.ds); SR.dH = D.dH; SR.dX = D.dX;
+      const CF = DR.cfg, TR = DR.trajeto(), D = SR.dr || (SR.dr = { p: 0, t0: now, k: 0, f: null, dH: 1, dX: 0, ds: 12, lado: 1 });
+      if(D.p >= TR.length) D.p = 0;
+      const dur = ()=> (CF.c[TR[D.p]].d || 9) / Math.max(.25, CF.vel);   // mais velocidade = planos mais curtos
+      let el = (now - D.t0) / 1000;
+      if(DR.salta || el > dur()){ D.p = CF.aleat && TR.length > 1 ? (D.p + 1 + Math.floor(Math.random() * (TR.length - 1))) % TR.length : (D.p + 1) % TR.length; D.t0 = now; el = 0; DR.salta = false; if(TR[D.p] === 'lado') D.lado = D.lado === 1 ? -1 : 1; }
+      const pl = TR[D.p], C = CF.c[pl], LD = SR.lado || {}, ids = vis0.map(r=> r.id), ease = x=> x * x * (3 - 2 * x), dT = dur();
+      let foco, ds = C.ds, h = C.h, xx = 0;
+      if(pl === 'alto'){ foco = minG; }
+      else if(pl === 'trav'){ const q = ease(Math.min(1, el / dT)); foco = minG + (maxG - minG + SR_SEG * 1.5) * q; xx = Math.sin(el * .8 * CF.vel) * SR_ROAD * .4; }
+      else if(pl === 'close'){ const n = Math.max(1, Math.min(C.n || 3, ids.length)), k = Math.min(n - 1, Math.floor(el / (dT / n))), id = ids.length ? ids[(D.k + k) % ids.length] : null;
+        if(el + 1 / 60 >= dT) D.k = (D.k + n) % Math.max(1, ids.length);
+        foco = id && gs0[id] != null ? gs0[id] : 0; xx = (LD[id] || 0) * .75 * SR_ROAD + SR_ROAD * .16; }
+      else if(pl === 'lado'){ foco = (minG + maxG) / 2; xx = (D.lado || 1) * SR_ROAD * .95; }
+      else if(pl === 'lider'){ foco = maxG; }
+      else if(pl === 'frente'){ foco = maxG - SR_SEG * 1.5; ds = -Math.abs(ds); }   // 3D: a câmara vai à frente e olha para trás
+      else { foco = minG; }   // 'cauda': atrás do último
+      const kv = Math.max(.25, CF.vel), k1 = Math.min(1, dtF * 1.6 * kv);   // aproxima-se dos valores do plano aos poucos (mais depressa com mais velocidade)
+      D.dH += (h - D.dH) * k1; D.dX += (xx - D.dX) * k1; D.ds += (ds - D.ds) * k1; D.f = D.f == null ? foco : D.f + (foco - D.f) * Math.min(1, dtF * 2.2 * kv);
+      alvo = Math.max(0, zG + D.f - SR_SEG * D.ds); SR.dH = D.dH; SR.dX = D.dX; DR.atual = pl;
     } else { alvo = Math.max(0, zG + minG - SR_SEG * 12); SR.dH = 1; SR.dX = 0; }   // câmara fixa atrás do último
-    SR.camZ = SR.drone !== false ? (Math.abs(alvo - SR.camZ) > SR_SEG * 60 ? alvo : SR.camZ + (alvo - SR.camZ) * Math.min(1, dtF * 2.5)) : (Math.abs(alvo - SR.camZ) > SR_SEG * 3 ? (Math.abs(alvo - SR.camZ) > SR_SEG * 40 ? alvo : SR.camZ + (alvo - SR.camZ) * .15) : alvo);
+    SR.camZ = SR.drone !== false ? (Math.abs(alvo - SR.camZ) > SR_SEG * 60 ? alvo : SR.camZ + (alvo - SR.camZ) * Math.min(1, dtF * 2.5 * Math.max(.25, DR.cfg.vel))) : (Math.abs(alvo - SR.camZ) > SR_SEG * 3 ? (Math.abs(alvo - SR.camZ) > SR_SEG * 40 ? alvo : SR.camZ + (alvo - SR.camZ) * .15) : alvo);
     const camZ = SR.camZ, baseI = Math.min(N - 2, Math.floor(camZ / SR_SEG)), base = segs[baseI], frac = (camZ % SR_SEG) / SR_SEG;
     // tudo o que depende do troço onde está a câmara é interpolado com "frac": sem isto a imagem dava um salto
     // de cada vez que se passava para o troço seguinte (a 42 km/h, um solavanco a cada 0,43 s)
@@ -7145,6 +7422,8 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     SR.pitch += (Math.max(-.16, Math.min(.16, incl * 2.6)) - SR.pitch) * .05;
     const hor = H * (.5 + SR.pitch) - Math.max(0, (SR.dH || 1) - 1) * H * .17;   // drone alto: inclina a câmara para baixo (o horizonte sobe)
     srFundo(W, H, zc);
+    const M3 = SR.m3 && SR3.ok(); if(M3) ctx.clearRect(0, 0, W, H); else SR3.desliga();   // 3D: o Three.js desenha o mundo por baixo; aqui só ficam os nomes, efeitos, mapas e HUD
+    if(!M3){
     // céu, nuvens, montanhas com paralaxe
     const dy = hor - H * .5;
     { const hs = Math.min(H, Math.ceil(hor + 30 - dy * .3)); if(hs > 0) ctx.drawImage(SR.bg.sky, 0, 0, W, hs, 0, dy * .3, W, hs); }   // só a parte do céu que se vê
@@ -7157,12 +7436,13 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     { const B = SR.bg, bh = B.y1 - B.y0;   // só a faixa das montanhas, só a largura do ecrã (muito menos píxeis a copiar)
       let off = (((curvAcc * 1.6) % W) + W) % W; ctx.drawImage(B.longe, off, B.y0, W, bh, 0, B.y0 + dy * .5, W, bh);
       off = (((curvAcc * 3.6) % W) + W) % W; ctx.drawImage(B.perto, off, B.y0, W, bh, 0, B.y0 + dy * .75, W, bh); }
+    }
     // estrada: da frente para trás, com recorte nos montes
     let maxY = H, x = 0, dx = -(base.curve * frac);
     const proj = [], haze = T.haze;
     const dXc = SR.dX || 0, P = (wx, wy, wz)=>{ const sc = SR_DEPTH / wz; return { x: W / 2 + sc * (wx - dXc) * W / 2, y: hor - sc * (wy - camY) * H / 2, w: sc * SR_ROAD * W / 2 }; };
     const t0 = performance.now(), DRAW = SR.draw || SR_DRAW;
-    for(let n = 0; n < DRAW && baseI + n < N - 1; n++){
+    for(let n = 0; !M3 && n < DRAW && baseI + n < N - 1; n++){
       const sg = segs[baseI + n];
       // ao longe (a partir do troço 60) desenha 2 troços de cada vez: metade do trabalho, a diferença não se vê
       // os pares são fixos na estrada (troço par + ímpar), não relativos à câmara: assim não mudam a cada troço e o horizonte não treme
@@ -7254,9 +7534,11 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
         nomes.push({ x: cx, y: py, s: curto ? Math.min(s, 14) : s, txt: curto ? String(lug) : lug + '. ' + (r.n || '?').split(' ')[0], lider: ord[0] === r, pri: curto ? 1 : 0 }); if(SR.tema === 'kart') kpops.push([cx, py, s, r.id]); });
     }
     // o "nosso" ciclista (a câmara) e os nomes por cima de tudo, dos mais perto para os mais longe
-    if(SR.drone === false){ srCiclista(ctx, W / 2, H * 1.02, Math.min(W, H) * .2, zc, pedal, emPe, W / 2);   // com a câmara fixa há um ciclista à frente dela; o drone voa sozinho
+    if(SR.drone === false && !M3){ srCiclista(ctx, W / 2, H * 1.02, Math.min(W, H) * .2, zc, pedal, emPe, W / 2);   // com a câmara fixa há um ciclista à frente dela; o drone voa sozinho
     if(SR.met){ const s0 = Math.min(W, H) * .2; luzes.push({ x: W / 2, y: H * 1.02 - s0 * .95, r: s0 * .05, t: 'r' }); } }
-    srMetEfeitos(ctx, W, H, hor, luzes, now);   // hora do dia e tempo: luz, escuridão, nevoeiro, luzes, chuva ou neve
+    if(!M3) srMetEfeitos(ctx, W, H, hor, luzes, now);   // hora do dia e tempo: luz, escuridão, nevoeiro, luzes, chuva ou neve
+    if(M3){ let R3 = null; try{ R3 = SR3.frame({ W, H, now, segs, T, zG, rs, ord, zc, gI, b }); }catch(e){ console.error(e); SR.m3 = false; SR3.desliga(); toast('⚠ Erro no 3D: voltei ao 2D'); }
+      if(R3){ R3.nomes.forEach(q=> nomes.push(q)); R3.fx.forEach(q=>{ const F = (JG.fx || {})[q.id], t0 = performance.now(); if(F){ if(SR.tema === 'kart') srKartFx(ctx, q.x, q.y, q.s, F.b > t0, F.t > t0, now); srGodFx(ctx, q.x, q.y, q.s, F.G > t0, F.V > t0, F.R > t0, now); } if(SR.tema === 'kart') kpops.push([q.x, q.y, q.s, q.id]); }); } }
     SR.lbls = [];
     nomes.sort((a, c)=> (a.pri - c.pri) || (c.y - a.y)).forEach(o=> srNome(ctx, o.x, o.y, o.s, o.txt, o.lider, W, o.pri ? 3 : 6));
     kpops.forEach(a=> srKartPop(ctx, a[0], a[1] - a[2] * 1.4, Math.max(a[2] * 1.3, 26), a[3], now));
@@ -7321,11 +7603,14 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function srMonta(gp){
     if(gp.dataset.serra === '1' && SR.cv && SR.cv.isConnected) return;
     gp.dataset.serra = '1';
-    gp.innerHTML = '<div class="sr-box' + (SR.full ? ' full' : '') + '" id="srBox"><canvas id="srCv" aria-label="Estrada da serra a andar com a aula"></canvas><div class="sr-hud" id="srHud"></div><div class="sr-rank" id="srRank"></div><button class="sr-fs" id="srFs" title="Ecrã inteiro (tecla E ou duplo clique na estrada)">⛶</button><button class="sr-metb" id="srMet" title="Hora do dia e tempo da Serra">🌤️</button><button class="sr-metb sr-neob" id="srNeo" title="Bonecos em néon ou com a roupa escolhida" hidden>✨</button><button class="sr-metb sr-drb" id="srDr" title="Câmara drone (a voar à volta dos alunos) ou fixa atrás do último">🚁</button><div class="sr-metm" id="srMetM" hidden></div></div>' +
+    gp.innerHTML = '<div class="sr-box' + (SR.full ? ' full' : '') + '" id="srBox"><canvas id="srCv" aria-label="Estrada da serra a andar com a aula"></canvas><div class="sr-hud" id="srHud"></div><div class="sr-rank" id="srRank"></div><button class="sr-fs" id="srFs" title="Ecrã inteiro (tecla E ou duplo clique na estrada)">⛶</button><button class="sr-metb" id="srMet" title="Hora do dia e tempo da Serra">🌤️</button><button class="sr-metb sr-neob" id="srNeo" title="Bonecos em néon ou com a roupa escolhida" hidden>✨</button><button class="sr-metb sr-drb" id="srDr" title="Câmara drone (a voar à volta dos alunos) ou fixa atrás do último">🚁</button><button class="sr-metb sr-drc" id="srDrC" title="Definir a velocidade, os planos e o trajeto do drone">⚙️</button><button class="sr-metb sr-3d" id="sr3d" title="Projeção em 3D ou em 2D (desenho clássico)">🧊</button><div class="sr-metm" id="srMetM" hidden></div></div>' +
       '<div class="perc-info">🌲 Serra: a estrada nasce da cadência dos blocos. 80–115 rpm é plano; 60–80 rpm com técnica de subida é subida (menos rpm e zona mais alta = mais inclinada: 80 rpm em Z2 ≈ 3%, 60 rpm em Z4 ≈ 20%); Z1 e retorno à calma são descida; Z7 é sprint. Quem cumpre a zona vai à frente.</div>';
     SR.cv = $('srCv'); SR.ctx = SR.cv.getContext('2d'); SR.bgKey = '';
     const fsTroca = ()=>{ SR.full = !SR.full; $('srBox').classList.toggle('full', SR.full); document.body.classList.toggle('sr-full-on', SR.full); $('srFs').textContent = SR.full ? '✕' : '⛶'; $('srFs').title = SR.full ? 'Sair da estrada em ecrã inteiro (tecla E ou Esc)' : 'Ecrã inteiro (tecla E ou duplo clique na estrada)'; };
     $('srFs').onclick = fsTroca; SR.cv.ondblclick = fsTroca; SR.fsTroca = fsTroca;
+    $('srDrC').onclick = droneCfgAbre;
+    $('sr3d').classList.toggle('off', !SR.m3); if(SR.m3) SR3.carrega();
+    $('sr3d').onclick = ()=>{ SR.m3 = !SR.m3; try{ localStorage.setItem('prSr3D', SR.m3 ? '1' : '0'); }catch(e){} $('sr3d').classList.toggle('off', !SR.m3); if(SR.m3) SR3.carrega(); else toast('🖼️ Projeção em 2D'); };
     $('srDr').classList.toggle('off', SR.drone === false);
     $('srDr').onclick = ()=>{ SR.drone = SR.drone === false; try{ localStorage.setItem('prSrDrone', SR.drone ? '1' : '0'); }catch(e){} $('srDr').classList.toggle('off', !SR.drone); toast(SR.drone ? '🚁 Câmara drone' : '🎥 Câmara fixa atrás do último'); };
     $('srNeo').onclick = ()=>{ SR.neonB = SR.neonB === false; try{ localStorage.setItem('prSrNeon', SR.neonB ? '1' : '0'); }catch(e){} toast(SR.neonB ? '✨ Bonecos em néon' : '🚴 Bonecos com a roupa escolhida'); };
@@ -9027,7 +9312,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     if(!$('liveOverlay').classList.contains('active')) return;
     if(e.target && e.target.tagName === 'INPUT') return;
     const done = $('liveOverlay').classList.contains('finished');
-    if(e.code === 'Escape'){ if(POD.on){ podioFecha(); return; } if($('godQr')){ $('godQr').remove(); return; } if(SR.full && SR.fsTroca){ SR.fsTroca(); return; } closeLive(); return; }
+    if(e.code === 'Escape'){ if(POD.on){ podioFecha(); return; } if($('drCfg')){ $('drCfg').remove(); return; } if($('godQr')){ $('godQr').remove(); return; } if(SR.full && SR.fsTroca){ SR.fsTroca(); return; } closeLive(); return; }
     if(e.code === 'KeyF' && !e.ctrlKey && !e.metaKey){ e.preventDefault(); if(emEcraInteiro()){ const x = document.exitFullscreen || document.webkitExitFullscreen; if(x) try{ x.call(document); }catch(_){} } else pedeEcraInteiro(); return; }
     if(liveStarting){ if(e.code === 'Space' || e.code === 'Enter'){ e.preventDefault(); pedeEcraInteiro(); beginFromStart(); } return; }
     if(done) return;
