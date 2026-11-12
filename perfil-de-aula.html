@@ -7340,15 +7340,17 @@ const SR3 = (()=>{
     if(S.vis0 != null) for(let i = S.vis0; i < Math.max(0, gI - 400); i++){ const L = S.spr[i]; if(L) L.forEach(sp=> sp.visible = false); } S.vis0 = Math.max(0, gI - 400);
     // alunos
     const vivos = new Set(), nomes = [], fx = [], f0 = new THREE.Vector3(), focal = H / 2 / Math.tan(S.cam.fov * Math.PI / 360), b = o.b;
-    rs.forEach((r, i)=>{ vivos.add(r.id); const R = rider(r), d = zG + (gaps[r.id] || 0), p = ponto(d), lado = ((SR.lado || {})[r.id] || 0) * .75 * S.hW, lrx = Math.cos(p.h), lrz = -Math.sin(p.h);
-      R.g.position.set(p.x + lrx * lado, p.y, p.z + lrz * lado); R.g.rotation.y = p.h + Math.PI; R.g.visible = true;   // os modelos têm a frente em −z
-      const ph = srFase(r.id, jgRpm(r), now, livePlaying), z = !!JG.z[r.id];
-      R.p.pernas.forEach(([pv, l])=>{ pv.rotation.x = Math.sin(ph + (l > 0 ? Math.PI : 0)) * .75 - .35; });
-      R.p.rodas.forEach(w=>{ w.rotation.z = (w.rotation.z || 0) - (livePlaying ? (jgRpm(r) || 0) / 60 * .11 : 0); });
-      R.p.patas.forEach(([pv, k])=>{ pv.rotation.x = Math.sin(ph + (k % 2 ? Math.PI : 0) + (k < 2 ? 0 : .6)) * .7; });
-      R.p.aro.visible = z; R.p.aro.material.opacity = .55 + .25 * Math.sin(now * .006);
+    // os bonecos são os mesmos do 2D (desenhados pelo srCiclista) colocados na estrada 3D como cartazes virados para a câmara
+    const SM = 1.4, SPX = 140;   // tamanho do boneco em metros / em píxeis na textura
+    rs.forEach((r, i)=>{ vivos.add(r.id); const d = zG + (gaps[r.id] || 0), p = ponto(d), lado = ((SR.lado || {})[r.id] || 0) * .75 * S.hW, lrx = Math.cos(p.h), lrz = -Math.sin(p.h);
+      let R = S.riders[r.id]; if(!R){ const cv = document.createElement('canvas'); cv.width = SPX * 1.6; cv.height = SPX * 2.5; const t = new THREE.CanvasTexture(cv); t.minFilter = THREE.LinearFilter; t.anisotropy = 4;
+        const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, alphaTest: .05, fog: true })); sp.scale.set(SM * 1.6, SM * 2.5, 1); sp.center.set(.5, .08); S.gRid.add(sp); R = S.riders[r.id] = { g: sp, cv, t, ctx: cv.getContext('2d') }; }
+      R.g.position.set(p.x + lrx * lado, p.y + .02, p.z + lrz * lado); R.g.visible = true;
+      const av = avLe(r.av); if(av) av.z = !!JG.z[r.id];
+      R.ctx.clearRect(0, 0, R.cv.width, R.cv.height); R.ctx.shadowBlur = 0;
+      srCiclista(R.ctx, R.cv.width / 2, SPX * 2.3, SPX, JG.z[r.id] ? '#3DD45C' : '#AEB6C2', srFase(r.id, jgRpm(r), now, livePlaying), false, R.cv.width / 2, av); R.t.needsUpdate = true;
       // nome e efeitos: na posição do ecrã
-      f0.set(R.g.position.x, R.g.position.y + 1.1, R.g.position.z); const dist = f0.distanceTo(S.cam.position); f0.project(S.cam);
+      f0.set(R.g.position.x, R.g.position.y + SM * 1.9, R.g.position.z); const dist = f0.distanceTo(S.cam.position); f0.project(S.cam);
       if(f0.z < 1 && f0.z > -1){ const sx = (f0.x + 1) / 2 * W, sy = (1 - f0.y) / 2 * H, s = Math.max(6, 1.05 * focal / dist);
         const lug = ord.indexOf(r) + 1, curto = rs.length > 12 && lug > 5 && s < 20;
         nomes.push({ x: sx, y: sy, s: curto ? Math.min(s, 14) : s, txt: curto ? String(lug) : lug + '. ' + (r.n || '?').split(' ')[0], lider: ord[0] === r, pri: curto ? 1 : 0 });
