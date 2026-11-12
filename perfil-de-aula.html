@@ -7107,18 +7107,31 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     if(livePlaying && typeof tickBaseAt === 'number'){ const bl0 = current.blocos; let ant = 0; for(let k = 0; k < liveIdx; k++) ant += blockDurationSec(bl0[k]); tEl = ant + blockDurationSec(bl0[liveIdx] || {}) - (tickBaseRemaining - (now - tickBaseAt) / 1000); }
     // o pelotão está no ponto do relógio da aula (passa cada linha de bloco no segundo em que o bloco muda);
     // a câmara fica sempre atrás do último aluno, para se verem todos à frente
-    const zG = SR.zG = srZ(Math.max(0, tEl)), gs0 = SR.gaps || {}, vis0 = visRiders().filter(jgPedala);
+    const zG = SR.zG = srZ(Math.max(0, tEl)), gs0 = SR.gaps || {}, vis0 = visRiders().filter(jgPedala), dtF = SR.tF ? Math.min(.1, (now - SR.tF) / 1000) : 0; SR.tF = now;
     const minG = vis0.length ? Math.min(0, ...vis0.map(r=> gs0[r.id] != null ? gs0[r.id] : 0)) : 0;
-    // câmara "drone": voa à volta do pelotão — umas vezes atrás de todos, outras no meio do grupo ou mesmo junto à roda,
-    // mais alta ou rasante, de um lado ou do outro da estrada. Tudo a deslizar devagar (sem cortes nem saltos).
-    const maxG = vis0.length ? Math.max(0, ...vis0.map(r=> gs0[r.id] != null ? gs0[r.id] : 0)) : 0, ts = now / 1000 * 2.2;
-    const rui = (a, b, c)=> (Math.sin(ts * a) + Math.sin(ts * b + c) + 2) / 4;   // 0..1, suave e sem padrão à vista
+    // câmara "drone": um realizador automático que vai trocando de plano, sempre a deslizar (sem cortes):
+    //  1. alto: sobe e recua para se ver o pelotão inteiro
+    //  2. travelling: desce rente à estrada e atravessa o pelotão de trás para a frente, a passar por entre os alunos
+    //  3. grandes planos: encosta-se a 3 alunos, um de cada vez
+    //  4. lateral: de um dos lados da estrada, a meia altura
+    const maxG = vis0.length ? Math.max(0, ...vis0.map(r=> gs0[r.id] != null ? gs0[r.id] : 0)) : 0;
     let alvo;
     if(SR.drone !== false){
-      const foco = minG + (maxG - minG) * rui(.05, .031, 2.1), dist = 3 + 14 * rui(.083, .047, .7);
-      alvo = Math.max(0, zG + foco - SR_SEG * dist); SR.dH = .5 + 1.6 * rui(.061, .029, 4.2); SR.dX = (rui(.043, .071, 1.1) - .5) * SR_ROAD * .9;
+      const D = SR.dr || (SR.dr = { p: 0, t0: now, k: 0, f: null, dH: 1, dX: 0, ds: 12 }), PL = [['alto', 9], ['trav', 12], ['close', 13.5], ['lado', 9]];
+      let el = (now - D.t0) / 1000; if(el > PL[D.p][1]){ D.p = (D.p + 1) % PL.length; D.t0 = now; el = 0; if(PL[D.p][0] === 'lado') D.lado = D.lado === 1 ? -1 : 1; }
+      const pl = PL[D.p][0], LD = SR.lado || {}, ids = vis0.map(r=> r.id), ease = x=> x * x * (3 - 2 * x);
+      let foco, ds, h, xx;
+      if(pl === 'alto'){ foco = minG; ds = 12; h = 3.4; xx = 0; }
+      else if(pl === 'trav'){ const q = ease(Math.min(1, el / PL[D.p][1])); foco = minG + (maxG - minG + SR_SEG * 1.5) * q; ds = 2.6; h = .42; xx = Math.sin(el * .8) * SR_ROAD * .4; }
+      else if(pl === 'close'){ const n = Math.max(1, Math.min(3, ids.length)), k = Math.min(n - 1, Math.floor(el / (PL[D.p][1] / n))), id = ids.length ? ids[(D.k + k) % ids.length] : null;
+        if(el + 1 / 60 >= PL[D.p][1]) D.k = (D.k + n) % Math.max(1, ids.length);
+        foco = id && gs0[id] != null ? gs0[id] : 0; ds = 2.7; h = .36; xx = (LD[id] || 0) * .75 * SR_ROAD + SR_ROAD * .16; }
+      else { foco = (minG + maxG) / 2; ds = 7; h = 1.4; xx = (D.lado || 1) * SR_ROAD * .95; }
+      const k1 = Math.min(1, dtF * 1.6);   // aproxima-se dos valores do plano aos poucos
+      D.dH += (h - D.dH) * k1; D.dX += (xx - D.dX) * k1; D.ds += (ds - D.ds) * k1; D.f = D.f == null ? foco : D.f + (foco - D.f) * Math.min(1, dtF * 2.2);
+      alvo = Math.max(0, zG + D.f - SR_SEG * D.ds); SR.dH = D.dH; SR.dX = D.dX;
     } else { alvo = Math.max(0, zG + minG - SR_SEG * 12); SR.dH = 1; SR.dX = 0; }   // câmara fixa atrás do último
-    SR.camZ = Math.abs(alvo - SR.camZ) > SR_SEG * 3 ? (Math.abs(alvo - SR.camZ) > SR_SEG * 40 ? alvo : SR.camZ + (alvo - SR.camZ) * .15) : alvo;
+    SR.camZ = SR.drone !== false ? (Math.abs(alvo - SR.camZ) > SR_SEG * 60 ? alvo : SR.camZ + (alvo - SR.camZ) * Math.min(1, dtF * 2.5)) : (Math.abs(alvo - SR.camZ) > SR_SEG * 3 ? (Math.abs(alvo - SR.camZ) > SR_SEG * 40 ? alvo : SR.camZ + (alvo - SR.camZ) * .15) : alvo);
     const camZ = SR.camZ, baseI = Math.min(N - 2, Math.floor(camZ / SR_SEG)), base = segs[baseI], frac = (camZ % SR_SEG) / SR_SEG;
     // tudo o que depende do troço onde está a câmara é interpolado com "frac": sem isto a imagem dava um salto
     // de cada vez que se passava para o troço seguinte (a 42 km/h, um solavanco a cada 0,43 s)
@@ -7130,7 +7143,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     // inclinação logo à frente: a câmara olha para cima na subida e para baixo na descida
     const ah = segs[Math.min(N - 1, baseI + 12)], incl = (yIn(baseI + 12) - yAqui) / (12 * SR_SEG * SR_EXG);
     SR.pitch += (Math.max(-.16, Math.min(.16, incl * 2.6)) - SR.pitch) * .05;
-    const hor = H * (.5 + SR.pitch);
+    const hor = H * (.5 + SR.pitch) - Math.max(0, (SR.dH || 1) - 1) * H * .17;   // drone alto: inclina a câmara para baixo (o horizonte sobe)
     srFundo(W, H, zc);
     // céu, nuvens, montanhas com paralaxe
     const dy = hor - H * .5;
@@ -7210,7 +7223,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     SR.gaps = SR.gaps || {};
     rs.forEach((r, i)=>{ const alvoG = (DMv(r.id) - media) * (PR ? SR_M : 12 * SR_M);   // inventados: a diferença real em metros; reais: o avanço em segundos   // a posição de cada um muda 1×/s: aqui desliza suavemente
       const gap = SR.gaps[r.id] = SR.gaps[r.id] == null || Math.abs(alvoG - SR.gaps[r.id]) > SR_SEG * 30 ? alvoG : SR.gaps[r.id] + (alvoG - SR.gaps[r.id]) * .04;
-      const zz = SR.zG + gap; const si = Math.floor(zz / SR_SEG); if(si > baseI + 2 && si < baseI + SR_DRAW) (lugares[si] = lugares[si] || []).push({ r, lado: (((i * 37) % 9) - 4) / 5.5, f: zz / SR_SEG - si }); });   // f: onde fica dentro do troço
+      const zz = SR.zG + gap; const si = Math.floor(zz / SR_SEG); if(si > baseI + 2 && si < baseI + SR_DRAW) (lugares[si] = lugares[si] || []).push({ r, lado: (((i * 37) % 9) - 4) / 5.5, f: zz / SR_SEG - si }); (SR.lado || (SR.lado = {}))[r.id] = (((i * 37) % 9) - 4) / 5.5; });   // f: onde fica dentro do troço
     const nomes = [], luzes = [], kpops = [];   // kpops: quem acabou de apanhar um cogumelo   // luzes: farolins e candeeiros (acendem à noite, com chuva e nevoeiro)
     const pedal = livePlaying ? now / (60000 / Math.max(50, (b.rpm2 ? (b.rpm + b.rpm2) / 2 : b.rpm || 85)) / 6.283) : 0;   // as pernas rodam à cadência do bloco
     const emPe = /p[ée]/i.test(b.tecnica || '') || gSeg.tr.t === 'sprint';
@@ -7241,8 +7254,8 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
         nomes.push({ x: cx, y: py, s: curto ? Math.min(s, 14) : s, txt: curto ? String(lug) : lug + '. ' + (r.n || '?').split(' ')[0], lider: ord[0] === r, pri: curto ? 1 : 0 }); if(SR.tema === 'kart') kpops.push([cx, py, s, r.id]); });
     }
     // o "nosso" ciclista (a câmara) e os nomes por cima de tudo, dos mais perto para os mais longe
-    srCiclista(ctx, W / 2, H * 1.02, Math.min(W, H) * .2, zc, pedal, emPe, W / 2);
-    if(SR.met){ const s0 = Math.min(W, H) * .2; luzes.push({ x: W / 2, y: H * 1.02 - s0 * .95, r: s0 * .05, t: 'r' }); }
+    if(SR.drone === false){ srCiclista(ctx, W / 2, H * 1.02, Math.min(W, H) * .2, zc, pedal, emPe, W / 2);   // com a câmara fixa há um ciclista à frente dela; o drone voa sozinho
+    if(SR.met){ const s0 = Math.min(W, H) * .2; luzes.push({ x: W / 2, y: H * 1.02 - s0 * .95, r: s0 * .05, t: 'r' }); } }
     srMetEfeitos(ctx, W, H, hor, luzes, now);   // hora do dia e tempo: luz, escuridão, nevoeiro, luzes, chuva ou neve
     SR.lbls = [];
     nomes.sort((a, c)=> (a.pri - c.pri) || (c.y - a.y)).forEach(o=> srNome(ctx, o.x, o.y, o.s, o.txt, o.lider, W, o.pri ? 3 : 6));
