@@ -7294,8 +7294,121 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   // Veste o que o aluno escolheu no telemóvel: camisola, calças, sapatos, chapéu/capacete/cabelo e publicidade.
   // Medidas em metros (x para a frente, y para cima, z para o lado).
   // =====================================================================
+  // =====================================================================
+  // HUMANO REALISTA (modelo profissional feito com o MakeHuman/MPFB2, licença CC0):
+  // corpo com músculos e esqueleto de 53 ossos (ciclista_m.glb / ciclista_f.glb, ao lado desta página).
+  // O equipamento é pintado ponto a ponto (bainhas, mangas e gola lisas) com as cores de cada aluno,
+  // e os ossos dobram-se em tempo real: pernas aos pedais, mãos ao guiador, tronco inclinado e cabeça a olhar em frente.
+  // =====================================================================
+  // afinações dos bonecos (postura, pescoço, capacetes e chapéus), em cm e graus: valores de origem, substituídos pelos do
+  // ficheiro bonecos-ajustes.json ao lado desta página, se existir (é feito no editor dos bonecos, editor-bonecos.html)
+  const CICAJ_PAD = { ancX: 0, ancY: 0, trX: 0, trY: 0, costas: 1, joelho: 0, maoX: 0, maoY: 0, cotov: 1, pesc: 56, cab: -10, capS: 1, capX: 0, capY: 0, chS: 1, chY: 0 };
+  const CICAJ = Object.assign({}, CICAJ_PAD);
+  function cicAjPoe(o){ if(o && typeof o === 'object') Object.keys(CICAJ_PAD).forEach(k=>{ if(o[k] != null && isFinite(+o[k])) CICAJ[k] = +o[k]; }); }
+  let HUM = null; const HUMf = ()=> (()=>{
+    const ST = { estado: 'nada', base: {}, lim: {}, fila: [] };   // nada | a carregar | pronto | falhou
+    const CDN = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/';
+    function script(u){ return new Promise((ok, ko)=>{ const s = document.createElement('script'); s.src = u; s.onload = ok; s.onerror = ko; document.head.appendChild(s); }); }
+    async function carrega(){
+      if(ST.estado !== 'nada' || !window.THREE) return; ST.estado = 'a carregar';
+      try{
+        try{ const r = await fetch('bonecos-ajustes.json', { cache: 'no-cache' }); if(r.ok) cicAjPoe(await r.json()); }catch(e){}   // afinações feitas no editor (opcional)
+        if(!THREE.GLTFLoader) await script(CDN + 'loaders/GLTFLoader.js');
+        if(!THREE.SkeletonUtils) await script(CDN + 'utils/SkeletonUtils.js');
+        const L = new THREE.GLTFLoader();
+        for(const g of ['m', 'f']){
+          const gl = await new Promise((ok, ko)=> L.load('ciclista_' + g + '.glb', ok, undefined, ko));
+          let lim = { cintura: .45, gola: .8 }; gl.scene.traverse(o=>{ if(o.userData && o.userData.kit_cintura != null) lim = { cintura: o.userData.kit_cintura, gola: o.userData.kit_gola }; });
+          ST.base[g] = gl.scene; ST.lim[g] = lim;
+        }
+        ST.estado = 'pronto';
+      }catch(e){ console.warn('Humano realista indisponível', e); ST.estado = 'falhou'; }
+    }
+    // equipamento pintado ponto a ponto (o modelo guarda em cada vértice a posição ao longo do braço, coxa e perna)
+    function kitMat(nome, C, O, lim){
+      const rough = { pele: .55, cabelo: .85, olho: .2, pupila: .15, iris: .3, sapato: .35, sobrancelha: .9 }[nome] || .5;
+      if(!['tronco', 'braco', 'perna'].includes(nome)) return new THREE.MeshStandardMaterial({ color: C[nome] || C.pele, roughness: rough, skinning: true });
+      const m = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: .5, skinning: true });
+      const U = {}; ['pele', 'camisola', 'manga', 'punho', 'gola', 'calcoes', 'bainha', 'meia'].forEach(k=> U['c_' + k] = { value: new THREE.Color(C[k] || C.camisola || '#fff') });
+      U.lim = { value: new THREE.Vector4(O.manga == null ? .45 : O.manga, O.calca == null ? .66 : O.calca, lim.cintura, lim.gola) }; U.nu = { value: O.nu ? (O.top ? 2 : 1) : 0 };
+      m.onBeforeCompile = sh=>{
+        Object.assign(sh.uniforms, U);
+        sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute vec4 color;\nvarying vec4 vKit;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvKit = color;');
+        const dec = Object.keys(U).map(k=> 'uniform ' + (k === 'lim' ? 'vec4' : k === 'nu' ? 'float' : 'vec3') + ' ' + k + ';').join('\n');
+        const T = nome === 'tronco' ? 'float hz = vKit.a; vec3 cc = hz < lim.z ? c_calcoes : (hz > lim.w ? c_pele : (hz > lim.w - .022 && nu < .5 ? c_gola : (nu > 1.5 ? (hz > .655 && hz < .79 ? c_camisola : c_pele) : nu > .5 ? c_pele : c_camisola)));'
+          : nome === 'braco' ? 'float tu = vKit.r * 2. - .5; vec3 cc = nu > .5 ? c_pele : tu < lim.x ? c_manga : (tu < lim.x + .07 ? c_punho : c_pele);'
+          : 'float tt = vKit.g * 2. - .5, tc = vKit.b * 2. - .5; vec3 cc = tt < lim.y ? c_calcoes : (tt < lim.y + .05 ? c_bainha : (tc > .87 && lim.y < 2. ? c_meia : c_pele));';
+        sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec4 vKit;\n' + dec).replace('vec4 diffuseColor = vec4( diffuse, opacity );', T + '\nvec4 diffuseColor = vec4( cc, opacity );');
+      };
+      m.customProgramCacheKey = ()=> 'kit' + nome;
+      return m;
+    }
+    function cria(av, C, O){
+      if(ST.estado !== 'pronto') return null;
+      const g = av.g === 'f' ? 'f' : 'm', o = THREE.SkeletonUtils.clone(ST.base[g]), ossos = {};
+      o.traverse(m=>{ if(m.isBone) ossos[m.name] = m; if(m.isMesh){ m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; m.material = kitMat(m.material.name, C, O, ST.lim[g]); } });
+      const rest = {}; Object.entries(ossos).forEach(([n, b])=> rest[n] = b.quaternion.clone());
+      o.updateMatrixWorld(true);
+      const W = n=> ossos[n].getWorldPosition(new THREE.Vector3());
+      const comp = (a, b)=> W(a).distanceTo(W(b));
+      const pelvis0 = W('pelvis'), info = { coxa: comp('thigh_l', 'calf_l'), perna: comp('calf_l', 'foot_l'), braco: comp('upperarm_l', 'lowerarm_l'), ante: comp('lowerarm_l', 'hand_l'), tornozelo: W('foot_l').y };
+      const q0cab = ossos.head.getWorldQuaternion(new THREE.Quaternion());
+      return { o, ossos, rest, pelvis0, info, q0cab, g };
+    }
+    // roda o osso para que o ponto "filho" fique na direção do alvo (tudo em coordenadas do mundo)
+    const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _q = new THREE.Quaternion(), _qb = new THREE.Quaternion(), _qp = new THREE.Quaternion();
+    function aponta(b, filho, alvo){
+      b.updateMatrixWorld(true); const p = b.getWorldPosition(_a), c = filho.getWorldPosition(_b).sub(p).normalize(), d = alvo.clone().sub(p).normalize();
+      _q.setFromUnitVectors(c, d); b.getWorldQuaternion(_qb); b.parent.getWorldQuaternion(_qp);
+      b.quaternion.copy(_qp.invert().multiply(_q.multiply(_qb))); b.updateMatrixWorld(true);
+    }
+    function ik(A, T, a, b, pole){
+      const d = T.clone().sub(A); let l = d.length(); const u = d.clone().normalize(); l = Math.min(l, a + b - 1e-4);
+      const ca = Math.max(-1, Math.min(1, (a * a + l * l - b * b) / (2 * a * l))), sa = Math.sqrt(1 - ca * ca);
+      const v = pole.clone().sub(u.clone().multiplyScalar(pole.dot(u))).normalize();
+      return A.clone().add(u.multiplyScalar(a * ca)).add(v.multiplyScalar(a * sa));
+    }
+    // põe o corpo na postura: H anca, Sh ombros, pes[2] pedais, maos[2] guiador (coordenadas do grupo G)
+    function pose(h, G, H, Sh, pes, maos, cot, poleP, sent){
+      const { o, ossos: B, rest } = h, W = v=> G.localToWorld(v.clone()), dirW = v=> v.clone().transformDirection(G.matrixWorld);
+      Object.entries(rest).forEach(([n, q])=> B[n].quaternion.copy(q));
+      o.position.set(H.x - h.pelvis0.x, H.y - h.pelvis0.y + .02, H.z - h.pelvis0.z); o.updateMatrixWorld(true);
+      // tronco: inclina para os ombros; cabeça a olhar em frente
+      aponta(B.spine_01, B.neck_01, W(Sh));
+      if(!sent){ const ax = dirW(new THREE.Vector3(0, 0, 1)); [['spine_01', .1], ['spine_02', -.06], ['spine_03', -.1]].forEach(([n, a])=>{ const o = B[n]; _q.setFromAxisAngle(ax, a * CICAJ.costas); o.getWorldQuaternion(_qb); o.parent.getWorldQuaternion(_qp); o.quaternion.copy(_qp.invert().multiply(_q.multiply(_qb))); o.updateMatrixWorld(true); }); }   // costas ligeiramente arredondadas
+      aponta(B.neck_01, B.head, B.neck_01.getWorldPosition(new THREE.Vector3()).add(dirW(new THREE.Vector3(sent ? .45 : Math.tan(Math.min(85, Math.max(0, CICAJ.pesc)) * Math.PI / 180), 1, 0))));   // pescoço no prolongamento das costas (mais deitado na bicicleta)
+      { const qh = G.getWorldQuaternion(new THREE.Quaternion()).multiply(_q.setFromAxisAngle(new THREE.Vector3(0, 0, 1), sent ? -.05 : CICAJ.cab * Math.PI / 180)).multiply(h.q0cab); B.head.parent.getWorldQuaternion(_qp); B.head.quaternion.copy(_qp.invert().multiply(qh)); B.head.updateMatrixWorld(true); }   // cabeça levantada a olhar a estrada, queixo ligeiramente para baixo
+      // pernas: anca → joelho → tornozelo no pedal
+      [['l', 0], ['r', 1]].forEach(([s, i])=>{
+        const A = B['thigh_' + s].getWorldPosition(new THREE.Vector3()), T = W(pes[i].clone().add(new THREE.Vector3(sent ? -.05 : -.07, h.info.tornozelo * .9, 0)));
+        const k = ik(A, T, h.info.coxa * G.scale.x, h.info.perna * G.scale.x, dirW(new THREE.Vector3(poleP.x, poleP.y, (s === 'l' ? -1 : 1) * CICAJ.joelho)));
+        aponta(B['thigh_' + s], B['calf_' + s], k); aponta(B['calf_' + s], B['foot_' + s], T);
+        aponta(B['foot_' + s], B['ball_' + s], T.clone().add(dirW(new THREE.Vector3(1, sent ? .35 : -.05, 0))));
+        // braços: ombro → cotovelo → mão no guiador
+        const S0 = B['upperarm_' + s].getWorldPosition(new THREE.Vector3()), M = W(maos[i].clone().add(new THREE.Vector3(-.075, .015, 0))), sz = s === 'l' ? -1 : 1;   // pulso um pouco atrás da manete (a mão agarra-a)
+        const e = ik(S0, M, h.info.braco * G.scale.x, h.info.ante * G.scale.x, dirW(new THREE.Vector3(cot.x, cot.y, sz * cot.z)));
+        aponta(B['upperarm_' + s], B['lowerarm_' + s], e); aponta(B['lowerarm_' + s], B['hand_' + s], M);
+        aponta(B['hand_' + s], B['middle_01_' + s], M.clone().add(dirW(new THREE.Vector3(1, -.45, sz * .1))));
+        // dedos fechados à volta da manete
+        const dm = B['middle_01_' + s].getWorldPosition(new THREE.Vector3()).sub(M).normalize(), ax = dm.clone().cross(dirW(new THREE.Vector3(0, 1, 0))).normalize();
+        ['index', 'middle', 'ring', 'pinky', 'thumb'].forEach(n=>{ for(let k = 1; k <= 3; k++){ const o = B[n + '_0' + k + '_' + s]; if(!o) continue;
+          const ang = n === 'thumb' ? (k === 1 ? 0 : -.35) : (k === 1 ? -.75 : -.9); _q.setFromAxisAngle(ax, ang);
+          o.getWorldQuaternion(_qb); o.parent.getWorldQuaternion(_qp); o.quaternion.copy(_qp.invert().multiply(_q.multiply(_qb))); o.updateMatrixWorld(true); } });
+      });
+    }
+    // centro da cabeça e rotação (para o capacete ou chapéu acompanhar a cabeça)
+    function cabeca(h, G){
+      const b = h.ossos.head; b.updateMatrixWorld(true);
+      const p = G.worldToLocal(b.localToWorld(new THREE.Vector3(0, .058, .016)));
+      const q = G.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(b.getWorldQuaternion(new THREE.Quaternion())).multiply(h.q0cab.clone().invert());
+      return { p, q };
+    }
+    return { carrega, cria, pose, cabeca, get estado(){ return ST.estado; } };
+  })();
+
   let CIC3 = null; const CIC3f = ()=> (()=>{
     const V = (x, y, z)=> new THREE.Vector3(x, y, z || 0), UP = V(0, 1, 0);
+    if(!HUM){ HUM = HUMf(); HUM.carrega(); }
     const MAT = {};
     function mat(cor, o){ const k = cor + JSON.stringify(o || {}); return MAT[k] || (MAT[k] = new THREE.MeshStandardMaterial(Object.assign({ color: new THREE.Color(cor), roughness: .62, metalness: 0 }, o || {}))); }
     function junta(gs){   // várias geometrias numa só (menos chamadas ao desenhar)
@@ -7373,9 +7486,9 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       });
     }
     // ---------- chapéus, capacetes e cabelos ----------
-    function cabeca(av, hd){   // devolve um grupo posicionado no centro da cabeça
+    function cabeca(av, hd, real){   // devolve um grupo posicionado no centro da cabeça (real: humano realista, sem rosto desenhado)
       const g = new THREE.Group(), H = av.H || 'cic', c = av.h || '#F3F4F6', F = av.g === 'f';
-      const cab = (cor)=> malha(bola(V(-.01, .02), .104, 1.08, .9, .96, 18), mat(cor, { roughness: .85 }));   // cabelo curto (calote)
+      const cab = (cor)=> real ? new THREE.Group() : malha(bola(V(-.01, .02), .104, 1.08, .9, .96, 18), mat(cor, { roughness: .85 }));   // cabelo curto (calote)
       const add = (...m)=> m.forEach(o=> g.add(o));
       const rabo = (cor)=>{ const r = malha(bola(V(0, 0), .045, 1, 2.3, 1, 12), mat(cor, { roughness: .85 })); r.position.set(-.125, -.07, 0); r.rotation.z = -.55; add(r); };
       const dk = '#3B2A20';
@@ -7414,11 +7527,11 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       else { add(cab(c)); }   // cabelo curto
       // rosto: olhos com íris e brilho, sobrancelhas e lábios (vê-se nos planos de frente e nos grandes planos)
       const cabelo = F ? '#6B3E22' : '#4A3022', skin = av.p || '#E0AE86';
-      if(H !== 'pil'){ [-1, 1].forEach(s=>{ const o = new THREE.Group(); o.position.set(.084, .012, s * .036); o.rotation.y = -s * .25;
+      if(H !== 'pil' && !real){ [-1, 1].forEach(s=>{ const o = new THREE.Group(); o.position.set(.084, .012, s * .036); o.rotation.y = -s * .25;
           o.add(malha(bola(V(0, 0), .018, .55, 1, 1, 12), mat('#FAFAF7', { roughness: .3 }), false), malha(bola(V(.008, 0), .011, .5, 1, 1, 10), mat(F ? '#5A3A1E' : '#3E5A78', { roughness: .3 }), false), malha(bola(V(.012, 0), .006, .5, 1, 1, 8), mat('#0c0c0e'), false), malha(bola(V(.014, .005, .004), .0025, 1, 1, 1, 6), new THREE.MeshBasicMaterial({ color: '#ffffff' }), false));
           o.add(malha(new THREE.BoxGeometry(.008, .006, .032).translate(.006, .03, 0).rotateX(s * .12), mat(cabelo), false)); add(o); });
         add(malha(bola(V(.093, -.044), 1, .01, .007, .024, 10), mat(new THREE.Color(skin).lerp(new THREE.Color('#B0505A'), .45).getStyle(), { roughness: .4 }), false)); }
-      if(H === 'cic'){   // caracóis por baixo do capacete (nas alunas, corte pelo queixo)
+      if(H === 'cic' && !real){   // caracóis por baixo do capacete (nas alunas, corte pelo queixo)
         const mH = mat(cabelo, { roughness: .9 }), cs = [];
         const n = F ? 34 : 12; for(let k = 0; k < n; k++){ const a = (F ? -1.7 : -1.55) + (k % (F ? 17 : 12)) / ((F ? 17 : 12) - 1) * (F ? 3.4 : 3.1), fila = F ? Math.floor(k / 17) : 0, yy = F ? .0 - fila * .045 - Math.abs(Math.sin(k * 2.3)) * .012 : -.015;
           const r0 = (F ? .098 : .088) - fila * .006; cs.push(bola(V(-Math.cos(a) * r0 - .012, yy, Math.sin(a) * r0 * 1.02), F ? .024 : .02, 1, 1.15, 1, 8)); }   // caracóis à volta, por baixo do capacete
@@ -7599,7 +7712,12 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       if(calca) P.calcao.forEach(m=> m.visible = false);
       if(longa || nu) [...P.manga, ...P.punho].forEach(m=> m.visible = false);
       const st = { G, B, P, K: VE ? TV[av.v] : K, VE, tronco, bacia, pesc, cab, nariz, orelhas, extra, T, F, chap: null, av, larg: F ? [.125, .18] : [.13, .2] };
-      st.chap = cabeca(av, V(0, 0)); G.add(st.chap);
+      // humano realista (se já carregou): substitui o corpo desenhado com formas
+      const cab2 = av.H === 'moh' ? cP : ['cur', 'lon', 'rab'].includes(av.H) ? av.h : (F ? '#6B3E22' : '#4A3022');
+      st.hum = HUM && HUM.estado === 'pronto' ? HUM.cria(av, { pele: cP, camisola: nu ? (T === 'sus' ? '#C8102E' : '#1b1c20') : roupa, manga: roupa, punho: cor2, gola: cor2, calcoes: calca || (T === 'cam' ? cor2 : '#1b1c20'), bainha: T === 'cam' ? roupa : (calca || '#1b1c20'),
+        meia: '#F5F5F5', sapato: sap, olho: '#F7F5F0', iris: F ? '#5A3A1E' : '#3E5A78', pupila: '#0b0b0c', cabelo: cab2, sobrancelha: cab2 }, { manga: longa ? 9 : .45, calca: calca ? 9 : .66, nu, top: nu && F }) : null;
+      if(st.hum){ G.add(st.hum.o); [tronco, bacia, pesc, cab, nariz, orelhas[0], orelhas[1], ...extra.map(e=> e[0]), ...Object.values(P).flat()].forEach(m=> m.visible = false); }
+      st.chap = cabeca(av, V(0, 0), !!st.hum); G.add(st.chap);
       pose(st, 0, 0);
       return st;
     }
@@ -7639,6 +7757,15 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     function anelEm(m, A, B, f, r){ const p = A.clone().lerp(B, f); m.position.copy(p); m.quaternion.setFromUnitVectors(UP, B.clone().sub(A).normalize()); m.scale.set(r, r * .9, r); }
     function corpo(st, H, Sh, ped, mao, cot, poleP, aero, sh){
       const { P } = st, sent = st.VE;
+      if(st.hum){   // humano realista: os ossos dobram-se para chegar aos pedais e ao guiador
+        { const A = CICAJ; H = H.clone().add(V(A.ancX / 100, A.ancY / 100, 0)); Sh = Sh.clone().add(V((A.trX + A.ancX) / 100, (A.trY + A.ancY) / 100, 0));
+          mao = mao.map(m=> m.clone().add(V(A.maoX / 100, A.maoY / 100, 0))); cot = V(cot.x, cot.y, cot.z * A.cotov); }   // afinações do editor
+        if(!sent){ const k = Math.min(1.05, Math.max(.9, (st.hum.info.coxa + st.hum.info.perna) / .86)), dy = (H.y - BB.y) * (k - 1); H = H.clone(); H.y += dy; Sh = Sh.clone(); Sh.y += dy * .6; }
+        st.G.updateMatrixWorld(true); HUM.pose(st.hum, st.G, H, Sh, ped, mao, cot, poleP, sent);
+        const c = HUM.cabeca(st.hum, st.G); st.chap.position.copy(c.p); st.chap.quaternion.copy(c.q); const capa = ['cic', 'pil', 'vik', 'ush'].includes(st.av.H || 'cic'), chap = !capa && !['cur', 'lon', 'rab', 'moh', 'cab'].includes(st.av.H);
+        const A = CICAJ, k = chap ? A.chS : capa ? A.capS : 1;
+        st.chap.position.add((chap ? V(0, -.022 + A.chY / 100, 0) : capa ? V(A.capX / 100, A.capY / 100, 0) : V(0, 0, 0)).applyQuaternion(c.q)); st.chap.scale.set((chap ? .76 : .84) * k, (chap ? .8 : .88) * k, (chap ? .78 : st.F ? .84 : .87) * k); return;   // a cabeça real é mais pequena que a desenhada
+      }
       [0, 1].forEach(i=>{ const s = i ? 1 : -1, hip = V(H.x, H.y - .03, s * .095 + H.z * .3), tal = ped[i].clone().add(sent ? V(-.04, .05, 0) : V(-.06, .045, 0));
         const kn = ik(hip, tal, L.coxa * sh, L.perna * sh, poleP);
         poe(P.coxa[i], hip, kn); poe(P.calcao[i], hip, hip.clone().lerp(kn, .66)); anelEm(P.bainha[i], hip, kn, .66, .072);
@@ -7661,7 +7788,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       st.orelhas.forEach((o, i)=> o.position.copy(hd).add(V(-.005, 0, (i ? 1 : -1) * .086)));
       st.chap.position.copy(hd);
     }
-    return { cria, pose, TIPO };
+    return { cria, pose, TIPO, get HUM(){ return HUM; } };
   })();
 
   // =====================================================================
@@ -7690,7 +7817,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       try{ const pm = new THREE.PMREMGenerator(ren), env = new THREE.Scene(); env.background = new THREE.Color('#a9c2e2');   // reflexos do céu e do chão nos metais e capacetes
         const ch = new THREE.Mesh(new THREE.BoxGeometry(60, 1, 60), new THREE.MeshBasicMaterial({ color: '#55585f' })); ch.position.y = -4; env.add(ch); sc.environment = pm.fromScene(env, .04).texture; }catch(e){}
       chao = new THREE.Mesh(new THREE.PlaneGeometry(8, 8), new THREE.ShadowMaterial({ opacity: .32 })); chao.rotation.x = -Math.PI / 2; chao.receiveShadow = true; sc.add(chao);   // só a sombra no chão
-      cam = new THREE.OrthographicCamera(-FW / 2 / ESC, FW / 2 / ESC, FH / ESC * .8, -FH / ESC * .2, .1, 60);
+      cam = new THREE.OrthographicCamera(-FW / 2 / ESC, FW / 2 / ESC, FH / ESC * .94, -FH / ESC * .06, .1, 60);
       if(!CIC3) CIC3 = CIC3f();
     }
     function vista(i){ const yaw = VIS[i], el = .21, d = 12; cam.position.set(-Math.cos(yaw) * Math.cos(el) * d, Math.sin(el) * d, Math.sin(yaw) * Math.cos(el) * d); cam.lookAt(0, 0, 0); cam.updateMatrixWorld(); }
@@ -7704,6 +7831,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     // prepara umas quantas imagens por cada imagem do ecrã (sem engasgar a projeção)
     function passo(){
       if(!fila.length || !lib()) return; if(!ren){ try{ init(); }catch(e){ console.error(e); SPR.falhou = true; fila.length = 0; return; } }
+      if(CIC3.HUM && /nada|a carregar/.test(CIC3.HUM.estado)) return;   // espera pelo humano realista (ou que falhe) antes de fotografar
       const t0 = performance.now();
       while(fila.length && performance.now() - t0 < 7){
         const chave = fila[0], e = C.get(chave);
@@ -7732,7 +7860,6 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     }
     return { pede, passo, desenha, get pronto(){ return [...C.values()].filter(e=> e.pronto[0]).length; } };
   })();
-
 const SR3 = (()=>{
   const S = { ok: false, aCarregar: false, scene: null, cam: null, ren: null, key: '', spr: {}, riders: {}, texCache: new Map(), hW: 5 };
   const M = 1 / SR_M;   // unidades da pista → metros
@@ -7949,7 +8076,8 @@ const SR3 = (()=>{
       const av = avLe(r.av), z = !!JG.z[r.id], fase = srFase(r.id, jgRpm(r), now, livePlaying);
       const avR = av || avLe(SR.tema === 'kart' ? 'k.1F7AE0.E5242B.E0AE86.pil.f1.FF7A00.1' : 'e.1F7AE0.F3F4F6.E0AE86.cic.cam.22262D.1'), real = S.cam.position.distanceTo(pv.copy(R.g.position)) < LOD;   // no Grande Prémio do Cogumelo, quem não escolheu vai de kart
       if(real){
-        if(!R.m || R.mk !== (r.av || '')){ if(R.m) S.gRid.remove(R.m.G); R.m = CIC3.cria(avR); R.mk = r.av || ''; R.m.G.scale.setScalar(ESC); S.gRid.add(R.m.G);
+        const mk = (r.av || '') + (CIC3.HUM && CIC3.HUM.estado === 'pronto' ? '·h' : '');   // quando o humano realista acaba de carregar, refaz o ciclista
+        if(!R.m || R.mk !== mk){ if(R.m) S.gRid.remove(R.m.G); R.m = CIC3.cria(avR); R.mk = mk; R.m.G.scale.setScalar(ESC); S.gRid.add(R.m.G);
           R.aro = new THREE.Mesh(new THREE.RingGeometry(.55, .72, 40).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x3DD45C, transparent: true, opacity: .7, depthWrite: false })); R.aro.position.y = .02; R.m.G.add(R.aro); }
         R.m.G.visible = true; R.g.visible = false; R.m.G.position.copy(R.g.position); R.m.G.rotation.y = p.h - Math.PI / 2;
         CIC3.pose(R.m, fase, emPe); R.aro.visible = z; R.aro.material.opacity = .5 + .25 * Math.sin(now * .006);

@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="pt-PT"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Editor dos bonecos · PlayRide</title>
+<meta name="robots" content="noindex">
+<style>html,body{margin:0;height:100%;background:#0f1218}</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head><body>
+<!-- Ferramenta de desenvolvimento do PlayRide (não faz parte da app): afina os bonecos realistas e gera o bonecos-ajustes.json.
+     Precisa dos ficheiros ciclista_m.glb e ciclista_f.glb na mesma pasta. -->
+<script>
+  const AV_VEIC = { e:['🚴', 'Bicicleta de estrada'], b:['🚵', 'BTT'], t:['⏱️', 'Contrarrelógio'], r:['🛞', 'Triciclo'], k:['🏎️', 'Kart a pedais'], c:['🚗', 'Carrinho a pedais'], n:['🛷', 'Trenó com rena'] };
+  const AV_CAM = ['#E5242B', '#FF7A00', '#FFD60A', '#3DD45C', '#00B3A4', '#1F7AE0', '#5B3FD9', '#E040A0', '#1F2937', '#F3F4F6'];
+  const AV_CAP = ['#F3F4F6', '#1F2937', '#E5242B', '#FFD60A', '#1F7AE0', '#3DD45C', '#FF7A00', '#E040A0'];
+  const AV_PELE = ['#F2C9A6', '#E0AE86', '#C68A5E', '#9A6440', '#6B4228'];
+  function avLe(t){ if(!t || typeof t !== 'string') return null; const q = t.split('.'); if(!AV_VEIC[q[0]]) return null;
+    const h = (v, d)=> /^[0-9A-Fa-f]{6}$/.test(v || '') ? '#' + v.toUpperCase() : d, kc = q[0] === 'k' || q[0] === 'c' || q[0] === 'n', j = h(q[1], '#1F7AE0');
+    return { v: q[0], j, h: h(q[2], '#F3F4F6'), p: h(q[3], '#E0AE86'), H: AV_CAB[q[4]] ? q[4] : (kc ? 'pil' : 'cic'), T: AV_COR[q[5]] ? q[5] : 'cam', vc: h(q[6], kc ? j : '#22262D'), pub: q[7] === '1', g: q[8] === 'f' ? 'f' : 'm' }; }
+  function avTxt(a){ return [a.v, a.j.slice(1), a.h.slice(1), a.p.slice(1), a.H || 'cic', a.T || 'cam', (a.vc || '#22262D').slice(1), a.pub ? 1 : 0, a.g === 'f' ? 'f' : 'm'].join('.'); }
+  // ===== o que o aluno leva na cabeça e no corpo, vistos de costas =====
+  const AV_CAB = { cic:['⛑️', 'Capacete de ciclista'], pil:['🪖', 'Capacete de piloto'], vik:['🛡️', 'Capacete viking'], pn:['🎅', 'Gorro de Pai Natal'], elf:['🧝', 'Gorro de elfo'],
+    cha:['🎩', 'Chapéu'], cow:['🤠', 'Chapéu de cowboy'], cog:['🍄', 'Chapéu de cogumelo'], pap:['⛪', 'Mitra do Papa'], ush:['🧣', 'Ushanka'], coc:['🪶', 'Cocar de penas'],
+    moh:['🤘', 'Mohawk'], lon:['💁', 'Cabelo comprido'], rab:['🎀', 'Rabo de cavalo'], cur:['💈', 'Cabelo curto'] };
+  const AV_COR = { cam:['🚴', 'Camisola de ciclista'], nu:['💪', 'Tronco nu'], sus:['🩳', 'Suspensórios'], mot:['🏍️', 'Casaco de motociclista'], pun:['📌', 'Casaco punk com picos'],
+    ral:['🏁', 'Fato de rali'], f1:['🏎️', 'Fato de Fórmula 1'], pnc:['🎅', 'Casaco de Pai Natal'], elc:['🧝', 'Casaco de elfo'], col:['🦺', 'Colete fluorescente'],
+    cow:['🤠', 'Camisa aos quadrados e ganga'], cog:['🍄', 'Jardineiras de cogumelo'], pap:['⛪', 'Batina e estola'], ush:['🧥', 'Capote militar soviético'], coc:['🪶', 'Túnica com franjas'] };
+  const AV_CABELO = ['#1A1A1A', '#3B2A20', '#6B4A2E', '#C9A04A', '#E8D08A', '#B5462A', '#9AA0A6', '#E040A0', '#1F7AE0', '#3DD45C'];
+  const AV_VCOR = ['#E5242B', '#FF7A00', '#FFD60A', '#3DD45C', '#1F7AE0', '#5B3FD9', '#E040A0', '#22262D', '#F3F4F6', '#9AA3AE'];
+  const avCabelo = t=> t === 'moh' || t === 'lon' || t === 'rab' || t === 'cur';
+  const AV_CHAP = ['#6B4A2E', '#3B2A20', '#C9A04A', '#E8D9B0', '#1A1A1A', '#F3F4F6', '#E5242B', '#1F7AE0'];
+  // cada chapéu tem a sua roupa (escolhida logo, mas pode mudar-se)
+  const AV_PAR = { pn: 'pnc', elf: 'elc', cow: 'cow', cog: 'cog', pap: 'pap', ush: 'ush', coc: 'coc' };
+  // paleta da cabeça: cabelo/pelo, chapéu, capacete, ou cores fixas (mitra e cocar)
+  function avGrupo(H){ return avCabelo(H) || H === 'vik' || H === 'pn' || H === 'elf' || H === 'ush' ? 'cab' : H === 'cha' || H === 'cow' ? 'chap' : H === 'pap' || H === 'coc' ? 'fixo' : 'cap'; }
+  const AV_MLONGA = ['mot', 'pun', 'ral', 'f1', 'pnc', 'elc', 'cow', 'pap', 'ush', 'coc'];
+  // calças de cada roupa (null = calção de ciclista) e calçado
+  function avCalca(T, rc){ return T === 'ral' || T === 'f1' ? rc : ({ pnc: '#C8102E', elc: '#1E9E46', mot: '#26324F', pun: '#26324F', cow: '#2F4A7A', cog: '#8A5A2E', pap: '#F7F5EE', ush: '#3E4634', coc: '#B88A58' })[T] || null; }
+  function avSapato(T){ return ({ pnc: '#1A1A1A', mot: '#1A1A1A', pun: '#1A1A1A', ush: '#1A1A1A', elc: '#C8102E', cow: '#6B4423', cog: '#6B4423', coc: '#8A5A2E', pap: '#B0141E' })[T] || '#F3F4F6'; }
+  // cor da roupa: Pai Natal sempre vermelho, elfo sempre verde, tronco nu da cor da pele
+  function avRoupa(av){ const T = av.T; return T === 'nu' || T === 'sus' ? av.p : ({ pnc: '#C8102E', elc: '#1E9E46', col: '#D4FF1E', pap: '#F7F5EE', ush: '#5B6648', coc: '#C79A66', cog: '#F2E6CF' })[T] || av.j; }
+  // =====================================================================
+  // CICLISTA 3D REALISTA
+  // Bicicleta (estrada, BTT, contrarrelógio ou triciclo) e um corpo com proporções humanas cujas pernas seguem
+  // os pedais (cinemática inversa: anca → joelho → tornozelo) e as mãos ficam no guiador.
+  // Veste o que o aluno escolheu no telemóvel: camisola, calças, sapatos, chapéu/capacete/cabelo e publicidade.
+  // Medidas em metros (x para a frente, y para cima, z para o lado).
+  // =====================================================================
+  // =====================================================================
+  // HUMANO REALISTA (modelo profissional feito com o MakeHuman/MPFB2, licença CC0):
+  // corpo com músculos e esqueleto de 53 ossos (ciclista_m.glb / ciclista_f.glb, ao lado desta página).
+  // O equipamento é pintado ponto a ponto (bainhas, mangas e gola lisas) com as cores de cada aluno,
+  // e os ossos dobram-se em tempo real: pernas aos pedais, mãos ao guiador, tronco inclinado e cabeça a olhar em frente.
+  // =====================================================================
+  // afinações dos bonecos (postura, pescoço, capacetes e chapéus), em cm e graus: valores de origem, substituídos pelos do
+  // ficheiro bonecos-ajustes.json ao lado desta página, se existir (é feito no editor dos bonecos, editor-bonecos.html)
+  const CICAJ_PAD = { ancX: 0, ancY: 0, trX: 0, trY: 0, costas: 1, joelho: 0, maoX: 0, maoY: 0, cotov: 1, pesc: 56, cab: -10, capS: 1, capX: 0, capY: 0, chS: 1, chY: 0 };
+  const CICAJ = Object.assign({}, CICAJ_PAD);
+  function cicAjPoe(o){ if(o && typeof o === 'object') Object.keys(CICAJ_PAD).forEach(k=>{ if(o[k] != null && isFinite(+o[k])) CICAJ[k] = +o[k]; }); }
+  let HUM = null; const HUMf = ()=> (()=>{
+    const ST = { estado: 'nada', base: {}, lim: {}, fila: [] };   // nada | a carregar | pronto | falhou
+    const CDN = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/';
+    function script(u){ return new Promise((ok, ko)=>{ const s = document.createElement('script'); s.src = u; s.onload = ok; s.onerror = ko; document.head.appendChild(s); }); }
+    async function carrega(){
+      if(ST.estado !== 'nada' || !window.THREE) return; ST.estado = 'a carregar';
+      try{
+        try{ const r = await fetch('bonecos-ajustes.json', { cache: 'no-cache' }); if(r.ok) cicAjPoe(await r.json()); }catch(e){}   // afinações feitas no editor (opcional)
+        if(!THREE.GLTFLoader) await script(CDN + 'loaders/GLTFLoader.js');
+        if(!THREE.SkeletonUtils) await script(CDN + 'utils/SkeletonUtils.js');
+        const L = new THREE.GLTFLoader();
+        for(const g of ['m', 'f']){
+          const gl = await new Promise((ok, ko)=> L.load('ciclista_' + g + '.glb', ok, undefined, ko));
+          let lim = { cintura: .45, gola: .8 }; gl.scene.traverse(o=>{ if(o.userData && o.userData.kit_cintura != null) lim = { cintura: o.userData.kit_cintura, gola: o.userData.kit_gola }; });
+          ST.base[g] = gl.scene; ST.lim[g] = lim;
+        }
+        ST.estado = 'pronto';
+      }catch(e){ console.warn('Humano realista indisponível', e); ST.estado = 'falhou'; }
+    }
+    // equipamento pintado ponto a ponto (o modelo guarda em cada vértice a posição ao longo do braço, coxa e perna)
+    function kitMat(nome, C, O, lim){
+      const rough = { pele: .55, cabelo: .85, olho: .2, pupila: .15, iris: .3, sapato: .35, sobrancelha: .9 }[nome] || .5;
+      if(!['tronco', 'braco', 'perna'].includes(nome)) return new THREE.MeshStandardMaterial({ color: C[nome] || C.pele, roughness: rough, skinning: true });
+      const m = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: .5, skinning: true });
+      const U = {}; ['pele', 'camisola', 'manga', 'punho', 'gola', 'calcoes', 'bainha', 'meia'].forEach(k=> U['c_' + k] = { value: new THREE.Color(C[k] || C.camisola || '#fff') });
+      U.lim = { value: new THREE.Vector4(O.manga == null ? .45 : O.manga, O.calca == null ? .66 : O.calca, lim.cintura, lim.gola) }; U.nu = { value: O.nu ? (O.top ? 2 : 1) : 0 };
+      m.onBeforeCompile = sh=>{
+        Object.assign(sh.uniforms, U);
+        sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute vec4 color;\nvarying vec4 vKit;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvKit = color;');
+        const dec = Object.keys(U).map(k=> 'uniform ' + (k === 'lim' ? 'vec4' : k === 'nu' ? 'float' : 'vec3') + ' ' + k + ';').join('\n');
+        const T = nome === 'tronco' ? 'float hz = vKit.a; vec3 cc = hz < lim.z ? c_calcoes : (hz > lim.w ? c_pele : (hz > lim.w - .022 && nu < .5 ? c_gola : (nu > 1.5 ? (hz > .655 && hz < .79 ? c_camisola : c_pele) : nu > .5 ? c_pele : c_camisola)));'
+          : nome === 'braco' ? 'float tu = vKit.r * 2. - .5; vec3 cc = nu > .5 ? c_pele : tu < lim.x ? c_manga : (tu < lim.x + .07 ? c_punho : c_pele);'
+          : 'float tt = vKit.g * 2. - .5, tc = vKit.b * 2. - .5; vec3 cc = tt < lim.y ? c_calcoes : (tt < lim.y + .05 ? c_bainha : (tc > .87 && lim.y < 2. ? c_meia : c_pele));';
+        sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec4 vKit;\n' + dec).replace('vec4 diffuseColor = vec4( diffuse, opacity );', T + '\nvec4 diffuseColor = vec4( cc, opacity );');
+      };
+      m.customProgramCacheKey = ()=> 'kit' + nome;
+      return m;
+    }
+    function cria(av, C, O){
+      if(ST.estado !== 'pronto') return null;
+      const g = av.g === 'f' ? 'f' : 'm', o = THREE.SkeletonUtils.clone(ST.base[g]), ossos = {};
+      o.traverse(m=>{ if(m.isBone) ossos[m.name] = m; if(m.isMesh){ m.castShadow = true; m.receiveShadow = true; m.frustumCulled = false; m.material = kitMat(m.material.name, C, O, ST.lim[g]); } });
+      const rest = {}; Object.entries(ossos).forEach(([n, b])=> rest[n] = b.quaternion.clone());
+      o.updateMatrixWorld(true);
+      const W = n=> ossos[n].getWorldPosition(new THREE.Vector3());
+      const comp = (a, b)=> W(a).distanceTo(W(b));
+      const pelvis0 = W('pelvis'), info = { coxa: comp('thigh_l', 'calf_l'), perna: comp('calf_l', 'foot_l'), braco: comp('upperarm_l', 'lowerarm_l'), ante: comp('lowerarm_l', 'hand_l'), tornozelo: W('foot_l').y };
+      const q0cab = ossos.head.getWorldQuaternion(new THREE.Quaternion());
+      return { o, ossos, rest, pelvis0, info, q0cab, g };
+    }
+    // roda o osso para que o ponto "filho" fique na direção do alvo (tudo em coordenadas do mundo)
+    const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _q = new THREE.Quaternion(), _qb = new THREE.Quaternion(), _qp = new THREE.Quaternion();
+    function aponta(b, filho, alvo){
+      b.updateMatrixWorld(true); const p = b.getWorldPosition(_a), c = filho.getWorldPosition(_b).sub(p).normalize(), d = alvo.clone().sub(p).normalize();
+      _q.setFromUnitVectors(c, d); b.getWorldQuaternion(_qb); b.parent.getWorldQuaternion(_qp);
+      b.quaternion.copy(_qp.invert().multiply(_q.multiply(_qb))); b.updateMatrixWorld(true);
+    }
+    function ik(A, T, a, b, pole){
+      const d = T.clone().sub(A); let l = d.length(); const u = d.clone().normalize(); l = Math.min(l, a + b - 1e-4);
+      const ca = Math.max(-1, Math.min(1, (a * a + l * l - b * b) / (2 * a * l))), sa = Math.sqrt(1 - ca * ca);
+      const v = pole.clone().sub(u.clone().multiplyScalar(pole.dot(u))).normalize();
+      return A.clone().add(u.multiplyScalar(a * ca)).add(v.multiplyScalar(a * sa));
+    }
+    // põe o corpo na postura: H anca, Sh ombros, pes[2] pedais, maos[2] guiador (coordenadas do grupo G)
+    function pose(h, G, H, Sh, pes, maos, cot, poleP, sent){
+      const { o, ossos: B, rest } = h, W = v=> G.localToWorld(v.clone()), dirW = v=> v.clone().transformDirection(G.matrixWorld);
+      Object.entries(rest).forEach(([n, q])=> B[n].quaternion.copy(q));
+      o.position.set(H.x - h.pelvis0.x, H.y - h.pelvis0.y + .02, H.z - h.pelvis0.z); o.updateMatrixWorld(true);
+      // tronco: inclina para os ombros; cabeça a olhar em frente
+      aponta(B.spine_01, B.neck_01, W(Sh));
+      if(!sent){ const ax = dirW(new THREE.Vector3(0, 0, 1)); [['spine_01', .1], ['spine_02', -.06], ['spine_03', -.1]].forEach(([n, a])=>{ const o = B[n]; _q.setFromAxisAngle(ax, a * CICAJ.costas); o.getWorldQuaternion(_qb); o.parent.getWorldQuaternion(_qp); o.quaternion.copy(_qp.invert().multiply(_q.multiply(_qb))); o.updateMatrixWorld(true); }); }   // costas ligeiramente arredondadas
+      aponta(B.neck_01, B.head, B.neck_01.getWorldPosition(new THREE.Vector3()).add(dirW(new THREE.Vector3(sent ? .45 : Math.tan(Math.min(85, Math.max(0, CICAJ.pesc)) * Math.PI / 180), 1, 0))));   // pescoço no prolongamento das costas (mais deitado na bicicleta)
+      { const qh = G.getWorldQuaternion(new THREE.Quaternion()).multiply(_q.setFromAxisAngle(new THREE.Vector3(0, 0, 1), sent ? -.05 : CICAJ.cab * Math.PI / 180)).multiply(h.q0cab); B.head.parent.getWorldQuaternion(_qp); B.head.quaternion.copy(_qp.invert().multiply(qh)); B.head.updateMatrixWorld(true); }   // cabeça levantada a olhar a estrada, queixo ligeiramente para baixo
+      // pernas: anca → joelho → tornozelo no pedal
+      [['l', 0], ['r', 1]].forEach(([s, i])=>{
+        const A = B['thigh_' + s].getWorldPosition(new THREE.Vector3()), T = W(pes[i].clone().add(new THREE.Vector3(sent ? -.05 : -.07, h.info.tornozelo * .9, 0)));
+        const k = ik(A, T, h.info.coxa * G.scale.x, h.info.perna * G.scale.x, dirW(new THREE.Vector3(poleP.x, poleP.y, (s === 'l' ? -1 : 1) * CICAJ.joelho)));
+        aponta(B['thigh_' + s], B['calf_' + s], k); aponta(B['calf_' + s], B['foot_' + s], T);
+        aponta(B['foot_' + s], B['ball_' + s], T.clone().add(dirW(new THREE.Vector3(1, sent ? .35 : -.05, 0))));
+        // braços: ombro → cotovelo → mão no guiador
+        const S0 = B['upperarm_' + s].getWorldPosition(new THREE.Vector3()), M = W(maos[i].clone().add(new THREE.Vector3(-.075, .015, 0))), sz = s === 'l' ? -1 : 1;   // pulso um pouco atrás da manete (a mão agarra-a)
+        const e = ik(S0, M, h.info.braco * G.scale.x, h.info.ante * G.scale.x, dirW(new THREE.Vector3(cot.x, cot.y, sz * cot.z)));
+        aponta(B['upperarm_' + s], B['lowerarm_' + s], e); aponta(B['lowerarm_' + s], B['hand_' + s], M);
+        aponta(B['hand_' + s], B['middle_01_' + s], M.clone().add(dirW(new THREE.Vector3(1, -.45, sz * .1))));
+        // dedos fechados à volta da manete
+        const dm = B['middle_01_' + s].getWorldPosition(new THREE.Vector3()).sub(M).normalize(), ax = dm.clone().cross(dirW(new THREE.Vector3(0, 1, 0))).normalize();
+        ['index', 'middle', 'ring', 'pinky', 'thumb'].forEach(n=>{ for(let k = 1; k <= 3; k++){ const o = B[n + '_0' + k + '_' + s]; if(!o) continue;
+          const ang = n === 'thumb' ? (k === 1 ? 0 : -.35) : (k === 1 ? -.75 : -.9); _q.setFromAxisAngle(ax, ang);
+          o.getWorldQuaternion(_qb); o.parent.getWorldQuaternion(_qp); o.quaternion.copy(_qp.invert().multiply(_q.multiply(_qb))); o.updateMatrixWorld(true); } });
+      });
+    }
+    // centro da cabeça e rotação (para o capacete ou chapéu acompanhar a cabeça)
+    function cabeca(h, G){
+      const b = h.ossos.head; b.updateMatrixWorld(true);
+      const p = G.worldToLocal(b.localToWorld(new THREE.Vector3(0, .058, .016)));
+      const q = G.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(b.getWorldQuaternion(new THREE.Quaternion())).multiply(h.q0cab.clone().invert());
+      return { p, q };
+    }
+    return { carrega, cria, pose, cabeca, get estado(){ return ST.estado; } };
+  })();
+
+  const CIC3 = (()=>{
+    const V = (x, y, z)=> new THREE.Vector3(x, y, z || 0), UP = V(0, 1, 0);
+    if(!HUM){ HUM = HUMf(); HUM.carrega(); }
+    const MAT = {};
+    function mat(cor, o){ const k = cor + JSON.stringify(o || {}); return MAT[k] || (MAT[k] = new THREE.MeshStandardMaterial(Object.assign({ color: new THREE.Color(cor), roughness: .62, metalness: 0 }, o || {}))); }
+    function junta(gs){   // várias geometrias numa só (menos chamadas ao desenhar)
+      let n = 0; gs = gs.map(g=> g.index ? g.toNonIndexed() : g); gs.forEach(g=> n += g.attributes.position.count);
+      const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3); let o = 0;
+      gs.forEach(g=>{ pos.set(g.attributes.position.array, o * 3); nor.set(g.attributes.normal.array, o * 3); o += g.attributes.position.count; });
+      const r = new THREE.BufferGeometry(); r.setAttribute('position', new THREE.BufferAttribute(pos, 3)); r.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); return r;
+    }
+    function tubo(A, B, rA, rB, seg){
+      const d = B.clone().sub(A), L = d.length(), g = new THREE.CylinderGeometry(rB == null ? rA : rB, rA, L, seg || 10, 1);
+      g.applyMatrix4(new THREE.Matrix4().compose(A.clone().add(B).multiplyScalar(.5), new THREE.Quaternion().setFromUnitVectors(UP, d.normalize()), V(1, 1, 1))); return g;
+    }
+    function bola(c, r, sx, sy, sz, seg){ const g = new THREE.SphereGeometry(r, seg || 14, Math.round((seg || 14) * .7)); g.applyMatrix4(new THREE.Matrix4().compose(c, new THREE.Quaternion(), V(sx || 1, sy || 1, sz || 1))); return g; }
+    function malha(g, m, sombra){ const me = new THREE.Mesh(g, m); me.castShadow = sombra !== false; return me; }
+    function tex(w, h, fn){ const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t; }
+    // ---------- as bicicletas ----------
+    const BB = V(-.07, .27);
+    function roda(R, pneu, disco){
+      const g = new THREE.Group();
+      g.add(malha(new THREE.TorusGeometry(R - pneu, pneu, 8, 40), mat('#1a1a1c', { roughness: .9 })));
+      const aro = malha(new THREE.TorusGeometry(R - pneu * 2 - .02, .02, 6, 40), mat('#2b2e33', { metalness: .6, roughness: .35 })); aro.scale.z = .5; g.add(aro);
+      if(disco){ g.add(malha(new THREE.CylinderGeometry(R - pneu * 2 - .01, R - pneu * 2 - .01, .03, 36).rotateX(Math.PI / 2), mat('#1d2026', { metalness: .4, roughness: .35 }))); return g; }
+      const rs = []; for(let k = 0; k < 20; k++){ const a = k / 20 * Math.PI * 2, z = (k % 2 ? 1 : -1) * .025; rs.push(tubo(V(0, 0, z), V(Math.cos(a) * (R - pneu * 2 - .02), Math.sin(a) * (R - pneu * 2 - .02), 0), .0018, .0018, 3)); }
+      rs.push(new THREE.CylinderGeometry(.018, .018, .1, 10).rotateX(Math.PI / 2));
+      g.add(malha(junta(rs), mat('#c9ced6', { metalness: .8, roughness: .3 }), false));
+      return g;
+    }
+    // geometria de cada tipo: rodas, quadro, onde ficam selim, mãos e a postura do tronco
+    const TIPO = {
+      e: { RW: .34, pn: .013, RA: V(-.5, .34), FA: V(.49, .34), ST: V(-.2, .8), HT: V(.4, .84), HB: V(.425, .7), SB: V(.505, .9), bar: 'drop', mao: [V(.58, .955, -.2), V(.58, .955, .2)], H: V(-.215, .985), Sh: V(.2, 1.31), cot: V(-.2, -1, .6) },
+      b: { RW: .36, pn: .028, RA: V(-.53, .36), FA: V(.52, .36), ST: V(-.21, .78), HT: V(.38, .86), HB: V(.41, .7), SB: V(.46, .95), bar: 'flat', mao: [V(.47, .97, -.33), V(.47, .97, .33)], H: V(-.225, .975), Sh: V(.13, 1.37), cot: V(-.1, -.5, 1) },
+      t: { RW: .34, pn: .012, RA: V(-.5, .34), FA: V(.49, .34), ST: V(-.17, .8), HT: V(.4, .8), HB: V(.425, .68), SB: V(.47, .84), bar: 'aero', mao: [V(.66, .93, -.06), V(.66, .93, .06)], H: V(-.17, .99), Sh: V(.31, 1.17), cot: V(0, -1, .15), disco: true, aero: true },
+      r: { RW: .3, pn: .02, RA: V(-.55, .3), FA: V(.5, .3), ST: V(-.2, .78), HT: V(.38, .84), HB: V(.41, .68), SB: V(.45, .95), bar: 'flat', mao: [V(.46, .97, -.3), V(.46, .97, .3)], H: V(-.215, .975), Sh: V(.1, 1.39), cot: V(-.1, -.5, 1), tri: true }
+    };
+    function bike(K, cor){
+      const g = new THREE.Group(), q = [], pret = [], cro = [], { RA, FA, ST, HT, HB, SB } = K, zF = K.tri ? .38 : .055;
+      q.push(tubo(BB, ST, .016), tubo(ST, HT, .014), tubo(BB, HB, .02, .022), tubo(HB, HT, .024));
+      if(K.tri){ q.push(tubo(V(RA.x, RA.y, -zF), V(RA.x, RA.y, zF), .018)); }
+      [-1, 1].forEach(s=>{ q.push(tubo(BB, V(RA.x, RA.y, K.tri ? 0 : s * zF), .011, .008), tubo(ST, V(RA.x, RA.y, K.tri ? s * .06 : s * zF), .009, .007), tubo(HB, V(FA.x, FA.y, s * (K.RW > .35 ? .07 : .055)), K.RW > .35 ? .02 : .016, .009)); });
+      const SP = V(ST.x - .035, ST.y + .13); cro.push(tubo(ST, SP, .013));
+      pret.push(bola(V(SP.x - .015, SP.y + .015), .07, 1.9, .28, .85, 12), bola(V(SP.x + .075, SP.y + .01), .04, 1.6, .25, .5, 10));
+      pret.push(tubo(HT, V(HT.x + .01, HT.y + .04), .017), tubo(V(HT.x + .01, HT.y + .04), SB, .015));
+      if(K.bar === 'drop'){ for(const s of [-1, 1]){ const z0 = s * .2; pret.push(tubo(V(SB.x, SB.y, 0), V(SB.x, SB.y, z0), .013));
+          const pts = []; for(let k = 0; k <= 10; k++){ const a = k / 10 * Math.PI; pts.push(V(SB.x + .07 * Math.sin(a) + (k > 5 ? -.012 * (k - 5) : 0), SB.y - .075 * (1 - Math.cos(a)), z0)); }
+          for(let k = 0; k < 10; k++) pret.push(tubo(pts[k], pts[k + 1], .012));
+          pret.push(tubo(V(SB.x + .02, SB.y + .005, z0), V(SB.x + .085, SB.y + .045, z0), .016, .013)); } }
+      else if(K.bar === 'flat'){ pret.push(tubo(V(SB.x, SB.y + .02, -.36), V(SB.x, SB.y + .02, .36), .013)); [-1, 1].forEach(s=> pret.push(tubo(V(SB.x, SB.y + .02, s * .27), V(SB.x, SB.y + .02, s * .37), .02))); }
+      else { pret.push(tubo(V(SB.x, SB.y, -.2), V(SB.x, SB.y, .2), .014));   // aero: base + extensões com apoios
+        [-1, 1].forEach(s=>{ pret.push(tubo(V(SB.x - .02, SB.y + .04, s * .07), V(SB.x + .22, SB.y + .09, s * .06), .011), bola(V(SB.x + .02, SB.y + .055, s * .075), .045, 1.3, .35, 1, 10)); }); }
+      cro.push(new THREE.TorusGeometry(.1, .006, 6, 36).translate(BB.x, BB.y, .055), new THREE.CylinderGeometry(.03, .03, .14, 12).rotateX(Math.PI / 2).translate(BB.x, BB.y, 0));
+      [malha(junta(q), mat(cor, { metalness: .45, roughness: .32 })), malha(junta(pret), mat('#16171a', { roughness: .7 })), malha(junta(cro), mat('#aeb4bd', { metalness: .9, roughness: .25 }))].forEach(m=> g.add(m));
+      const rodas = [];
+      const rF = roda(K.RW, K.pn, false); rF.position.copy(FA); g.add(rF); rodas.push(rF);
+      if(K.tri){ [-1, 1].forEach(s=>{ const r = roda(K.RW, K.pn, false); r.position.set(RA.x, RA.y, s * zF); g.add(r); rodas.push(r); }); }
+      else { const r = roda(K.RW, K.pn, K.disco); r.position.copy(RA); g.add(r); rodas.push(r); }
+      const crank = new THREE.Group(); crank.position.copy(BB); g.add(crank);
+      const pedal = [];
+      [-1, 1].forEach((s, i)=>{ const b = malha(junta([tubo(V(0, 0, s * .075), V(.17, 0, s * .075), .009, .007)]), mat('#aeb4bd', { metalness: .9, roughness: .25 })); b.rotation.z = i ? Math.PI : 0; crank.add(b);
+        const p = malha(new THREE.BoxGeometry(.09, .018, .07), mat('#16171a')); g.add(p); pedal.push(p); });
+      return { g, rodas, crank, pedal, K };
+    }
+    // ---------- texturas da roupa ----------
+    const TX = {};
+    function texRoupa(cor, T, pub){
+      const k = cor + T + pub; if(TX[k]) return TX[k];
+      return TX[k] = tex(256, 256, (x, w, h)=>{
+        x.fillStyle = cor; x.fillRect(0, 0, w, h);
+        if(T === 'cam'){ x.fillStyle = 'rgba(255,255,255,.85)'; x.fillRect(0, h * .78, w, h * .05); x.fillStyle = 'rgba(0,0,0,.22)'; x.fillRect(0, h * .84, w, h * .03); x.fillStyle = 'rgba(0,0,0,.25)'; x.fillRect(w * .495, 0, w * .01, h * .55); }   // faixas e fecho
+        if(T === 'col'){ x.fillStyle = '#C9CDD2'; [.3, .62].forEach(y=> x.fillRect(0, h * y, w, h * .07)); }   // faixas refletoras
+        if(T === 'cow'){ x.strokeStyle = 'rgba(0,0,0,.28)'; x.lineWidth = 9; for(let i = 0; i < w; i += 32){ x.beginPath(); x.moveTo(i, 0); x.lineTo(i, h); x.stroke(); x.beginPath(); x.moveTo(0, i); x.lineTo(w, i); x.stroke(); } }
+        if(T === 'pap'){ x.fillStyle = '#C9A227'; x.fillRect(w * .44, 0, w * .12, h); }   // estola dourada
+        if(T === 'pnc' || T === 'elc'){ x.fillStyle = T === 'pnc' ? '#F5F5F0' : '#C8102E'; x.fillRect(w * .46, 0, w * .08, h); x.fillStyle = '#1A1A1A'; x.fillRect(0, h * .72, w, h * .08); x.fillStyle = '#E2B53A'; x.fillRect(w * .45, h * .72, w * .1, h * .08); }   // botões e cinto
+        if(pub){ x.save(); x.translate(w / 2, h * .36); x.scale(.42, 1.25); x.fillStyle = '#fff'; x.font = '900 italic 30px Arial Black, Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';   // estreito: só nas costas
+          x.lineWidth = 5; x.strokeStyle = 'rgba(0,0,0,.45)'; x.strokeText('PLAYLIFE', 0, 0); x.fillText('PLAYLIFE', 0, 0); x.restore(); }
+      });
+    }
+    // ---------- chapéus, capacetes e cabelos ----------
+    function cabeca(av, hd, real){   // devolve um grupo posicionado no centro da cabeça (real: humano realista, sem rosto desenhado)
+      const g = new THREE.Group(), H = av.H || 'cic', c = av.h || '#F3F4F6', F = av.g === 'f';
+      const cab = (cor)=> real ? new THREE.Group() : malha(bola(V(-.01, .02), .104, 1.08, .9, .96, 18), mat(cor, { roughness: .85 }));   // cabelo curto (calote)
+      const add = (...m)=> m.forEach(o=> g.add(o));
+      const rabo = (cor)=>{ const r = malha(bola(V(0, 0), .045, 1, 2.3, 1, 12), mat(cor, { roughness: .85 })); r.position.set(-.125, -.07, 0); r.rotation.z = -.55; add(r); };
+      const dk = '#3B2A20';
+      if(H === 'cic'){   // capacete de estrada com ventilações e óculos
+        const cp = malha(new THREE.SphereGeometry(.122, 22, 12, 0, Math.PI * 2, 0, Math.PI * .55), mat(c, { roughness: .35, metalness: .1 })); cp.scale.set(1.28, .98, 1.05); cp.position.set(-.012, .0, 0); cp.rotation.z = .3;
+        cp.material = new THREE.MeshStandardMaterial({ map: tex(256, 128, (x, w, h)=>{ x.fillStyle = c; x.fillRect(0, 0, w, h); x.fillStyle = 'rgba(10,12,16,.75)'; for(let k = 0; k < 8; k++) x.fillRect(k * w / 8 + 6, h * .18, w / 8 - 18, h * .34); }), roughness: .35, metalness: .1 });   // ventilações pintadas
+        add(cp);
+        if(F) rabo(dk);
+      } else if(H === 'pil'){ const cp = malha(bola(V(0, .015), .135, 1.05, 1.02, 1, 20), mat(c, { roughness: .3, metalness: .2 })), vi = malha(bola(V(.1, 0), .07, .5, .6, 1.4, 14), mat('#0b0d12', { roughness: .08, metalness: .8 })); add(cp, vi); }
+      else if(H === 'vik'){ add(malha(new THREE.SphereGeometry(.118, 18, 10, 0, Math.PI * 2, 0, Math.PI * .5), mat('#8E949C', { metalness: .8, roughness: .3 })), malha(new THREE.TorusGeometry(.116, .012, 6, 24).rotateX(Math.PI / 2), mat('#6B4A2E')));
+        [-1, 1].forEach(s=>{ const pts = []; for(let k = 0; k <= 6; k++){ const a = k / 6; pts.push(V(-.01 + .03 * a, .05 + .12 * a + .05 * a * a, s * (.11 + .06 * a))); } for(let k = 0; k < 6; k++) g.add(malha(tubo(pts[k], pts[k + 1], .03 * (1 - k / 7) + .004, .03 * (1 - (k + 1) / 7) + .004), mat('#F2E6CF', { roughness: .5 }))); });
+        add(cab(c)); }
+      else if(H === 'pn' || H === 'elf'){ const cr = H === 'pn' ? '#C8102E' : '#1E9E46', pts = []; for(let k = 0; k <= 8; k++){ const a = k / 8; pts.push(V(-.02 - .2 * a * a, .09 + .2 * a - .05 * a * a, 0)); }
+        for(let k = 0; k < 8; k++) g.add(malha(tubo(pts[k], pts[k + 1], .105 * (1 - k / 8.5) + .01, .105 * (1 - (k + 1) / 8.5) + .01, 14), mat(cr, { roughness: .9 })));
+        add(malha(new THREE.TorusGeometry(.105, .03, 8, 24).rotateX(Math.PI / 2).translate(-.01, .08, 0), mat(H === 'pn' ? '#F5F5F0' : '#C8102E', { roughness: 1 })));
+        const po = malha(bola(pts[8], .035, 1, 1, 1, 10), mat(H === 'pn' ? '#F5F5F0' : '#E2B53A', { roughness: H === 'pn' ? 1 : .3, metalness: H === 'pn' ? 0 : .7 })); add(po);
+        if(H === 'elf'){ [-1, 1].forEach(s=>{ const o = malha(bola(V(-.01, .0, s * .1), .04, .6, 1.4, .35, 10), mat(av.p || '#E0AE86')); o.rotation.x = s * .5; o.rotation.z = -.5; add(o); }); } }
+      else if(H === 'cha' || H === 'cow'){ const m = mat(c, { roughness: .75 });
+        if(H === 'cha'){ add(malha(new THREE.CylinderGeometry(.1, .1, .02, 24).translate(0, .085, 0).scale(1.6, 1, 1.6), m), malha(new THREE.CylinderGeometry(.09, .095, .18, 24).translate(0, .18, 0), m), malha(new THREE.CylinderGeometry(.096, .096, .03, 24).translate(0, .11, 0), mat('#1A1A1A'))); }
+        else { const ab = new THREE.TorusGeometry(.17, .03, 6, 28).rotateX(Math.PI / 2); ab.scale(1.15, .45, 1); ab.translate(0, .09, 0); add(malha(ab, m), malha(new THREE.CylinderGeometry(.2, .2, .012, 28).translate(0, .085, 0), m),
+            malha(bola(V(0, .15), .1, 1.05, .9, .85, 16), m), malha(new THREE.CylinderGeometry(.092, .092, .025, 20).translate(0, .11, 0), mat('#5A3A1E'))); }
+        if(F) rabo(dk); }
+      else if(H === 'cog'){ add(malha(new THREE.SphereGeometry(.2, 22, 12, 0, Math.PI * 2, 0, Math.PI * .5).scale(1, .75, 1).translate(0, .07, 0), new THREE.MeshStandardMaterial({ map: tex(256, 128, (x, w, h)=>{ x.fillStyle = c && c !== '#F3F4F6' ? c : '#D7262B'; x.fillRect(0, 0, w, h); x.fillStyle = '#FFF8EC'; for(let i = 0; i < 14; i++){ x.beginPath(); x.ellipse((i * 53) % w, 20 + (i * 37) % (h - 40), 14, 10, 0, 0, 7); x.fill(); } }), roughness: .5 })),
+          malha(new THREE.CylinderGeometry(.19, .19, .015, 24).translate(0, .07, 0), mat('#F2E6CF'))); }
+      else if(H === 'pap'){ const m = new THREE.MeshStandardMaterial({ map: tex(64, 128, (x, w, h)=>{ x.fillStyle = '#F7F5EE'; x.fillRect(0, 0, w, h); x.fillStyle = '#C9A227'; x.fillRect(w * .42, 0, w * .16, h); x.fillRect(0, h * .82, w, h * .1); }), roughness: .5 });
+        [-1, 1].forEach(s=>{ const p = malha(new THREE.ConeGeometry(.11, .3, 4, 1).scale(1, 1, .45).translate(s * .015, .23, 0), m); p.rotation.z = s * .05; add(p); }); }
+      else if(H === 'ush'){ const m = mat(c, { roughness: 1 }); add(malha(bola(V(0, .05), .13, 1.05, .8, 1.02, 18), m), malha(new THREE.TorusGeometry(.12, .035, 8, 24).rotateX(Math.PI / 2).translate(0, .06, 0), m));
+        [-1, 1].forEach(s=> add(malha(bola(V(-.01, -.03, s * .115), .07, .9, 1.1, .35, 12), m))); add(malha(bola(V(.09, .1), .05, .3, .8, 1.3, 10), m), malha(bola(V(.12, .11), .018, .3, 1, 1, 8), mat('#C9A227', { metalness: .8, roughness: .3 }))); }
+      else if(H === 'coc'){ add(malha(new THREE.TorusGeometry(.108, .02, 6, 24).rotateX(Math.PI / 2).translate(0, .06, 0), mat('#B5462A')), cab(dk));
+        const cores = ['#F3F4F6', '#E5242B', '#FFD60A', '#1F7AE0', '#3DD45C'];
+        for(let k = 0; k < 13; k++){ const a = Math.PI * (.15 + .7 * k / 12), p = malha(bola(V(0, 0), .03, .9, 3.5, .4, 8), mat(cores[k % cores.length], { roughness: .8 }));
+          p.position.set(-Math.cos(a) * .1 - .02, .1 + Math.sin(a) * .1, -Math.cos(a * 2) * 0 + (k / 12 - .5) * .22); p.rotation.set((k / 12 - .5) * -.9, 0, Math.PI / 2 - a + .3); add(p); } }
+      else if(H === 'moh'){ add(cab(av.p || '#E0AE86')); for(let k = 0; k < 7; k++){ const a = k / 6; g.add(malha(new THREE.ConeGeometry(.028, .09, 8).translate(0, .045, 0).rotateZ(-.3 + .6 * a).translate(.08 - .2 * a, .09 + .03 * Math.sin(a * Math.PI), 0), mat(c, { roughness: .8 }))); } }
+      else if(H === 'lon'){ add(cab(c), malha(bola(V(-.08, -.08), .1, .7, 1.6, 1.05, 14), mat(c, { roughness: .85 }))); }
+      else if(H === 'rab'){ add(cab(c)); rabo(c); }
+      else { add(cab(c)); }   // cabelo curto
+      // rosto: olhos com íris e brilho, sobrancelhas e lábios (vê-se nos planos de frente e nos grandes planos)
+      const cabelo = F ? '#6B3E22' : '#4A3022', skin = av.p || '#E0AE86';
+      if(H !== 'pil' && !real){ [-1, 1].forEach(s=>{ const o = new THREE.Group(); o.position.set(.084, .012, s * .036); o.rotation.y = -s * .25;
+          o.add(malha(bola(V(0, 0), .018, .55, 1, 1, 12), mat('#FAFAF7', { roughness: .3 }), false), malha(bola(V(.008, 0), .011, .5, 1, 1, 10), mat(F ? '#5A3A1E' : '#3E5A78', { roughness: .3 }), false), malha(bola(V(.012, 0), .006, .5, 1, 1, 8), mat('#0c0c0e'), false), malha(bola(V(.014, .005, .004), .0025, 1, 1, 1, 6), new THREE.MeshBasicMaterial({ color: '#ffffff' }), false));
+          o.add(malha(new THREE.BoxGeometry(.008, .006, .032).translate(.006, .03, 0).rotateX(s * .12), mat(cabelo), false)); add(o); });
+        add(malha(bola(V(.093, -.044), 1, .01, .007, .024, 10), mat(new THREE.Color(skin).lerp(new THREE.Color('#B0505A'), .45).getStyle(), { roughness: .4 }), false)); }
+      if(H === 'cic' && !real){   // caracóis por baixo do capacete (nas alunas, corte pelo queixo)
+        const mH = mat(cabelo, { roughness: .9 }), cs = [];
+        const n = F ? 34 : 12; for(let k = 0; k < n; k++){ const a = (F ? -1.7 : -1.55) + (k % (F ? 17 : 12)) / ((F ? 17 : 12) - 1) * (F ? 3.4 : 3.1), fila = F ? Math.floor(k / 17) : 0, yy = F ? .0 - fila * .045 - Math.abs(Math.sin(k * 2.3)) * .012 : -.015;
+          const r0 = (F ? .098 : .088) - fila * .006; cs.push(bola(V(-Math.cos(a) * r0 - .012, yy, Math.sin(a) * r0 * 1.02), F ? .024 : .02, 1, 1.15, 1, 8)); }   // caracóis à volta, por baixo do capacete
+        if(F) for(let k = 0; k < 7; k++){ const z = (k / 6 - .5) * .15; cs.push(bola(V(.083, .052 - Math.abs(z) * .25, z), .018, .7, .8, 1, 8)); }   // franja
+        add(malha(junta(cs), mH)); }
+      // óculos só com o capacete de ciclista
+      // (olhos visíveis: sem óculos escuros, como na imagem de referência)
+      g.position.copy(hd); return g;
+    }
+    // ---------- o corpo ----------
+    const L = { coxa: .43, perna: .43, braco: .29, ante: .27 };
+    function membro(m){ const me = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 1, 12, 1), m); me.castShadow = true; return me; }
+    function poe(me, A, B, rA, rB){
+      const d = B.clone().sub(A), l = d.length();
+      me.position.copy(A).add(B).multiplyScalar(.5); me.quaternion.setFromUnitVectors(UP, d.multiplyScalar(1 / l)); me.scale.set(1, l, 1);
+      if(!me.userData.r && rA){ me.geometry.dispose(); me.geometry = new THREE.CylinderGeometry(rB, rA, 1, 14, 1); me.userData.r = 1; }
+    }
+    function ik(A, T, a, b, pole){
+      const d = T.clone().sub(A); let l = d.length(); const u = d.clone().normalize(); l = Math.min(l, a + b - 1e-4);
+      const ca = Math.max(-1, Math.min(1, (a * a + l * l - b * b) / (2 * a * l))), sa = Math.sqrt(1 - ca * ca);
+      const v = pole.clone().sub(u.clone().multiplyScalar(pole.dot(u))).normalize();
+      return A.clone().add(u.multiplyScalar(a * ca)).add(v.multiplyScalar(a * sa));
+    }
+    // ---------- kart, carrinho e trenó com rena ----------
+    function rodaV(R, w, aro){
+      const g = new THREE.Group();
+      g.add(malha(new THREE.CylinderGeometry(R, R, w, 22, 1).rotateX(Math.PI / 2), mat('#16181D', { roughness: .9 })));
+      [-1, 1].forEach(s=> g.add(malha(new THREE.CylinderGeometry(R * .55, R * .55, .01, 18).rotateX(Math.PI / 2).translate(0, 0, s * (w / 2 + .002)), mat(aro, { metalness: .7, roughness: .3 }), false)));
+      g.add(malha(new THREE.BoxGeometry(R * 1.1, .02, w + .012), mat('#3a3f47', { metalness: .5 }), false));   // raio do tampão (vê-se rodar)
+      return g;
+    }
+    function placa(txt, cor){ return new THREE.MeshStandardMaterial({ map: tex(256, 64, (x, w, h)=>{ x.fillStyle = cor; x.fillRect(0, 0, w, h); x.fillStyle = '#fff'; x.font = '900 italic 44px Arial Black, Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.lineWidth = 5; x.strokeStyle = 'rgba(0,0,0,.4)'; x.strokeText(txt, w / 2, h / 2 + 2); x.fillText(txt, w / 2, h / 2 + 2); }), roughness: .5 }); }
+    function pedaleiro(g, BBv, cr){
+      const crank = new THREE.Group(); crank.position.copy(BBv); g.add(crank); const pedal = [];
+      [-1, 1].forEach((s, i)=>{ const b = malha(junta([tubo(V(0, 0, s * .075), V(cr, 0, s * .075), .009, .007)]), mat('#aeb4bd', { metalness: .9, roughness: .25 })); b.rotation.z = i ? Math.PI : 0; crank.add(b);
+        const p = malha(new THREE.BoxGeometry(.08, .016, .07), mat('#16171a')); g.add(p); pedal.push(p); });
+      crank.add(malha(new THREE.CylinderGeometry(.025, .025, .16, 10).rotateX(Math.PI / 2), mat('#aeb4bd', { metalness: .9 })));
+      return { crank, pedal };
+    }
+    function volante(g, A, B, r){   // coluna de A a B e volante perpendicular à coluna
+      g.add(malha(tubo(A, B, .014), mat('#2a2d33', { metalness: .5 })));
+      const v = malha(new THREE.TorusGeometry(r, .017, 8, 26), mat('#16171a', { roughness: .5 })), d = B.clone().sub(A).normalize();
+      v.position.copy(B); v.quaternion.setFromUnitVectors(V(0, 0, 1), d); g.add(v);
+      g.add(malha(tubo(B.clone().add(V(0, 0, -r)), B.clone().add(V(0, 0, r)), .012).applyMatrix4(new THREE.Matrix4().makeTranslation(0, 0, 0)), mat('#16171a')));
+    }
+    const TV = {
+      k: { H: V(-.27, .33), Sh: V(-.31, .8), BB: V(.44, .24), cr: .09, mao: [V(.07, .6, -.13), V(.07, .6, .13)], cot: V(-.3, -.7, 1) },
+      c: { H: V(-.2, .42), Sh: V(-.24, .9), BB: V(.4, .28), cr: .09, mao: [V(.13, .68, -.13), V(.13, .68, .13)], cot: V(-.3, -.7, 1) },
+      n: { H: V(-.2, .53), Sh: V(-.24, 1.01), pes: [V(.36, .43, -.13), V(.36, .43, .13)], mao: [V(.16, .8, -.15), V(.16, .8, .15)], cot: V(-.3, -.7, 1) }
+    };
+    function kart(av){
+      const g = new THREE.Group(), cor = av.vc || '#FF7A00', mB = mat(cor, { metalness: .3, roughness: .35 }), K = TV.k;
+      const ch = []; [-1, 1].forEach(s=> ch.push(tubo(V(-.6, .1, s * .24), V(.62, .1, s * .2), .016))); ch.push(tubo(V(-.45, .13, -.5), V(-.45, .13, .5), .018), tubo(V(.5, .12, -.44), V(.5, .12, .44), .015), tubo(V(-.1, .1, -.24), V(-.1, .1, .24), .014));
+      ch.push(tubo(V(-.68, .18, -.5), V(-.68, .18, .5), .02), tubo(V(-.68, .18, -.5), V(-.55, .12, -.5), .02), tubo(V(-.68, .18, .5), V(-.55, .12, .5), .02));   // para-choques
+      g.add(malha(junta(ch), mat('#3a3f47', { metalness: .7, roughness: .3 })));
+      g.add(malha(junta([bola(V(.05, .19, -.43), .3, 1, .45, .42, 16), bola(V(.05, .19, .43), .3, 1, .45, .42, 16), bola(V(.64, .17, 0), .2, 1, .45, 1.9, 16)]), mB));   // pontões e bico
+      g.add(malha(junta([bola(V(-.33, .44, 0), .2, .45, 1.1, 1, 14), new THREE.BoxGeometry(.32, .06, .38).translate(-.2, .26, 0)]), mat('#1d2026', { roughness: .6 })));   // banco
+      volante(g, V(.38, .24), V(.08, .58), .14);
+      const rodas = [[-.45, .145, .17, -.5], [-.45, .145, .17, .5], [.5, .125, .12, -.44], [.5, .125, .12, .44]].map(([x, r, w, z])=>{ const o = rodaV(r, w, '#D9DDE2'); o.position.set(x, r, z); g.add(o); return o; });
+      const { crank, pedal } = pedaleiro(g, K.BB, K.cr);
+      // mastro com a bandeirinha de segurança
+      g.add(malha(tubo(V(-.5, .2, .34), V(-.47, 1.75, .36), .007), mat('#E8EAED')));
+      const fl = new THREE.Mesh(new THREE.BufferGeometry().setFromPoints([V(0, 0), V(.32, -.07), V(0, -.16)]), new THREE.MeshStandardMaterial({ color: '#FF7A00', side: THREE.DoubleSide, roughness: .7 }));
+      fl.geometry.computeVertexNormals(); fl.position.set(-.47, 1.75, .36); g.add(fl);
+      if(av.pub){ const m = placa('PLAYLIFE', cor); [-1, 1].forEach(s=>{ const pl = new THREE.Mesh(new THREE.PlaneGeometry(.42, .1), m); pl.position.set(.05, .2, s * .555); if(s < 0) pl.rotation.y = Math.PI; g.add(pl); });
+        const tr = new THREE.Mesh(new THREE.PlaneGeometry(.5, .12), m); tr.position.set(-.705, .26, 0); tr.rotation.y = -Math.PI / 2; g.add(tr); }
+      return { g, rodas, crank, pedal, BB: K.BB, cr: K.cr, fl, tipo: 'k', R: [.145, .145, .125, .125] };
+    }
+    function carrinho(av){
+      const g = new THREE.Group(), cor = av.vc || '#1F7AE0', mB = mat(cor, { metalness: .35, roughness: .3 }), K = TV.c;
+      g.add(malha(junta([new THREE.BoxGeometry(1.2, .26, .62).translate(0, .33, 0), bola(V(.42, .42), .3, 1.25, .5, 1.02, 18), bola(V(-.47, .44), .3, 1, .62, 1.05, 18),
+        ...[[-.45, -1], [-.45, 1], [.45, -1], [.45, 1]].map(([x, s])=> bola(V(x, .4, s * .34), .2, 1.15, .62, .5, 14))]), mB));   // carroçaria, capô, mala e guarda-lamas
+      g.add(malha(new THREE.TorusGeometry(.27, .03, 8, 26).rotateX(Math.PI / 2).scale(1.25, 1, 1).translate(-.08, .5, 0), mat('#1d2026')));   // rebordo do habitáculo
+      g.add(malha(junta([bola(V(-.33, .62), .16, .4, 1, 1.4, 12)]), mat('#1d2026', { roughness: .6 })));   // encosto
+      const vi = new THREE.Mesh(new THREE.PlaneGeometry(.5, .17), new THREE.MeshStandardMaterial({ color: '#cfe8ff', transparent: true, opacity: .35, roughness: .05, metalness: .3, side: THREE.DoubleSide }));
+      vi.position.set(.2, .62, 0); vi.rotation.set(0, Math.PI / 2, 0); vi.rotateX(-.35); g.add(vi);
+      [-1, 1].forEach(s=> g.add(malha(bola(V(.68, .44, s * .2), .05, 1, 1, 1, 10), new THREE.MeshStandardMaterial({ color: '#FFF3B0', emissive: '#FFE58A', emissiveIntensity: .5 }), false)));   // faróis
+      g.add(malha(new THREE.BoxGeometry(.04, .1, .3).translate(.7, .34, 0), mat('#2a2d33', { metalness: .7 })));   // grelha
+      volante(g, V(.4, .4), V(.15, .67), .13);
+      const rodas = [[-.45, .17, .13, -.38], [-.45, .17, .13, .38], [.45, .17, .13, -.37], [.45, .17, .13, .37]].map(([x, r, w, z])=>{ const o = rodaV(r, w, '#F1F3F5'); o.position.set(x, r, z); g.add(o); return o; });
+      const { crank, pedal } = pedaleiro(g, K.BB, K.cr);
+      if(av.pub){ const tr = new THREE.Mesh(new THREE.PlaneGeometry(.46, .12), placa('PLAYLIFE', cor)); tr.position.set(-.775, .45, 0); tr.rotation.y = -Math.PI / 2; g.add(tr); }
+      const mat_ = new THREE.Mesh(new THREE.PlaneGeometry(.22, .07), placa('PR-01', '#F5F5F0')); mat_.position.set(-.705, .3, 0); mat_.rotation.y = -Math.PI / 2; g.add(mat_);
+      return { g, rodas, crank, pedal, BB: K.BB, cr: K.cr, tipo: 'c', R: [.17, .17, .17, .17] };
+    }
+    function treno(av){
+      const g = new THREE.Group(), cor = av.vc || '#C8102E', mB = mat(cor, { roughness: .45, metalness: .15 }), ouro = mat('#E2B65A', { metalness: .85, roughness: .3 }), prata = mat('#C9CED6', { metalness: .9, roughness: .25 });
+      const pt = []; [-1, 1].forEach(s=>{ const z = s * .34, P0 = [V(-.62, .1, z), V(-.66, .04, z), V(-.5, .02, z), V(.5, .02, z), V(.7, .07, z), V(.8, .2, z), V(.76, .33, z), V(.66, .36, z), V(.62, .3, z)];
+        for(let k = 0; k < P0.length - 1; k++) pt.push(tubo(P0[k], P0[k + 1], .016)); [-.4, 0, .4].forEach(x=> pt.push(tubo(V(x, .03, z), V(x, .28, z * .95), .014))); });
+      g.add(malha(junta(pt), prata));
+      g.add(malha(junta([new THREE.BoxGeometry(1.05, .1, .7).translate(-.02, .32, 0), bola(V(-.02, .46, -.36), .5, 1.05, .32, .08, 18), bola(V(-.02, .46, .36), .5, 1.05, .32, .08, 18),
+        new THREE.BoxGeometry(.09, .5, .7).translate(-.53, .6, 0), bola(V(.5, .45), .2, .45, .55, 1.75, 14)]), mB));   // fundo, lados, encosto e frente
+      const tr = []; [-1, 1].forEach(s=> tr.push(tubo(V(-.5, .6, s * .37), V(.45, .58, s * .37), .014))); tr.push(tubo(V(-.55, .86, -.35), V(-.55, .86, .35), .02), tubo(V(-.48, .58, -.37), V(-.53, .86, -.35), .014), tubo(V(-.48, .58, .37), V(-.53, .86, .35), .014));
+      g.add(malha(junta(tr), ouro));
+      g.add(malha(new THREE.BoxGeometry(.5, .07, .6).translate(-.22, .4, 0), mat('#7A1020', { roughness: .9 })));   // almofada
+      if(av.pub){ const pl = new THREE.Mesh(new THREE.PlaneGeometry(.5, .13), placa('PLAYLIFE', cor)); pl.position.set(-.58, .62, 0); pl.rotation.y = -Math.PI / 2; g.add(pl); }
+      // a rena
+      const pelo = mat('#8A5A36', { roughness: .9 }), peloE = mat('#5E3B22', { roughness: .9 }), peloC = mat('#C69A6B', { roughness: .9 }), casco = mat('#2A1A10'), haste = mat('#DCC9A0', { roughness: .7 });
+      const rn = new THREE.Group(); rn.position.set(1.95, 0, 0); g.add(rn);
+      const corpo = new THREE.Group(); rn.add(corpo);
+      corpo.add(malha(junta([bola(V(0, .98), .45, 1, .52, .48, 18), bola(V(.34, 1.06), .22, 1, 1, .95, 14)]), pelo), malha(bola(V(0, .9), .38, 1, .4, .4, 14), peloC));
+      corpo.add(malha(junta([tubo(V(.38, 1.08), V(.6, 1.42), .13, .09, 12)]), peloE), malha(bola(V(.5, 1.18), .12, 1.1, .8, .9, 10), mat('#EFE3CF', { roughness: 1 })));
+      const cab = new THREE.Group(); cab.position.set(.66, 1.47, 0); corpo.add(cab);
+      cab.add(malha(junta([bola(V(0, 0), .11, 1.1, .85, .8, 14), bola(V(.13, -.04), .07, 1.3, .75, .75, 12)]), pelo), malha(bola(V(.22, -.03), .03, 1, 1, 1.2, 8), casco));
+      [-1, 1].forEach(s=>{ cab.add(malha(bola(V(-.03, .05, s * .1), .05, 1.4, .45, .5, 8), pelo)); cab.add(malha(bola(V(.06, .02, s * .065), .014, 1, 1, 1, 6), casco));
+        const h = [tubo(V(-.02, .08, s * .05), V(-.12, .3, s * .16), .016, .012), tubo(V(-.12, .3, s * .16), V(-.26, .48, s * .22), .012, .008), tubo(V(-.06, .17, s * .1), V(.06, .3, s * .12), .01, .006), tubo(V(-.12, .3, s * .16), V(-.03, .44, s * .22), .009, .005), tubo(V(-.2, .4, s * .2), V(-.34, .45, s * .26), .008, .004)];
+        cab.add(malha(junta(h), haste)); });
+      corpo.add(malha(bola(V(-.44, 1.06), .05, 1, 1.4, 1, 8), mat('#EFE3CF')));   // cauda
+      const patas = [[.28, -.13, 0], [.28, .13, 1], [-.3, -.13, 2], [-.3, .13, 3]].map(([x, z, k])=>{ const a = new THREE.Group(); a.position.set(x, .95, z); corpo.add(a);
+        const c = new THREE.Group(); c.position.set(0, -.42, 0); a.add(c);
+        a.add(malha(junta([tubo(V(0, 0), V(0, -.42), .075, .05, 8)]), k < 2 ? peloE : pelo)); c.add(malha(junta([tubo(V(0, 0), V(0, -.46), .042, .03, 8)]), peloE), malha(bola(V(.02, -.48), .04, 1.2, .6, 1, 8), casco));
+        return { a, c, k }; });
+      // arreio e tirantes do trenó à rena
+      const ar = []; [-1, 1].forEach(s=> ar.push(tubo(V(.62, .42, s * .3), V(1.62, .98, s * .2), .012))); ar.push(new THREE.TorusGeometry(.25, .025, 6, 20).rotateY(Math.PI / 2).scale(1, 1.15, 1).translate(1.62, 1.0, 0));
+      g.add(malha(junta(ar), mat('#4A2E1A', { roughness: .8 })));
+      const redea = [membro(mat('#2A1A10')), membro(mat('#2A1A10'))]; redea.forEach(r=> g.add(r));
+      return { g, rodas: [], rn, corpo, cab, patas, redea, tipo: 'n' };
+    }
+    function veiculo(av){ return av.v === 'k' ? kart(av) : av.v === 'c' ? carrinho(av) : treno(av); }
+    // ---------- formas torneadas (perfil anatómico que roda à volta do eixo do membro) ----------
+    function torno(prof, seg){ const pts = [new THREE.Vector2(0, -.5)]; prof.forEach(([t, r])=> pts.push(new THREE.Vector2(r, t - .5))); pts.push(new THREE.Vector2(0, .5)); return new THREE.LatheGeometry(pts, seg || 18); }
+    function membroT(prof, m){ const me = malha(torno(prof), m); me.userData.r = 1; return me; }
+    const PR = {   // raio (m) ao longo do membro, de 0 (articulação de cima) a 1 (de baixo)
+      coxa: [[0, .084], [.12, .09], [.35, .088], [.6, .079], [.82, .064], [.94, .057], [1, .052]],
+      coxaF: [[0, .088], [.12, .094], [.35, .088], [.6, .077], [.82, .062], [.94, .055], [1, .05]],
+      perna: [[0, .05], [.08, .054], [.22, .062], [.36, .061], [.55, .048], [.75, .037], [.92, .033], [1, .031]],
+      braco: [[0, .05], [.15, .052], [.45, .047], [.8, .041], [1, .038]],
+      ante: [[0, .039], [.2, .041], [.5, .036], [.85, .029], [1, .027]],
+      meia: [[0, .035], [.5, .033], [1, .034]]
+    };
+    const esc = (pr, k, a, b)=> pr.filter(([t])=> t <= b + 1e-6).map(([t, r])=> [(t - a) / (b - a), r * k]).filter(([t])=> t >= 0);
+    // tronco: raio relativo ao longo do corpo (anca → ombros), depois esticado em largura e profundidade
+    const TRM = [[0, .8], [.12, .78], [.32, .74], [.55, .84], [.75, .97], [.88, .95], [.96, .78], [1, .5]], TRF = [[0, .9], [.12, .86], [.32, .7], [.52, .78], [.72, .86], [.86, .84], [.95, .74], [1, .48]];
+    function texCam(cor, cor2, pub){   // camisola: fecho à frente, painéis laterais e gola na 2.ª cor, publicidade nas costas
+      const k = 'cam' + cor + cor2 + pub; if(TX[k]) return TX[k];
+      return TX[k] = tex(512, 256, (x, w, h)=>{
+        x.fillStyle = cor; x.fillRect(0, 0, w, h);
+        x.fillStyle = cor2; [0, .5, 1].forEach(u=>{ x.beginPath(); x.ellipse(u * w, h * .55, w * .07, h * .55, 0, 0, 7); x.fill(); });   // lados
+        x.fillRect(0, 0, w, h * .07);   // gola
+        x.fillStyle = cor2; [.25, .75].forEach(u=>{ x.beginPath(); x.moveTo(u * w - w * .2, h * .1); x.quadraticCurveTo(u * w, h * .02, u * w + w * .2, h * .1); x.lineTo(u * w + w * .2, h * .14); x.quadraticCurveTo(u * w, h * .06, u * w - w * .2, h * .14); x.fill(); });   // risca nos ombros
+        x.fillStyle = 'rgba(160,166,176,.9)'; x.fillRect(w * .25 - 2, 0, 4, h);   // fecho
+        if(pub){ x.save(); x.translate(w * .75, h * .3); x.scale(.55, 1.15); x.fillStyle = cor2; x.font = '900 italic 34px Arial Black, Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('PLAYLIFE', 0, 0); x.restore(); }
+      });
+    }
+    function rodar(t){ const c = t.clone(); c.wrapS = THREE.RepeatWrapping; c.offset.x = -.25; c.needsUpdate = true; return c; }   // as texturas antigas tinham o centro na direção das costas
+    function cria(av){
+      av = av || {};
+      const T = av.T || 'cam', K = TIPO[av.v] || TIPO.e, F = av.g === 'f';
+      const roupa = typeof avRoupa === 'function' ? avRoupa(av) : (av.j || '#E5242B');
+      const calca = (typeof avCalca === 'function' ? avCalca(T, roupa) : null), sap = typeof avSapato === 'function' ? avSapato(T) : '#F3F4F6';
+      const longa = typeof AV_MLONGA !== 'undefined' && AV_MLONGA.includes(T), nu = T === 'nu' || T === 'sus';
+      const lum = h=>{ const c = new THREE.Color(h); return .3 * c.r + .59 * c.g + .11 * c.b; }, dif = (a, b)=>{ const A = new THREE.Color(a), B = new THREE.Color(b); return Math.abs(A.r - B.r) + Math.abs(A.g - B.g) + Math.abs(A.b - B.b); };
+      const cor2 = dif(roupa, av.vc || '#C8102E') < .45 ? (lum(roupa) > .55 ? '#C8102E' : '#F3F4F6') : (av.vc || '#C8102E');   // 2.ª cor do equipamento (a da bicicleta)
+      const cP = av.p || '#E0AE86', mP = mat(cP, { roughness: .6 });
+      const mR = nu ? mP : new THREE.MeshStandardMaterial({ map: T === 'cam' ? texCam(roupa, cor2, !!av.pub) : rodar(texRoupa(roupa, T, !!av.pub)), roughness: T === 'mot' || T === 'pun' ? .4 : .55 });
+      const mRl = nu ? mP : mat(roupa, { roughness: .55 }), m2 = mat(cor2, { roughness: .55 });
+      const mC = mat(calca || (T === 'cam' ? cor2 : '#1b1c20'), { roughness: .6 });   // calções na 2.ª cor (como no equipamento), ou calças
+      const VE = 'kcn'.includes(av.v), G = new THREE.Group(), B = VE ? veiculo(av) : bike(K, av.vc || '#1F7AE0'); G.add(B.g);
+      const tronco = malha(torno(F ? TRF : TRM, 24), mR), bacia = malha(new THREE.SphereGeometry(1, 18, 14), mC);
+      G.add(tronco, bacia);
+      const extra = [];
+      if(T === 'sus'){ [-1, 1].forEach(s=>{ const t = membro(mat('#C8102E')); G.add(t); extra.push([t, s]); }); }
+      if(T === 'pun'){ for(let k = 0; k < 6; k++){ const sp = malha(new THREE.ConeGeometry(.018, .06, 6), mat('#C9CDD2', { metalness: .9, roughness: .2 })); G.add(sp); extra.push([sp, k]); } }
+      const pesc = membroT([[0, .05], [.5, .046], [1, .048]], mP), cab = malha(new THREE.SphereGeometry(1, 24, 18), mP), nariz = malha(bola(V(0, 0), .011, 1.3, 1.2, .9, 10), mP), orelhas = [-1, 1].map(()=> malha(bola(V(0, 0), .026, .5, 1, .3, 10), mP));
+      G.add(pesc, cab, nariz, ...orelhas);
+      const anel = (m)=> malha(new THREE.TorusGeometry(1, .14, 6, 20).rotateX(Math.PI / 2), m);
+      const cx = F ? PR.coxaF : PR.coxa, pele = calca ? mC : mP;
+      const P = {
+        coxa: [0, 1].map(()=> membroT(cx, pele)), calcao: [0, 1].map(()=> membroT(esc(cx, 1.05, 0, .66), mC)), bainha: [0, 1].map(()=> anel(calca ? mC : mRl)),
+        perna: [0, 1].map(()=> membroT(PR.perna, pele)), meia: [0, 1].map(()=> membroT(PR.meia, calca ? mC : mat('#F5F5F5', { roughness: .8 }))),
+        pe: [0, 1].map(()=>{ const g = new THREE.Group(); g.add(malha(bola(V(.03, .02), 1, .13, .05, .05, 14), mat(sap, { roughness: .35 })), malha(new THREE.BoxGeometry(.25, .014, .085).translate(.025, -.025, 0), mat('#1a1b1f', { roughness: .6 })));
+          [-.02, .04].forEach(x0=> g.add(malha(new THREE.BoxGeometry(.012, .03, .1).translate(x0, .055, 0).rotateZ(-.2), mat('#1a1b1f'), false))); return g; }),
+        braco: [0, 1].map(()=> membroT(PR.braco, longa ? mRl : mP)), manga: [0, 1].map(()=> membroT(esc(PR.braco, 1.12, 0, .5), mRl)), punho: [0, 1].map(()=> anel(m2)),
+        ante: [0, 1].map(()=> membroT(PR.ante, longa ? mRl : mP)), cot: [0, 1].map(()=> malha(new THREE.SphereGeometry(1, 12, 10), longa ? mRl : mP)),
+        mao: [0, 1].map(()=>{ const g = new THREE.Group(); g.add(malha(bola(V(0, 0), 1, .045, .03, .04, 12), mP), malha(bola(V(.015, .018, 0), 1, .022, .012, .014, 8), mP)); return g; })
+      };
+      Object.values(P).forEach(a=> a.forEach(m=> G.add(m)));
+      if(calca) P.calcao.forEach(m=> m.visible = false);
+      if(longa || nu) [...P.manga, ...P.punho].forEach(m=> m.visible = false);
+      const st = { G, B, P, K: VE ? TV[av.v] : K, VE, tronco, bacia, pesc, cab, nariz, orelhas, extra, T, F, chap: null, av, larg: F ? [.125, .18] : [.13, .2] };
+      // humano realista (se já carregou): substitui o corpo desenhado com formas
+      const cab2 = av.H === 'moh' ? cP : ['cur', 'lon', 'rab'].includes(av.H) ? av.h : (F ? '#6B3E22' : '#4A3022');
+      st.hum = HUM && HUM.estado === 'pronto' ? HUM.cria(av, { pele: cP, camisola: nu ? (T === 'sus' ? '#C8102E' : '#1b1c20') : roupa, manga: roupa, punho: cor2, gola: cor2, calcoes: calca || (T === 'cam' ? cor2 : '#1b1c20'), bainha: T === 'cam' ? roupa : (calca || '#1b1c20'),
+        meia: '#F5F5F5', sapato: sap, olho: '#F7F5F0', iris: F ? '#5A3A1E' : '#3E5A78', pupila: '#0b0b0c', cabelo: cab2, sobrancelha: cab2 }, { manga: longa ? 9 : .45, calca: calca ? 9 : .66, nu, top: nu && F }) : null;
+      if(st.hum){ G.add(st.hum.o); [tronco, bacia, pesc, cab, nariz, orelhas[0], orelhas[1], ...extra.map(e=> e[0]), ...Object.values(P).flat()].forEach(m=> m.visible = false); }
+      st.chap = cabeca(av, V(0, 0), !!st.hum); G.add(st.chap);
+      pose(st, 0, 0);
+      return st;
+    }
+    const POLE = V(1, .25, 0), POLE_S = V(.35, 1, 0);
+    function pose(st, ang, emPe){
+      const { B, K } = st, sh = st.F ? .95 : 1;
+      if(st.VE) return poseV(st, ang, sh);
+      B.crank.rotation.z = -ang; B.rodas.forEach(r=> r.rotation.z = -ang * 2.6);
+      const ped = [0, 1].map(i=>{ const a = -ang + (i ? Math.PI : 0), s = i ? 1 : -1, p = V(BB.x + Math.cos(a) * .17, BB.y + Math.sin(a) * .17, s * .105);
+        B.pedal[i].position.copy(p); B.pedal[i].rotation.z = Math.sin(a) * .15; return p; });
+      emPe = emPe && !K.aero;
+      const sway = Math.sin(ang) * (emPe ? .05 : .012), up = emPe ? .14 : 0, fwd = emPe ? .1 : 0;
+      const H = V(K.H.x + fwd, K.H.y + up, sway), Sh = V(K.Sh.x + fwd * .6, K.Sh.y + up * .55, sway * 1.4);
+      corpo(st, H, Sh, ped, K.mao, K.cot, POLE, K.aero, sh);
+    }
+    // sentado no kart, carrinho ou trenó
+    function poseV(st, ang, sh){
+      const { B, K } = st, bob = Math.abs(Math.sin(ang * 2)) * .008;
+      let ped;
+      if(B.tipo === 'n'){   // a rena galopa à cadência; o aluno vai sentado com as rédeas
+        const ph = ang * 1.1, b2 = Math.abs(Math.sin(ph)) * .05;
+        B.corpo.position.y = b2; B.corpo.rotation.z = Math.sin(ph) * .05; B.cab.rotation.z = Math.sin(ph + .6) * .08;
+        B.patas.forEach(({ a, c, k })=>{ const f = ph + (k < 2 ? 0 : Math.PI * .85) + (k % 2 ? .35 : 0); a.rotation.z = Math.sin(f) * .55; c.rotation.z = -Math.max(0, Math.sin(f + 1.2)) * 1.1; });
+        ped = K.pes;
+      } else {
+        B.crank.rotation.z = -ang; B.rodas.forEach((r, i)=> r.rotation.z = -ang * 2.2 * (.17 / (B.R[i] || .15)));
+        ped = [0, 1].map(i=>{ const a = -ang + (i ? Math.PI : 0), s = i ? 1 : -1, p = V(B.BB.x + Math.cos(a) * B.cr, B.BB.y + Math.sin(a) * B.cr, s * .1); B.pedal[i].position.copy(p); return p; });
+        if(B.fl){ B.fl.rotation.y = Math.sin(ang * 1.5) * .35; }
+      }
+      const H = V(K.H.x, K.H.y + bob, 0), Sh = V(K.Sh.x + Math.sin(ang) * .01, K.Sh.y + bob, Math.sin(ang) * .01);
+      corpo(st, H, Sh, ped, K.mao, K.cot, POLE_S, false, sh);
+      if(B.redea){ const alvo = B.rn.position.clone().add(B.corpo.position).add(B.cab.position).add(V(.05, -.06, 0));
+        B.redea.forEach((r, i)=> poe(r, K.mao[i], alvo.clone().add(V(0, 0, (i ? 1 : -1) * .06)), .006, .006)); }
+    }
+    // o corpo: pernas até aos pés, tronco, braços até às mãos e a cabeça
+    const _q = new THREE.Quaternion();
+    function anelEm(m, A, B, f, r){ const p = A.clone().lerp(B, f); m.position.copy(p); m.quaternion.setFromUnitVectors(UP, B.clone().sub(A).normalize()); m.scale.set(r, r * .9, r); }
+    function corpo(st, H, Sh, ped, mao, cot, poleP, aero, sh){
+      const { P } = st, sent = st.VE;
+      if(st.hum){   // humano realista: os ossos dobram-se para chegar aos pedais e ao guiador
+        { const A = CICAJ; H = H.clone().add(V(A.ancX / 100, A.ancY / 100, 0)); Sh = Sh.clone().add(V((A.trX + A.ancX) / 100, (A.trY + A.ancY) / 100, 0));
+          mao = mao.map(m=> m.clone().add(V(A.maoX / 100, A.maoY / 100, 0))); cot = V(cot.x, cot.y, cot.z * A.cotov); }   // afinações do editor
+        if(!sent){ const k = Math.min(1.05, Math.max(.9, (st.hum.info.coxa + st.hum.info.perna) / .86)), dy = (H.y - BB.y) * (k - 1); H = H.clone(); H.y += dy; Sh = Sh.clone(); Sh.y += dy * .6; }
+        st.G.updateMatrixWorld(true); HUM.pose(st.hum, st.G, H, Sh, ped, mao, cot, poleP, sent);
+        const c = HUM.cabeca(st.hum, st.G); st.chap.position.copy(c.p); st.chap.quaternion.copy(c.q); const capa = ['cic', 'pil', 'vik', 'ush'].includes(st.av.H || 'cic'), chap = !capa && !['cur', 'lon', 'rab', 'moh', 'cab'].includes(st.av.H);
+        const A = CICAJ, k = chap ? A.chS : capa ? A.capS : 1;
+        st.chap.position.add((chap ? V(0, -.022 + A.chY / 100, 0) : capa ? V(A.capX / 100, A.capY / 100, 0) : V(0, 0, 0)).applyQuaternion(c.q)); st.chap.scale.set((chap ? .76 : .84) * k, (chap ? .8 : .88) * k, (chap ? .78 : st.F ? .84 : .87) * k); return;   // a cabeça real é mais pequena que a desenhada
+      }
+      [0, 1].forEach(i=>{ const s = i ? 1 : -1, hip = V(H.x, H.y - .03, s * .095 + H.z * .3), tal = ped[i].clone().add(sent ? V(-.04, .05, 0) : V(-.06, .045, 0));
+        const kn = ik(hip, tal, L.coxa * sh, L.perna * sh, poleP);
+        poe(P.coxa[i], hip, kn); poe(P.calcao[i], hip, hip.clone().lerp(kn, .66)); anelEm(P.bainha[i], hip, kn, .66, .072);
+        poe(P.perna[i], kn, tal); poe(P.meia[i], kn.clone().lerp(tal, .84), tal.clone().add(V(0, -.01, 0)));
+        const pe = P.pe[i]; pe.position.copy(ped[i]).add(V(sent ? .02 : 0, .045, 0)); pe.rotation.set(0, 0, sent ? .5 : -.12); });
+      st.bacia.position.copy(H).add(V(.01, -.03, 0)); st.bacia.scale.set(.13, .1, st.F ? .165 : .155);
+      const dT = Sh.clone().sub(H), du = dT.clone().normalize(), mid = H.clone().lerp(Sh, .5);
+      st.tronco.position.copy(mid); st.tronco.quaternion.setFromUnitVectors(UP, du); st.tronco.scale.set(st.larg[0], dT.length() * 1.08, st.larg[1]);
+      st.extra.forEach(([m, k])=>{ if(st.T === 'sus'){ const s = k, a = H.clone().add(V(.02, .06, s * .08)), b = Sh.clone().add(V(-.05, .03, s * .1)); poe(m, a, b, .012, .012); }
+        else { const nC = V(-du.y, du.x, 0), p = H.clone().lerp(Sh, .25 + k * .12).add(nC.clone().multiplyScalar(.14)); m.position.copy(p); m.quaternion.setFromUnitVectors(UP, nC); } });
+      [0, 1].forEach(i=>{ const s = i ? 1 : -1, ombro = Sh.clone().add(V(0, -.035, s * (st.F ? .17 : .185)));
+        const el = aero ? V(mao[i].x - .2, mao[i].y + .02, s * .1) : ik(ombro, mao[i], L.braco * sh, L.ante * sh, V(cot.x, cot.y, s * cot.z));
+        poe(P.braco[i], ombro, el); poe(P.manga[i], ombro, ombro.clone().lerp(el, .5)); anelEm(P.punho[i], ombro, el, .5, .049);
+        P.cot[i].position.copy(el); P.cot[i].scale.setScalar(.037); poe(P.ante[i], el, mao[i]);
+        const m = P.mao[i]; m.position.copy(mao[i]); m.quaternion.setFromUnitVectors(V(1, 0, 0), mao[i].clone().sub(el).normalize()); });
+      const nk = Sh.clone().add(V(sent ? .02 : .06, .06, 0)), hd = nk.clone().add(V(sent ? .03 : .09, aero ? .07 : sent ? .12 : .095, 0));
+      poe(st.pesc, Sh.clone().add(V(0, -.02, 0)), nk);
+      st.cab.position.copy(hd); st.cab.scale.set(.104, .108, .088);
+      st.nariz.position.copy(hd).add(V(.099, -.014, 0));
+      st.orelhas.forEach((o, i)=> o.position.copy(hd).add(V(-.005, 0, (i ? 1 : -1) * .086)));
+      st.chap.position.copy(hd);
+    }
+    return { cria, pose, TIPO, get HUM(){ return HUM; } };
+  })();
+
+  // =====================================================================
+  // EDITOR DOS BONECOS (ferramenta de desenvolvimento, fora da app): o ciclista realista a pedalar em 3D, com controlos
+  // para afinar a postura (anca, ombros, costas, joelhos, mãos, cotovelos), o pescoço e a cabeça, e o tamanho e a posição
+  // dos capacetes e chapéus. "Descarregar" gera o bonecos-ajustes.json: posto no GitHub ao lado da projeção, vale para todos.
+  // =====================================================================
+  const CICED = (()=>{
+    const GR = [
+      ['Corpo', [['ancX', 'Anca: frente / trás', -10, 10, .5, 'cm'], ['ancY', 'Anca: altura (selim)', -8, 8, .5, 'cm'], ['trX', 'Ombros: frente / trás', -15, 15, .5, 'cm'], ['trY', 'Ombros: altura', -15, 15, .5, 'cm'],
+        ['costas', 'Costas arredondadas', 0, 3, .05, '×'], ['joelho', 'Joelhos para fora', -.5, 1, .05, '']]],
+      ['Braços', [['maoX', 'Mãos: frente / trás', -10, 10, .5, 'cm'], ['maoY', 'Mãos: altura', -10, 10, .5, 'cm'], ['cotov', 'Cotovelos abertos', 0, 3, .05, '×']]],
+      ['Cabeça', [['pesc', 'Pescoço: inclinação para a frente', 0, 80, 1, '°'], ['cab', 'Cabeça: inclinação (− = queixo para baixo)', -40, 30, 1, '°']]],
+      ['Capacetes (ciclista, piloto, viking, gorro de pelo)', [['capS', 'Tamanho', .6, 1.4, .01, '×'], ['capY', 'Altura', -6, 6, .2, 'cm'], ['capX', 'Frente / trás', -5, 5, .2, 'cm']]],
+      ['Chapéus e gorros', [['chS', 'Tamanho', .5, 1.5, .01, '×'], ['chY', 'Altura', -6, 6, .2, 'cm']]]
+    ];
+    const MOD = [['Ciclista (homem)', 'e.E5242B.F3F4F6.E0AE86.cic.cam.1F7AE0.1.m'], ['Ciclista (mulher)', 'e.E040A0.E040A0.C68A5E.cic.cam.F3F4F6.1.f'], ['BTT', 'b.3DD45C.1F2937.9A6440.cic.col.FF7A00.0.m'],
+      ['Contrarrelógio', 't.1F7AE0.FFD60A.F2C9A6.cic.cam.22262D.1.m'], ['Triciclo', 'r.F2E6CF.D7262B.E0AE86.cog.cog.FF7A00.0.f'], ['Pai Natal', 'e.C8102E.C8102E.E0AE86.pn.pnc.E5242B.0.m'],
+      ['Cowboy', 'e.1F7AE0.6B4A2E.C68A5E.cow.cow.9AA3AE.0.m'], ['Viking', 'e.5B3FD9.9AA3AE.6B4228.vik.mot.5B3FD9.0.m'], ['Kart', 'k.1F7AE0.E5242B.E0AE86.pil.f1.FF7A00.1.m'],
+      ['Carrinho', 'c.E040A0.F3F4F6.C68A5E.cic.cam.FFD60A.0.f'], ['Trenó', 'n.C8102E.C8102E.E0AE86.pn.pnc.E5242B.0.m']];
+    const VIS = { lado: [0, .15, 3.4], tq: [-.75, .25, 3.6], frente: [Math.PI / 2, .12, 3.4], tras: [-Math.PI / 2, .25, 3.6], cab: [.4, .08, 1.5] };
+    let E = null;
+    function css(){
+      if(document.getElementById('cicEdCss')) return; const s = document.createElement('style'); s.id = 'cicEdCss';
+      s.textContent = `#cicEd{position:fixed;inset:0;display:flex;background:#0f1218;color:#E8ECF2;font:14px/1.35 system-ui,-apple-system,Segoe UI,sans-serif}
+#cicEd .ce-v{position:relative;flex:1;min-width:0}#cicEd canvas{display:block;width:100%;height:100%;cursor:grab}#cicEd canvas:active{cursor:grabbing}
+#cicEd .ce-top{position:absolute;left:12px;top:12px;right:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;pointer-events:none}#cicEd .ce-top>*{pointer-events:auto}
+#cicEd .ce-top h2{margin:0 10px 0 0;font-size:18px;text-shadow:0 1px 3px #000}
+#cicEd button,#cicEd select{font:inherit;color:#E8ECF2;background:#232934;border:1px solid #3a4352;border-radius:8px;padding:6px 10px;cursor:pointer}
+#cicEd button:hover{background:#2e3644}#cicEd button.on{background:#1F7AE0;border-color:#1F7AE0}
+#cicEd .ce-dica{position:absolute;left:12px;bottom:10px;font-size:12px;opacity:.75;text-shadow:0 1px 2px #000;pointer-events:none}
+#cicEd .ce-p{width:370px;max-width:46vw;overflow:auto;background:#161b23;border-left:1px solid #2a313d;padding:14px 16px 90px;box-sizing:border-box}
+#cicEd .ce-p h3{margin:16px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#8FB8F0}
+#cicEd .ce-r{display:grid;grid-template-columns:1fr 64px 26px;gap:2px 6px;align-items:center;margin:6px 0}
+#cicEd .ce-r label{grid-column:1/4;font-size:13px;color:#C9D1DC}#cicEd .ce-r input[type=range]{width:100%;accent-color:#3DA0FF}
+#cicEd .ce-r input[type=number]{width:64px;box-sizing:border-box;background:#0f1218;color:#E8ECF2;border:1px solid #3a4352;border-radius:6px;padding:3px 4px;font:inherit;font-size:13px}
+#cicEd .ce-r button{padding:2px 0;font-size:12px}#cicEd .ce-r.mud label{color:#FFD60A}
+#cicEd .ce-b{position:fixed;right:0;bottom:0;width:370px;max-width:46vw;box-sizing:border-box;display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px;background:#161b23;border-top:1px solid #2a313d;border-left:1px solid #2a313d}
+#cicEd .ce-b .ok{background:#2E9E4F;border-color:#2E9E4F;font-weight:600}#cicEd .ce-msg{font-size:12px;opacity:.8;width:100%}`;
+      document.head.appendChild(s);
+    }
+    function abre(){
+      if(E) return; css();
+      const d = document.createElement('div'); d.id = 'cicEd';
+      const alunos = [];
+      const opt = (l, v)=> '<option value="' + v + '">' + l + '</option>';
+      d.innerHTML = '<div class="ce-v"><canvas></canvas><div class="ce-top"><h2>🛠️ Editor dos bonecos</h2><select class="ce-mod" title="Que boneco mostrar">' + MOD.map(m=> opt(m[0], m[1])).join('')
+        + (alunos.length ? '<optgroup label="Alunos na aula">' + alunos.map(a=> opt(a[0], a[1])).join('') + '</optgroup>' : '') + '</select>'
+        + ['lado:Lado', 'tq:¾', 'frente:Frente', 'tras:Trás', 'cab:Cabeça'].map(x=> '<button data-v="' + x.split(':')[0] + '">' + x.split(':')[1] + '</button>').join('')
+        + '<button class="ce-ped on" title="Pedalar ou parar">▶ A pedalar</button><button class="ce-pe" title="Pedalar sentado ou em pé">Sentado</button></div>'
+        + '<div class="ce-dica">Arrasta para rodar · roda do rato para aproximar · as mudanças veem-se na hora</div><div class="ce-load" style="position:absolute;inset:0;display:grid;place-items:center;font-size:16px">A carregar o boneco 3D…</div></div>'
+        + '<div class="ce-p">' + GR.map(([t, L])=> '<h3>' + t + '</h3>' + L.map(([k, l, a, b, p, u])=> '<div class="ce-r" data-k="' + k + '"><label>' + l + (u ? ' (' + u + ')' : '') + '</label><input type="range" min="' + a + '" max="' + b + '" step="' + p + '"><input type="number" min="' + a + '" max="' + b + '" step="' + p + '"><button title="Repor este valor">↺</button></div>').join('')).join('')
+        + '</div><div class="ce-b"><button class="ok" title="Gera o ficheiro bonecos-ajustes.json para pôr no GitHub ao lado do perfil-de-aula.html">💾 Descarregar ajustes</button><button class="ce-abr" title="Abre um bonecos-ajustes.json do computador">📂 Abrir</button><button class="ce-rep">Repor tudo</button><button class="ce-cop" title="Copia os valores">📋 Copiar</button><button class="ce-col" title="Cola valores copiados">📥 Colar</button><input type="file" accept=".json,application/json" class="ce-fic" hidden><div class="ce-msg"></div></div>';
+      document.body.appendChild(d);
+      const q = s=> d.querySelector(s), guardado = JSON.stringify(CICAJ);
+      E = { d, guardado, ang: 0, ped: true, emPe: false, yaw: VIS.lado[0], pit: VIS.lado[1], dist: VIS.lado[2], alvo: 'corpo', st: null, raf: 0 };
+      // controlos
+      const pinta = ()=> d.querySelectorAll('.ce-r').forEach(r=>{ const k = r.dataset.k, v = CICAJ[k]; r.querySelector('input[type=range]').value = v; r.querySelector('input[type=number]').value = +(+v).toFixed(2); r.classList.toggle('mud', Math.abs(v - CICAJ_PAD[k]) > 1e-6); });
+      d.querySelectorAll('.ce-r').forEach(r=>{ const k = r.dataset.k, rg = r.querySelector('input[type=range]'), nb = r.querySelector('input[type=number]');
+        const poe = v=>{ v = parseFloat(v); if(!isFinite(v)) return; CICAJ[k] = v; pinta(); rasc(); };
+        rg.oninput = ()=> poe(rg.value); nb.onchange = ()=> poe(nb.value); r.querySelector('button').onclick = ()=> poe(CICAJ_PAD[k]); });
+      const rasc = ()=>{ try{ localStorage.setItem('prCicAjRasc', JSON.stringify(CICAJ)); }catch(e){} };   // rascunho automático (não se perde ao fechar)
+      pinta(); E.pinta = pinta; E.rasc = rasc;
+      const msg = t=>{ q('.ce-msg').textContent = t; };
+      q('.ce-mod').onchange = ()=> monta(q('.ce-mod').value);
+      d.querySelectorAll('[data-v]').forEach(b=> b.onclick = ()=>{ const v = VIS[b.dataset.v]; E.yaw = v[0]; E.pit = v[1]; E.dist = v[2]; E.alvo = b.dataset.v === 'cab' ? 'cab' : 'corpo'; });
+      q('.ce-ped').onclick = ()=>{ E.ped = !E.ped; q('.ce-ped').classList.toggle('on', E.ped); q('.ce-ped').textContent = E.ped ? '▶ A pedalar' : '⏸ Parado'; };
+      q('.ce-pe').onclick = ()=>{ E.emPe = !E.emPe; q('.ce-pe').classList.toggle('on', E.emPe); q('.ce-pe').textContent = E.emPe ? 'Em pé' : 'Sentado'; };
+      q('.ok').onclick = ()=>{ const o = {}; Object.keys(CICAJ_PAD).forEach(k=> o[k] = +(+CICAJ[k]).toFixed(3));
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(o, null, 2)], { type: 'application/json' })); a.download = 'bonecos-ajustes.json'; document.body.appendChild(a); a.click(); a.remove();
+        msg('✔ Descarregado o bonecos-ajustes.json. Põe-no no GitHub na mesma pasta do perfil-de-aula.html.'); };
+      q('.ce-abr').onclick = ()=> q('.ce-fic').click();
+      q('.ce-fic').onchange = ()=>{ const f = q('.ce-fic').files[0]; if(!f) return; f.text().then(t=>{ Object.assign(CICAJ, CICAJ_PAD); cicAjPoe(JSON.parse(t)); pinta(); rasc(); msg('📂 Aberto: ' + f.name); }).catch(()=> msg('⚠ Esse ficheiro não é válido.')); q('.ce-fic').value = ''; };
+      q('.ce-rep').onclick = ()=>{ Object.assign(CICAJ, CICAJ_PAD); pinta(); rasc(); msg('Valores de origem repostos.'); };
+      q('.ce-cop').onclick = ()=>{ const t = JSON.stringify(CICAJ); (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(()=> msg('📋 Valores copiados.'), ()=>{ window.prompt('Copia estes valores:', t); }); };
+      q('.ce-col').onclick = ()=>{ const t = window.prompt('Cola aqui os valores copiados:'); if(!t) return; try{ const o = JSON.parse(t); cicAjPoe(o); pinta(); rasc(); msg('Valores colados.'); }catch(e){ msg('⚠ Esses valores não são válidos.'); } };
+      prepara();
+    }
+    // carrega o 3D e o humano realista (se ainda não estiverem)
+    function prepara(){
+      const ld = E.d.querySelector('.ce-load');
+      if(!window.THREE){ const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onload = ()=> E && prepara(); s.onerror = ()=>{ ld.textContent = '⚠ Sem internet para carregar o 3D.'; }; document.head.appendChild(s); return; }
+      const H = CIC3.HUM; if(H && /nada|a carregar/.test(H.estado)){ setTimeout(()=> E && prepara(), 200); return; }
+      if(H && H.estado === 'falhou') ld.textContent = '⚠ Não encontrei os ficheiros ciclista_m.glb / ciclista_f.glb ao lado desta página: estás a ver o boneco antigo.';
+      else ld.remove();
+      // começa pelo rascunho deste PC (se houver); senão, pelos valores do bonecos-ajustes.json que está ao lado desta página
+      try{ const r = JSON.parse(localStorage.getItem('prCicAjRasc') || 'null'); if(r){ cicAjPoe(r); E.d.querySelector('.ce-msg').textContent = 'A continuar o rascunho deste PC (Repor tudo para recomeçar).'; } }catch(e){}
+      E.pinta();
+      cena(); monta(E.d.querySelector('.ce-mod').value); anima();
+    }
+    function cena(){
+      const cv = E.d.querySelector('canvas'), ren = E.ren = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+      ren.setPixelRatio(Math.min(2, window.devicePixelRatio || 1)); ren.shadowMap.enabled = true; ren.shadowMap.type = THREE.PCFSoftShadowMap;
+      const sc = E.sc = new THREE.Scene(); sc.background = new THREE.Color('#9fb7d3');
+      sc.add(new THREE.HemisphereLight(0xe3ecff, 0x6b5f50, .75));
+      const sol = new THREE.DirectionalLight(0xfff0dc, 1.15); sol.position.set(-2.2, 6, 2.6); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+      Object.assign(sol.shadow.camera, { left: -2.5, right: 2.5, top: 2.5, bottom: -1, near: .5, far: 16 }); sol.shadow.bias = -.0006; sc.add(sol);
+      const rim = new THREE.DirectionalLight(0xd6e4ff, .45); rim.position.set(3, 2.5, -2.5); sc.add(rim);
+      const ch = new THREE.Mesh(new THREE.CircleGeometry(4, 48).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#3c434d', roughness: .95 })); ch.receiveShadow = true; sc.add(ch);
+      const gr = new THREE.GridHelper(8, 16, 0x2b3038, 0x2b3038); gr.position.y = .002; sc.add(gr);
+      E.cam = new THREE.PerspectiveCamera(32, 1, .05, 60);
+      E.rs = ()=>{ const r = cv.parentNode.getBoundingClientRect(); ren.setSize(r.width, r.height, false); E.cam.aspect = r.width / Math.max(1, r.height); E.cam.updateProjectionMatrix(); };
+      window.addEventListener('resize', E.rs); E.rs();
+      // rodar com o rato / dedo e aproximar com a roda
+      let arr = null;
+      cv.onpointerdown = ev=>{ arr = [ev.clientX, ev.clientY]; cv.setPointerCapture(ev.pointerId); };
+      cv.onpointermove = ev=>{ if(!arr) return; E.yaw -= (ev.clientX - arr[0]) * .008; E.pit = Math.max(-.2, Math.min(1.3, E.pit + (ev.clientY - arr[1]) * .006)); arr = [ev.clientX, ev.clientY]; };
+      cv.onpointerup = ()=>{ arr = null; };
+      cv.onwheel = ev=>{ ev.preventDefault(); E.dist = Math.max(.5, Math.min(9, E.dist * (ev.deltaY > 0 ? 1.1 : .91))); };
+    }
+    function monta(av){
+      if(E.st) E.sc.remove(E.st.G);
+      E.st = CIC3.cria(avLe(av)); E.st.G.position.set(.05, 0, 0); E.st.G.traverse(o=>{ if(o.isMesh){ o.castShadow = true; o.receiveShadow = true; } }); E.sc.add(E.st.G);
+    }
+    function anima(){
+      if(!E) return; E.raf = requestAnimationFrame(anima);
+      const now = performance.now(), dt = Math.min(.05, (now - (E.t || now)) / 1000); E.t = now;
+      if(E.ped) E.ang += dt * Math.PI * 2 * 80 / 60;   // 80 rpm
+      CIC3.pose(E.st, E.ang, E.emPe); E.st.G.updateMatrixWorld(true);
+      const al = E.alvo === 'cab' && E.st.chap ? E.st.chap.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(0, .85, 0);
+      E.cam.position.set(al.x + Math.sin(E.yaw) * Math.cos(E.pit) * E.dist, al.y + Math.sin(E.pit) * E.dist, al.z + Math.cos(E.yaw) * Math.cos(E.pit) * E.dist); E.cam.lookAt(al);
+      E.ren.render(E.sc, E.cam);
+    }
+    return { abre };
+  })();
+
+  CICED.abre();
+</script>
+</body></html>

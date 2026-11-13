@@ -1,5 +1,5 @@
-const CACHE_NAME = 'perfil-de-aula-v7';
-const SHELL = ['./', 'index.html', 'aula-ao-vivo.html', 'perfil-de-aula.html', 'manifest.json', 'manifest-prof.json', 'instalar.js', 'icon-192.png', 'icon-512.png', 'icon-prof-192.png', 'icon-prof-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png'];
+const CACHE_NAME = 'perfil-de-aula-v8';
+const SHELL = ['./', 'index.html', 'aula-ao-vivo.html', 'perfil-de-aula.html', 'manifest.json', 'manifest-prof.json', 'instalar.js', 'icon-192.png', 'icon-512.png', 'icon-prof-192.png', 'icon-prof-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png', 'ciclista_m.glb', 'ciclista_f.glb'];
 // bibliotecas do Firebase: ficam guardadas para a app abrir mesmo sem internet (o endereço tem a versão, por isso não mudam)
 const FB = ['app', 'database', 'auth', 'app-check'].map((m) => 'https://www.gstatic.com/firebasejs/10.13.0/firebase-' + m + '-compat.js');
 
@@ -35,7 +35,7 @@ self.addEventListener('fetch', (e) => {
   // Network-first: esta app precisa de dados ao vivo; a cópia guardada é para quando não há internet
   e.respondWith(
     fetch(e.request).then((res) => {
-      if (res.ok && (e.request.mode === 'navigate' || /\.(html|js|json|png)$/.test(url.pathname))) {
+      if (res.ok && (e.request.mode === 'navigate' || /\.(html|js|json|png|glb)$/.test(url.pathname))) {
         const copia = res.clone(); caches.open(CACHE_NAME).then((c) => c.put(e.request, copia)).catch(() => {});
       }
       return res;
