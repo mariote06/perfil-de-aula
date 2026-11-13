@@ -1657,6 +1657,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     <button data-go="lib"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5v14H4zM10 5h4v14h-4zM15.5 6.2l3.8-1 3 13.6-3.8 1z"/></svg>Biblioteca</button>
     <button data-go="hist"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>Treinos realizados</button>
     <a href="aula-ao-vivo.html?livre=1" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9h6l3.5 7.5M9 9 12 16.5h-3M14 6h2.5l-1.5 3"/></svg>Só pedalar</a>
+    <button type="button" id="navBonecos" title="Editor dos bonecos: afinar a postura, o pescoço, os capacetes e os chapéus dos ciclistas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="2.3"/><path d="M12 7v7M7 9.5l5 1.5 5-1.5M12 14l-3 7M12 14l3 7"/></svg>Bonecos</button>
   </nav>
   </div>
 
@@ -7301,10 +7302,12 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   // e os ossos dobram-se em tempo real: pernas aos pedais, mãos ao guiador, tronco inclinado e cabeça a olhar em frente.
   // =====================================================================
   // afinações dos bonecos (postura, pescoço, capacetes e chapéus), em cm e graus: valores de origem, substituídos pelos do
-  // ficheiro bonecos-ajustes.json ao lado desta página, se existir (é feito no editor dos bonecos, editor-bonecos.html)
+  // ficheiro bonecos-ajustes.json ao lado desta página, se existir, e pelos guardados neste PC (menu Bonecos)
   const CICAJ_PAD = { ancX: 0, ancY: 0, trX: 0, trY: 0, costas: 1, joelho: 0, maoX: 0, maoY: 0, cotov: 1, pesc: 56, cab: -10, capS: 1, capX: 0, capY: 0, chS: 1, chY: 0 };
   const CICAJ = Object.assign({}, CICAJ_PAD);
   function cicAjPoe(o){ if(o && typeof o === 'object') Object.keys(CICAJ_PAD).forEach(k=>{ if(o[k] != null && isFinite(+o[k])) CICAJ[k] = +o[k]; }); }
+  const cicAjPC = ()=>{ try{ cicAjPoe(JSON.parse(localStorage.getItem('prCicAj') || 'null')); }catch(e){} };   // afinações guardadas neste PC (no editor) mandam sobre o ficheiro
+  cicAjPC();
   let HUM = null; const HUMf = ()=> (()=>{
     const ST = { estado: 'nada', base: {}, lim: {}, fila: [] };   // nada | a carregar | pronto | falhou
     const CDN = 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/';
@@ -7312,12 +7315,14 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     async function carrega(){
       if(ST.estado !== 'nada' || !window.THREE) return; ST.estado = 'a carregar';
       try{
-        try{ const r = await fetch('bonecos-ajustes.json', { cache: 'no-cache' }); if(r.ok) cicAjPoe(await r.json()); }catch(e){}   // afinações feitas no editor (opcional)
+        try{ const r = await fetch('bonecos-ajustes.json', { cache: 'no-cache' }); if(r.ok) cicAjPoe(await r.json()); }catch(e){} cicAjPC();   // afinações feitas no editor (opcional)
         if(!THREE.GLTFLoader) await script(CDN + 'loaders/GLTFLoader.js');
         if(!THREE.SkeletonUtils) await script(CDN + 'utils/SkeletonUtils.js');
         const L = new THREE.GLTFLoader();
         for(const g of ['m', 'f']){
-          const gl = await new Promise((ok, ko)=> L.load('ciclista_' + g + '.glb', ok, undefined, ko));
+          // o editor dos bonecos traz os corpos dentro dele (window.CIC_GLB), para funcionar aberto diretamente do disco
+          const emb = window.CIC_GLB && window.CIC_GLB[g], buf = emb ? Uint8Array.from(atob(emb), ch=> ch.charCodeAt(0)).buffer : null;
+          const gl = await new Promise((ok, ko)=> buf ? L.parse(buf, '', ok, ko) : L.load('ciclista_' + g + '.glb', ok, undefined, ko));
           let lim = { cintura: .45, gola: .8 }; gl.scene.traverse(o=>{ if(o.userData && o.userData.kit_cintura != null) lim = { cintura: o.userData.kit_cintura, gola: o.userData.kit_gola }; });
           ST.base[g] = gl.scene; ST.lim[g] = lim;
         }
@@ -7858,7 +7863,140 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       ctx.drawImage(e.cv, f * FW, (p * 3 + v) * FH, FW, FH, x - an[0] * k, y - an[1] * k, FW * k, FH * k);
       return true;
     }
-    return { pede, passo, desenha, get pronto(){ return [...C.values()].filter(e=> e.pronto[0]).length; } };
+    function limpa(){ C.clear(); fila.length = 0; }   // refaz todas as imagens (depois de afinar os bonecos)
+    return { pede, passo, desenha, limpa, get pronto(){ return [...C.values()].filter(e=> e.pronto[0]).length; } };
+  })();
+  // =====================================================================
+  // EDITOR DOS BONECOS (menu "Bonecos"): o ciclista realista a pedalar em 3D, com controlos para afinar a postura
+  // (anca, ombros, costas, joelhos, mãos, cotovelos), o pescoço e a cabeça, e o tamanho e a posição dos capacetes e chapéus.
+  // "Guardar neste PC" vale logo neste computador; "Descarregar" gera o bonecos-ajustes.json que, no GitHub, vale para todos.
+  // =====================================================================
+  const CICED = (()=>{
+    const GR = [
+      ['Corpo', [['ancX', 'Anca: frente / trás', -10, 10, .5, 'cm'], ['ancY', 'Anca: altura (selim)', -8, 8, .5, 'cm'], ['trX', 'Ombros: frente / trás', -15, 15, .5, 'cm'], ['trY', 'Ombros: altura', -15, 15, .5, 'cm'],
+        ['costas', 'Costas arredondadas', 0, 3, .05, '×'], ['joelho', 'Joelhos para fora', -.5, 1, .05, '']]],
+      ['Braços', [['maoX', 'Mãos: frente / trás', -10, 10, .5, 'cm'], ['maoY', 'Mãos: altura', -10, 10, .5, 'cm'], ['cotov', 'Cotovelos abertos', 0, 3, .05, '×']]],
+      ['Cabeça', [['pesc', 'Pescoço: inclinação para a frente', 0, 80, 1, '°'], ['cab', 'Cabeça: inclinação (− = queixo para baixo)', -40, 30, 1, '°']]],
+      ['Capacetes (ciclista, piloto, viking, gorro de pelo)', [['capS', 'Tamanho', .6, 1.4, .01, '×'], ['capY', 'Altura', -6, 6, .2, 'cm'], ['capX', 'Frente / trás', -5, 5, .2, 'cm']]],
+      ['Chapéus e gorros', [['chS', 'Tamanho', .5, 1.5, .01, '×'], ['chY', 'Altura', -6, 6, .2, 'cm']]]
+    ];
+    const MOD = [['Ciclista (homem)', 'e.E5242B.F3F4F6.E0AE86.cic.cam.1F7AE0.1.m'], ['Ciclista (mulher)', 'e.E040A0.E040A0.C68A5E.cic.cam.F3F4F6.1.f'], ['BTT', 'b.3DD45C.1F2937.9A6440.cic.col.FF7A00.0.m'],
+      ['Contrarrelógio', 't.1F7AE0.FFD60A.F2C9A6.cic.cam.22262D.1.m'], ['Triciclo', 'r.F2E6CF.D7262B.E0AE86.cog.cog.FF7A00.0.f'], ['Pai Natal', 'e.C8102E.C8102E.E0AE86.pn.pnc.E5242B.0.m'],
+      ['Cowboy', 'e.1F7AE0.6B4A2E.C68A5E.cow.cow.9AA3AE.0.m'], ['Viking', 'e.5B3FD9.9AA3AE.6B4228.vik.mot.5B3FD9.0.m'], ['Kart', 'k.1F7AE0.E5242B.E0AE86.pil.f1.FF7A00.1.m'],
+      ['Carrinho', 'c.E040A0.F3F4F6.C68A5E.cic.cam.FFD60A.0.f'], ['Trenó', 'n.C8102E.C8102E.E0AE86.pn.pnc.E5242B.0.m']];
+    const VIS = { lado: [0, .15, 3.4], tq: [-.75, .25, 3.6], frente: [Math.PI / 2, .12, 3.4], tras: [-Math.PI / 2, .25, 3.6], cab: [.4, .08, 1.5] };
+    let E = null;
+    function css(){
+      if(document.getElementById('cicEdCss')) return; const s = document.createElement('style'); s.id = 'cicEdCss';
+      s.textContent = `#cicEd{position:fixed;inset:0;z-index:99999;display:flex;background:#0f1218;color:#E8ECF2;font:14px/1.35 system-ui,-apple-system,Segoe UI,sans-serif}
+#cicEd .ce-v{position:relative;flex:1;min-width:0}#cicEd canvas{display:block;width:100%;height:100%;cursor:grab}#cicEd canvas:active{cursor:grabbing}
+#cicEd .ce-top{position:absolute;left:12px;top:12px;right:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;pointer-events:none}#cicEd .ce-top>*{pointer-events:auto}
+#cicEd .ce-top h2{margin:0 10px 0 0;font-size:18px;text-shadow:0 1px 3px #000}
+#cicEd button,#cicEd select{font:inherit;color:#E8ECF2;background:#232934;border:1px solid #3a4352;border-radius:8px;padding:6px 10px;cursor:pointer}
+#cicEd button:hover{background:#2e3644}#cicEd button.on{background:#1F7AE0;border-color:#1F7AE0}
+#cicEd .ce-dica{position:absolute;left:12px;bottom:10px;font-size:12px;opacity:.75;text-shadow:0 1px 2px #000;pointer-events:none}
+#cicEd .ce-p{width:370px;max-width:46vw;overflow:auto;background:#161b23;border-left:1px solid #2a313d;padding:14px 16px 160px;box-sizing:border-box}
+#cicEd .ce-p h3{margin:16px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#8FB8F0}
+#cicEd .ce-r{display:grid;grid-template-columns:1fr 64px 26px;gap:2px 6px;align-items:center;margin:6px 0}
+#cicEd .ce-r label{grid-column:1/4;font-size:13px;color:#C9D1DC}#cicEd .ce-r input[type=range]{width:100%;accent-color:#3DA0FF}
+#cicEd .ce-r input[type=number]{width:64px;box-sizing:border-box;background:#0f1218;color:#E8ECF2;border:1px solid #3a4352;border-radius:6px;padding:3px 4px;font:inherit;font-size:13px}
+#cicEd .ce-r button{padding:2px 0;font-size:12px}#cicEd .ce-r.mud label{color:#FFD60A}
+#cicEd .ce-b{position:fixed;right:0;bottom:0;width:370px;max-width:46vw;box-sizing:border-box;display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px;background:#161b23;border-top:1px solid #2a313d;border-left:1px solid #2a313d}
+#cicEd .ce-b .ok{background:#2E9E4F;border-color:#2E9E4F;font-weight:600}#cicEd .ce-msg{font-size:12px;opacity:.8;width:100%}`;
+      document.head.appendChild(s);
+    }
+    function abre(){
+      if(E) return; css();
+      const d = document.createElement('div'); d.id = 'cicEd';
+      const alunos = typeof riders === 'object' && riders ? Object.values(riders).filter(r=> r && r.av && avLe(r.av)).map(r=> [(r.n || 'Aluno').split(' ')[0], r.av]) : [];
+      const opt = (l, v)=> '<option value="' + v + '">' + l + '</option>';
+      d.innerHTML = '<div class="ce-v"><canvas></canvas><div class="ce-top"><h2>🛠️ Editor dos bonecos</h2><select class="ce-mod" title="Que boneco mostrar">' + MOD.map(m=> opt(m[0], m[1])).join('')
+        + (alunos.length ? '<optgroup label="Alunos na aula">' + alunos.map(a=> opt(a[0], a[1])).join('') + '</optgroup>' : '') + '</select>'
+        + ['lado:Lado', 'tq:¾', 'frente:Frente', 'tras:Trás', 'cab:Cabeça'].map(x=> '<button data-v="' + x.split(':')[0] + '">' + x.split(':')[1] + '</button>').join('')
+        + '<button class="ce-ped on" title="Pedalar ou parar">▶ A pedalar</button><button class="ce-pe" title="Pedalar sentado ou em pé">Sentado</button></div>'
+        + '<div class="ce-dica">Arrasta para rodar · roda do rato para aproximar · as mudanças veem-se na hora</div><div class="ce-load" style="position:absolute;inset:0;display:grid;place-items:center;font-size:16px">A carregar o boneco 3D…</div></div>'
+        + '<div class="ce-p">' + GR.map(([t, L])=> '<h3>' + t + '</h3>' + L.map(([k, l, a, b, p, u])=> '<div class="ce-r" data-k="' + k + '"><label>' + l + (u ? ' (' + u + ')' : '') + '</label><input type="range" min="' + a + '" max="' + b + '" step="' + p + '"><input type="number" min="' + a + '" max="' + b + '" step="' + p + '"><button title="Repor este valor">↺</button></div>').join('')).join('')
+        + '</div><div class="ce-b"><button class="ok" title="Grava neste computador: a projeção deste PC passa a usar estes valores">💾 Guardar neste PC</button><button class="ce-des" title="Gera o bonecos-ajustes.json: posto no GitHub ao lado do perfil-de-aula.html, vale para todos os PCs">⬇ Descarregar</button><button class="ce-abr" title="Abre um bonecos-ajustes.json do computador">📂 Abrir</button><button class="ce-rep">Repor tudo</button><button class="ce-cop" title="Copia os valores">📋 Copiar</button><button class="ce-col" title="Cola valores copiados">📥 Colar</button><button class="ce-fe">✕ Fechar</button><input type="file" accept=".json,application/json" class="ce-fic" hidden><div class="ce-msg"></div></div>';
+      document.body.appendChild(d);
+      const q = s=> d.querySelector(s), guardado = JSON.stringify(CICAJ);
+      E = { d, guardado, ang: 0, ped: true, emPe: false, yaw: VIS.lado[0], pit: VIS.lado[1], dist: VIS.lado[2], alvo: 'corpo', st: null, raf: 0 };
+      // controlos
+      const pinta = ()=> d.querySelectorAll('.ce-r').forEach(r=>{ const k = r.dataset.k, v = CICAJ[k]; r.querySelector('input[type=range]').value = v; r.querySelector('input[type=number]').value = +(+v).toFixed(2); r.classList.toggle('mud', Math.abs(v - CICAJ_PAD[k]) > 1e-6); });
+      d.querySelectorAll('.ce-r').forEach(r=>{ const k = r.dataset.k, rg = r.querySelector('input[type=range]'), nb = r.querySelector('input[type=number]');
+        const poe = v=>{ v = parseFloat(v); if(!isFinite(v)) return; CICAJ[k] = v; pinta(); };
+        rg.oninput = ()=> poe(rg.value); nb.onchange = ()=> poe(nb.value); r.querySelector('button').onclick = ()=> poe(CICAJ_PAD[k]); });
+      pinta(); E.pinta = pinta;
+      const msg = t=>{ q('.ce-msg').textContent = t; };
+      q('.ce-mod').onchange = ()=> monta(q('.ce-mod').value);
+      d.querySelectorAll('[data-v]').forEach(b=> b.onclick = ()=>{ const v = VIS[b.dataset.v]; E.yaw = v[0]; E.pit = v[1]; E.dist = v[2]; E.alvo = b.dataset.v === 'cab' ? 'cab' : 'corpo'; });
+      q('.ce-ped').onclick = ()=>{ E.ped = !E.ped; q('.ce-ped').classList.toggle('on', E.ped); q('.ce-ped').textContent = E.ped ? '▶ A pedalar' : '⏸ Parado'; };
+      q('.ce-pe').onclick = ()=>{ E.emPe = !E.emPe; q('.ce-pe').classList.toggle('on', E.emPe); q('.ce-pe').textContent = E.emPe ? 'Em pé' : 'Sentado'; };
+      const val = ()=>{ const o = {}; Object.keys(CICAJ_PAD).forEach(k=> o[k] = +(+CICAJ[k]).toFixed(3)); return o; };
+      q('.ok').onclick = ()=>{ try{ localStorage.setItem('prCicAj', JSON.stringify(val())); }catch(e){} E.guardado = JSON.stringify(CICAJ); if(SPR.limpa) SPR.limpa();
+        msg('✔ Guardado neste PC. As imagens do 2D realista vão ser refeitas.'); if(typeof toast === 'function') toast('🧍 Bonecos afinados e guardados neste PC'); };
+      q('.ce-des').onclick = ()=>{ const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(val(), null, 2)], { type: 'application/json' })); a.download = 'bonecos-ajustes.json'; document.body.appendChild(a); a.click(); a.remove();
+        msg('⬇ Descarregado o bonecos-ajustes.json: põe-no no GitHub na pasta do perfil-de-aula.html para valer em todos os PCs.'); };
+      q('.ce-abr').onclick = ()=> q('.ce-fic').click();
+      q('.ce-fic').onchange = ()=>{ const f = q('.ce-fic').files[0]; if(!f) return; f.text().then(t=>{ Object.assign(CICAJ, CICAJ_PAD); cicAjPoe(JSON.parse(t)); pinta(); msg('📂 Aberto: ' + f.name + ' (carrega em Guardar para ficar).'); }).catch(()=> msg('⚠ Esse ficheiro não é válido.')); q('.ce-fic').value = ''; };
+      q('.ce-rep').onclick = ()=>{ Object.assign(CICAJ, CICAJ_PAD); pinta(); msg('Valores de origem repostos (carrega em Guardar para ficarem).'); };
+      q('.ce-cop').onclick = ()=>{ const t = JSON.stringify(CICAJ); (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(()=> msg('📋 Valores copiados.'), ()=>{ window.prompt('Copia estes valores:', t); }); };
+      q('.ce-col').onclick = ()=>{ const t = window.prompt('Cola aqui os valores copiados:'); if(!t) return; try{ const o = JSON.parse(t); cicAjPoe(o); pinta(); msg('Valores colados (carrega em Guardar para ficarem).'); }catch(e){ msg('⚠ Esses valores não são válidos.'); } };
+      q('.ce-fe').onclick = fecha;
+      E.tecla = ev=>{ if(ev.key === 'Escape') fecha(); }; document.addEventListener('keydown', E.tecla);
+      prepara();
+    }
+    function fecha(){
+      if(!E) return;
+      if(JSON.stringify(CICAJ) !== E.guardado && !window.confirm('Há mudanças por guardar. Sair sem guardar?')) return;
+      Object.assign(CICAJ, JSON.parse(E.guardado));
+      cancelAnimationFrame(E.raf); document.removeEventListener('keydown', E.tecla); window.removeEventListener('resize', E.rs);
+      if(E.ren){ E.ren.dispose(); } E.d.remove(); E = null;
+    }
+    // carrega o 3D e o humano realista (se ainda não estiverem)
+    function prepara(){
+      const ld = E.d.querySelector('.ce-load');
+      if(!window.THREE){ const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onload = ()=> E && prepara(); s.onerror = ()=>{ ld.textContent = '⚠ Sem internet para carregar o 3D.'; }; document.head.appendChild(s); return; }
+      if(!CIC3) CIC3 = CIC3f();
+      const H = CIC3.HUM; if(H && /nada|a carregar/.test(H.estado)){ setTimeout(()=> E && prepara(), 200); return; }
+      if(H && H.estado === 'falhou'){ ld.textContent = '⚠ Não encontrei os ficheiros ciclista_m.glb / ciclista_f.glb ao lado desta página: estás a ver o boneco antigo.'; Object.assign(ld.style, { inset: 'auto 12px 34px 12px', display: 'block', fontSize: '13px', color: '#FFD60A' }); }
+      else ld.remove();
+      E.guardado = JSON.stringify(CICAJ); E.pinta();   // os valores podem ter chegado agora (ficheiro de ajustes)
+      cena(); monta(E.d.querySelector('.ce-mod').value); anima();
+    }
+    function cena(){
+      const cv = E.d.querySelector('canvas'), ren = E.ren = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+      ren.setPixelRatio(Math.min(2, window.devicePixelRatio || 1)); ren.shadowMap.enabled = true; ren.shadowMap.type = THREE.PCFSoftShadowMap;
+      const sc = E.sc = new THREE.Scene(); sc.background = new THREE.Color('#9fb7d3');
+      sc.add(new THREE.HemisphereLight(0xe3ecff, 0x6b5f50, .75));
+      const sol = new THREE.DirectionalLight(0xfff0dc, 1.15); sol.position.set(-2.2, 6, 2.6); sol.castShadow = true; sol.shadow.mapSize.set(2048, 2048);
+      Object.assign(sol.shadow.camera, { left: -2.5, right: 2.5, top: 2.5, bottom: -1, near: .5, far: 16 }); sol.shadow.bias = -.0006; sc.add(sol);
+      const rim = new THREE.DirectionalLight(0xd6e4ff, .45); rim.position.set(3, 2.5, -2.5); sc.add(rim);
+      const ch = new THREE.Mesh(new THREE.CircleGeometry(4, 48).rotateX(-Math.PI / 2), new THREE.MeshStandardMaterial({ color: '#3c434d', roughness: .95 })); ch.receiveShadow = true; sc.add(ch);
+      const gr = new THREE.GridHelper(8, 16, 0x2b3038, 0x2b3038); gr.position.y = .002; sc.add(gr);
+      E.cam = new THREE.PerspectiveCamera(32, 1, .05, 60);
+      E.rs = ()=>{ const r = cv.parentNode.getBoundingClientRect(); ren.setSize(r.width, r.height, false); E.cam.aspect = r.width / Math.max(1, r.height); E.cam.updateProjectionMatrix(); };
+      window.addEventListener('resize', E.rs); E.rs();
+      // rodar com o rato / dedo e aproximar com a roda
+      let arr = null;
+      cv.onpointerdown = ev=>{ arr = [ev.clientX, ev.clientY]; cv.setPointerCapture(ev.pointerId); };
+      cv.onpointermove = ev=>{ if(!arr) return; E.yaw -= (ev.clientX - arr[0]) * .008; E.pit = Math.max(-.2, Math.min(1.3, E.pit + (ev.clientY - arr[1]) * .006)); arr = [ev.clientX, ev.clientY]; };
+      cv.onpointerup = ()=>{ arr = null; };
+      cv.onwheel = ev=>{ ev.preventDefault(); E.dist = Math.max(.5, Math.min(9, E.dist * (ev.deltaY > 0 ? 1.1 : .91))); };
+    }
+    function monta(av){
+      if(E.st) E.sc.remove(E.st.G);
+      E.st = CIC3.cria(avLe(av)); E.st.G.position.set(.05, 0, 0); E.st.G.traverse(o=>{ if(o.isMesh){ o.castShadow = true; o.receiveShadow = true; } }); E.sc.add(E.st.G);
+    }
+    function anima(){
+      if(!E) return; E.raf = requestAnimationFrame(anima);
+      const now = performance.now(), dt = Math.min(.05, (now - (E.t || now)) / 1000); E.t = now;
+      if(E.ped) E.ang += dt * Math.PI * 2 * 80 / 60;   // 80 rpm
+      CIC3.pose(E.st, E.ang, E.emPe); E.st.G.updateMatrixWorld(true);
+      const al = E.alvo === 'cab' && E.st.chap ? E.st.chap.getWorldPosition(new THREE.Vector3()) : new THREE.Vector3(0, .85, 0);
+      E.cam.position.set(al.x + Math.sin(E.yaw) * Math.cos(E.pit) * E.dist, al.y + Math.sin(E.pit) * E.dist, al.z + Math.cos(E.yaw) * Math.cos(E.pit) * E.dist); E.cam.lookAt(al);
+      E.ren.render(E.sc, E.cam);
+    }
+    return { abre, fecha, get aberto(){ return !!E; } };
   })();
 const SR3 = (()=>{
   const S = { ok: false, aCarregar: false, scene: null, cam: null, ren: null, key: '', spr: {}, riders: {}, texCache: new Map(), hW: 5 };
@@ -10752,6 +10890,7 @@ const SR3 = (()=>{
     }
   }
   document.querySelectorAll('[data-go]').forEach(b=> b.addEventListener('click', ()=> setView(b.dataset.go)));
+  document.getElementById('navBonecos').addEventListener('click', ()=> CICED.abre());   // editor dos bonecos
   $('homeNewBtn').addEventListener('click', ()=>{ resetTreino(); setView('plan'); });
   // abrir uma aula leva sempre ao planeamento
   const _loadTreino = loadTreino;

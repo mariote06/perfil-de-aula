@@ -7,7 +7,8 @@ import { readFileSync, writeFileSync, mkdirSync, copyFileSync, rmSync, existsSyn
 import JavaScriptObfuscator from 'javascript-obfuscator';
 
 const PAGES = ['perfil-de-aula.html', 'aula-ao-vivo.html', 'index.html'];
-const COPY = ['sw.js', 'manifest.json', 'manifest-prof.json', 'icon-192.png', 'icon-512.png', 'icon-prof-192.png', 'icon-prof-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png', 'instalar.js', 'logo-sala.png', 'logo-parceiro.png'];
+const COPY = ['sw.js', 'manifest.json', 'manifest-prof.json', 'icon-192.png', 'icon-512.png', 'icon-prof-192.png', 'icon-prof-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png', 'instalar.js', 'logo-sala.png', 'logo-parceiro.png',
+  'ciclista_m.glb', 'ciclista_f.glb', 'bonecos-ajustes.json'];   // corpos dos ciclistas realistas e afinações feitas no editor-bonecos.html (o editor não vai para o site)
 const OPTIONS = {
   compact: true,
   simplify: true,
