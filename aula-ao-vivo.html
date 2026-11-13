@@ -2063,12 +2063,62 @@ body.ecra4-on #kartCog{display:none!important;}
     const den = R[Lb - 1] - 2 * R[Lb] + R[Lb + 1], d = den ? .5 * (R[Lb - 1] - R[Lb + 1]) / den : 0;
     return 60 * FS / (Lb + Math.max(-.5, Math.min(.5, d)));
   }
+  // ----- guiador: a cadência pela vibração da bike -----
+  // Cada pedalada (esquerda, direita) faz a bike balançar: 2 balanços por volta, que o giroscópio e o acelerómetro apanham
+  // mesmo pequenos. O volante também vibra (mais depressa) e algumas bikes são muito rígidas, por isso:
+  // procura-se o ritmo que mais se repete, a cadência alvo só desempata entre "1 ou 2 balanços por volta",
+  // e sem ritmo claro usa-se a cadência alvo.
+  const VIB = { a: [[], [], []], r: [[], [], []], t: [], ult: 0, rpm: 0, zeros: 0, ePed: 0, okT: 0 };
+  function vibEv(e){
+    const a = e.acceleration, r = e.rotationRate; if(!a && !r) return;
+    const t = performance.now(); VIB.t.push(t); VIB.ult = t;
+    VIB.a[0].push(a && a.x || 0); VIB.a[1].push(a && a.y || 0); VIB.a[2].push(a && a.z || 0);
+    VIB.r[0].push(r && r.alpha || 0); VIB.r[1].push(r && r.beta || 0); VIB.r[2].push(r && r.gamma || 0);
+    if(VIB.t.length > 1500){ VIB.t.splice(0, 400); VIB.a.concat(VIB.r).forEach(c=> c.splice(0, 400)); }
+  }
+  function vibCad(alvo){
+    const now = performance.now(); if(now - VIB.ult > 2500 || VIB.t.length < 60) return null;
+    const FS = 30, t0 = Math.max(now - 8000, VIB.t[0]), N = Math.floor((now - t0) / 1000 * FS); if(N < 4 * FS) return null;
+    const T = VIB.t, C = VIB.a.concat(VIB.r), ch = C.map(()=> new Float32Array(N));
+    let j = 0;
+    for(let i = 0; i < N; i++){ const t = t0 + i * 1000 / FS; while(j < T.length - 2 && T[j + 1] < t) j++;
+      const ta = T[j], tb = T[j + 1] != null ? T[j + 1] : ta, f = tb > ta ? Math.max(0, Math.min(1, (t - ta) / (tb - ta))) : 0;
+      for(let k = 0; k < C.length; k++){ const a = C[k][j], b = C[k][j + 1] != null ? C[k][j + 1] : a; ch[k][i] = a + (b - a) * f; } }
+    // cada canal conta por igual (normalizado pela sua própria energia); canais mortos ficam de fora
+    const val = [], En = [], n2 = 2 * FS; let eRel = 9;
+    ch.forEach((x, k)=>{ let m = 0; for(let i = 0; i < N; i++) m += x[i]; m /= N; let E = 0; for(let i = 0; i < N; i++){ x[i] -= m; E += x[i] * x[i]; }
+      if(E / N > 1e-7){ val.push(x); En.push(E); let q = 0; for(let i = N - n2; i < N; i++) q += x[i] * x[i]; eRel = Math.min(eRel, q / n2 / (E / N)); } });
+    if(!val.length) return null;
+    // eRel: energia dos últimos 2 s em relação à média da janela, no canal onde mais caiu (≈1 a pedalar sempre igual; perto de 0 = parou)
+    const rms = Math.sqrt(En.reduce((a, b)=> a + b, 0) / val.length / N);
+    // força do sinal a uma frequência (janela de Hann), somada em todos os canais (cada um já normalizado)
+    const w = new Float32Array(N); for(let i = 0; i < N; i++) w[i] = .5 - .5 * Math.cos(2 * Math.PI * i / (N - 1));
+    const xs = val.map((x, k)=>{ const s = Math.sqrt(En[k] / N), y = new Float32Array(N); for(let i = 0; i < N; i++) y[i] = x[i] / s * w[i]; return y; });
+    const pot = fpm=>{ const om = 2 * Math.PI * fpm / 60 / FS, cw = Math.cos(om), sw = Math.sin(om); let P = 0;   // seno e cosseno por rotação (muito mais leve que Math.cos em cada ponto)
+      xs.forEach(y=>{ let re = 0, im = 0, c = 1, s = 0; for(let i = 0; i < N; i++){ re += y[i] * c; im -= y[i] * s; const c2 = c * cw - s * sw; s = s * cw + c * sw; c = c2; } P += re * re + im * im; }); return P / xs.length / N; };
+    // "pente": para cada cadência c, a força a 1× e a 2× por volta (o volante vibra a um múltiplo que não bate certo com estes)
+    const C0 = 35, C1 = 150, PASSO = .5, sc = [], P1 = new Map();
+    const pm = f=>{ const k = Math.round(f * 2); if(!P1.has(k)) P1.set(k, pot(k / 2)); return P1.get(k); };
+    for(let c = C0; c <= C1; c += PASSO) sc.push(pm(c) + pm(2 * c));
+    let bi = 0; sc.forEach((v, k)=>{ if(v > sc[bi]) bi = k; });
+    const media = sc.reduce((a, b)=> a + b, 0) / sc.length, conf = media > 0 ? sc[bi] / media : 0;
+    if(conf < 2.6) return { rpm: 0, conf, eRel, rms };   // sem ritmo claro
+    const rf = (k)=>{ if(k <= 0 || k >= sc.length - 1) return C0 + k * PASSO; const a = sc[k - 1], b = sc[k], c = sc[k + 1], den = a - 2 * b + c; return C0 + (k + (den ? Math.max(-.5, Math.min(.5, .5 * (a - c) / den)) : 0)) * PASSO; };
+    // 1 ou 2 balanços por volta? Se há sinal a meia cadência (as duas pernas empurram um pouco diferente), a verdadeira é a de baixo.
+    // Se as duas leituras são igualmente possíveis (só se vê o balanço), o alvo do bloco desempata.
+    const sAt = c=> c < C0 || c > C1 ? 0 : sc[Math.round((c - C0) / PASSO)];
+    let rpm = rf(bi); const meia = rpm / 2, perto = c=> Math.abs(Math.log(c / alvo));
+    if(meia >= C0){ const fl = [...P1.values()].sort((x, y)=> x - y), ruido = fl[Math.floor(fl.length / 2)] || 1e-9, ev = pm(meia) / ruido;
+      if(ev > 4 || ((ev > 2 || sAt(meia) >= .85 * sc[bi]) && perto(meia) < perto(rpm))) rpm = rf(Math.round((meia - C0) / PASSO)); }
+    return { rpm, conf, eRel, rms };
+  }
   // liga o acelerómetro e confirma que chegam mesmo dados (o Chrome do Android às vezes responde "não" ao pedido e envia na mesma)
   async function accLiga(){
     if(!('DeviceMotionEvent' in window) && !('ondevicemotion' in window)) return false;
     let pedido = '';
     if(window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function'){ try{ pedido = await DeviceMotionEvent.requestPermission(); }catch(e){ pedido = 'erro'; } }   // iPhone: pede autorização
     window.removeEventListener('devicemotion', accEv); window.addEventListener('devicemotion', accEv);
+    window.removeEventListener('devicemotion', vibEv); window.addEventListener('devicemotion', vibEv);
     const t0 = performance.now(); for(let i = 0; i < 15 && ACC.ult <= t0; i++) await new Promise(r=> setTimeout(r, 100));
     return ACC.ult > t0;   // o sensor envia sempre (até parado, por causa da gravidade): se nada chegou em 1,5 s, está bloqueado
   }
@@ -2077,12 +2127,15 @@ body.ecra4-on #kartCog{display:none!important;}
   function ssnTestaLiga(){
     clearInterval(ssnTeste);
     ssnTeste = setInterval(()=>{
-      if(semSens !== 'bolso' || !$('setupScreen').classList.contains('active')){ clearInterval(ssnTeste); ssnTeste = null; return; }
-      const c = accCad();
-      $('ssnSt').textContent = c == null ? '📱 sem sinal do acelerómetro' : c > 0 ? '📱 a contar: ' + Math.round(c) + ' rpm' : '📱 no bolso: pedala para testar';
+      if(!semSens || !$('setupScreen').classList.contains('active') || ssnEscolhe.bloq){ clearInterval(ssnTeste); ssnTeste = null; return; }
+      if(semSens === 'bolso'){ const c = accCad();
+        $('ssnSt').textContent = c == null ? '📱 sem sinal do acelerómetro' : c > 0 ? '📱 a contar: ' + Math.round(c) + ' rpm' : '📱 no bolso: pedala para testar'; return; }
+      if(!VIB.ult){ $('ssnSt').textContent = 'telemóvel no guiador: sem sensores de movimento, usa a cadência alvo'; return; }
+      const g = vibCad(85);
+      $('ssnSt').textContent = g && g.rpm > 0 ? '📳 vibração da bike: ' + Math.round(g.rpm) + ' rpm' : '📳 no guiador: pedala para testar (sem ritmo claro, usa a cadência alvo)';
     }, 1000);
   }
-  function accDesliga(){ window.removeEventListener('devicemotion', accEv); ACC.ult = 0; ACC.rpm = 0; }
+  function accDesliga(){ window.removeEventListener('devicemotion', accEv); window.removeEventListener('devicemotion', vibEv); ACC.ult = 0; ACC.rpm = 0; VIB.ult = 0; VIB.rpm = 0; VIB.okT = 0; VIB.ePed = 0; }
   function rpeDoBloco(b){ const T = modo === 'fc' ? RPE_FC : RPE_FTP, v = (b && b.ftp) || 0; let k = 1; for(let i = 1; i <= 10; i++) if(Math.abs(T[i] - v) < Math.abs(T[k] - v)) k = i; return k; }
   function genSemSens(){
     const b = currentBlock(), now = performance.now();
@@ -2096,7 +2149,13 @@ body.ecra4-on #kartCog{display:none!important;}
       else if(c === 0){ ACC.zeros++; rpm = ACC.zeros >= 2 ? 0 : ACC.rpm; }   // 2 s sem ritmo = parou
       else { ACC.zeros = 0; rpm = ACC.rpm ? ACC.rpm * .5 + c * .5 : c; }
       ACC.rpm = rpm; SSN.cad = c == null ? null : rpm;
-    } else { rpm = SSN.rpe > 0 ? alvo : 0; SSN.cad = null; }
+    } else {   // no guiador: a vibração da bike; sem ritmo claro, a cadência alvo
+      const g = vibCad(alvo), t = performance.now();
+      if(g && VIB.okT && t - VIB.okT < 120000 && (g.eRel < .25 || (!(g.rpm > 0) && g.rms < .3 * VIB.ePed))){ rpm = 0; SSN.vib = true; }   // a vibração desapareceu: parou
+      else if(g && g.rpm > 0){ rpm = VIB.rpm > 0 ? VIB.rpm * .5 + g.rpm * .5 : g.rpm; VIB.okT = t; VIB.ePed = VIB.ePed ? VIB.ePed * .8 + g.rms * .2 : g.rms; SSN.vib = true; }
+      else { rpm = SSN.rpe > 0 ? alvo : 0; SSN.vib = false; }
+      VIB.rpm = SSN.vib ? rpm : 0; SSN.cad = SSN.vib ? rpm : null;
+    }
     const cf = rpm >= 25 ? Math.max(.85, Math.min(noAlvo ? 1 : 1.08, .75 + .25 * rpm / alvo)) : 0;   // pedalar abaixo da cadência alvo conta um pouco menos
     S.cadence = rpm; S.power = (me.ftp || 150) * (noAlvo && modo !== 'fc' ? SSN.pct0 : RPE_FTP[SSN.rpe]) / 100 * cf;
     if(modo === 'fc' && me.fc && !hrConnected()){ S.bikeHr = cf ? me.fc * (noAlvo ? SSN.pct0 : RPE_FC[SSN.rpe]) / 100 * (cf < 1 ? .97 : 1) : 0; S.lastBikeHrAt = now; }   // aula por FC: a FC estimada pelo esforço
@@ -2108,7 +2167,7 @@ body.ecra4-on #kartCog{display:none!important;}
     const on = !!semSens && !bikeConnected() && $('liveScreen').classList.contains('active');
     el.style.display = on ? '' : 'none'; if(!on) return;
     $('ssnN').textContent = SSN.rpe; $('ssnT').textContent = BORG[SSN.rpe];
-    $('ssnI').textContent = '≈ ' + Math.round(S.power) + ' W · ' + (semSens === 'bolso' ? (SSN.cad == null ? '📱 sem sinal' : '📱 ' + Math.round(S.cadence) + ' rpm') : 'rpm alvo');
+    $('ssnI').textContent = '≈ ' + Math.round(S.power) + ' W · ' + (semSens === 'bolso' ? (SSN.cad == null ? '📱 sem sinal' : '📱 ' + Math.round(S.cadence) + ' rpm') : SSN.vib ? '📳 ' + Math.round(S.cadence) + ' rpm' : 'rpm alvo');
     el.style.setProperty('--zc', SSN.rpe >= 9 ? '#E5484D' : SSN.rpe >= 7 ? '#FF8A2A' : SSN.rpe >= 5 ? '#FFD60A' : SSN.rpe >= 3 ? '#3DD45C' : '#7FA8FF');
   }
   function ssnMuda(d){ SSN.rpe = Math.max(0, Math.min(10, SSN.rpe + d)); if(semSens && !bikeConnected()) genSemSens(); ssnUi(); try{ navigator.vibrate && navigator.vibrate(15); }catch(e){} }
@@ -2117,13 +2176,13 @@ body.ecra4-on #kartCog{display:none!important;}
     else { semSens = m; demo = false;
       if(m === 'bolso'){ $('ssnSt').textContent = 'a ligar o acelerómetro…';
         if(!await accLiga()){ accDesliga(); semSens = 'guiador'; toast('📱 Acelerómetro bloqueado: fica com a cadência alvo'); ssnEscolhe.bloq = true; } }
-      else accDesliga(); }
+      else { $('ssnSt').textContent = 'a ligar os sensores…'; if(!await accLiga()) accDesliga(); } }
     $('ssnBolso').classList.toggle('on', semSens === 'bolso'); $('ssnGuiador').classList.toggle('on', semSens === 'guiador');
     $('ssnSt').classList.toggle('on', !!semSens);
-    $('ssnSt').textContent = semSens === 'bolso' ? 'telemóvel no bolso da calça: conta as tuas pedaladas' : semSens === 'guiador' ? 'telemóvel no guiador: usa a cadência alvo' : 'sem bike nem cinta ligadas';
+    $('ssnSt').textContent = semSens === 'bolso' ? 'telemóvel no bolso da calça: conta as tuas pedaladas' : semSens === 'guiador' ? 'telemóvel no guiador: lê a vibração da bike' : 'sem bike nem cinta ligadas';
     if(semSens && !$('ftpInput').value) $('ftpInput').value = lsGet(LS.ftp) || '';
     if(semSens) $('setupError').textContent = '';
-    if(semSens === 'bolso') ssnTestaLiga();
+    if(semSens) ssnTestaLiga();
     if(ssnEscolhe.bloq){ ssnEscolhe.bloq = false; $('ssnSt').innerHTML = '⚠ O telemóvel não deixa ler o acelerómetro. No Chrome: <b>⋮ → Definições → Definições de sites → Sensores de movimento → Permitir</b> e volta a tocar em “No bolso”. Por agora: cadência alvo.'; }
   }
 
@@ -2270,6 +2329,7 @@ body.ecra4-on #kartCog{display:none!important;}
       rx: me.rx || null, fa: me.fa || null,
       est: semSens && !bikeConnected() && !demo ? (semSens === 'bolso' ? 'b' : 'g') : null,   // sem sensores: watts (e FC) estimados pelo esforço
       md: moodHoje(),   // emoji do "como te sentes hoje?" (aparece junto ao nome na projeção)
+      kg: (()=>{ const p = Object.assign({}, perfil || {}, (typeof ficha !== 'undefined' && ficha) || {}), k = Number(p.peso); return k > 30 && k < 250 ? Math.round(k) : null; })(),   // peso da ficha: na projeção só aparece o W/kg
       oc: ocultoProj ? true : null,   // pediu para não aparecer no ecrã da projeção (continua no relatório do professor)
       t: firebase.database.ServerValue.TIMESTAMP
     }).catch(()=>{});

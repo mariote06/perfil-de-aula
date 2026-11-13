@@ -1268,6 +1268,16 @@ body.sr-full-on #liveOverlay #srBox,body.sr-full-on #liveOverlay #srBox *{visibi
 .sr-hud .sr-pin b{font-size:clamp(24px,3cqw,44px);font-weight:800;letter-spacing:2px;margin-left:6px;}
 .sr-neob.off,.sr-drb.off{opacity:.45;filter:grayscale(1);}
 .sr-metb.sr-drb{top:106px;} .sr-metb.sr-drc{top:154px;font-size:17px;} .sr-metb.sr-3d{top:202px;} .sr-3d.off{opacity:.45;filter:grayscale(1);}
+.sr-metb.sr-mg{top:250px;} .sr-mg.off{opacity:.45;filter:grayscale(1);}
+.sr-vin{--rot:-3deg;--zc:#3DD45C;position:absolute;left:2.2%;top:50%;width:min(25cqw,38cqh);aspect-ratio:1/1;background:#fff;border:clamp(4px,.45cqw,8px) solid #111;box-shadow:clamp(6px,.7cqw,12px) clamp(6px,.7cqw,12px) 0 #111;transform:rotate(var(--rot)) scale(.2);opacity:0;transition:transform .35s cubic-bezier(.2,1.6,.4,1),opacity .2s;pointer-events:none;z-index:2;}
+.sr-vin.on{transform:rotate(var(--rot)) scale(1);opacity:1;}
+.sr-vin canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
+.sr-vin-l{position:absolute;inset:0;background:repeating-conic-gradient(from 0deg at 50% 45%,rgba(17,17,17,.0) 0 4deg,rgba(17,17,17,.55) 4deg 5deg);-webkit-mask:radial-gradient(circle at 50% 45%,transparent 46%,#000 72%);mask:radial-gradient(circle at 50% 45%,transparent 46%,#000 72%);}
+.sr-vin-bal{position:absolute;right:-9%;top:-13%;max-width:72%;background:#fff;color:#111;border:clamp(3px,.3cqw,5px) solid #111;border-radius:50%;padding:.55em .9em;font:900 italic clamp(14px,1.55cqw,28px)/1 'Barlow Condensed',sans-serif;text-align:center;letter-spacing:.5px;}
+.sr-vin-bal::after{content:'';position:absolute;left:18%;bottom:-.85em;border:.5em solid transparent;border-top:.9em solid #111;transform:rotate(18deg);}
+.sr-vin-nm{position:absolute;left:-5%;bottom:-9%;display:flex;flex-direction:column;align-items:flex-start;gap:2px;}
+.sr-vin-nm b{background:var(--zc);color:#111;border:clamp(3px,.3cqw,5px) solid #111;padding:.05em .4em;font:900 italic clamp(22px,2.6cqw,46px)/1 'Barlow Condensed',sans-serif;transform:skew(-8deg);box-shadow:5px 5px 0 #111;}
+.sr-vin-nm span{background:#111;color:#fff;padding:.1em .5em;font:800 clamp(13px,1.3cqw,22px)/1.2 'Barlow Condensed',sans-serif;transform:skew(-8deg);}
 /* painel de configuração do drone */
 .drc{position:fixed;inset:0;z-index:100002;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;}
 .drc-c{background:#12151C;color:#fff;border:1px solid #2A303D;border-radius:18px;width:min(720px,94vw);max-height:92vh;overflow:auto;padding:16px 18px;font-family:'Inter',sans-serif;font-size:14px;}
@@ -1288,17 +1298,38 @@ body.sr-full-on #liveOverlay #srBox,body.sr-full-on #liveOverlay #srBox *{visibi
 .sr-hud .sr-t i{font-style:normal;color:rgba(255,255,255,.6);font-weight:500;}
 .sr-hud .sr-d{display:flex;flex-direction:column;align-items:flex-end;gap:6px;}
 .sr-hud .sr-pc{font-size:1.25em;margin-left:4px;}
-.sr-rank{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:4px;min-width:min(330px,27cqw);pointer-events:none;font-family:'Barlow Condensed',sans-serif;}
-.sr-rank .sr-cog{font-style:normal;color:#FFD60A;font-weight:800;margin-left:auto;margin-right:10px;white-space:nowrap;}
-.sr-rank .sr-rt + div .sr-cog{color:#5A2A00;}
-.sr-rank .sr-rt{background:none;font-size:17px;font-weight:800;letter-spacing:1px;color:rgba(255,255,255,.85);padding:0 4px;text-shadow:0 2px 6px rgba(0,0,0,.8);}
-.sr-rank div{display:flex;gap:10px;align-items:baseline;background:rgba(5,7,10,.66);border-radius:9px;padding:5px 14px;font-size:clamp(14px,1.75cqw,26px);color:#fff;}
-.sr-rank div:nth-child(2){background:rgba(255,214,10,.9);color:#0B0E13;}
-.sr-rank div:nth-child(2) i{color:#0B0E13;}
-.sr-rank span{font-weight:800;min-width:20px;}
-.sr-rank b{flex:1;}
-.sr-rank i{font-style:normal;color:rgba(255,255,255,.6);font-variant-numeric:tabular-nums;}
-.sr-rank i.ok{color:#7FD3A6;}
+.sr-rank{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;width:min(420px,27cqw);pointer-events:none;font-family:'Barlow Condensed',sans-serif;color:#fff;filter:drop-shadow(0 6px 18px rgba(0,0,0,.5));}
+.sr-rank .r2-h{display:flex;align-items:center;justify-content:center;gap:10px;background:linear-gradient(90deg,#F7931E,#FFB23F);color:#111;font-weight:800;font-size:clamp(18px,2.1cqw,36px);letter-spacing:1.5px;padding:5px 12px;border-radius:10px 10px 0 0;line-height:1.1;}
+.sr-rank .r2-h i{font-style:normal;width:1.3em;height:.9em;background:repeating-conic-gradient(#111 0 25%,#fff 0 50%) 0 0/.3em .3em;border-radius:2px;}
+.sr-rank .r2-v{display:flex;align-items:center;gap:10px;background:#0B0E13;padding:5px 14px;border-bottom:2px solid rgba(255,255,255,.85);}
+.sr-rank .r2-v span{font-size:clamp(20px,2cqw,34px);line-height:1;}
+.sr-rank .r2-v b{font-size:clamp(12px,1.1cqw,19px);font-weight:800;line-height:1.05;letter-spacing:.6px;}
+.sr-rank .r2-v em{margin-left:auto;font-style:normal;font-weight:800;font-size:clamp(26px,2.7cqw,46px);line-height:1;font-variant-numeric:tabular-nums;}
+.sr-rank .r2-v em small{font-size:.42em;margin-left:5px;letter-spacing:.5px;}
+.sr-rank .r2{display:flex;align-items:stretch;background:rgba(8,10,14,.86);border-bottom:2px solid rgba(255,255,255,.7);}
+.sr-rank .r2:last-child{border-radius:0 0 10px 10px;overflow:hidden;border-bottom:none;}
+.sr-rank .r2-p{flex:0 0 clamp(30px,2.7cqw,48px);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:clamp(18px,2cqw,34px);background:#F4F6F8;color:#0B0E13;}
+.sr-rank .r2.lid .r2-p{background:#FFD60A;}
+.sr-rank .r2-c{flex:1;min-width:0;padding:3px 12px 4px;}
+.sr-rank .r2.ok .r2-c{box-shadow:inset 5px 0 0 #3DD45C;}   /* na zona */
+.sr-rank .r2-c b{display:block;font-weight:800;font-size:clamp(14px,1.4cqw,24px);text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.1;}
+.sr-rank .r2-c b small{font-size:.75em;opacity:.8;margin-left:4px;}
+.sr-rank .r2-c p{margin:0;display:flex;align-items:baseline;gap:clamp(7px,1cqw,16px);font-size:clamp(13px,1.25cqw,22px);font-weight:700;line-height:1.15;white-space:nowrap;}
+.sr-rank .r2-c p i{font-style:normal;color:#FFB23F;}
+.sr-rank .r2-c p em{font-style:normal;font-variant-numeric:tabular-nums;}
+.sr-rank .r2-c p em small{font-size:.62em;margin-left:2px;opacity:.8;}
+.sr-rank .r2-c p u{margin-left:auto;text-decoration:none;font-weight:800;font-variant-numeric:tabular-nums;}
+.sr-rank .r2-c .sr-cog{color:#FFD60A;}
+.sr-rank .r2-c .rmood img,.sr-rank .r2-c .rmood{height:1.05em;width:auto;vertical-align:-2px;}
+.sr-hud .sr-kmw{display:inline-flex;flex-direction:column;align-self:flex-start;margin-bottom:8px;text-shadow:none;}
+.sr-hud .sr-kmb{display:flex;align-items:stretch;background:#fff;color:#0B0E13;border-radius:3px 3px 0 0;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,.45);}
+.sr-hud .sr-kmb i{flex:0 0 clamp(16px,1.7cqw,28px);background:repeating-conic-gradient(#0B0E13 0 25%,#fff 0 50%) 0 0/clamp(8px,.85cqw,14px) clamp(8px,.85cqw,14px);}
+.sr-hud .sr-kmb b{flex:1;text-align:center;padding:2px clamp(16px,2.2cqw,38px);font-size:clamp(28px,3.5cqw,60px);font-weight:800;line-height:1.05;font-variant-numeric:tabular-nums;}
+.sr-hud .sr-kmb b small{font-size:.72em;margin-left:.25em;}
+.sr-hud .sr-kmp{height:clamp(4px,.45cqw,7px);background:rgba(255,255,255,.35);}
+.sr-hud .sr-kmp u{display:block;height:100%;background:#F7931E;}
+.sr-hud .sr-kmt{align-self:flex-start;background:rgba(5,7,10,.78);color:#fff;padding:1px 12px 2px;font-weight:800;font-size:clamp(16px,1.7cqw,30px);font-variant-numeric:tabular-nums;border-radius:0 0 6px 6px;}
+.sr-hud .sr-kmt i{font-style:normal;font-weight:600;opacity:.6;font-size:.8em;}
 .sr-metb{position:absolute;right:10px;top:58px;z-index:2;background:rgba(5,7,10,.6);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:10px;width:40px;height:40px;font-size:19px;cursor:pointer;}
 .sr-metm{position:absolute;right:58px;top:10px;z-index:3;width:min(430px,70%);background:rgba(8,11,16,.94);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:10px 12px;font-family:'Barlow',sans-serif;color:#fff;box-shadow:0 10px 30px rgba(0,0,0,.5);}
 .sr-metm .sr-mt{font-size:11px;font-weight:800;letter-spacing:1.4px;color:rgba(255,255,255,.55);margin:4px 0 6px;}
@@ -7165,6 +7196,219 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 // ===================== PROJEÇÃO EM 3D (Three.js) =====================
 // Só no PC da projeção. Usa a mesma pista, os mesmos troços, blocos, cenário (as imagens dos temas viram "cartazes" 3D),
 // os bonecos de cada aluno e a câmara drone do modo 2D. Os telemóveis continuam em 2D (mais leves).
+  // =====================================================================
+  // CICLISTA 3D REALISTA
+  // Bicicleta (estrada, BTT, contrarrelógio ou triciclo) e um corpo com proporções humanas cujas pernas seguem
+  // os pedais (cinemática inversa: anca → joelho → tornozelo) e as mãos ficam no guiador.
+  // Veste o que o aluno escolheu no telemóvel: camisola, calças, sapatos, chapéu/capacete/cabelo e publicidade.
+  // Medidas em metros (x para a frente, y para cima, z para o lado).
+  // =====================================================================
+  let CIC3 = null; const CIC3f = ()=> (()=>{
+    const V = (x, y, z)=> new THREE.Vector3(x, y, z || 0), UP = V(0, 1, 0);
+    const MAT = {};
+    function mat(cor, o){ const k = cor + JSON.stringify(o || {}); return MAT[k] || (MAT[k] = new THREE.MeshStandardMaterial(Object.assign({ color: new THREE.Color(cor), roughness: .62, metalness: 0 }, o || {}))); }
+    function junta(gs){   // várias geometrias numa só (menos chamadas ao desenhar)
+      let n = 0; gs = gs.map(g=> g.index ? g.toNonIndexed() : g); gs.forEach(g=> n += g.attributes.position.count);
+      const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3); let o = 0;
+      gs.forEach(g=>{ pos.set(g.attributes.position.array, o * 3); nor.set(g.attributes.normal.array, o * 3); o += g.attributes.position.count; });
+      const r = new THREE.BufferGeometry(); r.setAttribute('position', new THREE.BufferAttribute(pos, 3)); r.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); return r;
+    }
+    function tubo(A, B, rA, rB, seg){
+      const d = B.clone().sub(A), L = d.length(), g = new THREE.CylinderGeometry(rB == null ? rA : rB, rA, L, seg || 10, 1);
+      g.applyMatrix4(new THREE.Matrix4().compose(A.clone().add(B).multiplyScalar(.5), new THREE.Quaternion().setFromUnitVectors(UP, d.normalize()), V(1, 1, 1))); return g;
+    }
+    function bola(c, r, sx, sy, sz, seg){ const g = new THREE.SphereGeometry(r, seg || 14, Math.round((seg || 14) * .7)); g.applyMatrix4(new THREE.Matrix4().compose(c, new THREE.Quaternion(), V(sx || 1, sy || 1, sz || 1))); return g; }
+    function malha(g, m, sombra){ const me = new THREE.Mesh(g, m); me.castShadow = sombra !== false; return me; }
+    function tex(w, h, fn){ const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t; }
+    // ---------- as bicicletas ----------
+    const BB = V(-.07, .27);
+    function roda(R, pneu, disco){
+      const g = new THREE.Group();
+      g.add(malha(new THREE.TorusGeometry(R - pneu, pneu, 8, 40), mat('#1a1a1c', { roughness: .9 })));
+      const aro = malha(new THREE.TorusGeometry(R - pneu * 2 - .02, .02, 6, 40), mat('#2b2e33', { metalness: .6, roughness: .35 })); aro.scale.z = .5; g.add(aro);
+      if(disco){ g.add(malha(new THREE.CylinderGeometry(R - pneu * 2 - .01, R - pneu * 2 - .01, .03, 36).rotateX(Math.PI / 2), mat('#1d2026', { metalness: .4, roughness: .35 }))); return g; }
+      const rs = []; for(let k = 0; k < 20; k++){ const a = k / 20 * Math.PI * 2, z = (k % 2 ? 1 : -1) * .025; rs.push(tubo(V(0, 0, z), V(Math.cos(a) * (R - pneu * 2 - .02), Math.sin(a) * (R - pneu * 2 - .02), 0), .0018, .0018, 3)); }
+      rs.push(new THREE.CylinderGeometry(.018, .018, .1, 10).rotateX(Math.PI / 2));
+      g.add(malha(junta(rs), mat('#c9ced6', { metalness: .8, roughness: .3 }), false));
+      return g;
+    }
+    // geometria de cada tipo: rodas, quadro, onde ficam selim, mãos e a postura do tronco
+    const TIPO = {
+      e: { RW: .34, pn: .013, RA: V(-.5, .34), FA: V(.49, .34), ST: V(-.2, .8), HT: V(.4, .84), HB: V(.425, .7), SB: V(.505, .9), bar: 'drop', mao: [V(.58, .955, -.2), V(.58, .955, .2)], H: V(-.215, .985), Sh: V(.2, 1.31), cot: V(-.2, -1, .6) },
+      b: { RW: .36, pn: .028, RA: V(-.53, .36), FA: V(.52, .36), ST: V(-.21, .78), HT: V(.38, .86), HB: V(.41, .7), SB: V(.46, .95), bar: 'flat', mao: [V(.47, .97, -.33), V(.47, .97, .33)], H: V(-.225, .975), Sh: V(.13, 1.37), cot: V(-.1, -.5, 1) },
+      t: { RW: .34, pn: .012, RA: V(-.5, .34), FA: V(.49, .34), ST: V(-.17, .8), HT: V(.4, .8), HB: V(.425, .68), SB: V(.47, .84), bar: 'aero', mao: [V(.66, .93, -.06), V(.66, .93, .06)], H: V(-.17, .99), Sh: V(.31, 1.17), cot: V(0, -1, .15), disco: true, aero: true },
+      r: { RW: .3, pn: .02, RA: V(-.55, .3), FA: V(.5, .3), ST: V(-.2, .78), HT: V(.38, .84), HB: V(.41, .68), SB: V(.45, .95), bar: 'flat', mao: [V(.46, .97, -.3), V(.46, .97, .3)], H: V(-.215, .975), Sh: V(.1, 1.39), cot: V(-.1, -.5, 1), tri: true }
+    };
+    function bike(K, cor){
+      const g = new THREE.Group(), q = [], pret = [], cro = [], { RA, FA, ST, HT, HB, SB } = K, zF = K.tri ? .38 : .055;
+      q.push(tubo(BB, ST, .016), tubo(ST, HT, .014), tubo(BB, HB, .02, .022), tubo(HB, HT, .024));
+      if(K.tri){ q.push(tubo(V(RA.x, RA.y, -zF), V(RA.x, RA.y, zF), .018)); }
+      [-1, 1].forEach(s=>{ q.push(tubo(BB, V(RA.x, RA.y, K.tri ? 0 : s * zF), .011, .008), tubo(ST, V(RA.x, RA.y, K.tri ? s * .06 : s * zF), .009, .007), tubo(HB, V(FA.x, FA.y, s * (K.RW > .35 ? .07 : .055)), K.RW > .35 ? .02 : .016, .009)); });
+      const SP = V(ST.x - .035, ST.y + .13); cro.push(tubo(ST, SP, .013));
+      pret.push(bola(V(SP.x - .015, SP.y + .015), .07, 1.9, .28, .85, 12), bola(V(SP.x + .075, SP.y + .01), .04, 1.6, .25, .5, 10));
+      pret.push(tubo(HT, V(HT.x + .01, HT.y + .04), .017), tubo(V(HT.x + .01, HT.y + .04), SB, .015));
+      if(K.bar === 'drop'){ for(const s of [-1, 1]){ const z0 = s * .2; pret.push(tubo(V(SB.x, SB.y, 0), V(SB.x, SB.y, z0), .013));
+          const pts = []; for(let k = 0; k <= 10; k++){ const a = k / 10 * Math.PI; pts.push(V(SB.x + .07 * Math.sin(a) + (k > 5 ? -.012 * (k - 5) : 0), SB.y - .075 * (1 - Math.cos(a)), z0)); }
+          for(let k = 0; k < 10; k++) pret.push(tubo(pts[k], pts[k + 1], .012));
+          pret.push(tubo(V(SB.x + .02, SB.y + .005, z0), V(SB.x + .085, SB.y + .045, z0), .016, .013)); } }
+      else if(K.bar === 'flat'){ pret.push(tubo(V(SB.x, SB.y + .02, -.36), V(SB.x, SB.y + .02, .36), .013)); [-1, 1].forEach(s=> pret.push(tubo(V(SB.x, SB.y + .02, s * .27), V(SB.x, SB.y + .02, s * .37), .02))); }
+      else { pret.push(tubo(V(SB.x, SB.y, -.2), V(SB.x, SB.y, .2), .014));   // aero: base + extensões com apoios
+        [-1, 1].forEach(s=>{ pret.push(tubo(V(SB.x - .02, SB.y + .04, s * .07), V(SB.x + .22, SB.y + .09, s * .06), .011), bola(V(SB.x + .02, SB.y + .055, s * .075), .045, 1.3, .35, 1, 10)); }); }
+      cro.push(new THREE.TorusGeometry(.1, .006, 6, 36).translate(BB.x, BB.y, .055), new THREE.CylinderGeometry(.03, .03, .14, 12).rotateX(Math.PI / 2).translate(BB.x, BB.y, 0));
+      [malha(junta(q), mat(cor, { metalness: .45, roughness: .32 })), malha(junta(pret), mat('#16171a', { roughness: .7 })), malha(junta(cro), mat('#aeb4bd', { metalness: .9, roughness: .25 }))].forEach(m=> g.add(m));
+      const rodas = [];
+      const rF = roda(K.RW, K.pn, false); rF.position.copy(FA); g.add(rF); rodas.push(rF);
+      if(K.tri){ [-1, 1].forEach(s=>{ const r = roda(K.RW, K.pn, false); r.position.set(RA.x, RA.y, s * zF); g.add(r); rodas.push(r); }); }
+      else { const r = roda(K.RW, K.pn, K.disco); r.position.copy(RA); g.add(r); rodas.push(r); }
+      const crank = new THREE.Group(); crank.position.copy(BB); g.add(crank);
+      const pedal = [];
+      [-1, 1].forEach((s, i)=>{ const b = malha(junta([tubo(V(0, 0, s * .075), V(.17, 0, s * .075), .009, .007)]), mat('#aeb4bd', { metalness: .9, roughness: .25 })); b.rotation.z = i ? Math.PI : 0; crank.add(b);
+        const p = malha(new THREE.BoxGeometry(.09, .018, .07), mat('#16171a')); g.add(p); pedal.push(p); });
+      return { g, rodas, crank, pedal, K };
+    }
+    // ---------- texturas da roupa ----------
+    const TX = {};
+    function texRoupa(cor, T, pub){
+      const k = cor + T + pub; if(TX[k]) return TX[k];
+      return TX[k] = tex(256, 256, (x, w, h)=>{
+        x.fillStyle = cor; x.fillRect(0, 0, w, h);
+        if(T === 'cam'){ x.fillStyle = 'rgba(255,255,255,.85)'; x.fillRect(0, h * .78, w, h * .05); x.fillStyle = 'rgba(0,0,0,.22)'; x.fillRect(0, h * .84, w, h * .03); x.fillStyle = 'rgba(0,0,0,.25)'; x.fillRect(w * .495, 0, w * .01, h * .55); }   // faixas e fecho
+        if(T === 'col'){ x.fillStyle = '#C9CDD2'; [.3, .62].forEach(y=> x.fillRect(0, h * y, w, h * .07)); }   // faixas refletoras
+        if(T === 'cow'){ x.strokeStyle = 'rgba(0,0,0,.28)'; x.lineWidth = 9; for(let i = 0; i < w; i += 32){ x.beginPath(); x.moveTo(i, 0); x.lineTo(i, h); x.stroke(); x.beginPath(); x.moveTo(0, i); x.lineTo(w, i); x.stroke(); } }
+        if(T === 'pap'){ x.fillStyle = '#C9A227'; x.fillRect(w * .44, 0, w * .12, h); }   // estola dourada
+        if(T === 'pnc' || T === 'elc'){ x.fillStyle = T === 'pnc' ? '#F5F5F0' : '#C8102E'; x.fillRect(w * .46, 0, w * .08, h); x.fillStyle = '#1A1A1A'; x.fillRect(0, h * .72, w, h * .08); x.fillStyle = '#E2B53A'; x.fillRect(w * .45, h * .72, w * .1, h * .08); }   // botões e cinto
+        if(pub){ x.save(); x.translate(w / 2, h * .36); x.scale(.42, 1.25); x.fillStyle = '#fff'; x.font = '900 italic 30px Arial Black, Arial, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle';   // estreito: só nas costas
+          x.lineWidth = 5; x.strokeStyle = 'rgba(0,0,0,.45)'; x.strokeText('PLAYLIFE', 0, 0); x.fillText('PLAYLIFE', 0, 0); x.restore(); }
+      });
+    }
+    // ---------- chapéus, capacetes e cabelos ----------
+    function cabeca(av, hd){   // devolve um grupo posicionado no centro da cabeça
+      const g = new THREE.Group(), H = av.H || 'cic', c = av.h || '#F3F4F6', F = av.g === 'f';
+      const cab = (cor)=> malha(bola(V(-.01, .02), .104, 1.08, .9, .96, 18), mat(cor, { roughness: .85 }));   // cabelo curto (calote)
+      const add = (...m)=> m.forEach(o=> g.add(o));
+      const rabo = (cor)=>{ const r = malha(bola(V(0, 0), .045, 1, 2.3, 1, 12), mat(cor, { roughness: .85 })); r.position.set(-.125, -.07, 0); r.rotation.z = -.55; add(r); };
+      const dk = '#3B2A20';
+      if(H === 'cic'){   // capacete de estrada com ventilações e óculos
+        const cp = malha(new THREE.SphereGeometry(.122, 22, 12, 0, Math.PI * 2, 0, Math.PI * .55), mat(c, { roughness: .35, metalness: .1 })); cp.scale.set(1.3, .95, 1.02); cp.position.set(-.015, .02, 0); cp.rotation.z = .35;
+        cp.material = new THREE.MeshStandardMaterial({ map: tex(256, 128, (x, w, h)=>{ x.fillStyle = c; x.fillRect(0, 0, w, h); x.fillStyle = 'rgba(10,12,16,.75)'; for(let k = 0; k < 8; k++) x.fillRect(k * w / 8 + 6, h * .18, w / 8 - 18, h * .34); }), roughness: .35, metalness: .1 });   // ventilações pintadas
+        add(cp);
+        if(F) rabo(dk);
+      } else if(H === 'pil'){ const cp = malha(bola(V(0, .015), .135, 1.05, 1.02, 1, 20), mat(c, { roughness: .3, metalness: .2 })), vi = malha(bola(V(.1, 0), .07, .5, .6, 1.4, 14), mat('#0b0d12', { roughness: .08, metalness: .8 })); add(cp, vi); }
+      else if(H === 'vik'){ add(malha(new THREE.SphereGeometry(.118, 18, 10, 0, Math.PI * 2, 0, Math.PI * .5), mat('#8E949C', { metalness: .8, roughness: .3 })), malha(new THREE.TorusGeometry(.116, .012, 6, 24).rotateX(Math.PI / 2), mat('#6B4A2E')));
+        [-1, 1].forEach(s=>{ const pts = []; for(let k = 0; k <= 6; k++){ const a = k / 6; pts.push(V(-.01 + .03 * a, .05 + .12 * a + .05 * a * a, s * (.11 + .06 * a))); } for(let k = 0; k < 6; k++) g.add(malha(tubo(pts[k], pts[k + 1], .03 * (1 - k / 7) + .004, .03 * (1 - (k + 1) / 7) + .004), mat('#F2E6CF', { roughness: .5 }))); });
+        add(cab(c)); }
+      else if(H === 'pn' || H === 'elf'){ const cr = H === 'pn' ? '#C8102E' : '#1E9E46', pts = []; for(let k = 0; k <= 8; k++){ const a = k / 8; pts.push(V(-.02 - .2 * a * a, .09 + .2 * a - .05 * a * a, 0)); }
+        for(let k = 0; k < 8; k++) g.add(malha(tubo(pts[k], pts[k + 1], .105 * (1 - k / 8.5) + .01, .105 * (1 - (k + 1) / 8.5) + .01, 14), mat(cr, { roughness: .9 })));
+        add(malha(new THREE.TorusGeometry(.105, .03, 8, 24).rotateX(Math.PI / 2).translate(-.01, .08, 0), mat(H === 'pn' ? '#F5F5F0' : '#C8102E', { roughness: 1 })));
+        const po = malha(bola(pts[8], .035, 1, 1, 1, 10), mat(H === 'pn' ? '#F5F5F0' : '#E2B53A', { roughness: H === 'pn' ? 1 : .3, metalness: H === 'pn' ? 0 : .7 })); add(po);
+        if(H === 'elf'){ [-1, 1].forEach(s=>{ const o = malha(bola(V(-.01, .0, s * .1), .04, .6, 1.4, .35, 10), mat(av.p || '#E0AE86')); o.rotation.x = s * .5; o.rotation.z = -.5; add(o); }); } }
+      else if(H === 'cha' || H === 'cow'){ const m = mat(c, { roughness: .75 });
+        if(H === 'cha'){ add(malha(new THREE.CylinderGeometry(.1, .1, .02, 24).translate(0, .085, 0).scale(1.6, 1, 1.6), m), malha(new THREE.CylinderGeometry(.09, .095, .18, 24).translate(0, .18, 0), m), malha(new THREE.CylinderGeometry(.096, .096, .03, 24).translate(0, .11, 0), mat('#1A1A1A'))); }
+        else { const ab = new THREE.TorusGeometry(.17, .03, 6, 28).rotateX(Math.PI / 2); ab.scale(1.15, .45, 1); ab.translate(0, .09, 0); add(malha(ab, m), malha(new THREE.CylinderGeometry(.2, .2, .012, 28).translate(0, .085, 0), m),
+            malha(bola(V(0, .15), .1, 1.05, .9, .85, 16), m), malha(new THREE.CylinderGeometry(.092, .092, .025, 20).translate(0, .11, 0), mat('#5A3A1E'))); }
+        if(F) rabo(dk); }
+      else if(H === 'cog'){ add(malha(new THREE.SphereGeometry(.2, 22, 12, 0, Math.PI * 2, 0, Math.PI * .5).scale(1, .75, 1).translate(0, .07, 0), new THREE.MeshStandardMaterial({ map: tex(256, 128, (x, w, h)=>{ x.fillStyle = c && c !== '#F3F4F6' ? c : '#D7262B'; x.fillRect(0, 0, w, h); x.fillStyle = '#FFF8EC'; for(let i = 0; i < 14; i++){ x.beginPath(); x.ellipse((i * 53) % w, 20 + (i * 37) % (h - 40), 14, 10, 0, 0, 7); x.fill(); } }), roughness: .5 })),
+          malha(new THREE.CylinderGeometry(.19, .19, .015, 24).translate(0, .07, 0), mat('#F2E6CF'))); }
+      else if(H === 'pap'){ const m = new THREE.MeshStandardMaterial({ map: tex(64, 128, (x, w, h)=>{ x.fillStyle = '#F7F5EE'; x.fillRect(0, 0, w, h); x.fillStyle = '#C9A227'; x.fillRect(w * .42, 0, w * .16, h); x.fillRect(0, h * .82, w, h * .1); }), roughness: .5 });
+        [-1, 1].forEach(s=>{ const p = malha(new THREE.ConeGeometry(.11, .3, 4, 1).scale(1, 1, .45).translate(s * .015, .23, 0), m); p.rotation.z = s * .05; add(p); }); }
+      else if(H === 'ush'){ const m = mat(c, { roughness: 1 }); add(malha(bola(V(0, .05), .13, 1.05, .8, 1.02, 18), m), malha(new THREE.TorusGeometry(.12, .035, 8, 24).rotateX(Math.PI / 2).translate(0, .06, 0), m));
+        [-1, 1].forEach(s=> add(malha(bola(V(-.01, -.03, s * .115), .07, .9, 1.1, .35, 12), m))); add(malha(bola(V(.09, .1), .05, .3, .8, 1.3, 10), m), malha(bola(V(.12, .11), .018, .3, 1, 1, 8), mat('#C9A227', { metalness: .8, roughness: .3 }))); }
+      else if(H === 'coc'){ add(malha(new THREE.TorusGeometry(.108, .02, 6, 24).rotateX(Math.PI / 2).translate(0, .06, 0), mat('#B5462A')), cab(dk));
+        const cores = ['#F3F4F6', '#E5242B', '#FFD60A', '#1F7AE0', '#3DD45C'];
+        for(let k = 0; k < 13; k++){ const a = Math.PI * (.15 + .7 * k / 12), p = malha(bola(V(0, 0), .03, .9, 3.5, .4, 8), mat(cores[k % cores.length], { roughness: .8 }));
+          p.position.set(-Math.cos(a) * .1 - .02, .1 + Math.sin(a) * .1, -Math.cos(a * 2) * 0 + (k / 12 - .5) * .22); p.rotation.set((k / 12 - .5) * -.9, 0, Math.PI / 2 - a + .3); add(p); } }
+      else if(H === 'moh'){ add(cab(av.p || '#E0AE86')); for(let k = 0; k < 7; k++){ const a = k / 6; g.add(malha(new THREE.ConeGeometry(.028, .09, 8).translate(0, .045, 0).rotateZ(-.3 + .6 * a).translate(.08 - .2 * a, .09 + .03 * Math.sin(a * Math.PI), 0), mat(c, { roughness: .8 }))); } }
+      else if(H === 'lon'){ add(cab(c), malha(bola(V(-.08, -.08), .1, .7, 1.6, 1.05, 14), mat(c, { roughness: .85 }))); }
+      else if(H === 'rab'){ add(cab(c)); rabo(c); }
+      else { add(cab(c)); }   // cabelo curto
+      // óculos só com o capacete de ciclista
+      if(H === 'cic') add(malha(bola(V(.077, .012), 1, .035, .03, .095, 16), mat('#0d0f14', { roughness: .12, metalness: .7 })));
+      else if(H !== 'pil') add(...[-1, 1].map(s=> malha(bola(V(.088, .015, s * .035), .012, .5, 1, 1, 8), mat('#15171c', { roughness: .3 }))));   // olhos
+      g.position.copy(hd); return g;
+    }
+    // ---------- o corpo ----------
+    const L = { coxa: .43, perna: .43, braco: .29, ante: .27 };
+    function membro(m){ const me = new THREE.Mesh(new THREE.CylinderGeometry(1, 1, 1, 12, 1), m); me.castShadow = true; return me; }
+    function poe(me, A, B, rA, rB){
+      const d = B.clone().sub(A), l = d.length();
+      me.position.copy(A).add(B).multiplyScalar(.5); me.quaternion.setFromUnitVectors(UP, d.multiplyScalar(1 / l)); me.scale.set(1, l, 1);
+      if(!me.userData.r){ me.geometry.dispose(); me.geometry = new THREE.CylinderGeometry(rB, rA, 1, 14, 1); me.userData.r = 1; }
+    }
+    function ik(A, T, a, b, pole){
+      const d = T.clone().sub(A); let l = d.length(); const u = d.clone().normalize(); l = Math.min(l, a + b - 1e-4);
+      const ca = Math.max(-1, Math.min(1, (a * a + l * l - b * b) / (2 * a * l))), sa = Math.sqrt(1 - ca * ca);
+      const v = pole.clone().sub(u.clone().multiplyScalar(pole.dot(u))).normalize();
+      return A.clone().add(u.multiplyScalar(a * ca)).add(v.multiplyScalar(a * sa));
+    }
+    function cria(av){
+      av = av || {};
+      const T = av.T || 'cam', K = TIPO[av.v] || TIPO.e, F = av.g === 'f';
+      const roupa = typeof avRoupa === 'function' ? avRoupa(av) : (av.j || '#E5242B');
+      const calca = (typeof avCalca === 'function' ? avCalca(T, roupa) : null), sap = typeof avSapato === 'function' ? avSapato(T) : '#F3F4F6';
+      const longa = typeof AV_MLONGA !== 'undefined' && AV_MLONGA.includes(T), nu = T === 'nu' || T === 'sus';
+      const cP = av.p || '#E0AE86', mP = mat(cP, { roughness: .75 });
+      const mR = nu ? mP : new THREE.MeshStandardMaterial({ map: texRoupa(roupa, T, !!av.pub), roughness: T === 'mot' || T === 'pun' ? .4 : .6 });
+      const mRl = nu ? mP : mat(roupa, { roughness: .6 });
+      const mC = mat(calca || '#1b1c20', { roughness: .7 });
+      const G = new THREE.Group(), B = bike(K, av.vc || '#1F7AE0'); G.add(B.g);
+      const tronco = malha(new THREE.SphereGeometry(1, 20, 16), mR), peito = malha(new THREE.SphereGeometry(1, 16, 12), mRl), bacia = malha(new THREE.SphereGeometry(1, 16, 12), mC);
+      G.add(tronco, peito, bacia);
+      const extra = [];
+      if(T === 'sus'){ [-1, 1].forEach(s=>{ const t = membro(mat('#C8102E')); G.add(t); extra.push([t, s]); }); }
+      if(T === 'pun'){ for(let k = 0; k < 6; k++){ const sp = malha(new THREE.ConeGeometry(.018, .06, 6), mat('#C9CDD2', { metalness: .9, roughness: .2 })); G.add(sp); extra.push([sp, k]); } }
+      const pesc = membro(mP), cab = malha(new THREE.SphereGeometry(1, 20, 16), mP), nariz = malha(bola(V(0, 0), .022, 1.3, 1, .8, 8), mP), orelhas = [-1, 1].map(()=> malha(bola(V(0, 0), .028, .5, 1, .3, 8), mP));
+      G.add(pesc, cab, nariz, ...orelhas);
+      const P = {
+        coxa: [membro(mC), membro(mC)], gemeo: [membro(calca ? mC : mP), membro(calca ? mC : mP)], perna: [membro(calca ? mC : mP), membro(calca ? mC : mP)], meia: [membro(calca ? mC : mat('#f2f2f2')), membro(calca ? mC : mat('#f2f2f2'))],
+        pe: [0, 1].map(()=> malha(new THREE.SphereGeometry(1, 12, 10), mat(sap, { roughness: .35 }))), joel: [0, 1].map(()=> malha(new THREE.SphereGeometry(1, 10, 8), calca ? mC : mP)),
+        braco: [membro(mRl), membro(mRl)], punho: [membro(longa ? mRl : mat('#F3F4F6')), membro(longa ? mRl : mat('#F3F4F6'))], bpele: [membro(longa ? mRl : mP), membro(longa ? mRl : mP)], ante: [membro(longa ? mRl : mP), membro(longa ? mRl : mP)],
+        cot: [0, 1].map(()=> malha(new THREE.SphereGeometry(1, 10, 8), longa ? mRl : mP)), mao: [0, 1].map(()=> malha(new THREE.SphereGeometry(1, 10, 8), mat('#1b1c20')))
+      };
+      if(!calca) P.coxa.forEach(m=> m.material = mC);
+      Object.values(P).forEach(a=> a.forEach(m=> G.add(m)));
+      const st = { G, B, P, K, tronco, peito, bacia, pesc, cab, nariz, orelhas, extra, T, F, chap: null, av };
+      st.chap = cabeca(av, V(0, 0)); G.add(st.chap);
+      pose(st, 0, 0);
+      return st;
+    }
+    const POLE = V(1, .25, 0);
+    function pose(st, ang, emPe){
+      const { B, P, K } = st, sh = st.F ? .95 : 1;
+      B.crank.rotation.z = -ang; B.rodas.forEach(r=> r.rotation.z = -ang * 2.6);
+      const ped = [0, 1].map(i=>{ const a = -ang + (i ? Math.PI : 0), s = i ? 1 : -1, p = V(BB.x + Math.cos(a) * .17, BB.y + Math.sin(a) * .17, s * .105);
+        B.pedal[i].position.copy(p); B.pedal[i].rotation.z = Math.sin(a) * .15; return p; });
+      emPe = emPe && !K.aero;
+      const sway = Math.sin(ang) * (emPe ? .05 : .012), up = emPe ? .14 : 0, fwd = emPe ? .1 : 0;
+      const H = V(K.H.x + fwd, K.H.y + up, sway), Sh = V(K.Sh.x + fwd * .6, K.Sh.y + up * .55, sway * 1.4);
+      [0, 1].forEach(i=>{ const s = i ? 1 : -1, hip = V(H.x, H.y - .03, s * .095 + H.z * .3), tal = ped[i].clone().add(V(-.06, .045, 0));
+        const kn = ik(hip, tal, L.coxa * sh, L.perna * sh, POLE);
+        poe(P.coxa[i], hip, kn, .085, .056); P.joel[i].position.copy(kn); P.joel[i].scale.setScalar(.054);
+        const g1 = kn.clone().lerp(tal, .38), g2 = kn.clone().lerp(tal, .8);
+        poe(P.gemeo[i], kn, g1, .05, .06); poe(P.perna[i], g1, g2, .06, .036); poe(P.meia[i], g2, tal, .036, .034);
+        P.pe[i].position.copy(ped[i]).add(V(-.01, .045, 0)); P.pe[i].scale.set(.135, .048, .052); P.pe[i].rotation.z = -.15; });
+      st.bacia.position.copy(H).add(V(.01, -.025, 0)); st.bacia.scale.set(.135, .11, .155);
+      const dT = Sh.clone().sub(H), du = dT.clone().normalize(), mid = H.clone().lerp(Sh, .5), q = new THREE.Quaternion().setFromUnitVectors(UP, du);
+      // tronco com a textura da roupa: a frente da textura fica nas costas (é o que o drone vê)
+      st.tronco.position.copy(mid); st.tronco.quaternion.copy(q); st.tronco.rotateY(Math.PI); st.tronco.scale.set(.122, dT.length() * .6, .18);
+      st.peito.position.copy(H.clone().lerp(Sh, .83)).add(V(.0, .01, 0)); st.peito.quaternion.copy(q); st.peito.scale.set(.1, .13, .21);
+      st.extra.forEach(([m, k])=>{ if(st.T === 'sus'){ const s = k, a = H.clone().add(V(.02, .06, s * .08)), b = Sh.clone().add(V(-.05, .03, s * .1)); poe(m, a, b, .012, .012); }
+        else { const nC = V(-du.y, du.x, 0), p = H.clone().lerp(Sh, .25 + k * .12).add(nC.clone().multiplyScalar(.15)); m.position.copy(p); m.quaternion.setFromUnitVectors(UP, nC); } });
+      const mao = K.mao;
+      [0, 1].forEach(i=>{ const s = i ? 1 : -1, ombro = Sh.clone().add(V(0, -.02, s * .19));
+        const el = K.aero ? V(mao[i].x - .2, mao[i].y + .02, s * .1) : ik(ombro, mao[i], L.braco * sh, L.ante * sh, V(K.cot.x, K.cot.y, s * K.cot.z));
+        const eB = ombro.clone().lerp(el, .62), eP = ombro.clone().lerp(el, .74);
+        poe(P.braco[i], ombro, eB, .052, .046); poe(P.punho[i], eB, eP, .047, .045); poe(P.bpele[i], eP, el, .041, .039); P.cot[i].position.copy(el); P.cot[i].scale.setScalar(.04);
+        poe(P.ante[i], el, mao[i], .04, .031); P.mao[i].position.copy(mao[i]); P.mao[i].scale.set(.045, .035, .042); });
+      const nk = Sh.clone().add(V(.06, .05, 0)), hd = nk.clone().add(V(.1, K.aero ? .07 : .1, 0));
+      poe(st.pesc, Sh, nk, .052, .046);
+      st.cab.position.copy(hd); st.cab.scale.set(.106, .1, .088);
+      st.nariz.position.copy(hd).add(V(.1, -.01, 0));
+      st.orelhas.forEach((o, i)=> o.position.copy(hd).add(V(-.005, 0, (i ? 1 : -1) * .086)));
+      st.chap.position.copy(hd);
+    }
+    return { cria, pose, TIPO };
+  })();
+
 const SR3 = (()=>{
   const S = { ok: false, aCarregar: false, scene: null, cam: null, ren: null, key: '', spr: {}, riders: {}, texCache: new Map(), hW: 5 };
   const M = 1 / SR_M;   // unidades da pista → metros
@@ -7368,28 +7612,123 @@ const SR3 = (()=>{
     if(S.vis0 != null) for(let i = S.vis0; i < Math.max(0, gI - 400); i++){ const L = S.spr[i]; if(L) L.forEach(sp=> sp.visible = false); } S.vis0 = Math.max(0, gI - 400);
     // alunos
     const vivos = new Set(), nomes = [], fx = [], f0 = new THREE.Vector3(), focal = H / 2 / Math.tan(S.cam.fov * Math.PI / 360), b = o.b;
-    // os bonecos são os mesmos do 2D (desenhados pelo srCiclista) colocados na estrada 3D como cartazes virados para a câmara
-    const SM = 1.4, SPX = 140;   // tamanho do boneco em metros / em píxeis na textura
+    // alunos de bicicleta perto da câmara: ciclista 3D realista (pedala à cadência e veste o que escolheram);
+    // ao longe, e no kart, carrinho e trenó: o desenho do 2D num cartaz virado para a câmara (muito mais leve)
+    const SM = 1.4, SPX = 140, ESC = 1.45, LOD = 78;   // tamanho do cartaz (m) / píxeis da textura / escala do ciclista 3D / até onde se vê em 3D
+    if(!CIC3) CIC3 = CIC3f();
+    const emPe = /p[ée]/i.test((b && b.tecnica) || ''), pv = new THREE.Vector3();
     rs.forEach((r, i)=>{ vivos.add(r.id); const d = zG + (gaps[r.id] || 0), p = ponto(d), lado = ((SR.lado || {})[r.id] || 0) * .75 * S.hW, lrx = Math.cos(p.h), lrz = -Math.sin(p.h);
       let R = S.riders[r.id]; if(!R){ const cv = document.createElement('canvas'); cv.width = SPX * 1.6; cv.height = SPX * 2.5; const t = new THREE.CanvasTexture(cv); t.minFilter = THREE.LinearFilter; t.anisotropy = 4;
         const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, alphaTest: .05, fog: true })); sp.scale.set(SM * 1.6, SM * 2.5, 1); sp.center.set(.5, .08); S.gRid.add(sp); R = S.riders[r.id] = { g: sp, cv, t, ctx: cv.getContext('2d') }; }
-      R.g.position.set(p.x + lrx * lado, p.y + .02, p.z + lrz * lado); R.g.visible = true;
-      const av = avLe(r.av); if(av) av.z = !!JG.z[r.id];
-      R.ctx.clearRect(0, 0, R.cv.width, R.cv.height); R.ctx.shadowBlur = 0;
-      srCiclista(R.ctx, R.cv.width / 2, SPX * 2.3, SPX, JG.z[r.id] ? '#3DD45C' : '#AEB6C2', srFase(r.id, jgRpm(r), now, livePlaying), false, R.cv.width / 2, av); R.t.needsUpdate = true;
+      R.g.position.set(p.x + lrx * lado, p.y + .02, p.z + lrz * lado);
+      const av = avLe(r.av), z = !!JG.z[r.id], fase = srFase(r.id, jgRpm(r), now, livePlaying);
+      const avR = av || avLe('e.1F7AE0.F3F4F6.E0AE86.cic.cam.22262D.1'), real = 'ebtr'.includes(avR.v) && S.cam.position.distanceTo(pv.copy(R.g.position)) < LOD;
+      if(real){
+        if(!R.m || R.mk !== (r.av || '')){ if(R.m) S.gRid.remove(R.m.G); R.m = CIC3.cria(avR); R.mk = r.av || ''; R.m.G.scale.setScalar(ESC); S.gRid.add(R.m.G);
+          R.aro = new THREE.Mesh(new THREE.RingGeometry(.55, .72, 40).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x3DD45C, transparent: true, opacity: .7, depthWrite: false })); R.aro.position.y = .02; R.m.G.add(R.aro); }
+        R.m.G.visible = true; R.g.visible = false; R.m.G.position.copy(R.g.position); R.m.G.rotation.y = p.h - Math.PI / 2;
+        CIC3.pose(R.m, fase, emPe); R.aro.visible = z; R.aro.material.opacity = .5 + .25 * Math.sin(now * .006);
+      } else {
+        if(R.m) R.m.G.visible = false; R.g.visible = true; if(av) av.z = z;
+        R.ctx.clearRect(0, 0, R.cv.width, R.cv.height); R.ctx.shadowBlur = 0;
+        srCiclista(R.ctx, R.cv.width / 2, SPX * 2.3, SPX, z ? '#3DD45C' : '#AEB6C2', fase, false, R.cv.width / 2, av); R.t.needsUpdate = true;
+      }
       // nome e efeitos: na posição do ecrã
-      f0.set(R.g.position.x, R.g.position.y + SM * 1.9, R.g.position.z); const dist = f0.distanceTo(S.cam.position); f0.project(S.cam);
+      f0.set(R.g.position.x, R.g.position.y, R.g.position.z); const dist = f0.distanceTo(S.cam.position); f0.project(S.cam);
       if(f0.z < 1 && f0.z > -1){ const sx = (f0.x + 1) / 2 * W, sy = (1 - f0.y) / 2 * H, s = Math.max(6, 1.05 * focal / dist);
         const lug = ord.indexOf(r) + 1, curto = rs.length > 12 && lug > 5 && s < 20;
-        nomes.push({ x: sx, y: sy, s: curto ? Math.min(s, 14) : s, txt: curto ? String(lug) : lug + '. ' + (r.n || '?').split(' ')[0], lider: ord[0] === r, pri: curto ? 1 : 0 });
-        fx.push({ id: r.id, x: sx, y: sy + s * 1.1, s }); } });
-    Object.keys(S.riders).forEach(id=>{ if(!vivos.has(id)) S.riders[id].g.visible = false; });
+        nomes.push({ x: sx, y: sy, s: curto ? Math.min(s, 14) : s, txt: curto ? String(lug) : lug + '. ' + (r.n || '?').split(' ')[0], lider: ord[0] === r, pri: curto ? 1 : 0, id: r.id, bust: [sx, sy - s * 1.7, s * 1.25] });
+        fx.push({ id: r.id, x: sx, y: sy, s }); } });
+    Object.keys(S.riders).forEach(id=>{ if(!vivos.has(id)){ S.riders[id].g.visible = false; if(S.riders[id].m) S.riders[id].m.G.visible = false; } });
     S.ren.render(S.scene, S.cam);
     if(S.recomp > 0){ S.recomp--; S.gTrk.traverse(o=>{ if(o.material) o.material.needsUpdate = true; }); }
     return { nomes, fx };
   }
   return { carrega, frame, ok: ()=> S.ok, liga, desliga, get S(){ return S; } };
 })();
+  // =====================================================================
+  // ESTILO ANIME (botão 🖌️): o desenho da estrada (2D ou 3D) passa por um filtro na placa gráfica
+  // cores vivas e planas (em degraus, como nos desenhos animados) e contornos pretos de tinta.
+  // Nos grandes planos do drone aparece uma vinheta de banda desenhada com o aluno.
+  // =====================================================================
+  const MANGA = (()=>{
+    const M = { cv: null, gl: null, ok: false, vin: null };
+    const VS = 'attribute vec2 p; varying vec2 uv; void main(){ uv = p * .5 + .5; gl_Position = vec4(p, 0., 1.); }';
+    const FS = `precision mediump float;
+      uniform sampler2D t3, t2; uniform float has3; uniform vec2 px; uniform float lw; varying vec2 uv;
+      vec3 src(vec2 q){ return has3 > .5 ? texture2D(t3, q).rgb : texture2D(t2, q).rgb; }   // no 3D o filtro é só para o cenário; nomes e efeitos vão por cima sem filtro
+      float lum(vec3 c){ return dot(c, vec3(.299, .587, .114)); }
+      vec3 rgb2hsv(vec3 c){ vec4 K = vec4(0., -1./3., 2./3., -1.); vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g)); vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r)); float d = q.x - min(q.w, q.y); return vec3(abs(q.z + (q.w - q.y) / (6. * d + 1e-10)), d / (q.x + 1e-10), q.x); }
+      vec3 hsv2rgb(vec3 c){ vec3 p = abs(fract(c.xxx + vec3(1., 2./3., 1./3.)) * 6. - 3.); return c.z * mix(vec3(1.), clamp(p - 1., 0., 1.), c.y); }
+      void main(){
+        vec3 c = src(uv), h = rgb2hsv(c);
+        h.y = clamp(h.y * 1.45 + .04, 0., 1.);                                           // cores mais vivas
+        float v = h.z * 4.; h.z = clamp((floor(v) + smoothstep(.42, .58, fract(v))) / 4. * 1.06 + .03, 0., 1.);   // luz em degraus (sombra plana)
+        h.y = floor(h.y * 5. + .5) / 5.;
+        vec3 col = hsv2rgb(h);
+        vec2 o = px * lw;                                                                 // contornos: onde a cor muda de repente
+        float tl = lum(src(uv + vec2(-o.x, o.y))), t = lum(src(uv + vec2(0., o.y))), tr = lum(src(uv + o));
+        float l = lum(src(uv - vec2(o.x, 0.))), r = lum(src(uv + vec2(o.x, 0.)));
+        float bl = lum(src(uv - o)), b = lum(src(uv - vec2(0., o.y))), br = lum(src(uv + vec2(o.x, -o.y)));
+        float gx = -tl - 2. * l - bl + tr + 2. * r + br, gy = tl + 2. * t + tr - bl - 2. * b - br;
+        float g = sqrt(gx * gx + gy * gy), e = smoothstep(.3, .62, g) * .9;          // só as mudanças fortes (os ciclistas pequenos não ficam tapados de tinta)
+        col = mix(col, vec3(.07, .05, .1), e);
+        if(has3 > .5){ vec4 o = texture2D(t2, uv); col = mix(col, o.rgb, o.a); }
+        gl_FragColor = vec4(col, 1.);
+      }`;
+    function cria(box){
+      const cv = document.createElement('canvas'); cv.id = 'srMangaCv'; cv.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;';
+      const gl = cv.getContext('webgl', { alpha: false, antialias: false, preserveDrawingBuffer: true }); if(!gl) return false;   // preserva: a vinheta copia daqui
+      const sh = (t, s)=>{ const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if(!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
+      const pr = gl.createProgram(); gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr); gl.useProgram(pr);
+      const bf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, bf); gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+      const ap = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(ap); gl.vertexAttribPointer(ap, 2, gl.FLOAT, false, 0, 0);
+      const tx = [0, 1].map(i=>{ const t = gl.createTexture(); gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, t);
+        [gl.TEXTURE_WRAP_S, gl.TEXTURE_WRAP_T].forEach(k=> gl.texParameteri(gl.TEXTURE_2D, k, gl.CLAMP_TO_EDGE)); [gl.TEXTURE_MIN_FILTER, gl.TEXTURE_MAG_FILTER].forEach(k=> gl.texParameteri(gl.TEXTURE_2D, k, gl.LINEAR)); return t; });
+      gl.uniform1i(gl.getUniformLocation(pr, 't3'), 0); gl.uniform1i(gl.getUniformLocation(pr, 't2'), 1);
+      gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+      Object.assign(M, { cv, gl, tx, u: { has3: gl.getUniformLocation(pr, 'has3'), px: gl.getUniformLocation(pr, 'px'), lw: gl.getUniformLocation(pr, 'lw') } });
+      SR.cv.after(cv);
+      // vinheta de banda desenhada (grandes planos do drone)
+      const v = document.createElement('div'); v.className = 'sr-vin'; v.id = 'srVin';
+      v.innerHTML = '<canvas width="420" height="420"></canvas><i class="sr-vin-l"></i><b class="sr-vin-bal"></b><div class="sr-vin-nm"></div>';
+      cv.after(v); M.vin = v; M.vctx = v.querySelector('canvas').getContext('2d');
+      return true;
+    }
+    function liga(){ if(!M.cv){ try{ M.ok = cria(); }catch(e){ console.error(e); M.ok = false; } } else if(SR.cv && M.cv.parentNode !== SR.cv.parentNode){ SR.cv.after(M.cv); M.cv.after(M.vin); }
+      if(M.cv) M.cv.style.display = ''; return M.ok; }
+    function desliga(){ if(M.cv) M.cv.style.display = 'none'; if(M.vin) M.vin.classList.remove('on'); }
+    function frame(cv3, cv2, W, H, nomes, now){
+      if(!M.ok) return;
+      const gl = M.gl, cw = cv2.width, ch = cv2.height;
+      if(M.cv.width !== cw || M.cv.height !== ch){ M.cv.width = cw; M.cv.height = ch; }
+      gl.viewport(0, 0, cw, ch);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, M.tx[0]); if(cv3) gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, cv3);
+      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, M.tx[1]); gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, cv2);
+      gl.uniform1f(M.u.has3, cv3 ? 1 : 0); gl.uniform2f(M.u.px, 1 / cw, 1 / ch); gl.uniform1f(M.u.lw, Math.max(.8, ch / 1080));
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+      vinheta(W, H, nomes, now);
+    }
+    // grande plano do drone: o aluno numa vinheta de banda desenhada, com o nome e um balão
+    function vinheta(W, H, nomes, now){
+      const D = SR.dr, id = SR.drone !== false && DR.atual === 'close' && D ? D.closeId : null, q = id && nomes.find(n=> n.id === id && n.bust);
+      const v = M.vin; if(!v) return;
+      if(!q){ v.classList.remove('on'); M.vid = null; return; }
+      const r = riders[id] || {}, k = M.cv.width / W, [bx, by, bs] = q.bust, sz = Math.min(bs * 1.25 * k, M.cv.width * .9, M.cv.height * .9);
+      const x0 = Math.max(0, Math.min(M.cv.width - sz, bx * k - sz / 2)), y0 = Math.max(0, Math.min(M.cv.height - sz, by * k - sz / 2));   // sempre dentro do ecrã
+      M.vctx.drawImage(M.cv, x0, y0, sz, sz, 0, 0, 420, 420);
+      if(M.vid !== id){ M.vid = id; v.classList.remove('on'); void v.offsetWidth;
+        const lid = (SR.lastOrd || [])[0] === id, z = !!JG.z[id], f = [lid ? 'NA FRENTE!!' : z ? 'BORA!!' : 'MAIS FORÇA!', z ? 'ESTOU NA ZONA!' : 'AINDA DÁ!!', lid ? 'NINGUÉM ME APANHA!' : 'VOU A TODA!'];
+        v.querySelector('.sr-vin-bal').textContent = f[Math.floor(Math.random() * f.length)];
+        v.style.setProperty('--rot', (Math.random() < .5 ? -1 : 1) * (2 + Math.random() * 2) + 'deg'); }
+      const w = Math.round(r.w || 0), pc = r.ftp && w ? Math.round(w / r.ftp * 100) : 0;
+      v.querySelector('.sr-vin-nm').innerHTML = '<b>' + escapeHtml((r.n || '?').split(' ')[0].toUpperCase()) + '</b><span>' + (w ? w + ' W' + (pc ? ' · ' + pc + '%' : '') : (r.hr ? '♥ ' + Math.round(r.hr) : '')) + '</span>';
+      v.style.setProperty('--zc', JG.z[id] ? '#3DD45C' : '#FF8A2A');
+      v.classList.add('on');
+    }
+    return { liga, desliga, frame, get ok(){ return M.ok; } };
+  })();
+
   function srFrame(now){
     if(!SR.on) return;
     if(!$('liveOverlay').classList.contains('active') || !SR.cv || !SR.cv.isConnected){ srPara(); return; }
@@ -7429,7 +7768,7 @@ const SR3 = (()=>{
       else if(pl === 'trav'){ const q = ease(Math.min(1, el / dT)); foco = minG + (maxG - minG + SR_SEG * 1.5) * q; xx = Math.sin(el * .8 * CF.vel) * SR_ROAD * .4; }
       else if(pl === 'close'){ const n = Math.max(1, Math.min(C.n || 3, ids.length)), k = Math.min(n - 1, Math.floor(el / (dT / n))), id = ids.length ? ids[(D.k + k) % ids.length] : null;
         if(el + 1 / 60 >= dT) D.k = (D.k + n) % Math.max(1, ids.length);
-        foco = id && gs0[id] != null ? gs0[id] : 0; xx = (LD[id] || 0) * .75 * SR_ROAD + SR_ROAD * .16; }
+        foco = id && gs0[id] != null ? gs0[id] : 0; xx = (LD[id] || 0) * .75 * SR_ROAD + SR_ROAD * .16; D.closeId = id; }
       else if(pl === 'lado'){ foco = (minG + maxG) / 2; xx = (D.lado || 1) * SR_ROAD * .95; }
       else if(pl === 'lider'){ foco = maxG; }
       else if(pl === 'frente'){ foco = maxG - SR_SEG * 1.5; ds = -Math.abs(ds); }   // 3D: a câmara vai à frente e olha para trás
@@ -7561,7 +7900,7 @@ const SR3 = (()=>{
         { const F = (JG.fx || {})[r.id], t0 = performance.now(); if(F){ if(SR.tema === 'kart') srKartFx(ctx, cx, py, s * 1.05, F.b > t0, F.t > t0, now); srGodFx(ctx, cx, py, s * 1.05, F.G > t0, F.V > t0, F.R > t0, now); } }
         if(SR.met) luzes.push({ x: cx, y: py - s * .98, r: s * .05, t: 'r' });
         const lug = ord.indexOf(r) + 1, curto = rs.length > 12 && lug > 5 && s < 20;
-        nomes.push({ x: cx, y: py, s: curto ? Math.min(s, 14) : s, txt: curto ? String(lug) : lug + '. ' + (r.n || '?').split(' ')[0], lider: ord[0] === r, pri: curto ? 1 : 0 }); if(SR.tema === 'kart') kpops.push([cx, py, s, r.id]); });
+        nomes.push({ x: cx, y: py, s: curto ? Math.min(s, 14) : s, txt: curto ? String(lug) : lug + '. ' + (r.n || '?').split(' ')[0], lider: ord[0] === r, pri: curto ? 1 : 0, id: r.id, bust: [cx, py - s * 1.5, s * 1.1] }); if(SR.tema === 'kart') kpops.push([cx, py, s, r.id]); });
     }
     // o "nosso" ciclista (a câmara) e os nomes por cima de tudo, dos mais perto para os mais longe
     if(SR.drone === false && !M3){ srCiclista(ctx, W / 2, H * 1.02, Math.min(W, H) * .2, zc, pedal, emPe, W / 2);   // com a câmara fixa há um ciclista à frente dela; o drone voa sozinho
@@ -7577,6 +7916,8 @@ const SR3 = (()=>{
     if(livePlaying && gSeg.tr.kmh >= 38){ ctx.strokeStyle = T.risco; ctx.lineWidth = 2; for(let k = 0; k < 14; k++){ const a = (k / 14) * 6.28 + now * .0007, r1 = Math.min(W, H) * (.55 + ((now * .002 + k * .37) % 1) * .4); ctx.beginPath(); ctx.moveTo(W / 2 + Math.cos(a) * r1, hor + Math.sin(a) * r1 * .6); ctx.lineTo(W / 2 + Math.cos(a) * (r1 + 40), hor + Math.sin(a) * (r1 + 40) * .6); ctx.stroke(); } }
     // vinheta
     if(!SR.full) ctx.drawImage(SR.bg.vin, 0, 0, W, H);   // vinheta só na vista dividida (em ecrã inteiro poupa uma cópia do ecrã todo)
+    SR.lastOrd = ord.map(r=> r.id);
+    if(SR.manga && MANGA.liga()){ try{ MANGA.frame(M3 ? SR3.S.cv : null, SR.cv, W, H, nomes, now); }catch(e){ console.error(e); SR.manga = false; MANGA.desliga(); toast('⚠ O estilo anime não funciona neste computador'); } } else MANGA.desliga();
     // perfil da aula em baixo à esquerda: o que já subiste e o que vem aí
     if(SR.tema === 'paris') srParisMapa(ctx, W, H, zG); else if(SR.tema === 'vale') srRotaMapa(ctx, W, H, zG, ROTAS[SR.rota] || ROTAS.lp); else srPerfil(ctx, W, H, zG);   // mapas e altimetria no ponto do relógio (como os alunos)   // Paris: mini-mapa da cidade
     const dt = performance.now() - t0; SR.draw = Math.max(90, Math.min(SR_DRAW, (SR.draw || SR_DRAW) + (dt > 22 ? -20 : dt < 10 ? 4 : 0)));
@@ -7597,15 +7938,29 @@ const SR3 = (()=>{
       const bk = bl[liveIdx] || b, falta = Math.max(0, Math.round(ini + blockDurationSec(bk) - el));
       const mz = modoAtual(), zf = bk.tipo ? 0 : Math.max(0, zonesOf(mz).indexOf(blkZone(bk)));
       const alvo = String(bk.teste ? 'MÁX' : (mz === 'ftp' ? lblInt(bk) : ZONE_RANGE.ftp[zf])).replace(/\s*%$/, '');
-      $('srHud').innerHTML = '<div class="sr-a"><b style="color:' + srMix(zc, '#ffffff', .3) + '">' + escapeHtml(blkZone(b).name) + '</b><span>' + desc + '</span>' +
+      const prog = tot ? Math.max(0, Math.min(1, el / tot)) : 0;
+      $('srHud').innerHTML = '<div class="sr-a"><div class="sr-kmw"><div class="sr-kmb"><i></i><b>' + km.toFixed(1).replace('.', ',') + '<small>KM</small></b><i></i></div><div class="sr-kmp"><u style="width:' + (prog * 100).toFixed(1) + '%"></u></div><div class="sr-kmt">' + fmtTime(Math.round(el)) + ' <i>/ ' + fmtTime(tot) + '</i></div></div><b style="color:' + srMix(zc, '#ffffff', .3) + '">' + escapeHtml(blkZone(b).name) + '</b><span>' + desc + '</span>' +
           (SR.tema === 'paris' || SR.tema === 'vale' ? (()=>{ const pr = srParisProx(baseI), al = SR.tema === 'vale' ? srRotaAlt(ROTAS[SR.rota] || ROTAS.lp, baseI / (N - 1)) : null; return '<span class="sr-rua">📍 ' + escapeHtml(base.rua || '') + (al != null ? ' · ⛰️ ' + al + ' m' : '') + '</span>' + (pr ? '<span class="sr-rua">' + (pr.aqui ? '📸 ' + escapeHtml(pr.txt) + '!' : 'A seguir: ' + escapeHtml(pr.txt) + ' · ' + pr.km.toFixed(1).replace('.', ',') + ' km') + '</span>' : ''); })() : '') +
           '<div class="sr-alvo"><div><small>ALVO</small><b>' + escapeHtml(String(alvo)) + '</b><small>%FTP</small></div><div><small>CADÊNCIA</small><b>' + rpmTxt(bk) + '</b><small>RPM</small></div></div></div>' +
-        '<div class="sr-t"><small>FALTA NESTE BLOCO</small><b class="' + (falta <= 5 && livePlaying ? 'quase' : '') + '">' + fmtTime(falta) + '</b><span>⏱ ' + fmtTime(Math.round(el)) + ' <i>de ' + fmtTime(tot) + '</i></span></div>' +
-        '<div class="sr-d"><div class="sr-b"><b>' + kmh + '</b><small>km/h</small><b>' + km.toFixed(1).replace('.', ',') + '</b><small>km</small><b>' + Math.round(subiu / SR_M / SR_EXG) + '</b><small>m subidos</small></div>' +
+        '<div class="sr-t"><small>FALTA NESTE BLOCO</small><b class="' + (falta <= 5 && livePlaying ? 'quase' : '') + '">' + fmtTime(falta) + '</b></div>' +
+        '<div class="sr-d"><div class="sr-b">⛰️<b>' + Math.round(subiu / SR_M / SR_EXG) + '</b><small>m subidos</small></div>' +
         (sessionPin ? '<div class="sr-pin">PIN <b>' + escapeHtml(String(sessionPin)) + '</b></div>' : '') +
         '<div class="sr-c">' + (rs.length ? '<b>' + nz + '</b> de ' + rs.length + ' na zona' : 'à espera dos alunos') + '</div>' +
         (SR.met ? '<div class="sr-m">' + MET_TEMPOS[SR.met.tempo][0] + ' <b>' + SR.met.temp + ' °C</b><span>' + MET_FASES[SR.met.fase][1] + ' · ' + MET_TEMPOS[SR.met.tempo][1] + '</span></div>' : '') + '</div>';
-      $('srRank').innerHTML = '<div class="sr-rt">CLASSIFICAÇÃO</div>' + ord.slice(0, SR.cv.clientWidth > 1400 ? 8 : 6).map((r, i)=> '<div><span>' + (i + 1) + '</span><b>' + escapeHtml((r.n || '?').split(' ')[0]) + (r.est ? ' <small class="est-em">≈</small>' : '') + '</b>' + (SR.tema === 'kart' ? '<em class="sr-cog">🍄 ' + ((JG.cog || {})[r.id] || 0) + '</em>' : '') + '<i class="' + (JG.z[r.id] ? 'ok' : '') + '">' + (PR ? srKm(DMv(r.id)) : i ? '−' + fmtTime(Math.round((JG.perc[ord[0].id] || 0) - (JG.perc[r.id] || 0))) : 'líder') + '</i></div>').join('');
+      { // classificação: velocidade do pelotão e, por aluno, W/kg, watts, humor e a diferença para o da frente (em segundos)
+        const Hc = SR.cv.clientHeight, nR = Hc >= 1000 ? 12 : Hc >= 820 ? 9 : Hc >= 620 ? 7 : 5, lid = ord[0];
+        const gapS = r=>{ if(!lid || r === lid) return 0; if(PR){ const v = (r.v > 0 ? r.v : kmh || 25) / 3.6; return Math.max(0, (DMv(lid.id) - DMv(r.id)) / v); } return Math.max(0, (JG.perc[lid.id] || 0) - (JG.perc[r.id] || 0)); };
+        const fg = x=> x < .05 ? '' : x < 60 ? '+' + x.toFixed(1).replace('.', ',') : '+' + fmtTime(Math.round(x));
+        const esf = r=>{ const w = Math.round(r.w || 0);
+          if(r.pw === false && (r.hr || 0) > 0) return '<i>♥</i><em>' + Math.round(r.hr) + '<small>BPM</small></em>' + (r.fc ? '<em>' + Math.round(r.hr / r.fc * 100) + '<small>%FC</small></em>' : '');
+          return '<i>⚡</i>' + (r.kg > 30 ? '<em>' + (w / r.kg).toFixed(1).replace('.', ',') + '<small>W/KG</small></em>' : r.ftp ? '<em>' + Math.round(w / r.ftp * 100) + '<small>%FTP</small></em>' : '') + '<em>' + w + '<small>W</small></em>'; };
+        $('srRank').innerHTML = '<div class="r2-h"><i></i>CLASSIFICAÇÃO<i></i></div><div class="r2-v"><span>🚴</span><b>VELOCIDADE<br>DO PELOTÃO</b><em>' + kmh + '<small>KM/H</small></em></div>' +
+          ord.slice(0, nR).map((r, i)=> '<div class="r2' + (i === 0 ? ' lid' : '') + (JG.z[r.id] ? ' ok' : '') + '"><span class="r2-p">' + (i + 1) + '</span><div class="r2-c"><b>' + escapeHtml(r.n || '?') + (r.est ? '<small class="est-em">📱≈</small>' : '') + '</b><p>' + esf(r) +
+            (SR.tema === 'kart' ? '<em class="sr-cog">🍄 ' + ((JG.cog || {})[r.id] || 0) + '</em>' : moodEm(r)) + '<u>' + (i ? fg(gapS(r)) : PR ? srKm(DMv(r.id)) : '') + '</u></p></div></div>').join('');
+        // não pode tapar o PIN e a meteorologia (em cima à direita): tira os últimos até caber
+        const rk = $('srRank'), sd = $('srHud').querySelector('.sr-d'), rows = rk.querySelectorAll('.r2');
+        if(sd){ const lim = sd.getBoundingClientRect().bottom + 10; for(let k = rows.length - 1; k >= 3 && rk.getBoundingClientRect().top < lim; k--) rows[k].remove(); }
+      }
     }
   }
   // altimetria: desenhada uma vez numa imagem; em cada imagem só se escurece o que já foi feito e se põe o ponto
@@ -7633,7 +7988,7 @@ const SR3 = (()=>{
   function srMonta(gp){
     if(gp.dataset.serra === '1' && SR.cv && SR.cv.isConnected) return;
     gp.dataset.serra = '1';
-    gp.innerHTML = '<div class="sr-box' + (SR.full ? ' full' : '') + '" id="srBox"><canvas id="srCv" aria-label="Estrada da serra a andar com a aula"></canvas><div class="sr-hud" id="srHud"></div><div class="sr-rank" id="srRank"></div><button class="sr-fs" id="srFs" title="Ecrã inteiro (tecla E ou duplo clique na estrada)">⛶</button><button class="sr-metb" id="srMet" title="Hora do dia e tempo da Serra">🌤️</button><button class="sr-metb sr-neob" id="srNeo" title="Bonecos em néon ou com a roupa escolhida" hidden>✨</button><button class="sr-metb sr-drb" id="srDr" title="Câmara drone (a voar à volta dos alunos) ou fixa atrás do último">🚁</button><button class="sr-metb sr-drc" id="srDrC" title="Definir a velocidade, os planos e o trajeto do drone">⚙️</button><button class="sr-metb sr-3d" id="sr3d" title="Projeção em 3D ou em 2D (desenho clássico)">🧊</button><div class="sr-metm" id="srMetM" hidden></div></div>' +
+    gp.innerHTML = '<div class="sr-box' + (SR.full ? ' full' : '') + '" id="srBox"><canvas id="srCv" aria-label="Estrada da serra a andar com a aula"></canvas><div class="sr-hud" id="srHud"></div><div class="sr-rank" id="srRank"></div><button class="sr-fs" id="srFs" title="Ecrã inteiro (tecla E ou duplo clique na estrada)">⛶</button><button class="sr-metb" id="srMet" title="Hora do dia e tempo da Serra">🌤️</button><button class="sr-metb sr-neob" id="srNeo" title="Bonecos em néon ou com a roupa escolhida" hidden>✨</button><button class="sr-metb sr-drb" id="srDr" title="Câmara drone (a voar à volta dos alunos) ou fixa atrás do último">🚁</button><button class="sr-metb sr-drc" id="srDrC" title="Definir a velocidade, os planos e o trajeto do drone">⚙️</button><button class="sr-metb sr-3d" id="sr3d" title="Projeção em 3D ou em 2D (desenho clássico)">🧊</button><button class="sr-metb sr-mg" id="srMg" title="Estilo anime: cores vivas e contornos pretos, com vinhetas nos grandes planos">🖌️</button><div class="sr-metm" id="srMetM" hidden></div></div>' +
       '<div class="perc-info">🌲 Serra: a estrada nasce da cadência dos blocos. 80–115 rpm é plano; 60–80 rpm com técnica de subida é subida (menos rpm e zona mais alta = mais inclinada: 80 rpm em Z2 ≈ 3%, 60 rpm em Z4 ≈ 20%); Z1 e retorno à calma são descida; Z7 é sprint. Quem cumpre a zona vai à frente.</div>';
     SR.cv = $('srCv'); SR.ctx = SR.cv.getContext('2d'); SR.bgKey = '';
     const fsTroca = ()=>{ SR.full = !SR.full; $('srBox').classList.toggle('full', SR.full); document.body.classList.toggle('sr-full-on', SR.full); $('srFs').textContent = SR.full ? '✕' : '⛶'; $('srFs').title = SR.full ? 'Sair da estrada em ecrã inteiro (tecla E ou Esc)' : 'Ecrã inteiro (tecla E ou duplo clique na estrada)'; };
@@ -7643,6 +7998,8 @@ const SR3 = (()=>{
     $('sr3d').onclick = ()=>{ SR.m3 = !SR.m3; try{ localStorage.setItem('prSr3D', SR.m3 ? '1' : '0'); }catch(e){} $('sr3d').classList.toggle('off', !SR.m3); if(SR.m3) SR3.carrega(); else toast('🖼️ Projeção em 2D'); };
     $('srDr').classList.toggle('off', SR.drone === false);
     $('srDr').onclick = ()=>{ SR.drone = SR.drone === false; try{ localStorage.setItem('prSrDrone', SR.drone ? '1' : '0'); }catch(e){} $('srDr').classList.toggle('off', !SR.drone); toast(SR.drone ? '🚁 Câmara drone' : '🎥 Câmara fixa atrás do último'); };
+    SR.manga = (()=>{ try{ return localStorage.getItem('prSrManga') === '1'; }catch(e){ return false; } })(); $('srMg').classList.toggle('off', !SR.manga);
+    $('srMg').onclick = ()=>{ SR.manga = !SR.manga; try{ localStorage.setItem('prSrManga', SR.manga ? '1' : '0'); }catch(e){} $('srMg').classList.toggle('off', !SR.manga); toast(SR.manga ? '🖌️ Estilo anime' : '🎨 Desenho normal'); };
     $('srNeo').onclick = ()=>{ SR.neonB = SR.neonB === false; try{ localStorage.setItem('prSrNeon', SR.neonB ? '1' : '0'); }catch(e){} toast(SR.neonB ? '✨ Bonecos em néon' : '🚴 Bonecos com a roupa escolhida'); };
     $('srMet').onclick = ()=>{ const mm = $('srMetM'); mm.hidden = !mm.hidden; if(!mm.hidden) metMenu(); };
     $('srFs').textContent = SR.full ? '✕' : '⛶';
