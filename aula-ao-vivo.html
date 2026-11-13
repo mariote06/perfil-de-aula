@@ -2063,10 +2063,24 @@ body.ecra4-on #kartCog{display:none!important;}
     const den = R[Lb - 1] - 2 * R[Lb] + R[Lb + 1], d = den ? .5 * (R[Lb - 1] - R[Lb + 1]) / den : 0;
     return 60 * FS / (Lb + Math.max(-.5, Math.min(.5, d)));
   }
+  // liga o acelerómetro e confirma que chegam mesmo dados (o Chrome do Android às vezes responde "não" ao pedido e envia na mesma)
   async function accLiga(){
-    if(!('DeviceMotionEvent' in window)) return false;
-    try{ if(typeof DeviceMotionEvent.requestPermission === 'function' && await DeviceMotionEvent.requestPermission() !== 'granted') return false; }catch(e){ return false; }   // iPhone: pede autorização
-    window.removeEventListener('devicemotion', accEv); window.addEventListener('devicemotion', accEv); return true;
+    if(!('DeviceMotionEvent' in window) && !('ondevicemotion' in window)) return false;
+    let pedido = '';
+    if(window.DeviceMotionEvent && typeof DeviceMotionEvent.requestPermission === 'function'){ try{ pedido = await DeviceMotionEvent.requestPermission(); }catch(e){ pedido = 'erro'; } }   // iPhone: pede autorização
+    window.removeEventListener('devicemotion', accEv); window.addEventListener('devicemotion', accEv);
+    const t0 = performance.now(); for(let i = 0; i < 15 && ACC.ult <= t0; i++) await new Promise(r=> setTimeout(r, 100));
+    return ACC.ult > t0;   // o sensor envia sempre (até parado, por causa da gravidade): se nada chegou em 1,5 s, está bloqueado
+  }
+  // no ecrã de entrada: mostra a cadência ao vivo para o aluno testar antes de começar
+  let ssnTeste = null;
+  function ssnTestaLiga(){
+    clearInterval(ssnTeste);
+    ssnTeste = setInterval(()=>{
+      if(semSens !== 'bolso' || !$('setupScreen').classList.contains('active')){ clearInterval(ssnTeste); ssnTeste = null; return; }
+      const c = accCad();
+      $('ssnSt').textContent = c == null ? '📱 sem sinal do acelerómetro' : c > 0 ? '📱 a contar: ' + Math.round(c) + ' rpm' : '📱 no bolso: pedala para testar';
+    }, 1000);
   }
   function accDesliga(){ window.removeEventListener('devicemotion', accEv); ACC.ult = 0; ACC.rpm = 0; }
   function rpeDoBloco(b){ const T = modo === 'fc' ? RPE_FC : RPE_FTP, v = (b && b.ftp) || 0; let k = 1; for(let i = 1; i <= 10; i++) if(Math.abs(T[i] - v) < Math.abs(T[k] - v)) k = i; return k; }
@@ -2100,12 +2114,17 @@ body.ecra4-on #kartCog{display:none!important;}
   function ssnMuda(d){ SSN.rpe = Math.max(0, Math.min(10, SSN.rpe + d)); if(semSens && !bikeConnected()) genSemSens(); ssnUi(); try{ navigator.vibrate && navigator.vibrate(15); }catch(e){} }
   async function ssnEscolhe(m){
     if(semSens === m){ semSens = null; accDesliga(); }
-    else { semSens = m; demo = false; if(m === 'bolso'){ if(!await accLiga()){ semSens = 'guiador'; toast('Este telemóvel não deixa usar o acelerómetro: fica com a cadência alvo'); } } else accDesliga(); }
+    else { semSens = m; demo = false;
+      if(m === 'bolso'){ $('ssnSt').textContent = 'a ligar o acelerómetro…';
+        if(!await accLiga()){ accDesliga(); semSens = 'guiador'; toast('📱 Acelerómetro bloqueado: fica com a cadência alvo'); ssnEscolhe.bloq = true; } }
+      else accDesliga(); }
     $('ssnBolso').classList.toggle('on', semSens === 'bolso'); $('ssnGuiador').classList.toggle('on', semSens === 'guiador');
     $('ssnSt').classList.toggle('on', !!semSens);
     $('ssnSt').textContent = semSens === 'bolso' ? 'telemóvel no bolso da calça: conta as tuas pedaladas' : semSens === 'guiador' ? 'telemóvel no guiador: usa a cadência alvo' : 'sem bike nem cinta ligadas';
     if(semSens && !$('ftpInput').value) $('ftpInput').value = lsGet(LS.ftp) || '';
     if(semSens) $('setupError').textContent = '';
+    if(semSens === 'bolso') ssnTestaLiga();
+    if(ssnEscolhe.bloq){ ssnEscolhe.bloq = false; $('ssnSt').innerHTML = '⚠ O telemóvel não deixa ler o acelerómetro. No Chrome: <b>⋮ → Definições → Definições de sites → Sensores de movimento → Permitir</b> e volta a tocar em “No bolso”. Por agora: cadência alvo.'; }
   }
 
   function genDemo(){
