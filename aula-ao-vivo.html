@@ -474,13 +474,14 @@ body.solo-livre #progress{display:none;}
 
 /* ---------- ligar a bike e a cinta (ecrã antes de entrar) ---------- */
 #setupScreen .form{max-width:400px;}
+
 .par2{display:flex;gap:10px;align-items:flex-end}.par2>label{flex:1 1 0;min-width:0}.par2>label[style*="none"]{display:none!important}
 .favs{border:1px solid rgba(255,214,10,.35);background:rgba(255,214,10,.07);border-radius:12px;padding:10px 12px}
 .favs[hidden]{display:none}.favs-h{font-size:13px;font-weight:700;color:#FFD60A;margin-bottom:8px}.favs-h small{font-weight:400;color:var(--muted);margin-left:4px}
 .favs-l{display:flex;flex-wrap:wrap;gap:8px}
 .fav{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--surface);color:#fff;border-radius:999px;padding:8px 12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
 .fav.on{border-color:var(--ok);color:var(--ok)}.fav .fx{margin-left:2px;opacity:.55;font-size:13px;padding:0 2px}
-.fav-st,#setupScreen .sensor .fav-st{background:none!important;border:0!important;min-width:0;font-weight:400!important;color:#FFD60A;font-size:18px;line-height:1;cursor:pointer;padding:0 4px;vertical-align:-1px}.fav-st[hidden]{display:none}
+.fav-st,#setupScreen .sensor .fav-st{background:none!important;border:0!important;min-width:0;font-weight:400!important;color:#FFD60A;font-size:28px!important;line-height:1;cursor:pointer;padding:2px 8px!important;vertical-align:-3px;margin-left:2px}.fav-st[hidden]{display:none}
 #setupScreen .sensor{padding:16px 16px;border-radius:14px;min-height:76px;}
 #setupScreen .sensor .s-name{font-size:19px;font-weight:800;}
 #setupScreen .sensor .s-status{font-size:15px;font-weight:600;margin-top:4px;}
@@ -950,6 +951,50 @@ body.ecra4-on #kartCog{display:none!important;}
 .cp-card input{width:120px;background:#1B2030;border:1px solid #39405A;color:#fff;border-radius:10px;padding:10px;font:700 18px 'Inter',sans-serif;text-align:center;}
 .cp-bts{display:flex;gap:8px;margin-top:14px;} .cp-bts button{flex:1;border-radius:12px;padding:12px;font:700 16px 'Inter',sans-serif;border:1px solid #39405A;background:#232838;color:#fff;cursor:pointer;}
 .cp-bts #cpSim{background:#3DD45C;border-color:#3DD45C;color:#0A0C10;} .cp-card small{display:block;margin-top:10px;color:#8C95A6;font-size:12px;} .cp-card .cp-err{color:#FF8A8A;font-size:13px;min-height:16px;margin-top:6px;}
+
+/* ---- ecrã dos sensores compacto: tudo cabe num ecrã de telemóvel, sem scroll ---- */
+#setupScreen{position:relative;justify-content:flex-start;gap:8px;padding:14px 16px 26px}
+#setupScreen .back-top{padding:2px 0;font-size:14px}
+#setupScreen h1{font-size:26px;line-height:1.05;margin-top:-4px}
+#setupScreen #setupP{font-size:12px;max-width:none;line-height:1.3}
+#setupScreen .form{gap:8px}
+#setupScreen .form label{gap:3px;font-size:11.5px}
+#setupScreen .form input{padding:9px 12px;font-size:16px}
+#setupScreen .hint{font-size:11.5px;line-height:1.3}
+#setupScreen .sensor{padding:7px 12px!important;min-height:0!important;border-radius:12px}
+#setupScreen .sensor .s-name{font-size:16px!important}
+#setupScreen .sensor .s-status{font-size:12.5px!important;margin-top:1px!important}
+#setupScreen .sensor button{font-size:14px!important;padding:8px 14px!important}
+#setupScreen .ssn-row{flex-wrap:nowrap;gap:8px}
+#setupScreen .ssn-row .ssn-b{display:flex;gap:6px}
+#setupScreen .ssn-row .ssn-b button{padding:8px 10px;font-size:13px;white-space:nowrap}
+#setupScreen .bt-all{padding:6px 10px!important;font-size:12.5px!important;border-width:1px!important;font-weight:600!important}
+#setupScreen #bikeHelp{display:none}
+#setupScreen .favs{padding:7px 10px}#setupScreen .favs-h{margin-bottom:6px}#setupScreen .fav{padding:6px 10px;font-size:13px}
+#setupScreen .sensor .fav-st{font-size:24px!important;padding:0 6px!important}
+#setupScreen .acct-line{font-size:12px;line-height:1.3}
+#setupScreen .btn-primary{padding:12px 24px}
+#setupScreen .err{min-height:0}
+#setupScreen #demoBtn{padding:2px}
+.safe-min{position:absolute;top:10px;right:12px;width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,59,59,.55);background:rgba(255,59,59,.14);font-size:18px;line-height:1;cursor:pointer;z-index:6}
+.safety.safe-pop{position:absolute;top:54px;right:12px;left:12px;max-width:none;z-index:7;background:#2A1215;box-shadow:0 10px 30px rgba(0,0,0,.55);display:none}
+.safety.safe-pop.on{display:flex}
+.safe-x{margin-left:auto;background:none;border:0;color:#fff;font-size:16px;padding:0 2px;align-self:flex-start;cursor:pointer}
+#setupScreen .ssn-row{display:flex!important;flex-direction:row!important;align-items:center;justify-content:space-between}
+#setupScreen .ssn-row .ssn-b button{padding:7px 10px!important;font-size:13px!important}
+#setupScreen .ssn-row .s-status{font-size:11.5px!important}
+#setupScreen .acct-line{font-size:11.5px!important;line-height:1.3}
+#setupScreen .acct-line *{font-size:inherit}
+
+#setupScreen .reg-box{padding:8px 10px!important;font-size:11.5px!important;line-height:1.3}
+#setupScreen .reg-box>b{font-size:12.5px!important}
+#setupScreen .reg-box .reg-row{margin-top:6px!important;gap:10px}
+#setupScreen .reg-box .btn-reg{padding:7px 12px!important;font-size:13px!important}
+.safety.safe-pop{box-sizing:border-box;width:auto}
+#setupScreen #setupP{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+#setupScreen{gap:7px}#setupScreen .form{gap:7px}
+#setupScreen:has(#favBox:not([hidden])) #demoBtn{display:none}   /* com favoritos não faz falta o modo teste */
+.favs-dica{font-size:11px;color:var(--muted);line-height:1.3;margin-top:6px}.favs-dica[hidden]{display:none}.favs-dica b{color:#ddd;font-weight:600}
 </style>
 </head>
 <body>
@@ -1200,9 +1245,9 @@ body.ecra4-on #kartCog{display:none!important;}
     </label>
     </div>
     <div class="hint" id="fcHint" style="display:none">Esta aula é por frequência cardíaca. Não sabes a tua FC máxima? Usa 220 − a tua idade.</div>
-    <div class="hint">Não sabes o teu FTP? Começa com 2 × o teu peso (70 kg → 140 W) e o instrutor ajuda a afinar.</div>
+    <div class="hint" id="ftpHint">Não sabes o teu FTP? Começa com 2 × o teu peso (70 kg → 140 W) e o instrutor ajuda a afinar.</div>
 
-    <div class="favs" id="favBox" hidden><div class="favs-h">⭐ Os teus favoritos <small>toca para ligar</small></div><div class="favs-l" id="favList"></div></div>
+    <div class="favs" id="favBox" hidden><div class="favs-h">⭐ Os teus favoritos <small>toca para ligar</small></div><div class="favs-l" id="favList"></div><div class="favs-dica" id="favDica" hidden>Este browser ainda pede para confirmar na lista. Para ligar logo: no Chrome, abre <b>chrome://flags</b>, procura <b>Web Bluetooth new permissions backend</b> e põe <b>Enabled</b>.</div></div>
     <div class="sensor">
       <div><div class="s-name">🚲 Bike <button type="button" class="fav-st" id="favBike" hidden title="Guardar nos favoritos">☆</button></div><div class="s-status" id="bikeStatus">desligada</div></div>
       <button id="bikeBtn">Ligar</button>
@@ -1216,11 +1261,11 @@ body.ecra4-on #kartCog{display:none!important;}
       <div class="ssn-b"><button id="ssnBolso" title="O acelerómetro do telemóvel conta as pedaladas">No bolso</button><button id="ssnGuiador" title="Usa a cadência alvo">No guiador</button></div>
     </div>
     <button id="ultBikeBtn" class="bt-all bt-ult" style="display:none"></button>
-    <button id="showAllBtn" class="bt-all">🔍 Não aparece? Mostrar todos os dispositivos Bluetooth</button>
+    <button id="showAllBtn" class="bt-all" title="Antes de ligar: pedala um pouco para acordar a consola. O Bluetooth e a Localização do telemóvel têm de estar ligados.">🔍 Não aparece? Ver todos os dispositivos</button>
     <div class="hint" id="bikeHelp">Antes de ligar: pedala um pouco para acordar a consola da bike. Tens de ter o Bluetooth e a Localização do telemóvel ligados.</div>
     <div class="warn" id="btWarn"></div>
   </div>
-  <div class="safety" id="setupSafety"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17.5v.01"/></svg><div id="setupSafetyTxt">Se sentires <b>dor no peito, tonturas, falta de ar ou qualquer desconforto</b>, pára de pedalar e pede ajuda ao professor da aula.</div></div>
+  <button type="button" class="safe-min" id="safeMin" aria-expanded="false" title="Segurança">⚠️</button><div class="safety safe-pop" id="setupSafety"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17.5v.01"/></svg><div id="setupSafetyTxt">Se sentires <b>dor no peito, tonturas, falta de ar ou qualquer desconforto</b>, pára de pedalar e pede ajuda ao professor da aula.</div><button type="button" class="safe-x" id="safeX" aria-label="Fechar">✕</button></div>
   <div class="acct-line" id="fichaLine"></div>
   <div class="acct-line" id="acctLine"></div>
   <button id="enterBtn" class="btn-primary">Entrar na aula</button>
@@ -1875,16 +1920,37 @@ body.ecra4-on #kartCog{display:none!important;}
   function favsRender(){
     const L = favsLe().sort((a, b)=> (a.t === 'bike' ? 0 : 1) - (b.t === 'bike' ? 0 : 1)), box = $('favBox'); if(!box) return;
     box.hidden = !L.length || !hasBluetooth;
+    $('favDica').hidden = !!(navigator.bluetooth && navigator.bluetooth.getDevices) || !/Chrome/.test(navigator.userAgent);
     $('favList').innerHTML = L.map((f, i)=> '<button type="button" class="fav' + (((f.t === 'bike' && bikeConnected() && S.bikeName === f.n) || (f.t === 'hr' && S.hrDev && S.hrDev.gatt.connected && S.hrName === f.n)) ? ' on' : '') + '" data-i="' + i + '">' + (f.t === 'bike' ? '🚲' : '♥') + ' <span></span><i class="fx" data-x="' + i + '" title="Tirar dos favoritos">✕</i></button>').join('');
     $('favList').querySelectorAll('.fav span').forEach((el, i)=> el.textContent = L[i].n);
     const bOn = bikeConnected(), hOn = !!(S.hrDev && S.hrDev.gatt.connected);
     $('favBike').hidden = !bOn; $('favBike').textContent = bOn && favTem('bike', S.bikeName) ? '★' : '☆';
     $('favHr').hidden = !hOn; $('favHr').textContent = hOn && favTem('hr', S.hrName) ? '★' : '☆';
   }
+  // espera que o dispositivo autorizado esteja por perto (o Chrome só liga a um dispositivo guardado depois de o "ouvir")
+  async function favOuve(d, ms){
+    if(!d.watchAdvertisements) return;
+    const ac = window.AbortController ? new AbortController() : null;
+    try{
+      await new Promise((ok, ko)=>{ const t = setTimeout(()=> ko(new Error('longe')), ms);
+        d.addEventListener('advertisementreceived', function h(){ clearTimeout(t); d.removeEventListener('advertisementreceived', h); ok(); });
+        d.watchAdvertisements(ac ? { signal: ac.signal } : undefined).catch(e=>{ clearTimeout(t); ko(e); }); });
+    }finally{ try{ ac && ac.abort(); }catch(e){} }
+  }
   async function favLiga(f){
-    // 1) sem lista: o Chrome lembra-se dos dispositivos já autorizados
-    try{ if(f.id && navigator.bluetooth.getDevices){ const d = (await navigator.bluetooth.getDevices()).find(x=> x.id === f.id); if(d){ if(f.t === 'bike') return connectBike(false, null, d); return connectHr(null, d); } } }catch(e){}
-    // 2) lista só com esse dispositivo
+    const st = f.t === 'bike' ? setBikeStatus : setHrStatus;
+    // 1) direto, sem lista: dispositivos que este browser já autorizou (getDevices)
+    if(navigator.bluetooth.getDevices){
+      let d = null;
+      try{ const L = await navigator.bluetooth.getDevices(); d = L.find(x=> f.id && x.id === f.id) || L.find(x=> x.name === f.n) || null; }catch(e){}
+      if(d){
+        st('a procurar a ' + f.n + '…' + (f.t === 'bike' ? ' pedala para acordar a consola' : ''), false);
+        try{ await favOuve(d, 9000); }catch(e){ console.warn('favorito não ouvido', e); }
+        if(f.t === 'bike') return connectBike(false, null, d);
+        return connectHr(null, d);
+      }
+    }
+    // 2) este browser ainda não guarda autorizações: abre a lista só com esse dispositivo (um toque para confirmar)
     return f.t === 'bike' ? connectBike(false, f.n) : connectHr(f.n);
   }
   async function connectBike(showAll, favNome, favDev){
@@ -6177,6 +6243,11 @@ body.ecra4-on #kartCog{display:none!important;}
   })();
   if(!hasBluetooth) $('showAllBtn').style.display = 'none';   // sem Bluetooth na web (iPhone fora do Bluefy) não serve
   $('hrBtn').addEventListener('click', ()=> connectHr());
+  const safeTog = on=>{ $('setupSafety').classList.toggle('on', on); $('safeMin').setAttribute('aria-expanded', on ? 'true' : 'false'); };
+  $('safeMin').addEventListener('click', ()=> safeTog(!$('setupSafety').classList.contains('on')));
+  $('safeX').addEventListener('click', ()=> safeTog(false));
+  const ftpHintSync = ()=>{ const v = Number($('ftpInput').value) || 0; $('ftpHint').style.display = v >= 50 ? 'none' : ''; };
+  $('ftpInput').addEventListener('input', ftpHintSync); setInterval(()=>{ if(currentScreen === 'setupScreen') ftpHintSync(); }, 700);
   $('favBike').addEventListener('click', e=>{ e.stopPropagation(); favAlterna('bike'); });
   $('favHr').addEventListener('click', e=>{ e.stopPropagation(); favAlterna('hr'); });
   $('favList').addEventListener('click', e=>{
@@ -6666,7 +6737,7 @@ body.ecra4-on #kartCog{display:none!important;}
     const el = $('acctLine');
     if(!el) return;
     if(user){ el.innerHTML = '<b>✓</b> Sessão iniciada como ' + escapeHtml((perfil && perfil.nome) || user.email) + '. O treino fica guardado na tua conta.'; }
-    else { el.innerHTML = '<div class="reg-box"><b>💾 Guarda este treino na tua conta</b>Com conta grátis, cada treino fica guardado com gráfico e a tua evolução.<div class="reg-row"><button type="button" class="btn-reg" id="setupRegBtn">Criar conta grátis</button><a href="#" id="setupAcctLink">Já tenho conta</a></div></div>'; }
+    else { el.innerHTML = '<div class="reg-box"><b>💾 Guarda este treino na tua conta</b> Grátis: cada treino fica com gráfico e evolução.<div class="reg-row"><button type="button" class="btn-reg" id="setupRegBtn">Criar conta grátis</button><a href="#" id="setupAcctLink">Já tenho conta</a></div></div>'; }
   }
 
   function updateAccountBtn(){
@@ -7846,7 +7917,7 @@ body.ecra4-on #kartCog{display:none!important;}
     if(fc) $('fcHint').textContent = 'Pela tua ficha, a tua FC máxima é ' + fc + ' bpm.';
     else $('fcHint').textContent = solo && modo !== 'fc'
       ? 'Opcional: serve para as tuas zonas de FC se usares a cinta. Não sabes? Preenche a tua ficha e calculamos pela idade.'
-      : 'Esta aula é por frequência cardíaca. Preenche a tua ficha para calcularmos a tua FC máxima pela idade.';
+      : 'Aula por FC: preenche a ficha e calculamos a tua FC máxima pela idade.';
     if(!ficha){
       $('fichaLine').innerHTML = 'Ainda não tens ficha. <a href="#" id="fichaLink">Preenche a tua ficha</a> (2 minutos) para treinares com as tuas zonas e em segurança.';
     } else if(fichaAlerta(ficha)){
