@@ -1630,6 +1630,21 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 .podio-t li.p1{background:linear-gradient(90deg,rgba(245,197,66,.45),rgba(245,197,66,.12));} .podio-t li.p2{background:linear-gradient(90deg,rgba(201,209,219,.4),rgba(201,209,219,.1));} .podio-t li.p3{background:linear-gradient(90deg,rgba(205,138,74,.45),rgba(205,138,74,.1));}
 .podio-x{position:absolute;top:14px;right:14px;width:44px;height:44px;border-radius:12px;border:0;background:rgba(255,255,255,.12);color:#fff;font-size:20px;cursor:pointer;}
 .est-em{font-size:.72em;opacity:.8;font-weight:700;white-space:nowrap;}
+.sl-vazio{margin:auto;text-align:center;color:var(--muted);font-size:18px;line-height:1.6}.sl-vazio button{margin-top:10px;font:inherit;font-weight:700;background:var(--accent);color:#111;border:0;border-radius:10px;padding:8px 16px;cursor:pointer}
+.sl-proj{flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;min-height:0}
+.sl-ecra{font:800 calc(13px * var(--sf,1)) 'Barlow Condensed',sans-serif;letter-spacing:.2em;color:#111;background:var(--accent);border-radius:6px;padding:2px 18px;min-width:40%;text-align:center}
+.sl-pl{position:relative;flex:0 0 auto}
+.sl-b{position:absolute;box-sizing:border-box;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;text-align:center;line-height:1.05}
+.sl-b.vaz{border:2px dashed #2A3240;color:#4A5568}.sl-b.vaz .sl-n{position:static;font:800 calc(30px * var(--sf,1)) 'Barlow Condensed',sans-serif;color:#3A4456}.sl-b.prof{border-color:#5a3d22}
+.sl-b.oc{background:linear-gradient(160deg,color-mix(in srgb,var(--zc) 34%,#111820),#111820 75%);border:2px solid var(--zc);cursor:grab}
+.sl-b.inz{box-shadow:0 0 calc(18px * var(--sf,1)) var(--zc)}.sl-b.off{opacity:.45;filter:grayscale(.7)}
+.sl-n{position:absolute;left:6px;top:4px;font:700 calc(12px * var(--sf,1)) 'Barlow Condensed',sans-serif;color:#8A93A3}
+.sl-nm{font:700 calc(17px * var(--sf,1)) 'Barlow Condensed',sans-serif;color:#fff;max-width:96%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:3px}
+.sl-nm .ae{width:1em;height:1em}
+.sl-w{font:800 calc(36px * var(--sf,1)) 'Barlow Condensed',sans-serif;color:#fff}.sl-w small{font-size:.45em;margin-left:2px;color:#ccd}
+.sl-s{font:600 calc(13px * var(--sf,1)) 'Barlow Condensed',sans-serif;color:var(--zc)}
+.sl-sem{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:13px;color:var(--muted);padding:6px;border-top:1px solid #1B212B}
+.sl-ch{background:#232934;color:#fff;border-radius:999px;padding:4px 10px;cursor:grab;font-weight:600}
 </style>
 </head>
 <body data-view="home">
@@ -1658,6 +1673,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     <button data-go="lib"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5v14H4zM10 5h4v14h-4zM15.5 6.2l3.8-1 3 13.6-3.8 1z"/></svg>Biblioteca</button>
     <button data-go="hist"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>Treinos realizados</button>
     <a href="aula-ao-vivo.html?livre=1" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9h6l3.5 7.5M9 9 12 16.5h-3M14 6h2.5l-1.5 3"/></svg>Só pedalar</a>
+    <button type="button" id="navSala" title="Mapa da sala: o lugar e o número de cada bike em Lousada e Penafiel, para a projeção mostrar cada aluno na sua bike"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v3h10V4M7 11h2M11 11h2M15 11h2M8 15.5h2M12 15.5h2"/></svg>Sala</button>
     <button type="button" id="navBonecos" title="Editor dos bonecos: afinar a postura, o pescoço, os capacetes e os chapéus dos ciclistas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="2.3"/><path d="M12 7v7M7 9.5l5 1.5 5-1.5M12 14l-3 7M12 14l3 7"/></svg>Bonecos</button>
   </nav>
   </div>
@@ -1936,6 +1952,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       <button data-mode="aula" title="Tecla 1">Aula</button>
       <button data-mode="turma" title="Tecla 2">Turma</button>
       <button data-mode="corrida" title="Tecla 3">Corrida</button>
+      <button data-mode="sala" title="Cada aluno na sua bike, na planta da sala (tecla 5)">Sala</button>
       <button class="god-btn" id="godBtn" title="God Mode na tua app PlayRide: ligar, desligar e escolher a conta (tecla 4)">⚡ God</button>
     </div>
     <button class="ctrl" id="liveBack" title="Bloco anterior">⏮</button>
@@ -7975,6 +7992,178 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     return { pede, passo, desenha, limpa, get pronto(){ return [...C.values()].filter(e=> e.pronto[0]).length; } };
   })();
   // =====================================================================
+  // MAPA DA SALA (menu "Sala"): planta de cada estúdio (Lousada e Penafiel) com o lugar de cada bike, o número e o nome Bluetooth da consola.
+  // Na projeção, o modo "Sala" (tecla 5) mostra cada aluno na sua bike: pelo nome Bluetooth da bike que ligou, pelo número no nome
+  // (ex.: "SCHWINN 12" → bike 12) ou arrastando o nome do aluno para a bike. Guarda neste PC e na conta (salasMapa/{sala}) para os dois PCs.
+  // =====================================================================
+  const SALA = (()=>{
+    const NOME = { LSD: 'Lousada', PNF: 'Penafiel' };
+    let M = {}, E = null, lug = {}, lugPin = null, arr = null;
+    try{ M = JSON.parse(localStorage.getItem('prSalaMapa') || '{}') || {}; }catch(e){ M = {}; }
+    function mapa(s){ const m = M[s]; return m && Array.isArray(m.b) ? m : { b: [] }; }
+    function grava(s){ try{ localStorage.setItem('prSalaMapa', JSON.stringify(M)); }catch(e){}
+      try{ if(typeof fbDb !== 'undefined' && fbDb) return fbDb.ref('salasMapa/' + s).set(M[s]).then(()=> true, ()=> false); }catch(e){} return Promise.resolve(false); }
+    function carrega(){ try{ if(typeof fbDb === 'undefined' || !fbDb) return; fbDb.ref('salasMapa').once('value').then(sn=>{ const v = sn.val(); if(!v) return;
+      Object.keys(v).forEach(k=>{ if(v[k] && Array.isArray(v[k].b) && !(E && E.sujo)) M[k] = v[k]; }); try{ localStorage.setItem('prSalaMapa', JSON.stringify(M)); }catch(e){} if(E) desenha(); }, ()=>{}); }catch(e){} }
+    setTimeout(carrega, 2500);
+    const norm = s=> String(s || '').trim().toUpperCase().replace(/\s+/g, ' ');
+    const numDe = s=>{ const m = String(s || '').match(/(\d+)\s*$/); return m ? String(+m[1]) : null; };
+    // aluno → bike
+    function lugares(list, s){
+      if(lugPin !== sessionPin){ lugPin = sessionPin; try{ lug = JSON.parse(localStorage.getItem('prSalaLug_' + sessionPin) || '{}') || {}; }catch(e){ lug = {}; } }
+      const m = mapa(s), out = {}, usadas = {};
+      list.forEach(r=>{ const b = lug[r.id] && m.b.find(x=> x.id === lug[r.id]); if(b && !usadas[b.id]){ out[r.id] = b; usadas[b.id] = 1; } });
+      list.forEach(r=>{ if(out[r.id] || !r.bn || lug[r.id] === '-') return; const bn = norm(r.bn);
+        let b = m.b.find(x=> !usadas[x.id] && x.bt && norm(x.bt) === bn);
+        if(!b){ const n = numDe(bn); if(n) b = m.b.find(x=> !usadas[x.id] && !x.bt && !x.p && String(x.n) === n); }
+        if(b){ out[r.id] = b; usadas[b.id] = 1; } });
+      return out;
+    }
+    function poeLugar(rid, bid){ Object.keys(lug).forEach(k=>{ if(lug[k] === bid) delete lug[k]; }); if(bid) lug[rid] = bid; else delete lug[rid];
+      try{ localStorage.setItem('prSalaLug_' + sessionPin, JSON.stringify(lug)); }catch(e){} }
+    // ---------- projeção ----------
+    function render(list, block, targetZone){
+      const s = salaLive(), m = mapa(s), gp = $('gamePanel');
+      gp.style.display = 'flex'; $('rgrid').style.display = 'none'; $('lanes').style.display = 'none';
+      if(!m.b.length){ gp.innerHTML = '<div class="sl-vazio">Ainda não há mapa da sala de ' + NOME[s] + '.<br><button type="button" id="slAbreEd">Desenhar a sala</button></div>'; $('slAbreEd').onclick = abre; return; }
+      const L = lugares(list, s), porB = {}; Object.keys(L).forEach(id=> porB[L[id].id] = list.find(r=> r.id === id));
+      const fcMode = modoAtual() === 'fc';
+      const xs = m.b.map(b=> b.x), ys = m.b.map(b=> b.y), x0 = Math.min(...xs), x1 = Math.max(...xs), y0 = Math.min(...ys), y1 = Math.max(...ys);
+      // tamanho do cartão: a distância mais comum entre cada bike e a vizinha mais próxima (bikes de 2 em 2 quadrados → cartões de 2 quadrados)
+      const viz = m.b.map(a=> Math.min(3, ...m.b.filter(c=> c !== a).map(c=> Math.max(Math.abs(a.x - c.x), Math.abs(a.y - c.y))))).sort((a, c)=> a - c);
+      const dm = Math.max(1, Math.min(2, viz.length > 1 ? viz[Math.floor(viz.length / 2)] : 1));
+      const W = x1 - x0 + dm, H = y1 - y0 + dm, semL = list.filter(r=> !L[r.id] && r.online);
+      const pw = gp.clientWidth || 800, ph = (gp.clientHeight || 500) - (semL.length ? 56 : 0) - 34;
+      const cel = Math.max(22, Math.min(pw / W, ph / H)), fs = (cel * dm / 120).toFixed(2);
+      let h = '<div class="sl-proj" style="--sf:' + fs + '"><div class="sl-ecra">' + (m.f === 'b' ? '' : '▲ ') + 'ECRÃ · ' + NOME[s] + '</div><div class="sl-pl" style="width:' + (W * cel) + 'px;height:' + (H * cel) + 'px">';
+      m.b.forEach(b=>{
+        const r = porB[b.id], st = 'left:' + ((b.x - x0) * cel) + 'px;top:' + ((b.y - y0) * cel) + 'px;width:' + (cel * dm - 6) + 'px;height:' + (cel * dm - 6) + 'px';
+        if(!r){ h += '<div class="sl-b vaz' + (b.p ? ' prof' : '') + '" data-b="' + b.id + '" style="' + st + '"><span class="sl-n">' + (b.p ? '🎤' : escapeHtml(b.n || '')) + '</span></div>'; return; }
+        const pct = fcMode ? ((r.fc && r.hr) ? Math.round(r.hr / r.fc * 100) : null) : (r.ftp ? Math.round((r.w || 0) / r.ftp * 100) : null);
+        const z = pct == null ? zonesOf()[0] : getZone(pct), zc = zoneColor(z.css), inZ = r.online && pct != null && targetZone === z.name;
+        const big = fcMode && !(r.w > 0) ? Math.round(r.hr || 0) : Math.round(r.w || 0);
+        h += '<div class="sl-b oc' + (r.online ? '' : ' off') + (inZ ? ' inz' : '') + '" data-b="' + b.id + '" data-r="' + escapeHtml(r.id) + '" draggable="true" style="' + st + ';--zc:' + zc + '">' +
+          '<span class="sl-n">' + escapeHtml(b.n || '') + '</span><div class="sl-nm">' + escapeHtml((r.n || '?').split(' ')[0]) + moodEm(r) + '</div>' +
+          '<div class="sl-w">' + (r.online ? big : '—') + '<small>' + (fcMode && !(r.w > 0) ? 'bpm' : 'W') + '</small></div>' +
+          '<div class="sl-s">' + (pct == null ? '' : pct + '%') + (r.c ? ' · ' + Math.round(r.c) + ' rpm' : '') + '</div></div>';
+      });
+      h += '</div>' + (m.f === 'b' ? '<div class="sl-ecra">▼ ECRÃ</div>' : '') + '</div>';
+      if(semL.length) h += '<div class="sl-sem"><span>Sem lugar (arrasta para a bike):</span>' + semL.map(r=> '<b class="sl-ch" draggable="true" data-r="' + escapeHtml(r.id) + '">' + escapeHtml(r.n || '?') + '</b>').join('') + '</div>';
+      if(arr) return;   // a arrastar: não refaz o ecrã a meio
+      gp.innerHTML = h;
+      // ao carregar num aluno o ecrã deixa de se refazer até largar (senão o cartão desaparecia a meio do arrasto)
+      gp.querySelectorAll('[draggable][data-r]').forEach(el=>{ el.onpointerdown = ()=>{ arr = el.dataset.r; document.addEventListener('pointerup', ()=> setTimeout(()=>{ if(arr === el.dataset.r) arr = null; }, 60), { once: true }); };
+        el.ondragstart = ev=>{ arr = el.dataset.r; ev.dataTransfer.setData('text/plain', arr); }; el.ondragend = ()=>{ arr = null; renderRiders(); }; });
+      gp.querySelectorAll('.sl-b').forEach(el=>{ el.ondragover = ev=> ev.preventDefault();
+        el.ondrop = ev=>{ ev.preventDefault(); const rid = ev.dataTransfer.getData('text/plain') || arr; arr = null; if(rid){ poeLugar(rid, el.dataset.b); setTimeout(renderRiders, 0); } }; });
+      const sem = gp.querySelector('.sl-sem'); if(sem){ sem.ondragover = ev=> ev.preventDefault(); sem.ondrop = ev=>{ ev.preventDefault(); const rid = ev.dataTransfer.getData('text/plain') || arr; arr = null; if(rid){ poeLugar(rid, null); lug[rid] = '-'; try{ localStorage.setItem('prSalaLug_' + sessionPin, JSON.stringify(lug)); }catch(e){} setTimeout(renderRiders, 0); } }; }
+    }
+    // ---------- editor ----------
+    function css(){
+      if($('salaEdCss')) return; const st = document.createElement('style'); st.id = 'salaEdCss';
+      st.textContent = `#salaEd{position:fixed;inset:0;z-index:99999;display:flex;background:#0f1218;color:#E8ECF2;font:14px/1.35 system-ui,-apple-system,Segoe UI,sans-serif}
+#salaEd .se-v{position:relative;flex:1;min-width:0;overflow:auto;padding:64px 20px 40px}
+#salaEd .se-top{position:absolute;left:12px;top:12px;right:12px;display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+#salaEd h2{margin:0 10px 0 0;font-size:18px}
+#salaEd button,#salaEd input,#salaEd select{font:inherit;color:#E8ECF2;background:#232934;border:1px solid #3a4352;border-radius:8px;padding:6px 10px}
+#salaEd button{cursor:pointer}#salaEd button:hover{background:#2e3644}#salaEd button.on{background:#E8722C;border-color:#E8722C;color:#111}
+#salaEd .se-p{width:320px;max-width:44vw;overflow:auto;background:#161b23;border-left:1px solid #2a313d;padding:14px 16px 60px;box-sizing:border-box}
+#salaEd .se-p h3{margin:16px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:#F0A070}
+#salaEd .se-p label{display:block;margin:8px 0 3px;font-size:12px;color:#9aa4b4}#salaEd .se-p input{width:100%;box-sizing:border-box}
+#salaEd .se-dica{font-size:12px;color:#9aa4b4;line-height:1.4;margin:6px 0}
+#salaEd .se-ecra{margin:0 auto 10px;text-align:center;font-weight:700;letter-spacing:.1em;color:#111;background:#E8722C;border-radius:6px;padding:4px}
+#salaEd .se-g{position:relative;margin:0 auto;background-color:#141922;background-image:linear-gradient(#232a36 1px,transparent 1px),linear-gradient(90deg,#232a36 1px,transparent 1px);border:1px solid #2a313d;border-radius:8px;touch-action:none}
+#salaEd .se-b{position:absolute;box-sizing:border-box;border:2px solid #4b5568;background:#202734;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:grab;user-select:none;font-weight:800;font-size:18px}
+#salaEd .se-b small{font-size:10px;font-weight:500;color:#9aa4b4;max-width:95%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#salaEd .se-b.sel{border-color:#E8722C;box-shadow:0 0 0 3px #E8722C55}#salaEd .se-b.prof{background:#3a2a1a}
+#salaEd .se-chips{display:flex;flex-wrap:wrap;gap:6px}#salaEd .se-chips button{font-size:12px;padding:4px 8px}
+#salaEd .se-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}#salaEd .se-row input{width:64px}`;
+      document.head.appendChild(st);
+    }
+    const CEL = 72;
+    function abre(){
+      css(); if($('salaEd')) return; const s = salaLive();
+      E = { s, sel: null, sujo: false, m: JSON.parse(JSON.stringify(mapa(s))), G: { c: 12, l: 9 } };
+      if(!E.m.f) E.m.f = 't';
+      const d = document.createElement('div'); d.id = 'salaEd';
+      d.innerHTML = '<div class="se-v"><div class="se-top"><h2>🗺️ Mapa da sala</h2><button data-s="LSD">Lousada</button><button data-s="PNF">Penafiel</button>' +
+        '<button id="seAdd">＋ Bike</button><button id="seProf">＋ Bike do professor</button><button id="seEcra" title="De que lado da sala está o ecrã da projeção">Ecrã: em cima</button>' +
+        '<button id="seGrava" class="on">Guardar</button><button id="seFecha">Fechar</button></div><div id="seEcraT" class="se-ecra">ECRÃ</div><div class="se-g" id="seG"></div><div id="seEcraB" class="se-ecra">ECRÃ</div></div>' +
+        '<div class="se-p" id="seP"></div>';
+      document.body.appendChild(d);
+      d.querySelectorAll('[data-s]').forEach(b=> b.onclick = ()=>{ if(E.sujo && !confirm('Há alterações por guardar em ' + NOME[E.s] + '. Mudar de sala sem guardar?')) return; E.s = b.dataset.s; E.m = JSON.parse(JSON.stringify(mapa(E.s))); if(!E.m.f) E.m.f = 't'; E.sel = null; E.sujo = false; desenha(); });
+      $('seAdd').onclick = ()=> novaBike(false); $('seProf').onclick = ()=> novaBike(true);
+      $('seEcra').onclick = ()=>{ E.m.f = E.m.f === 'b' ? 't' : 'b'; E.sujo = true; desenha(); };
+      $('seFecha').onclick = ()=>{ if(E.sujo && !confirm('Fechar sem guardar as alterações?')) return; d.remove(); E = null; };
+      $('seGrava').onclick = ()=>{ M[E.s] = E.m; E.sujo = false; grava(E.s).then(ok=> toast(ok ? '🗺️ Mapa de ' + NOME[E.s] + ' guardado (vale nos dois PCs)' : '🗺️ Mapa de ' + NOME[E.s] + ' guardado neste PC')); desenha(); };
+      document.addEventListener('keydown', teclas);
+      carrega(); desenha();
+    }
+    function teclas(e){ if(!E || !$('salaEd')){ document.removeEventListener('keydown', teclas); return; } if(/INPUT|SELECT/.test(document.activeElement.tagName)) return;
+      const b = E.m.b.find(x=> x.id === E.sel); if(!b) return;
+      const mv = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+      if(mv){ e.preventDefault(); b.x = Math.max(0, b.x + mv[0]); b.y = Math.max(0, b.y + mv[1]); E.sujo = true; desenha(); }
+      if(e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); apaga(b.id); } }
+    function livre(){ for(let y = 0; y < 40; y++) for(let x = 0; x < E.G.c; x++) if(!E.m.b.some(b=> b.x === x && b.y === y)) return { x, y }; return { x: 0, y: 0 }; }
+    function proxNum(){ const ns = E.m.b.filter(b=> !b.p).map(b=> +b.n || 0); return String((ns.length ? Math.max(...ns) : 0) + 1); }
+    function novaBike(p){ const l = livre(), b = { id: 'b' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), x: l.x, y: l.y, n: p ? 'P' : proxNum(), bt: '' }; if(p) b.p = 1; E.m.b.push(b); E.sel = b.id; E.sujo = true; desenha(); }
+    function apaga(id){ E.m.b = E.m.b.filter(b=> b.id !== id); E.sel = null; E.sujo = true; desenha(); }
+    function grelha(f, c, prof){
+      if(E.m.b.length && !confirm('Substituir as ' + E.m.b.length + ' bikes deste mapa por uma grelha nova?')) return;
+      const b = []; let n = 1, t = Date.now().toString(36);
+      if(prof) b.push({ id: 'bp' + t, x: Math.floor((c * 2 - 1) / 2), y: 0, n: 'P', bt: '', p: 1 });
+      const y0 = prof ? 2 : 0;
+      for(let i = 0; i < f; i++) for(let j = 0; j < c; j++) b.push({ id: 'b' + t + '_' + i + '_' + j, x: j * 2 + (i % 2 && c > 1 ? 1 : 0), y: y0 + i * 2, n: String(n++), bt: '' });
+      E.m.b = b; E.sel = null; E.sujo = true; desenha();
+    }
+    function desenha(){
+      if(!E || !$('salaEd')) return;
+      document.querySelectorAll('#salaEd [data-s]').forEach(b=> b.classList.toggle('on', b.dataset.s === E.s));
+      $('seEcra').textContent = 'Ecrã: ' + (E.m.f === 'b' ? 'em baixo' : 'em cima'); $('seEcraT').hidden = E.m.f === 'b'; $('seEcraB').hidden = E.m.f !== 'b';
+      const g = $('seG'); const mx = Math.max(E.G.c, ...E.m.b.map(b=> b.x + 2)), my = Math.max(E.G.l, ...E.m.b.map(b=> b.y + 2));
+      g.style.width = mx * CEL + 'px'; g.style.height = my * CEL + 'px'; g.style.backgroundSize = CEL + 'px ' + CEL + 'px';
+      $('seEcraT').style.width = $('seEcraB').style.width = Math.min(mx * CEL, 600) + 'px';
+      g.innerHTML = E.m.b.map(b=> '<div class="se-b' + (b.p ? ' prof' : '') + (b.id === E.sel ? ' sel' : '') + '" data-id="' + b.id + '" style="left:' + (b.x * CEL + 3) + 'px;top:' + (b.y * CEL + 3) + 'px;width:' + (CEL - 6) + 'px;height:' + (CEL - 6) + 'px">' +
+        (b.p ? '🎤' : escapeHtml(b.n || '?')) + '<small>' + escapeHtml(b.bt || (b.p ? 'professor' : '')) + '</small></div>').join('');
+      g.onpointerdown = ev=>{
+        const el = ev.target.closest('.se-b'); if(!el){ E.sel = null; desenha(); return; }
+        const b = E.m.b.find(x=> x.id === el.dataset.id); E.sel = b.id; g.querySelectorAll('.se-b').forEach(x=> x.classList.toggle('sel', x === el)); painel();
+        const r = g.getBoundingClientRect(), ox = ev.clientX - r.left - b.x * CEL, oy = ev.clientY - r.top - b.y * CEL; el.setPointerCapture(ev.pointerId);
+        el.onpointermove = e2=>{ el.style.left = (e2.clientX - r.left - ox) + 'px'; el.style.top = (e2.clientY - r.top - oy) + 'px'; };
+        el.onpointerup = e2=>{ el.onpointermove = el.onpointerup = null;
+          const nx = Math.max(0, Math.round((e2.clientX - r.left - ox) / CEL)), ny = Math.max(0, Math.round((e2.clientY - r.top - oy) / CEL));
+          const ocup = E.m.b.find(x=> x !== b && x.x === nx && x.y === ny);
+          if(ocup){ ocup.x = b.x; ocup.y = b.y; }   // largar em cima de outra: trocam de lugar
+          if(nx !== b.x || ny !== b.y){ b.x = nx; b.y = ny; E.sujo = true; } desenha(); };
+      };
+      painel();
+    }
+    function painel(){
+      const p = $('seP'), b = E.m.b.find(x=> x.id === E.sel);
+      const ligadas = riderList().filter(r=> r.online && r.bn).map(r=> ({ bn: r.bn, n: r.n }));
+      let h = '<h3>' + NOME[E.s] + '</h3><div class="se-dica">' + E.m.b.filter(x=> !x.p).length + ' bikes' + (E.sujo ? ' · <b style="color:#F0A070">por guardar</b>' : '') + '</div>';
+      if(b){
+        h += '<h3>' + (b.p ? 'Bike do professor' : 'Bike ' + escapeHtml(b.n)) + '</h3>' +
+          (b.p ? '' : '<label>Número (o que está escrito na bike)</label><input id="seN" value="' + escapeHtml(b.n || '') + '">') +
+          '<label>Nome Bluetooth da consola (opcional)</label><input id="seBt" placeholder="ex.: SCHWINN 12" value="' + escapeHtml(b.bt || '') + '">' +
+          '<div class="se-dica">Se ficar vazio, a app usa o número no fim do nome Bluetooth (ex.: "SCHWINN 12" vai para a bike 12).</div>' +
+          (ligadas.length ? '<label>Bikes ligadas agora na aula (toca para usar o nome)</label><div class="se-chips">' + ligadas.map(l=> '<button type="button" data-bt="' + escapeHtml(l.bn) + '">' + escapeHtml(l.bn) + ' · ' + escapeHtml((l.n || '').split(' ')[0]) + '</button>').join('') + '</div>' : '') +
+          '<div class="se-row" style="margin-top:12px"><button id="seDel">🗑️ Apagar bike</button></div><div class="se-dica">Arrasta para mudar de lugar (largar em cima de outra troca as duas) ou usa as setas do teclado.</div>';
+      } else h += '<div class="se-dica">Toca numa bike para mudar o número ou o nome Bluetooth. Arrasta para a pôr no sítio certo.</div>';
+      h += '<h3>Criar grelha</h3><div class="se-row">Filas <input id="seF" type="number" min="1" max="12" value="3"> × bikes <input id="seC" type="number" min="1" max="15" value="6"></div>' +
+        '<div class="se-row" style="margin-top:6px"><label style="margin:0;display:flex;gap:6px;align-items:center;color:#E8ECF2"><input id="seGP" type="checkbox" checked style="width:auto"> Bike do professor à frente</label></div>' +
+        '<div class="se-row" style="margin-top:8px"><button id="seGr">Criar grelha</button></div><div class="se-dica">As filas ficam desencontradas, como numa sala de cycling. Depois arrasta as bikes que estiverem fora do sítio.</div>';
+      p.innerHTML = h;
+      if(b){ const n = $('seN'); if(n) n.oninput = ()=>{ b.n = n.value.trim(); E.sujo = true; atualizaB(b); };
+        $('seBt').oninput = ()=>{ b.bt = $('seBt').value.trim(); E.sujo = true; atualizaB(b); };
+        p.querySelectorAll('[data-bt]').forEach(x=> x.onclick = ()=>{ b.bt = x.dataset.bt; E.sujo = true; desenha(); });
+        $('seDel').onclick = ()=> apaga(b.id); }
+      $('seGr').onclick = ()=> grelha(Math.max(1, Math.min(12, +$('seF').value || 1)), Math.max(1, Math.min(15, +$('seC').value || 1)), $('seGP').checked);
+    }
+    function atualizaB(b){ const el = document.querySelector('#seG [data-id="' + b.id + '"]'); if(el) el.innerHTML = (b.p ? '🎤' : escapeHtml(b.n || '?')) + '<small>' + escapeHtml(b.bt || (b.p ? 'professor' : '')) + '</small>'; }
+    return { abre, render, mapa };
+  })();
+  // =====================================================================
   // EDITOR DOS BONECOS (menu "Bonecos"): o ciclista realista a pedalar em 3D, com controlos para afinar a postura
   // (anca, ombros, costas, joelhos, mãos, cotovelos), o pescoço e a cabeça, e o tamanho e a posição dos capacetes e chapéus.
   // "Guardar neste PC" vale logo neste computador; "Descarregar" gera o bonecos-ajustes.json que, no GitHub, vale para todos.
@@ -9255,6 +9444,11 @@ const SR3 = (()=>{
     if(mode === 'jogos' || mode === 'percurso'){
       $('rgrid').style.display = 'none'; $('lanes').style.display = 'none';
       renderJogos(mode); return;
+    }
+    if(mode === 'sala'){   // planta da sala com cada aluno na sua bike
+      const ls = sortRidersBy(visRiders(), raceMetric), bl = current.blocos[liveIdx];
+      $('rpTitle').textContent = 'Sala'; $('rpMeta').innerHTML = '<b>' + ls.filter(r=> r.online).length + '</b> a pedalar';
+      $('rpEmpty').style.display = 'none'; SALA.render(ls, bl, bl ? getZone(bl.ftp).name : null); return;
     }
     gpn.style.display = 'none';
 
@@ -10909,6 +11103,7 @@ const SR3 = (()=>{
     if(e.key === '2'){ viewMode = 'turma'; renderRiders(); }
     if(e.key === '3'){ viewMode = 'corrida'; renderRiders(); }
     if(e.key === '4'){ godConfig(); }
+    if(e.key === '5'){ viewMode = 'sala'; renderRiders(); }
     if((e.key === 'e' || e.key === 'E') && SR.on && SR.fsTroca) SR.fsTroca();
     if(e.key === 'm' || e.key === 'M'){ toggleMetric(); }
     if(e.key === 'q' || e.key === 'Q'){ $('qrPanel').classList.toggle('active'); }
@@ -11492,7 +11687,8 @@ const SR3 = (()=>{
     }
   }
   document.querySelectorAll('[data-go]').forEach(b=> b.addEventListener('click', ()=> setView(b.dataset.go)));
-  document.getElementById('navBonecos').addEventListener('click', ()=> CICED.abre());   // editor dos bonecos
+  document.getElementById('navBonecos').addEventListener('click', ()=> CICED.abre());
+  document.getElementById('navSala').addEventListener('click', ()=> SALA.abre());   // mapa da sala   // editor dos bonecos
   $('homeNewBtn').addEventListener('click', ()=>{ resetTreino(); setView('plan'); });
   // abrir uma aula leva sempre ao planeamento
   const _loadTreino = loadTreino;

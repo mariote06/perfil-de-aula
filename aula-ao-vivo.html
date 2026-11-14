@@ -2480,6 +2480,7 @@ body.ecra4-on #kartCog{display:none!important;}
       aw: me.as ? Math.round(me.sumW / me.as) : 0, mw: Math.round(me.mw),
       iz: Math.round(me.iz), as: Math.round(modo === 'fc' ? me.ts : me.as),
       dev: hasPowerSource() || (modo === 'fc' && myHr() > 0), demo: demo || null, left: null,
+      bn: bikeConnected() && !demo && S.bikeName ? S.bikeName : null,   // nome Bluetooth da bike: o professor põe o aluno no lugar certo do mapa da sala
       pw: hasPowerSource() && (demo || performance.now() - S.lastPowerAt < 5000) ? true : false,   // bike ligada e a enviar watts; 5 s sem dados (ligação congelada) → o professor passa a contar a FC até os watts voltarem
       rx: me.rx || null, fa: me.fa || null,
       est: semSens && !bikeConnected() && !demo ? (semSens === 'bolso' ? 'b' : 'g') : null,   // sem sensores: watts (e FC) estimados pelo esforço
