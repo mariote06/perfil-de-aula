@@ -565,6 +565,7 @@ html.fs-on .live-head .fs-btn{display:none;}
 .ls-pin span{font-size:clamp(22px,3.6vh,44px);letter-spacing:5px;color:#E8722C;}
 .ls-pin b{font-size:clamp(70px,13vh,160px);line-height:.9;letter-spacing:8px;color:#fff;}
 .ls-cap{color:rgba(255,255,255,.6);font-size:clamp(14px,1.9vh,22px);text-align:center;line-height:1.4;}
+.ls-sala{display:flex;gap:6px;justify-content:center;margin-top:8px}.ls-sala button{font:inherit;font-size:clamp(12px,1.5vh,18px);color:rgba(255,255,255,.55);background:transparent;border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:4px 12px;cursor:pointer}.ls-sala button.on{color:#fff;background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.5)}
 .ls-cap b{color:#fff;}
 .ed-obj{background:var(--surface-2);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:9px 10px;font:inherit;font-size:14px;font-weight:600;max-width:260px;}
 @media (max-width:900px){ .live-start{flex-direction:column;overflow:auto;justify-content:flex-start;} .ls-qr img,.ls-qr canvas{width:min(70vw,48vh) !important;} }
@@ -1859,7 +1860,8 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     <div class="ls-right">
       <div class="ls-qr" id="lsQr"></div>
       <div class="ls-pin"><span>PIN</span><b id="lsPin">----</b></div>
-      <div class="ls-cap">Aponta a câmara do telemóvel ao QR code<br>ou abre a app <b>PlayRide</b> e insere o PIN</div>
+      <div class="ls-cap">Abre a app <b>PlayRide</b> e toca no emoji:<br>entras sozinho, sem PIN (ou aponta a câmara ao QR code)</div>
+      <div class="ls-sala" id="lsSala" title="Estúdio desta aula: os alunos que escolheram este estúdio entram sem PIN"><button type="button" data-s="LSD">Lousada</button><button type="button" data-s="PNF">Penafiel</button></div>
     </div>
   </div>
   <div class="live-profile"><svg id="liveProfileSvg" viewBox="0 0 1000 76" preserveAspectRatio="none"></svg></div>
@@ -3680,14 +3682,17 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function riderZonePct(r){ return r.as ? Math.round((r.iz||0) / r.as * 100) : 0; }
 
   function kmFmt(km){ return (km < 10 ? (+km).toFixed(2) : (+km).toFixed(1)).replace('.', ','); }
-  function summaryTableHtml(entry){
-    const hasTest = entry.riders.some(r=> r.ftpT || r.m20);
+  const NIV_NOME = { sedentario: 'Sedentário', iniciado: 'Iniciado', intermedio: 'Intermédio', avancado: 'Avançado' };
+  // nível e FTP estimado sem teste (vêm da app do aluno): só no relatório guardado, nunca na projeção
+  function nivelCell(r){ return '<td>' + (r.nv ? NIV_NOME[r.nv] || r.nv : '—') + '</td><td>' + (r.fe ? r.fe + ' W' + (r.ftp && Math.abs(r.fe - r.ftp) >= Math.max(10, r.ftp * .05) ? ' <small title="diferença para o FTP que usou na aula">(' + (r.fe > r.ftp ? '+' : '') + (r.fe - r.ftp) + ')</small>' : '') : '—') + '</td>'; }
+  function summaryTableHtml(entry, priv){
+    const hasTest = entry.riders.some(r=> r.ftpT || r.m20), hasNiv = priv && entry.riders.some(r=> r.nv || r.fe);
     const hasMood = entry.riders.some(r=> r.md || r.rx || r.fa);
     const rows = entry.riders.map((r,i)=>{
       const pct = riderAvgPct(r);
       return '<tr><td>' + (i+1) + '</td><td>' + escapeHtml(r.n) + estEm(r) + (r.oc ? ' <span title="Escolheu não aparecer na projeção">🙈</span>' : '') + '</td>' +
         '<td class="sum-zona">' + riderZonePct(r) + '%</td>' +
-        '<td>' + (r.ftp ? r.ftp + (r.ftpIni && r.ftpIni !== r.ftp ? ' <small title="alterou o FTP na aula">✎ era ' + r.ftpIni + '</small>' : '') : '—') + '</td>' +
+        '<td>' + (r.ftp ? r.ftp + (r.ftpIni && r.ftpIni !== r.ftp ? ' <small title="alterou o FTP na aula">✎ era ' + r.ftpIni + '</small>' : '') : '—') + '</td>' + (hasNiv ? nivelCell(r) : '') +
         (hasTest ? '<td>' + (r.ftpT ? '<b>' + r.ftpT + ' W</b> <small>(média ' + r.m20 + ')</small>' : (r.m20 ? '<small>incompleto</small>' : '—')) + '</td>' : '') +
         '<td>' + Math.round(r.pts||0) + '</td>' +
         '<td>' + (r.kj||0).toFixed(0) + '</td>' +
@@ -3697,7 +3702,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
         '<td>' + Math.round(r.mw||0) + '</td>' +
         '<td>' + fmtTime(r.as||0) + '</td>' + (hasMood ? '<td class="sum-md">' + sentirCell(r) + '</td>' : '') + '</tr>';
     }).join('');
-    return '<table class="sum-table"><thead><tr><th>#</th><th>Nome</th><th class="sum-zona">Na zona</th><th>FTP</th>' + (hasTest ? '<th>Teste FTP</th>' : '') + '<th>Pontos</th><th>kJ</th><th>km</th><th>W médios</th><th>%FTP médio</th><th>W máx</th><th>Tempo</th>' + (hasMood ? '<th>Como se sentiu</th>' : '') + '</tr></thead><tbody>' + rows + '</tbody></table>';
+    return '<table class="sum-table"><thead><tr><th>#</th><th>Nome</th><th class="sum-zona">Na zona</th><th>FTP</th>' + (hasNiv ? '<th>Nível</th><th>FTP estimado</th>' : '') + (hasTest ? '<th>Teste FTP</th>' : '') + '<th>Pontos</th><th>kJ</th><th>km</th><th>W médios</th><th>%FTP médio</th><th>W máx</th><th>Tempo</th>' + (hasMood ? '<th>Como se sentiu</th>' : '') + '</tr></thead><tbody>' + rows + '</tbody></table>';
   }
 
   // ranking final: quem cumpriu mais tempo dentro da zona pedida (em % do tempo a pedalar).
@@ -3717,19 +3722,19 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     histModalId = id;
     $('histModalTitle').textContent = h.treinoNome;
     $('histModalSub').textContent = fmtDate(h.date) + ' · ' + fmtTime(h.dur || 0) + ' · ' + h.riders.length + ' alunos · ordenado por ' + (h.metric==='kj' ? 'kJ' : 'pontos');
-    $('histModalBody').innerHTML = h.riders.length ? summaryTableHtml(h) : '<div class="empty-state">Sem dados de alunos.</div>';
+    $('histModalBody').innerHTML = h.riders.length ? summaryTableHtml(h, true) : '<div class="empty-state">Sem dados de alunos.</div>';
     $('histModal').classList.add('active');
   }
 
   function exportHistCsv(id){
     const h = historico.find(x=>x.id===id);
     if(!h) return;
-    const head = ['Posição','Nome','FTP (W)','FTP no início (W)','Teste FTP (W)','Média 20 min (W)','Pontos','kJ','Distância (km)','Potência média (W)','%FTP médio','Potência máx (W)','Tempo na zona (%)','Tempo ativo'];
+    const head = ['Posição','Nome','FTP (W)','Nível','FTP estimado (W)','FTP no início (W)','Teste FTP (W)','Média 20 min (W)','Pontos','kJ','Distância (km)','Potência média (W)','%FTP médio','Potência máx (W)','Tempo na zona (%)','Tempo ativo'];
     const lines = [head.join(';')];
     h.riders.forEach((r,i)=>{
       const pct = riderAvgPct(r);
       lines.push([
-        i+1, '"' + String(r.n||'').replace(/"/g,'""') + '"', r.ftp||'', r.ftpIni||'', r.ftpT||'', r.m20||'', Math.round(r.pts||0),
+        i+1, '"' + String(r.n||'').replace(/"/g,'""') + '"', r.ftp||'', r.nv ? NIV_NOME[r.nv] || r.nv : '', r.fe||'', r.ftpIni||'', r.ftpT||'', r.m20||'', Math.round(r.pts||0),
         String((r.kj||0).toFixed(1)).replace('.',','), String((+(r.km||0)).toFixed(2)).replace('.',','), Math.round(r.aw||0), pct==null?'':pct,
         Math.round(r.mw||0), riderZonePct(r), fmtTime(r.as||0)
       ].join(';'));
@@ -3772,6 +3777,25 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   let sessionPin = null;
   function genPin(){ return String(Math.floor(1000 + Math.random()*9000)); }
   function sessionRef(pin){ return fbDb.ref('sessions/' + pin); }
+  // ---- aulas a decorrer (live/{sala}/{pin}): os alunos do estúdio entram sem escrever o PIN ----
+  function salaLive(){ try{ const v = localStorage.getItem('prPaSala'); return v === 'PNF' ? 'PNF' : 'LSD'; }catch(e){ return 'LSD'; } }
+  let liveIdx0 = null;
+  function liveAnuncia(pin){
+    if(!fbDb || !pin) return; liveRetira();
+    const r = fbDb.ref('live/' + salaLive() + '/' + pin); liveIdx0 = r;
+    const dados = ()=> ({ nome: nomeProj(), t: TS() });
+    r.set(dados()).catch(e=> console.warn('Sem permissão para anunciar a aula (regra "live" no Firebase)', e));
+    try{ r.onDisconnect().remove(); }catch(e){}
+    // se a internet da projeção falhar, volta a anunciar quando regressar
+    liveIdx0.__con = fbDb.ref('.info/connected').on('value', sn=>{ if(sn.val() && liveIdx0 === r){ r.set(dados()).catch(()=>{}); try{ r.onDisconnect().remove(); }catch(e){} } });
+  }
+  function liveRetira(){
+    if(!liveIdx0) return; const r = liveIdx0; liveIdx0 = null;
+    try{ if(r.__con) fbDb.ref('.info/connected').off('value', r.__con); r.onDisconnect().cancel(); }catch(e){}
+    r.remove().catch(()=>{});
+  }
+  function liveMudaSala(sala){ try{ localStorage.setItem('prPaSala', sala); }catch(e){} if(sessionPin && liveIdx0) liveAnuncia(sessionPin); pintaSalaLive(); }
+  function pintaSalaLive(){ document.querySelectorAll('#lsSala button').forEach(b=> b.classList.toggle('on', b.dataset.s === salaLive())); }
 
   function pushFullSession(pin){
     const b = current.blocos[0];
@@ -3808,6 +3832,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   }
 
   function endSession(){
+    liveRetira();
     if(fbDb && sessionPin){ sessionRef(sessionPin).remove(); }
     sessionPin = null;
   }
@@ -4968,6 +4993,48 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   const parisRumo = (a, b)=>{ const r = Math.PI / 180, y = Math.sin((b.lo - a.lo) * r) * Math.cos(b.la * r), x = Math.cos(a.la * r) * Math.sin(b.la * r) - Math.sin(a.la * r) * Math.cos(b.la * r) * Math.cos((b.lo - a.lo) * r); return Math.atan2(y, x); };
   const PARIS_ACC = (()=>{ const a = [0]; for(let i = 1; i < PARIS.length; i++) a.push(a[i - 1] + parisKm(PARIS[i - 1], PARIS[i])); return a; })();
   const PARIS_KM = PARIS_ACC[PARIS_ACC.length - 1];   // ≈ 12 km reais
+  // ================= TRAÇADO DETALHADO DOS PERCURSOS REAIS =================
+  // Os percursos têm só pontos de passagem (a cada 200 m, ou de monumento em monumento em Paris). O PC da projeção pede ao
+  // OpenStreetMap (serviço de rotas a pé da FOSSGIS) o traçado completo das ruas entre esses pontos e guarda-o neste PC:
+  // da vez seguinte funciona sem internet. Se não houver internet, fica o traçado simples.
+  const SR_GEO = {};
+  function srGeoDenso(chave, pts){
+    if(SR_GEO[chave]) return SR_GEO[chave];
+    if(SR_GEO[chave + '?']) return null;
+    try{ const c = JSON.parse(localStorage.getItem('prGeo2_' + chave) || 'null'); if(c && c.length > pts.length) return SR_GEO[chave] = c.map(p=> ({ km: p[0], la: p[1], lo: p[2] })); }catch(e){}
+    SR_GEO[chave + '?'] = 1;
+    const pede = async (base, ch)=>{ const r = await fetch(base + ch.map(p=> p.lo.toFixed(5) + ',' + p.la.toFixed(5)).join(';') + '?overview=false&steps=true&geometries=geojson'); if(!r.ok) throw new Error('rotas ' + r.status); const j = await r.json(); if(!j.routes || !j.routes[0]) throw new Error('sem rota'); return j.routes[0].legs; };
+    (async ()=>{
+      const out = [];
+      for(let a = 0; a < pts.length - 1; a += 40){
+        const ch = pts.slice(a, Math.min(pts.length, a + 41));
+        let legs; try{ legs = await pede('https://routing.openstreetmap.de/routed-foot/route/v1/driving/', ch); }catch(e){ legs = await pede('https://router.project-osrm.org/route/v1/driving/', ch); }
+        legs.forEach((lg, q)=>{ const A = ch[q], B = ch[q + 1], d = parisKm(A, B);
+          let g = []; (lg.steps || []).forEach(st=> ((st.geometry && st.geometry.coordinates) || []).forEach(([lo, la])=>{ const l = g[g.length - 1]; if(!l || l.la !== la || l.lo !== lo) g.push({ la, lo }); }));
+          if(g.length < 2 || lg.distance / 1000 > d * 1.6 + .05) g = [{ la: A.la, lo: A.lo }, { la: B.la, lo: B.lo }];   // desvio grande (rua fechada, sentido proibido…): fica a linha reta
+          const acc = [0]; for(let i = 1; i < g.length; i++) acc.push(acc[i - 1] + parisKm(g[i - 1], g[i])); const T = acc[acc.length - 1] || 1;
+          g.forEach((p, i)=>{ if(i === 0 && out.length) return; out.push({ km: A.km + (B.km - A.km) * acc[i] / T, la: p.la, lo: p.lo }); });   // km ajustados aos pontos de passagem (ruas e monumentos ficam no sítio)
+        });
+      }
+      if(out.length <= pts.length) return;
+      SR_GEO[chave] = out; try{ localStorage.setItem('prGeo2_' + chave, JSON.stringify(out.map(p=> [+p.km.toFixed(4), +p.la.toFixed(5), +p.lo.toFixed(5)]))); }catch(e){}
+      SR.key = '';   // refaz a estrada (2D e 3D) com as curvas reais
+    })().catch(e=> console.warn('Traçado detalhado indisponível', e));
+    return null;
+  }
+  // curvas a partir da direção real da estrada em cada troço: no 3D a viragem tem o ângulo real (dh, em radianos);
+  // no 2D a mesma viragem, espalhada e limitada (o desenho 2D não aguenta curvas muito fechadas)
+  function srRumos(segs, pts, kmT, denso){
+    const N = segs.length; if(N < 3 || !pts || pts.length < 2) return;
+    let j = 0; const pos = km=>{ while(j > 0 && pts[j].km > km) j--; while(j < pts.length - 2 && pts[j + 1].km < km) j++;
+      const a = pts[j], b = pts[j + 1], f = b.km > a.km ? Math.max(0, Math.min(1, (km - a.km) / (b.km - a.km))) : 0; return { la: a.la + (b.la - a.la) * f, lo: a.lo + (b.lo - a.lo) * f }; };
+    const passo = kmT / (N - 1), w = Math.max(denso ? .01 : .06, passo * 1.5), H = new Float64Array(N);
+    for(let k = 0; k < N; k++){ const km = k * passo; H[k] = parisRumo(pos(Math.max(0, km - w)), pos(Math.min(kmT, km + w))); }
+    const dh = new Float64Array(N); for(let k = 0; k < N - 1; k++){ let d = H[k + 1] - H[k]; while(d > Math.PI) d -= 2 * Math.PI; while(d < -Math.PI) d += 2 * Math.PI; dh[k] = d; }
+    const G = 8, wg = []; let ws = 0; for(let q = -2 * G; q <= 2 * G; q++){ const v = Math.exp(-(q / G) * (q / G)); wg.push(v); ws += v; }
+    for(let k = 0; k < N; k++){ let c = 0; for(let q = -2 * G; q <= 2 * G; q++){ const t = k + q; if(t >= 0 && t < N) c += dh[t] * wg[q + 2 * G]; }
+      segs[k].dh = dh[k]; segs[k].curve = Math.max(-7.5, Math.min(7.5, 76 * c / ws * 1.0)); }
+  }
   // a estrada da aula (feita pelos blocos) passa a ter as curvas, as ruas e os monumentos de Paris, nas proporções reais
   function srParisAplica(segs){
     const N = segs.length, kOf = i=> Math.round(PARIS_ACC[i] / PARIS_KM * (N - 1));
@@ -4980,6 +5047,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       const l = Math.max(14, Math.min(60, Math.round(Math.abs(th) * 42))), c = Math.max(-8, Math.min(8, th * 76 / (2 * l / Math.PI))), k0 = kOf(i) - Math.round(l / 2);
       for(let k = 0; k < l; k++){ const q = k0 + k; if(q >= 0 && q < N) segs[q].curve += c * Math.sin(k / l * Math.PI); }
     }
+    { const pp = PARIS.map((p, i)=> ({ km: PARIS_ACC[i], la: p.la, lo: p.lo })), D = srGeoDenso('paris', pp); srRumos(segs, D || pp, PARIS_KM, !!D); }   // curvas reais pelas ruas
     let leg = 0;
     segs.forEach((s, k)=>{
       while(leg < PARIS.length - 2 && k >= kOf(leg + 1)) leg++;
@@ -5622,6 +5690,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       const l = Math.max(18, Math.min(60, Math.round(Math.abs(th) * 42))), c = Math.max(-7, Math.min(7, th * 76 / (2 * l / Math.PI))), k0 = kOf(P[i].km) - Math.round(l / 2);
       for(let k = 0; k < l; k++){ const q = k0 + k; if(q >= 0 && q < N) segs[q].curve += c * Math.sin(k / l * Math.PI); }
     }
+    { const D = srGeoDenso(R.estilo === 'porto' ? 'porto' : R === ROTAS.pl ? 'pl' : 'lp', R.pts); srRumos(segs, D || R.pts, R.km, !!D); }   // curvas reais pelas ruas
     segs.forEach((s, k)=>{
       const f = k / (N - 1) * R.km, rua = R.ruas.find(r=> f >= r[0] && f < r[1]) || R.ruas[R.ruas.length - 1], am = rua[3];
       s.rua = rua[2]; s.amb = am;
@@ -5669,7 +5738,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       const lado = p.lado || 1;
       const rua = segs[k].amb !== 'campo';   // na vila e na cidade abre-se uma clareira nas casas para se ver o edifício
       limpa(k, p.lado ? lado : 0, rua ? 11 : 4);
-      if(tam[p.t]) segs[k].sp.push({ x: lado * (rua ? 1.85 + Math.min(150, p.d) / 70 : 1.9 + Math.min(150, p.d) / 32), t: 'v_' + p.t, s: tam[p.t] });
+      if(tam[p.t]) segs[k].sp.push({ x: lado * (rua ? 1.85 + Math.min(150, p.d) / 70 : 1.9 + Math.min(150, p.d) / 32), t: 'v_' + p.t, s: tam[p.t], n: p.n });   // n: o nome (edifícios com modelo próprio)
       segs[Math.max(0, k - 3)].sp.push({ x: lado * 1.28, t: 'pl_' + i, s: 1.15 });
       marcos.push({ i: k, n: p.n, ico: VALE_ICO[p.t] || '📍' });
     });
@@ -7303,9 +7372,26 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   // =====================================================================
   // afinações dos bonecos (postura, pescoço, capacetes e chapéus), em cm e graus: valores de origem, substituídos pelos do
   // ficheiro bonecos-ajustes.json ao lado desta página, se existir, e pelos guardados neste PC (menu Bonecos)
-  const CICAJ_PAD = { ancX: 0, ancY: 0, trX: 0, trY: 0, costas: 1, joelho: 0, maoX: 0, maoY: 0, cotov: 1, pesc: 56, cab: -10, capS: 1, capX: 0, capY: 0, chS: 1, chY: 0 };
-  const CICAJ = Object.assign({}, CICAJ_PAD);
-  function cicAjPoe(o){ if(o && typeof o === 'object') Object.keys(CICAJ_PAD).forEach(k=>{ if(o[k] != null && isFinite(+o[k])) CICAJ[k] = +o[k]; }); }
+  const CICAJ_PAD = { peso: 0, musc: 0, idade: 0, peito: 0, alt: 1, ancX: 0, ancY: 0, trX: 0, trY: 0, costas: 1, joelho: 0, maoX: 0, maoY: 0, cotov: 1, pesc: 56, cab: -10, capS: 1, capX: 0, capY: 0, chS: 1, chY: 0 };
+  // cada boneco tem as suas: o corpo afina-se por veículo (estrada, BTT, kart…) e a cabeça por chapéu/capacete
+  const CICAJ_FORMA = ['peso', 'musc', 'idade', 'peito', 'alt'], CICAJ_CORPO = ['ancX', 'ancY', 'trX', 'trY', 'costas', 'joelho', 'maoX', 'maoY', 'cotov', 'pesc', 'cab'], CICAJ_CAB = ['capS', 'capX', 'capY', 'chS', 'chY'];
+  const CICAJ = { v: {}, H: {}, g: {} };
+  const cicAjPadV = v=> Object.assign({}, CICAJ_PAD, ['k', 'c', 'n'].includes(v) ? { pesc: 24, cab: -3 } : {});   // sentados: pescoço mais direito
+  function cicAjDe(av){ av = av || {}; const v = av.v || 'e', H = av.H || 'cic', o = cicAjPadV(v);
+    CICAJ_CORPO.forEach(k=>{ const a = CICAJ.v[v]; if(a && a[k] != null) o[k] = a[k]; }); CICAJ_CAB.forEach(k=>{ const a = CICAJ.H[H]; if(a && a[k] != null) o[k] = a[k]; });
+    CICAJ_FORMA.forEach(k=>{ const a = CICAJ.g[av.g === 'f' ? 'f' : 'm']; if(a && a[k] != null) o[k] = a[k]; });
+    // altura e peso da ficha do aluno: o boneco fica com o tamanho e o corpo dele
+    const F = av.g === 'f', cm = +av.cm, kg = +av.kg, h = cm >= 120 && cm <= 230 ? cm / 100 : null;
+    if(h) o.alt = Math.max(.8, Math.min(1.2, h / (F ? 1.622 : 1.751)));
+    if(kg >= 30 && kg <= 250){ const imc = kg / Math.pow(h || (F ? 1.65 : 1.76), 2), ref = F ? 21.5 : 22.5;   // índice de massa corporal → magro … forte
+      o.peso = Math.max(-1, Math.min(1, imc < ref ? (imc - ref) / 5 : (imc - ref) / 10)); }
+    return o; }
+  function cicAjPoe(o){
+    if(!o || typeof o !== 'object') return; CICAJ.v = {}; CICAJ.H = {}; CICAJ.g = {};
+    const lim = (s, L)=>{ const r = {}; L.forEach(k=>{ if(s && s[k] != null && isFinite(+s[k])) r[k] = +s[k]; }); return r; };
+    if(o.v || o.H || o.g){ Object.entries(o.v || {}).forEach(([k, s])=> CICAJ.v[k] = lim(s, CICAJ_CORPO)); Object.entries(o.H || {}).forEach(([k, s])=> CICAJ.H[k] = lim(s, CICAJ_CAB)); Object.entries(o.g || {}).forEach(([k, s])=> CICAJ.g[k] = lim(s, CICAJ_FORMA)); }
+    else { CICAJ.v.e = lim(o, CICAJ_CORPO); CICAJ.H.cic = lim(o, CICAJ_CAB); }   // formato antigo (um só conjunto): vale para a bicicleta de estrada e o capacete
+  }
   const cicAjPC = ()=>{ try{ cicAjPoe(JSON.parse(localStorage.getItem('prCicAj') || 'null')); }catch(e){} };   // afinações guardadas neste PC (no editor) mandam sobre o ficheiro
   cicAjPC();
   let HUM = null; const HUMf = ()=> (()=>{
@@ -7322,19 +7408,33 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
         for(const g of ['m', 'f']){
           // o editor dos bonecos traz os corpos dentro dele (window.CIC_GLB), para funcionar aberto diretamente do disco
           const emb = window.CIC_GLB && window.CIC_GLB[g], buf = emb ? Uint8Array.from(atob(emb), ch=> ch.charCodeAt(0)).buffer : null;
-          const gl = await new Promise((ok, ko)=> buf ? L.parse(buf, '', ok, ko) : L.load('ciclista_' + g + '.glb', ok, undefined, ko));
-          let lim = { cintura: .45, gola: .8 }; gl.scene.traverse(o=>{ if(o.userData && o.userData.kit_cintura != null) lim = { cintura: o.userData.kit_cintura, gola: o.userData.kit_gola }; });
-          ST.base[g] = gl.scene; ST.lim[g] = lim;
+          let b2 = buf; if(!b2){ const FL = new THREE.FileLoader(); FL.setResponseType('arraybuffer');
+            b2 = await new Promise((ok, ko)=> FL.load('ciclista_' + g + '.glb', ok, undefined, e=> ko(new Error('ciclista_' + g + '.glb: ' + (e && e.target && e.target.status ? 'o site respondeu ' + e.target.status : 'não foi possível ler'))))); }
+          await poeCorpo(g, b2, L);
         }
         ST.estado = 'pronto';
-      }catch(e){ console.warn('Humano realista indisponível', e); ST.estado = 'falhou'; }
+      }catch(e){ console.warn('Humano realista indisponível', e); ST.erro = String(e && e.message || e); ST.estado = 'falhou'; }
+    }
+    async function poeCorpo(g, buf, L){
+      if(new TextDecoder().decode(new Uint8Array(buf, 0, 4)) !== 'glTF') throw new Error('ciclista_' + g + '.glb não é um modelo 3D (o site devolveu outra coisa)');
+      const gl = await new Promise((ok, ko)=> (L || new THREE.GLTFLoader()).parse(buf, '', ok, ko));
+      let lim = { cintura: .45, gola: .8 }; gl.scene.traverse(o=>{ if(o.userData && o.userData.kit_cintura != null) lim = { cintura: o.userData.kit_cintura, gola: o.userData.kit_gola }; });
+      ST.base[g] = gl.scene; ST.lim[g] = lim;
+    }
+    // alternativa: escolher os dois ficheiros .glb do computador (quando o site ainda não os tem)
+    async function deFicheiros(fs){
+      if(!THREE.GLTFLoader) await script(CDN + 'loaders/GLTFLoader.js');
+      if(!THREE.SkeletonUtils) await script(CDN + 'utils/SkeletonUtils.js');
+      for(const f of fs){ const g = /_f\.glb$/i.test(f.name) ? 'f' : /_m\.glb$/i.test(f.name) ? 'm' : null; if(g) await poeCorpo(g, await f.arrayBuffer()); }
+      if(!ST.base.m || !ST.base.f) throw new Error('faltam ' + ['m', 'f'].filter(g=> !ST.base[g]).map(g=> 'ciclista_' + g + '.glb').join(' e '));
+      ST.estado = 'pronto'; ST.erro = '';
     }
     // equipamento pintado ponto a ponto (o modelo guarda em cada vértice a posição ao longo do braço, coxa e perna)
     function kitMat(nome, C, O, lim){
       const rough = { pele: .55, cabelo: .85, olho: .2, pupila: .15, iris: .3, sapato: .35, sobrancelha: .9 }[nome] || .5;
-      if(!['tronco', 'braco', 'perna'].includes(nome)) return new THREE.MeshStandardMaterial({ color: C[nome] || C.pele, roughness: rough, skinning: true });
-      const m = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: .5, skinning: true });
-      const U = {}; ['pele', 'camisola', 'manga', 'punho', 'gola', 'calcoes', 'bainha', 'meia'].forEach(k=> U['c_' + k] = { value: new THREE.Color(C[k] || C.camisola || '#fff') });
+      if(!['tronco', 'braco', 'perna', 'sapato'].includes(nome)) return new THREE.MeshStandardMaterial({ color: C[nome] || C.pele, roughness: rough, skinning: true, morphTargets: true });
+      const m = new THREE.MeshStandardMaterial({ color: '#ffffff', roughness: .5, skinning: true, morphTargets: true });
+      const U = {}; ['pele', 'camisola', 'manga', 'punho', 'gola', 'calcoes', 'bainha', 'meia', 'sapato', 'sola', 'tira'].forEach(k=> U['c_' + k] = { value: new THREE.Color(C[k] || C.camisola || '#fff') });
       U.lim = { value: new THREE.Vector4(O.manga == null ? .45 : O.manga, O.calca == null ? .66 : O.calca, lim.cintura, lim.gola) }; U.nu = { value: O.nu ? (O.top ? 2 : 1) : 0 };
       m.onBeforeCompile = sh=>{
         Object.assign(sh.uniforms, U);
@@ -7342,6 +7442,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
         const dec = Object.keys(U).map(k=> 'uniform ' + (k === 'lim' ? 'vec4' : k === 'nu' ? 'float' : 'vec3') + ' ' + k + ';').join('\n');
         const T = nome === 'tronco' ? 'float hz = vKit.a; vec3 cc = hz < lim.z ? c_calcoes : (hz > lim.w ? c_pele : (hz > lim.w - .022 && nu < .5 ? c_gola : (nu > 1.5 ? (hz > .655 && hz < .79 ? c_camisola : c_pele) : nu > .5 ? c_pele : c_camisola)));'
           : nome === 'braco' ? 'float tu = vKit.r * 2. - .5; vec3 cc = nu > .5 ? c_pele : tu < lim.x ? c_manga : (tu < lim.x + .07 ? c_punho : c_pele);'
+          : nome === 'sapato' ? 'float zr = vKit.r * .1, ts = vKit.g, nz = vKit.b * 2. - 1.; vec3 cc = zr < .011 ? c_sola : ((nz > .3 && ((ts > .36 && ts < .45) || (ts > .53 && ts < .62))) ? c_tira : c_sapato);'
           : 'float tt = vKit.g * 2. - .5, tc = vKit.b * 2. - .5; vec3 cc = tt < lim.y ? c_calcoes : (tt < lim.y + .05 ? c_bainha : (tc > .87 && lim.y < 2. ? c_meia : c_pele));';
         sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec4 vKit;\n' + dec).replace('vec4 diffuseColor = vec4( diffuse, opacity );', T + '\nvec4 diffuseColor = vec4( cc, opacity );');
       };
@@ -7373,25 +7474,32 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       const v = pole.clone().sub(u.clone().multiplyScalar(pole.dot(u))).normalize();
       return A.clone().add(u.multiplyScalar(a * ca)).add(v.multiplyScalar(a * sa));
     }
+    // formas do corpo (morfar): peso −1 magro … +1 forte, músculo −1 … +1, idade 0 … 1, peito −1 … +1 (mulher)
+    function forma(h, A){
+      const w = { magro: Math.max(0, -A.peso), forte: Math.max(0, A.peso), musculo_menos: Math.max(0, -A.musc), musculo_mais: Math.max(0, A.musc), idade: Math.max(0, A.idade), peito_menos: Math.max(0, -A.peito), peito_mais: Math.max(0, A.peito) };
+      h.o.traverse(m=>{ if(!m.morphTargetDictionary || !m.morphTargetInfluences) return; for(const n in m.morphTargetDictionary) m.morphTargetInfluences[m.morphTargetDictionary[n]] = w[n] || 0; });
+    }
     // põe o corpo na postura: H anca, Sh ombros, pes[2] pedais, maos[2] guiador (coordenadas do grupo G)
     function pose(h, G, H, Sh, pes, maos, cot, poleP, sent){
+      const A0 = h.aj || cicAjDe({});   // afinações deste boneco
       const { o, ossos: B, rest } = h, W = v=> G.localToWorld(v.clone()), dirW = v=> v.clone().transformDirection(G.matrixWorld);
       Object.entries(rest).forEach(([n, q])=> B[n].quaternion.copy(q));
-      o.position.set(H.x - h.pelvis0.x, H.y - h.pelvis0.y + .02, H.z - h.pelvis0.z); o.updateMatrixWorld(true);
+      const es = A0.alt || 1; o.scale.setScalar(es); forma(h, A0);
+      o.position.set(H.x - h.pelvis0.x * es, H.y - h.pelvis0.y * es + .02, H.z - h.pelvis0.z * es); o.updateMatrixWorld(true);
       // tronco: inclina para os ombros; cabeça a olhar em frente
       aponta(B.spine_01, B.neck_01, W(Sh));
-      if(!sent){ const ax = dirW(new THREE.Vector3(0, 0, 1)); [['spine_01', .1], ['spine_02', -.06], ['spine_03', -.1]].forEach(([n, a])=>{ const o = B[n]; _q.setFromAxisAngle(ax, a * CICAJ.costas); o.getWorldQuaternion(_qb); o.parent.getWorldQuaternion(_qp); o.quaternion.copy(_qp.invert().multiply(_q.multiply(_qb))); o.updateMatrixWorld(true); }); }   // costas ligeiramente arredondadas
-      aponta(B.neck_01, B.head, B.neck_01.getWorldPosition(new THREE.Vector3()).add(dirW(new THREE.Vector3(sent ? .45 : Math.tan(Math.min(85, Math.max(0, CICAJ.pesc)) * Math.PI / 180), 1, 0))));   // pescoço no prolongamento das costas (mais deitado na bicicleta)
-      { const qh = G.getWorldQuaternion(new THREE.Quaternion()).multiply(_q.setFromAxisAngle(new THREE.Vector3(0, 0, 1), sent ? -.05 : CICAJ.cab * Math.PI / 180)).multiply(h.q0cab); B.head.parent.getWorldQuaternion(_qp); B.head.quaternion.copy(_qp.invert().multiply(qh)); B.head.updateMatrixWorld(true); }   // cabeça levantada a olhar a estrada, queixo ligeiramente para baixo
+      if(!sent){ const ax = dirW(new THREE.Vector3(0, 0, 1)); [['spine_01', .1], ['spine_02', -.06], ['spine_03', -.1]].forEach(([n, a])=>{ const o = B[n]; _q.setFromAxisAngle(ax, a * A0.costas); o.getWorldQuaternion(_qb); o.parent.getWorldQuaternion(_qp); o.quaternion.copy(_qp.invert().multiply(_q.multiply(_qb))); o.updateMatrixWorld(true); }); }   // costas ligeiramente arredondadas
+      aponta(B.neck_01, B.head, B.neck_01.getWorldPosition(new THREE.Vector3()).add(dirW(new THREE.Vector3(Math.tan(Math.min(85, Math.max(0, A0.pesc)) * Math.PI / 180), 1, 0))));   // pescoço no prolongamento das costas (mais deitado na bicicleta)
+      { const qh = G.getWorldQuaternion(new THREE.Quaternion()).multiply(_q.setFromAxisAngle(new THREE.Vector3(0, 0, 1), A0.cab * Math.PI / 180)).multiply(h.q0cab); B.head.parent.getWorldQuaternion(_qp); B.head.quaternion.copy(_qp.invert().multiply(qh)); B.head.updateMatrixWorld(true); }   // cabeça levantada a olhar a estrada, queixo ligeiramente para baixo
       // pernas: anca → joelho → tornozelo no pedal
       [['l', 0], ['r', 1]].forEach(([s, i])=>{
-        const A = B['thigh_' + s].getWorldPosition(new THREE.Vector3()), T = W(pes[i].clone().add(new THREE.Vector3(sent ? -.05 : -.07, h.info.tornozelo * .9, 0)));
-        const k = ik(A, T, h.info.coxa * G.scale.x, h.info.perna * G.scale.x, dirW(new THREE.Vector3(poleP.x, poleP.y, (s === 'l' ? -1 : 1) * CICAJ.joelho)));
+        const A = B['thigh_' + s].getWorldPosition(new THREE.Vector3()), T = W(pes[i].clone().add(new THREE.Vector3(sent ? -.05 : -.07, h.info.tornozelo * es * .9, 0)));
+        const k = ik(A, T, h.info.coxa * es * G.scale.x, h.info.perna * es * G.scale.x, dirW(new THREE.Vector3(poleP.x, poleP.y, (s === 'l' ? -1 : 1) * A0.joelho)));
         aponta(B['thigh_' + s], B['calf_' + s], k); aponta(B['calf_' + s], B['foot_' + s], T);
         aponta(B['foot_' + s], B['ball_' + s], T.clone().add(dirW(new THREE.Vector3(1, sent ? .35 : -.05, 0))));
         // braços: ombro → cotovelo → mão no guiador
         const S0 = B['upperarm_' + s].getWorldPosition(new THREE.Vector3()), M = W(maos[i].clone().add(new THREE.Vector3(-.075, .015, 0))), sz = s === 'l' ? -1 : 1;   // pulso um pouco atrás da manete (a mão agarra-a)
-        const e = ik(S0, M, h.info.braco * G.scale.x, h.info.ante * G.scale.x, dirW(new THREE.Vector3(cot.x, cot.y, sz * cot.z)));
+        const e = ik(S0, M, h.info.braco * es * G.scale.x, h.info.ante * es * G.scale.x, dirW(new THREE.Vector3(cot.x, cot.y, sz * cot.z)));
         aponta(B['upperarm_' + s], B['lowerarm_' + s], e); aponta(B['lowerarm_' + s], B['hand_' + s], M);
         aponta(B['hand_' + s], B['middle_01_' + s], M.clone().add(dirW(new THREE.Vector3(1, -.45, sz * .1))));
         // dedos fechados à volta da manete
@@ -7408,7 +7516,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       const q = G.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(b.getWorldQuaternion(new THREE.Quaternion())).multiply(h.q0cab.clone().invert());
       return { p, q };
     }
-    return { carrega, cria, pose, cabeca, get estado(){ return ST.estado; } };
+    return { carrega, deFicheiros, cria, pose, cabeca, get estado(){ return ST.estado; }, get erro(){ return ST.erro || ''; } };
   })();
 
   let CIC3 = null; const CIC3f = ()=> (()=>{
@@ -7720,7 +7828,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       // humano realista (se já carregou): substitui o corpo desenhado com formas
       const cab2 = av.H === 'moh' ? cP : ['cur', 'lon', 'rab'].includes(av.H) ? av.h : (F ? '#6B3E22' : '#4A3022');
       st.hum = HUM && HUM.estado === 'pronto' ? HUM.cria(av, { pele: cP, camisola: nu ? (T === 'sus' ? '#C8102E' : '#1b1c20') : roupa, manga: roupa, punho: cor2, gola: cor2, calcoes: calca || (T === 'cam' ? cor2 : '#1b1c20'), bainha: T === 'cam' ? roupa : (calca || '#1b1c20'),
-        meia: '#F5F5F5', sapato: sap, olho: '#F7F5F0', iris: F ? '#5A3A1E' : '#3E5A78', pupila: '#0b0b0c', cabelo: cab2, sobrancelha: cab2 }, { manga: longa ? 9 : .45, calca: calca ? 9 : .66, nu, top: nu && F }) : null;
+        meia: '#F5F5F5', sapato: sap, sola: '#1d1f24', tira: sap === '#1A1A1A' || sap === '#1F2937' ? '#C8CDD4' : '#26292F', olho: '#F7F5F0', iris: F ? '#5A3A1E' : '#3E5A78', pupila: '#0b0b0c', cabelo: cab2, sobrancelha: cab2 }, { manga: longa ? 9 : .45, calca: calca ? 9 : .66, nu, top: nu && F }) : null;
       if(st.hum){ G.add(st.hum.o); [tronco, bacia, pesc, cab, nariz, orelhas[0], orelhas[1], ...extra.map(e=> e[0]), ...Object.values(P).flat()].forEach(m=> m.visible = false); }
       st.chap = cabeca(av, V(0, 0), !!st.hum); G.add(st.chap);
       pose(st, 0, 0);
@@ -7763,12 +7871,12 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     function corpo(st, H, Sh, ped, mao, cot, poleP, aero, sh){
       const { P } = st, sent = st.VE;
       if(st.hum){   // humano realista: os ossos dobram-se para chegar aos pedais e ao guiador
-        { const A = CICAJ; H = H.clone().add(V(A.ancX / 100, A.ancY / 100, 0)); Sh = Sh.clone().add(V((A.trX + A.ancX) / 100, (A.trY + A.ancY) / 100, 0));
+        { const A = st.hum.aj = cicAjDe(st.av); H = H.clone().add(V(A.ancX / 100, A.ancY / 100, 0)); Sh = Sh.clone().add(V((A.trX + A.ancX) / 100, (A.trY + A.ancY) / 100, 0));
           mao = mao.map(m=> m.clone().add(V(A.maoX / 100, A.maoY / 100, 0))); cot = V(cot.x, cot.y, cot.z * A.cotov); }   // afinações do editor
-        if(!sent){ const k = Math.min(1.05, Math.max(.9, (st.hum.info.coxa + st.hum.info.perna) / .86)), dy = (H.y - BB.y) * (k - 1); H = H.clone(); H.y += dy; Sh = Sh.clone(); Sh.y += dy * .6; }
+        if(!sent){ const k = Math.min(1.2, Math.max(.8, (st.hum.info.coxa + st.hum.info.perna) * (st.hum.aj ? st.hum.aj.alt || 1 : 1) / .86)), dy = (H.y - BB.y) * (k - 1); H = H.clone(); H.y += dy; Sh = Sh.clone(); Sh.y += dy * .6; }
         st.G.updateMatrixWorld(true); HUM.pose(st.hum, st.G, H, Sh, ped, mao, cot, poleP, sent);
         const c = HUM.cabeca(st.hum, st.G); st.chap.position.copy(c.p); st.chap.quaternion.copy(c.q); const capa = ['cic', 'pil', 'vik', 'ush'].includes(st.av.H || 'cic'), chap = !capa && !['cur', 'lon', 'rab', 'moh', 'cab'].includes(st.av.H);
-        const A = CICAJ, k = chap ? A.chS : capa ? A.capS : 1;
+        const A = st.hum.aj, k = (chap ? A.chS : capa ? A.capS : 1) * (A.alt || 1);
         st.chap.position.add((chap ? V(0, -.022 + A.chY / 100, 0) : capa ? V(A.capX / 100, A.capY / 100, 0) : V(0, 0, 0)).applyQuaternion(c.q)); st.chap.scale.set((chap ? .76 : .84) * k, (chap ? .8 : .88) * k, (chap ? .78 : st.F ? .84 : .87) * k); return;   // a cabeça real é mais pequena que a desenhada
       }
       [0, 1].forEach(i=>{ const s = i ? 1 : -1, hip = V(H.x, H.y - .03, s * .095 + H.z * .3), tal = ped[i].clone().add(sent ? V(-.04, .05, 0) : V(-.06, .045, 0));
@@ -7873,17 +7981,18 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   // =====================================================================
   const CICED = (()=>{
     const GR = [
-      ['Corpo', [['ancX', 'Anca: frente / trás', -10, 10, .5, 'cm'], ['ancY', 'Anca: altura (selim)', -8, 8, .5, 'cm'], ['trX', 'Ombros: frente / trás', -15, 15, .5, 'cm'], ['trY', 'Ombros: altura', -15, 15, .5, 'cm'],
+      ['Forma do corpo', 'g', [['alt', 'Altura', .85, 1.15, .01, '×'], ['peso', 'Peso (− magro · + forte)', -1, 1, .02, ''], ['musc', 'Músculo (− menos · + mais)', -1, 1, .02, ''],
+        ['idade', 'Idade (mais velho)', 0, 1, .02, ''], ['peito', 'Peito (− menos · + mais)', -1, 1, .02, '']]],
+      ['Corpo', 'v', [['ancX', 'Anca: frente / trás', -10, 10, .5, 'cm'], ['ancY', 'Anca: altura (selim)', -8, 8, .5, 'cm'], ['trX', 'Ombros: frente / trás', -15, 15, .5, 'cm'], ['trY', 'Ombros: altura', -15, 15, .5, 'cm'],
         ['costas', 'Costas arredondadas', 0, 3, .05, '×'], ['joelho', 'Joelhos para fora', -.5, 1, .05, '']]],
-      ['Braços', [['maoX', 'Mãos: frente / trás', -10, 10, .5, 'cm'], ['maoY', 'Mãos: altura', -10, 10, .5, 'cm'], ['cotov', 'Cotovelos abertos', 0, 3, .05, '×']]],
-      ['Cabeça', [['pesc', 'Pescoço: inclinação para a frente', 0, 80, 1, '°'], ['cab', 'Cabeça: inclinação (− = queixo para baixo)', -40, 30, 1, '°']]],
-      ['Capacetes (ciclista, piloto, viking, gorro de pelo)', [['capS', 'Tamanho', .6, 1.4, .01, '×'], ['capY', 'Altura', -6, 6, .2, 'cm'], ['capX', 'Frente / trás', -5, 5, .2, 'cm']]],
-      ['Chapéus e gorros', [['chS', 'Tamanho', .5, 1.5, .01, '×'], ['chY', 'Altura', -6, 6, .2, 'cm']]]
+      ['Braços', 'v', [['maoX', 'Mãos: frente / trás', -10, 10, .5, 'cm'], ['maoY', 'Mãos: altura', -10, 10, .5, 'cm'], ['cotov', 'Cotovelos abertos', 0, 3, .05, '×']]],
+      ['Cabeça e pescoço', 'v', [['pesc', 'Pescoço: inclinação para a frente', 0, 80, 1, '°'], ['cab', 'Cabeça: inclinação (− = queixo para baixo)', -40, 30, 1, '°']]],
+      ['Capacete', 'cap', [['capS', 'Tamanho', .6, 1.4, .01, '×'], ['capY', 'Altura', -6, 6, .2, 'cm'], ['capX', 'Frente / trás', -5, 5, .2, 'cm']]],
+      ['Chapéu', 'ch', [['chS', 'Tamanho', .5, 1.5, .01, '×'], ['chY', 'Altura', -6, 6, .2, 'cm']]]
     ];
-    const MOD = [['Ciclista (homem)', 'e.E5242B.F3F4F6.E0AE86.cic.cam.1F7AE0.1.m'], ['Ciclista (mulher)', 'e.E040A0.E040A0.C68A5E.cic.cam.F3F4F6.1.f'], ['BTT', 'b.3DD45C.1F2937.9A6440.cic.col.FF7A00.0.m'],
-      ['Contrarrelógio', 't.1F7AE0.FFD60A.F2C9A6.cic.cam.22262D.1.m'], ['Triciclo', 'r.F2E6CF.D7262B.E0AE86.cog.cog.FF7A00.0.f'], ['Pai Natal', 'e.C8102E.C8102E.E0AE86.pn.pnc.E5242B.0.m'],
-      ['Cowboy', 'e.1F7AE0.6B4A2E.C68A5E.cow.cow.9AA3AE.0.m'], ['Viking', 'e.5B3FD9.9AA3AE.6B4228.vik.mot.5B3FD9.0.m'], ['Kart', 'k.1F7AE0.E5242B.E0AE86.pil.f1.FF7A00.1.m'],
-      ['Carrinho', 'c.E040A0.F3F4F6.C68A5E.cic.cam.FFD60A.0.f'], ['Trenó', 'n.C8102E.C8102E.E0AE86.pn.pnc.E5242B.0.m']];
+    const CAPA = ['cic', 'pil', 'vik', 'ush'], CABELO = ['cur', 'lon', 'rab', 'moh', 'cab'];
+    const tipoCab = H=> CAPA.includes(H) ? 'cap' : CABELO.includes(H) ? '' : 'ch';
+    const COR_CAB = { cow: '6B4A2E', cha: '1A1A1A', cog: 'D7262B', vik: '9AA3AE', ush: '6B4A2E', lon: 'C9A04A', rab: '3B2A20', cur: '3B2A20', moh: 'E040A0', pil: 'E5242B' };
     const VIS = { lado: [0, .15, 3.4], tq: [-.75, .25, 3.6], frente: [Math.PI / 2, .12, 3.4], tras: [-Math.PI / 2, .25, 3.6], cab: [.4, .08, 1.5] };
     let E = null;
     function css(){
@@ -7902,44 +8011,54 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 #cicEd .ce-r input[type=number]{width:64px;box-sizing:border-box;background:#0f1218;color:#E8ECF2;border:1px solid #3a4352;border-radius:6px;padding:3px 4px;font:inherit;font-size:13px}
 #cicEd .ce-r button{padding:2px 0;font-size:12px}#cicEd .ce-r.mud label{color:#FFD60A}
 #cicEd .ce-b{position:fixed;right:0;bottom:0;width:370px;max-width:46vw;box-sizing:border-box;display:flex;flex-wrap:wrap;gap:6px;padding:10px 16px;background:#161b23;border-top:1px solid #2a313d;border-left:1px solid #2a313d}
-#cicEd .ce-b .ok{background:#2E9E4F;border-color:#2E9E4F;font-weight:600}#cicEd .ce-msg{font-size:12px;opacity:.8;width:100%}`;
+#cicEd .ce-b .ok{background:#2E9E4F;border-color:#2E9E4F;font-weight:600}#cicEd .ce-fic2{background:#232934;border:1px solid #3a4352;border-radius:8px;padding:4px 8px;font-size:13px}#cicEd .ce-fic2 input{width:52px;background:#0f1218;color:#E8ECF2;border:1px solid #3a4352;border-radius:6px;padding:2px 4px;font:inherit}#cicEd .ce-msg{font-size:12px;opacity:.8;width:100%}#cicEd .ce-nota,#cicEd .ce-semc{font-size:12px;color:#9AA7B8;margin:4px 0 0}#cicEd h3 span{color:#E8ECF2;text-transform:none;letter-spacing:0}`;
       document.head.appendChild(s);
     }
     function abre(){
       if(E) return; css();
       const d = document.createElement('div'); d.id = 'cicEd';
-      const alunos = typeof riders === 'object' && riders ? Object.values(riders).filter(r=> r && r.av && avLe(r.av)).map(r=> [(r.n || 'Aluno').split(' ')[0], r.av]) : [];
       const opt = (l, v)=> '<option value="' + v + '">' + l + '</option>';
-      d.innerHTML = '<div class="ce-v"><canvas></canvas><div class="ce-top"><h2>🛠️ Editor dos bonecos</h2><select class="ce-mod" title="Que boneco mostrar">' + MOD.map(m=> opt(m[0], m[1])).join('')
-        + (alunos.length ? '<optgroup label="Alunos na aula">' + alunos.map(a=> opt(a[0], a[1])).join('') + '</optgroup>' : '') + '</select>'
+      d.innerHTML = '<div class="ce-v"><canvas></canvas><div class="ce-top"><h2>🛠️ Editor dos bonecos</h2><select class="ce-vei" title="Veículo: o corpo afina-se para cada veículo">' + Object.keys(AV_VEIC).map(k=> opt(AV_VEIC[k][0] + ' ' + AV_VEIC[k][1], k)).join('') + '</select>'
+        + '<select class="ce-cab" title="Chapéu ou capacete: afina-se para cada um">' + Object.keys(AV_CAB).map(k=> opt(AV_CAB[k][0] + ' ' + AV_CAB[k][1], k)).join('') + '</select>'
+        + '<button class="ce-gen" title="Homem ou mulher">♂ Homem</button>'
+        + '<span class="ce-fic2" title="Experimenta com o peso e a altura de um cliente (na aula vêm da ficha de cada aluno)">Ficha: <input class="ce-kg" type="number" min="30" max="250" placeholder="kg"> kg <input class="ce-cm" type="number" min="120" max="230" placeholder="cm"> cm</span>'
         + ['lado:Lado', 'tq:¾', 'frente:Frente', 'tras:Trás', 'cab:Cabeça'].map(x=> '<button data-v="' + x.split(':')[0] + '">' + x.split(':')[1] + '</button>').join('')
         + '<button class="ce-ped on" title="Pedalar ou parar">▶ A pedalar</button><button class="ce-pe" title="Pedalar sentado ou em pé">Sentado</button></div>'
         + '<div class="ce-dica">Arrasta para rodar · roda do rato para aproximar · as mudanças veem-se na hora</div><div class="ce-load" style="position:absolute;inset:0;display:grid;place-items:center;font-size:16px">A carregar o boneco 3D…</div></div>'
-        + '<div class="ce-p">' + GR.map(([t, L])=> '<h3>' + t + '</h3>' + L.map(([k, l, a, b, p, u])=> '<div class="ce-r" data-k="' + k + '"><label>' + l + (u ? ' (' + u + ')' : '') + '</label><input type="range" min="' + a + '" max="' + b + '" step="' + p + '"><input type="number" min="' + a + '" max="' + b + '" step="' + p + '"><button title="Repor este valor">↺</button></div>').join('')).join('')
-        + '</div><div class="ce-b"><button class="ok" title="Grava neste computador: a projeção deste PC passa a usar estes valores">💾 Guardar neste PC</button><button class="ce-des" title="Gera o bonecos-ajustes.json: posto no GitHub ao lado do perfil-de-aula.html, vale para todos os PCs">⬇ Descarregar</button><button class="ce-abr" title="Abre um bonecos-ajustes.json do computador">📂 Abrir</button><button class="ce-rep">Repor tudo</button><button class="ce-cop" title="Copia os valores">📋 Copiar</button><button class="ce-col" title="Cola valores copiados">📥 Colar</button><button class="ce-fe">✕ Fechar</button><input type="file" accept=".json,application/json" class="ce-fic" hidden><div class="ce-msg"></div></div>';
+        + '<div class="ce-p"><p class="ce-nota"></p>' + GR.map(([t, g, L])=> '<div class="ce-g" data-g="' + g + '"><h3>' + t + ' · <span></span></h3>' + L.map(([k, l, a, b, p, u])=> '<div class="ce-r" data-k="' + k + '"><label>' + l + (u ? ' (' + u + ')' : '') + '</label><input type="range" min="' + a + '" max="' + b + '" step="' + p + '"><input type="number" min="' + a + '" max="' + b + '" step="' + p + '"><button title="Repor este valor">↺</button></div>').join('') + '</div>').join('') + '<p class="ce-semc" hidden>Este boneco não tem chapéu nem capacete para afinar.</p>'
+        + '</div><div class="ce-b"><button class="ok" title="Grava neste computador: a projeção deste PC passa a usar estes valores">💾 Guardar neste PC</button><button class="ce-des" title="Gera o bonecos-ajustes.json: posto no GitHub ao lado do perfil-de-aula.html, vale para todos os PCs">⬇ Descarregar</button><button class="ce-abr" title="Abre um bonecos-ajustes.json do computador">📂 Abrir</button><button class="ce-rep1" title="Volta aos valores de origem neste boneco (forma, veículo e chapéu)">Repor este</button><button class="ce-rep" title="Volta aos valores de origem em todos os bonecos">Repor todos</button><button class="ce-cop" title="Copia os valores">📋 Copiar</button><button class="ce-col" title="Cola valores copiados">📥 Colar</button><button class="ce-fe">✕ Fechar</button><input type="file" accept=".json,application/json" class="ce-fic" hidden><div class="ce-msg"></div></div>';
       document.body.appendChild(d);
       const q = s=> d.querySelector(s), guardado = JSON.stringify(CICAJ);
-      E = { d, guardado, ang: 0, ped: true, emPe: false, yaw: VIS.lado[0], pit: VIS.lado[1], dist: VIS.lado[2], alvo: 'corpo', st: null, raf: 0 };
+      E = { d, guardado, g: 'm', ang: 0, ped: true, emPe: false, yaw: VIS.lado[0], pit: VIS.lado[1], dist: VIS.lado[2], alvo: 'corpo', st: null, raf: 0 };
       // controlos
-      const pinta = ()=> d.querySelectorAll('.ce-r').forEach(r=>{ const k = r.dataset.k, v = CICAJ[k]; r.querySelector('input[type=range]').value = v; r.querySelector('input[type=number]').value = +(+v).toFixed(2); r.classList.toggle('mud', Math.abs(v - CICAJ_PAD[k]) > 1e-6); });
+      const cam = ()=>{ const v = q('.ce-vei').value, H = q('.ce-cab').value; return { v, H }; };
+      const camada = k=>{ const { v, H } = cam(), T = CICAJ_FORMA.includes(k) ? CICAJ.g : CICAJ_CORPO.includes(k) ? CICAJ.v : CICAJ.H, c = CICAJ_FORMA.includes(k) ? E.g : CICAJ_CORPO.includes(k) ? v : H; return T[c] || (T[c] = {}); };
+      const pinta = ()=>{ const { v, H } = cam(), A = cicAjDe({ v, H, g: E.g, kg: +q('.ce-kg').value || null, cm: +q('.ce-cm').value || null }), P = cicAjPadV(v), tc = tipoCab(H);
+        d.querySelectorAll('.ce-g').forEach(g=>{ const t = g.dataset.g; g.hidden = t !== 'v' && t !== 'g' && t !== tc; g.querySelector('h3 span').textContent = t === 'g' ? (E.g === 'f' ? 'Mulher' : 'Homem') : t === 'v' ? AV_VEIC[v][1] : AV_CAB[H][1]; });
+        d.querySelector('.ce-r[data-k=peito]').hidden = E.g !== 'f';
+        q('.ce-semc').hidden = !!tc; q('.ce-nota').textContent = 'A forma do corpo vale para todos os bonecos ' + (E.g === 'f' ? 'mulher' : 'homem') + '; a postura afina-se para cada veículo (' + AV_VEIC[v][1] + ') e a cabeça para cada ' + (tc === 'cap' ? 'capacete' : 'chapéu') + '.';
+        d.querySelectorAll('.ce-r').forEach(r=>{ const k = r.dataset.k, v = A[k]; r.querySelector('input[type=range]').value = v; r.querySelector('input[type=number]').value = +(+v).toFixed(2); r.classList.toggle('mud', Math.abs(v - P[k]) > 1e-6); }); };
       d.querySelectorAll('.ce-r').forEach(r=>{ const k = r.dataset.k, rg = r.querySelector('input[type=range]'), nb = r.querySelector('input[type=number]');
-        const poe = v=>{ v = parseFloat(v); if(!isFinite(v)) return; CICAJ[k] = v; pinta(); };
-        rg.oninput = ()=> poe(rg.value); nb.onchange = ()=> poe(nb.value); r.querySelector('button').onclick = ()=> poe(CICAJ_PAD[k]); });
+        const poe = v=>{ v = parseFloat(v); if(!isFinite(v)) return; camada(k)[k] = v; pinta(); };
+        rg.oninput = ()=> poe(rg.value); nb.onchange = ()=> poe(nb.value); r.querySelector('button').onclick = ()=>{ delete camada(k)[k]; pinta(); }; });
       pinta(); E.pinta = pinta;
       const msg = t=>{ q('.ce-msg').textContent = t; };
-      q('.ce-mod').onchange = ()=> monta(q('.ce-mod').value);
+      const muda = ()=>{ monta(avAtual()); pinta(); };
+      q('.ce-vei').onchange = muda; q('.ce-cab').onchange = muda; q('.ce-kg').oninput = muda; q('.ce-cm').oninput = muda;
+      q('.ce-gen').onclick = ()=>{ E.g = E.g === 'm' ? 'f' : 'm'; q('.ce-gen').textContent = E.g === 'm' ? '♂ Homem' : '♀ Mulher'; muda(); };
       d.querySelectorAll('[data-v]').forEach(b=> b.onclick = ()=>{ const v = VIS[b.dataset.v]; E.yaw = v[0]; E.pit = v[1]; E.dist = v[2]; E.alvo = b.dataset.v === 'cab' ? 'cab' : 'corpo'; });
       q('.ce-ped').onclick = ()=>{ E.ped = !E.ped; q('.ce-ped').classList.toggle('on', E.ped); q('.ce-ped').textContent = E.ped ? '▶ A pedalar' : '⏸ Parado'; };
       q('.ce-pe').onclick = ()=>{ E.emPe = !E.emPe; q('.ce-pe').classList.toggle('on', E.emPe); q('.ce-pe').textContent = E.emPe ? 'Em pé' : 'Sentado'; };
-      const val = ()=>{ const o = {}; Object.keys(CICAJ_PAD).forEach(k=> o[k] = +(+CICAJ[k]).toFixed(3)); return o; };
+      const val = ()=>{ const o = { v: {}, H: {}, g: {} }; ['v', 'H', 'g'].forEach(t=> Object.entries(CICAJ[t]).forEach(([c, s])=>{ const r = {}; Object.keys(s).forEach(k=> r[k] = +(+s[k]).toFixed(3)); if(Object.keys(r).length) o[t][c] = r; })); return o; };
       q('.ok').onclick = ()=>{ try{ localStorage.setItem('prCicAj', JSON.stringify(val())); }catch(e){} E.guardado = JSON.stringify(CICAJ); if(SPR.limpa) SPR.limpa();
         msg('✔ Guardado neste PC. As imagens do 2D realista vão ser refeitas.'); if(typeof toast === 'function') toast('🧍 Bonecos afinados e guardados neste PC'); };
       q('.ce-des').onclick = ()=>{ const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(val(), null, 2)], { type: 'application/json' })); a.download = 'bonecos-ajustes.json'; document.body.appendChild(a); a.click(); a.remove();
         msg('⬇ Descarregado o bonecos-ajustes.json: põe-no no GitHub na pasta do perfil-de-aula.html para valer em todos os PCs.'); };
       q('.ce-abr').onclick = ()=> q('.ce-fic').click();
-      q('.ce-fic').onchange = ()=>{ const f = q('.ce-fic').files[0]; if(!f) return; f.text().then(t=>{ Object.assign(CICAJ, CICAJ_PAD); cicAjPoe(JSON.parse(t)); pinta(); msg('📂 Aberto: ' + f.name + ' (carrega em Guardar para ficar).'); }).catch(()=> msg('⚠ Esse ficheiro não é válido.')); q('.ce-fic').value = ''; };
-      q('.ce-rep').onclick = ()=>{ Object.assign(CICAJ, CICAJ_PAD); pinta(); msg('Valores de origem repostos (carrega em Guardar para ficarem).'); };
-      q('.ce-cop').onclick = ()=>{ const t = JSON.stringify(CICAJ); (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(()=> msg('📋 Valores copiados.'), ()=>{ window.prompt('Copia estes valores:', t); }); };
+      q('.ce-fic').onchange = ()=>{ const f = q('.ce-fic').files[0]; if(!f) return; f.text().then(t=>{ cicAjPoe(JSON.parse(t)); pinta(); msg('📂 Aberto: ' + f.name + ' (carrega em Guardar para ficar).'); }).catch(()=> msg('⚠ Esse ficheiro não é válido.')); q('.ce-fic').value = ''; };
+      q('.ce-rep1').onclick = ()=>{ const { v, H } = cam(); delete CICAJ.v[v]; delete CICAJ.H[H]; delete CICAJ.g[E.g]; pinta(); msg('Este boneco voltou aos valores de origem (carrega em Guardar para ficar).'); };
+      q('.ce-rep').onclick = ()=>{ if(!window.confirm('Repor os valores de origem em TODOS os bonecos?')) return; CICAJ.v = {}; CICAJ.H = {}; CICAJ.g = {}; pinta(); msg('Todos os bonecos voltaram aos valores de origem (carrega em Guardar para ficar).'); };
+      q('.ce-cop').onclick = ()=>{ const t = JSON.stringify(val()); (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(()=> msg('📋 Valores copiados.'), ()=>{ window.prompt('Copia estes valores:', t); }); };
       q('.ce-col').onclick = ()=>{ const t = window.prompt('Cola aqui os valores copiados:'); if(!t) return; try{ const o = JSON.parse(t); cicAjPoe(o); pinta(); msg('Valores colados (carrega em Guardar para ficarem).'); }catch(e){ msg('⚠ Esses valores não são válidos.'); } };
       q('.ce-fe').onclick = fecha;
       E.tecla = ev=>{ if(ev.key === 'Escape') fecha(); }; document.addEventListener('keydown', E.tecla);
@@ -7948,7 +8067,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     function fecha(){
       if(!E) return;
       if(JSON.stringify(CICAJ) !== E.guardado && !window.confirm('Há mudanças por guardar. Sair sem guardar?')) return;
-      Object.assign(CICAJ, JSON.parse(E.guardado));
+      cicAjPoe(JSON.parse(E.guardado));
       cancelAnimationFrame(E.raf); document.removeEventListener('keydown', E.tecla); window.removeEventListener('resize', E.rs);
       if(E.ren){ E.ren.dispose(); } E.d.remove(); E = null;
     }
@@ -7958,10 +8077,15 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       if(!window.THREE){ const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onload = ()=> E && prepara(); s.onerror = ()=>{ ld.textContent = '⚠ Sem internet para carregar o 3D.'; }; document.head.appendChild(s); return; }
       if(!CIC3) CIC3 = CIC3f();
       const H = CIC3.HUM; if(H && /nada|a carregar/.test(H.estado)){ setTimeout(()=> E && prepara(), 200); return; }
-      if(H && H.estado === 'falhou'){ ld.textContent = '⚠ Não encontrei os ficheiros ciclista_m.glb / ciclista_f.glb ao lado desta página: estás a ver o boneco antigo.'; Object.assign(ld.style, { inset: 'auto 12px 34px 12px', display: 'block', fontSize: '13px', color: '#FFD60A' }); }
+      if(H && H.estado === 'falhou'){
+        ld.innerHTML = '⚠ Os corpos realistas não carregaram (' + (H.erro || 'sem resposta') + '): estás a ver o boneco antigo. <button class="ce-glb">📂 Escolher ciclista_m.glb e ciclista_f.glb</button><input type="file" accept=".glb" multiple hidden class="ce-glbf">';
+        Object.assign(ld.style, { inset: 'auto 12px 34px 12px', display: 'block', fontSize: '13px', color: '#FFD60A' });
+        ld.querySelector('.ce-glb').onclick = ()=> ld.querySelector('.ce-glbf').click();
+        ld.querySelector('.ce-glbf').onchange = ev=> H.deFicheiros([...ev.target.files]).then(()=>{ ld.remove(); monta(avAtual()); if(SPR.limpa) SPR.limpa(); })
+          .catch(err=>{ ld.firstChild.textContent = '⚠ ' + (err && err.message || err) + ' '; }); }
       else ld.remove();
       E.guardado = JSON.stringify(CICAJ); E.pinta();   // os valores podem ter chegado agora (ficheiro de ajustes)
-      cena(); monta(E.d.querySelector('.ce-mod').value); anima();
+      cena(); monta(avAtual()); anima();
     }
     function cena(){
       const cv = E.d.querySelector('canvas'), ren = E.ren = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
@@ -7983,9 +8107,12 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       cv.onpointerup = ()=>{ arr = null; };
       cv.onwheel = ev=>{ ev.preventDefault(); E.dist = Math.max(.5, Math.min(9, E.dist * (ev.deltaY > 0 ? 1.1 : .91))); };
     }
+    function avAtual(){ const v = E.d.querySelector('.ce-vei').value, H = E.d.querySelector('.ce-cab').value;
+      return [v, '1F7AE0', COR_CAB[H] || 'F3F4F6', 'E0AE86', H, AV_PAR[H] || (v === 'k' ? 'f1' : 'cam'), 'E5242B', 1, E.g].join('.'); }
     function monta(av){
       if(E.st) E.sc.remove(E.st.G);
-      E.st = CIC3.cria(avLe(av)); E.st.G.position.set(.05, 0, 0); E.st.G.traverse(o=>{ if(o.isMesh){ o.castShadow = true; o.receiveShadow = true; } }); E.sc.add(E.st.G);
+      const a = avLe(av); a.kg = +E.d.querySelector('.ce-kg').value || null; a.cm = +E.d.querySelector('.ce-cm').value || null;   // ficha simulada
+      E.st = CIC3.cria(a); E.st.G.position.set(.05, 0, 0); E.st.G.traverse(o=>{ if(o.isMesh){ o.castShadow = true; o.receiveShadow = true; } }); E.sc.add(E.st.G);
     }
     function anima(){
       if(!E) return; E.raf = requestAnimationFrame(anima);
@@ -8032,7 +8159,7 @@ const SR3 = (()=>{
   function pista(segs){
     const N = segs.length, px = new Float32Array(N), py = new Float32Array(N), pz = new Float32Array(N), hd = new Float32Array(N);
     let x = 0, z = 0, h = 0, L = SR_SEG * M;
-    for(let i = 0; i < N; i++){ px[i] = x; pz[i] = z; py[i] = segs[i].y * M / SR_EXG * 1.15; hd[i] = h; h += segs[i].curve * .0042; x += Math.sin(h) * L; z += Math.cos(h) * L; }
+    for(let i = 0; i < N; i++){ px[i] = x; pz[i] = z; py[i] = segs[i].y * M / SR_EXG * 1.15; hd[i] = h; h += segs[i].dh != null ? segs[i].dh : segs[i].curve * .0042; x += Math.sin(h) * L; z += Math.cos(h) * L; }   // percursos reais (dh): o ângulo real de cada viragem
     return { px, py, pz, hd, N };
   }
   function ponto(d){   // d em unidades da pista → { x, y, z, h }
@@ -8059,14 +8186,471 @@ const SR3 = (()=>{
     g.fillStyle = corF; g.fillRect(0, 0, w, h); g.fillStyle = corT; g.font = '800 ' + fs + 'px Barlow Condensed, Arial Narrow, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(txt, w / 2, h / 2);
     return new THREE.CanvasTexture(c);
   }
+  // =====================================================================
+  // PISO E CENÁRIO COM DETALHE (3D): asfalto com textura (agregado, rodados, fissuras, remendos, linhas),
+  // paralelos em Paris, terreno com relevo dos dois lados (serra: encosta a subir de um lado e ravina do outro),
+  // relva com textura, árvores, rochas e arbustos em 3D, balizadores, rails de proteção, passeios e lancis.
+  // =====================================================================
+  const DT = { cache: {} };
+  function rndS(s){ let x = s | 0 || 1; return ()=>{ x ^= x << 13; x ^= x >>> 17; x ^= x << 5; return ((x >>> 0) % 100000) / 100000; }; }
+  function ruido2(x, y){   // ruído de valor suave (0…1)
+    const h = (a, b)=>{ let n = a * 374761393 + b * 668265263; n = (n ^ (n >>> 13)) * 1274126177; return ((n ^ (n >>> 16)) >>> 0) / 4294967296; };
+    const xi = Math.floor(x), yi = Math.floor(y), fx = x - xi, fy = y - yi, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+    const a = h(xi, yi), b = h(xi + 1, yi), c = h(xi, yi + 1), d = h(xi + 1, yi + 1);
+    return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
+  }
+  const fbm = (x, y, o)=>{ let s = 0, a = .5, f = 1; for(let k = 0; k < (o || 4); k++){ s += a * ruido2(x * f, y * f); a *= .5; f *= 2.03; } return s / (1 - Math.pow(.5, o || 4)); };
+  const hx = c=> { const v = parseInt(c.slice(1), 16); return [v >> 16 & 255, v >> 8 & 255, v & 255]; };
+  const mixC = (a, b, t)=> a.map((v, i)=> Math.round(v + (b[i] - v) * t));
+  function canv(w, h){ const c = document.createElement('canvas'); c.width = w; c.height = h; return [c, c.getContext('2d')]; }
+  function texRep(c, rx, ry){ const t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = Math.min(8, S.ren.capabilities.getMaxAnisotropy()); if(rx) t.repeat.set(rx, ry || rx); return t; }
+  // ---------- asfalto (10 m de largura × 20 m de comprimento numa imagem) ----------
+  function texEstrada(T, tema, tempo){
+    const k = 'asf|' + tema + '|' + tempo + '|' + T.asf[0]; if(DT.cache[k]) return DT.cache[k];
+    const W = 512, H = 1024, [c, g] = canv(W, H), R = rndS(77), base = hx(T.asf[0]), id = g.createImageData(W, H), d = id.data;
+    const pave = tema === 'paris', neon = T.neon || tema === 'cyber', kart = tema === 'kart';
+    for(let y = 0; y < H; y++) for(let x = 0; x < W; x++){
+      const i = (y * W + x) * 4, u = x / W;
+      let v;
+      if(pave){   // paralelos: pedras de ~12 × 18 cm em fiadas desencontradas, juntas escuras
+        const row = Math.floor(y / 14), off = (row % 2) * 6, col = Math.floor((x + off) / 12), fx = ((x + off) % 12) / 12, fy = (y % 14) / 14;
+        const junta = Math.min(fx, 1 - fx, fy, 1 - fy), tom = ruido2(col * 3.1, row * 1.7);
+        v = (1.55 + tom * .45 + (ruido2(x * .7, y * .7) - .5) * .15) * (.82 + .18 * Math.min(1, junta * 9));   // pedra clara e gasta, juntas suaves
+      } else {
+        const ag = ruido2(x * .9, y * .9) * .5 + ruido2(x * 2.3, y * 2.3) * .5;   // agregado (grão)
+        v = .88 + (ag - .5) * (kart ? .12 : .32) + (fbm(x / 90, y / 90, 3) - .5) * (kart ? .06 : .18);
+        // rodados: duas faixas por sentido ligeiramente mais escuras e lisas
+        const rod = [.24, .36, .64, .76].reduce((m, p)=> Math.max(m, Math.exp(-Math.pow((u - p) / .035, 2))), 0); v -= rod * (kart ? .03 : .09);
+      }
+      const r = Math.max(0, Math.min(2.2, v));
+      d[i] = Math.min(255, base[0] * r); d[i + 1] = Math.min(255, base[1] * r); d[i + 2] = Math.min(255, base[2] * r); d[i + 3] = 255;
+    }
+    g.putImageData(id, 0, 0);
+    if(!pave && !neon){
+      // remendos (asfalto mais escuro e novo) e fissuras
+      for(let k2 = 0; k2 < (kart ? 0 : 2); k2++){ g.fillStyle = 'rgba(0,0,0,' + (.04 + R() * .05) + ')'; const cx = W * (.2 + R() * .6), cy = R() * H, rr = 30 + R() * 60; g.beginPath();   // remendo irregular e discreto
+        for(let a2 = 0; a2 < 6.28; a2 += .5){ const q = rr * (.7 + R() * .6); g.lineTo(cx + Math.cos(a2) * q * .8, cy + Math.sin(a2) * q * 1.6); } g.closePath(); g.fill(); }
+      g.strokeStyle = 'rgba(0,0,0,.35)'; g.lineWidth = 1.3;
+      for(let k2 = 0; k2 < (kart ? 0 : 9); k2++){ let x = 60 + R() * (W - 120), y = R() * H; g.beginPath(); g.moveTo(x, y); for(let s = 0; s < 14; s++){ x += (R() - .5) * 16; y += 4 + R() * 9; g.lineTo(x, y); } g.stroke(); }
+      for(let k2 = 0; k2 < 3; k2++){ g.fillStyle = 'rgba(10,10,10,.12)'; g.beginPath(); g.ellipse(W * (.25 + R() * .5), R() * H, 8 + R() * 14, 14 + R() * 26, R(), 0, 7); g.fill(); }   // manchas de óleo
+    }
+    // linhas: contínuas nas bermas (a 20 cm da borda) — o traço do meio é desenhado à parte, na cor da zona
+    g.fillStyle = neon ? T.linha : tema === 'kart' ? '#FFFFFF' : T.linha;
+    const lx = Math.round(W * .02), lw = Math.max(5, Math.round(W * .012));
+    if(!pave){ g.fillRect(lx, 0, lw, H); g.fillRect(W - lx - lw, 0, lw, H); }
+    if(!pave && !neon){ g.globalAlpha = .18; g.fillStyle = '#000'; for(let y = 0; y < H; y += 3) if(R() < .4){ g.fillRect(lx + R() * lw, y, 1.5, 2); g.fillRect(W - lx - lw + R() * lw, y, 1.5, 2); } g.globalAlpha = 1; }   // tinta gasta
+    const t = texRep(c); DT.cache[k] = t; return t;
+  }
+  // relevo do asfalto (para a luz rasante desenhar o grão)
+  function texRelevo(tema){
+    const k = 'rel|' + tema; if(DT.cache[k]) return DT.cache[k];
+    const [c, g] = canv(256, 512), id = g.createImageData(256, 512), d = id.data;
+    for(let y = 0; y < 512; y++) for(let x = 0; x < 256; x++){ const i = (y * 256 + x) * 4;
+      let v = tema === 'paris' ? (()=>{ const row = Math.floor(y / 7), off = (row % 2) * 3, fx = ((x + off) % 6) / 6, fy = (y % 7) / 7; return Math.min(1, Math.min(fx, 1 - fx, fy, 1 - fy) * 6); })() : ruido2(x * 1.3, y * 1.3) * .6 + ruido2(x * 3.7, y * 3.7) * .4;
+      v = Math.round(v * 255); d[i] = d[i + 1] = d[i + 2] = v; d[i + 3] = 255; }
+    g.putImageData(id, 0, 0); const t = texRep(c); DT.cache[k] = t; return t;
+  }
+  // ---------- relva / terra (textura que se repete pelo chão) ----------
+  function texChao(tipo){
+    const k = 'chao|' + tipo; if(DT.cache[k]) return DT.cache[k];
+    const N = 256, [c, g] = canv(N, N), id = g.createImageData(N, N), d = id.data;
+    for(let y = 0; y < N; y++) for(let x = 0; x < N; x++){ const i = (y * N + x) * 4;
+      const per = (fx, fy, s)=>{ const a = fx * s, b = fy * s; return ruido2(a % s, b % s); };   // (não precisa de ser perfeito: o nevoeiro e a cor escondem as juntas)
+      let v;
+      if(tipo === 'cascalho'){ v = .75 + ruido2(x * 1.6, y * 1.6) * .35 + (ruido2(x * .3, y * .3) - .5) * .2; }
+      else if(tipo === 'calcada'){ const fx = (x % 32) / 32, fy = (y % 32) / 32; v = Math.min(fx, 1 - fx, fy, 1 - fy) < .05 ? .72 : .95 + (ruido2(Math.floor(x / 32) * 5, Math.floor(y / 32) * 3) - .5) * .12 + (ruido2(x, y) - .5) * .08; }
+      else { v = .8 + (ruido2(x * 1.9, y * .7) - .5) * .35 + (ruido2(x * .25, y * .25) - .5) * .3 + (ruido2(x * 5.1, y * 2.3) - .5) * .15; }   // relva: folhas (mais riscadas na vertical) e manchas
+      v = Math.round(Math.max(0, Math.min(1.2, v)) * 212); d[i] = d[i + 1] = d[i + 2] = Math.min(255, v); d[i + 3] = 255; }
+    g.putImageData(id, 0, 0); const t = texRep(c); DT.cache[k] = t; return t;
+  }
+  // ---------- terreno: faixas a afastarem-se da estrada, com relevo ----------
+  const DIST = [0, 2.4, 5, 9, 15, 24, 36, 52, 74, 104, 145, 200];   // metros a partir da berma
+  function perfilTema(tema){
+    if(tema === 'vale' && SR.rota === 'porto') return { amp: 2.5 };   // Porto: cidade e marginal, quase plano
+    return { serra: { amp: 34, lado: true }, vale: { amp: 11 }, paris: { amp: 0 }, kart: { amp: 5 }, neon: { amp: 0 }, cyber: { amp: 0 } }[tema] || { amp: 8 };
+  }
+  // que cartazes do 2D passam a árvores/rochas em 3D, em cada tema
+  function arv3D(tema, t){
+    const m = tema === 'serra' ? { p0: 'pinho', p1: 'pinho', p2: 'pinho', r: 'rocha' } : tema === 'paris' ? { p0: 'platano', p1: 'platano', p2: 'platano' } : tema === 'kart' ? { p0: 'toon' }
+      : tema === 'vale' ? (SR.rota === 'porto' ? { p1: 'copa', p2: 'arbusto' } : { p0: 'copa', p1: 'copa' }) : {};
+    return m[t] || null;
+  }
+  function alturaTerreno(i, l, dd, pf){   // altura (m) acima da estrada no troço i, lado l (−1 esquerda, 1 direita), a dd metros da berma
+    if(!pf.amp) return -.06;
+    const s = i * SR_SEG * M, sobe = Math.min(1, Math.max(0, (dd - 3) / 40)), sv = sobe * sobe * (3 - 2 * sobe);
+    let n = fbm(s / 140 + (l > 0 ? 50 : 0), dd / 90, 4);
+    let a = (n - .35) * pf.amp * sv + (ruido2(s / 9, dd / 7 + l * 9) - .5) * .5 * Math.min(1, dd / 6);
+    if(pf.lado) a = l < 0 ? Math.abs(a) * 1.25 + sv * 10 : -(Math.abs(a) * .8 + sv * 14);   // serra: encosta à esquerda, ravina à direita
+    return a - .06;
+  }
+  function terreno(T, tema, tempo){
+    const P = S.P, N = P.N, pf = perfilTema(tema), K = DIST.length, hW = S.hW, b0 = hW + 1.6;
+    const pos = new Float32Array(N * K * 2 * 3), col = new Float32Array(N * K * 2 * 3), uv = new Float32Array(N * K * 2 * 2), idx = [];
+    const neve = tempo === 'neve', rocha = hx(neve ? '#E9EEF5' : '#7A756C'), cA = hx(T.relva[0]), cB = hx(T.relva[1]), cC = hx(T.claro), terra = hx(neve ? '#DDE5EF' : '#6E5B43');
+    let v = 0;
+    for(let i = 0; i < N; i++){ const h = P.hd[i], rx = Math.cos(h), rz = -Math.sin(h);
+      for(const l of [-1, 1]) for(let k = 0; k < K; k++){
+        const dd = DIST[k], off = b0 + dd, y = P.py[i] + alturaTerreno(i, l, dd, pf);
+        pos.set([P.px[i] + rx * l * off, y, P.pz[i] + rz * l * off], v * 3);
+        uv.set([(P.px[i] + rx * l * off) / 3, (P.pz[i] + rz * l * off) / 3], v * 2);
+        // cor: relva com manchas; terra junto à berma; rocha onde é íngreme (serra)
+        const yN = k < K - 1 ? alturaTerreno(i, l, DIST[k + 1], pf) : alturaTerreno(i, l, dd, pf), dy = Math.abs(yN - alturaTerreno(i, l, dd, pf)) / ((k < K - 1 ? DIST[k + 1] : dd + 1) - dd + .01);
+        const m = fbm(i * .07 + l * 3, dd * .05, 3);
+        let c3 = mixC(mixC(cA, cB, m), cC, Math.max(0, (m - .62) * 1.6));
+        if(k <= 1 && !neve) c3 = mixC(c3, terra, .25 * (1 - k));
+        if(pf.amp && dy > .55) c3 = mixC(c3, rocha, Math.min(1, (dy - .55) * 1.4));
+        col.set([c3[0] / 255, c3[1] / 255, c3[2] / 255], v * 3); v++;
+      }
+      if(i < N - 1) for(let s = 0; s < 2; s++) for(let k = 0; k < K - 1; k++){ const a = (i * 2 + s) * K + k, b = ((i + 1) * 2 + s) * K + k;
+        if(s === 0) idx.push(a, a + 1, b, a + 1, b + 1, b); else idx.push(a, b, a + 1, a + 1, b, b + 1); }
+    }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('color', new THREE.BufferAttribute(col, 3)); geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+    geo.setIndex(idx); geo.computeVertexNormals();
+    const m = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ vertexColors: true, map: texChao(tema === 'paris' ? 'calcada' : 'relva') })); m.receiveShadow = true; return m;
+  }
+  // ---------- geometrias juntas (uma só malha com cores por vértice) ----------
+  function junta(lista){   // [[geometria, cor, matriz]]
+    const P = [], N = [], C = [];
+    lista.forEach(([geo, c, mt])=>{ const g2 = geo.index ? geo.toNonIndexed() : geo.clone(); if(mt) g2.applyMatrix4(mt); g2.computeVertexNormals();
+      const p = g2.attributes.position.array, n = g2.attributes.normal.array, cc = new THREE.Color(c); P.push(...p); N.push(...n); for(let k = 0; k < p.length / 3; k++) C.push(cc.r, cc.g, cc.b); });
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(N, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(C, 3));
+    return g;
+  }
+  const mtx = (x, y, z, sx, sy, sz, ry, rx)=> new THREE.Matrix4().compose(new THREE.Vector3(x, y, z), new THREE.Quaternion().setFromEuler(new THREE.Euler(rx || 0, ry || 0, 0)), new THREE.Vector3(sx, sy || sx, sz || sx));
+  function geoArvores(neve){
+    if(DT.arv && DT.arv.neve === neve) return DT.arv;
+    const br = c=> neve ? '#' + new THREE.Color(c).lerp(new THREE.Color('#F4F7FB'), .45).getHexString() : c;
+    const tronco = new THREE.CylinderGeometry(.13, .2, 1, 6);
+    const pinho = junta([[tronco, '#5A4030', mtx(0, 1.2, 0, 1, 2.4, 1)], ...[0, 1, 2, 3].map(k=> [new THREE.ConeGeometry(1.9 - k * .38, 2.6 - k * .3, 8), br(k % 2 ? '#24603A' : '#1E5533'), mtx(0, 2.4 + k * 1.55, 0, 1, 1, 1, k * .5)])]);
+    const folha = (r, c, x, y, z)=> [new THREE.IcosahedronGeometry(r, 1), br(c), mtx(x, y, z, 1, .85, 1)];
+    const copa = junta([[tronco, '#5E4632', mtx(0, 1.4, 0, 1.2, 2.8, 1.2)], folha(1.9, '#4F8A3C', 0, 4, 0), folha(1.4, '#5B9746', 1.1, 3.4, .5), folha(1.3, '#467F35', -1, 3.5, -.4), folha(1.2, '#549040', .2, 5.1, -.3)]);
+    const platano = junta([[tronco, '#8C7A62', mtx(0, 2, 0, 1.1, 4, 1.1)], folha(2.3, '#4F7A3B', 0, 5.6, 0), folha(1.6, '#5C8742', 1.4, 5, .6), folha(1.6, '#46703A', -1.3, 5.2, -.5), folha(1.4, '#5C8742', 0, 6.9, 0)]);
+    const toon = junta([[new THREE.CylinderGeometry(.22, .3, 1, 8), '#8A5A36', mtx(0, 1, 0, 1, 2, 1)], [new THREE.SphereGeometry(1.7, 14, 10), '#3FBF4A', mtx(0, 3.2, 0, 1, 1, 1)], [new THREE.SphereGeometry(1.1, 12, 8), '#55D35E', mtx(.7, 4.1, .3, 1, 1, 1)]]);
+    const rocha = junta([[new THREE.DodecahedronGeometry(1, 0), neve ? '#E3E8EF' : '#8A847A', mtx(0, .35, 0, 1, .7, 1.2)], [new THREE.DodecahedronGeometry(.6, 0), neve ? '#EEF2F7' : '#9A9488', mtx(.8, .2, .4, 1, .7, 1)]]);
+    const arbusto = junta([folha(.7, '#3F7A34', 0, .45, 0), folha(.55, '#4A8A3C', .55, .35, .2), folha(.5, '#386E2E', -.5, .3, -.2)]);
+    return DT.arv = { neve, pinho, copa, platano, toon, rocha, arbusto };
+  }
+  // instâncias agrupadas em pedaços ao longo da pista (só se desenham os pedaços perto da câmara)
+  const PED = 120;
+  function instancias(geo, lista, sombra){   // lista: [i, x, y, z, escala, rotação, tom]
+    const porP = {}; lista.forEach(o=>{ const p = Math.floor(o[0] / PED); (porP[p] = porP[p] || []).push(o); });
+    const mat = new THREE.MeshLambertMaterial({ vertexColors: true }), out = [];
+    Object.entries(porP).forEach(([p, L])=>{ const im = new THREE.InstancedMesh(geo, mat, L.length), m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), cc = new THREE.Color();
+      L.forEach((o, k)=>{ e.set(0, o[5], 0); q.setFromEuler(e); m4.compose(new THREE.Vector3(o[1], o[2], o[3]), q, new THREE.Vector3(o[4], o[4] * (o[7] || 1), o[4])); im.setMatrixAt(k, m4); im.setColorAt(k, cc.setScalar(o[6] || 1)); });
+      im.castShadow = !!sombra; im.receiveShadow = true; im.frustumCulled = false; im.userData.ped = +p; S.gTrk.add(im); out.push(im); });
+    return out;
+  }
+  // povoa o cenário: árvores (as dos cartazes passam a 3D) e floresta / arbustos / rochas pelo terreno
+  function natureza(T, tema, tempo, segs, arvCartaz, pois3){
+    const livre = new Set(); (pois3 || []).forEach(([i, l])=>{ for(let q = -9; q <= 9; q++) livre.add((i + q) + ':' + l); });   // clareira à volta dos edifícios
+    const P = S.P, N = P.N, pf = perfilTema(tema), hW = S.hW, b0 = hW + 1.6, R = rndS(911), G = geoArvores(tempo === 'neve'), L = { pinho: [], copa: [], platano: [], toon: [], rocha: [], arbusto: [] };
+    const tipoArv = tema === 'serra' ? 'pinho' : tema === 'paris' ? 'platano' : tema === 'kart' ? 'toon' : 'copa';
+    const poe = (tp, i, l, dd, esc, alt)=>{ const h = P.hd[i], rx = Math.cos(h), rz = -Math.sin(h), off = b0 + dd, y = P.py[i] + alturaTerreno(i, l, dd, pf);
+      L[tp].push([i, P.px[i] + rx * l * off, y - .1, P.pz[i] + rz * l * off, esc, R() * 6.28, .82 + R() * .3, alt || 1]); };
+    arvCartaz.forEach(([i, x, tp])=>{ const l = x < 0 ? -1 : 1, dd = Math.max(1.5, Math.abs(x) * hW - b0), pq = tp === 'rocha' || tp === 'arbusto'; poe(tp, i, l, dd, pq ? .8 + R() * .9 : .85 + R() * .5, pq ? 1 : .9 + R() * .35); });
+    if(tema !== 'paris' && tema !== 'neon' && tema !== 'cyber'){
+      for(let i = 2; i < N - 2; i += 2){ const urb = segs[i] && segs[i].muro;   // nas vilas (prédios) não há floresta
+        for(const l of [-1, 1]){ if(urb && (urb.L && l < 0 || urb.R && l > 0)) continue;
+          const dens = tema === 'serra' ? (l < 0 ? 1.6 : .9) : tema === 'kart' ? .35 : .8;
+          for(let k = 0; k < 3; k++) if(R() < dens * .5){ const dd = 8 + Math.pow(R(), 1.6) * 150; if(dd < 45 && livre.has(i + ':' + l)) continue; poe(R() < (tema === 'vale' ? .25 : .08) ? 'arbusto' : tipoArv, i, l, dd, .8 + R() * .7, .85 + R() * .4); }
+          if(R() < .18) poe(R() < .5 ? 'arbusto' : 'rocha', i, l, 1 + R() * 6, .4 + R() * .5);
+        } }
+    }
+    Object.entries(L).forEach(([tp, lst])=>{ if(lst.length) instancias(G[tp], lst, tp !== 'arbusto'); });
+  }
+  // ---------- equipamento da estrada ----------
+  function balizadores(tema){   // postes brancos com refletor, a cada 50 m (estradas de serra e vale)
+    if(tema !== 'serra' && tema !== 'vale') return;
+    const P = S.P, hW = S.hW, lst = [];
+    const geo = junta([[new THREE.BoxGeometry(.12, 1, .12), '#F2F2F2', mtx(0, .5, 0, 1)], [new THREE.BoxGeometry(.125, .16, .125), '#16181C', mtx(0, .86, 0, 1)], [new THREE.BoxGeometry(.13, .06, .13), '#FF8A1F', mtx(0, .86, 0, 1)]]);
+    for(let i = 3; i < P.N; i += 10) for(const l of [-1, 1]){ const h = P.hd[i], off = hW + 1.3; lst.push([i, P.px[i] + Math.cos(h) * l * off, P.py[i], P.pz[i] - Math.sin(h) * l * off, 1, h, 1]); }
+    instancias(geo, lst, true);
+  }
+  function rail(T, tema){   // rail de proteção do lado da ravina (serra)
+    if(tema !== 'serra') return;
+    const P = S.P, N = P.N, off = S.hW + 1.45, pos = [], idx = [];
+    for(let i = 0; i < N; i++){ const h = P.hd[i], x = P.px[i] + Math.cos(h) * off, z = P.pz[i] - Math.sin(h) * off; pos.push(x, P.py[i] + .45, z, x, P.py[i] + .78, z); if(i < N - 1){ const a = i * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); } }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals();
+    const m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: 0xB9C0C8, metalness: .55, roughness: .38, side: THREE.DoubleSide })); m.castShadow = true; S.gTrk.add(m);
+    const lst = []; for(let i = 0; i < N; i += 1){ const h = P.hd[i]; lst.push([i, P.px[i] + Math.cos(h) * (off + .08), P.py[i], P.pz[i] - Math.sin(h) * (off + .08), 1, h, .9]); }
+    instancias(junta([[new THREE.BoxGeometry(.08, .82, .12), '#8E959D', mtx(0, .41, 0, 1)]]), lst, false);
+  }
+  function lancis(T, tema){   // kart: zebras em relevo; Paris: passeio levantado com lancil
+    const P = S.P, N = P.N, hW = S.hW;
+    const faixa = (a, b, y0, y1, mat, uvL)=>{ const pos = [], uv = [], idx = [];
+      for(let i = 0; i < N; i++){ const h = P.hd[i], rx = Math.cos(h), rz = -Math.sin(h);
+        for(const l of [-1, 1]){ const pA = [P.px[i] + rx * l * a, P.py[i] + y0, P.pz[i] + rz * l * a], pB = [P.px[i] + rx * l * a, P.py[i] + y1, P.pz[i] + rz * l * a], pC = [P.px[i] + rx * l * b, P.py[i] + y1, P.pz[i] + rz * l * b];
+          pos.push(...pA, ...pB, ...pC); uv.push(0, i * uvL, .15, i * uvL, 1, i * uvL); } }
+      for(let i = 0; i < N - 1; i++) for(let s = 0; s < 2; s++){ const a0 = (i * 2 + s) * 3, b0 = ((i + 1) * 2 + s) * 3;
+        const q = (p, r, t, w)=> s ? idx.push(p, t, r, r, t, w) : idx.push(p, r, t, r, w, t); q(a0, a0 + 1, b0, b0 + 1); q(a0 + 1, a0 + 2, b0 + 1, b0 + 2); }
+      const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); geo.setIndex(idx); geo.computeVertexNormals();
+      const m = new THREE.Mesh(geo, mat); m.receiveShadow = true; S.gTrk.add(m); };
+    if(tema === 'kart'){
+      const [c, g] = canv(64, 256); for(let y = 0; y < 256; y += 64){ g.fillStyle = '#E5242B'; g.fillRect(0, y, 64, 32); g.fillStyle = '#FFFFFF'; g.fillRect(0, y + 32, 64, 32); }
+      faixa(hW - .05, hW + 1.1, -.01, .07, new THREE.MeshLambertMaterial({ map: texRep(c) }), .5);
+    }
+    if(tema === 'paris'){
+      faixa(hW + .02, hW + 4.5, -.01, .16, new THREE.MeshLambertMaterial({ color: 0xC9C2B6, map: texChao('calcada') }), 1.2);
+    }
+  }
+  // fachadas dos prédios: janelas, cornijas e telhado desenhados pela posição no mundo (não esticam com o tamanho do prédio)
+  function matFachada(tema){
+    const m = new THREE.MeshLambertMaterial({ color: 0xffffff }), cy = tema === 'cyber' ? 1 : 0, pa = tema === 'paris' ? 1 : 0;
+    m.onBeforeCompile = sh=>{
+      sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP; varying vec3 vWN;')
+        .replace('#include <begin_vertex>', `#include <begin_vertex>
+          mat4 mFa = modelMatrix;
+          #ifdef USE_INSTANCING
+            mFa = modelMatrix * instanceMatrix;
+          #endif
+          vWP = (mFa * vec4(transformed, 1.0)).xyz; vWN = normalize(mat3(mFa) * objectNormal);`);
+      sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP; varying vec3 vWN;')
+        .replace('vec4 diffuseColor = vec4( diffuse, opacity );', `vec4 diffuseColor = vec4( diffuse, opacity );
+          vec3 nF = normalize(vWN); float acesa = 0.0; vec3 corLuz = vec3(1.0, .62, .25);
+          if(nF.y > .5){ diffuseColor.rgb *= ${pa ? '.45' : '.6'}; }
+          else if(abs(nF.y) < .5){
+            float hc = dot(vWP.xz, vec2(-nF.z, nF.x)), andar = floor(vWP.y / 3.2), col = floor(hc / 2.6);
+            float fx = fract(hc / 2.6), fy = fract(vWP.y / 3.2);
+            float jan = step(.28, fx) * step(fx, .74) * step(.3, fy) * step(fy, .84);
+            float corn = ${pa ? 'step(.93, fy)' : '0.0'};
+            float h = fract(sin(andar * 12.9898 + col * 78.233) * 43758.5453);
+            vec3 vidro = mix(vec3(.16, .2, .26), vec3(.32, .38, .46), h);
+            diffuseColor.rgb = mix(diffuseColor.rgb * (1.0 - corn * .25), vidro, jan * .9);
+            diffuseColor.rgb *= 1.0 - (1.0 - step(.06, fy)) * .25 * (1.0 - jan);   // junta entre andares
+            acesa = jan * step(${cy ? '.55' : '.82'}, h); corLuz = ${cy ? 'mix(vec3(1.0, .55, .16), vec3(.2, .85, 1.0), step(.72, h))' : 'vec3(1.0, .78, .45)'};
+          }`)
+        .replace('#include <emissivemap_fragment>', '#include <emissivemap_fragment>\n totalEmissiveRadiance += corLuz * acesa * ' + (cy ? '.8' : '.18') + ';');
+    };
+    m.customProgramCacheKey = ()=> 'fachada' + tema; return m;
+  }
+  // ---------- pontos de interesse em 3D (Lousada ⇄ Penafiel e Porto): o edifício do tipo, à escala real, de frente para a estrada ----------
+  function poi3D(t, nome){
+    const g = new THREE.Group(); let L = c=> new THREE.MeshLambertMaterial({ color: c });
+    const cx = (w, h, d, c, x, y, z, sombra)=>{ const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), typeof c === 'string' ? L(c) : c); m.position.set(x || 0, (y || 0) + h / 2, z || 0); m.castShadow = sombra !== false; m.receiveShadow = true; g.add(m); return m; };
+    const telha = (w, h, d, c, y, z)=>{ const sh = new THREE.Shape(); sh.moveTo(-w / 2 - .4, 0); sh.lineTo(0, h); sh.lineTo(w / 2 + .4, 0); sh.lineTo(-w / 2 - .4, 0);   // telhado de duas águas
+      const m = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: d + .6, bevelEnabled: false }), L(c)); m.position.set(0, y, (z || 0) - (d + .6) / 2); m.castShadow = true; g.add(m); return m; };
+    const pir = (r, h, c, x, y, z)=>{ const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 4), L(c)); m.rotation.y = Math.PI / 4; m.position.set(x, y + h / 2, z); m.castShadow = true; g.add(m); return m; };
+    const janelas = (w, h0, n, andares, z, cor, lj, hj)=>{ for(let a = 0; a < andares; a++) for(let k = 0; k < n; k++) cx(lj || .9, hj || 1.4, .12, cor || '#2B3440', -w / 2 + (k + .5) * w / n, h0 + a * 3.2, z, false); };
+    const lados = (W, D, h0, n, andares, cor, lj, hj)=>{ [-1, 1].forEach(l=>{ for(let a = 0; a < andares; a++) for(let k = 0; k < n; k++) cx(.12, hj || 1.4, lj || .9, cor || '#2B3440', l * (W / 2 + .01), h0 + a * 3.2, -D + (k + .5) * D / n, false); }); };   // janelas nas paredes laterais
+    const cruz = (x, y, z)=>{ cx(.12, 1.1, .12, '#E8E2D2', x, y, z); cx(.6, .12, .12, '#E8E2D2', x, y + .7, z); };
+    const cal = '#F2EEE6', gran = '#A39B8E', telh = '#B4552E';
+    // ---- Igreja do Senhor dos Aflitos (Lousada, 1892): no alto de um jardim em socalcos com muros de granito e escadaria ao centro;
+    //      fachada branca com pilastras e molduras azul-claras, pináculos nos cantos, porta em arco e janela; uma torre ao centro
+    //      com mostrador redondo, sineira em arco e coruchéu octogonal cinzento com cruz; nave branca com telhado de telha ----
+    // ---- Tribunal Judicial de Lousada: edifício de 2 pisos em T, paredes brancas sobre soco de granito, telhado de 4 águas em telha;
+    //      ao centro, corpo de entrada em granito com 4 pilastras: em baixo 3 portas gradeadas, em cima 3 janelões com varanda
+    //      de balaústres, dois remates em cima; relevo "DOMUS JUSTITIAE" à direita; escadaria larga de granito com corrimãos ----
+    // ---- Câmara Municipal de Lousada (Paços do Concelho): dois pisos, branco com cunhais e molduras de granito, telhado de 4 águas;
+    //      fachada com 3 vãos em arco no andar nobre (porta ao centro), cornija com cachorros e platibanda com frontão ornamentado
+    //      ("PAÇOS DO CONCELHO"); à frente, escadarias simétricas até um terraço, muros brancos com faixas de granito e, por baixo,
+    //      a entrada envidraçada com o brasão em azulejo; ao lado, o pelourinho (coluna torsa sobre três degraus) ----
+    if(nome === 'Câmara Municipal de Lousada'){
+      const B = '#F4F3EF', GC = '#D3CBBB', GR = '#BBB2A2', ESC = '#2C4A52', P1 = 4.6, P2 = 4.4;   // P1: altura do piso térreo (= terraço)
+      const L0 = L; L = c=>{ const m = L0(c); if(c === B || c === GC) m.emissive = new THREE.Color(c).multiplyScalar(.2); return m; };
+      const W = 15, D = 32, H = P1 + P2;
+      // corpo e telhado de 4 águas
+      cx(W, H, D, B, 0, 0, -D / 2 - 6); cx(W + .3, 1.1, D + .3, GR, 0, 0, -D / 2 - 6);
+      [-1, 1].forEach(l=> [-1, 1].forEach(m=> cx(.8, H, .8, GC, l * (W / 2 - .3), 0, -6 + (m < 0 ? -D + .3 : -.3))));   // cunhais
+      cx(W + .8, .9, D + .8, GC, 0, H, -D / 2 - 6); for(let k = 0; k < 18; k++) cx(.25, .3, .5, GC, -W / 2 + .5 + k * (W - 1) / 17, H - .3, -5.6);   // cornija com cachorros
+      { const ge = new THREE.ConeGeometry(1, 1, 4, 1); ge.rotateY(Math.PI / 4); const t = new THREE.Mesh(ge, L('#B9532F')); t.scale.set((W + 1) / 1.414, 3, (D + 1) / 1.414); t.position.set(0, H + .9 + 1.5, -D / 2 - 6); t.castShadow = true; g.add(t); }
+      // platibanda com frontão ornamentado ao centro e dois frontões pequenos
+      cx(W + .6, 1.2, .7, GC, 0, H + .9, -5.7);
+      { const fr = new THREE.Shape(); fr.moveTo(-3.2, 0); fr.lineTo(-3.2, 1.4); fr.quadraticCurveTo(-1.6, 1.6, -1.2, 2.4); fr.lineTo(1.2, 2.4); fr.quadraticCurveTo(1.6, 1.6, 3.2, 1.4); fr.lineTo(3.2, 0); fr.lineTo(-3.2, 0);
+        const ft = new THREE.Mesh(new THREE.ExtrudeGeometry(fr, { depth: .7, bevelEnabled: false }), L(GC)); ft.position.set(0, H + 2.1, -6.05); ft.castShadow = true; g.add(ft);
+        const cp = new THREE.Mesh(new THREE.SphereGeometry(.75, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2), L(GC)); cp.position.set(0, H + 4.5, -5.7); g.add(cp); const pn = new THREE.Mesh(new THREE.ConeGeometry(.18, .7, 8), L(GC)); pn.position.set(0, H + 5.5, -5.7); g.add(pn);
+        const [cv, gx] = canv(256, 48); gx.fillStyle = '#D3CBBB'; gx.fillRect(0, 0, 256, 48); gx.fillStyle = '#6E6658'; gx.font = 'bold 26px serif'; gx.textAlign = 'center'; gx.fillText('PAÇOS DO CONCELHO', 128, 34);
+        const tx = new THREE.Mesh(new THREE.PlaneGeometry(4.2, .8), new THREE.MeshLambertMaterial({ map: new THREE.CanvasTexture(cv) })); tx.position.set(0, H + 2.6, -5.32); g.add(tx);
+        [-1, 1].forEach(l=>{ const s2 = new THREE.Shape(); s2.moveTo(-1, 0); s2.lineTo(0, .8); s2.lineTo(1, 0); s2.lineTo(-1, 0); const f2 = new THREE.Mesh(new THREE.ExtrudeGeometry(s2, { depth: .6, bevelEnabled: false }), L(GC)); f2.position.set(l * 5.2, H + 2.1, -6); g.add(f2); }); }
+      // vãos em arco com moldura de granito (fachada: 3 no andar nobre; lado: duas fiadas)
+      const vao = (x, y, z, rot, w, h, porta)=>{ const o = new THREE.Group(); o.position.set(x, y, z); o.rotation.y = rot || 0; g.add(o);
+        const p = (a, b, c, col, px, py, pz)=>{ const m = new THREE.Mesh(new THREE.BoxGeometry(a, b, c), L(col)); m.position.set(px, py, pz); o.add(m); };
+        p(w, h, .1, porta ? ESC : '#3A4A58', 0, h / 2, .02); const ar = new THREE.Mesh(new THREE.CylinderGeometry(w / 2, w / 2, .1, 16, 1, false, -Math.PI / 2, Math.PI), L(porta ? '#2E3A3C' : '#C9D6E2')); ar.rotation.x = Math.PI / 2; ar.position.set(0, h, .02); o.add(ar);
+        [-1, 1].forEach(l=> p(.28, h, .3, GC, l * (w / 2 + .14), h / 2, .1)); const mo = new THREE.Mesh(new THREE.TorusGeometry(w / 2 + .14, .14, 6, 16, Math.PI), L(GC)); mo.position.set(0, h, .1); o.add(mo); p(w + .6, .2, .4, GC, 0, 0, .15);
+        if(!porta){ p(.06, h, .05, '#EEE', 0, h / 2, .08); p(w, .06, .05, '#EEE', 0, h * .55, .08); } };
+      vao(0, P1 + .3, -5.95, 0, 1.9, 3, true); [-1, 1].forEach(l=> vao(l * 4.8, P1 + .7, -5.95, 0, 1.5, 2.5));
+      cx(W, .3, .4, GC, 0, P1 + .3, -5.85);   // faixa entre pisos
+      [-1, 1].forEach(l=>{ for(let k = 0; k < 9; k++){ const z = -9 - k * 3.2; vao(l * (W / 2 + .02), P1 + .6, z, l * Math.PI / 2, 1.1, 2.6); vao(l * (W / 2 + .02), 1.4, z, l * Math.PI / 2, 1, 2.3); } });
+      // terraço e escadarias simétricas à frente (muros brancos com faixas de granito); por baixo a entrada envidraçada com o brasão
+      cx(W + 1, .4, 6, GC, 0, P1 - .4, -3); cx(W + 1, P1 - .4, 6, B, 0, 0, -3); cx(W + 1, .25, 6.2, GC, 0, P1, -3);
+      [-1, 1].forEach(l=>{ for(let k = 0; k < 16; k++) cx(4, P1 * (k + 1) / 16, .6, '#DDD6C8', l * 6.4, 0, 9.4 - k * .6 - .3);   // degraus
+        cx(.6, P1 + 1, 10, B, l * 8.7, 0, 4.6); cx(.75, .3, 10.2, GC, l * 8.7, P1 + 1, 4.6); cx(.6, 1.6, .6, GC, l * 8.7, 0, 9.5);   // muro exterior com capa de granito
+        cx(.6, 1.6, 10, B, l * 4.1, 0, 4.6); for(let k = 0; k < 10; k++) cx(.65, .3, 1.02, GC, l * 4.1, 1.6 + k * .32, 9.3 - k * 1);   // muro interior a subir
+      });
+      cx(8.2, P1, .5, B, 0, 0, 0); cx(8.4, .35, .7, GC, 0, P1 - .9, .05); cx(8.4, .3, .7, GC, 0, 2.9, .05);
+      { const [cv, gx] = canv(128, 96); gx.fillStyle = '#7F9AA6'; gx.fillRect(0, 0, 128, 96); gx.fillStyle = '#E9E3D6'; gx.fillRect(34, 8, 60, 80); gx.fillStyle = '#2E5D9A'; gx.beginPath(); gx.moveTo(44, 26); gx.lineTo(84, 26); gx.lineTo(84, 58); gx.quadraticCurveTo(64, 82, 44, 58); gx.closePath(); gx.fill();
+        gx.fillStyle = '#C9A13A'; gx.fillRect(52, 14, 24, 10); gx.fillStyle = '#1E1E1E'; gx.fillRect(58, 38, 12, 14);
+        const vd = new THREE.Mesh(new THREE.PlaneGeometry(6, 2.8), new THREE.MeshLambertMaterial({ map: new THREE.CanvasTexture(cv), emissive: 0x111111 })); vd.position.set(0, 1.4, .27); g.add(vd); }
+      // o pelourinho, no relvado ao lado
+      { const pg = new THREE.Group(); pg.position.set(W / 2 + 6, 0, -14); g.add(pg); const gp = L('#9C968A');
+        [[3, .45, 0], [2.3, .45, .45], [1.6, .45, .9]].forEach(([w, h, y])=>{ const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, w), gp); m.position.y = y + h / 2; m.castShadow = true; pg.add(m); });
+        for(let k = 0; k < 9; k++){ const m = new THREE.Mesh(new THREE.TorusGeometry(.26, .14, 6, 12), gp); m.rotation.x = Math.PI / 2 + .35; m.rotation.z = k * .9; m.position.y = 1.55 + k * .38; m.castShadow = true; pg.add(m); }   // coluna torsa
+        const cap = new THREE.Mesh(new THREE.CylinderGeometry(.55, .3, .5, 4), gp); cap.rotation.y = Math.PI / 4; cap.position.y = 5.15; cap.castShadow = true; pg.add(cap); }
+      return g;
+    }
+    if(nome === 'Tribunal Judicial de Lousada'){
+      const B = '#F3F2EE', GC = '#CFC9BC', GR = '#B3AC9E', ESC = '#2B3238', SO = 1.6;   // SO: altura do soco (o edifício está acima da rua)
+      const L0 = L; L = c=>{ const m = L0(c); if(c === B || c === GC) m.emissive = new THREE.Color(c).multiplyScalar(.2); return m; };
+      const tel = (w, d, x, y, z)=>{ const ge = new THREE.ConeGeometry(1, 1, 4, 1); ge.rotateY(Math.PI / 4); const m = new THREE.Mesh(ge, L('#B9532F')); m.scale.set(w / 1.414, 2.6, d / 1.414); m.position.set(x, y + 1.3, z); m.castShadow = true; g.add(m); };   // telhado de 4 águas
+      const jan = (x, y, z, rot, varanda)=>{ const o = new THREE.Group(); o.position.set(x, y, z); o.rotation.y = rot || 0; g.add(o);
+        const p = (w, h, d, c, a, b, e)=>{ const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), L(c)); m.position.set(a, b, e); o.add(m); };
+        p(1.3, 2.1, .1, ESC, 0, 0, .02); p(1.7, .22, .3, GC, 0, 1.15, .1); p(1.7, .18, .3, GC, 0, -1.12, .1); [-1, 1].forEach(l=> p(.18, 2.3, .3, GC, l * .76, 0, .1));
+        if(varanda){ p(1.9, .12, .7, GC, 0, -1.2, .4); for(let k = 0; k < 9; k++) p(.04, .9, .04, '#222', -.85 + k * .21, -.75, .7); p(1.9, .05, .05, '#222', 0, -.3, .7); } };
+      // soco de granito e corpos: frente (32 m) e ala para trás (T)
+      cx(34, SO, 14, GR, 0, 0, -7); cx(32, 7.2, 12, B, 0, SO, -7); cx(32.4, .5, 12.4, GC, 0, SO + 7.2, -7); cx(32.2, 1.2, 12.2, GC, 0, SO, -7);   // cornija e faixa de granito
+      cx(14, SO, 20, GR, 0, 0, -22); cx(12, 7.2, 18, B, 0, SO, -22); cx(12.4, .5, 18.4, GC, 0, SO + 7.2, -22);
+      tel(33, 13, 0, SO + 7.7, -7); tel(13, 19, 0, SO + 7.7, -22);
+      // janelas da frente (dois pisos, de cada lado da entrada) e das empenas; varandas de ferro no 1.º andar das empenas
+      [-1, 1].forEach(l=>{ for(let k = 0; k < 4; k++){ const x = l * (7.5 + k * 2.3); jan(x, SO + 2.2, -.95, 0); jan(x, SO + 5.6, -.95, 0); }
+        for(let k = 0; k < 4; k++){ const z = -2.5 - k * 2.7; jan(l * 16.05, SO + 2.2, z, l * Math.PI / 2); jan(l * 16.05, SO + 5.6, z, l * Math.PI / 2, k < 3); } });
+      // corpo de entrada em granito, saliente e mais alto
+      cx(11, 9.6, 2, GC, 0, SO, -.6); cx(11.6, .6, 2.6, GC, 0, SO + 9.6, -.6);
+      [-4.6, -1.6, 1.6, 4.6].forEach(x=> cx(.8, 9.6, 2.4, '#DAD5CA', x, SO, -.4));   // 4 pilastras
+      [-1, 1].forEach(l=>{ cx(.9, 2.2, .7, GC, l * 4.6, SO + 10.2, -.5); cx(1.2, .25, 1, GC, l * 4.6, SO + 12.4, -.5); });   // os dois remates em cima
+      { const [cv, gx] = canv(64, 128); gx.fillStyle = '#1E2A33'; gx.fillRect(0, 0, 64, 128); gx.strokeStyle = '#5E6A72'; gx.lineWidth = 2; for(let q = 6; q < 64; q += 9){ gx.beginPath(); gx.moveTo(q, 0); gx.lineTo(q, 128); gx.stroke(); } gx.lineWidth = 3; for(let q = 14; q < 128; q += 28){ gx.beginPath(); gx.moveTo(0, q); gx.lineTo(64, q); gx.stroke(); }
+        const mg = new THREE.MeshLambertMaterial({ map: new THREE.CanvasTexture(cv), emissive: 0x0d0d0d });
+        [-3.1, 0, 3.1].forEach(x=>{ const pt = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 3.6), mg); pt.position.set(x, SO + 1.9, .45); g.add(pt);   // portas gradeadas
+          const jn = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 3.4), mg); jn.position.set(x, SO + 6.6, .45); g.add(jn);   // janelões
+          cx(2.6, .2, 1.1, GC, x, SO + 4.4, .7); for(let k = 0; k < 7; k++){ const b = new THREE.Mesh(new THREE.CylinderGeometry(.09, .12, .85, 8), L('#E2DDD2')); b.position.set(x - 1.1 + k * .37, SO + 5.05, 1.15); g.add(b); } cx(2.6, .16, .35, GC, x, SO + 5.45, 1.15); }); }   // varanda de balaústres
+      // relevo "DOMUS JUSTITIAE" à direita da entrada
+      { const [cv, gx] = canv(128, 160); gx.fillStyle = '#F3F2EE'; gx.fillRect(0, 0, 128, 160); gx.fillStyle = '#333'; gx.font = 'bold 13px sans-serif'; gx.textAlign = 'center'; gx.fillText('DOMUS JUSTITIÆ', 64, 16);
+        gx.fillStyle = '#4E5A55'; [[20, 40, 28, 100], [52, 30, 30, 112], [86, 44, 26, 96]].forEach(([x, y, w, h])=>{ gx.beginPath(); gx.ellipse(x + w / 2, y + 10, 8, 10, 0, 0, 7); gx.fill(); gx.fillRect(x + 4, y + 18, w - 8, h - 20); });
+        const rl = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 4.5), new THREE.MeshLambertMaterial({ map: new THREE.CanvasTexture(cv) })); rl.position.set(8.2, SO + 4.3, -.93); g.add(rl); }
+      // escadaria larga de granito à frente da entrada, com muretes e corrimãos
+      for(let k = 0; k < 12; k++) cx(10.4, SO * (k + 1) / 12, .45, '#D6D1C6', 0, 0, 1.6 + 5.4 - k * .45);
+      [-1, 1].forEach(l=>{ cx(.6, SO + .5, 5.6, GC, l * 5.5, 0, 4.4); cx(.06, .9, 5.4, '#555', l * 1.6, SO * .5 + .9, 4.4); });
+      // canteiros floridos dos lados da escadaria
+      const flor = ['#E0B21F', '#D3442B', '#E57A1F', '#3F7A34'];
+      [-1, 1].forEach(l=>{ for(let k = 0; k < 8; k++){ const b = new THREE.Mesh(new THREE.IcosahedronGeometry(.6, 1), L(flor[(k + (l > 0 ? 1 : 0)) % 4])); b.scale.y = .5; b.position.set(l * (7 + k * 1.6), .3, 3 + (k % 2) * 1.5); g.add(b); } });
+      return g;
+    }
+    if(nome === 'Igreja do Senhor dos Aflitos'){
+      // no alto do monte (≈11 m acima da avenida), muros de granito em degraus e escadas dos dois lados; à frente, numa praça de
+      // calçada, a estátua de D. António de Castro Meireles. Fachada azul-clara com pilastras de granito: em baixo três arcos,
+      // em cima três janelas gradeadas e frontão; torre ao centro com relógio, sineira, tambor e coruchéu octogonal com cruz.
+      const B = '#F4F3EF', AZ = '#CFDCEE', GR = '#B8B1A3', GC = '#D2CCBF', ESC = '#262321', AL = 11;
+      const L0 = L; L = c=>{ const m = L0(c); if(c === B || c === AZ || c === GC) m.emissive = new THREE.Color(c).multiplyScalar(.2); return m; };   // lê-se mesmo à sombra
+      // praça de calçada portuguesa à frente (com o desenho em losango ao centro)
+      { const [cv, gx] = canv(256, 256); gx.fillStyle = '#E9E6DF'; gx.fillRect(0, 0, 256, 256); for(let k = 0; k < 2600; k++){ gx.fillStyle = 'rgba(80,75,68,' + (.08 + Math.random() * .12) + ')'; gx.fillRect(Math.random() * 256, Math.random() * 256, 3, 3); }
+        gx.strokeStyle = '#6E6A63'; gx.lineWidth = 3; gx.beginPath(); gx.moveTo(128, 70); gx.lineTo(220, 128); gx.lineTo(128, 186); gx.lineTo(36, 128); gx.closePath(); gx.stroke();
+        const pr = new THREE.Mesh(new THREE.PlaneGeometry(36, 6), new THREE.MeshLambertMaterial({ map: new THREE.CanvasTexture(cv) })); pr.rotation.x = -Math.PI / 2; pr.position.set(0, .04, 3); pr.receiveShadow = true; g.add(pr); }
+      // muros de granito em degraus: quatro patamares a recuar, com o topo de cada muro em escada nas pontas
+      const pat = [[40, 2.8, 0], [34, 5.6, -4], [28, 8.4, -8], [24, AL, -12]];
+      pat.forEach(([w, h, z], q)=>{ cx(w, h, 40 - q * 3, GR, 0, 0, z - (40 - q * 3) / 2); [-1, 1].forEach(l=>{ for(let k = 1; k <= 3; k++) cx(1.6, h + k * .7, 1.6, GR, l * (w / 2 - k * 1.6 - .8), 0, z - .8); }); });
+      // escadas dos dois lados, a subir em lanço até ao alto
+      [-1, 1].forEach(l=>{ for(let k = 0; k < 24; k++) cx(2.6, AL * (k + 1) / 24, .65, GC, l * 17.5, 0, 2 - k * .62 - 1.2); });
+      // estátua de D. António de Castro Meireles: pedestal de granito com lápide e brasão, em cima de degraus; figura de bronze de batina
+      { const bz = L('#4C5547'), s0 = new THREE.Group(); s0.position.set(0, 0, 2.6); g.add(s0);
+        const pc = (w, h, d, c, y)=>{ const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), typeof c === 'string' ? L(c) : c); m.position.y = y + h / 2; m.castShadow = true; s0.add(m); return m; };
+        pc(4.4, .35, 3.4, GC, 0); pc(3.8, .35, 2.9, GC, .35); pc(1.9, 2.9, 1.5, GR, .7); pc(2.3, .35, 1.9, GR, 3.6); const lp = pc(1.4, 1.5, .05, '#9E978A', 1.6); lp.position.z = .78;
+        const corpo = new THREE.Mesh(new THREE.CylinderGeometry(.42, .62, 2.1, 12), bz); corpo.position.y = 4.95 + .1; s0.add(corpo);
+        const ombro = new THREE.Mesh(new THREE.SphereGeometry(.45, 12, 8), bz); ombro.scale.set(1.1, .6, .8); ombro.position.y = 6.05; s0.add(ombro);
+        const cab = new THREE.Mesh(new THREE.SphereGeometry(.26, 12, 10), bz); cab.position.y = 6.5; s0.add(cab);
+        const br = new THREE.Mesh(new THREE.CylinderGeometry(.1, .09, .75, 8), bz); br.position.set(-.38, 6.25, .3); br.rotation.set(.5, 0, .55); s0.add(br);   // braço levantado (bênção)
+        s0.traverse(o=>{ if(o.isMesh) o.castShadow = true; }); }
+      // árvores do Jardim de Lousada à volta (plátanos e copas grandes), sem tapar a fachada
+      [[-23, 2, 0], [23, 2, 0], [-19, -10, 5.6], [19, -10, 5.6], [-14, -30, AL], [14, -30, AL], [-6, -40, AL], [7, -41, AL], [-20, -22, 8.4], [20, -22, 8.4]].forEach(([x, z, y], k)=>{
+        const ar = new THREE.Group(); ar.position.set(x, y, z); const r = 3.2 + (k % 3) * .6;
+        const tr = new THREE.Mesh(new THREE.CylinderGeometry(.3, .45, 4.5, 7), L(k < 2 ? '#B8AE9C' : '#5E4632')); tr.position.y = 2.25; ar.add(tr);
+        [[0, 6.4, 0, r], [r * .6, 5.6, .5, r * .75], [-r * .6, 5.8, -.4, r * .7], [.2, 7.8, -.2, r * .65]].forEach(([a, b, c, rr], q)=>{ const f = new THREE.Mesh(new THREE.IcosahedronGeometry(rr, 1), L(['#3E6F34', '#4A7D3A', '#35612E', '#56893F'][(k + q) % 4])); f.position.set(a, b, c); f.castShadow = true; ar.add(f); });
+        g.add(ar); });
+      const flor = ['#C2185B', '#E05A2B', '#3F7A34', '#7A3FA0', '#5B8F3E'];
+      pat.forEach(([w, h, z], q)=>{ for(let k = 0; k < 7; k++){ const b = new THREE.Mesh(new THREE.IcosahedronGeometry(.7 + (k % 3) * .3, 1), L(flor[(k + q) % 5])); b.position.set(-w / 2 + 3 + k * (w - 6) / 6, h + .5, z - 1.6); b.castShadow = true; g.add(b); } });   // canteiros na beira de cada patamar
+      // a igreja, no alto
+      const ig = new THREE.Group(); ig.position.set(0, AL, -16); g.add(ig);
+      const c2 = (w, h, d, c, x, y, z)=>{ const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), L(c)); m.position.set(x, y + h / 2, z); m.castShadow = true; m.receiveShadow = true; ig.add(m); return m; };
+      const arcoM = (r, x, y, z, c)=>{ const a = new THREE.Mesh(new THREE.CylinderGeometry(r, r, .22, 20, 1, false, -Math.PI / 2, Math.PI), L(c)); a.rotation.x = Math.PI / 2; a.position.set(x, y, z); ig.add(a); return a; };
+      // nave e anexo (sacristia) com telhados de telha
+      c2(11, 9, 22, B, 0, 0, -12); [-1, 1].forEach(l=>{ for(let k = 0; k < 4; k++){ c2(.15, 2.6, 1.1, ESC, l * 5.55, 4, -5 - k * 4.6); c2(.18, .25, 1.5, GR, l * 5.56, 6.7, -5 - k * 4.6); } });
+      const sh = new THREE.Shape(); sh.moveTo(-6, 0); sh.lineTo(0, 3.6); sh.lineTo(6, 0); sh.lineTo(-6, 0);
+      const tel = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 22.6, bevelEnabled: false }), L('#B4552E')); tel.position.set(0, 9, -23.3); tel.castShadow = true; ig.add(tel);
+      c2(5, 5.5, 17, B, -8, 0, -13); const an = new THREE.Mesh(new THREE.BoxGeometry(5.6, .3, 17.6), L('#B4552E')); an.position.set(-8, 6.05, -13); an.rotation.z = .2; an.castShadow = true; ig.add(an);
+      // fachada azul-clara com pilastras e faixas de granito
+      c2(13, 13, 1.4, AZ, 0, 0, -.7);
+      [-6.2, -2.1, 2.1, 6.2].forEach(x=> c2(.7, 13, 1.7, GC, x, 0, -.55));   // pilastras
+      c2(13.4, .5, 1.8, GC, 0, 5.2, -.6); c2(13.6, .7, 2, GC, 0, 12.6, -.6); c2(13, .5, 1.7, GC, 0, 0, -.55);   // faixa entre andares, cornija e soco
+      // em baixo: três arcos (galilé)
+      [-4.15, 0, 4.15].forEach(x=>{ c2(2.6, 3, .25, ESC, x, .5, .2); arcoM(1.3, x, 3.5, .2, ESC); const mold = new THREE.Mesh(new THREE.TorusGeometry(1.45, .16, 6, 20, Math.PI), L(GC)); mold.position.set(x, 3.5, .3); ig.add(mold); });
+      // em cima: três janelas altas com gradeamento branco (e arco em cima)
+      { const [cv, gx] = canv(64, 128); gx.fillStyle = '#2E3A48'; gx.fillRect(0, 0, 64, 128); gx.strokeStyle = '#F2F2F2'; gx.lineWidth = 3; for(let q = 8; q < 64; q += 12){ gx.beginPath(); gx.moveTo(q, 0); gx.lineTo(q, 128); gx.stroke(); } for(let q = 10; q < 128; q += 14){ gx.beginPath(); gx.moveTo(0, q); gx.lineTo(64, q); gx.stroke(); }
+        const mj = new THREE.MeshLambertMaterial({ map: new THREE.CanvasTexture(cv), emissive: 0x111111 });
+        [-4.15, 0, 4.15].forEach(x=>{ const j = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 3.3), mj); j.position.set(x, 8.3, .03); ig.add(j); const a = arcoM(.95, x, 9.95, .02, '#2E3A48'); a.scale.z = .5;
+          c2(2.5, .3, .35, GC, x, 6.45, .05); c2(2.5, .3, .35, GC, x, 10.95, .05); [-1, 1].forEach(l=> c2(.3, 4.5, .35, GC, x + l * 1.1, 6.45, .05)); }); }
+      // frontão triangular com moldura de granito
+      { const fr = new THREE.Shape(); fr.moveTo(-6.8, 0); fr.lineTo(0, 2.6); fr.lineTo(6.8, 0); fr.lineTo(-6.8, 0);
+        const ft = new THREE.Mesh(new THREE.ExtrudeGeometry(fr, { depth: 1.2, bevelEnabled: false }), L(AZ)); ft.position.set(0, 13.3, -1.2); ft.castShadow = true; ig.add(ft);
+        [-1, 1].forEach(l=>{ const b = new THREE.Mesh(new THREE.BoxGeometry(7.3, .35, 1.6), L(GC)); b.position.set(l * 3.4, 14.6, -.6); b.rotation.z = -l * Math.atan2(2.6, 6.8); ig.add(b);
+          const pin = new THREE.Mesh(new THREE.ConeGeometry(.3, 1.4, 8), L(GR)); pin.position.set(l * 6.4, 14.3, -.6); ig.add(pin); const bo = new THREE.Mesh(new THREE.SphereGeometry(.32, 10, 8), L(GR)); bo.position.set(l * 6.4, 13.7, -.6); ig.add(bo); }); }
+      // torre ao centro: relógio, sineira em arco, cornija, tambor e coruchéu octogonais, cruz
+      c2(3.8, 7, 3.8, B, 0, 13, -2.4); [-1, 1].forEach(l=> c2(.45, 7, .45, GC, l * 1.75, 13, -.65));
+      const rel = new THREE.Mesh(new THREE.CircleGeometry(.75, 24), L('#FFFFFF')); rel.position.set(0, 16.4, -.48); ig.add(rel); const ar = new THREE.Mesh(new THREE.RingGeometry(.75, .92, 24), L(GC)); ar.position.set(0, 16.4, -.47); ig.add(ar);
+      c2(1.3, 1.6, .2, '#1C1A18', 0, 17.6, -.45); arcoM(.65, 0, 19.2, -.45, '#1C1A18'); [-1, 1].forEach(l=>{ c2(.2, 1.6, 1.3, '#1C1A18', l * 1.92, 17.6, -2.4); });
+      c2(4.3, .45, 4.3, GC, 0, 20, -2.4);
+      const tb = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.5, 1.4, 8), L(B)); tb.position.set(0, 21.15, -2.4); tb.castShadow = true; ig.add(tb);
+      const co = new THREE.Mesh(new THREE.ConeGeometry(1.55, 4.4, 8), L('#8E9298')); co.position.set(0, 24.05, -2.4); co.castShadow = true; ig.add(co);
+      [-1, 1].forEach(l=> [-1, 1].forEach(m=>{ const p2 = new THREE.Mesh(new THREE.ConeGeometry(.24, 1, 8), L(GR)); p2.position.set(l * 1.95, 20.95, -2.4 + m * 1.95); ig.add(p2); }));
+      c2(.15, 1.5, .15, '#3A3A3A', 0, 26.2, -2.4); c2(.8, .15, .15, '#3A3A3A', 0, 27, -2.4);
+      return g;
+    }
+    // a estátua de D. António de Castro Meireles já está no modelo da igreja (à frente da escadaria)
+    if(nome === 'Monumento a D. António de Castro Meireles') return g;
+    if(t === 'igreja' || t === 'capela'){
+      const ig = t === 'igreja', W = ig ? 10 : 6, H = ig ? 8 : 5.5, D = ig ? 18 : 9;
+      cx(W, H, D, cal, 0, 0, -D / 2); [-1, 1].forEach(l=> cx(.5, H, .5, gran, l * (W / 2 - .2), 0, -.1)); lados(W, D, ig ? 3 : 1.8, ig ? 4 : 2, 1, '#3A4F6E', .9, ig ? 2.6 : 1.6);   // nave caiada com cunhais de granito e janelas altas
+      telha(W, ig ? 3.6 : 2.6, D, telh, H, -D / 2);
+      const fr = new THREE.Shape(); fr.moveTo(-W / 2, 0); fr.lineTo(0, ig ? 3.6 : 2.6); fr.lineTo(W / 2, 0); const ft = new THREE.Mesh(new THREE.ShapeGeometry(fr), L(cal)); ft.position.set(0, H, .02); g.add(ft);   // frontão
+      cx(ig ? 2.2 : 1.6, ig ? 3.6 : 2.8, .2, '#5A3E2B', 0, 0, .05); cx(ig ? 3 : 2.2, .35, .3, gran, 0, ig ? 3.6 : 2.8, .06);   // porta e lintel
+      if(ig){ const r = new THREE.Mesh(new THREE.CircleGeometry(.9, 20), L('#3A4F6E')); r.position.set(0, 5.6, .06); g.add(r); }   // rosácea
+      cruz(0, H + (ig ? 3.6 : 2.6), .05);
+      if(ig){ const tx = W / 2 + 2; cx(4, 15, 4, cal, tx, 0, -2); [-1, 1].forEach(l=> [-1, 1].forEach(m=> cx(.4, 15, .4, gran, tx + l * 1.8, 0, -2 + m * 1.8)));   // torre sineira
+        [-1, 1].forEach(l=> cx(1.2, 1.8, .2, '#1F2329', tx, 11.5, -2 + l * 2.02, false)); cx(1.2, 1.8, .2, '#1F2329', tx, 11.5, .02, false); pir(3, 3.5, telh, tx, 15, -2); cruz(tx, 18.5, -2); }
+      else { cx(1.6, 2.2, 1, cal, 0, H + 2.4, -.5); cx(.8, 1, .2, '#1F2329', 0, H + 3, .02, false); }   // sineira da capela
+    } else if(t === 'escola'){
+      cx(32, 7, 11, '#E9E3D3', 0, 0, -5.5); cx(32.4, .5, 11.4, '#8C96A3', 0, 7, -5.5); janelas(30, 1.2, 12, 2, .01, '#3D5A80', 1.6, 1.6); lados(32, 11, 1.2, 4, 2, '#3D5A80', 1.6, 1.6); cx(3, 3, .3, '#2E6FBF', -10, 0, .1);
+      cx(.15, 6, .15, '#B9C0C8', 8, 0, 3); cx(1.6, 1, .05, '#006600', 8.85, 5, 3);   // mastro com bandeira
+    } else if(t === 'bombeiros'){
+      cx(18, 8, 13, '#EEEAE2', 0, 0, -6.5); [-5.5, 0, 5.5].forEach(x=> cx(4.4, 4.4, .2, '#C8102E', x, 0, .05)); cx(18.2, .7, .3, '#C8102E', 0, 6, .1); janelas(16, 5.6, 6, 1, .02); lados(18, 13, 1.4, 4, 2);
+      cx(3.2, 14, 3.2, '#EEEAE2', 10.6, 0, -4); cx(3.4, .5, 3.4, '#C8102E', 10.6, 14, -4);   // torre de treino
+    } else if(t === 'publico' || t === 'camara' || t === 'museu'){
+      const W = t === 'camara' ? 26 : 20, H = t === 'camara' ? 11 : 9;
+      cx(W, H, 14, t === 'museu' ? '#E6DCC6' : '#F1ECE2', 0, 0, -7); cx(W + .4, .8, 14.4, gran, 0, H, -7); cx(W, .6, 14, gran, 0, 0, -7);
+      janelas(W - 2, 2, Math.round(W / 3.2), 2, .02, '#2B3440', 1.1, 1.8); lados(W, 14, 2, 4, 2, '#2B3440', 1.1, 1.8);
+      // pórtico com colunas e frontão
+      cx(10, .6, 3.2, gran, 0, 0, 1.6); for(let k = 0; k < 5; k++){ const c = new THREE.Mesh(new THREE.CylinderGeometry(.32, .36, H - .6, 12), L('#EDE7DA')); c.position.set(-4 + k * 2, .6 + (H - .6) / 2, 2.6); c.castShadow = true; g.add(c); }
+      const fr = new THREE.Shape(); fr.moveTo(-5.4, 0); fr.lineTo(0, 2.4); fr.lineTo(5.4, 0); const ft = new THREE.Mesh(new THREE.ExtrudeGeometry(fr, { depth: 3.4, bevelEnabled: false }), L('#E6DFD0')); ft.position.set(0, H, 0); ft.castShadow = true; g.add(ft);
+      if(t === 'camara') [-1, 1].forEach(l=>{ cx(.12, 9, .12, '#B9C0C8', l * 7, 0, 4.5); cx(1.8, 1.1, .05, l < 0 ? '#006600' : '#C8102E', l * 7 + .95, 7.6, 4.5); });
+      cx(2.2, 3.2, .2, '#4A3626', 0, .6, .05);
+    } else if(t === 'monumento'){
+      cx(3, .8, 3, gran, 0, 0, 0); cx(1.8, 3.2, 1.8, gran, 0, .8, 0); cx(2.2, .4, 2.2, gran, 0, 4, 0);   // pedestal
+      const bz = L('#5E6B5E'); const tr = new THREE.Mesh(new THREE.CylinderGeometry(.42, .5, 1.6, 10), bz); tr.position.set(0, 5.4, 0); g.add(tr);
+      const pe = new THREE.Mesh(new THREE.CylinderGeometry(.45, .55, 1.2, 10), bz); pe.position.set(0, 4.95, 0); g.add(pe);
+      const cb = new THREE.Mesh(new THREE.SphereGeometry(.32, 14, 10), bz); cb.position.set(0, 6.55, 0); g.add(cb);
+      const br = new THREE.Mesh(new THREE.CylinderGeometry(.11, .1, 1.1, 8), bz); br.position.set(.55, 5.9, .2); br.rotation.z = -.9; g.add(br);
+      g.traverse(o=>{ if(o.isMesh) o.castShadow = true; });
+    } else return null;
+    return g;
+  }
+  // mostra só os pedaços de cenário perto da câmara
+  function detVisivel(gI){ const p0 = Math.floor((gI - 90) / PED), p1 = Math.floor((gI + 360) / PED); S.gTrk.children.forEach(o=>{ if(o.userData.ped != null) o.visible = o.userData.ped >= p0 && o.userData.ped <= p1; }); }
   // ---------- construir o cenário de uma pista ----------
   function constroi(segs, T){
     const g = S.gTrk; while(g.children.length) g.remove(g.children[0]); S.spr = {};
     S.P = pista(segs); const N = S.P.N, hW = S.hW;
     // relva larga, berma, asfalto, traço do meio na cor da zona
-    const relva = new THREE.Mesh(fita(segs, 160, -.08, i=> cor(T.relva[i % 2]), 1), new THREE.MeshLambertMaterial({ vertexColors: true })); relva.receiveShadow = true; g.add(relva);
-    g.add(new THREE.Mesh(fita(segs, hW + 1.6, -.02, i=> cor(T.berma[i % 2]), 1), new THREE.MeshLambertMaterial({ vertexColors: true })));
-    const asf = new THREE.Mesh(fita(segs, hW, 0, ()=> cor('#ffffff'), .5), new THREE.MeshLambertMaterial({ map: texAsfalto(T), vertexColors: true })); asf.receiveShadow = true; g.add(asf);
+    const tema = SR.tema || 'serra', tempo = (SR.met && SR.met.tempo) || (SR.met && SR.met.cfg && SR.met.cfg.tempo) || 'sol', molhado = tempo === 'chuva';
+    g.add(terreno(T, tema, tempo));   // terreno com relevo e textura de relva (substitui a faixa lisa)
+    const berma = new THREE.Mesh(fita(segs, hW + 1.6, -.02, i=> cor(T.berma[i % 2]), 1), new THREE.MeshLambertMaterial({ vertexColors: true, map: T.neon || tema === 'cyber' ? null : texChao('cascalho') })); berma.receiveShadow = true; g.add(berma);
+    const asf = new THREE.Mesh(fita(segs, hW, 0, ()=> cor('#ffffff'), .25), new THREE.MeshStandardMaterial({ map: texEstrada(T, tema, tempo), bumpMap: texRelevo(tema), bumpScale: tema === 'paris' ? .05 : .02,
+      roughness: molhado ? .28 : T.neon || tema === 'cyber' ? .45 : .88, metalness: molhado ? .15 : 0, vertexColors: true }));   // asfalto (ou paralelos) com grão, rodados, fissuras e linhas; molhado brilha
+    if(molhado){   // chuva: poças (zonas lisas) que refletem o céu
+      const [c, g2] = canv(256, 512); g2.fillStyle = '#8a8a8a'; g2.fillRect(0, 0, 256, 512); const R = rndS(5);
+      for(let k = 0; k < 14; k++){ const x = 30 + R() * 196, y = R() * 512, rr = 14 + R() * 34, rg = g2.createRadialGradient(x, y, 0, x, y, rr); rg.addColorStop(0, 'rgba(0,0,0,.85)'); rg.addColorStop(.6, 'rgba(0,0,0,.5)'); rg.addColorStop(1, 'rgba(0,0,0,0)');   // poças com bordas suaves
+        g2.save(); g2.translate(x, y); g2.scale(1, 1.8); g2.translate(-x, -y); g2.fillStyle = rg; g2.fillRect(x - rr, y - rr, rr * 2, rr * 2); g2.restore(); }
+      const [e, g3] = canv(64, 32), gr = g3.createLinearGradient(0, 0, 0, 32); gr.addColorStop(0, T.ceu || '#4a5a70'); gr.addColorStop(.5, T.haze); gr.addColorStop(1, '#30353c'); g3.fillStyle = gr; g3.fillRect(0, 0, 64, 32);
+      const env = new THREE.CanvasTexture(e); env.mapping = THREE.EquirectangularReflectionMapping;
+      Object.assign(asf.material, { roughnessMap: texRep(c), roughness: .55, metalness: .25, envMap: env, envMapIntensity: .9 }); asf.material.needsUpdate = true;
+    }
+    asf.receiveShadow = true; g.add(asf);
+    lancis(T, tema); rail(T, tema); balizadores(tema);
     const meio = new THREE.Mesh(fita(segs, .12, .012, i=> i % 2 ? cor(srCorBloco(segs[i].b)) : cor(T.asf[0]), 1), new THREE.MeshBasicMaterial({ vertexColors: true })); g.add(meio);
     if(T.neon){ const gr = new THREE.GridHelper(3000, 300, cor(T.grelha || '#A23BFF'), cor(T.grelha || '#A23BFF')); gr.position.y = -.07; gr.material.transparent = true; gr.material.opacity = .35; S.grelha = gr; g.add(gr); }
     // arcos no fim de cada bloco
@@ -8081,21 +8665,28 @@ const SR3 = (()=>{
       g.add(ar); });
     // prédios (Paris, Cidade do Futuro): caixas simples dos dois lados
     const muros = []; segs.forEach((sg, i)=>{ if(sg.muro) ['L', 'R'].forEach(l=>{ if(sg.muro[l] && sg.muro[l] !== 'p') muros.push([i, l === 'L' ? -1 : 1, sg.muro]); }); });
-    if(muros.length){ const geo = new THREE.BoxGeometry(1, 1, 1), mat = new THREE.MeshLambertMaterial({ color: 0xffffff }), im = new THREE.InstancedMesh(geo, mat, muros.length), mtx = new THREE.Matrix4(), q = new THREE.Quaternion(), vv = new THREE.Vector3(), sv = new THREE.Vector3(), rnd = srRnd(77);
+    if(muros.length){ const geo = new THREE.BoxGeometry(1, 1, 1), mat = matFachada(tema), im = new THREE.InstancedMesh(geo, mat, muros.length), mtx = new THREE.Matrix4(), q = new THREE.Quaternion(), vv = new THREE.Vector3(), sv = new THREE.Vector3(), rnd = srRnd(77);
       muros.forEach(([i, l, mu], k)=>{ const p = ponto(i * SR_SEG), rx = Math.cos(p.h), rz = -Math.sin(p.h), alt = (mu.est === 'cyber' ? 14 + rnd() * 40 : mu.h * 4.5 + rnd() * 6), lx = mu.x * hW + 4;
         vv.set(p.x + rx * l * lx, p.y + alt / 2, p.z + rz * l * lx); q.setFromAxisAngle(new THREE.Vector3(0, 1, 0), p.h); sv.set(8, alt, SR_SEG * M * 1.02); mtx.compose(vv, q, sv); im.setMatrixAt(k, mtx);
         im.setColorAt(k, mu.est === 'cyber' ? cor(['#1A1038', '#241548', '#121030'][k % 3]) : cor(['#C9BFAF', '#B8AE9E', '#D2C8B8', '#A89E8E'][k % 4])); });
       im.castShadow = true; g.add(im); }
     // cenário: as imagens dos temas como cartazes 3D (árvores, candeeiros, monumentos, cogumelos…)
     const base = { poste: [.3, 6.5], r: [2.6, 0], cog: [1.3, 0], cogOuro: [1.3, 0], tart: [1.1, 0] };
-    segs.forEach((sg, i)=> sg.sp.forEach((o, j)=>{ const img = SR.spr[o.t]; if(!img) return;
+    const arvC = [];
+    const pois3 = [];
+    segs.forEach((sg, i)=> sg.sp.forEach((o, j)=>{ const a3 = arv3D(tema, o.t); if(a3){ arvC.push([i, o.x, a3]); return; }
+      if(tema === 'vale' && o.t.startsWith('v_')){ const m = poi3D(o.t.slice(2), o.n); if(m){   // edifício em 3D, de frente para a estrada, assente no terreno
+        const p = ponto(i * SR_SEG), rx = Math.cos(p.h), rz = -Math.sin(p.h), l = o.x < 0 ? -1 : 1, off = Math.max(hW + 5, Math.abs(o.x) * hW), pf = perfilTema(tema);
+        m.position.set(p.x + rx * l * off, p.y + Math.max(-.06, alturaTerreno(i, l, off - hW - 1.6, pf)) - .05, p.z + rz * l * off); m.rotation.y = Math.atan2(-l * rx, -l * rz); g.add(m); pois3.push([i, l]); return; } }
+      const img = SR.spr[o.t]; if(!img) return;
       const p = ponto(i * SR_SEG), rx = Math.cos(p.h), rz = -Math.sin(p.h), b = base[o.t] || [3.4, 0], w = (b[1] ? b[1] * img.width / img.height : b[0] * o.s * (o.t[0] === 'm' ? 2.2 : 1)), h = w * img.height / img.width;
       const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex(img), transparent: true, alphaTest: .08, fog: true })); sp.scale.set(w, h, 1);
       const flut = o.t === 'cog' || o.t === 'cogOuro' || o.t === 'tart';
       sp.position.set(p.x + rx * o.x * hW, p.y + h / 2 + (flut ? 1 : 0), p.z + rz * o.x * hW); sp.userData = { i, t: o.t, flut, y0: p.y + h / 2 + (flut ? 1 : 0) };
       g.add(sp); (S.spr[i] = S.spr[i] || []).push(sp); }));
+    natureza(T, tema, tempo, segs, arvC, pois3);   // árvores, arbustos e rochas em 3D (floresta pelo terreno)
     // chão lá em baixo (para não se ver o vazio) e nevoeiro
-    const ymin = Math.min(...S.P.py) - 30, ch = new THREE.Mesh(new THREE.PlaneGeometry(6000, 6000), new THREE.MeshLambertMaterial({ color: cor(T.relva[0]) })); ch.rotation.x = -Math.PI / 2; ch.position.y = ymin; S.chao = ch; g.add(ch);
+    const ymin = Math.min(...S.P.py) - 60, ch = new THREE.Mesh(new THREE.PlaneGeometry(6000, 6000), new THREE.MeshLambertMaterial({ color: cor(T.relva[0]) })); ch.rotation.x = -Math.PI / 2; ch.position.y = ymin; S.chao = ch; g.add(ch);
     S.scene.fog = new THREE.Fog(cor(T.haze), 70, T.neon ? 420 : 650);
     S.scene.background = cor(T.ceu);
     S.recomp = 2;   // recompilar os shaders depois da 1.ª imagem (o nevoeiro só pega depois)
@@ -8198,6 +8789,7 @@ const SR3 = (()=>{
     S.sol.position.set(pf.x + 60, pf.y + 120, pf.z - 40); S.sol.target.position.set(pf.x, pf.y, pf.z);
     S.gCeu.position.set(cx, 0, cz); if(S.grelha) S.grelha.position.set(Math.round(cx / 10) * 10, -.07, Math.round(cz / 10) * 10);
     // cenário visível: só os cartazes perto (e os cogumelos/tartarugas já apanhados desaparecem)
+    detVisivel(gI);
     const feito = SR.kc && SR.kc.feito; for(let i = Math.max(0, gI - 400); i < Math.min(S.P.N, gI + 600); i++){ const L = S.spr[i]; if(!L) continue; const vis = i > gI - 80 && i < gI + 330; L.forEach(sp=>{ sp.visible = vis && !(sp.userData.flut && feito && feito.has(i)); if(vis && sp.userData.flut) sp.position.y = sp.userData.y0 + .25 * Math.sin(now * .004 + i); }); }
     if(S.vis0 != null) for(let i = S.vis0; i < Math.max(0, gI - 400); i++){ const L = S.spr[i]; if(L) L.forEach(sp=> sp.visible = false); } S.vis0 = Math.max(0, gI - 400);
     // alunos
@@ -8212,9 +8804,9 @@ const SR3 = (()=>{
         const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, alphaTest: .05, fog: true })); sp.scale.set(SM * 1.6, SM * 2.5, 1); sp.center.set(.5, .08); S.gRid.add(sp); R = S.riders[r.id] = { g: sp, cv, t, ctx: cv.getContext('2d') }; }
       R.g.position.set(p.x + lrx * lado, p.y + .02, p.z + lrz * lado);
       const av = avLe(r.av), z = !!JG.z[r.id], fase = srFase(r.id, jgRpm(r), now, livePlaying);
-      const avR = av || avLe(SR.tema === 'kart' ? 'k.1F7AE0.E5242B.E0AE86.pil.f1.FF7A00.1' : 'e.1F7AE0.F3F4F6.E0AE86.cic.cam.22262D.1'), real = S.cam.position.distanceTo(pv.copy(R.g.position)) < LOD;   // no Grande Prémio do Cogumelo, quem não escolheu vai de kart
+      const avR = av || avLe(SR.tema === 'kart' ? 'k.1F7AE0.E5242B.E0AE86.pil.f1.FF7A00.1' : 'e.1F7AE0.F3F4F6.E0AE86.cic.cam.22262D.1'), real = S.cam.position.distanceTo(pv.copy(R.g.position)) < LOD; avR.kg = r.kg; avR.cm = r.cm;   // altura e peso da ficha do aluno   // no Grande Prémio do Cogumelo, quem não escolheu vai de kart
       if(real){
-        const mk = (r.av || '') + (CIC3.HUM && CIC3.HUM.estado === 'pronto' ? '·h' : '');   // quando o humano realista acaba de carregar, refaz o ciclista
+        const mk = (r.av || '') + '·' + (r.kg || '') + '·' + (r.cm || '') + (CIC3.HUM && CIC3.HUM.estado === 'pronto' ? '·h' : '');   // quando o humano realista acaba de carregar, refaz o ciclista
         if(!R.m || R.mk !== mk){ if(R.m) S.gRid.remove(R.m.G); R.m = CIC3.cria(avR); R.mk = mk; R.m.G.scale.setScalar(ESC); S.gRid.add(R.m.G);
           R.aro = new THREE.Mesh(new THREE.RingGeometry(.55, .72, 40).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x3DD45C, transparent: true, opacity: .7, depthWrite: false })); R.aro.position.y = .02; R.m.G.add(R.aro); }
         R.m.G.visible = true; R.g.visible = false; R.m.G.position.copy(R.g.position); R.m.G.rotation.y = p.h - Math.PI / 2;
@@ -8487,8 +9079,8 @@ const SR3 = (()=>{
       (lugares[sg.i] || []).forEach(({ r, lado, f })=>{ const q = proj[k + 1] ? proj[k + 1].p1 : p1, px = p1.x + (q.x - p1.x) * f, py = p1.y + (q.y - p1.y) * f, pw = p1.w + (q.w - p1.w) * f;
         if(py > clip + 2) return; const s = pw * .14, cx = px + pw * lado * .75;
         const av = avLe(r.av); if(av) av.z = !!JG.z[r.id];   // o boneco que o aluno escolheu (com o aro de luz quando está na zona)
-        const fa = srFase(r.id, jgRpm(r), now, livePlaying), avR = av || (SR.est2d === 'real' ? avLe(SR.tema === 'kart' ? 'k.1F7AE0.E5242B.E0AE86.pil.f1.FF7A00.1' : 'e.1F7AE0.F3F4F6.E0AE86.cic.cam.22262D.1') : null);
-        if(!(SR.est2d === 'real' && SR.tema !== 'neon' && SR.tema !== 'cyber' && SPR.desenha(ctx, cx, py, s * 1.05, fa, avR, r.av || SR.tema, emPe, W / 2)))
+        const fa = srFase(r.id, jgRpm(r), now, livePlaying), avR = av || (SR.est2d === 'real' ? avLe(SR.tema === 'kart' ? 'k.1F7AE0.E5242B.E0AE86.pil.f1.FF7A00.1' : 'e.1F7AE0.F3F4F6.E0AE86.cic.cam.22262D.1') : null); if(avR){ avR.kg = r.kg; avR.cm = r.cm; }   // altura e peso da ficha
+        if(!(SR.est2d === 'real' && SR.tema !== 'neon' && SR.tema !== 'cyber' && SPR.desenha(ctx, cx, py, s * 1.05, fa, avR, (r.av || SR.tema) + '·' + (r.kg || '') + '·' + (r.cm || ''), emPe, W / 2)))
           srCiclista(ctx, cx, py, s * 1.05, JG.z[r.id] ? '#3DD45C' : '#AEB6C2', fa, emPe, W / 2, av);   // pedala à cadência real do aluno
         { const F = (JG.fx || {})[r.id], t0 = performance.now(); if(F){ if(SR.tema === 'kart') srKartFx(ctx, cx, py, s * 1.05, F.b > t0, F.t > t0, now); srGodFx(ctx, cx, py, s * 1.05, F.G > t0, F.V > t0, F.R > t0, now); } }
         if(SR.met) luzes.push({ x: cx, y: py - s * .98, r: s * .05, t: 'r' });
@@ -8784,7 +9376,7 @@ const SR3 = (()=>{
 
   function buildSummary(){
     const list = sortZona(ridingRiders().filter(r=> (r.as||0) >= 10)).map(r=>({
-      n: r.n || '?', oc: r.oc ? true : null, md: r.md || null, rx: r.rx || null, fa: r.fa || null, ftp: r.ftp || null, ftpIni: r.ftpIni || null, ftpT: r.ftpT || null, m20: r.m20 || null, kj: r.kj || 0, km: r.km || 0, pts: r.pts || 0, aw: r.aw || 0, mw: r.mw || 0, iz: r.iz || 0, as: r.as || 0
+      n: r.n || '?', oc: r.oc ? true : null, md: r.md || null, rx: r.rx || null, fa: r.fa || null, ftp: r.ftp || null, ftpIni: r.ftpIni || null, ftpT: r.ftpT || null, m20: r.m20 || null, nv: r.nv || null, fe: r.fe || null, kj: r.kj || 0, km: r.km || 0, pts: r.pts || 0, aw: r.aw || 0, mw: r.mw || 0, iz: r.iz || 0, as: r.as || 0
     }));
     return list;
   }
@@ -9773,6 +10365,7 @@ const SR3 = (()=>{
     $('pinDisplay').textContent = sessionPin;
     $('qrPanel').classList.remove('active');
     pushFullSession(sessionPin);
+    if(!preview) liveAnuncia(sessionPin); pintaSalaLive();   // os alunos deste estúdio veem a aula na app e entram sem PIN
     renderQr(sessionPin);
     if(!preview) showLiveStart();
     startRidersSync(sessionPin);
@@ -9790,6 +10383,7 @@ const SR3 = (()=>{
   document.addEventListener('fullscreenchange', sincEcraInteiro); document.addEventListener('webkitfullscreenchange', sincEcraInteiro);
   sincEcraInteiro();
 
+  document.addEventListener('click', e=>{ const b = e.target.closest('#lsSala button'); if(b) liveMudaSala(b.dataset.s); });
   function closeLive(){
     if(sessionPin && ridingRiders().length) saveSummary();
     $('liveOverlay').classList.remove('active', 'starting'); liveStarting = false;

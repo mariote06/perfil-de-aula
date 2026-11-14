@@ -391,6 +391,19 @@ body:not(:has(#liveScreen.active)) .nx-float,body:not(:has(#liveScreen.active)) 
 .mood-r:empty{display:none;}
 .mood-r b{color:#fff;}
 @keyframes moodIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+.live-box{display:flex;flex-direction:column;gap:8px;margin:0 0 12px}
+.live-box[hidden]{display:none}
+.lv-aula{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;background:rgba(232,114,44,.16);border:1.5px solid rgba(232,114,44,.6);color:#fff;font:inherit;text-align:left;width:100%}
+.lv-aula i{width:10px;height:10px;border-radius:50%;background:#FF4D4D;box-shadow:0 0 0 0 rgba(255,77,77,.7);animation:lvPulse 1.6s infinite;flex:none}
+.lv-aula b{display:block;font-size:15px}.lv-aula small{display:block;opacity:.75;font-size:12px}
+.lv-aula.esc{background:transparent;border-color:var(--border);cursor:pointer}.lv-aula.esc.on{background:rgba(232,114,44,.16);border-color:rgba(232,114,44,.6)}
+@keyframes lvPulse{0%{box-shadow:0 0 0 0 rgba(255,77,77,.7)}70%{box-shadow:0 0 0 10px rgba(255,77,77,0)}100%{box-shadow:0 0 0 0 rgba(255,77,77,0)}}
+.mais-op{display:block;margin:12px auto 0;background:none;border:0;color:var(--muted,#9AA4B2);font:inherit;font-size:13px;text-decoration:underline;cursor:pointer}
+.home .home-grid.tabs{position:fixed;left:0;right:0;bottom:0;max-width:none;grid-template-columns:1fr 1fr;gap:0;padding:6px 10px calc(6px + env(safe-area-inset-bottom));background:rgba(10,13,18,.94);backdrop-filter:blur(8px);border-top:1px solid var(--border);z-index:20}
+.home .home-grid.tabs .tile{min-height:0;flex-direction:row;align-items:center;justify-content:center;gap:8px;padding:10px 6px;background:none;border:0;border-radius:10px}
+.home .home-grid.tabs .tile span{display:none}.home .home-grid.tabs .tile svg{width:20px;height:20px}.home .home-grid.tabs .tile b{font-size:13px}
+.home.com-tabs{padding-bottom:84px}
+.bora-btn[hidden]{display:none!important}.home .home-grid.tabs .tile::before,.home .home-grid.tabs .tile::after{display:none}
 .bora-btn{display:inline-block;margin-top:13px;padding:10px 18px;border-radius:999px;border:1.5px solid var(--mc,#A35CFF);background:color-mix(in srgb,var(--mc,#A35CFF) 25%,transparent);color:#fff;font-weight:800;font-size:16px;}
 .bora-btn:active{transform:scale(.97);}
 .bora-btn.off{opacity:.45;border-style:dashed;}
@@ -916,6 +929,11 @@ body.ecra4-on #kartCog{display:none!important;}
 .god-ftp{display:flex;align-items:center;gap:4px;font-size:11px;color:#9AA3B2;flex:1;} .god-ftp button{padding:7px 10px;}
 .god-b{display:flex;gap:4px;} .god-b button{padding:8px 11px;font-size:19px;}
 
+/* nível calculado e FTP estimado pelos treinos (ficha) */
+.f-nivc:empty,.f-ftpauto:empty{display:none}
+.f-nivc,.f-ftpauto{margin-top:10px;padding:10px 12px;border-radius:12px;background:rgba(61,160,255,.1);border:1px solid rgba(61,160,255,.35);font-size:14px;line-height:1.4}
+.f-nivc b,.f-ftpauto b{font-size:16px}.f-nivc small,.f-ftpauto small{display:block;opacity:.75;margin-top:3px}
+.f-ftpauto button{margin-top:8px;font:inherit;font-weight:600;padding:7px 12px;border-radius:10px;border:0;background:#3DA0FF;color:#fff;cursor:pointer}
 /* peso e altura para a simulação da velocidade */
 .cp-ov{position:fixed;inset:0;z-index:9000;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.72);padding:16px;}
 .cp-ov.on{display:flex;}
@@ -930,18 +948,19 @@ body.ecra4-on #kartCog{display:none!important;}
 <body>
 
 <!-- 0. MENU INICIAL -->
-<div id="homeScreen" class="screen home active">
+<div id="homeScreen" class="screen home com-tabs active">
   <h1 class="pr-logo" style="font-size:42px" aria-label="PlayRide"><svg class="pr-mark" height="42" viewBox="0 0 200 130" aria-hidden="true"><g transform="skewX(-14)"><rect x="34" y="96" width="22" height="34" rx="4" fill="#A35CFF"/><rect x="62" y="78" width="22" height="52" rx="4" fill="#1FA8F0"/><rect x="90" y="58" width="22" height="72" rx="4" fill="#3DD45C"/><rect x="118" y="38" width="22" height="92" rx="4" fill="#FFD60A"/><rect x="146" y="16" width="22" height="114" rx="4" fill="#FF8A1F"/><rect x="174" y="0" width="22" height="130" rx="4" fill="#FF3B3B"/></g></svg><span>PlayRide</span></h1>
   <div class="home-hello" id="homeHello"></div>
   <p class="home-msg" id="moodPhrase"></p>
   <button class="ficha-upd" id="fichaUpd" style="display:none"><b>📋 Atualiza a tua ficha</b><span>Acrescentámos o campo <b>Sexo</b>. Toca aqui para o indicar (30 segundos).</span></button>
   <div class="reg-home" id="regHome" style="display:none"><div><b>Cria a tua conta grátis</b><span>Guarda todos os teus treinos e acompanha a tua evolução.</span></div><button type="button" class="btn-reg" id="regHomeBtn">Criar conta</button></div>
-  <div class="home-grid">
+  <div class="home-grid tabs" id="homeTabs">
     <button class="tile" id="tHist" style="--tc:#A35CFF"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg><b>Treinos realizados</b><span id="tHistSub">Gráficos e evolução dos teus treinos</span></button>
     <button class="tile" id="tFicha" style="--tc:#FFD60A"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3v3h6V3M9 11h6M9 15h6"/></svg><b>A minha ficha</b><span id="tFichaSub">Idade, FCmáx e saúde para treinares em segurança</span></button>
   </div>
   <div class="mood" id="moodCard">
-    <div class="mood-h">Como te sentes hoje?</div>
+    <div class="live-box" id="liveBox" hidden></div>
+    <div class="mood-h" id="moodH">Como te sentes hoje?</div>
     <div class="mood-opts" id="moodOpts">
       <button type="button" data-m="1" data-u="1f62b" style="--mc:#FF5A5A"><i>😫</i>Exausto</button>
       <button type="button" data-m="2" data-u="1f615" style="--mc:#FF9F43"><i>😕</i>Em baixo</button>
@@ -950,7 +969,8 @@ body.ecra4-on #kartCog{display:none!important;}
       <button type="button" data-m="5" data-u="1f929" style="--mc:#1FA8F0"><i>🤩</i>Em grande</button>
     </div>
     <div class="mood-r" id="moodResp" aria-live="polite"></div>
-    <button type="button" class="bora-btn" id="boraBtn">Bora pedalar →</button>
+    <button type="button" class="bora-btn" id="boraBtn" hidden>Bora pedalar →</button>
+    <button type="button" class="mais-op" id="maisOp">Outras opções: só pedalar, biblioteca, PIN…</button>
   </div>
   <!-- escolha do treino: abre com "Bora pedalar" -->
   <div class="go-sheet" id="goSheet" aria-hidden="true">
@@ -1011,6 +1031,22 @@ body.ecra4-on #kartCog{display:none!important;}
           <button type="button" data-v="5+">5 ou mais</button>
         </div>
       </div>
+      <div class="f-field">Há quanto tempo treinas assim, sem paragens grandes?
+        <div class="f-chips" id="fHist">
+          <button type="button" data-v="<3m">Menos de 3 meses</button>
+          <button type="button" data-v="3-12m">3 a 12 meses</button>
+          <button type="button" data-v="1-3a">1 a 3 anos</button>
+          <button type="button" data-v="3a+">Mais de 3 anos</button>
+        </div>
+      </div>
+      <div class="f-field">Fazes cycling, ciclismo ou outro desporto de resistência (corrida, natação, triatlo…) com regularidade?
+        <div class="f-chips" id="fRes">
+          <button type="button" data-v="nao">Não</button>
+          <button type="button" data-v="cycling">Cycling / ciclismo</button>
+          <button type="button" data-v="outro">Outro desporto de resistência</button>
+        </div>
+      </div>
+      <div class="f-nivc" id="fNivCalc"></div>
       <div class="f-field">Objetivo principal
         <div class="f-chips" id="fObj">
           <button type="button" data-v="saude">Saúde e bem-estar</button>
@@ -1037,6 +1073,7 @@ body.ecra4-on #kartCog{display:none!important;}
       <label class="f-field">O teu FTP em watts (se souberes)<input type="number" id="fFtp" inputmode="numeric" min="50" max="600" placeholder="ex: 160"></label>
       <button type="button" class="f-link" id="fFtpEst">Não sei: estimar a partir do peso e da condição física</button>
       <div class="f-note" id="fFtpNote"></div>
+      <div class="f-ftpauto" id="fFtpAuto"></div>
     </div>
 
     <div class="f-card">
@@ -1593,6 +1630,7 @@ body.ecra4-on #kartCog{display:none!important;}
 
   let currentScreen = 'homeScreen';
   function showScreen(id){
+    try{ if(id === 'homeScreen') setTimeout(liveLiga, 0); else liveDesliga(); }catch(e){}
     currentScreen = id;
     ['homeScreen','libScreen','fichaScreen','joinScreen','setupScreen','accountScreen'].forEach(s=> $(s).classList.toggle('active', s===id));
     $('liveScreen').classList.toggle('active', id==='liveScreen');
@@ -1848,6 +1886,7 @@ body.ecra4-on #kartCog{display:none!important;}
       await setupBikeGatt(device);
       setBikeStatus(S.bikeName + ' ligada', true);
       demo = false;
+      try{ lsSet('prUltModo', 'bike'); }catch(e){}
     }catch(e){
       console.error(e);
       if(bikeConnected()){ setBikeStatus(S.bikeName + ' ligada', true); return; }
@@ -2156,9 +2195,15 @@ body.ecra4-on #kartCog{display:none!important;}
       else { rpm = SSN.rpe > 0 ? alvo : 0; SSN.vib = false; }
       VIB.rpm = SSN.vib ? rpm : 0; SSN.cad = SSN.vib ? rpm : null;
     }
-    const cf = rpm >= 25 ? Math.max(.85, Math.min(noAlvo ? 1 : 1.08, .75 + .25 * rpm / alvo)) : 0;   // pedalar abaixo da cadência alvo conta um pouco menos
-    S.cadence = rpm; S.power = (me.ftp || 150) * (noAlvo && modo !== 'fc' ? SSN.pct0 : RPE_FTP[SSN.rpe]) / 100 * cf;
-    if(modo === 'fc' && me.fc && !hrConnected()){ S.bikeHr = cf ? me.fc * (noAlvo ? SSN.pct0 : RPE_FC[SSN.rpe]) / 100 * (cf < 1 ? .97 : 1) : 0; S.lastBikeHrAt = now; }   // aula por FC: a FC estimada pelo esforço
+    // a cadência medida conta nos dois sentidos: com o mesmo esforço, pedalar mais rápido que o alvo dá mais watts e mais devagar dá menos
+    // (raiz quadrada da razão: 95 rpm com alvo de 85 ≈ +6%; 70 rpm ≈ −9%). Sem cadência medida (segue o alvo), não mexe.
+    const rc = SSN.cad != null && rpm >= 25 ? Math.sqrt(rpm / alvo) : 1;
+    SSN.cf = SSN.cf ? SSN.cf * .7 + rc * .3 : rc;   // suave (sem saltos a cada leitura)
+    const cf = rpm >= 25 ? Math.max(.7, Math.min(1.15, SSN.cf)) : 0;
+    // sem FTP escrito: o estimado pela ficha (nível, sexo e peso)
+    const ftpE = me.ftp || (typeof ftpPorNivel === 'function' && typeof ficha !== 'undefined' && ficha ? (ftpPorNivel(ficha) || {}).w : 0) || 150;
+    S.cadence = rpm; S.power = ftpE * (noAlvo && modo !== 'fc' ? SSN.pct0 : RPE_FTP[SSN.rpe]) / 100 * cf;
+    if(modo === 'fc' && me.fc && !hrConnected()){ S.bikeHr = cf ? me.fc * (noAlvo ? SSN.pct0 : RPE_FC[SSN.rpe]) / 100 * Math.max(.95, Math.min(1.03, 1 + (cf - 1) * .3)) : 0; S.lastBikeHrAt = now; }   // aula por FC: a FC estimada pelo esforço
     S.lastPowerAt = S.lastCadAt = now;
     ssnUi();
   }
@@ -2172,6 +2217,7 @@ body.ecra4-on #kartCog{display:none!important;}
   }
   function ssnMuda(d){ SSN.rpe = Math.max(0, Math.min(10, SSN.rpe + d)); if(semSens && !bikeConnected()) genSemSens(); ssnUi(); try{ navigator.vibrate && navigator.vibrate(15); }catch(e){} }
   async function ssnEscolhe(m){
+    try{ lsSet('prUltModo', semSens === m ? 'bike' : 'semSens'); }catch(e){}
     if(semSens === m){ semSens = null; accDesliga(); }
     else { semSens = m; demo = false;
       if(m === 'bolso'){ $('ssnSt').textContent = 'a ligar o acelerómetro…';
@@ -2330,6 +2376,8 @@ body.ecra4-on #kartCog{display:none!important;}
       est: semSens && !bikeConnected() && !demo ? (semSens === 'bolso' ? 'b' : 'g') : null,   // sem sensores: watts (e FC) estimados pelo esforço
       md: moodHoje(),   // emoji do "como te sentes hoje?" (aparece junto ao nome na projeção)
       kg: (()=>{ const p = Object.assign({}, perfil || {}, (typeof ficha !== 'undefined' && ficha) || {}), k = Number(p.peso); return k > 30 && k < 250 ? Math.round(k) : null; })(),   // peso da ficha: na projeção só aparece o W/kg
+      cm: (()=>{ const p = Object.assign({}, perfil || {}, (typeof ficha !== 'undefined' && ficha) || {}); let h = Number(p.altura) || 0; if(h > 0 && h < 3) h = h * 100; return h >= 120 && h <= 230 ? Math.round(h) : null; })(),   // altura da ficha: o boneco da projeção fica com o tamanho do aluno
+      nv: condResumo().nv, fe: condResumo().fe,   // nível e FTP estimado (só no relatório do professor)
       oc: ocultoProj ? true : null,   // pediu para não aparecer no ecrã da projeção (continua no relatório do professor)
       t: firebase.database.ServerValue.TIMESTAMP
     }).catch(()=>{});
@@ -6539,7 +6587,8 @@ body.ecra4-on #kartCog{display:none!important;}
       ftpIni: me.ftpIni || null,
       ftpTeste: me.ftpTest || null,
       avaliacao: (me.rx || me.fa) ? {exp: me.rx || null, sente: me.fa || null} : null,
-      humor: moodHoje()
+      humor: moodHoje(),
+      est: semSens && !bikeConnected() && !demo ? 1 : null   // watts estimados (sem sensores): não contam para o FTP estimado
     };
     const key = getTreinoKey();
     const uid = user.uid, clean = cleanVals(t);
@@ -6787,7 +6836,8 @@ body.ecra4-on #kartCog{display:none!important;}
       updateAccountBtn();
       renderAcctLine();
       renderHome();
-      if(u){ loadFichaConta(); setTimeout(flushPendentes, 1500); }
+      COND = { fe: null, p: {}, rec: null, nRec: 0, n: 0, estado: 'nada' };
+      if(u){ loadFichaConta(); setTimeout(flushPendentes, 1500); setTimeout(condCarrega, 2500); }
       if(currentScreen === 'setupScreen' && perfil){
         if(perfil.nome) $('nameInput').value = perfil.nome;
         if(perfil.ftp) $('ftpInput').value = perfil.ftp;
@@ -7105,10 +7155,72 @@ body.ecra4-on #kartCog{display:none!important;}
     const fims = MOOD_FIM[mom][m];
     r.innerHTML = mo.t + ' ' + fims[(dia + m) % fims.length];
   }
+  // =====================================================================
+  // ENTRADA RÁPIDA: a app vê as aulas a decorrer no estúdio (live/{sala}/{pin}, anunciadas pela projeção).
+  // Tocar no emoji do humor é o próprio botão de entrar: entra na aula sem PIN, abre logo a lista do Bluetooth
+  // e, quando a bike liga e o nome e o FTP já são conhecidos, entra sozinha na aula (sem "Entrar na aula").
+  // Sem aula a decorrer, o emoji abre logo a escolha Só pedalar / Biblioteca / PIN.
+  // =====================================================================
+  const SALAS = { LSD: 'Lousada', PNF: 'Penafiel' };
+  let LIVE = [], liveEsc = null, liveOuve = null;
+  function salaAluno(){ try{ const v = localStorage.getItem('prSala'); return SALAS[v] ? v : null; }catch(e){ return null; } }
+  function liveCandidatas(){
+    const ag = Date.now(), ok = LIVE.filter(a=> !a.t || ag - a.t < 4 * 3600e3);   // ignora anúncios esquecidos (mais de 4 h)
+    const s = salaAluno(), daSala = s ? ok.filter(a=> a.sala === s) : [];
+    return daSala.length ? daSala : ok;
+  }
+  function liveAtual(){ const c = liveCandidatas(); if(liveEsc && c.some(a=> a.pin === liveEsc)) return c.find(a=> a.pin === liveEsc); return c.length === 1 ? c[0] : null; }
+  function renderLive(){
+    const box = $('liveBox'); if(!box) return;
+    const c = liveCandidatas(), a = liveAtual();
+    if(!c.length){ box.hidden = true; box.innerHTML = ''; $('moodH').textContent = 'Como te sentes hoje?'; return; }
+    box.hidden = false;
+    const linha = (x, esc)=> '<button type="button" class="lv-aula' + (esc ? ' esc' + (a && a.pin === x.pin ? ' on' : '') : '') + '" data-pin="' + x.pin + '"><i></i><span><b></b><small>Aula a decorrer · ' + (SALAS[x.sala] || '') + '</small></span></button>';
+    box.innerHTML = c.length === 1 ? linha(c[0]) : c.map(x=> linha(x, true)).join('');
+    box.querySelectorAll('.lv-aula').forEach((el, i)=>{ el.querySelector('b').textContent = (c[i].nome || 'Aula de cycling'); });
+    $('moodH').textContent = a ? 'Como te sentes hoje? Toca para entrar na aula' : 'Escolhe a tua aula e diz como te sentes';
+  }
+  $('liveBox').addEventListener('click', e=>{ const b = e.target.closest('.lv-aula'); if(!b) return;
+    liveEsc = b.dataset.pin; const x = LIVE.find(a=> a.pin === liveEsc); if(x){ try{ localStorage.setItem('prSala', x.sala); }catch(err){} } renderLive(); });
+  function liveLiga(){
+    if(liveOuve || !firebaseReady || !fbDb) return;
+    const r = fbDb.ref('live'); liveOuve = r;
+    r.on('value', sn=>{ const v = sn.val() || {}, L = [];
+      Object.keys(v).forEach(sala=> Object.keys(v[sala] || {}).forEach(pin=>{ if(/^\d{4}$/.test(pin)) L.push({ sala, pin, nome: v[sala][pin] && v[sala][pin].nome, t: v[sala][pin] && v[sala][pin].t }); }));
+      LIVE = L; renderLive();
+    }, err=>{ console.warn('Sem acesso às aulas a decorrer', err); liveOuve = null; LIVE = []; renderLive(); });
+  }
+  function liveDesliga(){ if(liveOuve){ try{ liveOuve.off(); }catch(e){} liveOuve = null; } }
+  let entradaAuto = null;   // pin da entrada rápida em curso
+  async function entradaRapida(aula){
+    entradaAuto = aula.pin; try{ localStorage.setItem('prSala', aula.sala); }catch(e){}
+    // a lista do Bluetooth tem de abrir já, ainda dentro do toque (o browser não deixa abrir depois)
+    const querBike = hasBluetooth && !demo && semSens === null && lsGet('prUltModo') !== 'semSens' && !bikeConnected();
+    const pb = querBike ? connectBike() : Promise.resolve();
+    $('pinInput').value = aula.pin;
+    await checkPin(aula.pin);
+    if(currentScreen !== 'setupScreen'){ entradaAuto = null; $('moodResp').innerHTML = '⚠️ ' + ($('joinError').textContent || 'Não consegui entrar na aula.') + ' Toca outra vez no emoji.'; return; }
+    await pb.catch(()=>{});
+    tentaEntrarAuto();
+  }
+  function tentaEntrarAuto(){
+    if(!entradaAuto || entradaAuto !== pin || currentScreen !== 'setupScreen') return;
+    const nome = $('nameInput').value.trim(), ftp = Number($('ftpInput').value) || 0, fc = Number($('fcInput').value) || 0;
+    const pronto = nome && (bikeConnected() || semSens) && (modo === 'fc' ? fc >= 100 : ftp >= 50);
+    entradaAuto = null;
+    if(pronto) enterClass();   // tudo conhecido: entra sozinha (o professor vê o aluno na projeção)
+    else if(!nome) $('nameInput').focus();
+  }
+  $('maisOp').addEventListener('click', ()=> openGo());
   $('moodOpts').addEventListener('click', e=>{
     const b = e.target.closest('button'); if(!b) return;
     try{ localStorage.setItem('prMood', JSON.stringify({d: hojeKey(), m: +b.dataset.m})); }catch(err){}
     renderMood();
+    // o emoji é o botão de entrar
+    const a = liveAtual();
+    if(a){ entradaRapida(a); return; }
+    if(liveCandidatas().length > 1){ $('moodResp').innerHTML = '👆 Escolhe primeiro a tua aula.'; return; }
+    setTimeout(openGo, 450);   // sem aula a decorrer: escolhe como queres pedalar
   });
   // "Bora pedalar": abre a escolha Aula ao vivo / Só pedalar / Biblioteca
   function openGo(){
@@ -7128,6 +7240,7 @@ body.ecra4-on #kartCog{display:none!important;}
   document.addEventListener('keydown', e=>{ if(e.key === 'Escape') closeGo(); });
   renderMood();
   animarEmojis($('moodOpts'));
+  setTimeout(()=>{ if(currentScreen === 'homeScreen') liveLiga(); }, 400);
   // a app pode ficar aberta horas: ao voltar a ela, a saudação e a frase acertam-se com a hora
   document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && currentScreen === 'homeScreen') renderHome(); });
   setInterval(()=>{ if(!document.hidden && currentScreen === 'homeScreen') renderHome(); }, 60000);
@@ -7459,6 +7572,80 @@ body.ecra4-on #kartCog{display:none!important;}
   let ficha = null;
   try{ ficha = JSON.parse(lsGet('prFicha') || 'null'); }catch(e){ ficha = null; }
   const FTP_WKG = { sedentario:1.5, iniciado:2.0, intermedio:2.6, avancado:3.2 };
+  // ---------------------------------------------------------------------
+  // NÍVEL E FTP SEM TESTE: o nível sai das respostas (frequência, há quanto tempo, desporto de resistência),
+  // afinado pela FC de repouso e pela recuperação da FC medida nas aulas; o FTP estimado sai dos melhores
+  // esforços dos treinos dos últimos 90 dias (melhor 20 min × 0,95, 8 min × 0,90 e potência crítica 3/12 min).
+  // ---------------------------------------------------------------------
+  const NIV_ORD = ['sedentario', 'iniciado', 'intermedio', 'avancado'], NIV_NOME = { sedentario: 'Sedentário', iniciado: 'Iniciado', intermedio: 'Intermédio', avancado: 'Avançado' };
+  const FTP_WKG_S = { m: { sedentario: 1.8, iniciado: 2.3, intermedio: 2.9, avancado: 3.5 }, f: { sedentario: 1.5, iniciado: 2.0, intermedio: 2.5, avancado: 3.0 } };
+  let COND = { fe: null, p: {}, rec: null, nRec: 0, n: 0, estado: 'nada' };   // dos treinos: FTP estimado, melhores médias, recuperação da FC
+  function nivelCalc(f){
+    f = f || {}; const fr = f.freq, hi = f.hist, rs = f.res;
+    if(!fr) return null;
+    let n = fr === '0' ? 0 : fr === '1-2' ? 1 : fr === '3-4' ? 2 : 3;
+    if(hi === '<3m') n = Math.min(n, 1); else if(hi === '3-12m') n = Math.min(n, 2);
+    const longo = hi === '1-3a' || hi === '3a+', resist = rs === 'cycling' || rs === 'outro';
+    if(n === 2 && hi === '3a+' && resist) n = 3;   // avançado: 3–4 treinos há mais de 3 anos com desporto de resistência (ou 5+ há mais de 1 ano)
+    if(n === 1 && hi === '3a+' && resist) n = 2;
+    const rep = Number(f.fcRep) || 0, r0 = n;
+    if(rep > 80 && n > 0) n--; else if(rep && rep < 55 && n === 2 && fr !== '1-2') n++;
+    if(COND.nRec >= 2 && n === r0){ if(COND.rec < 12 && n > 0) n--; else if(COND.rec >= 30 && n === 2) n++; }
+    return NIV_ORD[n];
+  }
+  function nivelRazao(f){
+    const r = [];
+    const rep = Number(f.fcRep) || 0; if(rep) r.push('FC de repouso ' + rep + ' bpm');
+    if(COND.nRec >= 2) r.push('a tua FC desce em média ' + COND.rec + ' bpm no 1.º minuto depois de um esforço forte (' + (COND.rec >= 25 ? 'boa recuperação' : COND.rec >= 12 ? 'recuperação normal' : 'recuperação lenta') + ')');
+    return r.join(' · ');
+  }
+  function ftpPorNivel(f){
+    const nv = nivelCalc(f) || f.nivel; if(!f.peso || !nv) return null;
+    const t = FTP_WKG_S[/^f/i.test(f.sexo || '') ? 'f' : 'm'][nv]; return { w: Math.round(f.peso * t / 5) * 5, wkg: t, nv };
+  }
+  function melhorMedia(w, seg, st){ const n = Math.round(seg / st); if(!w || w.length < n) return 0; let s = 0, b = 0;
+    for(let i = 0; i < w.length; i++){ s += w[i] || 0; if(i >= n) s -= w[i - n] || 0; if(i >= n - 1 && s > b) b = s; } return b / n; }
+  // maior descida da FC no minuto a seguir a um esforço forte (só quando a potência baixa: está mesmo a recuperar)
+  function recuperacaoFC(t){
+    const h = t.hr, w = t.w, st = t.step || 5, fm = t.fcMax || t.hrMax, k = Math.round(60 / st); if(!h || !fm) return null;
+    let b = null;
+    for(let i = k; i + k < h.length; i++){
+      if(!(h[i] >= .85 * fm) || !(h[i + k] > 0) || h[i] < h[i - 1] || h[i] < h[i + 1]) continue;
+      if(w){ let a = 0, d = 0; for(let j = 1; j <= k; j++){ a += w[i - j] || 0; d += w[i + j] || 0; } if(!(a > 0) || d > .6 * a) continue; }
+      const q = h[i] - h[i + k]; if(q > 0 && (b == null || q > b)) b = q;
+    }
+    return b;
+  }
+  async function condCarrega(forca){
+    if(!user || !fbDb || (COND.estado !== 'nada' && !forca)) return; COND.estado = 'a carregar';
+    try{
+      const v = (await fbDb.ref('alunos/' + user.uid + '/treinos').orderByKey().limitToLast(80).once('value')).val() || {};
+      const lim = Date.now() - 90 * 864e5, T = Object.values(v).filter(t=> t && (t.date || 0) >= lim && !t.emCurso);
+      const P = { 180: 0, 480: 0, 720: 0, 1200: 0 }; let n = 0; const recs = [];
+      T.forEach(t=>{
+        if(t.w && !t.est){ n++; Object.keys(P).forEach(d=>{ P[d] = Math.max(P[d], melhorMedia(t.w, +d, t.step || 5)); }); }
+        const r = recuperacaoFC(t); if(r != null) recs.push(r);
+      });
+      const cp = P[180] > P[720] && P[720] > 0 ? (P[720] * 720 - P[180] * 180) / 540 : 0;
+      const fe = Math.max(P[1200] * .95, P[480] * .9, cp > 0 && cp < P[720] ? cp : 0);
+      recs.sort((a, b)=> a - b);
+      COND = { fe: fe >= 50 ? Math.round(fe / 5) * 5 : null, p: P, cp: Math.round(cp), rec: recs.length ? Math.round(recs[recs.length >> 1]) : null, nRec: recs.length, n, estado: 'pronto' };
+    }catch(e){ COND.estado = 'nada'; return; }
+    if(currentScreen === 'fichaScreen') fichaPreview();
+  }
+  function condMostra(f){
+    const nv = nivelCalc(f), raz = nivelRazao(f);
+    $('fNivCalc').innerHTML = nv ? '🧭 Pelas tuas respostas, o teu nível é <b>' + NIV_NOME[nv] + '</b>.' + (raz ? '<small>' + raz + '</small>' : '') + (f.nivel && f.nivel !== nv ? '<small>Descreveste-te como ' + NIV_NOME[f.nivel] + ': na estimativa do FTP conta o nível calculado.</small>' : '') : '';
+    const a = $('fFtpAuto');
+    if(COND.fe){
+      const P = COND.p, det = [P[1200] ? 'melhor 20 min ' + Math.round(P[1200]) + ' W' : '', P[480] ? 'melhor 8 min ' + Math.round(P[480]) + ' W' : '', COND.cp ? 'potência crítica ' + COND.cp + ' W' : ''].filter(Boolean).join(' · ');
+      a.innerHTML = '📊 Pelos teus treinos dos últimos 90 dias, o teu FTP anda pelos <b>' + COND.fe + ' W</b>' + (f.peso ? ' (' + (COND.fe / f.peso).toFixed(1).replace('.', ',') + ' W/kg)' : '') + '.<small>' + det + ' · ' + COND.n + ' treino' + (COND.n === 1 ? '' : 's') + ' com potência. Só acerta se fizeste esforços a fundo; se nunca foste ao limite, o teu FTP real é mais alto.</small>'
+        + (Number($('fFtp').value) !== COND.fe ? '<button type="button" id="fFtpUsa">Usar ' + COND.fe + ' W</button>' : '');
+      const b = $('fFtpUsa'); if(b) b.onclick = ()=>{ $('fFtp').value = COND.fe; $('fFtpNote').textContent = 'FTP atualizado pelos teus treinos. Carrega em Guardar para ficar.'; condMostra(readFichaForm()); };
+    } else a.innerHTML = COND.estado === 'pronto' ? '📊 Ainda não há treinos com potência suficientes para estimar o FTP. Depois de 3 ou 4 aulas com watts, aparece aqui a estimativa.' : '';
+  }
+  // o que vai para a projeção do professor (nível e FTP estimado)
+  function condResumo(){ const f = Object.assign({}, ficha || {}); return { nv: nivelCalc(f) || f.nivel || null, fe: COND.fe || null }; }
   const FC_Z = [ {n:'Z1 Recuperação', lo:50, hi:65, c:'--z0'}, {n:'Z2 Resistência', lo:65, hi:75, c:'--z1'}, {n:'Z3 Tempo', lo:75, hi:80, c:'--z2'}, {n:'Z4 Limiar', lo:80, hi:85, c:'--z3'}, {n:'Z5 VO2máx', lo:85, hi:90, c:'--z4'}, {n:'Z6 Anaeróbio', lo:90, hi:95, c:'--z5'}, {n:'Z7 Explosão', lo:95, hi:100, c:'--z6'} ];
 
   function idadeDe(nasc){
@@ -7474,7 +7661,7 @@ body.ecra4-on #kartCog{display:none!important;}
 
   function chipVal(id){ const b = $(id).querySelector('button.on'); return b ? b.dataset.v : null; }
   function setChip(id, v){ $(id).querySelectorAll('button').forEach(b=> b.classList.toggle('on', b.dataset.v === v)); }
-  ['fSexo','fNivel','fFreq','fObj'].forEach(id=> $(id).addEventListener('click', e=>{ const b = e.target.closest('button'); if(b){ setChip(id, b.dataset.v); fichaPreview(); } }));
+  ['fSexo','fNivel','fFreq','fHist','fRes','fObj'].forEach(id=> $(id).addEventListener('click', e=>{ const b = e.target.closest('button'); if(b){ setChip(id, b.dataset.v); fichaPreview(); } }));
   $('fParq').addEventListener('click', e=>{
     const b = e.target.closest('button'); if(!b) return;
     b.parentNode.querySelectorAll('button').forEach(x=> x.classList.toggle('on', x === b));
@@ -7487,7 +7674,7 @@ body.ecra4-on #kartCog{display:none!important;}
     const num = (id)=>{ const v = Number($(id).value); return v > 0 ? v : null; };
     return {
       nasc: $('fNasc').value || null, sexo: chipVal('fSexo'), peso: num('fPeso'), altura: num('fAltura'),
-      nivel: chipVal('fNivel'), freq: chipVal('fFreq'), objetivo: chipVal('fObj'),
+      nivel: chipVal('fNivel'), freq: chipVal('fFreq'), hist: chipVal('fHist'), res: chipVal('fRes'), objetivo: chipVal('fObj'),
       fcRep: num('fFcRep'), fcMed: num('fFcMed'), ftp: num('fFtp'), parq: parq,
       decl: $('fDecl').checked, rgpd: $('fRgpd').checked
     };
@@ -7508,21 +7695,23 @@ body.ecra4-on #kartCog{display:none!important;}
       }).join('');
     } else $('fZones').innerHTML = '';
     $('fParqAlert').classList.toggle('on', fichaAlerta(f));
+    condMostra(f);
   }
   ['fNasc','fPeso','fAltura','fFcRep','fFcMed','fFtp'].forEach(id=> $(id).addEventListener('input', fichaPreview));
 
   $('fFtpEst').addEventListener('click', ()=>{
     const f = readFichaForm();
-    if(!f.peso || !f.nivel){ $('fFtpNote').textContent = 'Indica primeiro o peso e a condição física.'; return; }
-    const est = Math.round(f.peso * FTP_WKG[f.nivel] / 5) * 5;
-    $('fFtp').value = est;
-    $('fFtpNote').textContent = 'Estimativa: ' + FTP_WKG[f.nivel].toString().replace('.', ',') + ' W/kg × ' + f.peso + ' kg ≈ ' + est + ' W. Nas primeiras aulas o professor ajuda a afinar.';
+    if(COND.fe){ $('fFtp').value = COND.fe; $('fFtpNote').textContent = 'Estimativa pelos teus treinos: ' + COND.fe + ' W.'; condMostra(f); return; }
+    const e = ftpPorNivel(f);
+    if(!e){ $('fFtpNote').textContent = 'Indica primeiro o peso e responde às perguntas da condição física.'; return; }
+    $('fFtp').value = e.w;
+    $('fFtpNote').textContent = 'Estimativa: ' + NIV_NOME[e.nv] + ' ' + (/^f/i.test(f.sexo || '') ? '(mulher)' : '(homem)') + ' ≈ ' + e.wkg.toString().replace('.', ',') + ' W/kg × ' + f.peso + ' kg ≈ ' + e.w + ' W. Depois de 3 ou 4 aulas com watts, a app passa a estimar pelos teus treinos.'; condMostra(f);
   });
 
   function fillFichaForm(f){
     f = f || {};
     $('fNasc').value = f.nasc || ''; $('fPeso').value = f.peso || ''; $('fAltura').value = f.altura || '';
-    setChip('fSexo', f.sexo || null); setChip('fNivel', f.nivel || null); setChip('fFreq', f.freq || null); setChip('fObj', f.objetivo || null);
+    setChip('fSexo', f.sexo || null); setChip('fNivel', f.nivel || null); setChip('fFreq', f.freq || null); setChip('fHist', f.hist || null); setChip('fRes', f.res || null); setChip('fObj', f.objetivo || null);
     $('fFcRep').value = f.fcRep || ''; $('fFcMed').value = f.fcMed || '';
     $('fFtp').value = f.ftp || (perfil && perfil.ftp) || lsGet(LS.ftp) || '';
     $('fParq').querySelectorAll('.f-yn').forEach(g=>{ const v = f.parq ? f.parq[g.dataset.q] : undefined; g.querySelectorAll('button').forEach(b=> b.classList.toggle('on', v !== undefined && Number(b.dataset.v) === Number(v))); });
@@ -7539,7 +7728,7 @@ body.ecra4-on #kartCog{display:none!important;}
     t.textContent = txt; t.classList.remove('on'); void t.offsetWidth; t.classList.add('on');
     clearTimeout(toast.h); toast.h = setTimeout(()=> t.classList.remove('on'), txt.length > 60 ? 4500 : 2600);
   }
-  function openFicha(){ fillFichaForm(ficha); showScreen('fichaScreen'); }
+  function openFicha(){ fillFichaForm(ficha); showScreen('fichaScreen'); fichaPreview(); condCarrega(true); }
 
   async function saveFicha(){
     const f = readFichaForm();
