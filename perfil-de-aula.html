@@ -9722,6 +9722,8 @@ const SR3 = (()=>{
       r.onsuccess = ()=> res(r.result); r.onerror = ()=> rej(r.error);
     });
   }
+  // pede ao browser para não apagar as músicas guardadas quando o disco fica cheio (sem isto o Chrome pode limpá-las)
+  function audPersiste(){ try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(p=>{ if(!p) navigator.storage.persist().catch(()=>{}); }).catch(()=>{}); }catch(e){} }
   async function audPut(k, v){
     const db = await audDb();
     return new Promise((res, rej)=>{ const tx = db.transaction('faixas', 'readwrite'); tx.objectStore('faixas').put(v, k); tx.oncomplete = ()=> res(); tx.onerror = ()=> rej(tx.error); });
@@ -9934,6 +9936,7 @@ const SR3 = (()=>{
     if(!a){ return; }
     const src = audSrc(a);
     if(src === 'file'){
+      audPersiste();
       const rec = await audGet(a.key);
       if(audPKey !== k) return;
       if(rec && rec.blob){ audUrl = URL.createObjectURL(rec.blob); audPeaks = rec.peaks || null; audP = audElPlayer(audUrl); }
@@ -9968,9 +9971,14 @@ const SR3 = (()=>{
       dur = await new Promise(res=>{ const el = new Audio(); el.preload = 'metadata'; el.onloadedmetadata = ()=> res(el.duration || 0); el.onerror = ()=> res(0); el.src = URL.createObjectURL(file); });
     }
     if(!dur || !isFinite(dur)){ toast('Não consegui ler este ficheiro de áudio.'); return; }
-    const key = 'a' + uid();
+    audPersiste();
+    // a música desta aula desapareceu deste PC e voltaste a escolher o ficheiro: guarda-o com a mesma chave
+    // (a aula fica igual, não precisa de ser gravada outra vez, e as outras aulas com a mesma faixa voltam também)
+    const a0 = audInfo(), religa = audFalta === true && a0 && audSrc(a0) === 'file' && a0.key;
+    const key = religa ? a0.key : 'a' + uid();
     try{ await audPut(key, { blob: file, peaks, dur, nome: file.name }); }
     catch(e){ toast('Não consegui guardar a música neste dispositivo.'); return; }
+    if(religa){ audPKey = null; await audEnsure(); renderEditor(); toast('🎵 Música ligada outra vez a esta aula'); return; }
     const t = audTot(), ant = audInfo();
     audNovo({ src:'file', key, nome: file.name.replace(/\.[^.]+$/, ''), dur: Math.round(dur * 10) / 10 });
     if(!ant && dur < t - 5) current.audio.modo = 'repetir';
