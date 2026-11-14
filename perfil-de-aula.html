@@ -7322,25 +7322,12 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
         for(const g of ['m', 'f']){
           // o editor dos bonecos traz os corpos dentro dele (window.CIC_GLB), para funcionar aberto diretamente do disco
           const emb = window.CIC_GLB && window.CIC_GLB[g], buf = emb ? Uint8Array.from(atob(emb), ch=> ch.charCodeAt(0)).buffer : null;
-          let b2 = buf; if(!b2){ const r = await fetch('ciclista_' + g + '.glb'); if(!r.ok) throw new Error('ciclista_' + g + '.glb: o site respondeu ' + r.status); b2 = await r.arrayBuffer(); }
-          await poeCorpo(g, b2, L);
+          const gl = await new Promise((ok, ko)=> buf ? L.parse(buf, '', ok, ko) : L.load('ciclista_' + g + '.glb', ok, undefined, ko));
+          let lim = { cintura: .45, gola: .8 }; gl.scene.traverse(o=>{ if(o.userData && o.userData.kit_cintura != null) lim = { cintura: o.userData.kit_cintura, gola: o.userData.kit_gola }; });
+          ST.base[g] = gl.scene; ST.lim[g] = lim;
         }
         ST.estado = 'pronto';
-      }catch(e){ console.warn('Humano realista indisponível', e); ST.erro = String(e && e.message || e); ST.estado = 'falhou'; }
-    }
-    async function poeCorpo(g, buf, L){
-      if(new TextDecoder().decode(new Uint8Array(buf, 0, 4)) !== 'glTF') throw new Error('ciclista_' + g + '.glb não é um modelo 3D (o site devolveu outra coisa)');
-      const gl = await new Promise((ok, ko)=> (L || new THREE.GLTFLoader()).parse(buf, '', ok, ko));
-      let lim = { cintura: .45, gola: .8 }; gl.scene.traverse(o=>{ if(o.userData && o.userData.kit_cintura != null) lim = { cintura: o.userData.kit_cintura, gola: o.userData.kit_gola }; });
-      ST.base[g] = gl.scene; ST.lim[g] = lim;
-    }
-    // alternativa: escolher os dois ficheiros .glb do computador (quando o site ainda não os tem)
-    async function deFicheiros(fs){
-      if(!THREE.GLTFLoader) await script(CDN + 'loaders/GLTFLoader.js');
-      if(!THREE.SkeletonUtils) await script(CDN + 'utils/SkeletonUtils.js');
-      for(const f of fs){ const g = /_f\.glb$/i.test(f.name) ? 'f' : /_m\.glb$/i.test(f.name) ? 'm' : null; if(g) await poeCorpo(g, await f.arrayBuffer()); }
-      if(!ST.base.m || !ST.base.f) throw new Error('faltam ' + ['m', 'f'].filter(g=> !ST.base[g]).map(g=> 'ciclista_' + g + '.glb').join(' e '));
-      ST.estado = 'pronto'; ST.erro = '';
+      }catch(e){ console.warn('Humano realista indisponível', e); ST.estado = 'falhou'; }
     }
     // equipamento pintado ponto a ponto (o modelo guarda em cada vértice a posição ao longo do braço, coxa e perna)
     function kitMat(nome, C, O, lim){
@@ -7421,7 +7408,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       const q = G.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(b.getWorldQuaternion(new THREE.Quaternion())).multiply(h.q0cab.clone().invert());
       return { p, q };
     }
-    return { carrega, deFicheiros, cria, pose, cabeca, get estado(){ return ST.estado; }, get erro(){ return ST.erro || ''; } };
+    return { carrega, cria, pose, cabeca, get estado(){ return ST.estado; } };
   })();
 
   let CIC3 = null; const CIC3f = ()=> (()=>{
@@ -7971,12 +7958,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       if(!window.THREE){ const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onload = ()=> E && prepara(); s.onerror = ()=>{ ld.textContent = '⚠ Sem internet para carregar o 3D.'; }; document.head.appendChild(s); return; }
       if(!CIC3) CIC3 = CIC3f();
       const H = CIC3.HUM; if(H && /nada|a carregar/.test(H.estado)){ setTimeout(()=> E && prepara(), 200); return; }
-      if(H && H.estado === 'falhou'){
-        ld.innerHTML = '⚠ Os corpos realistas não carregaram (' + (H.erro || 'sem resposta') + '): estás a ver o boneco antigo. <button class="ce-glb">📂 Escolher ciclista_m.glb e ciclista_f.glb</button><input type="file" accept=".glb" multiple hidden class="ce-glbf">';
-        Object.assign(ld.style, { inset: 'auto 12px 34px 12px', display: 'block', fontSize: '13px', color: '#FFD60A' });
-        ld.querySelector('.ce-glb').onclick = ()=> ld.querySelector('.ce-glbf').click();
-        ld.querySelector('.ce-glbf').onchange = ev=> H.deFicheiros([...ev.target.files]).then(()=>{ ld.remove(); monta(E.d.querySelector('.ce-mod').value); if(SPR.limpa) SPR.limpa(); })
-          .catch(err=>{ ld.firstChild.textContent = '⚠ ' + (err && err.message || err) + ' '; }); }
+      if(H && H.estado === 'falhou'){ ld.textContent = '⚠ Não encontrei os ficheiros ciclista_m.glb / ciclista_f.glb ao lado desta página: estás a ver o boneco antigo.'; Object.assign(ld.style, { inset: 'auto 12px 34px 12px', display: 'block', fontSize: '13px', color: '#FFD60A' }); }
       else ld.remove();
       E.guardado = JSON.stringify(CICAJ); E.pinta();   // os valores podem ter chegado agora (ficheiro de ajustes)
       cena(); monta(E.d.querySelector('.ce-mod').value); anima();
