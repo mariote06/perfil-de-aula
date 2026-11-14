@@ -474,6 +474,13 @@ body.solo-livre #progress{display:none;}
 
 /* ---------- ligar a bike e a cinta (ecrã antes de entrar) ---------- */
 #setupScreen .form{max-width:400px;}
+.par2{display:flex;gap:10px;align-items:flex-end}.par2>label{flex:1 1 0;min-width:0}.par2>label[style*="none"]{display:none!important}
+.favs{border:1px solid rgba(255,214,10,.35);background:rgba(255,214,10,.07);border-radius:12px;padding:10px 12px}
+.favs[hidden]{display:none}.favs-h{font-size:13px;font-weight:700;color:#FFD60A;margin-bottom:8px}.favs-h small{font-weight:400;color:var(--muted);margin-left:4px}
+.favs-l{display:flex;flex-wrap:wrap;gap:8px}
+.fav{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--surface);color:#fff;border-radius:999px;padding:8px 12px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.fav.on{border-color:var(--ok);color:var(--ok)}.fav .fx{margin-left:2px;opacity:.55;font-size:13px;padding:0 2px}
+.fav-st,#setupScreen .sensor .fav-st{background:none!important;border:0!important;min-width:0;font-weight:400!important;color:#FFD60A;font-size:18px;line-height:1;cursor:pointer;padding:0 4px;vertical-align:-1px}.fav-st[hidden]{display:none}
 #setupScreen .sensor{padding:16px 16px;border-radius:14px;min-height:76px;}
 #setupScreen .sensor .s-name{font-size:19px;font-weight:800;}
 #setupScreen .sensor .s-status{font-size:15px;font-weight:600;margin-top:4px;}
@@ -1184,21 +1191,24 @@ body.ecra4-on #kartCog{display:none!important;}
     <label id="nameLabel">Nome (como aparece no ecrã)
       <input id="nameInput" maxlength="16" autocomplete="nickname" placeholder="ex: Ana R.">
     </label>
-    <label id="fcLabel" style="display:none">A tua FC máxima (bpm)
+    <div class="par2">
+    <label id="fcLabel" style="display:none">FC máxima (bpm)
       <input id="fcInput" type="number" inputmode="numeric" min="100" max="230" placeholder="ex: 185">
     </label>
-    <div class="hint" id="fcHint" style="display:none">Esta aula é por frequência cardíaca. Não sabes a tua FC máxima? Usa 220 − a tua idade.</div>
     <label id="ftpLabel">O teu FTP (watts)
       <input id="ftpInput" type="number" inputmode="numeric" min="50" max="600" placeholder="ex: 160">
     </label>
+    </div>
+    <div class="hint" id="fcHint" style="display:none">Esta aula é por frequência cardíaca. Não sabes a tua FC máxima? Usa 220 − a tua idade.</div>
     <div class="hint">Não sabes o teu FTP? Começa com 2 × o teu peso (70 kg → 140 W) e o instrutor ajuda a afinar.</div>
 
+    <div class="favs" id="favBox" hidden><div class="favs-h">⭐ Os teus favoritos <small>toca para ligar</small></div><div class="favs-l" id="favList"></div></div>
     <div class="sensor">
-      <div><div class="s-name">🚲 Bike</div><div class="s-status" id="bikeStatus">desligada</div></div>
+      <div><div class="s-name">🚲 Bike <button type="button" class="fav-st" id="favBike" hidden title="Guardar nos favoritos">☆</button></div><div class="s-status" id="bikeStatus">desligada</div></div>
       <button id="bikeBtn">Ligar</button>
     </div>
     <div class="sensor">
-      <div><div class="s-name">♥ Cinta de FC</div><div class="s-status" id="hrStatus">opcional</div></div>
+      <div><div class="s-name">♥ Cinta de FC <button type="button" class="fav-st" id="favHr" hidden title="Guardar nos favoritos">☆</button></div><div class="s-status" id="hrStatus">opcional</div></div>
       <button id="hrBtn">Ligar</button>
     </div>
     <div class="sensor ssn-row">
@@ -1849,7 +1859,36 @@ body.ecra4-on #kartCog{display:none!important;}
     }
   }
 
-  async function connectBike(showAll){
+  // =====================================================================
+  // FAVORITOS: bikes e cintas de FC guardadas (☆ ao lado do nome quando estão ligadas). Tocar num favorito liga-o
+  // sem abrir a lista (Chrome que já deu autorização) ou abre a lista só com esse dispositivo.
+  // =====================================================================
+  function favsLe(){ try{ const v = JSON.parse(localStorage.getItem('prFavs') || '[]'); return Array.isArray(v) ? v.filter(f=> f && f.n && (f.t === 'bike' || f.t === 'hr')) : []; }catch(e){ return []; } }
+  function favsGrava(L){ try{ localStorage.setItem('prFavs', JSON.stringify(L.slice(0, 8))); }catch(e){} if(typeof user !== 'undefined' && user && fbDb) fbDb.ref('alunos/' + user.uid + '/perfil/favs').set(L.slice(0, 8)).catch(()=>{}); }
+  function favTem(t, n){ return favsLe().some(f=> f.t === t && f.n === n); }
+  function favAlterna(t){
+    const dev = t === 'bike' ? S.bikeDev : S.hrDev, n = t === 'bike' ? S.bikeName : S.hrName; if(!dev || !n) return;
+    let L = favsLe(); if(favTem(t, n)){ L = L.filter(f=> !(f.t === t && f.n === n)); toast('Tirado dos favoritos'); }
+    else { L.unshift({ t, n, id: dev.id || null }); toast('⭐ ' + n + ' guardado nos favoritos'); }
+    favsGrava(L); favsRender();
+  }
+  function favsRender(){
+    const L = favsLe().sort((a, b)=> (a.t === 'bike' ? 0 : 1) - (b.t === 'bike' ? 0 : 1)), box = $('favBox'); if(!box) return;
+    box.hidden = !L.length || !hasBluetooth;
+    $('favList').innerHTML = L.map((f, i)=> '<button type="button" class="fav' + (((f.t === 'bike' && bikeConnected() && S.bikeName === f.n) || (f.t === 'hr' && S.hrDev && S.hrDev.gatt.connected && S.hrName === f.n)) ? ' on' : '') + '" data-i="' + i + '">' + (f.t === 'bike' ? '🚲' : '♥') + ' <span></span><i class="fx" data-x="' + i + '" title="Tirar dos favoritos">✕</i></button>').join('');
+    $('favList').querySelectorAll('.fav span').forEach((el, i)=> el.textContent = L[i].n);
+    const bOn = bikeConnected(), hOn = !!(S.hrDev && S.hrDev.gatt.connected);
+    $('favBike').hidden = !bOn; $('favBike').textContent = bOn && favTem('bike', S.bikeName) ? '★' : '☆';
+    $('favHr').hidden = !hOn; $('favHr').textContent = hOn && favTem('hr', S.hrName) ? '★' : '☆';
+  }
+  async function favLiga(f){
+    // 1) sem lista: o Chrome lembra-se dos dispositivos já autorizados
+    try{ if(f.id && navigator.bluetooth.getDevices){ const d = (await navigator.bluetooth.getDevices()).find(x=> x.id === f.id); if(d){ if(f.t === 'bike') return connectBike(false, null, d); return connectHr(null, d); } } }catch(e){}
+    // 2) lista só com esse dispositivo
+    return f.t === 'bike' ? connectBike(false, f.n) : connectHr(f.n);
+  }
+  async function connectBike(showAll, favNome, favDev){
+    if(favDev || favNome){ if(bikeConnected()) disconnectBike(); S.bikeDev = null; }
     if(!hasBluetooth){ showBtWarning(); return; }
     if(S.bikeDev && S.bikeDev.gatt.connected){
       if(!confirm('Desligar a bike ' + (S.bikeName||'') + '?')) return;
@@ -1872,13 +1911,13 @@ body.ecra4-on #kartCog{display:none!important;}
     S.gen++; S.pedeLista = false;
     try{
       setBikeStatus('a procurar…', false);
-      const opts = showAll === true
+      const opts = favNome ? { filters: [{ name: favNome }], optionalServices: [SVC.power, SVC.ftms, SVC.csc, SVC.hr] } : showAll === true
         ? { acceptAllDevices: true, optionalServices: [SVC.power, SVC.ftms, SVC.csc, SVC.hr] }
         : { filters: [{services:[SVC.power]}, {services:[SVC.ftms]}, {services:[SVC.csc]},
                       {namePrefix:'Schwinn'}, {namePrefix:'SCHWINN'}, {namePrefix:'Zone'}, {namePrefix:'4iiii'}, {namePrefix:'Z '}],
             optionalServices: [SVC.power, SVC.ftms, SVC.csc, SVC.hr] };
       var btStage = 'procurar';
-      const device = await navigator.bluetooth.requestDevice(opts);
+      const device = favDev || await navigator.bluetooth.requestDevice(opts);
       S.bikeDev = device; S.bikeName = device.name || 'Bike'; S.wantBike = true; S.crank = null;
       device.addEventListener('gattserverdisconnected', onBikeLost);
       setBikeStatus('a ligar a ' + S.bikeName + '…', false);
@@ -1925,15 +1964,17 @@ body.ecra4-on #kartCog{display:none!important;}
     setBikeStatus('desligada', false);
   }
 
-  async function connectHr(){
+  async function connectHr(favNome, favDev){
+    if(typeof favNome !== 'string') favNome = null;
     if(!hasBluetooth){ showBtWarning(); return; }
+    if((favNome || favDev) && S.hrDev && S.hrDev.gatt.connected) disconnectHr();
     if(S.hrDev && S.hrDev.gatt.connected){
       if(!confirm('Desligar a cinta de FC?')) return;
       disconnectHr(); return;
     }
     try{
       setHrStatus('a procurar…', false);
-      const device = await navigator.bluetooth.requestDevice({ filters: [{services:[SVC.hr]}] });
+      const device = favDev || await navigator.bluetooth.requestDevice({ filters: [favNome ? { name: favNome } : {services:[SVC.hr]}], optionalServices: [SVC.hr] });
       S.hrDev = device; S.hrName = device.name || 'Cinta'; S.wantHr = true;
       device.addEventListener('gattserverdisconnected', onHrLost);
       setHrStatus('a ligar a ' + S.hrName + '…', false);
@@ -1974,6 +2015,7 @@ body.ecra4-on #kartCog{display:none!important;}
   function setBikeStatus(txt, on){
     $('bikeStatus').textContent = txt; $('bikeStatus').classList.toggle('on', !!on);
     $('bikeBtn').textContent = on ? 'Ligada ✓' : 'Ligar'; $('bikeBtn').classList.toggle('on', !!on);
+    if(typeof favsRender === 'function') try{ favsRender(); }catch(e){}
     $('chipBike').classList.toggle('on', !!on || demo);
     const st = $('chipBikeSt'); if(st){ st.textContent = on ? txt : (txt === 'desligada' ? 'toca para ligar' : txt); st.classList.toggle('st-av', !on && txt !== 'desligada'); }
     if(typeof ultBikeSync === 'function') ultBikeSync();
@@ -1981,11 +2023,12 @@ body.ecra4-on #kartCog{display:none!important;}
   function setHrStatus(txt, on){
     $('hrStatus').textContent = txt; $('hrStatus').classList.toggle('on', !!on);
     $('hrBtn').textContent = on ? 'Ligada ✓' : 'Ligar'; $('hrBtn').classList.toggle('on', !!on);
+    if(typeof favsRender === 'function') try{ favsRender(); }catch(e){}
     $('chipHr').classList.toggle('on', !!on);
     const st = $('chipHrSt'); if(st){ st.textContent = on ? txt : (/^(opcional|desligada)$/.test(txt) ? 'toca para ligar' : txt); st.classList.toggle('st-av', !on && !/^(opcional|desligada)$/.test(txt)); }
     // aula por watts com cinta ligada: pede a FC máxima (opcional) para mostrar a %FCmáx quando não há bike
     if(on && !solo && modo !== 'fc' && $('fcLabel').style.display === 'none'){
-      $('fcLabel').firstChild.textContent = 'A tua FC máxima (bpm, opcional: para veres a %FCmáx)';
+      $('fcLabel').firstChild.textContent = 'FC máxima (opcional)';
       $('fcLabel').style.display = '';
     }
   }
@@ -2415,7 +2458,7 @@ body.ecra4-on #kartCog{display:none!important;}
       $('fcInput').value = (perfil && perfil.fcMax) || lsGet('aavFcMax') || '';
       $('fcLabel').style.display = modo === 'fc' ? '' : 'none';
       $('fcHint').style.display = modo === 'fc' ? '' : 'none';
-      $('ftpLabel').firstChild.textContent = modo === 'fc' ? 'O teu FTP (watts, opcional)' : 'O teu FTP (watts)';
+      $('ftpLabel').firstChild.textContent = modo === 'fc' ? 'FTP (watts, opcional)' : 'O teu FTP (watts)';
       renderAcctLine();
       showJoinError(OFF ? '📶 Sem internet: entras com a aula guardada neste telemóvel e ligas-te sozinho quando a internet voltar.' : '');
       showScreen('setupScreen');
@@ -6133,9 +6176,16 @@ body.ecra4-on #kartCog{display:none!important;}
     ecraVai(ini);
   })();
   if(!hasBluetooth) $('showAllBtn').style.display = 'none';   // sem Bluetooth na web (iPhone fora do Bluefy) não serve
-  $('hrBtn').addEventListener('click', connectHr);
+  $('hrBtn').addEventListener('click', ()=> connectHr());
+  $('favBike').addEventListener('click', e=>{ e.stopPropagation(); favAlterna('bike'); });
+  $('favHr').addEventListener('click', e=>{ e.stopPropagation(); favAlterna('hr'); });
+  $('favList').addEventListener('click', e=>{
+    const x = e.target.closest('.fx'); if(x){ const L = favsLe().sort((a, c)=> (a.t === 'bike' ? 0 : 1) - (c.t === 'bike' ? 0 : 1)); L.splice(+x.dataset.x, 1); favsGrava(L); favsRender(); return; }
+    const b = e.target.closest('.fav'); if(b){ const f = favsLe().sort((a, c)=> (a.t === 'bike' ? 0 : 1) - (c.t === 'bike' ? 0 : 1))[+b.dataset.i]; if(f) favLiga(f); }
+  });
+  favsRender();
   $('chipBike').addEventListener('click', ()=>{ if(!demo) connectBike(false); });
-  $('chipHr').addEventListener('click', connectHr);
+  $('chipHr').addEventListener('click', ()=> connectHr());
   // no Bluefy (iPhone com Bluetooth) pede ecrã inteiro ao entrar; se o Bluefy não deixar, não faz nada
   function tryFullscreen(){
     try{
@@ -6832,6 +6882,7 @@ body.ecra4-on #kartCog{display:none!important;}
       if(u){
         try{
           perfil = (await fbDb.ref('alunos/' + u.uid + '/perfil').once('value')).val();
+          if(perfil && Array.isArray(perfil.favs) && !favsLe().length){ try{ localStorage.setItem('prFavs', JSON.stringify(perfil.favs)); }catch(e){} favsRender(); }   // favoritos da conta neste telemóvel
           if(!perfil && pendingReg){ perfil = pendingReg; await fbDb.ref('alunos/' + u.uid + '/perfil').set(Object.assign({email:u.email}, pendingReg)); }
         }catch(e){}
         pendingReg = null;
@@ -7201,22 +7252,14 @@ body.ecra4-on #kartCog{display:none!important;}
     entradaAuto = aula.pin; if(aula.sala){ try{ localStorage.setItem('prSala', aula.sala); }catch(e){} }
     // a lista do Bluetooth tem de abrir já, ainda dentro do toque (o browser não deixa abrir depois)
     const querBike = hasBluetooth && !demo && semSens === null && lsGet('prUltModo') !== 'semSens' && !bikeConnected();
-    let pb = Promise.resolve();
-    if(aula.porPin){
-      // PIN escrito à mão: primeiro confirma o PIN (um PIN errado não abre a lista do Bluetooth); a lista abre logo a seguir,
-      // enquanto o browser ainda conta a tecla como gesto (uns segundos); se já não der, fica o botão "Ligar"
-      await checkPin(aula.pin);
-      if(currentScreen !== 'setupScreen'){ entradaAuto = null; return; }
-      const ativo = !navigator.userActivation || navigator.userActivation.isActive;
-      if(querBike && ativo) pb = connectBike();
-    } else {
-      if(querBike) pb = connectBike();
-      $('pinInput').value = aula.pin;
-      await checkPin(aula.pin);
-    }
+    // o aluno escolhe os sensores (bike, cinta, favoritos ou sem sensores): a app não procura nada sozinha
+    const pb = Promise.resolve(); void querBike;
+    if(!aula.porPin) $('pinInput').value = aula.pin;
+    await checkPin(aula.pin);
+    if(currentScreen !== 'setupScreen' && aula.porPin){ entradaAuto = null; return; }
     if(currentScreen !== 'setupScreen'){ entradaAuto = null; $('moodResp').innerHTML = '⚠️ ' + ($('joinError').textContent || 'Não consegui entrar na aula.') + ' Toca outra vez no emoji.'; return; }
     await pb.catch(()=>{});
-    tentaEntrarAuto();
+    entradaAuto = null; if(currentScreen === 'setupScreen' && !$('nameInput').value.trim()) $('nameInput').focus();
   }
   function tentaEntrarAuto(){
     if(!entradaAuto || entradaAuto !== pin || currentScreen !== 'setupScreen') return;
