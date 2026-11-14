@@ -6111,6 +6111,11 @@ body.ecra4-on #kartCog{display:none!important;}
   // ---------- eventos ----------
   $('joinBtn').addEventListener('click', ()=> checkPin($('pinInput').value.trim()));
   $('pinInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') checkPin(e.target.value.trim()); });
+  // ao escrever o 4.º dígito entra logo: liga a bike (a lista do Bluetooth abre com a tecla) e, se o nome e o FTP já forem conhecidos, fica dentro da aula
+  $('pinInput').addEventListener('input', e=>{
+    const v = e.target.value.replace(/\D/g, '').slice(0, 4); if(v !== e.target.value) e.target.value = v;
+    if(v.length === 4 && !$('joinBtn').disabled){ showJoinError(''); entradaRapida({ pin: v, porPin: true }); }
+  });
   $('bikeBtn').addEventListener('click', ()=> connectBike(false));
   $('showAllBtn').addEventListener('click', ()=> connectBike(true));
   $('ultBikeBtn').addEventListener('click', connectUltBike); ultBikeSync();
@@ -7193,12 +7198,22 @@ body.ecra4-on #kartCog{display:none!important;}
   function liveDesliga(){ if(liveOuve){ try{ liveOuve.off(); }catch(e){} liveOuve = null; } }
   let entradaAuto = null;   // pin da entrada rápida em curso
   async function entradaRapida(aula){
-    entradaAuto = aula.pin; try{ localStorage.setItem('prSala', aula.sala); }catch(e){}
+    entradaAuto = aula.pin; if(aula.sala){ try{ localStorage.setItem('prSala', aula.sala); }catch(e){} }
     // a lista do Bluetooth tem de abrir já, ainda dentro do toque (o browser não deixa abrir depois)
     const querBike = hasBluetooth && !demo && semSens === null && lsGet('prUltModo') !== 'semSens' && !bikeConnected();
-    const pb = querBike ? connectBike() : Promise.resolve();
-    $('pinInput').value = aula.pin;
-    await checkPin(aula.pin);
+    let pb = Promise.resolve();
+    if(aula.porPin){
+      // PIN escrito à mão: primeiro confirma o PIN (um PIN errado não abre a lista do Bluetooth); a lista abre logo a seguir,
+      // enquanto o browser ainda conta a tecla como gesto (uns segundos); se já não der, fica o botão "Ligar"
+      await checkPin(aula.pin);
+      if(currentScreen !== 'setupScreen'){ entradaAuto = null; return; }
+      const ativo = !navigator.userActivation || navigator.userActivation.isActive;
+      if(querBike && ativo) pb = connectBike();
+    } else {
+      if(querBike) pb = connectBike();
+      $('pinInput').value = aula.pin;
+      await checkPin(aula.pin);
+    }
     if(currentScreen !== 'setupScreen'){ entradaAuto = null; $('moodResp').innerHTML = '⚠️ ' + ($('joinError').textContent || 'Não consegui entrar na aula.') + ' Toca outra vez no emoji.'; return; }
     await pb.catch(()=>{});
     tentaEntrarAuto();
