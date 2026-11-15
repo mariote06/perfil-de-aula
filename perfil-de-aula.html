@@ -3811,7 +3811,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     try{ if(r.__con) fbDb.ref('.info/connected').off('value', r.__con); r.onDisconnect().cancel(); }catch(e){}
     r.remove().catch(()=>{});
   }
-  function liveMudaSala(sala){ try{ localStorage.setItem('prPaSala', sala); }catch(e){} if(sessionPin && liveIdx0) liveAnuncia(sessionPin); pintaSalaLive(); }
+  function liveMudaSala(sala){ try{ localStorage.setItem('prPaSala', sala); }catch(e){} try{ if(sessionPin && fbDb) sessionRef(sessionPin).child('sala').set(sala).catch(()=>{}); }catch(e){} if(sessionPin && liveIdx0) liveAnuncia(sessionPin); pintaSalaLive(); }
   function pintaSalaLive(){ document.querySelectorAll('#lsSala button').forEach(b=> b.classList.toggle('on', b.dataset.s === salaLive())); }
 
   function pushFullSession(pin){
@@ -3823,6 +3823,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, alvo:alvoOf(x), teste:x.teste ? true : null, rpm:x.rpm, rpm2:x.rpm2||null, tipo:x.tipo||null, tecnica:x.tecnica||'', jogo:x.jogo||null})),
       state: { blockIndex: 0, status: 'paused', remainingAtStart: blockDurationSec(b), startedAt: TS() },
       raceMetric: raceMetric,
+      sala: salaLive(),   // estúdio da aula: a app do aluno mostra a planta desta sala para escolher a bike
       createdAt: TS(),
       updatedAt: TS()
     });
@@ -8013,6 +8014,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       if(lugPin !== sessionPin){ lugPin = sessionPin; try{ lug = JSON.parse(localStorage.getItem('prSalaLug_' + sessionPin) || '{}') || {}; }catch(e){ lug = {}; } }
       const m = mapa(s), out = {}, usadas = {};
       list.forEach(r=>{ const b = lug[r.id] && m.b.find(x=> x.id === lug[r.id]); if(b && !usadas[b.id]){ out[r.id] = b; usadas[b.id] = 1; } });
+      list.forEach(r=>{ if(out[r.id] || !r.bk || lug[r.id] === '-') return; const b = m.b.find(x=> !usadas[x.id] && !x.p && String(x.n) === String(r.bk)); if(b){ out[r.id] = b; usadas[b.id] = 1; } });
       list.forEach(r=>{ if(out[r.id] || !r.bn || lug[r.id] === '-') return; const bn = norm(r.bn);
         let b = m.b.find(x=> !usadas[x.id] && x.bt && norm(x.bt) === bn);
         if(!b){ const n = numDe(bn); if(n) b = m.b.find(x=> !usadas[x.id] && !x.bt && !x.p && String(x.n) === n); }
@@ -8077,6 +8079,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 #salaEd .se-b small{font-size:10px;font-weight:500;color:#9aa4b4;max-width:95%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #salaEd .se-b.sel{border-color:#E8722C;box-shadow:0 0 0 3px #E8722C55}#salaEd .se-b.prof{background:#3a2a1a}
 #salaEd .se-chips{display:flex;flex-wrap:wrap;gap:6px}#salaEd .se-chips button{font-size:12px;padding:4px 8px}
+#salaEd .se-modo{display:flex;gap:6px}#salaEd .se-modo button{flex:1;font-size:13px;padding:8px 6px}
 #salaEd .se-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}#salaEd .se-row input{width:64px}`;
       document.head.appendChild(st);
     }
@@ -8141,12 +8144,14 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     function painel(){
       const p = $('seP'), b = E.m.b.find(x=> x.id === E.sel);
       const ligadas = riderList().filter(r=> r.online && r.bn).map(r=> ({ bn: r.bn, n: r.n }));
-      let h = '<h3>' + NOME[E.s] + '</h3><div class="se-dica">' + E.m.b.filter(x=> !x.p).length + ' bikes' + (E.sujo ? ' · <b style="color:#F0A070">por guardar</b>' : '') + '</div>';
+      let h = '<h3>' + NOME[E.s] + '</h3><div class="se-dica">' + E.m.b.filter(x=> !x.p).length + ' bikes' + (E.sujo ? ' · <b style="color:#F0A070">por guardar</b>' : '') + '</div>' +
+        '<h3>Como o aluno liga a bike</h3><div class="se-modo"><button type="button" data-pl="1" class="' + (E.m.pl !== 0 ? 'on' : '') + '">🔢 Pelo número da bike</button><button type="button" data-pl="0" class="' + (E.m.pl === 0 ? 'on' : '') + '">📡 Pelo sensor</button></div>' +
+        '<div class="se-dica">' + (E.m.pl !== 0 ? 'O aluno toca em "Ligar", vê a planta da sala e escolhe o número da bike. O nome do sensor fica escondido.' : 'O aluno toca em "Ligar" e escolhe o sensor na lista do Bluetooth, como antes. A planta só serve para a projeção.') + ' Muda logo para os alunos.</div>';
       if(b){
         h += '<h3>' + (b.p ? 'Bike do professor' : 'Bike ' + escapeHtml(b.n)) + '</h3>' +
           (b.p ? '' : '<label>Número (o que está escrito na bike)</label><input id="seN" value="' + escapeHtml(b.n || '') + '">') +
-          '<label>Nome Bluetooth da consola (opcional)</label><input id="seBt" placeholder="ex.: SCHWINN 12" value="' + escapeHtml(b.bt || '') + '">' +
-          '<div class="se-dica">Se ficar vazio, a app usa o número no fim do nome Bluetooth (ex.: "SCHWINN 12" vai para a bike 12).</div>' +
+          '<label>Sensor da bike (nome Bluetooth, como aparece na lista)</label><input id="seBt" placeholder="ex.: SCHWINN 0457" value="' + escapeHtml(b.bt || '') + '">' +
+          '<div class="se-dica">O aluno só vê o número da bike: toca nela na planta e a app liga a este sensor. Sem sensor gravado, abre a lista do Bluetooth.</div>' +
           (ligadas.length ? '<label>Bikes ligadas agora na aula (toca para usar o nome)</label><div class="se-chips">' + ligadas.map(l=> '<button type="button" data-bt="' + escapeHtml(l.bn) + '">' + escapeHtml(l.bn) + ' · ' + escapeHtml((l.n || '').split(' ')[0]) + '</button>').join('') + '</div>' : '') +
           '<div class="se-row" style="margin-top:12px"><button id="seDel">🗑️ Apagar bike</button></div><div class="se-dica">Arrasta para mudar de lugar (largar em cima de outra troca as duas) ou usa as setas do teclado.</div>';
       } else h += '<div class="se-dica">Toca numa bike para mudar o número ou o nome Bluetooth. Arrasta para a pôr no sítio certo.</div>';
@@ -8158,6 +8163,9 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
         $('seBt').oninput = ()=>{ b.bt = $('seBt').value.trim(); E.sujo = true; atualizaB(b); };
         p.querySelectorAll('[data-bt]').forEach(x=> x.onclick = ()=>{ b.bt = x.dataset.bt; E.sujo = true; desenha(); });
         $('seDel').onclick = ()=> apaga(b.id); }
+      p.querySelectorAll('[data-pl]').forEach(x=> x.onclick = ()=>{ const v = +x.dataset.pl; E.m.pl = v;
+        if(M[E.s]){ M[E.s].pl = v; grava(E.s).then(ok=> toast((v ? '🔢 ' + NOME[E.s] + ': os alunos ligam pelo número da bike' : '📡 ' + NOME[E.s] + ': os alunos ligam pelo sensor') + (ok ? '' : ' (só neste PC)'))); } else E.sujo = true;
+        painel(); });
       $('seGr').onclick = ()=> grelha(Math.max(1, Math.min(12, +$('seF').value || 1)), Math.max(1, Math.min(15, +$('seC').value || 1)), $('seGP').checked);
     }
     function atualizaB(b){ const el = document.querySelector('#seG [data-id="' + b.id + '"]'); if(el) el.innerHTML = (b.p ? '🎤' : escapeHtml(b.n || '?')) + '<small>' + escapeHtml(b.bt || (b.p ? 'professor' : '')) + '</small>'; }

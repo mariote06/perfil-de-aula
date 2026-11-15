@@ -995,6 +995,18 @@ body.ecra4-on #kartCog{display:none!important;}
 #setupScreen{gap:7px}#setupScreen .form{gap:7px}
 #setupScreen:has(#favBox:not([hidden])) #demoBtn{display:none}   /* com favoritos não faz falta o modo teste */
 .favs-dica{font-size:11px;color:var(--muted);line-height:1.3;margin-top:6px}.favs-dica[hidden]{display:none}.favs-dica b{color:#ddd;font-weight:600}
+.bk-num{display:inline-block;background:var(--accent);color:#111;font-weight:800;border-radius:6px;padding:0 6px;margin-left:2px;font-size:.9em}.bk-num[hidden]{display:none}
+.bk-sheet{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center}.bk-sheet.on{display:flex}
+.bk-box{width:100%;max-width:560px;background:var(--surface);border:1px solid var(--border);border-radius:18px 18px 0 0;padding:14px 16px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:10px;max-height:92vh;overflow:auto}
+.bk-h{width:100%;display:flex;justify-content:space-between;align-items:center;font-size:18px}.bk-x{background:none;border:0;color:var(--muted);font-size:20px;padding:4px 8px}
+.bk-salas{display:flex;gap:6px}.bk-salas button{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:999px;padding:5px 14px;font:inherit;font-size:13px}.bk-salas button.on{background:var(--accent);border-color:var(--accent);color:#111;font-weight:700}
+.bk-ecra{width:70%;text-align:center;background:var(--accent);color:#111;font-weight:800;letter-spacing:.2em;font-size:11px;border-radius:5px;padding:2px}
+.bk-pl{position:relative;flex:0 0 auto}
+.bk-b{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface-2);color:var(--text);border:2px solid var(--border);border-radius:10px;font:800 18px system-ui,sans-serif;padding:0;line-height:1}
+.bk-b small{font-size:9px;font-weight:600;color:var(--muted);max-width:95%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.bk-b:active{transform:scale(.95)}.bk-b.oc{opacity:.45}.bk-b.meu{border-color:var(--accent);box-shadow:0 0 0 3px #E8722C55}.bk-b.prof{background:#2a1f15;border-style:dashed;opacity:.7}
+.bk-lista{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:13px;padding:6px}
+.bk-dica{color:var(--muted);font-size:14px;margin:20px 0}
 </style>
 </head>
 <body>
@@ -1249,7 +1261,7 @@ body.ecra4-on #kartCog{display:none!important;}
 
     <div class="favs" id="favBox" hidden><div class="favs-h">⭐ Os teus favoritos <small>toca para ligar</small></div><div class="favs-l" id="favList"></div><div class="favs-dica" id="favDica" hidden>Este browser ainda pede para confirmar na lista. Para ligar logo: no Chrome, abre <b>chrome://flags</b>, procura <b>Web Bluetooth new permissions backend</b> e põe <b>Enabled</b>.</div></div>
     <div class="sensor">
-      <div><div class="s-name">🚲 Bike <button type="button" class="fav-st" id="favBike" hidden title="Guardar nos favoritos">☆</button></div><div class="s-status" id="bikeStatus">desligada</div></div>
+      <div><div class="s-name">🚲 Bike <span class="bk-num" id="bkNum" hidden></span><button type="button" class="fav-st" id="favBike" hidden title="Guardar nos favoritos">☆</button></div><div class="s-status" id="bikeStatus">desligada</div></div>
       <button id="bikeBtn">Ligar</button>
     </div>
     <div class="sensor">
@@ -1922,7 +1934,7 @@ body.ecra4-on #kartCog{display:none!important;}
     box.hidden = !L.length || !hasBluetooth;
     $('favDica').hidden = !!(navigator.bluetooth && navigator.bluetooth.getDevices) || !/Chrome/.test(navigator.userAgent);
     $('favList').innerHTML = L.map((f, i)=> '<button type="button" class="fav' + (((f.t === 'bike' && bikeConnected() && S.bikeName === f.n) || (f.t === 'hr' && S.hrDev && S.hrDev.gatt.connected && S.hrName === f.n)) ? ' on' : '') + '" data-i="' + i + '">' + (f.t === 'bike' ? '🚲' : '♥') + ' <span></span><i class="fx" data-x="' + i + '" title="Tirar dos favoritos">✕</i></button>').join('');
-    $('favList').querySelectorAll('.fav span').forEach((el, i)=> el.textContent = L[i].n);
+    $('favList').querySelectorAll('.fav span').forEach((el, i)=> el.textContent = L[i].t === 'bike' ? bkNome(L[i].n) : L[i].n);
     const bOn = bikeConnected(), hOn = !!(S.hrDev && S.hrDev.gatt.connected);
     $('favBike').hidden = !bOn; $('favBike').textContent = bOn && favTem('bike', S.bikeName) ? '★' : '☆';
     $('favHr').hidden = !hOn; $('favHr').textContent = hOn && favTem('hr', S.hrName) ? '★' : '☆';
@@ -2079,6 +2091,7 @@ body.ecra4-on #kartCog{display:none!important;}
   function hasPowerSource(){ return demo || bikeConnected() || !!semSens; }
 
   function setBikeStatus(txt, on){
+    if(S.bikeName && txt.indexOf(S.bikeName) >= 0) txt = txt.split(S.bikeName).join(bkNome(S.bikeName));   // o nome do sensor aparece como "Bike 7" quando a bike está no mapa da sala
     $('bikeStatus').textContent = txt; $('bikeStatus').classList.toggle('on', !!on);
     $('bikeBtn').textContent = on ? 'Ligada ✓' : 'Ligar'; $('bikeBtn').classList.toggle('on', !!on);
     if(typeof favsRender === 'function') try{ favsRender(); }catch(e){}
@@ -2480,7 +2493,8 @@ body.ecra4-on #kartCog{display:none!important;}
       aw: me.as ? Math.round(me.sumW / me.as) : 0, mw: Math.round(me.mw),
       iz: Math.round(me.iz), as: Math.round(modo === 'fc' ? me.ts : me.as),
       dev: hasPowerSource() || (modo === 'fc' && myHr() > 0), demo: demo || null, left: null,
-      bn: bikeConnected() && !demo && S.bikeName ? S.bikeName : null,   // nome Bluetooth da bike: o professor põe o aluno no lugar certo do mapa da sala
+      bn: bikeConnected() && !demo && S.bikeName ? S.bikeName : null,
+      bk: (()=>{ const v = bkMeu(); return v ? v.n : null; })(),   // número da bike que o aluno escolheu na planta da sala   // nome Bluetooth da bike: o professor põe o aluno no lugar certo do mapa da sala
       pw: hasPowerSource() && (demo || performance.now() - S.lastPowerAt < 5000) ? true : false,   // bike ligada e a enviar watts; 5 s sem dados (ligação congelada) → o professor passa a contar a FC até os watts voltarem
       rx: me.rx || null, fa: me.fa || null,
       est: semSens && !bikeConnected() && !demo ? (semSens === 'bolso' ? 'b' : 'g') : null,   // sem sensores: watts (e FC) estimados pelo esforço
@@ -6226,7 +6240,7 @@ body.ecra4-on #kartCog{display:none!important;}
     const v = e.target.value.replace(/\D/g, '').slice(0, 4); if(v !== e.target.value) e.target.value = v;
     if(v.length === 4 && !$('joinBtn').disabled){ showJoinError(''); entradaRapida({ pin: v, porPin: true }); }
   });
-  $('bikeBtn').addEventListener('click', ()=> connectBike(false));
+  $('bikeBtn').addEventListener('click', ligarBike); bkPinta();   // com o mapa da sala abre a planta para escolher a bike
   $('showAllBtn').addEventListener('click', ()=> connectBike(true));
   $('ultBikeBtn').addEventListener('click', connectUltBike); ultBikeSync();
   // ecrã 2: desliza para o lado (ou toca nos pontos em baixo)
@@ -6256,7 +6270,7 @@ body.ecra4-on #kartCog{display:none!important;}
     const b = e.target.closest('.fav'); if(b){ const f = favsLe().sort((a, c)=> (a.t === 'bike' ? 0 : 1) - (c.t === 'bike' ? 0 : 1))[+b.dataset.i]; if(f) favLiga(f); }
   });
   favsRender();
-  $('chipBike').addEventListener('click', ()=>{ if(!demo) connectBike(false); });
+  $('chipBike').addEventListener('click', ()=>{ if(!demo) ligarBike(); });
   $('chipHr').addEventListener('click', ()=> connectHr());
   // no Bluefy (iPhone com Bluetooth) pede ecrã inteiro ao entrar; se o Bluefy não deixar, não faz nada
   function tryFullscreen(){
@@ -7283,6 +7297,86 @@ body.ecra4-on #kartCog{display:none!important;}
     const fims = MOOD_FIM[mom][m];
     r.innerHTML = mo.t + ' ' + fims[(dia + m) % fims.length];
   }
+
+  // =====================================================================
+  // ESCOLHER A BIKE NA PLANTA DA SALA: o professor desenha a sala na app PlayRide Coach (menu "Sala") e grava o sensor
+  // (nome Bluetooth) de cada bike. Aqui o aluno vê só os números das bikes, toca na sua e a app liga ao sensor certo
+  // (o nome do sensor fica escondido). Sem mapa da sala, o botão "Ligar" abre a lista do Bluetooth como antes.
+  // =====================================================================
+  const BKS = { mapa: null, sala: null, oc: {} };
+  try{ BKS.cache = JSON.parse(localStorage.getItem('prSalaMapaA') || '{}') || {}; }catch(e){ BKS.cache = {}; }
+  function bkMeu(){ try{ const v = JSON.parse(localStorage.getItem('prBk') || 'null'); return v && Date.now() - (v.t || 0) < 6 * 3600e3 ? v : null; }catch(e){ return null; } }
+  async function bkSala(){
+    if(pin && fbDb){ try{ const v = (await comPrazo(fbDb.ref('sessions/' + pin + '/sala').once('value'), 4000)).val(); if(SALAS[v]) return v; }catch(e){} }
+    const a = (typeof LIVE !== 'undefined' ? LIVE : []).find(x=> x.pin === pin); if(a && SALAS[a.sala]) return a.sala;
+    return salaAluno() || null;
+  }
+  async function bkMapa(sala){
+    if(fbDb){ try{ const v = (await comPrazo(fbDb.ref('salasMapa/' + sala).once('value'), 5000)).val();
+      if(v && Array.isArray(v.b)){ BKS.cache[sala] = v; try{ localStorage.setItem('prSalaMapaA', JSON.stringify(BKS.cache)); }catch(e){} return v; } }catch(e){} }
+    const c = BKS.cache[sala]; return c && Array.isArray(c.b) ? c : null;
+  }
+  async function bkOcupadas(){   // bikes já escolhidas por colegas nesta aula (ficam a cinzento)
+    const oc = {}; if(!pin || !fbDb) return oc;
+    try{ const v = (await comPrazo(fbDb.ref('sessions/' + pin + '/riders').once('value'), 3000)).val() || {}, eu = riderRef && riderRef.key;
+      Object.keys(v).forEach(k=>{ const x = v[k]; if(k !== eu && x && x.bk && !x.left) oc[x.bk] = (x.n || '').split(' ')[0]; }); }catch(e){}
+    return oc;
+  }
+  // botão "Ligar" da bike: com o mapa da sala abre a planta; sem mapa, a lista do Bluetooth
+  // a planta é lida antes de o aluno tocar em "Ligar" (o Bluetooth só abre se for logo a seguir ao toque)
+  async function bkPrepara(){ if(BKS.prep) return; BKS.prep = 1; try{ const sala = await bkSala(); BKS.pre = { pin, sala, m: sala ? await bkMapa(sala) : null }; }catch(e){} BKS.prep = 0; }
+  setInterval(()=>{ if(pin && (!BKS.pre || BKS.pre.pin !== pin)) bkPrepara(); }, 3000);
+  async function ligarBike(){
+    if(demo) return;
+    if(bikeConnected()){ connectBike(false); return; }
+    if(!hasBluetooth){ showBtWarning(); return; }
+    let sala, m;
+    if(BKS.pre && BKS.pre.pin === pin){ sala = BKS.pre.sala; m = BKS.pre.m; bkPrepara(); }
+    else { sala = await bkSala(); m = sala ? await bkMapa(sala) : null; }
+    if(m && m.pl === 0){ connectBike(false); return; }   // o professor escolheu ligar pelo sensor (lista do Bluetooth)
+    if(!m || !m.b.some(b=> !b.p)){ if(!sala && Object.keys(BKS.cache).length) return bkAbre(null, null); connectBike(false); return; }
+    bkAbre(sala, m);
+  }
+  function bkAbre(sala, m){
+    const d = $('bkSheet') || document.body.appendChild(Object.assign(document.createElement('div'), { id: 'bkSheet', className: 'bk-sheet' }));
+    BKS.sala = sala; BKS.mapa = m;
+    const pinta = ()=>{
+      const mm = BKS.mapa, eu = bkMeu();
+      let h = '<div class="bk-box"><div class="bk-h"><b>Em que bike estás?</b><button type="button" class="bk-x" aria-label="Fechar">✕</button></div>' +
+        '<div class="bk-salas">' + Object.keys(SALAS).map(k=> '<button type="button" data-s="' + k + '" class="' + (k === BKS.sala ? 'on' : '') + '">' + SALAS[k] + '</button>').join('') + '</div>';
+      if(!mm || !mm.b.length) h += '<p class="bk-dica">Ainda não há planta desta sala.</p>';
+      else{
+        const xs = mm.b.map(b=> b.x), ys = mm.b.map(b=> b.y), x0 = Math.min(...xs), y0 = Math.min(...ys), W = Math.max(...xs) - x0 + 2, H = Math.max(...ys) - y0 + 2;
+        const cel = Math.min((Math.min(window.innerWidth, 520) - 48) / W, (window.innerHeight * .58) / H, 40);
+        const ecra = '<div class="bk-ecra">ECRÃ</div>';
+        h += (mm.f === 'b' ? '' : ecra) + '<div class="bk-pl" style="width:' + (W * cel) + 'px;height:' + (H * cel) + 'px">' + mm.b.map(b=>{
+          const oc = !b.p && BKS.oc[b.n], meu = eu && eu.s === BKS.sala && eu.n === String(b.n);
+          return '<button type="button" class="bk-b' + (b.p ? ' prof' : '') + (oc ? ' oc' : '') + (meu ? ' meu' : '') + '"' + (b.p ? ' disabled' : '') + ' data-n="' + escapeHtml(String(b.n)) + '" style="left:' + ((b.x - x0) * cel) + 'px;top:' + ((b.y - y0) * cel) + 'px;width:' + (cel * 2 - 6) + 'px;height:' + (cel * 2 - 6) + 'px">' +
+            (b.p ? '🎤' : escapeHtml(String(b.n))) + (oc ? '<small>' + escapeHtml(oc) + '</small>' : '') + '</button>'; }).join('') + '</div>' + (mm.f === 'b' ? ecra : '');
+      }
+      h += '<button type="button" class="bk-lista">A minha bike não está aqui · procurar na lista</button></div>';
+      d.innerHTML = h; d.classList.add('on');
+      d.querySelector('.bk-x').onclick = ()=> d.classList.remove('on');
+      d.onclick = e=>{ if(e.target === d) d.classList.remove('on'); };
+      d.querySelectorAll('.bk-salas [data-s]').forEach(b=> b.onclick = async ()=>{ BKS.sala = b.dataset.s; try{ localStorage.setItem('prSala', BKS.sala); }catch(e){} BKS.mapa = await bkMapa(BKS.sala); pinta(); });
+      d.querySelector('.bk-lista').onclick = ()=>{ d.classList.remove('on'); connectBike(false); };
+      d.querySelectorAll('.bk-b:not(.prof)').forEach(el=> el.onclick = ()=> bkEscolhe(el.dataset.n));
+    };
+    pinta();
+    bkOcupadas().then(oc=>{ BKS.oc = oc; if(d.classList.contains('on')) pinta(); });
+  }
+  function bkEscolhe(n){
+    const b = BKS.mapa && BKS.mapa.b.find(x=> !x.p && String(x.n) === n); if(!b) return;
+    if(BKS.oc[n] && !confirm('A bike ' + n + ' já foi escolhida por ' + BKS.oc[n] + '. É mesmo esta a tua?')) return;
+    try{ localStorage.setItem('prBk', JSON.stringify({ s: BKS.sala, n: n, t: Date.now() })); }catch(e){}
+    me.bk = n; $('bkSheet').classList.remove('on'); bkPinta();
+    if(b.bt){ setBikeStatus('a ligar à bike ' + n + '… pedala para acordar a consola', false); favLiga({ t: 'bike', n: b.bt, bk: n }); }   // liga ao sensor desta bike (o nome do sensor não aparece)
+    else { toast('A bike ' + n + ' ainda não tem o sensor registado: escolhe-a na lista'); connectBike(false); }
+  }
+  // nome a mostrar para um sensor: o número da bike no mapa da sala (o nome Bluetooth fica escondido)
+  function bkNome(bt){ const c = (typeof BKS !== 'undefined' && BKS.cache) || {}, N = String(bt || '').trim().toUpperCase();
+    for(const k in c){ const b = c[k] && c[k].pl !== 0 && Array.isArray(c[k].b) && c[k].b.find(x=> !x.p && x.bt && String(x.bt).trim().toUpperCase() === N); if(b) return 'Bike ' + b.n; } return bt; }
+  function bkPinta(){ const el = $('bkNum'), v = bkMeu(); if(!el) return; el.hidden = !v; if(v) el.textContent = v.n; }
   // =====================================================================
   // ENTRADA RÁPIDA: a app vê as aulas a decorrer no estúdio (live/{sala}/{pin}, anunciadas pela projeção).
   // Tocar no emoji do humor é o próprio botão de entrar: entra na aula sem PIN, abre logo a lista do Bluetooth
