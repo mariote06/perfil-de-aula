@@ -1793,6 +1793,19 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 .ct-tm{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(110px,22vh,260px);line-height:.85;color:#fff;font-variant-numeric:tabular-nums}
 .ct-nx{font-size:clamp(16px,2.4vh,28px);color:rgba(255,255,255,.7);white-space:nowrap}
 .live-overlay.crFull #crCv{flex:1}
+/* corrida ecrã total v2: bloco mais pequeno, tempo ao centro, próximo bloco à direita, bicicletas maiores */
+.cr-top{align-items:center!important;gap:24px!important;padding:clamp(8px,1.4vh,16px) clamp(18px,2vw,36px)!important;border-top-width:8px!important}
+.ct-l{flex:1 1 0!important}
+.ct-b{font-size:clamp(13px,1.6vh,18px)!important}
+.ct-t{font-size:clamp(24px,3.6vh,42px)!important;margin-bottom:4px!important}
+.ct-z{font-size:clamp(18px,2.7vh,32px)!important}
+.ct-r{font-size:clamp(17px,2.5vh,30px)!important}
+.cr-top .ct-tm{flex:none;font-size:clamp(80px,14vh,170px)!important;line-height:.85;text-align:center}
+.cr-top .ct-nx{flex:1 1 0;display:flex;flex-direction:column;align-items:flex-end;text-align:right;white-space:normal;border-right:8px solid var(--nc);padding-right:14px}
+.cr-top .ct-nx span{font-size:clamp(12px,1.5vh,17px);font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.55)}
+.cr-top .ct-nx b{font-size:clamp(22px,3.2vh,38px);color:#fff;line-height:1.1}
+.cr-top .ct-nx em{font-style:normal;font-size:clamp(17px,2.4vh,28px);font-weight:700;color:var(--nc)}
+.cr-top .ct-nx small{font-size:clamp(14px,1.9vh,22px);color:rgba(255,255,255,.7)}
 </style>
 </head>
 <body data-view="home">
@@ -2087,6 +2100,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       <div class="rp-head">
         <div class="rp-title" id="rpTitle">Turma</div>
         <div class="rp-meta" id="rpMeta"></div>
+        <button type="button" class="cr-fs" id="crCrit" hidden title="O que conta na corrida: distância (velocidade), % do tempo dentro da zona ou pontos (também no God Mode)">Conta: distância</button>
         <button type="button" class="cr-fs" id="crFs" hidden title="Corrida em ecrã total: o bloco em cima e a corrida em baixo (tecla T)">⛶ Ecrã total</button>
       </div>
       <div class="cr-top" id="crTop" hidden></div>
@@ -4007,7 +4021,8 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, alvo:alvoOf(x), teste:x.teste ? true : null, rpm:x.rpm, rpm2:x.rpm2||null, tipo:x.tipo||null, tecnica:x.tecnica||'', jogo:x.jogo||null})),
       state: { blockIndex: 0, status: 'paused', remainingAtStart: blockDurationSec(b), startedAt: TS() },
       raceMetric: raceMetric,
-      sala: salaLive(),   // estúdio da aula: a app do aluno mostra a planta desta sala para escolher a bike
+      sala: salaLive(),
+      crit: (typeof CR !== 'undefined' && CR.crit) || 'dist',   // o que conta na corrida (a app do aluno ordena igual)   // estúdio da aula: a app do aluno mostra a planta desta sala para escolher a bike
       createdAt: TS(),
       updatedAt: TS()
     });
@@ -4239,6 +4254,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     else if(c.a === 'par' && GOD_LIM[c.k]){ const L = GOD_LIM[c.k]; let v = Math.round(Number(c.v)); if(!isFinite(v)) v = GOD_PAR0[c.k]; JG.par[c.k] = Math.max(L[0], Math.min(L[1], v)); }
     else if(c.a === 'par0') JG.par = Object.assign({}, GOD_PAR0);
     else if(c.a === 'ped' && c.id){ PED.responde(String(c.id), !!c.ok); }   // aceitar / recusar a entrada de um aluno (do telemóvel)
+    else if(c.a === 'crit'){ crCritPoe(String(c.v)); }
     else if(c.a === 'pedTodos'){ PED.lista().forEach(q=> PED.responde(q[0], true)); }
     if(c.a === 'par' || c.a === 'par0'){ try{ localStorage.setItem('prGodPar', JSON.stringify(JG.par)); }catch(e){} }
     JG.pushT = 0; jgPush();
@@ -4269,7 +4285,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     const t0 = performance.now();
     return { par: JG.par, r: ridingRiders().map(r=>{ const F = (JG.fx || {})[r.id] || {};
       return [r.id, r.n || 'Aluno', r.online ? 1 : 0, Math.round(r.w || 0), r.ftp || 0, r.hr || 0, JG.z && JG.z[r.id] ? 1 : 0, (F.b > t0 ? 1 : 0) + (F.t > t0 ? 2 : 0) + (F.G > t0 ? 4 : 0) + (F.V > t0 ? 8 : 0) + (F.R > t0 ? 16 : 0)]; }),
-      ped: PED.lista() };   // pedidos para entrar na aula: o professor aceita no telemóvel
+      ped: PED.lista(), crit: CR.crit };   // pedidos para entrar na aula: o professor aceita no telemóvel
   }
   // botão ⚡ God (tecla 4): ligar/desligar e escolher a conta
   function godConfig(){
@@ -4838,6 +4854,9 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       const sl = Math.max(0.02, Math.min(0.12, 0.03 + (80 - r) * 0.0035 + (zi - 1) * 0.005));
       return { t:'sobe', slope:sl, kmh:Math.round(srVRef(P, sl)), zi };
     }
+    // Z1 no início da aula é aquecimento: sempre em plano (só desce o Z1 depois de o treino começar a sério e o retorno à calma)
+    { const BL = current.blocos || [], ix = BL.indexOf(b);
+      if(b.tipo !== 'cool' && zi === 0 && ix >= 0 && BL.slice(0, ix).every(x=> !x.tipo && zs.indexOf(getZone(x.ftp || 0, mm)) <= 0)) return { t:'plano', slope:0, kmh:Math.round(srVRef(P, 0)), zi }; }
     if(b.tipo === 'cool' || zi === 0) return { t:'desce', slope:-0.045, kmh:Math.round(srVRef(P, -0.045)), zi };   // Z1 e retorno à calma
     if(zi >= 6 || /sprint/i.test(tec)) return { t:'sprint', slope:0, kmh:Math.round(srVRef(Math.max(P, 230 * 1.5), 0)), zi };   // Z7: sprint em plano
     return { t:'plano', slope:0, kmh:Math.round(srVRef(P, 0)), zi };   // plano: 80–115 rpm
@@ -9324,7 +9343,7 @@ const SR3 = (()=>{
     if(cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)){ cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     const key = current.blocos.length + ':' + totalDuration(current.blocos) + ':' + modoAtual() + ':' + SR.tema + (SR.rota || '');
-    if(SR.key !== key){ SR.key = key; srPista(); }
+    if(SR.key !== key){ SR.key = key; srPista(); try{ if(liveShade) drawLiveProfile(); }catch(e){} }
     srSpritesTema();
     const T = srPal();
     const tk = SR.trk, segs = tk.segs, N = segs.length;
@@ -9667,11 +9686,12 @@ const SR3 = (()=>{
     const z = blkZone(b), zc = zoneColor(z.css), nx = current.blocos[liveIdx + 1];
     const alvo = b.teste ? 'Teste FTP · o mais forte possível' : (modoAtual() === 'zonas' ? '' : lblInt(b) + (modoAtual() === 'fc' ? ' FC máx' : ' FTP') + ' · ') + zNome(z, current.blocos, liveIdx);
     el.style.setProperty('--zc', zc);
+    const nxz = nx ? blkZone(nx) : null;
     el.innerHTML = '<div class="ct-l"><div class="ct-b">Bloco ' + (liveIdx + 1) + ' de ' + current.blocos.length + '</div><div class="ct-t">' + escapeHtml(b.tecnica || b.nome || z.name) + '</div>' +
-      '<div class="ct-z">' + escapeHtml(alvo) + '</div>' + (b.rpm ? '<div class="ct-r">' + rpmTxt(b) + ' rpm</div>' : '') +
-      '<div class="ct-f">' + escapeHtml($('liveFeel') ? $('liveFeel').textContent : '') + '</div></div>' +
-      '<div class="ct-d"><div class="ct-tm">' + fmtCountdown(liveRemaining) + '</div>' +
-      (nx ? '<div class="ct-nx">A seguir: ' + escapeHtml(nx.tecnica || nx.nome || blkZone(nx).name) + ' · ' + (b.teste ? '' : lblInt(nx)) + '</div>' : '<div class="ct-nx">Último bloco · força até ao fim! 💪</div>') + '</div>';
+      '<div class="ct-z">' + escapeHtml(alvo) + '</div>' + (b.rpm ? '<div class="ct-r">' + rpmTxt(b) + ' rpm</div>' : '') + '</div>' +
+      '<div class="ct-tm">' + fmtCountdown(liveRemaining) + '</div>' +
+      (nx ? '<div class="ct-nx" style="--nc:' + zoneColor(nxz.css) + '"><span>A seguir</span><b>' + escapeHtml(nx.tecnica || nx.nome || nxz.name) + '</b><em>' + escapeHtml(nx.teste ? 'Teste FTP' : lblInt(nx) + (modoAtual() === 'fc' ? ' FC máx' : ' FTP') + ' · ' + zNome(nxz, current.blocos, liveIdx + 1)) + '</em><small>' + (nx.rpm ? rpmTxt(nx) + ' rpm · ' : '') + fmtTime(blockDurationSec(nx)) + '</small></div>'
+          : '<div class="ct-nx" style="--nc:#fff"><span>Último bloco</span><b>Força até ao fim! 💪</b></div>');
   }
   function crPct(r){ return modoAtual() === 'fc' ? ((r.fc && r.hr) ? r.hr / r.fc * 100 : null) : (r.ftp ? (r.w || 0) / r.ftp * 100 : null); }
   function crPerna(hx, hy, fx, fy, L){ const dx = fx - hx, dy = fy - hy, d = Math.min(Math.hypot(dx, dy), 2 * L - .01), a = Math.atan2(dy, dx), b = Math.acos(d / (2 * L)); return [hx + L * Math.cos(a - b), hy + L * Math.sin(a - b)]; }
@@ -9689,6 +9709,17 @@ const SR3 = (()=>{
     ctx.fillStyle = cor; ctx.beginPath(); ctx.arc(...P(21, -55), 7 * s, Math.PI, 0); ctx.fill();   // capacete
     ctx.restore();
   }
+  // o que conta na corrida: distância (velocidade), % do tempo dentro da zona, ou pontos — escolhido aqui ou no God Mode
+  const CR_CRIT = { dist: 'distância', zona: '% na zona', pts: 'pontos' };
+  try{ CR.crit = CR_CRIT[localStorage.getItem('prCrCrit')] ? localStorage.getItem('prCrCrit') : 'dist'; }catch(e){ CR.crit = 'dist'; }
+  function crCritPoe(k){ if(!CR_CRIT[k]) return; CR.crit = k; try{ localStorage.setItem('prCrCrit', k); }catch(e){} try{ if(fbDb && sessionPin) sessionRef(sessionPin).child('crit').set(k).catch(()=>{}); }catch(e){} JG.pushT = 0; try{ jgPush(); }catch(e){} renderRiders(); }
+  function crZona(r){ return (r.as || 0) > 0 ? Math.min(100, (r.iz || 0) / r.as * 100) : 0; }
+  function crVal(r){ return CR.crit === 'zona' ? crZona(r) : CR.crit === 'pts' ? (r.pts || 0) : (r.km || 0); }
+  function crGap(a, b){
+    if(CR.crit === 'zona') return Math.max(0, Math.round(crZona(a) - crZona(b))) + ' %';
+    if(CR.crit === 'pts') return Math.max(0, Math.round((a.pts || 0) - (b.pts || 0))) + ' pts';
+    const m = Math.max(0, Math.round(((a.km || 0) - (b.km || 0)) * 1000)); return m >= 1000 ? (m / 1000).toFixed(2).replace('.', ',') + ' km' : m + ' m';
+  }
   function crFrame(t){
     CR.raf = requestAnimationFrame(crFrame);
     const cv = $('crCv'); if(!cv || cv.style.display === 'none' || !$('liveOverlay').classList.contains('active')) return;
@@ -9696,54 +9727,75 @@ const SR3 = (()=>{
     const d = Math.min(2, window.devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight; if(!W || !H) return;
     if(cv.width !== Math.round(W * d) || cv.height !== Math.round(H * d)){ cv.width = Math.round(W * d); cv.height = Math.round(H * d); }
     const ctx = cv.getContext('2d'); ctx.setTransform(d, 0, 0, d, 0, 0); ctx.clearRect(0, 0, W, H);
-    const L = CR.list; if(!L.length) return;
-    const nPista = Math.max(1, Math.min(L.length, H > 760 ? 7 : H > 560 ? 6 : 5)), pista = L.slice(0, nPista), resto = L.slice(nPista);
-    const listaW = resto.length ? Math.min(300, W * .27) : 0, pW = W - listaW, lh = H / nPista, sc = Math.min(1.5, lh / 92);
-    const lider = Math.max(1, metricVal(L[0]));
+    // ordem pela distância percorrida; 5 bicicletas por pista (1º–5º, 6º–10º…), até 25
+    const L = CR.list.slice().sort((a, b)=> crVal(b) - crVal(a) || (b.km || 0) - (a.km || 0)).slice(0, 25); if(!L.length) return;
+    const POR = 5, nF = Math.ceil(L.length / POR), topo = Math.min(56, H * .07), fh = (H - topo) / Math.max(nF, 2), sw = (W - 40) / POR;
+    const sc = Math.max(.5, Math.min(1.6, fh / 118, sw / 150));
     CR.chao = (CR.chao + dt * 140) % 46;
-    pista.forEach((r, i)=>{
-      const S = CR.st[r.id] || (CR.st[r.id] = { ang: Math.random() * 6, x: null });
-      const pct = crPct(r), cor = zoneColor((pct == null ? zonesOf()[0] : getZone(pct)).css) || '#888';
-      S.ang += dt * 2 * Math.PI * Math.max(0, r.c || 0) / 60;
-      const alvo = 120 * sc + (pW - 360 * sc) * Math.max(0, metricVal(r)) / lider;
-      S.x = S.x == null ? alvo : S.x + (alvo - S.x) * Math.min(1, dt * 2.5);
-      const gy = lh * (i + 1) - 14 * sc;
-      // estrada da faixa: linha tracejada a correr
-      ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = 2; for(let x = -CR.chao; x < pW; x += 46){ ctx.beginPath(); ctx.moveTo(x, gy + 20 * sc); ctx.lineTo(x + 22, gy + 20 * sc); ctx.stroke(); }
-      if(i) { ctx.fillStyle = 'rgba(255,255,255,.04)'; ctx.fillRect(0, lh * i, pW, 1); }
-      // rasto de velocidade na cor da zona
-      const len = (30 + Math.min(180, (pct || 50)) * .9) * sc, g = ctx.createLinearGradient(S.x - 40 * sc - len, 0, S.x - 40 * sc, 0);
-      g.addColorStop(0, 'transparent'); g.addColorStop(1, cor + 'AA'); ctx.fillStyle = g; ctx.fillRect(S.x - 40 * sc - len, gy - 40 * sc, len, 6 * sc); ctx.fillRect(S.x - 40 * sc - len * .7, gy - 26 * sc, len * .7, 4 * sc);
-      crCiclista(ctx, S.x, gy, S.ang, cor, sc, !r.online);
-      // posição, nome e valores
-      const fx = S.x + 52 * sc, fy = gy - 46 * sc;
-      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
-      ctx.fillStyle = i === 0 ? '#FFD60A' : i === 1 ? '#C9D1DB' : i === 2 ? '#CD8A4A' : 'rgba(255,255,255,.7)';
-      ctx.font = '800 ' + Math.round(26 * sc) + 'px "Barlow Condensed",sans-serif'; ctx.fillText((i + 1) + 'º', fx, fy);
-      const pw = ctx.measureText((i + 1) + 'º ').width;
-      ctx.fillStyle = '#fff'; ctx.font = '800 ' + Math.round(26 * sc) + 'px "Barlow Condensed",sans-serif'; ctx.fillText(String(r.n || '?').split(' ').slice(0, 2).join(' '), fx + pw, fy);
-      ctx.font = '700 ' + Math.round(19 * sc) + 'px "Barlow Condensed",sans-serif';
-      ctx.fillStyle = cor; ctx.fillText(Math.round(r.w || 0) + ' W' + (pct != null ? ' · ' + Math.round(pct) + '%' : ''), fx, fy + 22 * sc);
-      ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.fillText(metricFmt(metricVal(r)) + ' ' + (raceMetric === 'kj' ? 'kJ' : 'pts'), fx, fy + 42 * sc);
-    });
-    if(resto.length){   // lista dos restantes
-      ctx.fillStyle = 'rgba(255,255,255,.04)'; ctx.fillRect(pW, 0, listaW, H);
-      const rh = Math.min(40, (H - 16) / resto.length), fs = Math.max(13, Math.min(22, rh * .58));
-      resto.forEach((r, k)=>{ const y = 10 + rh * (k + .7), pct = crPct(r), cor = zoneColor((pct == null ? zonesOf()[0] : getZone(pct)).css) || '#888';
-        ctx.globalAlpha = r.online ? 1 : .4;
-        ctx.fillStyle = cor; ctx.beginPath(); ctx.arc(pW + 16, y - fs * .32, fs * .3, 0, 7); ctx.fill();
-        ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = '700 ' + fs + 'px "Barlow Condensed",sans-serif';
-        ctx.fillText((nPista + k + 1) + 'º ' + String(r.n || '?'), pW + 30, y);
-        ctx.textAlign = 'right'; ctx.fillStyle = cor; ctx.fillText(Math.round(r.w || 0) + ' W', pW + listaW - 10, y);
-        ctx.globalAlpha = 1; });
+    const gapTxt = crGap;
+    // cada pista: o primeiro da pista fica à direita; os outros afastam-se ou aproximam-se conforme a diferença (escala estável)
+    const xR = W - 20 - .5 * sw, larg = W - 40 - sw * .9, minSep = Math.min(sw * .98, 165 * sc);
+    // escala de cada pista (muda devagar): vê-se quem se aproxima e quem se afasta
+    CR.escF = CR.escF || [];
+    for(let f = 0; f < nF; f++){ const a = L[f * POR], z = L[Math.min(L.length - 1, f * POR + POR - 1)], sp = crVal(a) - crVal(z), alvo = sp > 0 ? larg / sp : 0;
+      CR.escF[f] = CR.escF[f] ? CR.escF[f] + (alvo - CR.escF[f]) * Math.min(1, dt * .4) : alvo; }
+    const alvoX = new Array(L.length);
+    for(let k = 0; k < L.length; k++){ const lead = L[Math.floor(k / POR) * POR];
+      let x = k % POR === 0 ? xR : xR - (crVal(lead) - crVal(L[k])) * (CR.escF[Math.floor(k / POR)] || 0);
+      if(k % POR) x = Math.min(x, alvoX[k - 1] - minSep);
+      alvoX[k] = Math.max(20 + .45 * sw * .6, x); }
+    for(let k = L.length - 1; k >= 0; k--){ if(k % POR !== POR - 1 && k + 1 < L.length && Math.floor((k + 1) / POR) === Math.floor(k / POR)) alvoX[k] = Math.max(alvoX[k], alvoX[k + 1] + minSep); }
+    L.forEach((r, k)=>{ const S = CR.st[r.id] || (CR.st[r.id] = { ang: Math.random() * 6 }); S.px = S.px == null ? alvoX[k] : S.px + (alvoX[k] - S.px) * Math.min(1, dt * 3); S.py = topo + Math.floor(k / POR) * fh + fh - 34 * sc; S.pyS = S.pyS == null ? S.py : S.pyS + (S.py - S.pyS) * Math.min(1, dt * 7); });
+    // nunca se sobrepõem: dentro de cada pista, cada bicicleta fica pelo menos minSep atrás da da frente
+    const dx = L.map(r=> CR.st[r.id].px), xMin = 20 + 70 * sc;
+    for(let k = 0; k < L.length; k++){ if(k % POR) dx[k] = Math.min(dx[k], dx[k - 1] - minSep); }
+    for(let f = 0; f < nF; f++){ const i0 = f * POR, i1 = Math.min(L.length, i0 + POR) - 1; if(dx[i1] < xMin){ const fixo = dx[i0], esc = (fixo - xMin) / Math.max(1, fixo - dx[i1]); for(let k = i0 + 1; k <= i1; k++) dx[k] = fixo - (fixo - dx[k]) * esc; } }
+    const pos = k=> ({ x: dx[k], y: CR.st[L[k].id].pyS });
+    for(let f = 0; f < nF; f++){   // estrada de cada pista
+      const gy = topo + f * fh + fh - 34 * sc + 20 * sc;
+      ctx.strokeStyle = 'rgba(255,255,255,.09)'; ctx.lineWidth = 2; for(let x = -CR.chao; x < W; x += 46){ ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x + 22, gy); ctx.stroke(); }
+      if(f){ ctx.fillStyle = 'rgba(255,255,255,.05)'; ctx.fillRect(0, topo + f * fh, W, 1); }
     }
+    // linhas da distância entre bicicletas seguidas
+    ctx.font = '800 ' + Math.round(18 * sc) + 'px "Barlow Condensed",sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    for(let k = 1; k < L.length; k++){
+      const a = pos(k - 1), b = pos(k), y = b.y + 20 * sc, txt = gapTxt(L[k - 1], L[k]);
+      if(k % POR){   // mesma pista: entre a de trás e a da frente
+        const x1 = b.x + 34 * sc, x2 = a.x - 34 * sc; if(x2 - x1 < 20) continue;
+        ctx.strokeStyle = 'rgba(255,214,10,.55)'; ctx.lineWidth = 2 * sc; ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.moveTo(x1, y - 6 * sc); ctx.lineTo(x1, y + 6 * sc); ctx.moveTo(x2, y - 6 * sc); ctx.lineTo(x2, y + 6 * sc); ctx.stroke();
+        const xm = (x1 + x2) / 2, tw = ctx.measureText(txt).width + 12 * sc;
+        ctx.fillStyle = '#0A0D12'; ctx.fillRect(xm - tw / 2, y - 11 * sc, tw, 22 * sc); ctx.fillStyle = '#FFD60A'; ctx.fillText(txt, xm, y);
+      } else {   // mudança de pista: do último da pista de cima (5º) para o primeiro da seguinte (6º)
+        const x2 = W - 8, x1 = b.x + 34 * sc, ya = a.y + 20 * sc;
+        ctx.strokeStyle = 'rgba(255,214,10,.55)'; ctx.lineWidth = 2 * sc; ctx.setLineDash([6 * sc, 5 * sc]); ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.lineTo(x2, ya); ctx.lineTo(a.x - 34 * sc, ya); ctx.stroke(); ctx.setLineDash([]);
+        const xm = (x1 + x2) / 2, lbl = '↑ ' + (k) + 'º · ' + txt, tw = ctx.measureText(lbl).width + 12 * sc;
+        ctx.fillStyle = '#0A0D12'; ctx.fillRect(xm - tw / 2, y - 11 * sc, tw, 22 * sc); ctx.fillStyle = '#FFD60A'; ctx.fillText(lbl, xm, y);
+      }
+    }
+    // bicicletas
+    L.forEach((r, k)=>{
+      const S = CR.st[r.id] || (CR.st[r.id] = { ang: Math.random() * 6 });
+      const pct = crPct(r), cor = zoneColor((pct == null ? zonesOf()[0] : getZone(pct)).css) || '#888', P = pos(k);
+      S.ang += dt * 2 * Math.PI * Math.max(0, r.c || 0) / 60;
+      const len = (20 + Math.min(180, (pct || 50)) * .45) * sc, g = ctx.createLinearGradient(P.x - 36 * sc - len, 0, P.x - 36 * sc, 0);
+      g.addColorStop(0, 'transparent'); g.addColorStop(1, cor + 'AA'); ctx.fillStyle = g; ctx.fillRect(P.x - 36 * sc - len, P.y - 40 * sc, len, 5 * sc);
+      crCiclista(ctx, P.x, P.y, S.ang, cor, sc, !r.online);
+      ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic';
+      const ty = P.y - 86 * sc;
+      ctx.font = '800 ' + Math.round(24 * sc) + 'px "Barlow Condensed",sans-serif';
+      const po = (k + 1) + 'º ', nm = String(r.n || '?').split(' ').slice(0, 2).join(' '), wpo = ctx.measureText(po).width, wnm = ctx.measureText(nm).width, x0 = P.x - (wpo + wnm) / 2;
+      ctx.textAlign = 'left'; ctx.fillStyle = k === 0 ? '#FFD60A' : k === 1 ? '#C9D1DB' : k === 2 ? '#CD8A4A' : 'rgba(255,255,255,.7)'; ctx.fillText(po, x0, ty);
+      ctx.fillStyle = '#fff'; ctx.fillText(nm, x0 + wpo, ty);
+      ctx.textAlign = 'center'; ctx.font = '700 ' + Math.round(19 * sc) + 'px "Barlow Condensed",sans-serif'; ctx.fillStyle = cor;
+      ctx.fillText(Math.round(r.w || 0) + ' W · ' + (r.v || 0).toFixed(1).replace('.', ',') + ' km/h' + (CR.crit === 'zona' ? ' · ' + Math.round(crZona(r)) + '% zona' : CR.crit === 'pts' ? ' · ' + Math.round(r.pts || 0) + ' pts' : ''), P.x, ty + 21 * sc);
+    });
   }
   function renderRiders(){
     if(!$('liveOverlay').classList.contains('active')) return;
     jgTick();
     const mode = applyMode();
     if(mode !== 'corrida') crMostra(false);
-    { const f = mode === 'corrida' && CR.full; $('liveOverlay').classList.toggle('crFull', f); $('crTop').hidden = !f; $('crFs').hidden = mode !== 'corrida'; $('crFs').textContent = CR.full ? '✕ Sair do ecrã total' : '⛶ Ecrã total'; }
+    { const f = mode === 'corrida' && CR.full; $('liveOverlay').classList.toggle('crFull', f); $('crTop').hidden = !f; $('crFs').hidden = mode !== 'corrida'; $('crCrit').hidden = mode !== 'corrida'; $('crCrit').textContent = 'Conta: ' + CR_CRIT[CR.crit] + ' ▾'; $('crFs').textContent = CR.full ? '✕ Sair do ecrã total' : '⛶ Ecrã total'; }
     if(mode === 'aula') return;
     const gpn = $('gamePanel');
     if(mode === 'jogos' || mode === 'percurso'){
@@ -9765,7 +9817,7 @@ const SR3 = (()=>{
     const block = current.blocos[liveIdx];
     const targetZone = block ? getZone(block.ftp).name : null;
 
-    $('rpTitle').textContent = mode === 'corrida' ? 'Corrida · ' + metricLabel() : 'Turma';
+    $('rpTitle').textContent = mode === 'corrida' ? 'Corrida · ' + CR_CRIT[CR.crit] : 'Turma';
     gpn.innerHTML = '';
     $('rpMeta').innerHTML = '<b>' + online.length + '</b> a pedalar' + (watchers ? ' · ' + watchers + ' a acompanhar' : '') +
       ' · total <b>' + metricFmt(teamTotal) + '</b> ' + metricLabel() + (ocultos ? ' · <span title="Pedalam e ficam no relatório, mas pediram para não aparecer no ecrã">🙈 ' + ocultos + ' oculto' + (ocultos > 1 ? 's' : '') + '</span>' : '');
@@ -10911,17 +10963,58 @@ const SR3 = (()=>{
 
   // perfil grande no topo da projeção, com a parte já feita destacada
   let liveShade = null, liveMarkerLine = null;
+  // Telemetria do percurso no topo da projeção: a altimetria da aula ao longo do tempo, cada troço na cor da zona do bloco.
+  // Com o percurso montado (Serra, Néon, percursos reais…) usa as cotas da estrada; sem ele, calcula-as pelo terreno de cada bloco.
+  function liveAltim(){
+    const BL = current.blocos || [], pts = [];   // [{t, y, b}] t em segundos desde o início, y em metros
+    const T = SR.trk, okT = T && T.segs && T.bStart && T.bStart.length === BL.length && SR.key;
+    let t0 = 0;
+    if(okT){
+      BL.forEach((b, i)=>{ const a = T.bStart[i], z = i + 1 < BL.length ? T.bStart[i + 1] : T.segs.length, n = Math.max(1, z - a), d = blockDurationSec(b);
+        for(let k = a; k < z; k += Math.max(1, Math.floor(n / 60))) pts.push({ t: t0 + (k - a) / n * d, y: T.segs[k].y / SR_M / SR_EXG, b: i });
+        pts.push({ t: t0 + d, y: T.segs[Math.max(a, z - 1)].y / SR_M / SR_EXG, b: i }); t0 += d; });
+    } else {
+      let y = 0;
+      BL.forEach((b, i)=>{ const tr = srTerreno(b), d = blockDurationSec(b), n = 40, dist = d * tr.kmh / 3.6;
+        for(let k = 0; k <= n; k++){
+          if(k){ const e = Math.min(1, k / 8, (n - k + 1) / 8); y += tr.slope * e * dist / n; }
+          pts.push({ t: t0 + k / n * d, y, b: i }); }
+        t0 += d; });
+    }
+    // as descidas (Z1 e retorno à calma) andam depressa e cavavam vales enormes que achatavam as subidas: no gráfico descem a 1/3
+    let ac = 0, prev = pts.length ? pts[0].y : 0; pts.forEach(p=>{ const d = p.y - prev; prev = p.y; ac += d < 0 ? d * .35 : d; p.y = ac; });
+    return { pts, tot: t0 || 1 };
+  }
   function drawLiveProfile(){
-    const svg = $('liveProfileSvg');
-    drawProfileSvg(svg, current.blocos, 1000, 76, 4, modoAtual());
-    liveShade = document.createElementNS('http://www.w3.org/2000/svg','rect');
-    liveShade.setAttribute('y','0'); liveShade.setAttribute('height','76');
-    liveShade.setAttribute('fill','rgba(5,7,10,0.6)');
-    svg.appendChild(liveShade);
-    liveMarkerLine = document.createElementNS('http://www.w3.org/2000/svg','rect');
-    liveMarkerLine.setAttribute('y','0'); liveMarkerLine.setAttribute('height','76');
-    liveMarkerLine.setAttribute('width','3'); liveMarkerLine.setAttribute('fill','#ffffff');
-    svg.appendChild(liveMarkerLine);
+    const svg = $('liveProfileSvg'); if(!svg) return;
+    const NS = 'http://www.w3.org/2000/svg', W = 1000, H = 76, BAR = 5, TOP = 8, BOT = H - BAR - 2;
+    svg.innerHTML = '';
+    const BL = current.blocos || []; if(!BL.length) return;
+    const { pts, tot } = liveAltim();
+    let mn = Infinity, mx = -Infinity; pts.forEach(p=>{ mn = Math.min(mn, p.y); mx = Math.max(mx, p.y); });
+    const amp = Math.max(mx - mn, 25);   // relevo mínimo de 25 m para uma aula plana não parecer uma montanha
+    const BASE = (BOT - TOP) * .22, X = t => t / tot * W, Y = y => BOT - BASE - (y - mn) / amp * (BOT - TOP - BASE);   // o ponto mais baixo fica com um pouco de cor por baixo
+    const defs = document.createElementNS(NS, 'defs'); svg.appendChild(defs);
+    const el = (n, a)=>{ const e = document.createElementNS(NS, n); for(const k in a) e.setAttribute(k, a[k]); return e; };
+    // linhas de referência suaves
+    [.33, .66].forEach(f=> svg.appendChild(el('line', { x1: 0, x2: W, y1: (TOP + (BOT - TOP) * f).toFixed(1), y2: (TOP + (BOT - TOP) * f).toFixed(1), stroke: 'rgba(255,255,255,.06)', 'stroke-width': 1, 'vector-effect': 'non-scaling-stroke' })));
+    BL.forEach((b, i)=>{
+      const P = pts.filter(p=> p.b === i); if(!P.length) return;
+      const cor = zoneColor(blkZone(b).css), gid = 'lpg' + i;
+      const g = el('linearGradient', { id: gid, x1: 0, y1: 0, x2: 0, y2: 1 });
+      g.appendChild(el('stop', { offset: 0, 'stop-color': cor, 'stop-opacity': .85 })); g.appendChild(el('stop', { offset: 1, 'stop-color': cor, 'stop-opacity': .18 }));
+      defs.appendChild(g);
+      const lin = P.map(p=> X(p.t).toFixed(1) + ',' + Y(p.y).toFixed(1)).join(' L');
+      const x0 = X(P[0].t).toFixed(1), x1 = X(P[P.length - 1].t).toFixed(1);
+      svg.appendChild(el('path', { d: 'M' + x0 + ',' + BOT + ' L' + lin + ' L' + x1 + ',' + BOT + ' Z', fill: 'url(#' + gid + ')' }));
+      svg.appendChild(el('path', { d: 'M' + lin, fill: 'none', stroke: cor, 'stroke-width': 2.5, 'stroke-linejoin': 'round', 'vector-effect': 'non-scaling-stroke' }));
+      // faixa da zona por baixo da altimetria
+      svg.appendChild(el('rect', { x: x0, y: H - BAR, width: Math.max(0, x1 - x0 - .8).toFixed(1), height: BAR, fill: cor }));
+      if(i) svg.appendChild(el('line', { x1: x0, x2: x0, y1: Y(P[0].y).toFixed(1), y2: H, stroke: 'rgba(5,7,10,.55)', 'stroke-width': 1, 'vector-effect': 'non-scaling-stroke' }));
+    });
+    liveShade = el('rect', { y: 0, height: H, fill: 'rgba(5,7,10,0.5)' }); svg.appendChild(liveShade);
+    liveMarkerLine = el('rect', { y: 0, height: H, width: 3, fill: '#ffffff' }); svg.appendChild(liveMarkerLine);
+    updateLiveProgressMarker();
   }
 
   function elapsedNow(){
@@ -11433,6 +11526,7 @@ const SR3 = (()=>{
   function pvPercurso(){ modoFixo = false; const b = current.blocos[liveIdx]; jgMudouBloco(b); }
   $('pvPerc').onclick = pvPercurso;
   $('crFs').onclick = crFullTroca;
+  $('crCrit').onclick = ()=>{ const K = Object.keys(CR_CRIT); crCritPoe(K[(K.indexOf(CR.crit) + 1) % K.length]); };
   $('godBtn').onclick = godConfig;   // God Mode na app PlayRide do professor: ligar/desligar e escolher a conta (tecla 4)
   document.querySelectorAll('.ctrl-group [data-mode]').forEach(btn=>{
     btn.addEventListener('click', ()=>{ viewMode = btn.dataset.mode; modoFixo = true; renderRiders(); applyMode(); });

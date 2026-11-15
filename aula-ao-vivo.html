@@ -1141,6 +1141,8 @@ body:has(#setupScreen.active) .legal{display:none}
 .rv-d{grid-area:d;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px}.rv-d.fr{color:#FF5A5A}.rv-d.tr{color:#3DD45C}
 .rv-v{grid-area:v;font-size:13px;color:#a9b6c4}.rv-w{grid-area:w;font-size:13px;color:#a9b6c4;text-align:right}
 .rv-v b,.rv-w b{font-family:'Barlow Condensed',sans-serif;font-size:20px;color:#fff}
+.god-crit{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.god-crit button{background:#232838;border:1px solid #39405A;color:#fff;border-radius:12px;padding:10px 4px;font:700 14px/1.2 'Inter',sans-serif}
+.god-crit button small{display:block;font-size:11px;font-weight:600;color:#9AA3B2;margin-top:2px}.god-crit button.on{background:#3B2F66;border-color:#A78BFA;box-shadow:0 0 0 2px #A78BFA55}
 </style>
 </head>
 <body>
@@ -2886,6 +2888,7 @@ body:has(#setupScreen.active) .legal{display:none}
     while(GOD_ENV.length && Date.now() - GOD_ENV[0][1] > 30000){ const o = GOD_ENV.shift(); try{ riderRef.child('gc/' + o[0]).remove(); }catch(e){} }   // limpa os pedidos antigos
   }
   function godPronto(p){
+    p.addEventListener('click', e=>{ const c = e.target.closest('[data-crit]'); if(!c) return; godEnvia({ a: 'crit', v: c.dataset.crit }); toast('Corrida: conta ' + c.textContent.replace(/^\S+\s/, '').replace(/(velocidade|precisão)$/, '')); });
     p.addEventListener('click', e=>{ const q = e.target.closest('[data-ped],[data-pt]');
       if(q){ if(q.dataset.pt != null){ godEnvia({ a: 'pedTodos' }); toast('✅ Todos aceites'); }
         else { godEnvia({ a: 'ped', id: q.dataset.ped, ok: q.dataset.ok === '1' ? 1 : 0 }); toast(q.dataset.ok === '1' ? '✅ Aceite' : 'Recusado'); }
@@ -2906,6 +2909,7 @@ body:has(#setupScreen.active) .legal{display:none}
     if(!p.dataset.pronto){   // a estrutura só se monta uma vez (para não apagar o que se está a escrever)
       p.dataset.pronto = '1'; godPronto(p);
       p.innerHTML = '<div class="god-top"><b>⚡ God Mode</b><span>só tu vês este ecrã</span></div><div class="god-est" id="godEst"></div><div class="god-ped" id="godPed"></div>' +
+        '<div class="god-sec">Corrida: o que conta</div><div class="god-crit" id="godCrit"><button data-crit="dist">🏁 Distância<small>velocidade</small></button><button data-crit="zona">🎯 % na zona<small>precisão</small></button><button data-crit="pts">⭐ Pontos</button></div>' +
         '<div class="god-sec">Para todos</div><div class="god-acts"><button data-g="r">⚡<br>Relâmpago</button><button data-g="g">🚀<br>Boost</button><button data-g="v">🌬️<br>Vento</button><button data-g="sorte">🎲<br>Surpresa</button></div>' +
         '<p class="god-nota">⚡ apaga a consola do aluno · 🚀 e 🌬️ mudam a velocidade no percurso</p>' +
         '<div class="god-sec">Alunos</div><div class="god-lst" id="godLst"></div>' +
@@ -2913,6 +2917,7 @@ body:has(#setupScreen.active) .legal{display:none}
         '<button class="god-rep" data-g="par0">Repor valores</button></div>';
     }
     $('godEst').innerHTML = GV ? '<em class="ok">● ligado à projeção</em>' : '<em>● à espera da projeção…</em>';
+    document.querySelectorAll('#godCrit [data-crit]').forEach(x=> x.classList.toggle('on', !!GV && GV.crit === x.dataset.crit));
     { const P = (GV && GV.ped) || [], el = $('godPed');   // pedidos para entrar na aula (alunos sem o PIN)
       el.innerHTML = P.length ? '<div class="god-sec">🙋 Pedem para entrar' + (P.length > 1 ? ' <button type="button" class="god-pt" data-pt>Aceitar todos</button>' : '') + '</div>' +
         P.map(q=> '<div class="god-pi"><b>' + escapeHtml(q[1]) + '</b><button type="button" class="god-pok" data-ped="' + escapeHtml(q[0]) + '" data-ok="1">Aceitar</button><button type="button" class="god-pno" data-ped="' + escapeHtml(q[0]) + '" data-ok="0">✕</button></div>').join('') : ''; }
@@ -3036,10 +3041,11 @@ body:has(#setupScreen.active) .legal{display:none}
   }
 
   // ===== Ecrã Corrida: tu ao centro, os 2 que vão à tua frente e os 2 que vêm atrás (distância, velocidade e watts) =====
-  const RV = { ref: null, L: {} };
+  const RV = { ref: null, L: {}, crit: 'dist', cref: null };
   function rvLiga(on){
-    if(on && !RV.ref && pin && fbDb){ RV.ref = fbDb.ref('sessions/' + pin + '/riders'); RV.ref.on('value', sn=>{ RV.L = sn.val() || {}; }, ()=>{}); }
-    if(!on && RV.ref){ try{ RV.ref.off(); }catch(e){} RV.ref = null; }
+    if(on && !RV.ref && pin && fbDb){ RV.ref = fbDb.ref('sessions/' + pin + '/riders'); RV.ref.on('value', sn=>{ RV.L = sn.val() || {}; }, ()=>{});
+      RV.cref = fbDb.ref('sessions/' + pin + '/crit'); RV.cref.on('value', sn=>{ const v = sn.val(); RV.crit = v === 'zona' || v === 'pts' ? v : 'dist'; }, ()=>{}); }
+    if(!on && RV.ref){ try{ RV.ref.off(); RV.cref && RV.cref.off(); }catch(e){} RV.ref = null; RV.cref = null; }
   }
   function rvZc(w, ftp, hr, fc){ const p = modo === 'fc' ? (hr && fc ? hr / fc * 100 : null) : (ftp && w ? w / ftp * 100 : null); return p == null ? '#4A5568' : zoneColor(getZone(p).css); }
   function rvRender(b, remaining, range){
@@ -3047,20 +3053,21 @@ body:has(#setupScreen.active) .legal{display:none}
     const agora = Date.now(), eu = riderId;
     const L = Object.keys(RV.L).map(id=> Object.assign({ id }, RV.L[id])).filter(r=> r && !r.left && r.id !== eu && agora - (r.t || 0) < 60000 && (r.km || 0) >= 0);
     const meKm = me.km || 0, meW = Math.round(dispPower || 0);
-    L.push({ id: eu, n: me.n || 'Tu', km: meKm, v: me.spd || 0, w: meW, ftp: me.ftp, hr: myHr(), fc: me.fc, eu: true });
-    L.sort((a, c)=> (c.km || 0) - (a.km || 0));
+    L.push({ id: eu, n: me.n || 'Tu', km: meKm, v: me.spd || 0, w: meW, ftp: me.ftp, hr: myHr(), fc: me.fc, eu: true, iz: me.iz, as: modo === 'fc' ? me.ts : me.as, pts: me.pts });
+    const zP = r=> (r.as || 0) > 0 ? Math.min(100, (r.iz || 0) / r.as * 100) : 0, val = r=> RV.crit === 'zona' ? zP(r) : RV.crit === 'pts' ? (r.pts || 0) : (r.km || 0);
+    L.sort((a, c)=> val(c) - val(a) || (c.km || 0) - (a.km || 0));
     const pos = L.findIndex(r=> r.eu), frente = L.slice(Math.max(0, pos - 2), pos), tras = L.slice(pos + 1, pos + 3);
     const pct = modo === 'fc' ? (myHr() && me.fc ? Math.round(myHr() / me.fc * 100) : null) : (me.ftp && meW ? Math.round(meW / me.ftp * 100) : null);
     const naZona = pct != null && pct >= range.min && pct <= range.max;
     const linha = r=>{
-      const dm = Math.round(((r.km || 0) - meKm) * 1000), zc = rvZc(r.w, r.ftp, r.hr, r.fc);
+      const me0 = L[pos], dm = RV.crit === 'zona' ? Math.round(zP(r) - zP(me0)) : RV.crit === 'pts' ? Math.round((r.pts || 0) - (me0.pts || 0)) : Math.round(((r.km || 0) - meKm) * 1000), un = RV.crit === 'zona' ? ' %' : RV.crit === 'pts' ? ' pts' : ' m', zc = rvZc(r.w, r.ftp, r.hr, r.fc);
       return '<div class="rv-l' + (r.eu ? ' eu' : '') + '" style="--rz:' + zc + '"><span class="rv-p">' + (L.indexOf(r) + 1) + 'º</span><span class="rv-n">' + escapeHtml(r.eu ? 'Tu' : String(r.n || '?')) + '</span>' +
-        (r.eu ? '' : '<span class="rv-d ' + (dm >= 0 ? 'fr' : 'tr') + '">' + (dm >= 0 ? '+' : '−') + Math.abs(dm) + ' m</span>') +
+        (r.eu ? '' : '<span class="rv-d ' + (dm >= 0 ? 'fr' : 'tr') + '">' + (dm >= 0 ? '+' : '−') + Math.abs(dm) + un + '</span>') +
         '<span class="rv-v"><b>' + (r.v || 0).toFixed(1).replace('.', ',') + '</b> km/h</span><span class="rv-w"><b>' + Math.round(r.w || 0) + '</b> W</span></div>';
     };
     box.innerHTML = '<div class="rv-top"><div><b>' + fmtCountdown(remaining) + '</b><span>bloco</span></div><div><b>' + meW + '</b><span>watts</span></div>' +
         '<div class="' + (naZona ? 'ok' : pct != null ? 'fora' : '') + '"><b>' + (pct != null ? pct + '%' : '—') + '</b><span>' + (modo === 'fc' ? '%FC máx' : '%FTP') + '</span></div><div><b>' + Math.round(me.pts) + '</b><span>pontos</span></div></div>' +
-      '<div class="rv-h">Corrida · <b>' + (pos + 1) + 'º</b> de ' + L.length + '</div>' +
+      '<div class="rv-h">Corrida' + (RV.crit === 'zona' ? ' · % na zona' : RV.crit === 'pts' ? ' · pontos' : '') + ' · <b>' + (pos + 1) + 'º</b> de ' + L.length + '</div>' +
       (frente.length ? '<div class="rv-g">À tua frente</div>' + frente.map(linha).join('') : '<div class="rv-g lider">🏆 Vais na frente!</div>') +
       linha(L[pos]) +
       (tras.length ? '<div class="rv-g">Atrás de ti</div>' + tras.map(linha).join('') : '<div class="rv-g">Ninguém atrás de ti</div>');
