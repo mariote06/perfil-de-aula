@@ -1065,6 +1065,30 @@ body:has(#setupScreen.active) .legal{display:none}
 .home .home-grid.tabs .tile{justify-content:flex-start!important}
 .home .home-grid.tabs .tile b{font-size:clamp(13px,3.6vw,15px)!important;font-weight:800!important;min-height:2.2em;display:flex!important;align-items:center;justify-content:center}
 .home .home-grid.tabs .tile:active{transform:scale(.96);background:color-mix(in srgb,var(--tc) 28%,#12161D)!important}
+/* aula: sem a barra dos ecrãs em baixo nem barras de scroll (muda-se de ecrã a deslizar para o lado) */
+#liveScreen.e2on .e2-dots{display:none!important}
+#liveScreen,#liveScreen *{scrollbar-width:none}
+#liveScreen ::-webkit-scrollbar,#liveScreen::-webkit-scrollbar{display:none;width:0;height:0}
+/* cartões do alvo no ecrã 1, ao estilo da projeção, com logótipos animados */
+#liveScreen .tg{display:flex;flex-direction:column;align-items:center;background:#12161D;border:2px solid color-mix(in srgb,var(--zc,#3A4353) 60%,transparent);border-top:5px solid var(--zc,#3A4353);border-radius:14px;padding:6px 4px 7px}
+#liveScreen .tg .tg-l{order:3;margin:2px 0 0;font-weight:800;letter-spacing:1.4px;color:#c9d1dd}
+#liveScreen .tg b{order:2;font-weight:800;font-size:clamp(24px,7.6vw,40px)}
+#liveScreen .tg b.lng{font-size:clamp(20px,6vw,32px)}
+#liveScreen .tg small{order:4;margin-top:0}
+.tg-ic{order:1;display:block;width:clamp(20px,6vw,28px);height:clamp(20px,6vw,28px);margin-bottom:1px;perspective:120px}
+.tg-ic svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 5px currentColor)}
+.tg-w{color:#FFD60A}.tg-w svg{animation:tgRaio 1.6s linear infinite}
+.tg-pct{color:#FFB020}.tg-pct .tg-ag{transform-origin:12px 15px;animation:tgAg 2.2s ease-in-out infinite}
+.tg-fc{color:#FF4D5E}.tg-fc svg{animation:tgBate .82s ease-in-out infinite;transform-origin:50% 60%}
+.tg-rpm{color:#3DD4C8}.tg-rpm svg{animation:tgRoda var(--rs,.7s) linear infinite}
+@keyframes tgRaio{to{transform:rotateY(360deg)}}
+@keyframes tgAg{0%,100%{transform:rotate(-70deg)}50%{transform:rotate(15deg)}}
+@keyframes tgBate{0%,100%{transform:scale(1)}15%{transform:scale(1.22)}30%{transform:scale(.96)}45%{transform:scale(1.12)}60%{transform:scale(1)}}
+@keyframes tgRoda{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.tg-ic svg,.tg-ag{animation:none!important}}
+#liveScreen .tg b small{display:inline;font-size:.42em;font-weight:700;color:#a9b6c4;margin-left:2px;letter-spacing:0}
+#liveScreen .tg b.lng{font-size:clamp(19px,6.2vw,32px)!important}
+#liveScreen .tg b{max-width:100%;overflow:hidden}
 </style>
 </head>
 <body>
@@ -1698,10 +1722,25 @@ body:has(#setupScreen.active) .legal{display:none}
     }
   }
 
+  // cartões do alvo com logótipos animados, como na projeção: ⚡ watts, ponteiro %FTP, ❤ FC e pedaleira na cadência
+  const TG_ICO = {"w": "<svg viewBox=\"0 0 24 24\"><path d=\"M13 2 4 14h7l-1 8 9-12h-7z\" fill=\"currentColor\"/></svg>", "pct": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\"><path d=\"M3.5 17a9 9 0 1 1 17 0\"/><g class=\"tg-ag\"><path d=\"M12 15 16.6 9.6\"/></g><circle cx=\"12\" cy=\"15\" r=\"1.8\" fill=\"currentColor\"/></svg>", "fc": "<svg viewBox=\"0 0 24 24\"><path d=\"M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.3 4.5 7 4.5c2.1 0 3.6 1.2 5 3 1.4-1.8 2.9-3 5-3 3.7 0 6 3.7 4.5 7.2C19.5 16.4 12 21 12 21z\" fill=\"currentColor\"/><path d=\"M3 12h5l2-3 3 6 2-3h6\" fill=\"none\" stroke=\"#0A0D12\" stroke-width=\"1.8\" stroke-linejoin=\"round\"/></svg>", "rpm": "<svg viewBox=\"0 0 24 24\"><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(0 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(30 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(60 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(90 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(120 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(150 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(180 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(210 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(240 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(270 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(300 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(330 12 12)\" fill=\"currentColor\"/><circle cx=\"12\" cy=\"12\" r=\"7.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\"/><circle cx=\"12\" cy=\"12\" r=\"2.2\" fill=\"currentColor\"/><path d=\"M12 12 17.5 20\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\"/><rect x=\"15\" y=\"19.6\" width=\"6\" height=\"2.6\" rx=\"1\" fill=\"currentColor\"/></svg>"};
+  function tgIco(t){
+    const l = String(t.l || ''), u = String(t.u || '');
+    const k = /RPM/i.test(l) ? 'rpm' : (/FC/i.test(l) || /bpm|FC/i.test(u)) ? 'fc' : u === 'W' || /média|FTP ≈/i.test(l) ? 'w' : /%|FTP/i.test(l + u) ? 'pct' : '';
+    if(!k) return '';
+    let st = '';
+    if(k === 'rpm'){ const b = blocos && state ? blocos[state.blockIndex] : null; const r = b && b.rpm ? (b.rpm + (b.rpm2 || b.rpm)) / 2 : 0; st = ' style="--rs:' + (r ? (60 / Math.max(30, r)).toFixed(3) + 's' : '0s') + '"'; }
+    return '<i class="tg-ic tg-' + k + '"' + st + '>' + TG_ICO[k] + '</i>';
+  }
+  // toque nos cartões do alvo: watts ⇄ %FTP e bpm ⇄ %FC máx (fica guardado neste telemóvel)
+  const TG_ALT = (()=>{ try{ return JSON.parse(localStorage.getItem('prTgAlt') || '{}') || {}; }catch(e){ return {}; } })();
+  document.addEventListener('click', e=>{ const t = e.target.closest('#targetEl .tg[data-tap]'); if(!t) return; const k = t.dataset.tap;
+    TG_ALT[k] = !TG_ALT[k]; try{ localStorage.setItem('prTgAlt', JSON.stringify(TG_ALT)); }catch(err){}
+    try{ if(typeof render === 'function') render(); }catch(err){} });
   function setTarget(tiles, note, color){
     const el = $('targetEl');
     el.style.setProperty('--zc', color || '#3A4353');
-    el.innerHTML = '<div class="tg-row">' + tiles.map(t=> '<div class="tg"><span class="tg-l">' + t.l + '</span><b' + (String(t.v).length > 7 ? ' class="lng"' : '') + '>' + t.v + '</b>' + (t.u ? '<small>' + t.u + '</small>' : '') + '</div>').join('') + '</div>' +
+    el.innerHTML = '<div class="tg-row">' + tiles.map(t=> '<div class="tg' + (t.tap ? ' tap' : '') + '"' + (t.tap ? ' data-tap="' + t.tap + '" role="button" tabindex="0"' : '') + '>' + tgIco(t) + '<span class="tg-l">' + t.l + '</span><b' + (String(t.v).length + (t.u ? String(t.u).length * .6 : 0) > 7.5 ? ' class="lng"' : '') + '>' + t.v + (t.u ? '<small>' + t.u + '</small>' : '') + '</b>' + '</div>').join('') + '</div>' +
       (note ? '<div class="tg-note">' + note + '</div>' : '');
   }
   function zoneRange(pct){
@@ -2880,6 +2919,18 @@ body:has(#setupScreen.active) .legal{display:none}
   // configuração feita pelo professor no "PlayRide Ecrã 2": [peça, largura (de 6), altura (linhas), cor, letra, {forma, esconde, titulo, unidade, texto}]
   const E2_CFG = {"ecra2":[["tec",6,2,0,2,{"forma":"quad","esconde":["l"]}],["alvo",4,1,0,1.15],["pot",4,2,0,1.75,{"forma":"quad","esconde":["s"]}],["gauge",6,1,0,2,{"forma":"quad","esconde":["s","l"]}],["rpm",4,2,0,1.8,{"forma":"quad","esconde":["s"]}],["timer",3,2,0,1.5,{"forma":"quad","esconde":["l"]}],["pfc",3,2,0,1.65,{"forma":"quad","esconde":["s"]}],["kmh",3,1,0,1,{"forma":"quad"}],["aftp",2,1,0,0.95,{"esconde":["s"]}],["pftp",2,2,0,2,{"forma":"quad","esconde":["s"]}],["arpm",2,1,0,1],["nz",2,1,0,1],["km",3,1,0,1,{"forma":"quad"}]],"fundo":"escuro","troca":"deslizar"};   // não troca sozinho: o aluno desliza ou toca nos pontos
   let ecraAtual = 1, e2Zoom = 0, e2LastIdx = -1, e2Hist = [], e2HistT = 0;
+  // ecrã 1 da aula: tudo cabe no ecrã do telemóvel, sem scroll (se for preciso, encolhe um pouco o bloco e o "a seguir")
+  function ec1Fit(){
+    const bd = $('bodyEl'), ab = $('activeBlock'), nx = $('nextEl'); if(!bd || !ab || currentScreen !== 'liveScreen') return;
+    if(ecraAtual !== 1){ ab.style.zoom = ''; if(nx) nx.style.zoom = ''; return; }
+    ab.style.zoom = ''; if(nx) nx.style.zoom = '';
+    const sobra = bd.scrollHeight - bd.clientHeight; if(sobra <= 1) return;
+    const h = ab.offsetHeight + (nx ? nx.offsetHeight : 0); if(!h) return;
+    const z = Math.max(0.6, Math.floor((h - sobra - 2) / h * 1000) / 1000);
+    ab.style.zoom = z; if(nx) nx.style.zoom = z;
+  }
+  window.addEventListener('resize', ()=> setTimeout(ec1Fit, 60));
+  setInterval(ec1Fit, 1500);
   function ecraVai(n){
     const ls = $('liveScreen'); if(!ls) return;
     ecraAtual = n === 2 || n === 3 || (n === 4 && GM_EU) ? n : 1; try{ pedAviso(); }catch(e){}
@@ -6034,7 +6085,7 @@ body:has(#setupScreen.active) .legal{display:none}
     const sameName = !(b.nome || '').trim() || (b.nome || '').trim() === zone.name;   // sem nome ou igual à zona: não aparece
     $('nameEl').style.display = sameName ? 'none' : ''; $('nameSep').style.display = sameName ? 'none' : '';
     $('techEl').textContent = b.tecnica || '';
-    $('feelEl').textContent = zone.feel || '';
+    $('feelEl').textContent = /Aquecimento$/.test(zNome(zone, blocos, state.blockIndex)) ? 'Pedalada leve para aquecer as pernas e subir a FC aos poucos.' : (zone.feel || '');
     $('timerEl').textContent = state.status === 'paused' && remaining > 0 ? fmtCountdown(remaining) : fmtCountdown(remaining);
     $('timerEl').classList.toggle('t-warn', remaining <= 5 && remaining > 0 && state.status === 'playing');
     $('bodyEl').style.background = 'radial-gradient(circle at 50% 30%, ' + zc + '33, #05070A 70%)';
@@ -6044,7 +6095,24 @@ body:has(#setupScreen.active) .legal{display:none}
     const rng = (lo, hi)=> range.open ? '≥ ' + lo : lo + '–' + hi;
     const rpmT = {l:'RPM', v: rpmTxt(b), u:''};
     let tiles;
-    if(modo === 'fc'){
+    if(modo !== 'zonas' && !b.tipo){
+      // ecrã 1: alvo em watts ⇄ %FTP (toque), alvo em bpm ⇄ %FC máx (toque) e cadência
+      const zi = Math.max(0, zonesNow().indexOf(zone));
+      const FTP_T = [[0,55],[56,75],[76,90],[91,105],[106,120],[121,150],[151,0]], fz = FC_Z[Math.min(zi, FC_Z.length - 1)];
+      const ft = FTP_T[Math.min(zi, FTP_T.length - 1)];
+      const pFtp = modo !== 'fc' ? pctTxt(b, range) : (ft[1] ? ft[0] + '–' + ft[1] + '%' : '> ' + (ft[0] - 1) + '%');
+      const pFc = modo === 'fc' ? pctTxt(b, range) : fz.lo + '–' + fz.hi + '%';
+      const nums = t=> (String(t).match(/\d+/g) || []).map(Number);
+      const faixa = (pTxt, base)=>{ const n = nums(pTxt); if(!base || !n.length) return null; const op = /^[>≥]/.test(pTxt);
+        return op ? '≥ ' + Math.round(base * n[0] / 100) : n.length > 1 ? Math.round(base * n[0] / 100) + '–' + Math.round(base * n[1] / 100) : String(Math.round(base * n[0] / 100)); };
+      // no modo da aula, os watts/bpm seguem o intervalo da zona (como antes); no outro modo, a zona equivalente
+      const w = modo !== 'fc' ? (me.ftp ? rng(Math.round(me.ftp * range.min / 100), Math.round(me.ftp * range.max / 100)) : null) : faixa(pFtp, me.ftp);
+      const bpm = modo === 'fc' ? (me.fc ? rng(Math.round(me.fc * range.min / 100), Math.round(me.fc * Math.min(range.max, 100) / 100)) : null) : faixa(pFc, me.fc);
+      tiles = [
+        w && !TG_ALT.a ? {l:'Alvo ⇄', v: w, u:'W', tap:'a'} : {l:'% FTP' + (w ? ' ⇄' : ''), v: pFtp.replace(/%$/, ''), u:'%', tap: w ? 'a' : ''},
+        bpm && !TG_ALT.b ? {l:'Alvo FC ⇄', v: bpm, u:'bpm', tap:'b'} : {l:'% FC máx' + (bpm ? ' ⇄' : ''), v: pFc.replace(/%$/, ''), u:'%', tap: bpm ? 'b' : ''},
+        rpmT];
+    } else if(modo === 'fc'){
       tiles = me.fc
         ? [{l:'Alvo FC', v: rng(Math.round(me.fc * range.min / 100), Math.round(me.fc * Math.min(range.max, 100) / 100)), u:'bpm'}, {l:'% FCmáx', v: pctTxt(b, range), u:''}, rpmT]
         : [{l:'Alvo', v: pctTxt(b, range), u:'FCmáx'}, rpmT];
