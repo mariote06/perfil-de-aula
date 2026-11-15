@@ -1548,6 +1548,12 @@ body:has(#setupScreen.active) .legal{display:none}
   ];
   const SEG_Z  = {name:'Segmento · Z1', css:'--seg', feel:'Transição em Z1: pedala leve e prepara-te para o próximo segmento.'};
   const COOL_Z = {name:'Retorno à calma', css:'--cool', feel:'Baixa a intensidade aos poucos, respira fundo e deixa o coração descer.'};
+  // Z1 no início da aula (antes do primeiro bloco acima de Z1) é Aquecimento; a meio e no fim é Recuperação
+  function zNome(zone, L, i){
+    if(!zone || !/^Z1 /.test(zone.name || '')) return zone ? zone.name : '';
+    const z1 = zonesNow()[0], antes = (L || []).slice(0, Math.max(0, i)).some(x=> x && !x.tipo && !x.teste && getZone(x.ftp) !== z1);
+    return antes ? zone.name : 'Z1 Aquecimento';
+  }
   function blkZone(b){ return b && b.tipo === 'seg' ? SEG_Z : (b && b.tipo === 'cool' ? COOL_Z : getZone(b ? b.ftp : 0)); }
   function rpmTxt(b){ return b.rpm2 && b.rpm2 !== b.rpm ? b.rpm + '–' + b.rpm2 : String(b.rpm || 0); }
 
@@ -6019,7 +6025,7 @@ body:has(#setupScreen.active) .legal{display:none}
     const zc = zoneColor(zone.css);
     const remaining = computeRemaining(state);
 
-    $('zoneEl').textContent = zone.name;
+    $('zoneEl').textContent = zNome(zone, blocos, state.blockIndex);
     $('zoneEl').style.color = zc;
     const zi6 = b.tipo ? -1 : zonesNow().indexOf(zone);   // Z6 e Z7 também por FC
     $('rlMini').classList.toggle('on', zi6 === 5);

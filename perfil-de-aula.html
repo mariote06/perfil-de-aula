@@ -1650,6 +1650,95 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 .ped-h button,.ped-i button{font:inherit;font-size:13px;font-weight:700;border-radius:999px;border:0;padding:6px 12px;cursor:pointer}
 .ped-h button{background:#232934;color:#fff}.ped-i{display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid #232934}.ped-i b{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ped-ok{background:#3DD45C;color:#0b1a10}.ped-dica{font-size:13px;color:#c8ced8;line-height:1.35}.ped-no{background:#3a2226;color:#ffb3b3}
+/* timer: anel com néon a pulsar na cor da zona */
+@keyframes ringNeon{0%,100%{filter:drop-shadow(0 0 3px var(--zc)) drop-shadow(0 0 9px var(--zc))}50%{filter:drop-shadow(0 0 8px var(--zc)) drop-shadow(0 0 24px var(--zc)) drop-shadow(0 0 40px var(--zc))}}
+.ring-fg{animation:ringNeon 1.8s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){.ring-fg{animation:none;filter:drop-shadow(0 0 8px var(--zc))}}
+/* nome do aluno maior nos cartões da projeção */
+.rt-top .rt-name{font-size:clamp(18px,2.5vh,28px)!important;font-weight:800!important;letter-spacing:.2px}
+.ln-name{font-size:clamp(17px,2.1vh,22px)!important;font-weight:700!important}
+/* PIN maior na projeção */
+.live-info .session-badge .pin-num{font-size:clamp(70px,13vh,150px)!important}
+.live-overlay.split .live-info .session-badge .pin-num{font-size:clamp(56px,10vh,120px)!important;letter-spacing:3px}
+.live-overlay.split .live-info .session-badge .pin-lbl{font-size:clamp(14px,1.9vh,22px)!important}
+.sr-hud .sr-pin{font-size:clamp(18px,2.2cqw,30px)!important;padding:6px 18px!important}.sr-hud .sr-pin b{font-size:clamp(34px,4.4cqw,64px)!important}
+
+/* ===================== PROJEÇÃO v2 ===================== */
+.live-overlay.pv2 #classBatt,.live-overlay.pv2 #classLamp,.live-overlay.pv2 #nxArrow,.live-overlay.pv2 .live-body > .live-info{display:none!important}
+.live-overlay.pv2 .live-head{min-height:clamp(70px,8.5vh,96px)}
+.pv-hs{display:flex;align-items:center;gap:clamp(14px,1.6vw,30px)}
+.pv-hs .lh-stat .v{font-size:clamp(34px,5.4vh,60px)!important}.pv-hs .lh-stat .l{font-size:clamp(11px,1.3vh,14px)!important;letter-spacing:1.5px}
+.pv-hs .session-badge{display:block!important;position:static!important;padding:2px clamp(12px,1.2vw,22px)!important;border-radius:14px;background:rgba(232,114,44,.12);border:3px solid rgba(232,114,44,.75);text-align:center;cursor:pointer}
+.pv-hs .session-badge .pin-lbl{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(11px,1.3vh,15px);letter-spacing:3px;color:#E8722C;line-height:1}
+.pv-hs .session-badge .pin-num{font-size:clamp(40px,6.4vh,70px)!important;line-height:.95;letter-spacing:2px}
+.live-overlay.pv2.split .riders-panel{flex:1.6}
+.live-overlay.pv2 .live-body{justify-content:flex-start!important;padding:clamp(10px,1.4vh,16px) clamp(12px,1.1vw,22px)!important}
+.live-overlay.pv2 #liveActive{width:100%;max-width:1100px;flex:1;min-height:0;display:flex;flex-direction:column;gap:clamp(8px,1.2vh,14px)}
+.live-overlay.pv2 .live-next{position:static!important;width:100%;max-width:1100px;padding:0!important;margin-top:clamp(8px,1.2vh,14px)!important}
+/* faixa da zona e da técnica */
+.pv-band{display:flex;align-items:center;gap:16px;border:2px solid var(--zc);border-radius:18px;padding:clamp(8px,1.1vh,14px) 18px;background:linear-gradient(90deg,color-mix(in srgb,var(--zc) 30%,transparent),transparent 75%);text-align:left}
+.pv-bz{flex:none;padding-right:16px;border-right:2px solid color-mix(in srgb,var(--zc) 50%,transparent)}
+.live-overlay.pv2 .pv-band .lz-pill{all:unset;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(28px,4.2vh,46px);color:var(--zc);letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;line-height:1}
+.pv-bt{min-width:0;display:flex;flex-direction:column;gap:2px}
+.live-overlay.pv2 .pv-band .live-technique{all:unset;border:0!important;padding:0!important;margin:0!important;background:none!important;font-weight:800;font-size:clamp(24px,3.8vh,42px);color:#fff;line-height:1.05;letter-spacing:-.3px}
+.live-overlay.pv2 .pv-band .live-technique:empty{display:none}
+.live-overlay.pv2 .pv-band .live-name{margin:0;font-size:clamp(13px,1.6vh,18px);color:rgba(255,255,255,.7);font-weight:600}
+.live-overlay.pv2 .pv-band .live-feel{display:block!important;margin:0;font-size:clamp(12px,1.5vh,16px);color:rgba(255,255,255,.7);font-style:normal;max-width:none;display:-webkit-box!important;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+/* timer com néon a rodar */
+.live-overlay.pv2 .ring-wrap{position:relative;width:min(clamp(200px,32vh,360px),100%)!important;margin:0 auto!important;flex:none}
+.live-overlay.pv2 .ring-wrap .live-timer{font-size:clamp(80px,14.5vh,170px)!important;letter-spacing:0}
+.live-overlay.pv2 .ring-fg{stroke-width:10}
+.pv-spin{position:absolute;inset:-5%;border-radius:50%;pointer-events:none;background:conic-gradient(from 0deg,transparent 0 62%,var(--zc) 80%,#fff 86%,transparent 87%);-webkit-mask:radial-gradient(closest-side,transparent 86%,#000 88%,#000 98%,transparent 100%);mask:radial-gradient(closest-side,transparent 86%,#000 88%,#000 98%,transparent 100%);filter:drop-shadow(0 0 10px var(--zc)) drop-shadow(0 0 26px var(--zc));animation:pvGira 2.4s linear infinite}
+@keyframes pvGira{to{transform:rotate(360deg)}}
+/* alvos com logótipos animados */
+.live-overlay.pv2 #liveActive .live-metrics{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:clamp(8px,.8vw,14px)!important;width:100%;margin:auto 0 0!important}
+.live-overlay.pv2 #liveActive .live-metric{min-width:0!important;padding:clamp(6px,1vh,14px) 4px!important;border-radius:18px!important;border-top-width:6px!important;background:#12161D;border:2px solid color-mix(in srgb,var(--zc) 60%,transparent);border-top:6px solid var(--zc);border-radius:18px;padding:clamp(8px,1.2vh,16px) 6px;min-width:0}
+.live-overlay.pv2 #liveActive .live-metric .v{font-size:clamp(36px,min(7.4vh,3.75vw),90px)!important;font-weight:800;line-height:.95;white-space:nowrap}
+.live-overlay.pv2 #liveActive .live-metric .l{font-size:clamp(11px,1.45vh,16px)!important;font-weight:800;letter-spacing:2px;color:#c9d1dd;text-transform:uppercase}
+.pv-ic{display:block;width:clamp(28px,4.2vh,46px);height:clamp(28px,4.2vh,46px);margin:0 auto 2px;perspective:200px}
+.pv-ic svg{width:100%;height:100%;display:block;filter:drop-shadow(0 0 7px currentColor)}
+.pv-ftp{color:#FFD60A}.pv-ftp svg{animation:pvRaio 1.6s linear infinite}
+.pv-fc{color:#FF4D5E}.pv-fc svg{animation:pvBate .82s ease-in-out infinite;transform-origin:50% 60%}
+.pv-rpm{color:#3DD4C8}.pv-rpm svg{animation:pvRoda var(--rs,.7s) linear infinite}
+@keyframes pvRaio{to{transform:rotateY(360deg)}}
+@keyframes pvBate{0%,100%{transform:scale(1)}15%{transform:scale(1.22)}30%{transform:scale(.96)}45%{transform:scale(1.12)}60%{transform:scale(1)}}
+@keyframes pvRoda{to{transform:rotate(360deg)}}
+/* cartão "A seguir" */
+.pv-nx{display:flex;border-radius:20px;overflow:hidden;border:3px solid var(--nc);background:color-mix(in srgb,var(--nc) 8%,#0d1117);text-align:left;animation:pvNx 2.4s ease-in-out infinite}
+@keyframes pvNx{50%{box-shadow:0 0 26px color-mix(in srgb,var(--nc) 55%,transparent)}}
+.pv-nz{flex:none;width:clamp(120px,9vw,180px);background:var(--nc);color:#0a0d12;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;text-align:center}
+.pv-nl{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(12px,1.5vh,18px);letter-spacing:3px;text-transform:uppercase;opacity:.8;line-height:1.1}
+.pv-nz b{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(56px,9vh,100px);line-height:.85}
+.pv-nzn{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(14px,2vh,22px);letter-spacing:1.5px;text-transform:uppercase;line-height:1.1}
+.pv-nm{flex:1;min-width:0;padding:clamp(8px,1.1vh,14px) 18px;display:flex;flex-direction:column;justify-content:center;gap:6px}
+.pv-ntop{display:flex;align-items:center;gap:14px}
+.pv-nt{flex:1;min-width:0;font-weight:800;font-size:clamp(22px,3.4vh,38px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#fff}
+.pv-ntm{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.07);border-radius:14px;padding:2px 12px;color:#fff}
+.pv-ntm .pv-ic{margin:0;width:clamp(24px,3.4vh,38px);height:clamp(24px,3.4vh,38px)}
+.pv-ntm b{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(32px,4.6vh,52px);line-height:.95}
+.pv-ntm span,.pv-nv span{font-weight:700;font-size:clamp(12px,1.6vh,18px);color:#a9b6c4;white-space:nowrap;align-self:flex-end;margin-bottom:.5em}
+.pv-nv{display:flex;gap:18px}.pv-nv>div{flex:1;display:flex;align-items:center;gap:8px;min-width:0}
+.pv-nv .pv-ic{margin:0;width:clamp(26px,3.6vh,40px);height:clamp(26px,3.6vh,40px)}
+.pv-nv b{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(44px,6.8vh,74px);line-height:.9;color:#fff;white-space:nowrap}
+.live-body.soon .pv-nx{animation:pvNx .6s ease-in-out infinite}
+/* modo Aula (ecrã inteiro): a coluna fica centrada */
+.live-overlay.pv2:not(.split) #liveActive,.live-overlay.pv2:not(.split) .live-next{max-width:min(1100px,62vw)!important;width:min(1100px,62vw)!important;align-self:center}
+.live-overlay.pv2 .live-next .pv-nx{width:100%}
+.live-overlay.pv2:not(.split) .ring-wrap{width:min(clamp(220px,36vh,420px),100%)!important}
+/* turma: cartões com números maiores */
+.live-overlay.pv2 .rt-w{font-size:3.4em}
+@media (prefers-reduced-motion:reduce){.pv-spin,.pv-ic svg,.pv-nx{animation:none!important}}
+.live-overlay.pv2 .pv-nz b,.live-overlay.pv2 .pv-nz span{color:#0a0d12!important}
+.live-overlay.pv2 .pv-nm b{color:#fff!important}
+/* modo Aula (sem turma): o brilho da zona de treino mais forte */
+.live-overlay.pv2:not(.split) .live-body{background:radial-gradient(ellipse 60% 55% at 50% 45%,color-mix(in srgb,var(--zc) 48%,transparent),transparent 72%),radial-gradient(ellipse 110% 80% at 50% 115%,color-mix(in srgb,var(--zc) 34%,transparent),transparent 65%),radial-gradient(ellipse 80% 40% at 50% -5%,color-mix(in srgb,var(--zc) 26%,transparent),transparent 70%),#05070A!important}
+.live-overlay.pv2:not(.split) .pv-band{background:linear-gradient(90deg,color-mix(in srgb,var(--zc) 55%,transparent),color-mix(in srgb,var(--zc) 12%,transparent) 80%)!important;border-width:3px;box-shadow:0 0 40px color-mix(in srgb,var(--zc) 80%,transparent),inset 0 0 26px color-mix(in srgb,var(--zc) 45%,transparent);animation:pvZona 3s ease-in-out infinite}
+@keyframes pvZona{50%{box-shadow:0 0 70px var(--zc),inset 0 0 36px color-mix(in srgb,var(--zc) 60%,transparent)}}
+.live-overlay.pv2:not(.split) .pv-band .lz-pill{color:#fff!important;text-shadow:0 0 14px var(--zc),0 0 34px var(--zc)}
+.live-overlay.pv2:not(.split) .ring-fg{stroke-width:12}
+.live-overlay.pv2:not(.split) .live-timer{text-shadow:0 0 30px color-mix(in srgb,var(--zc) 70%,transparent)}
+.live-overlay.pv2:not(.split) #liveActive .live-metric{border-color:var(--zc)!important;box-shadow:0 0 34px color-mix(in srgb,var(--zc) 70%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--zc) 18%,#12161D),#12161D 70%)!important}
+@media (prefers-reduced-motion:reduce){.live-overlay.pv2:not(.split) .pv-band{animation:none}}
 </style>
 </head>
 <body data-view="home">
@@ -2127,6 +2216,12 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   // blocos especiais: separador de segmento (lilás) e retorno à calma (sempre o último)
   const SEG_Z  = {name:'Segmento · Z1', css:'--seg', feel:'Transição em Z1: pedala leve e prepara-te para o próximo segmento.'};
   const COOL_Z = {name:'Retorno à calma', css:'--cool', feel:'Baixa a intensidade aos poucos, respira fundo e deixa o coração descer.'};
+  // Z1 no início da aula (antes do primeiro bloco acima de Z1) é Aquecimento; a meio e no fim é Recuperação
+  function zNome(zone, L, i){
+    if(!zone || !/^Z1 /.test(zone.name || '')) return zone ? zone.name : '';
+    const z1 = zonesOf()[0], antes = (L || []).slice(0, Math.max(0, i)).some(x=> x && !x.tipo && !x.teste && getZone(x.ftp) !== z1);
+    return antes ? zone.name : 'Z1 Aquecimento';
+  }
   function blkZone(b, m){ return b && b.tipo === 'seg' ? SEG_Z : (b && b.tipo === 'cool' ? COOL_Z : getZone(b ? b.ftp : 0, m)); }
   function rpmTxt(b){ return b.rpm2 && b.rpm2 !== b.rpm ? b.rpm + '–' + b.rpm2 : String(b.rpm || 0); }
   const rootStyle = getComputedStyle(document.documentElement);
@@ -3476,7 +3571,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     const tag = document.createElement('span');
     tag.className = 'block-tag';
     tag.id = 'tag_' + b.id;
-    tag.textContent = zone.name;
+    tag.textContent = zNome(zone, current.blocos, current.blocos.indexOf(b));
     tag.style.background = zoneColor(zone.css);
     fields.appendChild(tag);
 
@@ -3523,7 +3618,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     if(!b) return;
     const zone = getZone(b.ftp);
     const tag = $('tag_'+id);
-    if(tag){ tag.textContent = zone.name; tag.style.background = zoneColor(zone.css); }
+    if(tag){ tag.textContent = zNome(zone, current.blocos, current.blocos.indexOf(b)); tag.style.background = zoneColor(zone.css); }
     const row = document.querySelector('.block[data-id="'+id+'"]');
     if(row){ row.style.borderLeftColor = zoneColor(zone.css); }
   }
@@ -3934,11 +4029,23 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 
   function riderList(){
     const now = serverNow();
-    return Object.keys(riders).map(id=>{
+    const L = Object.keys(riders).map(id=>{
       const r = riders[id] || {};
       const online = !r.left && (now - (r.t||0)) < 15000;
       return Object.assign({id:id, online:online}, r);
     });
+    return nomesUnicos(L);
+  }
+  // na projeção não pode haver dois nomes iguais: "Ana Silva" e "Ana Costa" ficam "Ana S." e "Ana C.";
+  // se mesmo assim forem iguais, ganham um número ("Ana 2")
+  function nomesUnicos(L){
+    const k = s=> String(s || '').trim().replace(/\s+/g, ' ').toLowerCase();
+    const conta = ()=>{ const c = {}; L.forEach(r=>{ const x = k(r.n); c[x] = (c[x] || 0) + 1; }); return c; };
+    let c = conta();
+    L.forEach(r=>{ if(c[k(r.n)] > 1){ const p = String(r.n || '').trim().split(/\s+/); if(p.length > 1) r.n = p[0].charAt(0).toUpperCase() + p[0].slice(1) + ' ' + p[p.length - 1].charAt(0).toUpperCase() + '.'; } });
+    c = conta(); const vistos = {};
+    L.slice().sort((a, b)=> String(a.id).localeCompare(String(b.id))).forEach(r=>{ const x = k(r.n); if(c[x] > 1){ vistos[x] = (vistos[x] || 0) + 1; if(vistos[x] > 1) r.n = String(r.n || 'Aluno').trim() + ' ' + vistos[x]; } });
+    return L;
   }
   // aluno com a app em segundo plano (ou que deixou de enviar dados sem sair da aula)
   function outApp(r){ return !r.left && (r.bg || !r.online); }
@@ -10672,12 +10779,52 @@ const SR3 = (()=>{
     if(liveMarkerLine){ liveMarkerLine.setAttribute('x', Math.max(0, x-1.5).toFixed(1)); }
   }
 
+
+  // ===================== PROJEÇÃO v2 =====================
+  // Prioridade ao bloco: faixa com a zona e a técnica, timer grande com néon a rodar, %FTP / %FC máx / cadência
+  // com logótipos animados e o cartão "A seguir" (zona, técnica, tempo, cadência e o alvo do treino).
+  // PIN, o que falta da aula e a hora passam para a barra de cima. A turma ganha mais espaço.
+  const PV_ICO = {"ftp": "<svg viewBox=\"0 0 24 24\"><path d=\"M13 2 4 14h7l-1 8 9-12h-7z\" fill=\"currentColor\"/></svg>", "fc": "<svg viewBox=\"0 0 24 24\"><path d=\"M12 21s-7.5-4.6-9.5-9.3C1 8.2 3.3 4.5 7 4.5c2.1 0 3.6 1.2 5 3 1.4-1.8 2.9-3 5-3 3.7 0 6 3.7 4.5 7.2C19.5 16.4 12 21 12 21z\" fill=\"currentColor\"/><path d=\"M3 12h5l2-3 3 6 2-3h6\" fill=\"none\" stroke=\"#0A0D12\" stroke-width=\"1.8\" stroke-linejoin=\"round\"/></svg>", "rpm": "<svg viewBox=\"0 0 24 24\"><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(0 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(30 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(60 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(90 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(120 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(150 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(180 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(210 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(240 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(270 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(300 12 12)\" fill=\"currentColor\"/><rect x=\"11\" y=\"1.2\" width=\"2\" height=\"3\" rx=\".5\" transform=\"rotate(330 12 12)\" fill=\"currentColor\"/><circle cx=\"12\" cy=\"12\" r=\"7.6\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\"/><circle cx=\"12\" cy=\"12\" r=\"2.2\" fill=\"currentColor\"/><path d=\"M12 12 17.5 20\" stroke=\"currentColor\" stroke-width=\"2.6\" stroke-linecap=\"round\"/><rect x=\"15\" y=\"19.6\" width=\"6\" height=\"2.6\" rx=\"1\" fill=\"currentColor\"/></svg>", "clk": "<svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.2\" stroke-linecap=\"round\"><circle cx=\"12\" cy=\"13\" r=\"8.5\"/><path d=\"M12 13V8.5M12 13l3 2M9.5 2.5h5\"/></svg>"};
+  function pv2Monta(){
+    const ov = $('liveOverlay'); if(!ov || ov.dataset.pv2) return; ov.dataset.pv2 = '1'; ov.classList.add('pv2');
+    // barra de cima: falta da aula, hora e PIN
+    const hs = document.createElement('div'); hs.className = 'pv-hs';
+    [$('lhLeft'), $('lhClock')].forEach(v=>{ const st = v && v.closest('.lh-stat'); if(st) hs.appendChild(st); });
+    const badge = $('sessionBadge'); if(badge) hs.appendChild(badge);
+    const lr = ov.querySelector('.lh-right'); if(lr) lr.insertBefore(hs, lr.firstChild);
+    // faixa: zona | técnica (+ nome do bloco e descrição)
+    const act = $('liveActive'); if(!act) return;
+    const band = document.createElement('div'); band.className = 'pv-band';
+    const zc = document.createElement('div'); zc.className = 'pv-bz'; zc.appendChild($('liveZone'));
+    const tc = document.createElement('div'); tc.className = 'pv-bt'; ['liveTechnique', 'liveName', 'liveFeel'].forEach(id=> tc.appendChild($(id)));
+    band.appendChild(zc); band.appendChild(tc); act.insertBefore(band, act.firstChild);
+    // néon a rodar à volta do timer
+    const rw = act.querySelector('.ring-wrap'); if(rw){ const sp = document.createElement('div'); sp.className = 'pv-spin'; rw.insertBefore(sp, rw.firstChild); }
+    // alvos com logótipos: %FTP, %FC máx e cadência (por esta ordem)
+    const ms = act.querySelector('.live-metrics');
+    if(ms){ const m = id=> $(id).closest('.live-metric');
+      const mf = m('liveFtp'), mc = m('liveFc'), mr = m('liveRpm');
+      [[mf, 'ftp'], [mc, 'fc'], [mr, 'rpm']].forEach(([el, k])=>{ const i = document.createElement('i'); i.className = 'pv-ic pv-' + k; i.innerHTML = PV_ICO[k]; el.insertBefore(i, el.firstChild); ms.appendChild(el); });
+      mr.querySelector('.l').textContent = 'CADÊNCIA RPM'; mc.querySelector('.l').textContent = '% FC MÁX'; }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pv2Monta); else setTimeout(pv2Monta, 0);
+  // cartão "A seguir": zona (bloco de cor), técnica, tempo, cadência e o alvo do treino (%FTP ou %FC máx, conforme a aula)
+  function pv2Seguinte(next, lab){
+    const z = blkZone(next), nm = zNome(z, current.blocos, liveIdx + 1), sp = nm.indexOf(' ');
+    const zt = /^Z\d/.test(nm) ? nm.slice(0, sp > 0 ? sp : nm.length) : (next.tipo === 'cool' ? '↓' : '★'), zn = /^Z\d/.test(nm) && sp > 0 ? nm.slice(sp + 1) : nm;
+    const fc = modoAtual() === 'fc', alvo = next.teste ? 'MÁX' : lblInt(next).replace(/\s*%\s*(FTP|FC.*)?$/i, '');
+    const rpmS = next.rpm ? (60 / Math.max(30, (next.rpm + (next.rpm2 || next.rpm)) / 2)).toFixed(3) + 's' : '0s';
+    return '<div class="pv-nx"><div class="pv-nz"><span class="pv-nl" id="nxLbl" data-base="' + escapeHtml(lab) + '">' + escapeHtml(lab) + '</span><b>' + escapeHtml(zt) + '</b><span class="pv-nzn">' + escapeHtml(zn) + '</span></div>' +
+      '<div class="pv-nm"><div class="pv-ntop"><div class="pv-nt">' + escapeHtml(next.tecnica || next.nome || zn) + '</div><div class="pv-ntm"><i class="pv-ic">' + PV_ICO.clk + '</i><b>' + fmtTime(blockDurationSec(next)) + '</b><span>min</span></div></div>' +
+      '<div class="pv-nv">' + (next.rpm ? '<div><i class="pv-ic pv-rpm" style="--rs:' + rpmS + '">' + PV_ICO.rpm + '</i><b>' + rpmTxt(next) + '</b><span>rpm</span></div>' : '') +
+      '<div><i class="pv-ic pv-' + (fc ? 'fc' : 'ftp') + '">' + PV_ICO[fc ? 'fc' : 'ftp'] + '</i><b>' + escapeHtml(alvo) + '</b><span>' + (fc ? '% FC MÁX' : '% FTP') + '</span></div></div></div></div>';
+  }
   function updateLiveDisplay(){
     const b = current.blocos[liveIdx];
     if(!b) return;
     const zone = blkZone(b);
     const zc = zoneColor(zone.css);
-    $('liveZone').textContent = b.teste ? 'Teste FTP · 20 min' : zone.name;
+    $('liveZone').textContent = b.teste ? 'Teste FTP · 20 min' : zNome(zone, current.blocos, liveIdx);
     if(liveLastIdx !== liveIdx){                       // mudou de bloco: clarão na cor da zona
       liveLastIdx = liveIdx;
       jgMudouBloco(b);
@@ -10687,7 +10834,7 @@ const SR3 = (()=>{
     $('liveName').textContent = b.nome;
     $('liveName').style.display = (!(b.nome || '').trim() || (b.nome || '').trim() === zone.name) ? 'none' : '';   // sem nome: não aparece   // não repete o nome da zona
     $('liveTechnique').textContent = b.tecnica || '';
-    $('liveFeel').textContent = b.teste ? 'O mais forte e constante possível durante 20 minutos. Não comeces demasiado forte. No fim, a app calcula o FTP de cada um.' : (zone.feel || '');
+    $('liveFeel').textContent = b.teste ? 'O mais forte e constante possível durante 20 minutos. Não comeces demasiado forte. No fim, a app calcula o FTP de cada um.' : (/Aquecimento$/.test(zNome(zone, current.blocos, liveIdx)) ? 'Pedalada leve para aquecer as pernas e subir a FC aos poucos.' : (zone.feel || ''));
     updateTimerText();
     // %FTP e %FCmáx da zona deste bloco (no modo da aula vale o alvo exato, se houver)
     const mz = modoAtual(), zi = Math.max(0, zonesOf(mz).indexOf(zone));
@@ -10695,6 +10842,7 @@ const SR3 = (()=>{
     $('liveFtp').textContent = b.teste ? 'MÁX' : (mz === 'ftp' ? lblInt(b) : ZONE_RANGE.ftp[zf]);
     $('liveFc').textContent = b.teste ? '—' : (mz === 'fc' ? lblInt(b) : ZONE_RANGE.fc[zf]);
     $('liveRpm').textContent = rpmTxt(b);
+    { const g = document.querySelector('#liveActive .pv-ic.pv-rpm'); if(g) g.style.setProperty('--rs', b.rpm ? (60 / Math.max(30, (b.rpm + (b.rpm2 || b.rpm)) / 2)).toFixed(3) + 's' : '0s'); }   // a pedaleira roda à cadência do bloco
     renderSegPreview(b);
     const zi6 = b.tipo ? -1 : zonesOf().indexOf(zone);   // Z6 e Z7 também no treino por FC
     $('liveBody').classList.toggle('z6', zi6 === 5);
@@ -10713,7 +10861,8 @@ const SR3 = (()=>{
       const nz = zoneColor(blkZone(next).css);
       $('liveBody').style.setProperty('--nc', nz);
       const meta = ((modoAtual() === 'zonas' && (next.nome||'').startsWith(intensLabel(next.ftp) + ' ')) ? '' : lblInt(next) + ' · ') + fmtTime(blockDurationSec(next)) + (next.rpm ? ' · ' + rpmTxt(next) + ' rpm' : '');
-      ln.innerHTML = liveIdx === ultForte
+      if($('liveOverlay').classList.contains('pv2')){ ln.innerHTML = pv2Seguinte(next, liveIdx === ultForte ? 'força até ao fim 💪 · depois' : 'a seguir'); $('liveBody').style.setProperty('--nc', nz); }
+      else ln.innerHTML = liveIdx === ultForte
         ? '<div class="nx-card"><span class="nx-lbl" id="nxLbl" data-base="último bloco">último bloco</span><b>força até ao fim! 💪</b><span class="nx-meta">depois: ' + meta + '</span></div>'
         : '<div class="nx-card"><span class="nx-lbl" id="nxLbl">a seguir</span><b>' + escapeHtml(next.nome) + '</b><span class="nx-meta">' + meta + '</span></div>';
       // seta néon » na cor do próximo bloco, ao lado do relógio
