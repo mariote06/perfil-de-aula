@@ -8398,6 +8398,34 @@ body:has(#setupScreen.active) .legal{display:none}
     try{ history.replaceState(null, '', location.pathname + location.hash); }catch(e){}
   }
 
+
+  // ===== botão ← do telemóvel: navega dentro da app (não a fecha nem a reinicia) =====
+  // Há sempre uma entrada "guarda" no histórico; o ← do Android consome-a e a app decide o que fazer.
+  (function(){
+    const guarda = ()=>{ try{ history.pushState({ pr: 1 }, '', location.href); }catch(e){} };
+    try{ if(!history.state || !history.state.pr){ history.replaceState({ pr: 0 }, '', location.href); guarda(); } }catch(e){}
+    let sairT = 0;
+    const clica = id=>{ const b = $(id); if(b && b.offsetParent !== null){ b.click(); return true; } return false; };
+    window.addEventListener('popstate', ()=>{
+      // 1) janelas abertas por cima: fecha-as
+      if($('avOv') && $('avOv').classList.contains('on')){ try{ avFecha(false); }catch(e){} guarda(); return; }
+      if($('cpOv') && $('cpOv').classList.contains('on')){ try{ corpoFecha(); }catch(e){} guarda(); return; }
+      if($('bkSheet') && $('bkSheet').classList.contains('on')){ $('bkSheet').classList.remove('on'); guarda(); return; }
+      if($('goSheet') && $('goSheet').classList.contains('on')){ try{ closeGo(); }catch(e){} guarda(); return; }
+      const ov = document.querySelector('.safe-pop.on'); if(ov){ ov.classList.remove('on'); const sm = $('safeMin'); if(sm) sm.setAttribute('aria-expanded', 'false'); guarda(); return; }
+      // 2) durante o treino não sai com o ←
+      if(currentScreen === 'liveScreen'){ if(!(typeof sessionEnded !== 'undefined' && sessionEnded)) toast('Estás no treino. Para sair usa o botão de sair no topo.'); guarda(); return; }
+      // 3) outros ecrãs: volta atrás pelo botão "Voltar" de cada um
+      if(currentScreen !== 'homeScreen'){
+        const m = { setupScreen: 'setupBack', fichaScreen: 'fichaBack', joinScreen: 'joinBack', libScreen: 'libBack', accountScreen: 'acctBack' }[currentScreen];
+        if(!(m && clica(m))){ showScreen('homeScreen'); try{ renderHome(); }catch(e){} }
+        guarda(); return;
+      }
+      // 4) no início: dois toques seguidos para sair
+      if(Date.now() - sairT < 2500) { try{ history.back(); }catch(e){} return; }
+      sairT = Date.now(); toast('Toca outra vez em ← para sair da app'); guarda();
+    });
+  })();
 })();
 </script>
 <script>
@@ -8445,7 +8473,8 @@ window.PR_INSTALL_CFG = { key:'aluno', name:'PlayRide', icon:'icon-192.png', acc
   });
 })();
 </script>
-<script src="instalar.js"></script>
+<script src="instalar.js">
+</script>
 <div class="legal">© 2026 Mário Teixeira · todos os direitos reservados</div>
 <div class="raio-ov" id="raioOv" role="alert"><svg viewBox="0 0 64 100" aria-hidden="true"><path d="M38 2 8 56h20l-8 42 36-60H34z" fill="#FFE45C" stroke="#FFFFFF" stroke-width="3" stroke-linejoin="round"/></svg><b>⚡ Relâmpago!</b><span>A tua consola apagou-se. Volta em <i id="raioS">5</i> s</span></div>
 </body>
