@@ -1114,6 +1114,14 @@ body:has(#setupScreen.active) .legal{display:none}
 /* ecrã 2: espaço para o cartão "A seguir" fixo no fundo */
 #liveScreen.ecra2 .e2{padding-bottom:0!important}
 #liveScreen.ecra2 .n2{height:calc(100dvh - 74px - var(--nxfh,0px))!important;min-height:380px!important}
+/* cogumelos e TURBO no canto superior direito do cartão (ecrãs 1 e 2) */
+#meEl,#ecra2 .n2{position:relative}
+#kartCog.canto{position:absolute;top:8px;right:8px;bottom:auto;left:auto;translate:none;z-index:5;padding:3px 10px 3px 6px;gap:4px}
+#kartCog.canto svg{width:24px;height:24px}
+#kartCog.canto b{font-size:22px}
+#kartCog.canto span{bottom:auto;top:100%;left:auto;right:0;translate:none;margin:6px 0 0;font-size:12px;padding:2px 8px}
+/* Cogumelo: o nome da zona lê-se sobre o céu azul */
+#liveScreen.kart #zoneEl{text-shadow:0 2px 0 #1E2230,0 0 6px #1E2230,0 0 2px #fff;-webkit-text-stroke:.5px #1E2230}
 </style>
 </head>
 <body>
@@ -3146,6 +3154,9 @@ body:has(#setupScreen.active) .legal{display:none}
     if(!el){ el = document.createElement('div'); el.id = 'kartCog'; el.setAttribute('aria-live', 'polite');
       el.innerHTML = '<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M36 54 Q33 92 40 96 L60 96 Q67 92 64 54 Z" fill="#FFF1D6" stroke="#1E2230" stroke-width="5"/><path d="M8 56 C7 18 93 18 92 56 Q50 66 8 56 Z" fill="#FF8A1E" stroke="#1E2230" stroke-width="6"/><path d="M55 26 L42 44 L51 44 L46 58 L61 40 L52 40 Z" fill="#FFE14D" stroke="#7A3A00" stroke-width="2"/></svg><b>0</b><span></span>';
       ls.appendChild(el); }
+    // ecrãs 1 e 2: no canto superior direito do cartão por cima do "A seguir" (não tapa o cartão); ecrã 3: em baixo, como antes
+    { const alvo = ecraAtual === 1 ? $('meEl') : ecraAtual === 2 ? document.querySelector('#ecra2 .n2') : ls;
+      if(alvo && el.parentNode !== alvo) alvo.appendChild(el); el.classList.toggle('canto', alvo !== ls); }
     el.hidden = false;
     const P = (SERRA3.E3 && SERRA3.E3.p) || {}, eu = P[riderId], n = eu && eu[3] != null ? eu[3] : 0, dentro = eu ? !!eu[2] : null;
     el.querySelector('b').textContent = n;
