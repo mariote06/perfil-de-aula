@@ -1774,6 +1774,25 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 .live-overlay.pv2 .ring-wrap .live-timer[data-n="4"],.live-overlay.pv2 .ring-wrap .live-timer[data-n="3"]{font-size:min(35cqw,44cqh)!important}
 /* timer quadrado: sem o halo redondo à volta do tempo */
 .live-overlay.pv2 .ring-wrap::before,.live-overlay.pv2 .ring-wrap::after{display:none!important}
+.cr-cv{flex:1;width:100%;min-height:0;display:block}
+/* Corrida em ecrã total */
+.cr-fs{margin-left:12px;font:inherit;font-size:13px;font-weight:700;color:#FFB27A;background:transparent;border:1px solid rgba(232,114,44,.6);border-radius:10px;padding:5px 12px;cursor:pointer;white-space:nowrap}
+.cr-fs[hidden]{display:none}
+.live-overlay.crFull .live-body{display:none!important}
+.live-overlay.crFull .riders-panel{flex:1!important;border-left:0;padding:0 0 10px;gap:0}
+.live-overlay.crFull .cr-top{order:0}.live-overlay.crFull .rp-head{order:1;padding:8px 22px 2px}.live-overlay.crFull #crCv{order:2}
+.cr-top{display:flex;gap:28px;align-items:flex-start;padding:clamp(14px,2.4vh,30px) clamp(20px,2.4vw,44px) clamp(10px,1.6vh,20px);border-top:10px solid var(--zc);border-bottom:1px solid #1B212B;background:#0A0D12;flex:none}
+.cr-top[hidden]{display:none}
+.ct-l{flex:1;min-width:0}
+.ct-b{font-size:clamp(16px,2.2vh,26px);color:rgba(255,255,255,.6);font-weight:600}
+.ct-t{font-size:clamp(34px,5.6vh,66px);font-weight:800;color:#fff;line-height:1.05;margin-bottom:clamp(10px,2vh,26px)}
+.ct-z{font-size:clamp(26px,4.2vh,50px);font-weight:700;color:var(--zc);line-height:1.15}
+.ct-r{font-size:clamp(24px,3.8vh,44px);font-weight:700;color:#fff;line-height:1.2}
+.ct-f{font-size:clamp(16px,2.4vh,28px);color:rgba(255,255,255,.65);margin-top:4px}
+.ct-d{display:flex;flex-direction:column;align-items:flex-end;justify-content:space-between;align-self:stretch}
+.ct-tm{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:clamp(110px,22vh,260px);line-height:.85;color:#fff;font-variant-numeric:tabular-nums}
+.ct-nx{font-size:clamp(16px,2.4vh,28px);color:rgba(255,255,255,.7);white-space:nowrap}
+.live-overlay.crFull #crCv{flex:1}
 </style>
 </head>
 <body data-view="home">
@@ -2068,7 +2087,9 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       <div class="rp-head">
         <div class="rp-title" id="rpTitle">Turma</div>
         <div class="rp-meta" id="rpMeta"></div>
+        <button type="button" class="cr-fs" id="crFs" hidden title="Corrida em ecrã total: o bloco em cima e a corrida em baixo (tecla T)">⛶ Ecrã total</button>
       </div>
+      <div class="cr-top" id="crTop" hidden></div>
       <div class="rgrid" id="rgrid"></div>
       <div class="lanes" id="lanes"></div>
       <div class="game-panel" id="gamePanel"></div>
@@ -9625,10 +9646,104 @@ const SR3 = (()=>{
     };
     draw(); m.classList.add('active');
   }
+
+  // ===================== MODO CORRIDA: ciclistas animados =====================
+  // Os primeiros pedalam na estrada (à frente quem tem mais pontos/kJ, à cadência real de cada um e na cor da zona);
+  // os restantes ficam numa lista à direita. Substitui as barras antigas do modo Corrida.
+  const CR = { list: [], raf: 0, last: 0, st: {}, chao: 0 };
+  function crMostra(on){
+    let cv = $('crCv');
+    if(on && !cv){ cv = document.createElement('canvas'); cv.id = 'crCv'; cv.className = 'cr-cv'; $('ridersPanel').appendChild(cv); }
+    if(cv) cv.style.display = on ? '' : 'none';
+    if(on && !CR.raf){ CR.last = performance.now(); CR.raf = requestAnimationFrame(crFrame); }
+    if(!on && CR.raf){ cancelAnimationFrame(CR.raf); CR.raf = 0; }
+  }
+  // corrida em ecrã total: em cima o bloco (técnica, alvo, cadência, dica, a seguir e o tempo grande), em baixo a corrida
+  try{ CR.full = localStorage.getItem('prCrFull') === '1'; }catch(e){}
+  function crFullTroca(){ CR.full = !CR.full; try{ localStorage.setItem('prCrFull', CR.full ? '1' : '0'); }catch(e){} renderRiders(); }
+  function crTopo(){
+    const el = $('crTop'); if(!el || !CR.full) return;
+    const b = current.blocos[liveIdx]; if(!b){ el.innerHTML = ''; return; }
+    const z = blkZone(b), zc = zoneColor(z.css), nx = current.blocos[liveIdx + 1];
+    const alvo = b.teste ? 'Teste FTP · o mais forte possível' : (modoAtual() === 'zonas' ? '' : lblInt(b) + (modoAtual() === 'fc' ? ' FC máx' : ' FTP') + ' · ') + zNome(z, current.blocos, liveIdx);
+    el.style.setProperty('--zc', zc);
+    el.innerHTML = '<div class="ct-l"><div class="ct-b">Bloco ' + (liveIdx + 1) + ' de ' + current.blocos.length + '</div><div class="ct-t">' + escapeHtml(b.tecnica || b.nome || z.name) + '</div>' +
+      '<div class="ct-z">' + escapeHtml(alvo) + '</div>' + (b.rpm ? '<div class="ct-r">' + rpmTxt(b) + ' rpm</div>' : '') +
+      '<div class="ct-f">' + escapeHtml($('liveFeel') ? $('liveFeel').textContent : '') + '</div></div>' +
+      '<div class="ct-d"><div class="ct-tm">' + fmtCountdown(liveRemaining) + '</div>' +
+      (nx ? '<div class="ct-nx">A seguir: ' + escapeHtml(nx.tecnica || nx.nome || blkZone(nx).name) + ' · ' + (b.teste ? '' : lblInt(nx)) + '</div>' : '<div class="ct-nx">Último bloco · força até ao fim! 💪</div>') + '</div>';
+  }
+  function crPct(r){ return modoAtual() === 'fc' ? ((r.fc && r.hr) ? r.hr / r.fc * 100 : null) : (r.ftp ? (r.w || 0) / r.ftp * 100 : null); }
+  function crPerna(hx, hy, fx, fy, L){ const dx = fx - hx, dy = fy - hy, d = Math.min(Math.hypot(dx, dy), 2 * L - .01), a = Math.atan2(dy, dx), b = Math.acos(d / (2 * L)); return [hx + L * Math.cos(a - b), hy + L * Math.sin(a - b)]; }
+  function crCiclista(ctx, x, y, ang, cor, s, apagado){
+    const P = (a, b)=> [x + a * s, y + b * s];
+    ctx.save(); ctx.globalAlpha = apagado ? .35 : 1; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+    ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = 2.4 * s; [-28, 28].forEach(w=>{ ctx.beginPath(); ctx.arc(...P(w, 0), 17 * s, 0, 7); ctx.stroke(); });
+    ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 3 * s; ctx.beginPath(); ctx.moveTo(...P(-28, 0)); ctx.lineTo(...P(0, 0)); ctx.lineTo(...P(-6, -24)); ctx.lineTo(...P(-28, 0)); ctx.moveTo(...P(0, 0)); ctx.lineTo(...P(20, -22)); ctx.lineTo(...P(-6, -24)); ctx.moveTo(...P(20, -22)); ctx.lineTo(...P(28, 0)); ctx.stroke();
+    const anca = P(-7, -30), omb = P(14, -44);
+    [ang + Math.PI, ang].forEach((a, i)=>{ const f = P(7 * Math.cos(a), 7 * Math.sin(a)), k = crPerna(anca[0], anca[1], f[0], f[1], 21 * s);
+      ctx.strokeStyle = i ? '#fff' : 'rgba(255,255,255,.55)'; ctx.lineWidth = 5.5 * s; ctx.beginPath(); ctx.moveTo(...anca); ctx.lineTo(...k); ctx.lineTo(...f); ctx.stroke(); });
+    ctx.strokeStyle = cor; ctx.lineWidth = 9 * s; ctx.beginPath(); ctx.moveTo(...anca); ctx.lineTo(...omb); ctx.stroke();   // camisola na cor da zona
+    ctx.strokeStyle = '#fff'; ctx.lineWidth = 4.5 * s; ctx.beginPath(); ctx.moveTo(...omb); ctx.lineTo(...P(18, -34)); ctx.lineTo(...P(23, -27)); ctx.stroke();
+    ctx.fillStyle = '#F1D3B5'; ctx.beginPath(); ctx.arc(...P(21, -52), 6.5 * s, 0, 7); ctx.fill();
+    ctx.fillStyle = cor; ctx.beginPath(); ctx.arc(...P(21, -55), 7 * s, Math.PI, 0); ctx.fill();   // capacete
+    ctx.restore();
+  }
+  function crFrame(t){
+    CR.raf = requestAnimationFrame(crFrame);
+    const cv = $('crCv'); if(!cv || cv.style.display === 'none' || !$('liveOverlay').classList.contains('active')) return;
+    const dt = Math.min(.05, (t - CR.last) / 1000); CR.last = t;
+    const d = Math.min(2, window.devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight; if(!W || !H) return;
+    if(cv.width !== Math.round(W * d) || cv.height !== Math.round(H * d)){ cv.width = Math.round(W * d); cv.height = Math.round(H * d); }
+    const ctx = cv.getContext('2d'); ctx.setTransform(d, 0, 0, d, 0, 0); ctx.clearRect(0, 0, W, H);
+    const L = CR.list; if(!L.length) return;
+    const nPista = Math.max(1, Math.min(L.length, H > 760 ? 7 : H > 560 ? 6 : 5)), pista = L.slice(0, nPista), resto = L.slice(nPista);
+    const listaW = resto.length ? Math.min(300, W * .27) : 0, pW = W - listaW, lh = H / nPista, sc = Math.min(1.5, lh / 92);
+    const lider = Math.max(1, metricVal(L[0]));
+    CR.chao = (CR.chao + dt * 140) % 46;
+    pista.forEach((r, i)=>{
+      const S = CR.st[r.id] || (CR.st[r.id] = { ang: Math.random() * 6, x: null });
+      const pct = crPct(r), cor = zoneColor((pct == null ? zonesOf()[0] : getZone(pct)).css) || '#888';
+      S.ang += dt * 2 * Math.PI * Math.max(0, r.c || 0) / 60;
+      const alvo = 120 * sc + (pW - 360 * sc) * Math.max(0, metricVal(r)) / lider;
+      S.x = S.x == null ? alvo : S.x + (alvo - S.x) * Math.min(1, dt * 2.5);
+      const gy = lh * (i + 1) - 14 * sc;
+      // estrada da faixa: linha tracejada a correr
+      ctx.strokeStyle = 'rgba(255,255,255,.08)'; ctx.lineWidth = 2; for(let x = -CR.chao; x < pW; x += 46){ ctx.beginPath(); ctx.moveTo(x, gy + 20 * sc); ctx.lineTo(x + 22, gy + 20 * sc); ctx.stroke(); }
+      if(i) { ctx.fillStyle = 'rgba(255,255,255,.04)'; ctx.fillRect(0, lh * i, pW, 1); }
+      // rasto de velocidade na cor da zona
+      const len = (30 + Math.min(180, (pct || 50)) * .9) * sc, g = ctx.createLinearGradient(S.x - 40 * sc - len, 0, S.x - 40 * sc, 0);
+      g.addColorStop(0, 'transparent'); g.addColorStop(1, cor + 'AA'); ctx.fillStyle = g; ctx.fillRect(S.x - 40 * sc - len, gy - 40 * sc, len, 6 * sc); ctx.fillRect(S.x - 40 * sc - len * .7, gy - 26 * sc, len * .7, 4 * sc);
+      crCiclista(ctx, S.x, gy, S.ang, cor, sc, !r.online);
+      // posição, nome e valores
+      const fx = S.x + 52 * sc, fy = gy - 46 * sc;
+      ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+      ctx.fillStyle = i === 0 ? '#FFD60A' : i === 1 ? '#C9D1DB' : i === 2 ? '#CD8A4A' : 'rgba(255,255,255,.7)';
+      ctx.font = '800 ' + Math.round(26 * sc) + 'px "Barlow Condensed",sans-serif'; ctx.fillText((i + 1) + 'º', fx, fy);
+      const pw = ctx.measureText((i + 1) + 'º ').width;
+      ctx.fillStyle = '#fff'; ctx.font = '800 ' + Math.round(26 * sc) + 'px "Barlow Condensed",sans-serif'; ctx.fillText(String(r.n || '?').split(' ').slice(0, 2).join(' '), fx + pw, fy);
+      ctx.font = '700 ' + Math.round(19 * sc) + 'px "Barlow Condensed",sans-serif';
+      ctx.fillStyle = cor; ctx.fillText(Math.round(r.w || 0) + ' W' + (pct != null ? ' · ' + Math.round(pct) + '%' : ''), fx, fy + 22 * sc);
+      ctx.fillStyle = 'rgba(255,255,255,.65)'; ctx.fillText(metricFmt(metricVal(r)) + ' ' + (raceMetric === 'kj' ? 'kJ' : 'pts'), fx, fy + 42 * sc);
+    });
+    if(resto.length){   // lista dos restantes
+      ctx.fillStyle = 'rgba(255,255,255,.04)'; ctx.fillRect(pW, 0, listaW, H);
+      const rh = Math.min(40, (H - 16) / resto.length), fs = Math.max(13, Math.min(22, rh * .58));
+      resto.forEach((r, k)=>{ const y = 10 + rh * (k + .7), pct = crPct(r), cor = zoneColor((pct == null ? zonesOf()[0] : getZone(pct)).css) || '#888';
+        ctx.globalAlpha = r.online ? 1 : .4;
+        ctx.fillStyle = cor; ctx.beginPath(); ctx.arc(pW + 16, y - fs * .32, fs * .3, 0, 7); ctx.fill();
+        ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = '700 ' + fs + 'px "Barlow Condensed",sans-serif';
+        ctx.fillText((nPista + k + 1) + 'º ' + String(r.n || '?'), pW + 30, y);
+        ctx.textAlign = 'right'; ctx.fillStyle = cor; ctx.fillText(Math.round(r.w || 0) + ' W', pW + listaW - 10, y);
+        ctx.globalAlpha = 1; });
+    }
+  }
   function renderRiders(){
     if(!$('liveOverlay').classList.contains('active')) return;
     jgTick();
     const mode = applyMode();
+    if(mode !== 'corrida') crMostra(false);
+    { const f = mode === 'corrida' && CR.full; $('liveOverlay').classList.toggle('crFull', f); $('crTop').hidden = !f; $('crFs').hidden = mode !== 'corrida'; $('crFs').textContent = CR.full ? '✕ Sair do ecrã total' : '⛶ Ecrã total'; }
     if(mode === 'aula') return;
     const gpn = $('gamePanel');
     if(mode === 'jogos' || mode === 'percurso'){
@@ -9657,6 +9772,7 @@ const SR3 = (()=>{
 
     const grid = $('rgrid'), lanes = $('lanes'), empty = $('rpEmpty');
     if(!list.length){
+      crMostra(false);
       grid.style.display = 'none'; lanes.style.display = 'none'; lanes.classList.remove('two'); empty.style.display = '';
       return;
     }
@@ -9699,6 +9815,9 @@ const SR3 = (()=>{
             (r.ftpT ? '<span class="pct">🎯 FTP ' + r.ftpT + '</span>' : '') +
           '</div></div>';
       }).join('');
+    } else if(mode === 'corrida'){   // ciclistas animados (substitui as barras)
+      grid.style.display = 'none'; grid.innerHTML = ''; lanes.style.display = 'none'; lanes.innerHTML = '';
+      CR.list = list; crMostra(true); crTopo(); return;
     } else {
       grid.style.display = 'none'; grid.innerHTML = '';
       const max = Math.max(1, ...list.map(metricVal));
@@ -10972,6 +11091,7 @@ const SR3 = (()=>{
     const dur = b ? blockDurationSec(b) : 1;
     const frac = Math.max(0, Math.min(1, 1 - liveRemaining / (dur || 1)));
     $('ringFg').style.strokeDashoffset = (RING_C * frac).toFixed(1);
+    if(CR.full && $('liveOverlay').classList.contains('crFull')){ const tm = document.querySelector('#crTop .ct-tm'); if(tm) tm.textContent = fmtCountdown(liveRemaining); }
     { const lb = $('liveBody'), temNx = !!current.blocos[liveIdx+1], tr = temNx && liveRemaining <= 15 && liveRemaining > 0;
       lb.style.setProperty('--gl', (0.2 + 0.8 * (1 - frac)).toFixed(3));   // a luz da zona apaga-se aos poucos até ao fim do bloco
       lb.style.setProperty('--nt', tr ? (1 - liveRemaining / 15).toFixed(3) : '0');   // a cor seguinte pulsa cada vez mais forte
@@ -11312,6 +11432,7 @@ const SR3 = (()=>{
   // volta ao jogo/percurso do bloco atual e a projeção passa outra vez a mudar sozinha com os blocos
   function pvPercurso(){ modoFixo = false; const b = current.blocos[liveIdx]; jgMudouBloco(b); }
   $('pvPerc').onclick = pvPercurso;
+  $('crFs').onclick = crFullTroca;
   $('godBtn').onclick = godConfig;   // God Mode na app PlayRide do professor: ligar/desligar e escolher a conta (tecla 4)
   document.querySelectorAll('.ctrl-group [data-mode]').forEach(btn=>{
     btn.addEventListener('click', ()=>{ viewMode = btn.dataset.mode; modoFixo = true; renderRiders(); applyMode(); });
@@ -11359,6 +11480,7 @@ const SR3 = (()=>{
     if(e.key === '2'){ viewMode = 'turma'; modoFixo = true; renderRiders(); }
     if(e.key === '3'){ viewMode = 'corrida'; modoFixo = true; renderRiders(); }
     if(e.key === '6'){ pvPercurso(); }
+    if((e.key === 't' || e.key === 'T') && effectiveMode() === 'corrida') crFullTroca();
     if(e.key === '4'){ godConfig(); }
     if(e.key === '5'){ viewMode = 'sala'; modoFixo = true; renderRiders(); }
     if((e.key === 'e' || e.key === 'E') && SR.on && SR.fsTroca) SR.fsTroca();

@@ -1122,6 +1122,25 @@ body:has(#setupScreen.active) .legal{display:none}
 #kartCog.canto span{bottom:auto;top:100%;left:auto;right:0;translate:none;margin:6px 0 0;font-size:12px;padding:2px 8px}
 /* Cogumelo: o nome da zona lê-se sobre o céu azul */
 #liveScreen.kart #zoneEl{text-shadow:0 2px 0 #1E2230,0 0 6px #1E2230,0 0 2px #fff;-webkit-text-stroke:.5px #1E2230}
+/* ecrã Corrida (telemóvel) */
+.e5{display:none;width:100%;max-width:520px;margin:0 auto;padding-bottom:20px}
+#liveScreen.ecra5 .e5{display:block}
+#liveScreen.ecra5 #activeBlock,#liveScreen.ecra5 #myBatt,#liveScreen.ecra5 #myLamp,#liveScreen.ecra5 #className,#liveScreen.ecra5 #ocTag,#liveScreen.ecra5 #jgMe,#liveScreen.ecra5 #neonChao1,#liveScreen.ecra5 #nextEl{display:none!important}
+#liveScreen.ecra5 #bodyEl{background:#0B0E13!important}
+.rv-top{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 12px}
+.rv-top>div{background:#12161D;border:1px solid #262D39;border-radius:12px;padding:8px 2px;text-align:center}
+.rv-top b{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(24px,8vw,36px);line-height:1;color:#fff}
+.rv-top span{font-size:11px;font-weight:700;color:#8A93A3;letter-spacing:.5px}
+.rv-top .ok{border-color:#3DD45C;background:rgba(61,212,92,.12)}.rv-top .ok b{color:#3DD45C}.rv-top .fora b{color:#FFB020}
+.rv-h{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#c9d1dd;margin:2px 0 6px;text-align:left}.rv-h b{color:#FFD60A;font-size:1.2em}
+.rv-g{font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#6f7888;text-align:left;margin:10px 2px 4px}.rv-g.lider{color:#FFD60A;font-size:15px;text-align:center}
+.rv-l{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:'p n d' 'p v w';align-items:center;column-gap:10px;background:#12161D;border:1px solid #262D39;border-left:6px solid var(--rz);border-radius:12px;padding:8px 12px;margin-bottom:6px;text-align:left}
+.rv-l.eu{background:color-mix(in srgb,var(--rz) 18%,#12161D);border:2px solid var(--rz);border-left-width:8px;padding:12px 14px;margin:8px 0;box-shadow:0 0 18px color-mix(in srgb,var(--rz) 40%,transparent);grid-template-areas:'p n n' 'p v w'}
+.rv-p{grid-area:p;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;color:#fff;min-width:34px}
+.rv-n{grid-area:n;font-weight:800;font-size:17px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rv-l.eu .rv-n{font-size:20px}
+.rv-d{grid-area:d;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px}.rv-d.fr{color:#FF5A5A}.rv-d.tr{color:#3DD45C}
+.rv-v{grid-area:v;font-size:13px;color:#a9b6c4}.rv-w{grid-area:w;font-size:13px;color:#a9b6c4;text-align:right}
+.rv-v b,.rv-w b{font-family:'Barlow Condensed',sans-serif;font-size:20px;color:#fff}
 </style>
 </head>
 <body>
@@ -1555,7 +1574,8 @@ body:has(#setupScreen.active) .legal{display:none}
     </div>
     <!-- ECRÃ 4: God Mode (só na conta a quem o professor deu acesso na app PlayRide Coach) -->
     <div class="e4" id="ecra4" aria-label="Ecrã 4: God Mode"><div class="god" id="godPanel"></div></div>
-    <div class="e2-dots" id="e2Dots" aria-label="Mudar de ecrã"><button data-e="1" class="on" aria-label="Ecrã 1"></button><button data-e="2" aria-label="Ecrã 2"></button><button data-e="3" aria-label="Ecrã 3: jogos e percurso" class="d3"></button><button data-e="4" aria-label="Ecrã 4: God Mode" class="d4" hidden></button></div>
+    <div class="e5" id="ecra5" aria-label="Ecrã Corrida: quem vai à tua frente e atrás de ti"><div class="rv" id="rvBox"></div></div>
+    <div class="e2-dots" id="e2Dots" aria-label="Mudar de ecrã"><button data-e="1" class="on" aria-label="Ecrã 1"></button><button data-e="2" aria-label="Ecrã 2"></button><button data-e="5" aria-label="Ecrã Corrida"></button><button data-e="3" aria-label="Ecrã 3: jogos e percurso" class="d3"></button><button data-e="4" aria-label="Ecrã 4: God Mode" class="d4" hidden></button></div>
     <div class="finished" id="finishedEl">
       <div class="blockline"><span class="zone" id="finTitle">Aula concluída</span></div>
       <div class="big" id="totalTimeEl">0:00</div>
@@ -2997,10 +3017,11 @@ body:has(#setupScreen.active) .legal{display:none}
   setInterval(ec1Fit, 1500);
   function ecraVai(n){
     const ls = $('liveScreen'); if(!ls) return;
-    ecraAtual = n === 2 || n === 3 || (n === 4 && GM_EU) ? n : 1; try{ pedAviso(); }catch(e){}
+    ecraAtual = n === 2 || n === 3 || n === 5 || (n === 4 && GM_EU) ? n : 1; try{ pedAviso(); }catch(e){}
     const bd = $('bodyEl'); if(bd) bd.scrollLeft = 0;
     ls.classList.toggle('ecra2', ecraAtual === 2);
     ls.classList.toggle('ecra3', ecraAtual === 3);
+    ls.classList.toggle('ecra5', ecraAtual === 5); rvLiga(ecraAtual === 5);
     ls.classList.toggle('ecra4', ecraAtual === 4); document.body.classList.toggle('ecra4-on', ecraAtual === 4); if(ecraAtual === 4) godRender();
     if(ecraAtual !== 3 && typeof SERRA3 !== 'undefined') SERRA3.para();
     ls.classList.toggle('e2escuro', E2_CFG.fundo === 'escuro');
@@ -3012,6 +3033,37 @@ body:has(#setupScreen.active) .legal{display:none}
   const e2Big = (h, w)=> Math.round(Math.min(h * 30 + 4, w * 13 + 6));
   function e2Num(it, l, v, u, s, cls){
     return '<div class="l">' + l + '</div><div class="v' + (cls ? ' ' + cls : '') + '" style="font-size:' + e2Big(it.h, it.w) + 'px;color:' + (it.c || '#fff') + '">' + v + (u ? '<span class="u">' + u + '</span>' : '') + '</div>' + (s && it.h > 1 ? '<div class="s">' + s + '</div>' : '');
+  }
+
+  // ===== Ecrã Corrida: tu ao centro, os 2 que vão à tua frente e os 2 que vêm atrás (distância, velocidade e watts) =====
+  const RV = { ref: null, L: {} };
+  function rvLiga(on){
+    if(on && !RV.ref && pin && fbDb){ RV.ref = fbDb.ref('sessions/' + pin + '/riders'); RV.ref.on('value', sn=>{ RV.L = sn.val() || {}; }, ()=>{}); }
+    if(!on && RV.ref){ try{ RV.ref.off(); }catch(e){} RV.ref = null; }
+  }
+  function rvZc(w, ftp, hr, fc){ const p = modo === 'fc' ? (hr && fc ? hr / fc * 100 : null) : (ftp && w ? w / ftp * 100 : null); return p == null ? '#4A5568' : zoneColor(getZone(p).css); }
+  function rvRender(b, remaining, range){
+    const box = $('rvBox'); if(!box) return;
+    const agora = Date.now(), eu = riderId;
+    const L = Object.keys(RV.L).map(id=> Object.assign({ id }, RV.L[id])).filter(r=> r && !r.left && r.id !== eu && agora - (r.t || 0) < 60000 && (r.km || 0) >= 0);
+    const meKm = me.km || 0, meW = Math.round(dispPower || 0);
+    L.push({ id: eu, n: me.n || 'Tu', km: meKm, v: me.spd || 0, w: meW, ftp: me.ftp, hr: myHr(), fc: me.fc, eu: true });
+    L.sort((a, c)=> (c.km || 0) - (a.km || 0));
+    const pos = L.findIndex(r=> r.eu), frente = L.slice(Math.max(0, pos - 2), pos), tras = L.slice(pos + 1, pos + 3);
+    const pct = modo === 'fc' ? (myHr() && me.fc ? Math.round(myHr() / me.fc * 100) : null) : (me.ftp && meW ? Math.round(meW / me.ftp * 100) : null);
+    const naZona = pct != null && pct >= range.min && pct <= range.max;
+    const linha = r=>{
+      const dm = Math.round(((r.km || 0) - meKm) * 1000), zc = rvZc(r.w, r.ftp, r.hr, r.fc);
+      return '<div class="rv-l' + (r.eu ? ' eu' : '') + '" style="--rz:' + zc + '"><span class="rv-p">' + (L.indexOf(r) + 1) + 'º</span><span class="rv-n">' + escapeHtml(r.eu ? 'Tu' : String(r.n || '?')) + '</span>' +
+        (r.eu ? '' : '<span class="rv-d ' + (dm >= 0 ? 'fr' : 'tr') + '">' + (dm >= 0 ? '+' : '−') + Math.abs(dm) + ' m</span>') +
+        '<span class="rv-v"><b>' + (r.v || 0).toFixed(1).replace('.', ',') + '</b> km/h</span><span class="rv-w"><b>' + Math.round(r.w || 0) + '</b> W</span></div>';
+    };
+    box.innerHTML = '<div class="rv-top"><div><b>' + fmtCountdown(remaining) + '</b><span>bloco</span></div><div><b>' + meW + '</b><span>watts</span></div>' +
+        '<div class="' + (naZona ? 'ok' : pct != null ? 'fora' : '') + '"><b>' + (pct != null ? pct + '%' : '—') + '</b><span>' + (modo === 'fc' ? '%FC máx' : '%FTP') + '</span></div><div><b>' + Math.round(me.pts) + '</b><span>pontos</span></div></div>' +
+      '<div class="rv-h">Corrida · <b>' + (pos + 1) + 'º</b> de ' + L.length + '</div>' +
+      (frente.length ? '<div class="rv-g">À tua frente</div>' + frente.map(linha).join('') : '<div class="rv-g lider">🏆 Vais na frente!</div>') +
+      linha(L[pos]) +
+      (tras.length ? '<div class="rv-g">Atrás de ti</div>' + tras.map(linha).join('') : '<div class="rv-g">Ninguém atrás de ti</div>');
   }
   function renderEcra2(b, next, remaining, range, totalSec, elapsed){
     const zone = blkZone(b), zc = zoneColor(zone.css), powered = hasPowerSource(), fc = modo === 'fc';
@@ -6225,6 +6277,7 @@ body:has(#setupScreen.active) .legal{display:none}
     neonAtualiza(b, range, remaining);
     kartAtualiza(b);
     if(ecraAtual === 2) renderEcra2(b, next, remaining, range, totalSec, elapsedBefore + (blockDurationSec(b) - remaining));
+    if(ecraAtual === 5) rvRender(b, remaining, range);
     if(ecraAtual === 3) renderEcra3(b, next, remaining, range, totalSec, elapsedBefore + (blockDurationSec(b) - remaining));
     const temJogo = !!(b.jogo && JOGOS_ALUNO[b.jogo]); document.querySelectorAll('#e2Dots .d3').forEach(d=> d.classList.toggle('tem', temJogo));   // o 3.º ponto acende quando há jogo
   }
@@ -6468,10 +6521,10 @@ body:has(#setupScreen.active) .legal{display:none}
     body.addEventListener('touchstart', e=>{ if(e.touches.length !== 1 || !$('liveScreen').classList.contains('e2on')) { x0 = null; return; } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now(); }, {passive:true});
     body.addEventListener('touchend', e=>{
       if(x0 == null) return; const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; x0 = null;
-      if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && Date.now() - t0 < 800) ecraVai(Math.max(1, Math.min(GM_EU ? 4 : 3, ecraAtual + (dx < 0 ? 1 : -1))));
+      if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && Date.now() - t0 < 800) { const O = GM_EU ? [1, 2, 5, 3, 4] : [1, 2, 5, 3], i = Math.max(0, O.indexOf(ecraAtual)); ecraVai(O[Math.max(0, Math.min(O.length - 1, i + (dx < 0 ? 1 : -1)))]); }
     }, {passive:true});
     $('e2Dots').addEventListener('click', e=>{ const b = e.target.closest('button'); if(b) ecraVai(+b.dataset.e); });
-    let ini = 1; try{ const v = +localStorage.getItem('prEcra'); ini = v === 2 || v === 3 ? v : 1; }catch(err){}
+    let ini = 1; try{ const v = +localStorage.getItem('prEcra'); ini = v === 2 || v === 3 || v === 5 ? v : 1; }catch(err){}
     ecraVai(ini);
   })();
   if(!hasBluetooth) $('showAllBtn').style.display = 'none';   // sem Bluetooth na web (iPhone fora do Bluefy) não serve
