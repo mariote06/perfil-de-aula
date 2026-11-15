@@ -1758,6 +1758,20 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 .live-overlay.pv2 .pv-spin{display:none!important}
 .live-overlay.pv2 .ring-fg{stroke-width:16!important;stroke-linecap:butt!important;animation:none!important;filter:drop-shadow(0 0 6px var(--zc)) drop-shadow(0 0 14px var(--zc))}
 .live-overlay.pv2 .ring-bg{stroke-width:16!important;stroke:rgba(255,255,255,.12)!important}
+/* os logótipos do "A seguir" nunca encolhem (com "% FC MÁX" o coração desaparecia) */
+.pv-nx .pv-ic{flex:none!important}
+.pv-nv span{min-width:0;overflow:hidden;text-overflow:ellipsis}
+.pv-nv>div:first-child{flex:0 1 auto}.pv-nv>div:first-child span{flex:none}.pv-nv{gap:22px!important}
+/* timer quadrado: maior, e o tempo nunca toca nos traços */
+.live-overlay.pv2 .ring-wrap{container-type:size;aspect-ratio:1;width:min(clamp(220px,36vh,420px),100%)!important}
+.live-overlay.pv2:not(.split) .ring-wrap{width:min(clamp(220px,37vh,440px),100%)!important}
+.live-overlay.pv2 svg.ring.pvq{transform:none!important;width:100%;height:100%;overflow:visible}
+.live-overlay.pv2 .pvq .ring-fg,.live-overlay.pv2 .pvq .ring-bg{fill:none;stroke-width:12!important}
+.live-overlay.pv2 .pvq .ring-fg{stroke:var(--zc);stroke-dasharray:565.49}
+.live-overlay.pv2 .ring-wrap .ring-in{position:absolute;inset:13%;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.live-overlay.pv2 .ring-wrap .live-timer{font-size:min(29cqw,40cqh)!important;line-height:.9;white-space:nowrap}
+.live-overlay.pv2 .ring-wrap .ring-sub{font-size:max(11px,3.4cqw)}
+.live-overlay.pv2 .ring-wrap .live-timer[data-n="4"],.live-overlay.pv2 .ring-wrap .live-timer[data-n="3"]{font-size:min(35cqw,44cqh)!important}
 </style>
 </head>
 <body data-view="home">
@@ -10823,8 +10837,16 @@ const SR3 = (()=>{
     band.appendChild(zc); band.appendChild(tc); act.insertBefore(band, act.firstChild);
     { const lb = $('liveBody'); if(lb && !lb.querySelector('.pv-nglow')){ const g = document.createElement('div'); g.className = 'pv-nglow'; lb.insertBefore(g, lb.firstChild); } }
     // néon a rodar à volta do timer
+    // timer QUADRADO: os mesmos 60 traços, à volta de um quadrado de cantos redondos (começa ao meio, em cima)
+    { const old = act.querySelector('svg.ring');
+      if(old){ const NS = 'http://www.w3.org/2000/svg', q = document.createElementNS(NS, 'svg');
+        q.setAttribute('class', 'ring pvq'); q.setAttribute('viewBox', '0 0 200 200'); q.setAttribute('aria-hidden', 'true');
+        const D = 'M100 9 H163 A28 28 0 0 1 191 37 V163 A28 28 0 0 1 163 191 H37 A28 28 0 0 1 9 163 V37 A28 28 0 0 1 37 9 Z';
+        q.innerHTML = '<defs><mask id="pvTracoQ" maskUnits="userSpaceOnUse" x="-10" y="-10" width="220" height="220"><path d="' + D + '" fill="none" stroke="#fff" stroke-width="26" pathLength="60" stroke-dasharray="0.34 0.66"/></mask></defs>' +
+          '<path class="ring-bg" d="' + D + '" mask="url(#pvTracoQ)"/><path class="ring-fg" id="ringFg" d="' + D + '" pathLength="565.49" mask="url(#pvTracoQ)"/>';
+        old.replaceWith(q); } }
     // anel do timer tracejado como os traços dos segundos de um relógio (60 traços)
-    const rs = act.querySelector('svg.ring');
+    const rs = null;
     if(rs){ const NS = 'http://www.w3.org/2000/svg', df = document.createElementNS(NS, 'defs'), mk = document.createElementNS(NS, 'mask'), c = document.createElementNS(NS, 'circle');
       mk.setAttribute('id', 'pvTraco'); mk.setAttribute('maskUnits', 'userSpaceOnUse'); mk.setAttribute('x', '0'); mk.setAttribute('y', '0'); mk.setAttribute('width', '200'); mk.setAttribute('height', '200');
       c.setAttribute('cx', '100'); c.setAttribute('cy', '100'); c.setAttribute('r', '90'); c.setAttribute('fill', 'none'); c.setAttribute('stroke', '#fff'); c.setAttribute('stroke-width', '24');
@@ -10942,6 +10964,7 @@ const SR3 = (()=>{
   function updateTimerText(){
     const t = $('liveTimer');
     t.textContent = fmtCountdown(liveRemaining);
+    t.dataset.n = t.textContent.length;   // 4 ou 5 caracteres: o tamanho ajusta-se para nunca tocar nos traços do quadrado
     t.classList.toggle('warn', liveRemaining <= 5.0 && liveRemaining > 0);
     const b = current.blocos[liveIdx];
     const dur = b ? blockDurationSec(b) : 1;
