@@ -1731,7 +1731,20 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 .live-overlay.pv2 .pv-nz b,.live-overlay.pv2 .pv-nz span{color:#0a0d12!important}
 .live-overlay.pv2 .pv-nm b{color:#fff!important}
 /* modo Aula (sem turma): o brilho da zona de treino mais forte */
-.live-overlay.pv2:not(.split) .live-body{background:radial-gradient(ellipse 60% 55% at 50% 45%,color-mix(in srgb,var(--zc) 48%,transparent),transparent 72%),radial-gradient(ellipse 110% 80% at 50% 115%,color-mix(in srgb,var(--zc) 34%,transparent),transparent 65%),radial-gradient(ellipse 80% 40% at 50% -5%,color-mix(in srgb,var(--zc) 26%,transparent),transparent 70%),#05070A!important}
+.live-overlay.pv2 .live-body{background:#05070A!important}
+/* luz da zona: vai diminuindo com o tempo do bloco (--gl vai de 1 a .2) */
+.live-overlay.pv2 .live-body::before{inset:0;animation:none;transform:none;opacity:var(--gl,1);transition:opacity 1s linear,background .6s ease;
+  background:radial-gradient(ellipse 60% 55% at 50% 45%,color-mix(in srgb,var(--zc) 30%,transparent),transparent 72%),radial-gradient(ellipse 110% 80% at 50% 115%,color-mix(in srgb,var(--zc) 20%,transparent),transparent 65%)}
+.live-overlay.pv2:not(.split) .live-body::before{background:radial-gradient(ellipse 60% 55% at 50% 45%,color-mix(in srgb,var(--zc) 48%,transparent),transparent 72%),radial-gradient(ellipse 110% 80% at 50% 115%,color-mix(in srgb,var(--zc) 34%,transparent),transparent 65%),radial-gradient(ellipse 80% 40% at 50% -5%,color-mix(in srgb,var(--zc) 26%,transparent),transparent 70%)}
+/* últimos 15 s: a cor do bloco seguinte entra a pulsar */
+.live-overlay.pv2 .live-body > .pv-nglow{position:absolute!important;inset:0;pointer-events:none;opacity:0;z-index:0;
+  background:radial-gradient(ellipse 60% 55% at 50% 45%,color-mix(in srgb,var(--nc) 50%,transparent),transparent 72%),radial-gradient(ellipse 110% 80% at 50% 115%,color-mix(in srgb,var(--nc) 36%,transparent),transparent 65%)}
+.live-overlay.pv2 .live-body.pvTrans > .pv-nglow{animation:pvNGlow 1.1s ease-in-out infinite}
+@keyframes pvNGlow{0%,100%{opacity:.15}50%{opacity:calc(.35 + .6 * var(--nt,0))}}
+.live-overlay.pv2 .live-body.pvTrans .pv-band{animation:pvBandT 1.1s ease-in-out infinite!important}
+@keyframes pvBandT{0%,100%{box-shadow:0 0 18px color-mix(in srgb,var(--zc) 50%,transparent)}50%{box-shadow:0 0 50px var(--nc),inset 0 0 26px color-mix(in srgb,var(--nc) 45%,transparent);border-color:var(--nc)}}
+.live-overlay.pv2 .live-body.pvTrans #liveActive .live-metric{animation:pvMetT 1.1s ease-in-out infinite}
+@keyframes pvMetT{50%{border-color:var(--nc);box-shadow:0 0 26px color-mix(in srgb,var(--nc) 60%,transparent)}}
 .live-overlay.pv2:not(.split) .pv-band{background:linear-gradient(90deg,color-mix(in srgb,var(--zc) 55%,transparent),color-mix(in srgb,var(--zc) 12%,transparent) 80%)!important;border-width:3px;box-shadow:0 0 40px color-mix(in srgb,var(--zc) 80%,transparent),inset 0 0 26px color-mix(in srgb,var(--zc) 45%,transparent);animation:pvZona 3s ease-in-out infinite}
 @keyframes pvZona{50%{box-shadow:0 0 70px var(--zc),inset 0 0 36px color-mix(in srgb,var(--zc) 60%,transparent)}}
 .live-overlay.pv2:not(.split) .pv-band .lz-pill{color:#fff!important;text-shadow:0 0 14px var(--zc),0 0 34px var(--zc)}
@@ -1739,6 +1752,12 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 .live-overlay.pv2:not(.split) .live-timer{text-shadow:0 0 30px color-mix(in srgb,var(--zc) 70%,transparent)}
 .live-overlay.pv2:not(.split) #liveActive .live-metric{border-color:var(--zc)!important;box-shadow:0 0 34px color-mix(in srgb,var(--zc) 70%,transparent);background:linear-gradient(180deg,color-mix(in srgb,var(--zc) 18%,#12161D),#12161D 70%)!important}
 @media (prefers-reduced-motion:reduce){.live-overlay.pv2:not(.split) .pv-band{animation:none}}
+/* logótipos do cartão "A seguir" parados */
+.pv-nx .pv-ic svg{animation:none!important}
+/* timer: sem néon a rodar; anel tracejado como os segundos de um relógio */
+.live-overlay.pv2 .pv-spin{display:none!important}
+.live-overlay.pv2 .ring-fg{stroke-width:16!important;stroke-linecap:butt!important;animation:none!important;filter:drop-shadow(0 0 6px var(--zc)) drop-shadow(0 0 14px var(--zc))}
+.live-overlay.pv2 .ring-bg{stroke-width:16!important;stroke:rgba(255,255,255,.12)!important}
 </style>
 </head>
 <body data-view="home">
@@ -2047,6 +2066,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       <button data-mode="turma" title="Tecla 2">Turma</button>
       <button data-mode="corrida" title="Tecla 3">Corrida</button>
       <button data-mode="sala" title="Cada aluno na sua bike, na planta da sala (tecla 5)">Sala</button>
+      <button type="button" id="pvPerc" hidden title="Volta ao jogo ou percurso deste bloco e a projeção passa outra vez a seguir os blocos sozinha (tecla 6)">🏞️ Percurso</button>
       <button class="god-btn" id="godBtn" title="God Mode na tua app PlayRide: ligar, desligar e escolher a conta (tecla 4)">⚡ God</button>
     </div>
     <button class="ctrl" id="liveBack" title="Bloco anterior">⏮</button>
@@ -4001,6 +4021,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   let ridersRef = null, offsetRef = null;
   let serverOffset = 0;
   let viewMode = 'auto';            // 'auto' | 'aula' | 'turma' | 'corrida'
+  let modoFixo = false;   // o professor escolheu um modo (Aula, Turma, Corrida, Sala): ao mudar de bloco a projeção não salta para o jogo/percurso
   let raceMetric = localStorage.getItem('ptCyclingRaceMetric') || 'pts'; // 'pts' | 'kj'
   let soundOn = localStorage.getItem('ptCyclingSound') !== '0';
   let ridersUiHandle = null, rankHandle = null;
@@ -4070,6 +4091,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     document.querySelectorAll('.ctrl-group [data-mode]').forEach(btn=>{
       btn.classList.toggle('on', btn.dataset.mode === mode);
     });
+    { const pp = $('pvPerc'); if(pp) pp.classList.toggle('on', mode === 'percurso' || mode === 'jogos'); }
     $('metricBtn').textContent = 'Ranking: ' + (raceMetric==='kj' ? 'kJ' : 'Pontos');
     $('soundBtn').textContent = soundOn ? '🔔' : '🔕';
     // na vista com a turma, a lâmpada fica em cima, logo por baixo da linha do PIN e dos tempos
@@ -4517,11 +4539,12 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function jgMudouBloco(b){
     const k = b && b.jogo;
     if(JG_TIPOS[k]){
-      viewMode = 'jogos'; JG.tipo = k;
+      if(!modoFixo) viewMode = 'jogos'; JG.tipo = k;
       const ch = jgChave();
       if(ch && JG.forma === 'professor' && !JG.editado[ch] && visRiders().length){ JG.editado[ch] = 1; jgGrupos(); setTimeout(jgEditar, 50); }
-    } else if(PERC_TIPOS[k]){ viewMode = 'percurso'; JG.ptipo = k; }
+    } else if(PERC_TIPOS[k]){ if(!modoFixo) viewMode = 'percurso'; JG.ptipo = k; }
     else if(viewMode === 'jogos' || viewMode === 'percurso') viewMode = 'auto';
+    $('pvPerc') && ($('pvPerc').hidden = !(JG_TIPOS[k] || PERC_TIPOS[k]));
     if(typeof renderRiders === 'function'){ renderRiders(); applyMode(); }
   }
   function jgChip(id){ return '<span class="jg-chip' + (JG.z[id] ? ' ok' : '') + (riders[id] && !riders[id].online ? ' off' : '') + '">' + escapeHtml(jgNome(id)) + '</span>'; }
@@ -10698,7 +10721,7 @@ const SR3 = (()=>{
     audPrevStop();
     jgReset(); JG.forma = current.equipas || 'equilibrado';
     summaryEntry = null;
-    viewMode = 'auto';
+    viewMode = 'auto'; modoFixo = false;
     $('liveOverlay').classList.remove('finished');
     $('liveDone').classList.remove('active');
     $('liveSummary').innerHTML = '';
@@ -10798,8 +10821,16 @@ const SR3 = (()=>{
     const zc = document.createElement('div'); zc.className = 'pv-bz'; zc.appendChild($('liveZone'));
     const tc = document.createElement('div'); tc.className = 'pv-bt'; ['liveTechnique', 'liveName', 'liveFeel'].forEach(id=> tc.appendChild($(id)));
     band.appendChild(zc); band.appendChild(tc); act.insertBefore(band, act.firstChild);
+    { const lb = $('liveBody'); if(lb && !lb.querySelector('.pv-nglow')){ const g = document.createElement('div'); g.className = 'pv-nglow'; lb.insertBefore(g, lb.firstChild); } }
     // néon a rodar à volta do timer
-    const rw = act.querySelector('.ring-wrap'); if(rw){ const sp = document.createElement('div'); sp.className = 'pv-spin'; rw.insertBefore(sp, rw.firstChild); }
+    // anel do timer tracejado como os traços dos segundos de um relógio (60 traços)
+    const rs = act.querySelector('svg.ring');
+    if(rs){ const NS = 'http://www.w3.org/2000/svg', df = document.createElementNS(NS, 'defs'), mk = document.createElementNS(NS, 'mask'), c = document.createElementNS(NS, 'circle');
+      mk.setAttribute('id', 'pvTraco'); mk.setAttribute('maskUnits', 'userSpaceOnUse'); mk.setAttribute('x', '0'); mk.setAttribute('y', '0'); mk.setAttribute('width', '200'); mk.setAttribute('height', '200');
+      c.setAttribute('cx', '100'); c.setAttribute('cy', '100'); c.setAttribute('r', '90'); c.setAttribute('fill', 'none'); c.setAttribute('stroke', '#fff'); c.setAttribute('stroke-width', '24');
+      c.setAttribute('stroke-dasharray', (565.49 / 60 * 0.36).toFixed(3) + ' ' + (565.49 / 60 * 0.64).toFixed(3));
+      mk.appendChild(c); df.appendChild(mk); rs.insertBefore(df, rs.firstChild);
+      rs.querySelectorAll('.ring-bg,.ring-fg').forEach(x=> x.setAttribute('mask', 'url(#pvTraco)')); }
     // alvos com logótipos: %FTP, %FC máx e cadência (por esta ordem)
     const ms = act.querySelector('.live-metrics');
     if(ms){ const m = id=> $(id).closest('.live-metric');
@@ -10916,6 +10947,10 @@ const SR3 = (()=>{
     const dur = b ? blockDurationSec(b) : 1;
     const frac = Math.max(0, Math.min(1, 1 - liveRemaining / (dur || 1)));
     $('ringFg').style.strokeDashoffset = (RING_C * frac).toFixed(1);
+    { const lb = $('liveBody'), temNx = !!current.blocos[liveIdx+1], tr = temNx && liveRemaining <= 15 && liveRemaining > 0;
+      lb.style.setProperty('--gl', (0.2 + 0.8 * (1 - frac)).toFixed(3));   // a luz da zona apaga-se aos poucos até ao fim do bloco
+      lb.style.setProperty('--nt', tr ? (1 - liveRemaining / 15).toFixed(3) : '0');   // a cor seguinte pulsa cada vez mais forte
+      lb.classList.toggle('pvTrans', tr); }
     // últimos 10 s: o "a seguir" pisca e conta
     const soon = !!current.blocos[liveIdx+1] && liveRemaining <= 10 && liveRemaining > 0 && livePlaying;
     $('liveBody').classList.toggle('soon', soon);
@@ -11249,9 +11284,12 @@ const SR3 = (()=>{
   $('sessionBadge').addEventListener('click', ()=> $('qrPanel').classList.toggle('active'));
   $('setupCloseBtn').addEventListener('click', ()=> $('setupBanner').classList.remove('active'));
 
+  // volta ao jogo/percurso do bloco atual e a projeção passa outra vez a mudar sozinha com os blocos
+  function pvPercurso(){ modoFixo = false; const b = current.blocos[liveIdx]; jgMudouBloco(b); }
+  $('pvPerc').onclick = pvPercurso;
   $('godBtn').onclick = godConfig;   // God Mode na app PlayRide do professor: ligar/desligar e escolher a conta (tecla 4)
   document.querySelectorAll('.ctrl-group [data-mode]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{ viewMode = btn.dataset.mode; renderRiders(); applyMode(); });
+    btn.addEventListener('click', ()=>{ viewMode = btn.dataset.mode; modoFixo = true; renderRiders(); applyMode(); });
   });
   function toggleMetric(){
     raceMetric = raceMetric === 'pts' ? 'kj' : 'pts';
@@ -11292,11 +11330,12 @@ const SR3 = (()=>{
     if(e.code === 'Space'){ e.preventDefault(); if(livePlaying) stopTicking(); else startTicking(); }
     if(e.code === 'ArrowRight'){ goToBlock(liveIdx+1); }
     if(e.code === 'ArrowLeft'){ $('liveBack').click(); }
-    if(e.key === '1'){ viewMode = 'aula'; applyMode(); }
-    if(e.key === '2'){ viewMode = 'turma'; renderRiders(); }
-    if(e.key === '3'){ viewMode = 'corrida'; renderRiders(); }
+    if(e.key === '1'){ viewMode = 'aula'; modoFixo = true; applyMode(); }
+    if(e.key === '2'){ viewMode = 'turma'; modoFixo = true; renderRiders(); }
+    if(e.key === '3'){ viewMode = 'corrida'; modoFixo = true; renderRiders(); }
+    if(e.key === '6'){ pvPercurso(); }
     if(e.key === '4'){ godConfig(); }
-    if(e.key === '5'){ viewMode = 'sala'; renderRiders(); }
+    if(e.key === '5'){ viewMode = 'sala'; modoFixo = true; renderRiders(); }
     if((e.key === 'e' || e.key === 'E') && SR.on && SR.fsTroca) SR.fsTroca();
     if(e.key === 'm' || e.key === 'M'){ toggleMetric(); }
     if(e.key === 'q' || e.key === 'Q'){ $('qrPanel').classList.toggle('active'); }
