@@ -1026,6 +1026,45 @@ body.ecra4-on #kartCog{display:none!important;}
 .god-pi{display:flex;align-items:center;gap:8px;background:#1d1a14;border:1px solid #5a3d22;border-radius:12px;padding:9px 10px;margin-bottom:6px}.god-pi b{flex:1;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .god-pok,.god-pno{border:0;border-radius:999px;padding:9px 14px;font:700 14px 'Inter',sans-serif}.god-pok{background:#3DD45C;color:#0b1a10}.god-pno{background:#3a2226;color:#ffb3b3}
 .god-pbar{position:fixed;left:50%;top:calc(10px + env(safe-area-inset-top));transform:translateX(-50%);z-index:400;background:#E8722C;color:#111;font:800 15px system-ui,sans-serif;border:0;border-radius:999px;padding:10px 18px;box-shadow:0 8px 24px rgba(0,0,0,.5);max-width:92vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.god-pbar[hidden]{display:none}
+/* 1.ª página: humor e botão de confirmar maiores */
+.home .mood{max-width:480px!important;padding:20px 16px 18px!important;margin-top:18px!important;border-radius:22px!important}
+.home .mood-h{font-size:clamp(22px,6.4vw,26px)!important;margin:0 0 14px!important}
+.home .mood-opts{gap:6px!important;grid-template-columns:repeat(5,minmax(0,1fr))!important}
+.home .mood-opts button{padding:14px 0 12px!important;border-radius:16px!important;gap:7px!important;font-size:clamp(10px,2.75vw,13.5px)!important;font-weight:600;min-width:0;overflow:hidden;letter-spacing:-.3px}
+.home .mood-opts button i{font-size:clamp(38px,11vw,48px)!important}
+.home .mood-opts button i .ae{width:clamp(40px,11.5vw,50px)!important;height:clamp(40px,11.5vw,50px)!important}
+.home .mood-r{font-size:clamp(16px,4.4vw,18px)!important;margin-top:14px!important}
+.home .bora-btn{display:block!important;width:100%;margin-top:18px!important;padding:17px 18px!important;font-size:clamp(19px,5.4vw,22px)!important;font-weight:800;text-align:center;border-radius:16px!important}
+/* ecrã dos sensores: tudo maior, ajustado à altura do telemóvel (--k é calculado para não haver scroll) */
+#setupScreen{--k:1;gap:calc(8px * var(--k))!important;padding-bottom:calc(14px * var(--k))!important}
+#setupScreen h1{font-size:calc(26px * var(--k))!important}
+#setupScreen #setupP{font-size:calc(12px * var(--k))!important}
+#setupScreen .form{gap:calc(8px * var(--k))!important}
+#setupScreen .form label{font-size:calc(11.5px * var(--k))!important}
+#setupScreen .form input{padding:calc(9px * var(--k)) 13px!important;font-size:max(16px,calc(16px * var(--k)))!important}
+#setupScreen .hint{font-size:calc(11.5px * var(--k))!important}
+#setupScreen .sensor{padding:calc(7px * var(--k)) 13px!important}
+#setupScreen .sensor .s-name{font-size:calc(16px * var(--k))!important;white-space:nowrap}
+#setupScreen .sensor .s-status{font-size:calc(12.5px * var(--k))!important}
+#setupScreen .sensor button{font-size:calc(14px * var(--k))!important;padding:calc(8px * var(--k)) calc(14px * var(--k))!important}
+#setupScreen .ssn-row .ssn-b button{font-size:min(calc(13px * var(--k)),15px)!important;padding:calc(8px * var(--k)) min(calc(10px * var(--k)),11px)!important}
+#setupScreen .ssn-row .s-name{font-size:min(calc(16px * var(--k)),18.5px)!important;white-space:normal!important;line-height:1.1}#setupScreen .ssn-row > div:first-child{min-width:0}
+#setupScreen .ssn-row .s-status{font-size:calc(11.5px * var(--k))!important}
+#setupScreen .bt-all{font-size:calc(12.5px * var(--k))!important;padding:calc(6px * var(--k)) 10px!important}
+#setupScreen .favs{padding:calc(7px * var(--k)) 10px!important}#setupScreen .favs-h{font-size:calc(14px * var(--k))!important}
+#setupScreen .fav{font-size:calc(13px * var(--k))!important;padding:calc(6px * var(--k)) calc(10px * var(--k))!important}
+#setupScreen .sensor .fav-st{font-size:calc(24px * var(--k))!important}
+#setupScreen .acct-line{font-size:calc(11.5px * var(--k))!important}
+#setupScreen .btn-primary{padding:calc(12px * var(--k)) 24px!important;font-size:calc(17px * var(--k))!important}
+body:has(#setupScreen.active) .legal{display:none}
+/* 1.ª página: Treinos realizados, O meu ciclista e A minha ficha como botões grandes e coloridos */
+.home.com-tabs{padding-bottom:calc(118px + env(safe-area-inset-bottom))!important}
+.home .home-grid.tabs{gap:8px!important;padding:10px 10px calc(10px + env(safe-area-inset-bottom))!important;background:rgba(10,13,18,.97)!important}
+.home .home-grid.tabs .tile{background:color-mix(in srgb,var(--tc) 16%,#12161D)!important;border:1.5px solid color-mix(in srgb,var(--tc) 55%,transparent)!important;border-radius:16px!important;padding:12px 4px 11px!important;gap:6px!important;min-height:84px!important;color:#fff!important}
+.home .home-grid.tabs .tile svg{width:30px!important;height:30px!important;color:var(--tc)!important;stroke-width:2!important}
+.home .home-grid.tabs .tile{justify-content:flex-start!important}
+.home .home-grid.tabs .tile b{font-size:clamp(13px,3.6vw,15px)!important;font-weight:800!important;min-height:2.2em;display:flex!important;align-items:center;justify-content:center}
+.home .home-grid.tabs .tile:active{transform:scale(.96);background:color-mix(in srgb,var(--tc) 28%,#12161D)!important}
 </style>
 </head>
 <body>
@@ -1719,7 +1758,7 @@ body.ecra4-on #kartCog{display:none!important;}
   let currentScreen = 'homeScreen';
   function showScreen(id){
     try{ if(id === 'homeScreen') setTimeout(liveLiga, 0); else liveDesliga(); }catch(e){}
-    currentScreen = id;
+    currentScreen = id; if(id === 'setupScreen') setTimeout(()=>{ try{ setupFit(); }catch(e){} }, 0);
     ['homeScreen','libScreen','fichaScreen','joinScreen','setupScreen','accountScreen'].forEach(s=> $(s).classList.toggle('active', s===id));
     $('liveScreen').classList.toggle('active', id==='liveScreen');
     document.documentElement.classList.toggle('in-class', id==='liveScreen');
@@ -2563,7 +2602,7 @@ body.ecra4-on #kartCog{display:none!important;}
       $('ftpLabel').firstChild.textContent = modo === 'fc' ? 'FTP (watts, opcional)' : 'O teu FTP (watts)';
       renderAcctLine();
       showJoinError(OFF ? '📶 Sem internet: entras com a aula guardada neste telemóvel e ligas-te sozinho quando a internet voltar.' : '');
-      showScreen('setupScreen');
+      showScreen('setupScreen'); autoArranca();
       if(!hasBluetooth) showBtWarning();
       else if(/MiuiBrowser|XiaoMi|SamsungBrowser|OPR\/|HeyTapBrowser|HuaweiBrowser|VivoBrowser|Firefox/i.test(navigator.userAgent)){
         const w = $('btWarn');
@@ -6441,7 +6480,7 @@ body.ecra4-on #kartCog{display:none!important;}
   $('ftpEditSave').addEventListener('click', saveFtpEdit);
   $('ftpEditVal').addEventListener('keydown', (e)=>{ if(e.key === 'Enter') saveFtpEdit(); });
   $('ftpEdit').addEventListener('click', (e)=>{ if(e.target.id === 'ftpEdit') closeFtpEdit(); });
-  $('enterBtn').addEventListener('click', ()=>{ tryFullscreen(); if(solo) startSolo(); else enterClass(); });
+  $('enterBtn').addEventListener('click', ()=>{ if(PRE){ sensoresContinua(); return; } tryFullscreen(); if(solo) startSolo(); else enterClass(); });
   $('ssnBolso').addEventListener('click', ()=> ssnEscolhe('bolso'));
   $('ssnGuiador').addEventListener('click', ()=> ssnEscolhe('guiador'));
   $('ssnMenos').addEventListener('click', ()=> ssnMuda(-1));
@@ -7526,7 +7565,7 @@ body.ecra4-on #kartCog{display:none!important;}
       $('moodResp').innerHTML = '👆 Escolhe primeiro como te sentes hoje.';
       return;
     }
-    openGo();
+    abreSensores();   // 2.º passo: os sensores; só depois a escolha de como pedalar
   });
   $('goClose').addEventListener('click', closeGo);
   $('goSheet').addEventListener('click', e=>{ if(e.target === $('goSheet') || e.target.closest('.tile.go')) closeGo(); });
@@ -7606,6 +7645,54 @@ body.ecra4-on #kartCog{display:none!important;}
     if(currentScreen === 'libScreen') renderLib();
   }
 
+  // ===== passo 2: os sensores (antes de escolher como pedalar). Depois de "Continuar", a aula, o Só pedalar
+  // ou o treino da biblioteca arrancam sozinhos se já estiver tudo pronto (sem voltar a este ecrã) =====
+  let PRE = false, PRE_OK = false;
+  // o ecrã dos sensores cresce até ocupar a altura do telemóvel, sem nunca precisar de scroll
+  let setupFitRaf = 0;
+  function setupFit(){ cancelAnimationFrame(setupFitRaf); setupFitRaf = requestAnimationFrame(()=>{
+    const el = $('setupScreen'); if(!el || currentScreen !== 'setupScreen') return;
+    const cabe = ()=> document.scrollingElement.scrollHeight <= window.innerHeight + 1 && [...el.querySelectorAll('.sensor')].every(x=> x.scrollWidth <= x.clientWidth + 1);
+    let k = 1.45; el.style.setProperty('--k', k);
+    while(k > 0.8 && !cabe()){ k = Math.round((k - 0.05) * 100) / 100; el.style.setProperty('--k', k); }
+  }); }
+  window.addEventListener('resize', setupFit);
+  try{ new MutationObserver(()=> setupFit()).observe(document.getElementById('setupScreen'), { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden', 'class'] }); }catch(e){}
+  function abreSensores(){
+    PRE = true; solo = null; pin = null; modo = 'ftp';
+    $('setupTitle').textContent = 'Os teus sensores';
+    $('setupP').textContent = 'Liga a bike e a cinta, ou escolhe sem sensores. A seguir escolhes como queres pedalar.';
+    $('nameLabel').style.display = '';
+    $('nameInput').value = (perfil && perfil.nome) || lsGet(LS.name) || '';
+    $('ftpInput').value = (perfil && perfil.ftp) || lsGet(LS.ftp) || '';
+    $('fcInput').value = (perfil && perfil.fcMax) || lsGet('aavFcMax') || '';
+    $('fcLabel').style.display = ''; $('fcHint').style.display = 'none';
+    $('fcLabel').firstChild.textContent = 'FC máxima (bpm)'; $('ftpLabel').firstChild.textContent = 'FTP (watts, opcional)';
+    $('enterBtn').textContent = 'Continuar →'; $('setupError').textContent = '';
+    renderAcctLine(); showScreen('setupScreen');
+    if(!hasBluetooth) showBtWarning();
+  }
+  function sensoresContinua(){
+    const nome = $('nameInput').value.trim(), ftp = Math.round(Number($('ftpInput').value) || 0), fc = Math.round(Number($('fcInput').value) || 0);
+    if(!(bikeConnected() || hrConnected() || semSens || demo)){ $('setupError').textContent = 'Liga a bike ou a cinta, ou escolhe "Sem sensores".'; return; }
+    if(fc && (fc < 100 || fc > 230)){ $('setupError').textContent = 'A FC máxima tem de estar entre 100 e 230 bpm.'; $('fcInput').focus(); return; }
+    if(ftp && (ftp < 50 || ftp > 600)){ $('setupError').textContent = 'O FTP tem de estar entre 50 e 600 W.'; $('ftpInput').focus(); return; }
+    if(nome) lsSet(LS.name, nome); if(ftp) lsSet(LS.ftp, String(ftp)); if(fc) lsSet('aavFcMax', String(fc));
+    PRE = false; PRE_OK = true; $('setupError').textContent = '';
+    showScreen('homeScreen'); renderHome(); setTimeout(openGo, 50);
+  }
+  // depois do passo 2, o ecrã de cada modo só aparece se faltar alguma coisa
+  function autoArranca(){
+    if(!PRE_OK || PRE) return;
+    setTimeout(()=>{
+      if(currentScreen !== 'setupScreen' || PRE) return;
+      const nome = $('nameInput').value.trim(), ftp = Number($('ftpInput').value) || 0, fc = Number($('fcInput').value) || 0;
+      const sens = bikeConnected() || hrConnected() || semSens || demo;
+      const ok = sens && (solo ? (modo !== 'fc' || fc >= 100) : (nome && (modo === 'fc' ? fc >= 100 : (ftp >= 50 || semSens))));
+      if(!ok) return;   // falta um dado: fica neste ecrã para o aluno completar
+      tryFullscreen(); if(solo) startSolo(); else enterClass();
+    }, 250);
+  }
   function configureSetup(title, kind){
     $('setupTitle').textContent = title;
     $('setupP').textContent = kind === 'livre' ? 'Liga a bike e pedala ao teu ritmo. No fim, o treino fica guardado na tua conta.'
@@ -7625,6 +7712,7 @@ body.ecra4-on #kartCog{display:none!important;}
     renderAcctLine();
     showScreen('setupScreen');
     if(!hasBluetooth) showBtWarning();
+    autoArranca();
   }
   function openLivre(){
     solo = 'livre'; pin = null; blocos = []; modo = 'ftp'; treinoNome = 'Só pedalar';
@@ -8153,6 +8241,7 @@ body.ecra4-on #kartCog{display:none!important;}
   $('soloSkip').addEventListener('click', ()=>{ if(state && state.status !== 'finished') soloGoTo(state.blockIndex + 1); render(); });
   $('finHomeBtn').addEventListener('click', ()=> leave());
   $('setupBack').addEventListener('click', ()=>{
+    if(PRE){ PRE = false; showScreen('homeScreen'); renderHome(); return; }   // passo 2 → volta ao humor
     const was = solo; solo = null; pin = null;
     if(was === 'guiado') openLib();
     else if(was === 'livre'){ showScreen('homeScreen'); renderHome(); }
