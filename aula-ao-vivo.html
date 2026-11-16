@@ -7749,7 +7749,7 @@ body:has(#setupScreen.active) .legal{display:none}
       let h = '<div class="bk-box"><div class="bk-h"><b>Em que bike estás?</b><button type="button" class="bk-x" aria-label="Fechar">✕</button></div>' +
         '<div class="bk-salas">' + Object.keys(SALAS).map(k=> '<button type="button" data-s="' + k + '" class="' + (k === BKS.sala ? 'on' : '') + '">' + SALAS[k] + '</button>').join('') + '</div>';
       // pelo número: o aluno escreve o número que está na bike e a app liga ao sensor dessa bike
-      if(mm && mm.b.some(b=> !b.p)) h += '<form class="bk-numf"><label for="bkNumIn">Nº da bike</label><input id="bkNumIn" type="text" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="—" value="' + (eu && eu.s === BKS.sala ? escapeHtml(String(eu.n)) : '') + '"><button type="submit">Ligar</button></form><div class="bk-ou">ou toca no teu lugar na sala</div>';
+      if(mm && mm.b.some(b=> !b.p)) h += '<form class="bk-numf"><label for="bkNumIn">Nº da bike</label><input id="bkNumIn" type="text" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="—" value="' + (eu && eu.s === BKS.sala && eu.n !== 'prof' ? escapeHtml(String(eu.n)) : '') + '"><button type="submit">Ligar</button></form><div class="bk-ou">ou toca no teu lugar na sala</div>';
       if(!mm || !mm.b.length) h += '<p class="bk-dica">Ainda não há planta desta sala.</p>';
       else{
         // igual ao "Mapa da sala" do Coach: a mesma grelha, cada bike numa quadrícula, o professor e o ecrã no mesmo sítio
@@ -7761,7 +7761,7 @@ body:has(#setupScreen.active) .legal{display:none}
         const tam = cel * Math.min(1.7, Math.max(1, gap - .3)), off = (cel - tam) / 2; const P = Math.ceil(Math.max(0, -off));   // margem para os botões da beira não saírem da grelha
         h += (mm.f === 'b' ? '' : ecra) + '<div class="bk-pl" style="width:' + (mx * cel + 2 * P) + 'px;height:' + (my * cel + 2 * P) + 'px;background-size:' + cel + 'px ' + cel + 'px;background-position:' + P + 'px ' + P + 'px;--bf:' + Math.max(14, Math.round(cel * .62)) + 'px">' + mm.b.map(b=>{
           const oc = b.p ? BKS.oc.prof : BKS.oc[b.n], meu = eu && eu.s === BKS.sala && eu.n === (b.p ? 'prof' : String(b.n));
-          return '<button type="button" class="bk-b' + (b.p ? ' prof' : '') + (oc ? ' oc' : '') + (meu ? ' meu' : '') + '"' +  + ' data-n="' + escapeHtml(String(b.n)) + '" style="left:' + Math.round(P + b.x * cel + off + 2) + 'px;top:' + Math.round(P + b.y * cel + off + 2) + 'px;width:' + Math.round(tam - 4) + 'px;height:' + Math.round(tam - 4) + 'px">' +
+          return '<button type="button" class="bk-b' + (b.p ? ' prof' : '') + (oc ? ' oc' : '') + (meu ? ' meu' : '') + '" data-n="' + escapeHtml(String(b.n)) + '" style="left:' + Math.round(P + b.x * cel + off + 2) + 'px;top:' + Math.round(P + b.y * cel + off + 2) + 'px;width:' + Math.round(tam - 4) + 'px;height:' + Math.round(tam - 4) + 'px">' +
             (b.p ? '🎤' + (tam > 44 ? '<small>professor</small>' : '') : escapeHtml(String(b.n))) + (oc ? '<small>' + escapeHtml(oc) + '</small>' : '') + '</button>'; }).join('') + '</div>' + (mm.f === 'b' ? ecra : '');
       }
       if(bikeConnected()) h += '<button type="button" class="bk-desl">⏏ Desligar ' + escapeHtml(/^Bike /.test(bkNome(S.bikeName || '')) ? 'a ' + bkNome(S.bikeName || '') : 'a bike') + '</button>';
