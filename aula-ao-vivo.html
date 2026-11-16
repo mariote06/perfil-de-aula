@@ -1127,20 +1127,42 @@ body:has(#setupScreen.active) .legal{display:none}
 #liveScreen.ecra5 .e5{display:block}
 #liveScreen.ecra5 #activeBlock,#liveScreen.ecra5 #myBatt,#liveScreen.ecra5 #myLamp,#liveScreen.ecra5 #className,#liveScreen.ecra5 #ocTag,#liveScreen.ecra5 #jgMe,#liveScreen.ecra5 #neonChao1,#liveScreen.ecra5 #nextEl{display:none!important}
 #liveScreen.ecra5 #bodyEl{background:#0B0E13!important}
-.rv-top{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:4px 0 12px}
-.rv-top>div{background:#12161D;border:1px solid #262D39;border-radius:12px;padding:8px 2px;text-align:center}
-.rv-top b{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(24px,8vw,36px);line-height:1;color:#fff}
-.rv-top span{font-size:11px;font-weight:700;color:#8A93A3;letter-spacing:.5px}
-.rv-top .ok{border-color:#3DD45C;background:rgba(61,212,92,.12)}.rv-top .ok b{color:#3DD45C}.rv-top .fora b{color:#FFB020}
-.rv-h{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#c9d1dd;margin:2px 0 6px;text-align:left}.rv-h b{color:#FFD60A;font-size:1.2em}
-.rv-g{font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#6f7888;text-align:left;margin:10px 2px 4px}.rv-g.lider{color:#FFD60A;font-size:15px;text-align:center}
-.rv-l{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:'p n d' 'p v w';align-items:center;column-gap:10px;background:#12161D;border:1px solid #262D39;border-left:6px solid var(--rz);border-radius:12px;padding:8px 12px;margin-bottom:6px;text-align:left}
-.rv-l.eu{background:color-mix(in srgb,var(--rz) 18%,#12161D);border:2px solid var(--rz);border-left-width:8px;padding:12px 14px;margin:8px 0;box-shadow:0 0 18px color-mix(in srgb,var(--rz) 40%,transparent);grid-template-areas:'p n n' 'p v w'}
-.rv-p{grid-area:p;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:26px;color:#fff;min-width:34px}
-.rv-n{grid-area:n;font-weight:800;font-size:17px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rv-l.eu .rv-n{font-size:20px}
-.rv-d{grid-area:d;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:24px}.rv-d.fr{color:#FF5A5A}.rv-d.tr{color:#3DD45C}
-.rv-v{grid-area:v;font-size:13px;color:#a9b6c4}.rv-w{grid-area:w;font-size:13px;color:#a9b6c4;text-align:right}
-.rv-v b,.rv-w b{font-family:'Barlow Condensed',sans-serif;font-size:20px;color:#fff}
+#rvBox{display:flex;flex-direction:column;min-height:var(--rvh,0px)}#rvBox>*{flex:none}#rvBox .rv-nx{margin-top:auto}#rvBox .rv-l:last-of-type,#rvBox .rv-g:last-of-type{margin-bottom:10px}
+/* o teu cartão na corrida: maior que os dos outros */
+#rvBox .rv-l.eu{padding:12px 14px 14px;margin:9px 0;row-gap:8px;border-width:3px;border-left-width:10px}
+#rvBox .rv-l.eu .rv-p{font-size:34px}
+#rvBox .rv-l.eu .rv-n{font-size:28px}
+#rvBox .rv-l.eu .rv-d.eu{font-size:clamp(20px,6vw,26px)}
+#rvBox .rv-l.eu .rv-s{gap:6px}
+#rvBox .rv-l.eu .rv-s>div{flex-direction:column;align-items:center;gap:0;padding:5px 2px 6px;background:rgba(0,0,0,.32)}
+#rvBox .rv-l.eu .rv-s b{font-size:clamp(28px,9vw,38px);line-height:1}
+#rvBox .rv-l.eu .rv-s span{font-size:11px;letter-spacing:.5px}
+.rv-bl{background:linear-gradient(160deg,color-mix(in srgb,var(--bz) 22%,#12161D),#12161D 75%);border:2px solid var(--bz);border-radius:14px;padding:7px 12px 8px;margin:2px 0 8px;text-align:left}
+.rv-bl1{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.rv-z{background:var(--bz);color:#0A0D12;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(16px,4.8vw,20px);padding:2px 12px;border-radius:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rv-t{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(28px,8.5vw,38px);line-height:1;color:#fff}
+.rv-tec{font-weight:800;font-size:clamp(16px,4.8vw,20px);color:#fff;margin:2px 0 5px;line-height:1.15}
+.rv-al{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rv-al>div{background:rgba(0,0,0,.3);border-radius:11px;padding:4px;text-align:center;display:flex;align-items:baseline;justify-content:center;gap:6px}
+.rv-al b{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(22px,7vw,30px);line-height:1;color:var(--bz)}
+.rv-al span{font-size:11px;font-weight:800;letter-spacing:1px;color:#aab3c0}
+.rv-nx{display:grid;grid-template-columns:auto auto 1fr;grid-template-areas:'l z i' 'v v v';align-items:center;gap:4px 10px;background:linear-gradient(160deg,color-mix(in srgb,var(--bz,#8A93A3) 20%,#12161D),#12161D 80%);border:2px solid var(--bz,#8A93A3);border-left-width:8px;border-radius:14px;padding:10px 14px 12px;margin-top:10px;text-align:left}
+.rv-nl{grid-area:l;font-size:13px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#8A93A3}
+.rv-nz{grid-area:z;background:var(--bz);color:#0A0D12;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;padding:0 10px;border-radius:8px}
+.rv-ni{grid-area:i;font-weight:800;font-size:clamp(17px,5.4vw,22px);color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rv-nv{grid-area:v;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:clamp(24px,7.4vw,32px);color:#fff;line-height:1.05}
+.rv-h{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:19px;color:#c9d1dd;margin:2px 0 6px;text-align:left}.rv-h b{color:#FFD60A;font-size:1.2em}
+.rv-g{font-size:12px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:#6f7888;text-align:left;margin:8px 2px}.rv-g.lider{color:#FFD60A;font-size:15px;text-align:center}
+.rv-l{display:grid;grid-template-columns:auto 1fr auto;grid-template-areas:'p n d' 's s s';align-items:center;column-gap:10px;row-gap:4px;background:#12161D;border:1px solid #262D39;border-left:6px solid var(--rz);border-radius:12px;padding:6px 10px 7px;margin-bottom:6px;text-align:left}
+.rv-l.eu{background:color-mix(in srgb,var(--rz) 18%,#12161D);border:2px solid var(--rz);border-left-width:8px;padding:8px 12px;margin:7px 0;box-shadow:0 0 18px color-mix(in srgb,var(--rz) 40%,transparent)}
+.rv-p{grid-area:p;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;color:#fff;min-width:30px}
+.rv-n{grid-area:n;font-weight:800;font-size:16px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rv-l.eu .rv-n{font-size:19px}
+.rv-d{grid-area:d;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:22px;text-align:right;line-height:1}.rv-d.fr{color:#FF5A5A}.rv-d.tr{color:#3DD45C}.rv-d.eu{color:#FFD60A;font-size:19px}
+.rv-d small{display:block;font-size:13px;color:#8A93A3}
+.rv-s{grid-area:s;display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.rv-s>div{background:rgba(0,0,0,.25);border-radius:8px;padding:3px 2px;text-align:center;display:flex;align-items:baseline;justify-content:center;gap:3px;white-space:nowrap}
+.rv-s b{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:21px;line-height:1.05;color:#fff}.rv-l.eu .rv-s b{font-size:24px}
+.rv-s span{font-size:9.5px;font-weight:700;color:#8A93A3}
 .god-crit{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.god-crit button{background:#232838;border:1px solid #39405A;color:#fff;border-radius:12px;padding:10px 4px;font:700 14px/1.2 'Inter',sans-serif}
 .god-crit button small{display:block;font-size:11px;font-weight:600;color:#9AA3B2;margin-top:2px}.god-crit button.on{background:#3B2F66;border-color:#A78BFA;box-shadow:0 0 0 2px #A78BFA55}
 </style>
@@ -2134,6 +2156,9 @@ body:has(#setupScreen.active) .legal{display:none}
   }
   async function favLiga(f){
     const st = f.t === 'bike' ? setBikeStatus : setHrStatus;
+    // já está ligado a este sensor (ficou ligado da aula anterior): não desliga para voltar a ligar
+    if(f.t === 'bike' && bikeConnected() && S.bikeName === f.n){ st(S.bikeName + ' ligada', true); return; }
+    if(f.t !== 'bike' && hrConnected() && S.hrName === f.n){ st(S.hrName + ' ligada', true); return; }
     // 1) direto, sem lista: dispositivos que este browser já autorizou (getDevices)
     if(navigator.bluetooth.getDevices){
       let d = null;
@@ -2967,6 +2992,48 @@ body:has(#setupScreen.active) .legal{display:none}
     state = Object.assign({}, state, {status:'finished', blockIndex: blocos.length});
   }
 
+  // ===== app viva em segundo plano =====
+  // O Android fecha as páginas em segundo plano para poupar memória, sem perguntar. Uma página a tocar som é tratada
+  // como leitor de música: fica com a notificação "PlayRide" e o sistema quase nunca a fecha. Por isso, durante a aula
+  // ou com a bike / cinta ligadas, a app toca um som inaudível em ciclo (ruído a -80 dB, ninguém o ouve).
+  const VIVA = { el: null, quer: false };
+  function vivaSom(){
+    const sr = 8000, n = sr * 10, buf = new ArrayBuffer(44 + n * 2), v = new DataView(buf);
+    const w = (o, t)=>{ for(let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+    w(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+    v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, n * 2, true);
+    for(let i = 0; i < n; i++) v.setInt16(44 + i * 2, (Math.random() * 6 - 3) | 0, true);
+    return URL.createObjectURL(new Blob([buf], { type: 'audio/wav' }));
+  }
+  function vivaPrecisa(){ return (currentScreen === 'liveScreen' && !sessionEnded) || bikeConnected() || hrConnected(); }
+  function vivaMeta(){
+    if(!('mediaSession' in navigator)) return;
+    try{
+      navigator.mediaSession.metadata = new MediaMetadata({ title: 'PlayRide', artist: currentScreen === 'liveScreen' ? 'Treino a decorrer · toca para voltar' : 'Sensores ligados · toca para voltar',
+        artwork: [{ src: 'icon-192.png', sizes: '192x192', type: 'image/png' }, { src: 'icon-512.png', sizes: '512x512', type: 'image/png' }] });
+      // os botões da notificação não param a app (só o aluno, dentro da app, termina o treino)
+      ['pause', 'stop'].forEach(a=>{ try{ navigator.mediaSession.setActionHandler(a, ()=>{ vivaToca(); }); }catch(e){} });
+      navigator.mediaSession.playbackState = 'playing';
+    }catch(e){}
+  }
+  function vivaToca(){
+    if(!VIVA.el){ VIVA.el = new Audio(vivaSom()); VIVA.el.loop = true; VIVA.el.preload = 'auto'; VIVA.el.setAttribute('playsinline', '');
+      VIVA.el.addEventListener('pause', ()=>{ if(VIVA.quer) setTimeout(vivaToca, 300); }); }
+    if(VIVA.el.paused){ const p = VIVA.el.play(); if(p && p.catch) p.catch(()=>{}); }
+    vivaMeta();
+  }
+  function vivaVer(){
+    VIVA.quer = vivaPrecisa();
+    if(VIVA.quer) vivaToca();
+    else if(VIVA.el && !VIVA.el.paused){ VIVA.el.pause(); try{ navigator.mediaSession.playbackState = 'none'; navigator.mediaSession.metadata = null; }catch(e){} }
+  }
+  // o som só pode começar depois de um toque do aluno: tenta em cada toque e de 3 em 3 segundos
+  ['click', 'touchend', 'keydown'].forEach(ev=> window.addEventListener(ev, ()=> vivaVer(), { capture: true, passive: true }));
+  setInterval(vivaVer, 3000);
+  document.addEventListener('visibilitychange', vivaVer);
+  // fechar ou recarregar a página com os sensores ligados (fora da aula também) pede confirmação
+  window.addEventListener('beforeunload', e=>{ if(currentScreen !== 'liveScreen' && (bikeConnected() || hrConnected())){ e.preventDefault(); e.returnValue = ''; } });
+
   function stopLoops(){
     clearInterval(renderHandle); clearInterval(sampleHandle); clearInterval(pushHandle);
     renderHandle = sampleHandle = pushHandle = null;
@@ -2984,7 +3051,7 @@ body:has(#setupScreen.active) .legal{display:none}
     const wasSolo = solo; solo = null; soloClock.acc = 0; soloClock.since = 0;
     document.body.classList.remove('solo','solo-livre');
     $('finHomeBtn').style.display = 'none';
-    disconnectBike(); disconnectHr();
+    // a bike e a cinta continuam ligadas enquanto a app estiver aberta: a próxima aula ou treino arranca sem voltar a ligar
     if(semSens) ssnEscolhe(semSens);   // desliga o "sem sensores"
     releaseWakeLock();
     $('pinInput').value = '';
@@ -3049,7 +3116,7 @@ body:has(#setupScreen.active) .legal{display:none}
     if(!on && RV.ref){ try{ RV.ref.off(); RV.cref && RV.cref.off(); }catch(e){} RV.ref = null; RV.cref = null; }
   }
   function rvZc(w, ftp, hr, fc){ const p = modo === 'fc' ? (hr && fc ? hr / fc * 100 : null) : (ftp && w ? w / ftp * 100 : null); return p == null ? '#4A5568' : zoneColor(getZone(p).css); }
-  function rvRender(b, remaining, range){
+  function rvRender(b, next, remaining, range){
     const box = $('rvBox'); if(!box) return;
     const agora = Date.now(), eu = riderId;
     const L = Object.keys(RV.L).map(id=> Object.assign({ id }, RV.L[id])).filter(r=> r && !r.left && r.id !== eu && agora - (r.t || 0) < 60000 && (r.km || 0) >= 0);
@@ -3058,21 +3125,43 @@ body:has(#setupScreen.active) .legal{display:none}
     const zP = r=> (r.as || 0) > 0 ? Math.min(100, (r.iz || 0) / r.as * 100) : 0, val = r=> RV.crit === 'zona' ? zP(r) : RV.crit === 'pts' ? (r.pts || 0) : (r.km || 0);
     L.sort((a, c)=> val(c) - val(a) || (c.km || 0) - (a.km || 0));
     const pos = L.findIndex(r=> r.eu), frente = L.slice(Math.max(0, pos - 2), pos), tras = L.slice(pos + 1, pos + 3);
-    const pct = modo === 'fc' ? (myHr() && me.fc ? Math.round(myHr() / me.fc * 100) : null) : (me.ftp && meW ? Math.round(meW / me.ftp * 100) : null);
-    const naZona = pct != null && pct >= range.min && pct <= range.max;
+    // 1) bloco atual: zona, técnica, alvo de %FTP (ou %FC), RPM e tempo
+    const z = blkZone(b), zc = zoneColor(z.css), tec = (b.tecnica || '').trim();
+    const alvo = b.teste ? 'MÁX' : pctTxt(b, range), alvoL = modo === 'fc' ? '%FC máx' : '%FTP';
+    let h = '<div class="rv-bl" style="--bz:' + zc + '"><div class="rv-bl1"><span class="rv-z">' + escapeHtml(zNome(z, blocos, state.blockIndex)) + '</span><span class="rv-t">' + fmtCountdown(remaining) + '</span></div>' +
+      (tec ? '<div class="rv-tec">' + escapeHtml(tec) + '</div>' : '') +
+      '<div class="rv-al"><div><b>' + escapeHtml(alvo) + '</b><span>' + alvoL + '</span></div><div><b>' + escapeHtml(rpmTxt(b)) + '</b><span>RPM</span></div></div></div>';
+    // 2) bloco seguinte (vai para a base do ecrã, depois da corrida)
+    let nx = '';
+    if(next){ const nz = blkZone(next), nc = zoneColor(nz.css), nr = zoneRange(next.ftp);
+      nx = '<div class="rv-nx" style="--bz:' + nc + '"><span class="rv-nl">A seguir</span><span class="rv-nz">' + escapeHtml(zNome(nz, blocos, state.blockIndex + 1).split(' ')[0]) + '</span>' +
+        '<span class="rv-ni">' + escapeHtml((next.tecnica || nz.name || '').trim()) + '</span><span class="rv-nv">' + escapeHtml(next.teste ? 'MÁX' : pctTxt(next, nr)) + ' · ' + escapeHtml(rpmTxt(next)) + ' rpm · ' + fmtTime(blockDurationSec(next)) + '</span></div>'; }
+    else nx = '<div class="rv-nx fim"><span class="rv-nl">A seguir</span><span class="rv-ni">🏁 Último bloco</span></div>';
+    // 3) a corrida: 2 à frente, tu, 2 atrás; velocidade, watts, %FTP e %FC máx de cada um e a distância a que estão de ti
+    const p100 = (a, c)=> a > 0 && c > 0 ? Math.round(a / c * 100) + '%' : '—';
     const linha = r=>{
-      const me0 = L[pos], dm = RV.crit === 'zona' ? Math.round(zP(r) - zP(me0)) : RV.crit === 'pts' ? Math.round((r.pts || 0) - (me0.pts || 0)) : Math.round(((r.km || 0) - meKm) * 1000), un = RV.crit === 'zona' ? ' %' : RV.crit === 'pts' ? ' pts' : ' m', zc = rvZc(r.w, r.ftp, r.hr, r.fc);
-      return '<div class="rv-l' + (r.eu ? ' eu' : '') + '" style="--rz:' + zc + '"><span class="rv-p">' + (L.indexOf(r) + 1) + 'º</span><span class="rv-n">' + escapeHtml(r.eu ? 'Tu' : String(r.n || '?')) + '</span>' +
-        (r.eu ? '' : '<span class="rv-d ' + (dm >= 0 ? 'fr' : 'tr') + '">' + (dm >= 0 ? '+' : '−') + Math.abs(dm) + un + '</span>') +
-        '<span class="rv-v"><b>' + (r.v || 0).toFixed(1).replace('.', ',') + '</b> km/h</span><span class="rv-w"><b>' + Math.round(r.w || 0) + '</b> W</span></div>';
+      const dm = Math.round(((r.km || 0) - meKm) * 1000), zcr = rvZc(r.w, r.ftp, r.hr, r.fc);
+      const cd = RV.crit === 'zona' ? Math.round(zP(r) - zP(L[pos])) : RV.crit === 'pts' ? Math.round((r.pts || 0) - (L[pos].pts || 0)) : null;
+      let dist;
+      if(r.eu){ const fr = L[pos - 1], tr = L[pos + 1];
+        dist = '<span class="rv-d eu">' + (fr ? '↑ ' + Math.abs(Math.round(((fr.km || 0) - meKm) * 1000)) + ' m' : '🏆') + (tr ? ' · ↓ ' + Math.abs(Math.round((meKm - (tr.km || 0)) * 1000)) + ' m' : '') + '</span>'; }
+      else dist = '<span class="rv-d ' + (dm >= 0 ? 'fr' : 'tr') + '">' + (dm >= 0 ? '+' : '−') + Math.abs(dm) + ' m' + (cd != null ? '<small>' + (cd >= 0 ? '+' : '−') + Math.abs(cd) + (RV.crit === 'zona' ? ' %' : ' pts') + '</small>' : '') + '</span>';
+      return '<div class="rv-l' + (r.eu ? ' eu' : '') + '" style="--rz:' + zcr + '"><span class="rv-p">' + (L.indexOf(r) + 1) + 'º</span><span class="rv-n">' + escapeHtml(r.eu ? 'Tu' : String(r.n || '?')) + '</span>' + dist +
+        '<div class="rv-s"><div><b>' + (r.v || 0).toFixed(1).replace('.', ',') + '</b><span>km/h</span></div><div><b>' + Math.round(r.w || 0) + '</b><span>W</span></div>' +
+        '<div><b>' + p100(r.w, r.ftp) + '</b><span>%FTP</span></div><div><b>' + p100(r.hr, r.fc) + '</b><span>%FC máx</span></div></div></div>';
     };
-    box.innerHTML = '<div class="rv-top"><div><b>' + fmtCountdown(remaining) + '</b><span>bloco</span></div><div><b>' + meW + '</b><span>watts</span></div>' +
-        '<div class="' + (naZona ? 'ok' : pct != null ? 'fora' : '') + '"><b>' + (pct != null ? pct + '%' : '—') + '</b><span>' + (modo === 'fc' ? '%FC máx' : '%FTP') + '</span></div><div><b>' + Math.round(me.pts) + '</b><span>pontos</span></div></div>' +
-      '<div class="rv-h">Corrida' + (RV.crit === 'zona' ? ' · % na zona' : RV.crit === 'pts' ? ' · pontos' : '') + ' · <b>' + (pos + 1) + 'º</b> de ' + L.length + '</div>' +
-      (frente.length ? '<div class="rv-g">À tua frente</div>' + frente.map(linha).join('') : '<div class="rv-g lider">🏆 Vais na frente!</div>') +
-      linha(L[pos]) +
-      (tras.length ? '<div class="rv-g">Atrás de ti</div>' + tras.map(linha).join('') : '<div class="rv-g">Ninguém atrás de ti</div>');
+    h += '<div class="rv-h">Corrida' + (RV.crit === 'zona' ? ' · % na zona' : RV.crit === 'pts' ? ' · pontos' : '') + ' · <b>' + (pos + 1) + 'º</b> de ' + L.length + ' · ' + srKmTxt(meKm) + '</div>' +
+      (frente.length ? frente.map(linha).join('') : '<div class="rv-g lider">🏆 Vais na frente!</div>') + linha(L[pos]) +
+      (tras.length ? tras.map(linha).join('') : '<div class="rv-g">Ninguém atrás de ti</div>') + nx;
+    if(RV.h !== h){ RV.h = h; box.innerHTML = h; rvFit(); }
   }
+  // cabe no ecrã sem scroll: encolhe o ecrã Corrida o necessário (no telemóvel deitado ou pequeno)
+  function rvFit(){ const box = $('rvBox'); if(!box) return; box.style.zoom = 1; box.style.setProperty('--rvh', '0px');
+    const disp = window.innerHeight - box.getBoundingClientRect().top - 34, alt = box.scrollHeight;
+    if(alt > disp && disp > 150) box.style.zoom = Math.max(.62, Math.floor(disp / alt * 100) / 100);
+    else if(disp > alt) box.style.setProperty('--rvh', Math.floor(disp) + 'px'); }   // sobra espaço: o "A seguir" desce até à base do ecrã
+  window.addEventListener('resize', ()=>{ RV.h = ''; });
+  function srKmTxt(km){ return (Math.max(0, km || 0)).toFixed(2).replace('.', ',') + ' km'; }
   function renderEcra2(b, next, remaining, range, totalSec, elapsed){
     const zone = blkZone(b), zc = zoneColor(zone.css), powered = hasPowerSource(), fc = modo === 'fc';
     const box = document.querySelector('#ecra2 .n2'); if(!box) return;
@@ -6285,7 +6374,7 @@ body:has(#setupScreen.active) .legal{display:none}
     neonAtualiza(b, range, remaining);
     kartAtualiza(b);
     if(ecraAtual === 2) renderEcra2(b, next, remaining, range, totalSec, elapsedBefore + (blockDurationSec(b) - remaining));
-    if(ecraAtual === 5) rvRender(b, remaining, range);
+    if(ecraAtual === 5) rvRender(b, next, remaining, range);
     if(ecraAtual === 3) renderEcra3(b, next, remaining, range, totalSec, elapsedBefore + (blockDurationSec(b) - remaining));
     const temJogo = !!(b.jogo && JOGOS_ALUNO[b.jogo]); document.querySelectorAll('#e2Dots .d3').forEach(d=> d.classList.toggle('tem', temJogo));   // o 3.º ponto acende quando há jogo
   }
