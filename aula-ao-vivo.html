@@ -2196,9 +2196,10 @@ body:has(#setupScreen.active) .legal{display:none}
     // 1) direto, sem lista: dispositivos que este browser já autorizou (getDevices)
     if(navigator.bluetooth.getDevices){
       let d = null;
-      try{ const L = await navigator.bluetooth.getDevices(); d = L.find(x=> f.id && x.id === f.id) || L.find(x=> x.name === f.n) || null; }catch(e){}
+      const nn = v=> String(v || '').trim().toUpperCase().replace(/\s+/g, ' ');   // "Schwinn 0457 " = "SCHWINN 0457"
+      try{ const L = await navigator.bluetooth.getDevices(); d = L.find(x=> f.id && x.id === f.id) || L.find(x=> nn(x.name) === nn(f.n)) || null; }catch(e){}
       if(d){
-        st('a procurar a ' + f.n + '…' + (f.t === 'bike' ? ' pedala para acordar a consola' : ''), false);
+        st('a procurar a ' + (f.t === 'bike' ? bkNome(f.n) : f.n) + '…' + (f.t === 'bike' ? ' pedala para acordar a consola' : ''), false);
         try{ await favOuve(d, 9000); }catch(e){ console.warn('favorito não ouvido', e); }
         if(f.t === 'bike') return connectBike(false, null, d);
         return connectHr(null, d);
@@ -7132,6 +7133,9 @@ body:has(#setupScreen.active) .legal{display:none}
       ftpTeste: me.ftpTest || null,
       avaliacao: (me.rx || me.fa) ? {exp: me.rx || null, sente: me.fa || null} : null,
       humor: moodHoje(),
+      // sala e bike da aula (o lugar escolhido na planta)
+      sala: (()=>{ const v = bkMeu(); const k = (v && v.s) || (typeof salaAluno === 'function' ? salaAluno() : null); return k ? (SALAS[k] || k) : null; })(),
+      bike: (()=>{ const v = bkMeu(); return v ? (v.n === 'prof' ? 'professor' : String(v.n)) : null; })(),
       est: semSens && !bikeConnected() && !demo ? 1 : null   // watts estimados (sem sensores): não contam para o FTP estimado
     };
     const key = getTreinoKey();
@@ -7229,7 +7233,7 @@ body:has(#setupScreen.active) .legal{display:none}
       const em = treinoEmos(t);
       row.innerHTML = '<div><b></b><span></span>' + (em.any ? '<i class="tr-emo">' + (em.a ? em.a[0] : '') + (em.a && em.d ? ' → ' : '') + (em.d ? em.d[0] : '') + (em.x ? ' · treino ' + em.x[0] : '') + '</i>' : '') + '</div><div class="kj">' + (onlyHr ? t.hrAvg + ' <small>bpm</small>' : Math.round(t.kj||0) + ' <small>kcal</small>') + '</div>';
       row.querySelector('b').textContent = t.aula || 'Aula';
-      row.querySelector('span').textContent = fmtDate(t.date) + ' · ' + fmtTime(t.dur||0) + (onlyHr ? ' · só FC' : ' · ' + (t.aw||0) + ' W méd.') + (t.emCurso ? ' · saiu antes do fim' : '') + (t.ftpTeste && t.ftpTeste.ok ? ' · 🎯 FTP ' + t.ftpTeste.ftp + ' W' : '');
+      row.querySelector('span').textContent = fmtDate(t.date) + (t.sala ? ' · ' + t.sala : '') + (t.bike ? ' · bike ' + t.bike : '') + ' · ' + fmtTime(t.dur||0) + (onlyHr ? ' · só FC' : ' · ' + (t.aw||0) + ' W méd.') + (t.emCurso ? ' · saiu antes do fim' : '') + (t.ftpTeste && t.ftpTeste.ok ? ' · 🎯 FTP ' + t.ftpTeste.ftp + ' W' : '');
       row.addEventListener('click', ()=> showTreino(t.key));
       $('treinoList').appendChild(row);
     });
@@ -7344,7 +7348,7 @@ body:has(#setupScreen.active) .legal{display:none}
     det.innerHTML =
       '<div class="acct-top" style="max-width:none"><button class="btn-link" id="trBack">← Todos os treinos</button></div>' +
       '<div class="section-t" style="margin-top:4px">' + escapeHtml(t.aula||'Aula') + '</div>' +
-      '<div class="hint" style="text-align:left">' + fmtDate(t.date) + (t.ftp && hasW ? ' · FTP ' + t.ftp + ' W' : '') + (hasW ? '' : ' · só frequência cardíaca') + '</div>' +
+      '<div class="hint" style="text-align:left">' + fmtDate(t.date) + (t.sala ? ' · 📍 ' + escapeHtml(t.sala) : '') + (t.bike ? ' · 🚲 bike ' + escapeHtml(t.bike) : '') + (t.ftp && hasW ? ' · FTP ' + t.ftp + ' W' : '') + (hasW ? '' : ' · só frequência cardíaca') + '</div>' +
       (function(){ const em = treinoEmos(t); if(!em.any) return '';
         const c = (e, l)=> '<div><i>' + (e ? e[0] : '—') + '</i><b>' + (e ? e[1] : '—') + '</b><span>' + l + '</span></div>';
         return '<div class="tr-emos">' + c(em.a, 'antes') + c(em.d, 'depois') + c(em.x, 'o treino') + '</div>'; })() +

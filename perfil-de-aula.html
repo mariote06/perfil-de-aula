@@ -405,6 +405,7 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .im-tbl .ok{background:#3DD45C;border:none;color:#06210F;font-weight:800;border-radius:7px;padding:3px 9px;cursor:pointer;margin-right:4px;}
 .im-warn{margin-top:8px;font-size:12.5px;color:#FFD27A;}
 
+.sum-sala{font:700 13px Inter,sans-serif;color:#c9d1dd;margin:0 0 6px}
 .sum-table{border-collapse:collapse;width:100%;font-size:14px;}
 .sum-table th{color:var(--muted);font-weight:600;font-size:12px;text-align:right;padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
 .sum-table th:nth-child(1),.sum-table th:nth-child(2){text-align:left;}
@@ -3876,9 +3877,10 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function summaryTableHtml(entry, priv){
     const hasTest = entry.riders.some(r=> r.ftpT || r.m20), hasNiv = priv && entry.riders.some(r=> r.nv || r.fe);
     const hasMood = entry.riders.some(r=> r.md || r.rx || r.fa);
+    const hasBk = entry.riders.some(r=> r.bk);
     const rows = entry.riders.map((r,i)=>{
       const pct = riderAvgPct(r);
-      return '<tr><td>' + (i+1) + '</td><td>' + escapeHtml(r.n) + estEm(r) + (r.oc ? ' <span title="Escolheu não aparecer na projeção">🙈</span>' : '') + '</td>' +
+      return '<tr><td>' + (i+1) + '</td><td>' + escapeHtml(r.n) + estEm(r) + (r.oc ? ' <span title="Escolheu não aparecer na projeção">🙈</span>' : '') + '</td>' + (hasBk ? '<td class="sum-bk">' + (r.bk ? (r.bk === 'prof' ? '🎤' : escapeHtml(String(r.bk))) : '—') + '</td>' : '') +
         '<td class="sum-zona">' + riderZonePct(r) + '%</td>' +
         '<td>' + (r.ftp ? r.ftp + (r.ftpIni && r.ftpIni !== r.ftp ? ' <small title="alterou o FTP na aula">✎ era ' + r.ftpIni + '</small>' : '') : '—') + '</td>' + (hasNiv ? nivelCell(r) : '') +
         (hasTest ? '<td>' + (r.ftpT ? '<b>' + r.ftpT + ' W</b> <small>(média ' + r.m20 + ')</small>' : (r.m20 ? '<small>incompleto</small>' : '—')) + '</td>' : '') +
@@ -3890,7 +3892,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
         '<td>' + Math.round(r.mw||0) + '</td>' +
         '<td>' + fmtTime(r.as||0) + '</td>' + (hasMood ? '<td class="sum-md">' + sentirCell(r) + '</td>' : '') + '</tr>';
     }).join('');
-    return '<table class="sum-table"><thead><tr><th>#</th><th>Nome</th><th class="sum-zona">Na zona</th><th>FTP</th>' + (hasNiv ? '<th>Nível</th><th>FTP estimado</th>' : '') + (hasTest ? '<th>Teste FTP</th>' : '') + '<th>Pontos</th><th>kJ</th><th>km</th><th>W médios</th><th>%FTP médio</th><th>W máx</th><th>Tempo</th>' + (hasMood ? '<th>Como se sentiu</th>' : '') + '</tr></thead><tbody>' + rows + '</tbody></table>';
+    return (entry.sala ? '<div class="sum-sala">📍 Sala de ' + escapeHtml(entry.sala) + '</div>' : '') + '<table class="sum-table"><thead><tr><th>#</th><th>Nome</th>' + (hasBk ? '<th>Bike</th>' : '') + '<th class="sum-zona">Na zona</th><th>FTP</th>' + (hasNiv ? '<th>Nível</th><th>FTP estimado</th>' : '') + (hasTest ? '<th>Teste FTP</th>' : '') + '<th>Pontos</th><th>kJ</th><th>km</th><th>W médios</th><th>%FTP médio</th><th>W máx</th><th>Tempo</th>' + (hasMood ? '<th>Como se sentiu</th>' : '') + '</tr></thead><tbody>' + rows + '</tbody></table>';
   }
 
   // ranking final: quem cumpriu mais tempo dentro da zona pedida (em % do tempo a pedalar).
@@ -3917,12 +3919,12 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function exportHistCsv(id){
     const h = historico.find(x=>x.id===id);
     if(!h) return;
-    const head = ['Posição','Nome','FTP (W)','Nível','FTP estimado (W)','FTP no início (W)','Teste FTP (W)','Média 20 min (W)','Pontos','kJ','Distância (km)','Potência média (W)','%FTP médio','Potência máx (W)','Tempo na zona (%)','Tempo ativo'];
+    const head = ['Posição','Nome','Sala','Bike','FTP (W)','Nível','FTP estimado (W)','FTP no início (W)','Teste FTP (W)','Média 20 min (W)','Pontos','kJ','Distância (km)','Potência média (W)','%FTP médio','Potência máx (W)','Tempo na zona (%)','Tempo ativo'];
     const lines = [head.join(';')];
     h.riders.forEach((r,i)=>{
       const pct = riderAvgPct(r);
       lines.push([
-        i+1, '"' + String(r.n||'').replace(/"/g,'""') + '"', r.ftp||'', r.nv ? NIV_NOME[r.nv] || r.nv : '', r.fe||'', r.ftpIni||'', r.ftpT||'', r.m20||'', Math.round(r.pts||0),
+        i+1, '"' + String(r.n||'').replace(/"/g,'""') + '"', h.sala || '', r.bk === 'prof' ? 'professor' : (r.bk || ''), r.ftp||'', r.nv ? NIV_NOME[r.nv] || r.nv : '', r.fe||'', r.ftpIni||'', r.ftpT||'', r.m20||'', Math.round(r.pts||0),
         String((r.kj||0).toFixed(1)).replace('.',','), String((+(r.km||0)).toFixed(2)).replace('.',','), Math.round(r.aw||0), pct==null?'':pct,
         Math.round(r.mw||0), riderZonePct(r), fmtTime(r.as||0)
       ].join(';'));
@@ -8302,7 +8304,14 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 #salaEd .se-b.sel{border-color:#E8722C;box-shadow:0 0 0 3px #E8722C55}#salaEd .se-b.prof{background:#3a2a1a}
 #salaEd .se-chips{display:flex;flex-wrap:wrap;gap:6px}#salaEd .se-chips button{font-size:12px;padding:4px 8px}
 #salaEd .se-modo{display:flex;gap:6px}#salaEd .se-modo button{flex:1;font-size:13px;padding:8px 6px}
-#salaEd .se-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}#salaEd .se-row input{width:64px}`;
+#salaEd .se-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}#salaEd .se-row input{width:64px}
+#salaEd .se-uso{position:absolute;inset:0;z-index:5;background:rgba(5,7,10,.75);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto}
+#salaEd .se-uso-c{background:#161b23;border:1px solid #2a313d;border-radius:14px;padding:16px 18px;width:min(980px,100%)}
+#salaEd .se-uso-h{display:flex;gap:8px;align-items:center}#salaEd .se-uso-h h2{flex:1}
+#salaEd .se-uso-t{width:100%;border-collapse:collapse;margin-top:8px;font-size:14px}
+#salaEd .se-uso-t th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#9aa4b4;padding:6px 8px;border-bottom:1px solid #2a313d}
+#salaEd .se-uso-t td{padding:6px 8px;border-bottom:1px solid #1f2530;vertical-align:middle}#salaEd .se-uso-t td small{display:block;color:#9aa4b4;font-size:11px}
+#salaEd .se-uso-km{position:relative;min-width:120px}#salaEd .se-uso-km i{position:absolute;left:8px;top:7px;bottom:7px;background:#E8722C33;border-radius:4px}#salaEd .se-uso-km span{position:relative;font-weight:700}`;
       document.head.appendChild(st);
     }
     const CEL = 72;
@@ -8313,11 +8322,11 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       const d = document.createElement('div'); d.id = 'salaEd';
       d.innerHTML = '<div class="se-v"><div class="se-top"><h2>🗺️ Mapa da sala</h2><button data-s="LSD">Lousada</button><button data-s="PNF">Penafiel</button>' +
         '<button id="seAdd">＋ Bike</button><button id="seProf">＋ Bike do professor</button><button id="seEcra" title="De que lado da sala está o ecrã da projeção">Ecrã: em cima</button>' +
-        '<button id="seGrava" class="on">Guardar</button><button id="seFecha">Fechar</button></div><div id="seEcraT" class="se-ecra">ECRÃ</div><div class="se-g" id="seG"></div><div id="seEcraB" class="se-ecra">ECRÃ</div></div>' +
+        '<button id="seUso" title="Tempo e km de cada bike">📊 Uso das bikes</button><button id="seGrava" class="on">Guardar</button><button id="seFecha">Fechar</button></div><div id="seEcraT" class="se-ecra">ECRÃ</div><div class="se-g" id="seG"></div><div id="seEcraB" class="se-ecra">ECRÃ</div></div>' +
         '<div class="se-p" id="seP"></div>';
       document.body.appendChild(d);
       d.querySelectorAll('[data-s]').forEach(b=> b.onclick = ()=>{ if(E.sujo && !confirm('Há alterações por guardar em ' + NOME[E.s] + '. Mudar de sala sem guardar?')) return; E.s = b.dataset.s; E.m = JSON.parse(JSON.stringify(mapa(E.s))); if(!E.m.f) E.m.f = 't'; E.sel = null; E.sujo = false; desenha(); });
-      $('seAdd').onclick = ()=> novaBike(false); $('seProf').onclick = ()=> novaBike(true);
+      $('seAdd').onclick = ()=> novaBike(false); $('seProf').onclick = ()=> novaBike(true); $('seUso').onclick = usoMostra;
       $('seEcra').onclick = ()=>{ E.m.f = E.m.f === 'b' ? 't' : 'b'; E.sujo = true; desenha(); };
       $('seFecha').onclick = ()=>{ if(E.sujo && !confirm('Fechar sem guardar as alterações?')) return; d.remove(); E = null; };
       $('seGrava').onclick = ()=>{ M[E.s] = E.m; E.sujo = false; grava(E.s).then(ok=> toast(ok ? '🗺️ Mapa de ' + NOME[E.s] + ' guardado (vale nos dois PCs)' : '🗺️ Mapa de ' + NOME[E.s] + ' guardado neste PC')); desenha(); };
@@ -8375,6 +8384,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
           '<label>Sensor da bike (nome Bluetooth, como aparece na lista)</label><div class="se-row" style="flex-wrap:nowrap"><input id="seBt" placeholder="ex.: SCHWINN 0457" value="' + escapeHtml(b.bt || '') + '" style="flex:1;min-width:0"><button type="button" id="seProc" title="Pedala na bike para a consola acordar e escolhe-a na lista">📡 Procurar</button></div>' +
           (navigator.bluetooth ? '<div class="se-dica">Pedala nesta bike para a consola acordar, carrega em <b>📡 Procurar</b> e escolhe-a na lista. A seguir passa sozinho para a bike seguinte.</div>' : '<div class="se-dica" style="color:#F0A070">Este browser não tem Bluetooth: escreve o nome à mão (ou abre o Coach no Chrome).</div>') +
           '<div class="se-dica">O aluno só vê o número da bike: toca nela na planta e a app liga a este sensor. Sem sensor gravado, abre a lista do Bluetooth.</div>' +
+          '<label>Uso desta bike</label><div class="se-dica" id="seUsoB1">…</div>' +
           (ligadas.length ? '<label>Bikes ligadas agora na aula (toca para usar o nome)</label><div class="se-chips">' + ligadas.map(l=> '<button type="button" data-bt="' + escapeHtml(l.bn) + '">' + escapeHtml(l.bn) + ' · ' + escapeHtml((l.n || '').split(' ')[0]) + '</button>').join('') + '</div>' : '') +
           '<div class="se-row" style="margin-top:12px"><button id="seDel">🗑️ Apagar bike</button></div><div class="se-dica">Arrasta para mudar de lugar (largar em cima de outra troca as duas) ou usa as setas do teclado.</div>';
       } else h += '<div class="se-dica">Toca numa bike para mudar o número ou o nome Bluetooth. Arrasta para a pôr no sítio certo.</div>';
@@ -8384,6 +8394,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       p.innerHTML = h;
       if(b){ const n = $('seN'); if(n) n.oninput = ()=>{ b.n = n.value.trim(); E.sujo = true; atualizaB(b); };
         $('seBt').oninput = ()=>{ b.bt = $('seBt').value.trim(); E.sujo = true; atualizaB(b); };
+        usoBike(E.s, b.p ? 'prof' : String(b.n)).then(t=>{ const el = $('seUsoB1'); if(el) el.textContent = t; });
         // procurar o sensor pelo Bluetooth deste computador (bikes com potência: FTMS, Cycling Power ou velocidade/cadência)
         $('seProc').onclick = async ()=>{
           if(!navigator.bluetooth){ toast('Este browser não tem Bluetooth: usa o Chrome ou escreve o nome à mão'); return; }
@@ -8411,7 +8422,60 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       $('seGr').onclick = ()=> grelha(Math.max(1, Math.min(12, +$('seF').value || 1)), Math.max(1, Math.min(15, +$('seC').value || 1)), $('seGP').checked);
     }
     function atualizaB(b){ const el = document.querySelector('#seG [data-id="' + b.id + '"]'); if(el) el.innerHTML = (b.p ? '🎤' : escapeHtml(b.n || '?')) + '<small>' + escapeHtml(b.bt || (b.p ? 'professor' : '')) + '</small>'; }
-    return { abre, render, mapa };
+    // ---------- registo de uso de cada bike (tempo e km de todas as aulas, nas duas salas) ----------
+    // bikesLog/{sala}/aulas/{id da aula} = { d, b: { "7": { t: segundos, km } } }   ·   bikesLog/{sala}/rev/{bike} = data da última manutenção
+    function usoRegista(entry){
+      if(!entry || !entry.id) return; const sl = salaLive(), b = {};
+      (entry.riders || []).forEach(r=>{ if(!r.bk) return; const o = b[r.bk] || (b[r.bk] = { t: 0, km: 0 }); o.t += Math.round(r.as || 0); o.km = Math.round((o.km + (+r.km || 0)) * 100) / 100; });
+      if(!Object.keys(b).length) return;
+      const reg = { d: Date.parse(entry.date) || Date.now(), b };
+      try{ const L = JSON.parse(localStorage.getItem('prBikeUso') || '{}'); (L[sl] = L[sl] || {})[entry.id] = reg; localStorage.setItem('prBikeUso', JSON.stringify(L)); }catch(e){}
+      try{ if(typeof fbDb !== 'undefined' && fbDb) fbDb.ref('bikesLog/' + sl + '/aulas/' + entry.id).set(reg).catch(()=>{}); }catch(e){}
+    }
+    function usoLe(sl){ return new Promise(res=>{
+      let loc = {}; try{ loc = (JSON.parse(localStorage.getItem('prBikeUso') || '{}')[sl]) || {}; }catch(e){}
+      let revL = {}; try{ revL = (JSON.parse(localStorage.getItem('prBikeRev') || '{}')[sl]) || {}; }catch(e){}
+      const fim = (aulas, rev)=> res({ aulas: Object.assign({}, loc, aulas || {}), rev: Object.assign({}, revL, rev || {}) });
+      try{ if(typeof fbDb === 'undefined' || !fbDb) return fim({}, {}); fbDb.ref('bikesLog/' + sl).once('value').then(sn=>{ const v = sn.val() || {}; fim(v.aulas, v.rev); }, ()=> fim({}, {})); }catch(e){ fim({}, {}); }
+    }); }
+    function usoTotais(U){ const T = {};
+      Object.keys(U.aulas).forEach(id=>{ const a = U.aulas[id] || {}; Object.keys(a.b || {}).forEach(k=>{
+        const o = T[k] || (T[k] = { t: 0, km: 0, n: 0, ult: 0, kmR: 0, tR: 0 }), x = a.b[k], rv = U.rev[k] || 0;
+        o.t += x.t || 0; o.km += x.km || 0; o.n++; o.ult = Math.max(o.ult, a.d || 0);
+        if((a.d || 0) > rv){ o.kmR += x.km || 0; o.tR += x.t || 0; } }); });
+      return T; }
+    const hm = s=>{ s = Math.round(s || 0); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60); return h + ' h ' + String(m).padStart(2, '0'); };
+    const kmT = k=> (Math.round((k || 0) * 10) / 10).toFixed(1).replace('.', ',');
+    const dt = d=> d ? new Date(d).toLocaleDateString('pt-PT', { day: '2-digit', month: '2-digit', year: '2-digit' }) : '—';
+    function usoMostra(){
+      const sl = E ? E.s : salaLive(); let ov = $('seUsoOv'); if(ov) ov.remove();
+      ov = document.createElement('div'); ov.id = 'seUsoOv'; ov.className = 'se-uso'; ov.innerHTML = '<div class="se-uso-c"><div class="se-uso-h"><h2>📊 Uso das bikes · ' + NOME[sl] + '</h2><button id="seUsoCsv">⬇ CSV</button><button id="seUsoX">Fechar</button></div><div id="seUsoB" class="se-dica">A carregar…</div></div>';
+      ($('salaEd') || document.body).appendChild(ov); $('seUsoX').onclick = ()=> ov.remove();
+      usoLe(sl).then(U=>{
+        const T = usoTotais(U), m = mapa(sl), nums = m.b.map(b=> b.p ? 'prof' : String(b.n));
+        Object.keys(T).forEach(k=>{ if(nums.indexOf(k) < 0) nums.push(k); });
+        const ord = nums.sort((a, b)=> (a === 'prof') - (b === 'prof') || (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0) || a.localeCompare(b));
+        const maxKm = Math.max(1, ...ord.map(k=> (T[k] || {}).km || 0));
+        const linhas = ord.map(k=>{ const o = T[k] || { t: 0, km: 0, n: 0, ult: 0, kmR: 0, tR: 0 }, rv = U.rev[k];
+          return { k, o, rv, html: '<tr><td><b>' + (k === 'prof' ? '🎤 prof' : escapeHtml(k)) + '</b></td><td>' + hm(o.t) + '</td><td class="se-uso-km"><i style="width:' + Math.round(o.km / maxKm * 100) + '%"></i><span>' + kmT(o.km) + '</span></td><td>' + o.n + '</td><td>' + dt(o.ult) + '</td>' +
+            '<td>' + (rv ? kmT(o.kmR) + ' km · ' + hm(o.tR) + '<small>desde ' + dt(rv) + '</small>' : '<small>sem registo</small>') + '</td><td><button data-rev="' + escapeHtml(k) + '" title="Marcar manutenção feita hoje">🔧</button></td></tr>' }; });
+        const tot = ord.reduce((a, k)=>{ const o = T[k]; if(o){ a.t += o.t; a.km += o.km; } return a; }, { t: 0, km: 0 });
+        $('seUsoB').className = ''; $('seUsoB').innerHTML = '<div class="se-dica">' + Object.keys(U.aulas).length + ' aulas registadas · ' + hm(tot.t) + ' · ' + kmT(tot.km) + ' km no total. Conta a partir de agora: cada aula guardada soma o tempo a pedalar e os km do aluno à bike onde esteve.</div>' +
+          '<table class="se-uso-t"><thead><tr><th>Bike</th><th>Tempo</th><th>km</th><th>Aulas</th><th>Último uso</th><th>Desde a manutenção</th><th></th></tr></thead><tbody>' + linhas.map(l=> l.html).join('') + '</tbody></table>';
+        ov.querySelectorAll('[data-rev]').forEach(bt=> bt.onclick = ()=>{ const k = bt.dataset.rev;
+          if(!confirm('Marcar a manutenção da bike ' + (k === 'prof' ? 'do professor' : k) + ' como feita hoje? Os km "desde a manutenção" voltam a zero.')) return;
+          const now = Date.now(); try{ const R = JSON.parse(localStorage.getItem('prBikeRev') || '{}'); (R[sl] = R[sl] || {})[k] = now; localStorage.setItem('prBikeRev', JSON.stringify(R)); }catch(e){}
+          try{ if(typeof fbDb !== 'undefined' && fbDb) fbDb.ref('bikesLog/' + sl + '/rev/' + k).set(now).catch(()=>{}); }catch(e){}
+          toast('🔧 Bike ' + (k === 'prof' ? 'do professor' : k) + ': manutenção registada'); usoMostra(); });
+        $('seUsoCsv').onclick = ()=>{ const L = ['Bike;Tempo (h);km;Aulas;Último uso;km desde a manutenção;Data da manutenção'];
+          linhas.forEach(l=> L.push([l.k, (l.o.t / 3600).toFixed(2).replace('.', ','), (l.o.km).toFixed(1).replace('.', ','), l.o.n, dt(l.o.ult), l.rv ? l.o.kmR.toFixed(1).replace('.', ',') : '', l.rv ? dt(l.rv) : ''].join(';')));
+          download('uso-bikes-' + NOME[sl].toLowerCase() + '.csv', '﻿' + L.join('\r\n'), 'text/csv;charset=utf-8'); };
+      });
+    }
+    function usoBike(sl, k){ return usoLe(sl).then(U=>{ const o = usoTotais(U)[k]; return o ? hm(o.t) + ' · ' + kmT(o.km) + ' km · ' + o.n + ' aula' + (o.n > 1 ? 's' : '') + (U.rev[k] ? ' · ' + kmT(o.kmR) + ' km desde a manutenção' : '') : 'ainda sem aulas registadas'; }); }
+    // para o relatório: a sala da aula e a bike de cada aluno (a escolhida na planta, a do sensor ou a que o professor arrastou)
+    function bikesDe(list){ const sl = salaLive(), o = {}; try{ const L = lugares(list, sl); Object.keys(L).forEach(id=> o[id] = L[id].p ? 'prof' : String(L[id].n)); }catch(e){} return { sala: NOME[sl] || sl, m: o }; }
+    return { abre, render, mapa, bikesDe, usoRegista, usoMostra };
   })();
   // =====================================================================
   // EDITOR DOS BONECOS (menu "Bonecos"): o ciclista realista a pedalar em 3D, com controlos para afinar a postura
@@ -9950,7 +10014,8 @@ const SR3 = (()=>{
   }
 
   function buildSummary(){
-    const list = sortZona(ridingRiders().filter(r=> (r.as||0) >= 10)).map(r=>({
+    let BK = { sala: null, m: {} }; try{ BK = SALA.bikesDe(ridingRiders()); }catch(e){}
+    const list = sortZona(ridingRiders().filter(r=> (r.as||0) >= 10)).map(r=>({ bk: BK.m[r.id] || r.bk || null,
       n: r.n || '?', oc: r.oc ? true : null, md: r.md || null, rx: r.rx || null, fa: r.fa || null, ftp: r.ftp || null, ftpIni: r.ftpIni || null, ftpT: r.ftpT || null, m20: r.m20 || null, nv: r.nv || null, fe: r.fe || null, kj: r.kj || 0, km: r.km || 0, pts: r.pts || 0, aw: r.aw || 0, mw: r.mw || 0, iz: r.iz || 0, as: r.as || 0
     }));
     return list;
@@ -9960,7 +10025,7 @@ const SR3 = (()=>{
     const list = buildSummary();
     if(!list.length) return null;
     if(!summaryEntry){
-      summaryEntry = { id: uid(), date: new Date().toISOString(), aulaId: current.id || null, treinoNome: current.nome || 'Aula de cycling', dur: totalDuration(current.blocos), metric: 'zona', riders: list };
+      summaryEntry = { id: uid(), date: new Date().toISOString(), aulaId: current.id || null, treinoNome: current.nome || 'Aula de cycling', dur: totalDuration(current.blocos), metric: 'zona', riders: list, sala: (()=>{ try{ return SALA.bikesDe([]).sala; }catch(e){ return null; } })() };
     } else {
       summaryEntry.riders = list;
       summaryEntry.metric = 'zona';
@@ -9969,6 +10034,7 @@ const SR3 = (()=>{
     if(hi >= 0) historico[hi] = summaryEntry; else historico.push(summaryEntry);
     if(historico.length > 200) historico = historico.slice(-200);
     if(fbDb && userUid) fbDb.ref('historico/' + userUid + '/' + summaryEntry.id).set(Object.assign(clean(summaryEntry), {ord: Date.now()})).catch(()=>{});
+    try{ SALA.usoRegista(summaryEntry); }catch(e){}   // soma o tempo e os km a cada bike (registo de uso)
     renderHistory();
     return summaryEntry;
   }
