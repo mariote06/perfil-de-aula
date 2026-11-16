@@ -3417,7 +3417,7 @@ body:has(#setupScreen.active) .legal{display:none}
   }
   window.addEventListener('resize', ()=>{ e2Zoom = 0; });
   // ================= ECRÃ 3: jogos e percurso virtual (a Serra 3D vista do teu guiador) =================
-  const SERRA3 = (()=>{
+  var SERRA3 = (()=>{
     const modoAtual = ()=> modo;
     const zonesOf = m=> m === 'fc' ? ZONES_FC : ZONES;
     const current = { get blocos(){ return blocos; } };
@@ -7705,7 +7705,7 @@ body:has(#setupScreen.active) .legal{display:none}
   // (nome Bluetooth) de cada bike. Aqui o aluno vê só os números das bikes, toca na sua e a app liga ao sensor certo
   // (o nome do sensor fica escondido). Sem mapa da sala, o botão "Ligar" abre a lista do Bluetooth como antes.
   // =====================================================================
-  const BKS = { mapa: null, sala: null, oc: {} };
+  var BKS = { mapa: null, sala: null, oc: {} };   // var (e não const): funções chamadas no arranque perguntam 'typeof BKS' antes desta linha
   try{ BKS.cache = JSON.parse(localStorage.getItem('prSalaMapaA') || '{}') || {}; }catch(e){ BKS.cache = {}; }
   function bkMeu(){ try{ const v = JSON.parse(localStorage.getItem('prBk') || 'null'); return v && Date.now() - (v.t || 0) < 6 * 3600e3 ? v : null; }catch(e){ return null; } }
   async function bkSala(){
@@ -7795,7 +7795,7 @@ body:has(#setupScreen.active) .legal{display:none}
   // Aula ao vivo com PIN, Só pedalar, Biblioteca e Corrida (em breve).
   // =====================================================================
   const SALAS = { LSD: 'Lousada', PNF: 'Penafiel' };
-  let LIVE = [], liveEsc = null, liveOuve = null;
+  var LIVE = [], liveEsc = null, liveOuve = null;
   function salaAluno(){ try{ const v = localStorage.getItem('prSala'); return SALAS[v] ? v : null; }catch(e){ return null; } }
   function liveCandidatas(){
     const ag = Date.now(), ok = LIVE.filter(a=> !a.t || ag - a.t < 4 * 3600e3);   // ignora anúncios esquecidos (mais de 4 h)
@@ -8285,7 +8285,7 @@ body:has(#setupScreen.active) .legal{display:none}
   // =====================================================================
   // FICHA DO ALUNO (idade, FCmáx, condição física, questionário de saúde)
   // =====================================================================
-  let ficha = null;
+  var ficha = null;
   try{ ficha = JSON.parse(lsGet('prFicha') || 'null'); }catch(e){ ficha = null; }
   const FTP_WKG = { sedentario:1.5, iniciado:2.0, intermedio:2.6, avancado:3.2 };
   // ---------------------------------------------------------------------
