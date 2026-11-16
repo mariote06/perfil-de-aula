@@ -1873,7 +1873,10 @@ body:has(#setupScreen.active) .legal{display:none}
     try{ firebase.appCheck().activate(new firebase.appCheck.ReCaptchaEnterpriseProvider(APPCHECK_SITE_KEY), true); }
     catch(e){ console.error('App Check falhou', e); }
   }
-  const firebaseReady = firebaseConfig.apiKey !== 'COLA_AQUI' && !!firebaseConfig.databaseURL;
+  // sem internet (ou rede fraca) as bibliotecas do Firebase podem não carregar: a app abre na mesma e volta a tentar quando a rede voltar
+  const fbCarregou = typeof firebase !== 'undefined' && !!firebase.initializeApp;
+  if(!fbCarregou) window.addEventListener('online', ()=> location.reload(), { once: true });
+  const firebaseReady = fbCarregou && firebaseConfig.apiKey !== 'COLA_AQUI' && !!firebaseConfig.databaseURL;
   let fbDb = null;
   if(firebaseReady){
     try{ firebase.initializeApp(firebaseConfig); ativarAppCheck(); fbDb = firebase.database(); }
@@ -6796,7 +6799,7 @@ body:has(#setupScreen.active) .legal{display:none}
   // =====================================================================
   // CONTA DO ALUNO — treinos guardados em alunos/{uid}
   // =====================================================================
-  const auth = firebaseReady ? firebase.auth() : null;
+  let auth = null; try{ if(fbDb && typeof firebase.auth === 'function') auth = firebase.auth(); }catch(e){ console.error('Auth falhou', e); }
   let user = null, perfil = null, savePending = false;
   let treinosCache = [];
   let returnTo = 'homeScreen';
