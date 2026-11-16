@@ -4461,6 +4461,9 @@ body:has(#setupScreen.active) .legal{display:none}
   function srRotaAplica(segs, R){
     const N = segs.length, P = R.pts, kOf = km=> Math.round(km / R.km * (N - 1)), rnd = srRnd(N * 17 + 3);
     segs.forEach(s=> s.curve = 0);
+    // GPX com "telemetria real": a estrada sobe e desce como o percurso verdadeiro (mesmas inclinações), em vez de seguir os blocos da aula
+    if(R.gpx && R.ele && R.altReal){ const E = R.ele, ea = f=>{ const x = Math.max(0, Math.min(1, f)) * (E.length - 1), i = Math.floor(x); return E[i] + ((E[i + 1] ?? E[i]) - E[i]) * (x - i); };
+      const kE = (N * SR_SEG / SR_M / 1000) / R.km, a0 = ea(0); segs.forEach((s, i)=>{ s.y = (ea(i / (N - 1)) - a0) * SR_M * SR_EXG * kE; s.real = true; }); }
     for(let i = 1; i < P.length - 1; i++){   // curvas: mudança de direção real entre os pontos da estrada
       let th = parisRumo(P[i], P[i + 1]) - parisRumo(P[i - 1], P[i]);
       while(th > Math.PI) th -= 2 * Math.PI; while(th < -Math.PI) th += 2 * Math.PI;
@@ -4494,7 +4497,7 @@ body:has(#setupScreen.active) .legal{display:none}
     poe(45, { x: 0, t: 'm_partida', s: 4.6 }, R.nIni, '🏁', 3);
     poe(N - 3, { x: 0, t: 'm_meta', s: 4.6 }, R.nFim, '🏁', 3);
     // santuário no alto do monte, com abertas nas casas desse lado para o ver
-    if(R.santKm != null){ const k = Math.max(60, Math.min(N - 10, kOf(R.santKm))); segs[k].sp.push({ x: R.santLado * 6.5, t: 'm_sant', s: 12 }); marcos.push({ i: k, n: VALE_SANT.n, ico: '⛪' });
+    if(R.santKm != null){ const k = Math.max(60, Math.min(N - 10, kOf(R.santKm))); segs[k].sp.push({ x: R.santLado * 6.5, t: 'm_sant', s: 12 }); marcos.push({ i: k, n: (R.sant || VALE_SANT).n, ico: '⛪' });
       for(let q = -90; q <= 10; q++){ const sg = segs[k + q]; if(sg && sg.muro) sg.muro[R.santLado < 0 ? 'L' : 'R'] = ((q % 7) + 7) % 7 < 2 ? sg.muro[R.santLado < 0 ? 'L' : 'R'] : false; } }
     // pontos de interesse: o edifício (desenho genérico do tipo) e uma placa castanha com o nome, junto à estrada
     const tam = { igreja: 3.2, capela: 2.2, escola: 4.2, bombeiros: 3.4, publico: 3.4, camara: 4, museu: 3.2, monumento: 1 };
@@ -4660,8 +4663,9 @@ body:has(#setupScreen.active) .legal{display:none}
   Object.assign(VALE_ICO, { forte:'🏰', vidro:'🏢', anemona:'🎐', sinal:'📍', farol:'🗼', farolim:'🗼', pergola:'🏛️', jardim:'🌴', eletrico:'🚋', palacio:'🏛️', luis:'🌉', mosteiro:'⛪', teleferico:'🚡', caves:'🍷', ponte:'🌉' });
   // percurso carregado de um ficheiro GPX (Strava, Garmin, Komoot…): os pontos reais, a altimetria e o nome
   function gpxRota(G){ if(!G || !G.pts || G.pts.length < 2) return null; const T = String(G.nome || 'Percurso GPX').toUpperCase();
-    return { titulo: T, km: G.km, pts: G.pts, ruas: [[0, G.km + 1, G.nome || 'Percurso GPX', G.amb || 'campo']], pois: [], ele: G.ele || null,
-      ini: ['PARTIDA', T], fim: ['META', T], nIni: 'Partida · ' + (G.nome || 'GPX'), nFim: 'Meta · ' + (G.nome || 'GPX'), santKm: null, santLado: 1, vilas: ['Partida', 'Meta'], gpx: true, id: G.id }; }
+    return { titulo: T, km: G.km, pts: G.pts, ruas: G.ruas || [[0, G.km + 1, G.nome || 'Percurso GPX', G.amb || 'campo']], pois: G.pois || [], ele: G.ele || null,
+      ini: G.ini || ['PARTIDA', T], fim: G.fim || ['META', T], nIni: G.nIni || 'Partida · ' + (G.nome || 'GPX'), nFim: G.nFim || 'Meta · ' + (G.nome || 'GPX'),
+      santKm: G.sant ? G.sant.km : null, santLado: G.sant ? G.sant.lado || 1 : 1, sant: G.sant || null, vilas: G.vilas || ['Partida', 'Meta'], gpx: true, id: G.id, altReal: G.alt === 'real' }; }
   ROTAS.porto = { titulo:'MARATONA DO PORTO', km: 42.2, estilo:'porto', pts: PORTO_GEO.map(p=> ({ km: p[0], la: p[1], lo: p[2] })), ruas: PORTO_RUAS, pois: PORTO_POI, ele: PORTO_ELE,
     ini:['PARTIDA', 'MARATONA DO PORTO · SEA LIFE'], fim:['META', 'QUEIMÓDROMO · PARQUE DA CIDADE'], nIni:'Partida · SEA LIFE Porto', nFim:'Meta · Queimódromo', santKm: null, vilas:[],
     rotulos:[{ n:'Matosinhos', la:41.1825, lo:-8.6905 }, { n:'Leça', la:41.2035, lo:-8.7085 }, { n:'Foz', la:41.1525, lo:-8.6735 }, { n:'Ribeira', la:41.1420, lo:-8.6125 }, { n:'Gaia', la:41.1352, lo:-8.6110 }, { n:'Freixo', la:41.1452, lo:-8.5800 }] };
@@ -5055,7 +5059,7 @@ body:has(#setupScreen.active) .legal{display:none}
   function srRotaMapa(ctx, W, H, camZ, R){
     const w = Math.round(Math.min(560, W * (W > 1400 ? .34 : .3))), h = Math.round(Math.min(250, H * (W > 1400 ? .3 : .26))), x0 = 18, y0 = H - h - 18, hp = Math.round(h * .26);
     const key = R.titulo + w + 'x' + h;
-    const k = Math.cos((R.gpx ? R.pts[0].la : 41.24) * Math.PI / 180), P = R.pts.concat(R.santKm != null ? [VALE_SANT] : []);
+    const k = Math.cos((R.gpx ? R.pts[0].la : 41.24) * Math.PI / 180), P = R.pts.concat(R.santKm != null && !(R.sant && R.sant.la == null) ? [R.sant || VALE_SANT] : []);
     let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity;
     P.forEach(p=>{ a = Math.min(a, p.lo * k); b = Math.max(b, p.lo * k); c = Math.min(c, p.la); d = Math.max(d, p.la); });
     const pad = 18, hm = h - hp - 16, sc = Math.min((w - pad * 2) / (b - a), (hm - pad) / (d - c)), ox = (w - (b - a) * sc) / 2, oy = 16 + (hm - (d - c) * sc) / 2;
@@ -5070,7 +5074,7 @@ body:has(#setupScreen.active) .legal{display:none}
       g.fillStyle = 'rgba(255,255,255,.85)';
       R.vilas.forEach((n, ix)=>{ const p = ix ? R.pts[R.pts.length - 1] : R.pts[0], q = XY(p.la, p.lo); g.textAlign = 'left'; g.fillText(n, q[0] + 10, q[1] + 4); g.fillStyle = '#FFD60A'; g.beginPath(); g.arc(q[0], q[1], 4, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,.85)'; });
       if(R.rotulos){ g.font = '700 11px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'center'; R.rotulos.forEach(o=>{ const q = XY(o.la, o.lo); g.fillText(o.n, q[0], q[1]); }); }
-      if(R.santKm != null){ const q = XY(VALE_SANT.la, VALE_SANT.lo); g.font = '15px sans-serif'; g.textAlign = 'center'; g.fillText('⛪', q[0], q[1] + 5); }
+      if(R.santKm != null && (R.sant || VALE_SANT).la != null){ const q = XY((R.sant || VALE_SANT).la, (R.sant || VALE_SANT).lo); g.font = '15px sans-serif'; g.textAlign = 'center'; g.fillText('⛪', q[0], q[1] + 5); }
       g.font = '700 11px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'left'; g.fillText(R.titulo + ' · ' + R.km.toFixed(1).replace('.', ',') + ' km reais', 10, 12);
       // altimetria real
       g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(8, h - hp, w - 16, hp - 4);
@@ -5212,7 +5216,7 @@ body:has(#setupScreen.active) .legal{display:none}
   }
   function srSpritesTema(){
     const tema = SR.tema || 'serra', noite = !!(SR.met && SR.met.fase === 'noite');
-    const k = tema + (tema === 'vale' ? SR.rota + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id : '') : '') + (tema !== 'neon' && tema !== 'cyber' && tema !== 'kart' && SR.met && SR.met.tempo === 'neve' ? '-neve' : '') + ((tema === 'paris' || tema === 'vale') && noite ? '-noite' : '');
+    const k = tema + (tema === 'vale' ? SR.rota + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id + (ROTAS.gpx.altReal ? 'r' : '') : '') : '') + (tema !== 'neon' && tema !== 'cyber' && tema !== 'kart' && SR.met && SR.met.tempo === 'neve' ? '-neve' : '') + ((tema === 'paris' || tema === 'vale') && noite ? '-noite' : '');
     if(SR.spr && SR.sprT === k) return; SR.sprT = k;
     if(tema === 'neon') srSpritesNeon(); else if(tema === 'cyber') srSpritesCyber(); else if(tema === 'kart') srSpritesKart(); else { if(tema === 'paris') srSpritesParis(noite); else if(tema === 'vale'){ if(SR.rota === 'porto') srSpritesPorto(noite, ROTAS.porto); else srSpritesVale(noite, ROTAS[SR.rota] || ROTAS.lp); } else srSprites(); if(k.includes('-neve')) srSpritesNeve(); }
   }
@@ -5290,7 +5294,7 @@ body:has(#setupScreen.active) .legal{display:none}
     if(SR.tema === 'neon') return srFundoNeon(W, H);
     if(SR.tema === 'cyber') return srFundoCyber(W, H);
     if(SR.tema === 'kart') return srFundoKart(W, H);
-    const M = SR.met, key = W + 'x' + H + zc + (M ? M.fase + M.tempo : '') + SR.tema + (SR.rota || '') + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id : ''); if(SR.bgKey === key) return; SR.bgKey = key;
+    const M = SR.met, key = W + 'x' + H + zc + (M ? M.fase + M.tempo : '') + SR.tema + (SR.rota || '') + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id + (ROTAS.gpx.altReal ? 'r' : '') : ''); if(SR.bgKey === key) return; SR.bgKey = key;
     const mk = (w, h)=>{ const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
     const sky = mk(W, H), g = sky.getContext('2d');
     const gr = g.createLinearGradient(0, 0, 0, H * .62);
@@ -6032,7 +6036,7 @@ body:has(#setupScreen.active) .legal{display:none}
     if(leve && E3.draw > 160) E3.draw = 160;
     if(cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)){ cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const key = blocos.length + ':' + totalDuration(blocos) + ':' + modo + ':' + SR.tema + (SR.rota || '') + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id : '');
+    const key = blocos.length + ':' + totalDuration(blocos) + ':' + modo + ':' + SR.tema + (SR.rota || '') + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id + (ROTAS.gpx.altReal ? 'r' : '') : '');
     if(SR.key !== key){ SR.key = key; srPista(); }
     SR.met = SR.tema === 'neon' || SR.tema === 'cyber' || SR.tema === 'kart' ? null : (E3.m ? { fase: E3.m[0], tempo: E3.m[1], temp: E3.m[2] } : metEstado({}, null));
     srSpritesTema();
@@ -6207,7 +6211,7 @@ body:has(#setupScreen.active) .legal{display:none}
     if(now - E3.lastT > 300){
       E3.lastT = now;
       const pos = ord.indexOf(riderId), fr = pos > 0 ? ord[pos - 1] : null;
-      const pc = Math.round(incl * 100), tr = base.tr;
+      const pc = Math.round(incl * 100), tr = base.real ? Object.assign({}, base.tr, { t: pc >= 3 ? 'sobe' : pc <= -2 ? 'desce' : pc >= 1 ? 'falso' : 'plano' }) : base.tr;   // GPX real: o terreno vem da estrada
       const terr = tr.t === 'sobe' ? '⛰️ ' + Math.max(1, pc) + '%' : tr.t === 'falso' ? '↗️ ' + Math.max(1, pc) + '%' : tr.t === 'desce' ? '⬇️ ' + Math.min(-1, pc) + '%' : tr.t === 'sprint' ? '⚡ Sprint' : '➡️ Plano';
       $('e3Hud').innerHTML = '<div class="e3h-l"><b style="color:' + srMix(zc, '#ffffff', .3) + '">' + escapeHtml(blkZone(b).name.split(' ')[0]) + '</b><span>' + terr + '</span></div>' +
         '<div class="e3h-c"><small>FALTA</small><b>' + fmtCountdown(E3.rem || 0) + '</b></div>' +

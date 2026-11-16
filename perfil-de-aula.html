@@ -1253,8 +1253,14 @@ body[data-view="ano"] .legal{margin-top:8px;}
 .gpx-up{cursor:pointer;background:#E8722C;color:#140a03;border-radius:12px;font:800 18px Inter,sans-serif;padding:14px 22px}
 .gpx-l{display:flex;flex-direction:column;gap:8px;width:min(560px,100%)}.gpx-i{display:flex;gap:6px}.gpx-i button{background:#12161D;border:1px solid #262D39;border-radius:10px;color:#E8ECF2;padding:10px 14px;cursor:pointer}
 .gpx-i button[data-g]{flex:1;display:flex;justify-content:space-between;gap:10px;text-align:left}.gpx-i button[data-g] span{color:#8A93A3}.gpx-i.on button[data-g]{border-color:#E8722C;box-shadow:0 0 0 2px #E8722C55}
+.gpx-pre{display:flex;flex-direction:column;gap:8px;width:min(560px,100%)}.gpx-pre>span{color:#aab3c0;font-size:14px}
+.gpx-pre button{background:linear-gradient(120deg,#1d2a1f,#12161D);border:1px solid #2f5a37;border-radius:12px;color:#E8ECF2;padding:12px 14px;text-align:left;cursor:pointer}.gpx-pre button b{display:block;font-size:17px}.gpx-pre button small{color:#9fb0a2;font-size:13px}.gpx-pre button:disabled{opacity:.5}
+.gpx-info{color:#FFD60A;font-size:14px;min-height:18px}
+.gpx-alt{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;width:min(560px,100%)}.gpx-alt span{width:100%;color:#aab3c0;font-size:14px}
+.gpx-alt button{background:#12161D;border:1px solid #262D39;color:#E8ECF2;border-radius:10px;padding:10px 14px;font:700 14px Inter,sans-serif;cursor:pointer}.gpx-alt button.on{border-color:#E8722C;background:#2a1a10;color:#fff}
+.gpx-bar{position:absolute;left:50%;bottom:10px;transform:translateX(-50%);z-index:6;display:flex;gap:6px}
 .gpx-volta{background:none;border:1px solid #262D39;color:#c9d1dd;border-radius:10px;padding:8px 14px;cursor:pointer}
-.gpx-troca{position:absolute;left:10px;bottom:10px;z-index:6;background:rgba(10,13,18,.75);border:1px solid #262D39;color:#E8ECF2;border-radius:10px;padding:6px 10px;font:700 12px Inter,sans-serif;cursor:pointer;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gpx-troca{background:rgba(10,13,18,.75);border:1px solid #262D39;color:#E8ECF2;border-radius:10px;padding:6px 10px;font:700 12px Inter,sans-serif;cursor:pointer;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sr-box{container-type:size;position:relative;flex:1 1 auto;min-height:340px;border-radius:14px;overflow:hidden;border:1px solid #1B212B;background:#0A1424;}
 .sr-box canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
 .sr-box.full{position:fixed;inset:0;z-index:4000;border-radius:0;border:none;}
@@ -5936,6 +5942,9 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function srRotaAplica(segs, R){
     const N = segs.length, P = R.pts, kOf = km=> Math.round(km / R.km * (N - 1)), rnd = srRnd(N * 17 + 3);
     segs.forEach(s=> s.curve = 0);
+    // GPX com "telemetria real": a estrada sobe e desce como o percurso verdadeiro (mesmas inclinações), em vez de seguir os blocos da aula
+    if(R.gpx && R.ele && R.altReal){ const E = R.ele, ea = f=>{ const x = Math.max(0, Math.min(1, f)) * (E.length - 1), i = Math.floor(x); return E[i] + ((E[i + 1] ?? E[i]) - E[i]) * (x - i); };
+      const kE = (N * SR_SEG / SR_M / 1000) / R.km, a0 = ea(0); segs.forEach((s, i)=>{ s.y = (ea(i / (N - 1)) - a0) * SR_M * SR_EXG * kE; s.real = true; }); }
     for(let i = 1; i < P.length - 1; i++){   // curvas: mudança de direção real entre os pontos da estrada
       let th = parisRumo(P[i], P[i + 1]) - parisRumo(P[i - 1], P[i]);
       while(th > Math.PI) th -= 2 * Math.PI; while(th < -Math.PI) th += 2 * Math.PI;
@@ -5970,7 +5979,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     poe(45, { x: 0, t: 'm_partida', s: 4.6 }, R.nIni, '🏁', 3);
     poe(N - 3, { x: 0, t: 'm_meta', s: 4.6 }, R.nFim, '🏁', 3);
     // santuário no alto do monte, com abertas nas casas desse lado para o ver
-    if(R.santKm != null){ const k = Math.max(60, Math.min(N - 10, kOf(R.santKm))); segs[k].sp.push({ x: R.santLado * 6.5, t: 'm_sant', s: 12 }); marcos.push({ i: k, n: VALE_SANT.n, ico: '⛪' });
+    if(R.santKm != null){ const k = Math.max(60, Math.min(N - 10, kOf(R.santKm))); segs[k].sp.push({ x: R.santLado * 6.5, t: 'm_sant', s: 12 }); marcos.push({ i: k, n: (R.sant || VALE_SANT).n, ico: '⛪' });
       for(let q = -90; q <= 10; q++){ const sg = segs[k + q]; if(sg && sg.muro) sg.muro[R.santLado < 0 ? 'L' : 'R'] = ((q % 7) + 7) % 7 < 2 ? sg.muro[R.santLado < 0 ? 'L' : 'R'] : false; } }
     // pontos de interesse: o edifício (desenho genérico do tipo) e uma placa castanha com o nome, junto à estrada
     const tam = { igreja: 3.2, capela: 2.2, escola: 4.2, bombeiros: 3.4, publico: 3.4, camara: 4, museu: 3.2, monumento: 1 };
@@ -6136,8 +6145,9 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   Object.assign(VALE_ICO, { forte:'🏰', vidro:'🏢', anemona:'🎐', sinal:'📍', farol:'🗼', farolim:'🗼', pergola:'🏛️', jardim:'🌴', eletrico:'🚋', palacio:'🏛️', luis:'🌉', mosteiro:'⛪', teleferico:'🚡', caves:'🍷', ponte:'🌉' });
   // percurso carregado de um ficheiro GPX (Strava, Garmin, Komoot…): os pontos reais, a altimetria e o nome
   function gpxRota(G){ if(!G || !G.pts || G.pts.length < 2) return null; const T = String(G.nome || 'Percurso GPX').toUpperCase();
-    return { titulo: T, km: G.km, pts: G.pts, ruas: [[0, G.km + 1, G.nome || 'Percurso GPX', G.amb || 'campo']], pois: [], ele: G.ele || null,
-      ini: ['PARTIDA', T], fim: ['META', T], nIni: 'Partida · ' + (G.nome || 'GPX'), nFim: 'Meta · ' + (G.nome || 'GPX'), santKm: null, santLado: 1, vilas: ['Partida', 'Meta'], gpx: true, id: G.id }; }
+    return { titulo: T, km: G.km, pts: G.pts, ruas: G.ruas || [[0, G.km + 1, G.nome || 'Percurso GPX', G.amb || 'campo']], pois: G.pois || [], ele: G.ele || null,
+      ini: G.ini || ['PARTIDA', T], fim: G.fim || ['META', T], nIni: G.nIni || 'Partida · ' + (G.nome || 'GPX'), nFim: G.nFim || 'Meta · ' + (G.nome || 'GPX'),
+      santKm: G.sant ? G.sant.km : null, santLado: G.sant ? G.sant.lado || 1 : 1, sant: G.sant || null, vilas: G.vilas || ['Partida', 'Meta'], gpx: true, id: G.id, altReal: G.alt === 'real' }; }
   // ---- biblioteca de percursos GPX (fica neste PC e vai com a aula para os telemóveis dos alunos) ----
   const GPX = (()=>{
     const LK = 'prGpxLib', SK = 'prGpxSel';
@@ -6150,6 +6160,11 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       let P = [...doc.getElementsByTagName('trkpt')]; if(P.length < 2) P = [...doc.getElementsByTagName('rtept')];
       const raw = P.map(p=>{ const e = p.getElementsByTagName('ele')[0]; return { la: +p.getAttribute('lat'), lo: +p.getAttribute('lon'), e: e ? +e.textContent : NaN }; }).filter(p=> isFinite(p.la) && isFinite(p.lo));
       if(raw.length < 2) throw new Error('O ficheiro não tem pontos de percurso.');
+      const nm = (doc.querySelector('trk > name') || doc.querySelector('metadata > name') || doc.querySelector('rte > name') || {}).textContent;
+      return monta(raw, (nm || fich.replace(/\.gpx$/i, '') || 'Percurso GPX').trim().slice(0, 60));
+    }
+    // pontos {la, lo, e} → percurso (pontos a cada ~30 m, 200 altitudes suavizadas, km e metros de subida)
+    function monta(raw, nome){
       let km = 0; raw.forEach((p, i)=>{ if(i) km += hav(raw[i - 1], p); p.km = km; });
       if(km < .2) throw new Error('O percurso tem menos de 200 m.');
       const passo = Math.max(.03, km / 900), pts = []; let nx = 0;
@@ -6158,19 +6173,58 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       if(comE.length > raw.length * .5){ ele = []; let j = 0;
         for(let i = 0; i < 200; i++){ const d = i / 199 * km; while(j < comE.length - 2 && comE[j + 1].km < d) j++; const a = comE[j], b = comE[j + 1] || a, f = b.km > a.km ? Math.max(0, Math.min(1, (d - a.km) / (b.km - a.km))) : 0; ele.push(a.e + (b.e - a.e) * f); }
         ele = ele.map((v, i, A)=>{ let s = 0, n = 0; for(let q = -3; q <= 3; q++){ const x = A[i + q]; if(x != null){ s += x; n++; } } return Math.round(s / n); }); }
-      const nm = (doc.querySelector('trk > name') || doc.querySelector('metadata > name') || doc.querySelector('rte > name') || {}).textContent;
       let sobe = 0; if(ele) for(let i = 1; i < ele.length; i++) if(ele[i] > ele[i - 1]) sobe += ele[i] - ele[i - 1];
-      return { id: 'g' + Date.now().toString(36), nome: (nm || fich.replace(/\.gpx$/i, '') || 'Percurso GPX').trim().slice(0, 60), km: +km.toFixed(2), sobe: Math.round(sobe), pts, ele };
+      return { id: 'g' + Date.now().toString(36), nome, km: +km.toFixed(2), sobe: Math.round(sobe), pts, ele };
+    }
+    // ---- percursos reais da casa, gerados pela estrada verdadeira (OpenStreetMap) e pela altimetria real (Copernicus, via Open-Meteo) ----
+    const PRESETS = [
+      { id: 'mondim', nome: 'Mondim de Basto → Senhora da Graça', ico: '⛰️', d: 'A subida da Volta a Portugal ao Monte Farinha: ~8,6 km a 7% de média, dos ~300 m de Mondim aos ~950 m do santuário.',
+        way: [ { q: 'Mondim de Basto, Vila Real, Portugal', la: 41.4128, lo: -7.9532 }, { la: 41.42035, lo: -7.938106 }, { q: 'Santuário de Nossa Senhora da Graça, Mondim de Basto', la: 41.4172, lo: -7.9165 } ],
+        ini: ['PARTIDA', 'MONDIM DE BASTO'], fim: ['META', 'SANTUÁRIO DA SENHORA DA GRAÇA'], nIni: 'Partida · Mondim de Basto', nFim: 'Meta · Santuário da Senhora da Graça', vilas: ['Mondim de Basto', 'Sra. da Graça'],
+        vila: 1.0, rua1: 'Mondim de Basto', rua2: 'Estrada da Senhora da Graça', sant: 'Santuário da Senhora da Graça' }
+    ];
+    const pedeJ = async (u, ms)=>{ const ct = new AbortController(), t = setTimeout(()=> ct.abort(), ms || 15000); try{ const r = await fetch(u, { signal: ct.signal }); if(!r.ok) throw new Error('HTTP ' + r.status); return await r.json(); } finally { clearTimeout(t); } };
+    async function gera(P, info){
+      info('a procurar os locais…');
+      const W = [];
+      for(const w of P.way){ let la = w.la, lo = w.lo;
+        if(w.q){ try{ const j = await pedeJ('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=pt&q=' + encodeURIComponent(w.q), 10000); if(j[0] && Math.abs(+j[0].lat - la) < .03 && Math.abs(+j[0].lon - lo) < .03){ la = +j[0].lat; lo = +j[0].lon; } }catch(e){} }
+        W.push([lo, la]); }
+      info('a traçar a estrada…');
+      const via = W.map(p=> p[0].toFixed(6) + ',' + p[1].toFixed(6)).join(';'), q = '?overview=full&geometries=geojson&continue_straight=true';
+      let js = null; for(const base of ['https://routing.openstreetmap.de/routed-car/route/v1/driving/', 'https://router.project-osrm.org/route/v1/driving/']){ try{ js = await pedeJ(base + via + q, 20000); if(js && js.routes && js.routes[0]) break; }catch(e){} }
+      if(!js || !js.routes || !js.routes[0]) throw new Error('não consegui traçar a estrada (sem internet?)');
+      const C = js.routes[0].geometry.coordinates.map(c=> ({ la: c[1], lo: c[0], e: NaN }));
+      info('a medir a altimetria real…');
+      let km = 0; C.forEach((p, i)=>{ if(i) km += hav(C[i - 1], p); p.km = km; });
+      const A = []; for(let i = 0; i < 200; i++){ const d = i / 199 * km; let j = 0; while(j < C.length - 2 && C[j + 1].km < d) j++; const a = C[j], b = C[j + 1] || a, f = b.km > a.km ? (d - a.km) / (b.km - a.km) : 0; A.push({ la: a.la + (b.la - a.la) * f, lo: a.lo + (b.lo - a.lo) * f, km: d }); }
+      const E = [];
+      for(let i = 0; i < A.length; i += 100){ const L = A.slice(i, i + 100); const j = await pedeJ('https://api.open-meteo.com/v1/elevation?latitude=' + L.map(p=> p.la.toFixed(5)).join(',') + '&longitude=' + L.map(p=> p.lo.toFixed(5)).join(','), 20000); E.push(...(j.elevation || [])); }
+      if(E.length !== A.length) throw new Error('não consegui a altimetria');
+      // altitude de cada ponto da estrada = a da amostra mais próxima em distância
+      C.forEach(p=>{ const x = p.km / km * 199, i = Math.floor(x), f = x - i; p.e = E[i] + ((E[i + 1] ?? E[i]) - E[i]) * f; });
+      const G = monta(C, P.nome);
+      Object.assign(G, { id: 'p_' + P.id, preset: P.id, alt: 'real', ini: P.ini, fim: P.fim, nIni: P.nIni, nFim: P.nFim, vilas: P.vilas,
+        ruas: [[0, Math.min(P.vila, G.km * .3), P.rua1, 'vila'], [Math.min(P.vila, G.km * .3), G.km + 1, P.rua2, 'campo']],
+        sant: { km: Math.max(0, G.km - .12), n: P.sant, la: W[W.length - 1][1], lo: W[W.length - 1][0], lado: 1 } });
+      return G;
     }
     function usa(G){ ROTAS.gpx = gpxRota(G); try{ localStorage.setItem(SK, G.id); }catch(e){}
       try{ if(typeof sessionPin !== 'undefined' && sessionPin && fbDb) sessionRef(sessionPin).child('gpx').set(G).catch(()=>{}); }catch(e){} }
+    // altimetria da estrada: 'treino' (os blocos decidem as subidas) ou 'real' (as subidas e descidas verdadeiras do GPX)
+    function altAtual(){ const G = atual(); return G && G.alt === 'real' ? 'real' : 'treino'; }
+    function poeAlt(v){ const L = lib(), G = L.find(x=> ROTAS.gpx && x.id === ROTAS.gpx.id) || L[0]; if(!G) return;
+      if(v === 'real' && !G.ele){ toast('Este GPX não tem altitudes: fica com a programação do treino'); v = 'treino'; }
+      G.alt = v; grava(L); usa(G); SR.key = ''; toast(v === 'real' ? '⛰️ Estrada com as subidas reais do percurso' : '📋 Estrada com as subidas da programação do treino'); }
     function ativa(){ if(ROTAS.gpx) return true; let id = null; try{ id = localStorage.getItem(SK); }catch(e){} const G = lib().find(x=> x.id === id) || lib()[0]; if(G){ usa(G); return true; } return false; }
     function atual(){ if(!ativa()) return null; let id = null; try{ id = localStorage.getItem(SK); }catch(e){} return lib().find(x=> x.id === id) || null; }
     function painel(gp){
       gp.dataset.gpx = '1'; const L = lib();
       gp.innerHTML = '<div class="gpx-p"><h3>🗺️ O teu percurso (GPX)</h3><p>Carrega um ficheiro <b>.gpx</b> (exportado do Strava, Garmin Connect, Komoot, Wikiloc…). A estrada da aula segue as curvas e o mapa mostra o traçado e a altitude real.</p>' +
         '<label class="gpx-up">📂 Carregar ficheiro GPX<input type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" id="gpxFich" hidden></label>' +
+        '<div class="gpx-pre"><span>Percursos reais prontos (estrada do OpenStreetMap e altimetria real):</span>' + PRESETS.map(P=> '<button type="button" data-pre="' + P.id + '"><b>' + P.ico + ' ' + escapeHtml(P.nome) + '</b><small>' + escapeHtml(P.d) + '</small></button>').join('') + '<div id="gpxInfo" class="gpx-info"></div></div>' +
         (L.length ? '<div class="gpx-l">' + L.map(G=> '<div class="gpx-i' + (ROTAS.gpx && ROTAS.gpx.id === G.id ? ' on' : '') + '"><button type="button" data-g="' + G.id + '"><b>' + escapeHtml(G.nome) + '</b><span>' + String(G.km).replace('.', ',') + ' km' + (G.sobe ? ' · ↗ ' + G.sobe + ' m' : '') + '</span></button><button type="button" class="gpx-x" data-x="' + G.id + '" title="Apagar">🗑</button></div>').join('') + '</div>' : '') +
+        (L.length ? '<div class="gpx-alt"><span>Subidas e descidas da estrada:</span><button type="button" data-alt="treino" class="' + (altAtual() !== 'real' ? 'on' : '') + '">📋 Programação do treino</button><button type="button" data-alt="real" class="' + (altAtual() === 'real' ? 'on' : '') + '">⛰️ Telemetria real do percurso</button></div>' : '') +
         (ROTAS.gpx ? '<button type="button" class="gpx-volta" id="gpxVolta">← Voltar ao percurso</button>' : '') + '</div>';
       const fecha = ()=>{ delete gp.dataset.gpx; gp.innerHTML = ''; delete gp.dataset.serra; SR.key = ''; try{ srMonta(gp); botao(gp); }catch(e){} };
       $('gpxFich').onchange = e=>{ const f = e.target.files[0]; if(!f) return; const rd = new FileReader();
@@ -6179,10 +6233,23 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       gp.querySelectorAll('[data-g]').forEach(b=> b.onclick = ()=>{ const G = lib().find(x=> x.id === b.dataset.g); if(G){ usa(G); fecha(); } });
       gp.querySelectorAll('[data-x]').forEach(b=> b.onclick = ()=>{ const G = lib().find(x=> x.id === b.dataset.x); if(!G || !confirm('Apagar o percurso "' + G.nome + '" deste PC?')) return; grava(lib().filter(x=> x.id !== G.id)); if(ROTAS.gpx && ROTAS.gpx.id === G.id){ delete ROTAS.gpx; try{ localStorage.removeItem(SK); }catch(e){} } painel(gp); });
       if($('gpxVolta')) $('gpxVolta').onclick = fecha;
+      gp.querySelectorAll('[data-alt]').forEach(b=> b.onclick = ()=>{ poeAlt(b.dataset.alt); painel(gp); });
+      gp.querySelectorAll('[data-pre]').forEach(b=> b.onclick = async ()=>{
+        const P = PRESETS.find(x=> x.id === b.dataset.pre), inf = $('gpxInfo'), info = t=>{ if(inf) inf.textContent = '⏳ ' + t; };
+        const ja = lib().find(x=> x.id === 'p_' + P.id); if(ja){ usa(ja); fecha(); return; }
+        gp.querySelectorAll('[data-pre]').forEach(x=> x.disabled = true);
+        try{ const G = await gera(P, info), L2 = lib().filter(x=> x.id !== G.id); L2.unshift(G); if(!grava(L2.slice(0, 12))) return; usa(G);
+          toast('⛰️ ' + G.nome + ' · ' + String(G.km).replace('.', ',') + ' km · ↗ ' + G.sobe + ' m'); fecha(); }
+        catch(err){ if(inf) inf.textContent = '⚠ ' + (err.message || err) + '. Tenta outra vez com internet.'; gp.querySelectorAll('[data-pre]').forEach(x=> x.disabled = false); }
+      });
     }
-    function botao(gp){ const bx = $('srBox'); if(!bx || $('gpxTroca')) return; const b = document.createElement('button'); b.id = 'gpxTroca'; b.className = 'gpx-troca'; b.type = 'button'; b.title = 'Escolher ou carregar outro percurso GPX'; b.textContent = '🗺️ ' + (ROTAS.gpx ? ROTAS.gpx.titulo : 'GPX');
-      b.onclick = ()=>{ srPara(); painel(gp); }; bx.appendChild(b); }
-    return { ativa, atual, painel, botao, le };
+    function botao(gp){ const bx0 = $('srBox'); if(!bx0 || $('gpxTroca')) return; const bx = document.createElement('div'); bx.className = 'gpx-bar'; bx0.appendChild(bx);
+      const b = document.createElement('button'); b.id = 'gpxTroca'; b.className = 'gpx-troca'; b.type = 'button'; b.title = 'Escolher ou carregar outro percurso GPX'; b.textContent = '🗺️ ' + (ROTAS.gpx ? ROTAS.gpx.titulo : 'GPX');
+      b.onclick = ()=>{ srPara(); painel(gp); }; bx.appendChild(b);
+      const a = document.createElement('button'); a.id = 'gpxAlt'; a.className = 'gpx-troca'; a.type = 'button';
+      const pinta = ()=>{ a.textContent = altAtual() === 'real' ? '⛰️ Telemetria real' : '📋 Programação do treino'; a.title = 'Trocar as subidas da estrada entre a telemetria real do GPX e a programação do treino'; };
+      pinta(); a.onclick = ()=>{ poeAlt(altAtual() === 'real' ? 'treino' : 'real'); pinta(); }; bx.appendChild(a); }
+    return { ativa, atual, painel, botao, le, altAtual, poeAlt };
   })();
   ROTAS.porto = { titulo:'MARATONA DO PORTO', km: 42.2, estilo:'porto', pts: PORTO_GEO.map(p=> ({ km: p[0], la: p[1], lo: p[2] })), ruas: PORTO_RUAS, pois: PORTO_POI, ele: PORTO_ELE,
     ini:['PARTIDA', 'MARATONA DO PORTO · SEA LIFE'], fim:['META', 'QUEIMÓDROMO · PARQUE DA CIDADE'], nIni:'Partida · SEA LIFE Porto', nFim:'Meta · Queimódromo', santKm: null, vilas:[],
@@ -6577,7 +6644,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function srRotaMapa(ctx, W, H, camZ, R){
     const w = Math.round(Math.min(560, W * (W > 1400 ? .34 : .3))), h = Math.round(Math.min(250, H * (W > 1400 ? .3 : .26))), x0 = 18, y0 = H - h - 18, hp = Math.round(h * .26);
     const key = R.titulo + w + 'x' + h;
-    const k = Math.cos((R.gpx ? R.pts[0].la : 41.24) * Math.PI / 180), P = R.pts.concat(R.santKm != null ? [VALE_SANT] : []);
+    const k = Math.cos((R.gpx ? R.pts[0].la : 41.24) * Math.PI / 180), P = R.pts.concat(R.santKm != null && !(R.sant && R.sant.la == null) ? [R.sant || VALE_SANT] : []);
     let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity;
     P.forEach(p=>{ a = Math.min(a, p.lo * k); b = Math.max(b, p.lo * k); c = Math.min(c, p.la); d = Math.max(d, p.la); });
     const pad = 18, hm = h - hp - 16, sc = Math.min((w - pad * 2) / (b - a), (hm - pad) / (d - c)), ox = (w - (b - a) * sc) / 2, oy = 16 + (hm - (d - c) * sc) / 2;
@@ -6592,7 +6659,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       g.fillStyle = 'rgba(255,255,255,.85)';
       R.vilas.forEach((n, ix)=>{ const p = ix ? R.pts[R.pts.length - 1] : R.pts[0], q = XY(p.la, p.lo); g.textAlign = 'left'; g.fillText(n, q[0] + 10, q[1] + 4); g.fillStyle = '#FFD60A'; g.beginPath(); g.arc(q[0], q[1], 4, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,.85)'; });
       if(R.rotulos){ g.font = '700 11px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'center'; R.rotulos.forEach(o=>{ const q = XY(o.la, o.lo); g.fillText(o.n, q[0], q[1]); }); }
-      if(R.santKm != null){ const q = XY(VALE_SANT.la, VALE_SANT.lo); g.font = '15px sans-serif'; g.textAlign = 'center'; g.fillText('⛪', q[0], q[1] + 5); }
+      if(R.santKm != null && (R.sant || VALE_SANT).la != null){ const q = XY((R.sant || VALE_SANT).la, (R.sant || VALE_SANT).lo); g.font = '15px sans-serif'; g.textAlign = 'center'; g.fillText('⛪', q[0], q[1] + 5); }
       g.font = '700 11px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'left'; g.fillText(R.titulo + ' · ' + R.km.toFixed(1).replace('.', ',') + ' km reais', 10, 12);
       // altimetria real
       g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(8, h - hp, w - 16, hp - 4);
@@ -6758,7 +6825,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   }
   function srSpritesTema(){
     const tema = SR.tema || 'serra', noite = !!(SR.met && SR.met.fase === 'noite');
-    const k = tema + (tema === 'vale' ? SR.rota + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id : '') : '') + (tema !== 'neon' && tema !== 'cyber' && tema !== 'kart' && SR.met && SR.met.tempo === 'neve' ? '-neve' : '') + ((tema === 'paris' || tema === 'vale') && noite ? '-noite' : '');
+    const k = tema + (tema === 'vale' ? SR.rota + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id + (ROTAS.gpx.altReal ? 'r' : '') : '') : '') + (tema !== 'neon' && tema !== 'cyber' && tema !== 'kart' && SR.met && SR.met.tempo === 'neve' ? '-neve' : '') + ((tema === 'paris' || tema === 'vale') && noite ? '-noite' : '');
     if(SR.spr && SR.sprT === k) return; SR.sprT = k;
     if(tema === 'neon') srSpritesNeon(); else if(tema === 'cyber') srSpritesCyber(); else if(tema === 'kart') srSpritesKart(); else { if(tema === 'paris') srSpritesParis(noite); else if(tema === 'vale'){ if(SR.rota === 'porto') srSpritesPorto(noite, ROTAS.porto); else srSpritesVale(noite, ROTAS[SR.rota] || ROTAS.lp); } else srSprites(); if(k.includes('-neve')) srSpritesNeve(); }
   }
@@ -6836,7 +6903,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     if(SR.tema === 'neon') return srFundoNeon(W, H);
     if(SR.tema === 'cyber') return srFundoCyber(W, H);
     if(SR.tema === 'kart') return srFundoKart(W, H);
-    const M = SR.met, key = W + 'x' + H + zc + (M ? M.fase + M.tempo : '') + SR.tema + (SR.rota || '') + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id : ''); if(SR.bgKey === key) return; SR.bgKey = key;
+    const M = SR.met, key = W + 'x' + H + zc + (M ? M.fase + M.tempo : '') + SR.tema + (SR.rota || '') + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id + (ROTAS.gpx.altReal ? 'r' : '') : ''); if(SR.bgKey === key) return; SR.bgKey = key;
     const mk = (w, h)=>{ const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
     const sky = mk(W, H), g = sky.getContext('2d');
     const gr = g.createLinearGradient(0, 0, 0, H * .62);
@@ -9486,7 +9553,7 @@ const SR3 = (()=>{
     const tF = performance.now();
     if(cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)){ cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const key = current.blocos.length + ':' + totalDuration(current.blocos) + ':' + modoAtual() + ':' + SR.tema + (SR.rota || '') + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id : '');
+    const key = current.blocos.length + ':' + totalDuration(current.blocos) + ':' + modoAtual() + ':' + SR.tema + (SR.rota || '') + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id + (ROTAS.gpx.altReal ? 'r' : '') : '');
     if(SR.key !== key){ SR.key = key; srPista(); try{ if(liveShade) drawLiveProfile(); }catch(e){} }
     srSpritesTema();
     const T = srPal();
@@ -9678,7 +9745,7 @@ const SR3 = (()=>{
       if(SR.tema !== 'neon' && SR.tema !== 'cyber' && SR.tema !== 'kart'){ metBuscar(); SR.met = metEstado(MET.cfg, MET.real); } else SR.met = null;
       const nb = $('srNeo'); if(nb){ nb.hidden = !(SR.tema === 'neon' || SR.tema === 'cyber'); nb.classList.toggle('off', SR.neonB === false); }
       const mb = $('srMet'); if(mb){ mb.hidden = SR.tema === 'neon' || SR.tema === 'cyber' || SR.tema === 'kart'; if(SR.met) mb.textContent = MET_TEMPOS[SR.met.tempo][0]; }
-      const tr = gSeg.tr, pc = Math.round(((segs[Math.min(N - 1, gI + 12)].y - gSeg.y) / (12 * SR_SEG * SR_EXG)) * 100);   // o terreno onde está o pelotão
+      const pc = Math.round(((segs[Math.min(N - 1, gI + 12)].y - gSeg.y) / (12 * SR_SEG * SR_EXG)) * 100), tr = gSeg.real ? Object.assign({}, gSeg.tr, { t: pc >= 3 ? 'sobe' : pc <= -2 ? 'desce' : pc >= 1 ? 'falso' : 'plano' }) : gSeg.tr;   // o terreno onde está o pelotão
       const desc = tr.t === 'falso' ? '↗️ Falso plano <b class="sr-pc">' + Math.max(1, pc) + '%</b>' : tr.t === 'sobe' ? '⛰️ Subida <b class="sr-pc">' + Math.max(1, pc) + '%</b>' : tr.t === 'desce' ? '⬇️ Descida <b class="sr-pc">' + Math.min(-1, pc) + '%</b>' : tr.t === 'sprint' ? '⚡ Sprint em plano' : '➡️ Plano';
       const nz = rs.filter(r=> JG.z[r.id]).length, vsR = rs.map(r=> r.v).filter(v=> v > 0), kmh = livePlaying ? Math.round(vsR.length ? vsR.reduce((a, b)=> a + b, 0) / vsR.length : tr.kmh) : 0, km = zG / SR_M / 1000;   // média das velocidades simuladas dos alunos
       let subiu = 0; for(let k = 1; k <= gI; k++){ const d = segs[k].y - segs[k - 1].y; if(d > 0) subiu += d; }
