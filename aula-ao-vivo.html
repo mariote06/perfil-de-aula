@@ -19,6 +19,33 @@
 <link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,500;0,600;0,700;1,800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>
+// Diagnóstico: se a app não arrancar no telemóvel, aparece uma barra com o motivo e um botão para limpar e recarregar
+(function(){
+  var E = window.__prErr = [];
+  function msg(m){ try{ E.push(String(m).slice(0, 220)); }catch(e){} }
+  window.addEventListener('error', function(e){ msg((e.message || 'erro') + (e.lineno ? ' (linha ' + e.lineno + ')' : '') + (e.filename && !/aula-ao-vivo/.test(e.filename) ? ' ' + e.filename.split('/').pop() : '')); });
+  window.addEventListener('unhandledrejection', function(e){ var r = e.reason; if(!window.__prOk) msg('promessa: ' + (r && (r.message || r.code) || r)); });
+  window.__prMostra = function(){
+    if(window.__prOk || document.getElementById('prFalha')) return;
+    var t = typeof firebase === 'undefined' ? 'A app não arrancou: não consegui carregar o Firebase (internet lenta ou bloqueada).' : 'A app não arrancou.';
+    var d = document.createElement('div'); d.id = 'prFalha';
+    d.style.cssText = 'position:fixed;left:10px;right:10px;top:10px;z-index:2147483647;background:#3a0d12;border:2px solid #FF5A5A;color:#fff;border-radius:14px;padding:12px 14px;font:600 14px/1.35 system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.6)';
+    d.innerHTML = '<b style="font-size:16px">⚠ ' + t + '</b>' + (E.length ? '<div style="margin-top:6px;font:500 12px/1.35 ui-monospace,monospace;color:#ffc9c9;word-break:break-word">' + E.slice(0, 3).map(function(x){ return x.replace(/[<>&]/g, ''); }).join('<br>') + '</div>' : '') +
+      '<div style="margin-top:6px;font-size:12px;color:#ffc9c9">Tira um print a isto e manda ao professor.</div>' +
+      '<button type="button" style="margin-top:10px;width:100%;border:0;border-radius:10px;background:#FF5A5A;color:#140305;font:800 15px system-ui,sans-serif;padding:12px">Limpar e recarregar</button>';
+    d.querySelector('button').onclick = function(){
+      var feito = function(){ location.replace(location.pathname + '?r=' + Date.now() + location.hash); };
+      try{ Promise.all([
+        navigator.serviceWorker ? navigator.serviceWorker.getRegistrations().then(function(L){ return Promise.all(L.map(function(r){ return r.unregister(); })); }) : 0,
+        window.caches ? caches.keys().then(function(K){ return Promise.all(K.map(function(k){ return caches.delete(k); })); }) : 0
+      ]).then(feito, feito); }catch(e){ feito(); }
+    };
+    (document.body || document.documentElement).appendChild(d);
+  };
+  setTimeout(window.__prMostra, 12000);   // 12 s sem arrancar (ex.: Firebase preso a carregar)
+})();
+</script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-database-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
@@ -6802,7 +6829,8 @@ body:has(#setupScreen.active) .legal{display:none}
   // =====================================================================
   // CONTA DO ALUNO — treinos guardados em alunos/{uid}
   // =====================================================================
-  const auth = firebaseReady ? firebase.auth() : null;
+  // se o ficheiro do login (firebase-auth) não chegou a carregar, a app arranca na mesma, só sem a conta
+  const auth = (()=>{ try{ return firebaseReady && typeof firebase.auth === 'function' ? firebase.auth() : null; }catch(e){ console.warn('auth', e); return null; } })();
   let user = null, perfil = null, savePending = false;
   let treinosCache = [];
   let returnTo = 'homeScreen';
@@ -8628,8 +8656,10 @@ body:has(#setupScreen.active) .legal{display:none}
       sairT = Date.now(); toast('Toca outra vez em ← para sair da app'); guarda();
     });
   })();
+  window.__prOk = 1;   // a app arrancou até ao fim
 })();
 </script>
+<script>if(!window.__prOk) window.__prMostra();</script>
 <script>
 window.PR_INSTALL_CFG = { key:'aluno', name:'PlayRide', icon:'icon-192.png', accent:'#E8722C',
     skip: function(qs){ return qs.has('pin') || qs.has('livre') || qs.has('conta') || qs.has('biblioteca'); },

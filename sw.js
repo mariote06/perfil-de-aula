@@ -1,4 +1,4 @@
-const CACHE_NAME = 'perfil-de-aula-v8';
+const CACHE_NAME = 'perfil-de-aula-v9';   // v9: apaga cópias do Firebase que possam ter ficado estragadas
 const SHELL = ['./', 'index.html', 'aula-ao-vivo.html', 'perfil-de-aula.html', 'manifest.json', 'manifest-prof.json', 'instalar.js', 'icon-192.png', 'icon-512.png', 'icon-prof-192.png', 'icon-prof-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png', 'ciclista_m.glb', 'ciclista_f.glb'];
 // bibliotecas do Firebase: ficam guardadas para a app abrir mesmo sem internet (o endereço tem a versão, por isso não mudam)
 const FB = ['app', 'database', 'auth', 'app-check'].map((m) => 'https://www.gstatic.com/firebasejs/10.13.0/firebase-' + m + '-compat.js');
@@ -8,7 +8,8 @@ self.addEventListener('install', (e) => {
   // um a um: se um ficheiro falhar, os outros ficam guardados na mesma
   e.waitUntil(caches.open(CACHE_NAME).then((c) => Promise.all([
     ...SHELL.map((u) => c.add(u).catch(() => {})),
-    ...FB.map((u) => fetch(u, { mode: 'no-cors' }).then((r) => c.put(u, r)).catch(() => {}))
+    // só se guarda uma cópia boa (pedido CORS com resposta 200): uma resposta opaca podia ser um erro escondido
+    ...FB.map((u) => fetch(u, { mode: 'cors' }).then((r) => { if (r.ok) return c.put(u, r); }).catch(() => {}))
   ])));
 });
 
@@ -24,10 +25,13 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
   // Firebase (gstatic): primeiro o que está guardado
   if (url.origin === 'https://www.gstatic.com' && url.pathname.startsWith('/firebasejs/')) {
-    e.respondWith(caches.open(CACHE_NAME).then((c) => c.match(e.request).then((hit) => hit || fetch(e.request).then((res) => {
-      if (res.ok || res.type === 'opaque') c.put(e.request, res.clone());
-      return res;
-    }))));
+    e.respondWith(caches.open(CACHE_NAME).then((c) => c.match(e.request.url).then((hit) => {
+      if (hit && hit.type !== 'opaque') return hit;
+      return fetch(e.request.url, { mode: 'cors' }).then((res) => {
+        if (res.ok) { c.put(e.request.url, res.clone()); return res; }
+        return hit || res;
+      }).catch(() => hit || fetch(e.request));
+    })));
     return;
   }
   // música e serviços externos (SoundCloud, Spotify, Drive…) e pedidos por partes passam direto
