@@ -1510,7 +1510,7 @@ body.sr-full-on #liveOverlay #srBox,body.sr-full-on #liveOverlay #srBox *{visibi
 .live-overlay.split .live-body > #classLamp{top:var(--lamp-top,120px);bottom:auto;right:16px;}
 @media (max-height:820px){.nx-card{padding:7px 18px;font-size:clamp(16px,1.7vw,22px);}.nx-card b{font-size:clamp(19px,2vw,28px);}.live-overlay.split .live-next{margin-top:6px;}}
 
-/* projeção: a barra do rodapé fica escondida e aparece com o rato no fundo do ecrã (ou com um toque em baixo) */
+/* projeção: a barra do rodapé fica escondida e só aparece com o rato encostado ao bordo de baixo do ecrã (ou com um toque em baixo) */
 .live-overlay .live-controls{position:absolute;left:0;right:0;bottom:0;z-index:20;transform:translateY(105%);opacity:0;transition:transform .28s ease, opacity .28s ease;box-shadow:0 -10px 30px rgba(0,0,0,.45);}
 .live-overlay .live-controls.mostra{transform:none;opacity:1;}
 .live-overlay.ctl-auto{cursor:none;}
@@ -10828,15 +10828,17 @@ const SR3 = (()=>{
   (function(){
     const ov = $('liveOverlay'), bar = $('liveControls');
     let tEsconde = 0, tRato = 0;
-    const ZONA = 110;   // px a contar do fundo
+    const ZONA = 110;   // ecrã tátil: px a contar do fundo
+    const BORDO = 6;    // rato: px do bordo inferior
     const mostra = ms=>{ clearTimeout(tEsconde); bar.classList.add('mostra'); if(ms) tEsconde = setTimeout(esconde, ms); };
     const rato = matchMedia('(hover:hover)').matches;
     const esconde = ()=>{ if(rato && bar.matches(':hover')) return; bar.classList.remove('mostra'); };
     ov.addEventListener('mousemove', e=>{
       ov.classList.remove('ctl-auto'); clearTimeout(tRato);
       tRato = setTimeout(()=> ov.classList.add('ctl-auto'), 2500);   // o cursor também desaparece se o rato ficar parado
-      if(window.innerHeight - e.clientY <= ZONA) mostra(0);
-      else if(!bar.matches(':hover')){ clearTimeout(tEsconde); tEsconde = setTimeout(esconde, 500); }
+      // só aparece com o rato encostado ao bordo de baixo do ecrã; depois fica enquanto o rato estiver em cima da barra
+      if(window.innerHeight - e.clientY <= BORDO) mostra(0);
+      else if(!bar.matches(':hover')){ clearTimeout(tEsconde); tEsconde = setTimeout(esconde, 350); }
     });
     ov.addEventListener('mouseleave', ()=>{ clearTimeout(tEsconde); tEsconde = setTimeout(esconde, 500); });
     // ecrã tátil: tocar na parte de baixo mostra a barra durante 4 s

@@ -1884,6 +1884,7 @@ body:has(#setupScreen.active) .legal{display:none}
     ['homeScreen','libScreen','fichaScreen','joinScreen','setupScreen','accountScreen'].forEach(s=> $(s).classList.toggle('active', s===id));
     $('liveScreen').classList.toggle('active', id==='liveScreen');
     document.documentElement.classList.toggle('in-class', id==='liveScreen');
+    if(id==='liveScreen'){ const vb = document.getElementById('voltaTreino'); if(vb) vb.remove(); }
     window.scrollTo(0,0);
   }
   // se o aluno tentar recarregar ou fechar a página a meio do treino, o browser pede confirmação
@@ -2800,7 +2801,7 @@ body:has(#setupScreen.active) .legal{display:none}
     pushHandle = setInterval(()=>{ pushRider(); snapGuarda(); }, 2000);
     pushRider();
     requestWakeLock();
-    try{ history.replaceState(null, '', location.pathname + '?pin=' + pin); }catch(e){}
+    try{ history.replaceState(history.state, '', location.pathname + '?pin=' + pin); }catch(e){}   // mantém a guarda do ← (não a apaga)
   }
 
   function attachListeners(){
@@ -2988,7 +2989,7 @@ body:has(#setupScreen.active) .legal{display:none}
     releaseWakeLock();
     $('pinInput').value = '';
     showJoinError('');
-    try{ history.replaceState(null, '', location.pathname); }catch(e){}
+    try{ history.replaceState(history.state, '', location.pathname); }catch(e){}
     showScreen('homeScreen');
     renderHome();
   }
@@ -8468,13 +8469,38 @@ body:has(#setupScreen.active) .legal{display:none}
     window.PR_FROM_QR = true;
     try{ history.replaceState(null, '', location.pathname + location.hash); }catch(e){}
   }
+  // A app fechou a meio da aula (← do telemóvel, browser, bateria…)? Ao abrir outra vez oferece logo voltar ao treino.
+  else { try{
+    const v = JSON.parse(localStorage.getItem(SNAP_KEY) || 'null');
+    if(v && v.pin && Date.now() - v.t < 20 * 60e3 && !(v.state && v.state.status === 'finished')){
+      const bx = document.createElement('div'); bx.id = 'voltaTreino';
+      bx.style.cssText = 'position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 12px);z-index:9999;display:flex;align-items:center;gap:10px;background:#E8722C;color:#140a03;border-radius:16px;padding:12px 12px 12px 16px;box-shadow:0 10px 30px rgba(0,0,0,.5);font:700 15px/1.25 system-ui,sans-serif';
+      bx.innerHTML = '<div style="flex:1">⏱ Tens uma aula a decorrer<br><span style="font-weight:600;font-size:13px;opacity:.85">' + (v.nome ? String(v.nome).replace(/[<>&]/g, '') + ' · ' : '') + 'PIN ' + String(v.pin).replace(/\D/g, '') + '</span></div>'
+        + '<button type="button" id="voltaSim" style="border:0;border-radius:12px;background:#140a03;color:#fff;font:800 15px system-ui,sans-serif;padding:12px 16px">Voltar ao treino</button>'
+        + '<button type="button" id="voltaNao" aria-label="Fechar" style="border:0;background:none;color:#140a03;font:800 20px system-ui;padding:6px">✕</button>';
+      document.body.appendChild(bx);
+      $('voltaSim').addEventListener('click', ()=>{ bx.remove(); $('pinInput').value = v.pin; checkPin(v.pin); });
+      $('voltaNao').addEventListener('click', ()=> bx.remove());
+      setTimeout(()=>{ const b = $('voltaTreino'); if(b) b.remove(); }, 20 * 60e3);
+    }
+  }catch(e){} }
 
 
   // ===== botão ← do telemóvel: navega dentro da app (não a fecha nem a reinicia) =====
   // Há sempre uma entrada "guarda" no histórico; o ← do Android consome-a e a app decide o que fazer.
   (function(){
     const guarda = ()=>{ try{ history.pushState({ pr: 1 }, '', location.href); }catch(e){} };
+    const armada = ()=>{ try{ return !!(history.state && history.state.pr === 1); }catch(e){ return false; } };
     try{ if(!history.state || !history.state.pr){ history.replaceState({ pr: 0 }, '', location.href); guarda(); } }catch(e){}
+    // O Chrome do Android salta as entradas do histórico criadas sem o utilizador tocar no ecrã, e aí o ← fechava a app.
+    // Por isso a guarda é refeita a cada toque (um toque conta como gesto do utilizador e a entrada passa a valer).
+    const rearma = ()=>{ if(!armada()) guarda(); };
+    ['click', 'touchend', 'keydown'].forEach(ev=> window.addEventListener(ev, rearma, { capture: true, passive: true }));
+    // Durante o treino, onde o browser deixa, o recuo é simplesmente cancelado (API de navegação do Chrome)
+    try{ if(window.navigation && navigation.addEventListener) navigation.addEventListener('navigate', e=>{
+      if(e.navigationType === 'traverse' && e.cancelable && currentScreen === 'liveScreen' && !(typeof sessionEnded !== 'undefined' && sessionEnded)){
+        e.preventDefault(); toast('Estás no treino. Para sair usa o botão de sair no topo.'); }
+    }); }catch(e){}
     let sairT = 0;
     const clica = id=>{ const b = $(id); if(b && b.offsetParent !== null){ b.click(); return true; } return false; };
     window.addEventListener('popstate', ()=>{
