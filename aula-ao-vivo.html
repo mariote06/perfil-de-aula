@@ -1022,7 +1022,7 @@ body.ecra4-on #kartCog{display:none!important;}
 #setupScreen{gap:7px}#setupScreen .form{gap:7px}
 #setupScreen:has(#favBox:not([hidden])) #demoBtn{display:none}   /* com favoritos não faz falta o modo teste */
 .favs-dica{font-size:11px;color:var(--muted);line-height:1.3;margin-top:6px}.favs-dica[hidden]{display:none}.favs-dica b{color:#ddd;font-weight:600}
-.bk-num{display:inline-block;background:var(--accent);color:#111;font-weight:800;border-radius:6px;padding:0 6px;margin-left:2px;font-size:.9em}.bk-num[hidden]{display:none}
+.bk-num{display:inline-flex;align-items:center;gap:4px;background:var(--accent);color:#111;font-weight:800;border-radius:8px;padding:1px 4px 1px 8px;margin-left:6px;font-size:.62em;vertical-align:middle;letter-spacing:.3px}.bk-num .bk-solta{border:0;background:rgba(0,0,0,.18);color:#111;font:800 13px system-ui;border-radius:6px;width:22px;height:22px;padding:0;line-height:22px}.bk-num[hidden]{display:none}
 .bk-sheet{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center}.bk-sheet.on{display:flex}
 .bk-box{width:100%;max-width:560px;background:var(--surface);border:1px solid var(--border);border-radius:18px 18px 0 0;padding:14px 16px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:10px;max-height:92vh;overflow:auto}
 .bk-h{width:100%;display:flex;justify-content:space-between;align-items:center;font-size:18px}.bk-x{background:none;border:0;color:var(--muted);font-size:20px;padding:4px 8px}
@@ -1032,11 +1032,11 @@ body.ecra4-on #kartCog{display:none!important;}
 .bk-b{position:absolute;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#202734;color:#fff;border:2px solid #4b5568;border-radius:8px;font:800 var(--bf,18px) system-ui,sans-serif;padding:0;line-height:1}
 .bk-b small{font-size:8px;font-weight:600;color:var(--muted);max-width:95%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
 .bk-b:active{transform:scale(.95)}.bk-b.oc{opacity:.45}.bk-b.meu{border-color:var(--accent);box-shadow:0 0 0 3px #E8722C55}.bk-b.prof{background:#3a2a1a;border-color:#E8722C;opacity:1;font-size:calc(var(--bf,18px) * .8)}.bk-b.prof small{color:#d9b89a}
-.bk-num{width:100%;display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:8px 10px}
-.bk-num label{font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap}
-.bk-num input{flex:1;min-width:0;width:60px;background:#0B0E13;border:2px solid var(--border);border-radius:10px;color:#fff;font:800 26px 'Barlow Condensed',sans-serif;text-align:center;padding:4px 6px}
-.bk-num input:focus{outline:none;border-color:var(--accent)}
-.bk-num button{background:var(--accent);color:#140a03;border:0;border-radius:10px;font:800 15px Inter,sans-serif;padding:11px 14px;white-space:nowrap}
+.bk-numf{width:100%;display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:8px 10px}
+.bk-numf label{font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap}
+.bk-numf input{flex:1;min-width:0;width:60px;background:#0B0E13;border:2px solid var(--border);border-radius:10px;color:#fff;font:800 26px 'Barlow Condensed',sans-serif;text-align:center;padding:4px 6px}
+.bk-numf input:focus{outline:none;border-color:var(--accent)}
+.bk-numf button{background:var(--accent);color:#140a03;border:0;border-radius:10px;font:800 15px Inter,sans-serif;padding:11px 14px;white-space:nowrap}
 .bk-desl{width:100%;border:2px solid #FF5A5A;background:rgba(255,90,90,.12);color:#FF8A8A;border-radius:14px;font:800 16px Inter,sans-serif;padding:12px}
 .bk-ou{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
 .bk-lista{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:13px;padding:6px}
@@ -7731,11 +7731,12 @@ body:has(#setupScreen.active) .legal{display:none}
   setInterval(()=>{ if(pin && (!BKS.pre || BKS.pre.pin !== pin)) bkPrepara(); }, 3000);
   async function ligarBike(){
     if(demo) return;
-    if(bikeConnected()){ connectBike(false); return; }
-    if(!hasBluetooth){ showBtWarning(); return; }
+    if(!hasBluetooth && !bikeConnected()){ showBtWarning(); return; }
     let sala, m;
     if(BKS.pre && BKS.pre.pin === pin){ sala = BKS.pre.sala; m = BKS.pre.m; bkPrepara(); }
     else { sala = await bkSala(); m = sala ? await bkMapa(sala) : null; }
+    // já ligada: com planta abre-a (dá para mudar de lugar ou desligar); sem planta pergunta se queres desligar
+    if(bikeConnected()){ if(m && m.pl !== 0 && m.b.some(b=> !b.p)) return bkAbre(sala, m); connectBike(false); return; }
     if(m && m.pl === 0){ connectBike(false); return; }   // o professor escolheu ligar pelo sensor (lista do Bluetooth)
     if(!m || !m.b.some(b=> !b.p)){ if(!sala && Object.keys(BKS.cache).length) return bkAbre(null, null); connectBike(false); return; }
     bkAbre(sala, m);
@@ -7748,7 +7749,7 @@ body:has(#setupScreen.active) .legal{display:none}
       let h = '<div class="bk-box"><div class="bk-h"><b>Em que bike estás?</b><button type="button" class="bk-x" aria-label="Fechar">✕</button></div>' +
         '<div class="bk-salas">' + Object.keys(SALAS).map(k=> '<button type="button" data-s="' + k + '" class="' + (k === BKS.sala ? 'on' : '') + '">' + SALAS[k] + '</button>').join('') + '</div>';
       // pelo número: o aluno escreve o número que está na bike e a app liga ao sensor dessa bike
-      if(mm && mm.b.some(b=> !b.p)) h += '<form class="bk-num"><label for="bkNumIn">Nº da bike</label><input id="bkNumIn" type="text" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="—" value="' + (eu && eu.s === BKS.sala ? escapeHtml(String(eu.n)) : '') + '"><button type="submit">Ligar</button></form><div class="bk-ou">ou toca no teu lugar na sala</div>';
+      if(mm && mm.b.some(b=> !b.p)) h += '<form class="bk-numf"><label for="bkNumIn">Nº da bike</label><input id="bkNumIn" type="text" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="—" value="' + (eu && eu.s === BKS.sala ? escapeHtml(String(eu.n)) : '') + '"><button type="submit">Ligar</button></form><div class="bk-ou">ou toca no teu lugar na sala</div>';
       if(!mm || !mm.b.length) h += '<p class="bk-dica">Ainda não há planta desta sala.</p>';
       else{
         // igual ao "Mapa da sala" do Coach: a mesma grelha, cada bike numa quadrícula, o professor e o ecrã no mesmo sítio
@@ -7759,8 +7760,8 @@ body:has(#setupScreen.active) .legal{display:none}
         let gap = 9; mm.b.forEach((a, i)=> mm.b.forEach((c, k)=>{ if(k > i) gap = Math.min(gap, Math.max(Math.abs(a.x - c.x), Math.abs(a.y - c.y))); }));
         const tam = cel * Math.min(1.7, Math.max(1, gap - .3)), off = (cel - tam) / 2; const P = Math.ceil(Math.max(0, -off));   // margem para os botões da beira não saírem da grelha
         h += (mm.f === 'b' ? '' : ecra) + '<div class="bk-pl" style="width:' + (mx * cel + 2 * P) + 'px;height:' + (my * cel + 2 * P) + 'px;background-size:' + cel + 'px ' + cel + 'px;background-position:' + P + 'px ' + P + 'px;--bf:' + Math.max(14, Math.round(cel * .62)) + 'px">' + mm.b.map(b=>{
-          const oc = !b.p && BKS.oc[b.n], meu = eu && eu.s === BKS.sala && eu.n === String(b.n);
-          return '<button type="button" class="bk-b' + (b.p ? ' prof' : '') + (oc ? ' oc' : '') + (meu ? ' meu' : '') + '"' + (b.p ? ' disabled' : '') + ' data-n="' + escapeHtml(String(b.n)) + '" style="left:' + Math.round(P + b.x * cel + off + 2) + 'px;top:' + Math.round(P + b.y * cel + off + 2) + 'px;width:' + Math.round(tam - 4) + 'px;height:' + Math.round(tam - 4) + 'px">' +
+          const oc = b.p ? BKS.oc.prof : BKS.oc[b.n], meu = eu && eu.s === BKS.sala && eu.n === (b.p ? 'prof' : String(b.n));
+          return '<button type="button" class="bk-b' + (b.p ? ' prof' : '') + (oc ? ' oc' : '') + (meu ? ' meu' : '') + '"' +  + ' data-n="' + escapeHtml(String(b.n)) + '" style="left:' + Math.round(P + b.x * cel + off + 2) + 'px;top:' + Math.round(P + b.y * cel + off + 2) + 'px;width:' + Math.round(tam - 4) + 'px;height:' + Math.round(tam - 4) + 'px">' +
             (b.p ? '🎤' + (tam > 44 ? '<small>professor</small>' : '') : escapeHtml(String(b.n))) + (oc ? '<small>' + escapeHtml(oc) + '</small>' : '') + '</button>'; }).join('') + '</div>' + (mm.f === 'b' ? ecra : '');
       }
       if(bikeConnected()) h += '<button type="button" class="bk-desl">⏏ Desligar ' + escapeHtml(/^Bike /.test(bkNome(S.bikeName || '')) ? 'a ' + bkNome(S.bikeName || '') : 'a bike') + '</button>';
@@ -7771,30 +7772,37 @@ body:has(#setupScreen.active) .legal{display:none}
       d.querySelectorAll('.bk-salas [data-s]').forEach(b=> b.onclick = async ()=>{ BKS.sala = b.dataset.s; try{ localStorage.setItem('prSala', BKS.sala); }catch(e){} BKS.mapa = await bkMapa(BKS.sala); pinta(); });
       d.querySelector('.bk-lista').onclick = ()=>{ d.classList.remove('on'); connectBike(false); };
       d.querySelectorAll('.bk-b:not(.prof)').forEach(el=> el.onclick = ()=> bkEscolhe(el.dataset.n));
+      d.querySelectorAll('.bk-b.prof').forEach(el=> el.onclick = ()=> bkEscolhe('prof'));   // a bike do professor também se pode ligar (pede confirmação)
       const fd = d.querySelector('.bk-desl'); if(fd) fd.onclick = ()=>{ disconnectBike(); d.classList.remove('on'); toast('Bike desligada'); };
-      const fn = d.querySelector('.bk-num'); if(fn) fn.onsubmit = e=>{ e.preventDefault(); const v = fn.querySelector('input').value.trim(); if(v) bkEscolhe(v); };
+      const fn = d.querySelector('.bk-numf'); if(fn) fn.onsubmit = e=>{ e.preventDefault(); const v = fn.querySelector('input').value.trim(); if(v) bkEscolhe(v); };
     };
     pinta();
     bkOcupadas().then(oc=>{ BKS.oc = oc; if(d.classList.contains('on')) pinta(); });
   }
   function bkEscolhe(n){
     const nz = v=> String(v).trim().toUpperCase().replace(/^0+(?=\w)/, '');   // "07" = "7"
-    const b = BKS.mapa && BKS.mapa.b.find(x=> !x.p && nz(x.n) === nz(n));
+    const pr = String(n).toLowerCase() === 'prof';
+    const b = BKS.mapa && (pr ? BKS.mapa.b.find(x=> x.p) : BKS.mapa.b.find(x=> !x.p && nz(x.n) === nz(n)));
+    if(pr && b && !confirm('Esta é a bike do professor. Ligar a esta bike?')) return;
     if(!b){ toast('Não há nenhuma bike nº ' + n + ' na planta ' + (SALAS[BKS.sala] ? 'de ' + SALAS[BKS.sala] : 'desta sala')); return; }
-    n = String(b.n);
-    if(BKS.oc[n] && !confirm('A bike ' + n + ' já foi escolhida por ' + BKS.oc[n] + '. É mesmo esta a tua?')) return;
+    n = pr ? 'prof' : String(b.n);
+    if(BKS.oc[n] && !confirm((pr ? 'A bike do professor' : 'A bike ' + n) + ' já foi escolhida por ' + BKS.oc[n] + '. É mesmo esta a tua?')) return;
     try{ localStorage.setItem('prBk', JSON.stringify({ s: BKS.sala, n: n, t: Date.now() })); }catch(e){}
     me.bk = n; $('bkSheet').classList.remove('on'); bkPinta();
-    if(b.bt){ setBikeStatus('a ligar à bike ' + n + '… pedala para acordar a consola', false);
+    const nomeB = pr ? 'à bike do professor' : 'à bike ' + n;
+    if(b.bt){ setBikeStatus('a ligar ' + nomeB + '… pedala para acordar a consola', false);
       favLiga({ t: 'bike', n: b.bt, bk: n }); }   // liga ao sensor desta bike (o nome do sensor não aparece)
-    else { toast('A bike ' + n + ' ainda não tem o sensor registado: escolhe-a na lista'); connectBike(false); }
+    else { if(bikeConnected()) disconnectBike(); toast((pr ? 'A bike do professor' : 'A bike ' + n) + ' ainda não tem o sensor registado: escolhe-a na lista'); connectBike(false); }
   }
   // nome a mostrar para um sensor: o número da bike no mapa da sala (o nome Bluetooth fica escondido)
   function bkNome(bt){ const c = (typeof BKS !== 'undefined' && BKS.cache) || {}, N = String(bt || '').trim().toUpperCase();
-    for(const k in c){ const b = c[k] && c[k].pl !== 0 && Array.isArray(c[k].b) && c[k].b.find(x=> !x.p && x.bt && String(x.bt).trim().toUpperCase() === N); if(b) return 'Bike ' + b.n; } return bt; }
+    for(const k in c){ const b = c[k] && c[k].pl !== 0 && Array.isArray(c[k].b) && c[k].b.find(x=> x.bt && String(x.bt).trim().toUpperCase() === N); if(b) return b.p ? 'Bike do professor' : 'Bike ' + b.n; } return bt; }
   // larga o lugar na sala: deixa de aparecer na bike na planta do professor
   function bkLarga(){ try{ localStorage.removeItem('prBk'); }catch(e){} me.bk = null; me.bn = null; bkPinta(); try{ if(riderRef) pushRider(); }catch(e){} }
-  function bkPinta(){ const el = $('bkNum'), v = bkMeu(); if(!el) return; el.hidden = !v; if(v) el.textContent = v.n; }
+  // o lugar escolhido na planta (fica guardado com ou sem a bike ligada); o ✕ larga o lugar
+  function bkPinta(){ const el = $('bkNum'), v = bkMeu(); if(!el) return; el.hidden = !v;
+    if(v){ el.innerHTML = (v.n === 'prof' ? 'professor' : 'lugar ' + escapeHtml(String(v.n))) + '<button type="button" class="bk-solta" title="Largar o lugar" aria-label="Largar o lugar">✕</button>';
+      el.querySelector('.bk-solta').onclick = e=>{ e.stopPropagation(); bkLarga(); toast(v.n === 'prof' ? 'Largaste a bike do professor' : 'Largaste o lugar ' + v.n); }; } }
   // =====================================================================
   // ENTRADA RÁPIDA: a app vê as aulas a decorrer no estúdio (live/{sala}/{pin}, anunciadas pela projeção).
   // Página 1: saudação, emoji do humor e "Confirmar". Página 2: as aulas a decorrer (entram sem PIN),

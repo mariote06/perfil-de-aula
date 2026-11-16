@@ -8236,7 +8236,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       if(lugPin !== sessionPin){ lugPin = sessionPin; try{ lug = JSON.parse(localStorage.getItem('prSalaLug_' + sessionPin) || '{}') || {}; }catch(e){ lug = {}; } }
       const m = mapa(s), out = {}, usadas = {};
       list.forEach(r=>{ const b = lug[r.id] && m.b.find(x=> x.id === lug[r.id]); if(b && !usadas[b.id]){ out[r.id] = b; usadas[b.id] = 1; } });
-      list.forEach(r=>{ if(out[r.id] || !r.bk || lug[r.id] === '-') return; const b = m.b.find(x=> !usadas[x.id] && !x.p && String(x.n) === String(r.bk)); if(b){ out[r.id] = b; usadas[b.id] = 1; } });
+      list.forEach(r=>{ if(out[r.id] || !r.bk || lug[r.id] === '-') return; const b = m.b.find(x=> !usadas[x.id] && (r.bk === 'prof' ? x.p : !x.p && String(x.n) === String(r.bk))); if(b){ out[r.id] = b; usadas[b.id] = 1; } });   // 'prof' = a bike do professor
       list.forEach(r=>{ if(out[r.id] || !r.bn || lug[r.id] === '-') return; const bn = norm(r.bn);
         let b = m.b.find(x=> !usadas[x.id] && x.bt && norm(x.bt) === bn);
         if(!b){ const n = numDe(bn); if(n) b = m.b.find(x=> !usadas[x.id] && !x.bt && !x.p && String(x.n) === n); }
