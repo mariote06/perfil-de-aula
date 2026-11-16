@@ -1000,11 +1000,17 @@ body.ecra4-on #kartCog{display:none!important;}
 .bk-box{width:100%;max-width:560px;background:var(--surface);border:1px solid var(--border);border-radius:18px 18px 0 0;padding:14px 16px calc(16px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:10px;max-height:92vh;overflow:auto}
 .bk-h{width:100%;display:flex;justify-content:space-between;align-items:center;font-size:18px}.bk-x{background:none;border:0;color:var(--muted);font-size:20px;padding:4px 8px}
 .bk-salas{display:flex;gap:6px}.bk-salas button{background:var(--surface-2);color:var(--text);border:1px solid var(--border);border-radius:999px;padding:5px 14px;font:inherit;font-size:13px}.bk-salas button.on{background:var(--accent);border-color:var(--accent);color:#111;font-weight:700}
-.bk-ecra{width:70%;text-align:center;background:var(--accent);color:#111;font-weight:800;letter-spacing:.2em;font-size:11px;border-radius:5px;padding:2px}
-.bk-pl{position:relative;flex:0 0 auto}
-.bk-b{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--surface-2);color:var(--text);border:2px solid var(--border);border-radius:10px;font:800 18px system-ui,sans-serif;padding:0;line-height:1}
-.bk-b small{font-size:9px;font-weight:600;color:var(--muted);max-width:95%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
-.bk-b:active{transform:scale(.95)}.bk-b.oc{opacity:.45}.bk-b.meu{border-color:var(--accent);box-shadow:0 0 0 3px #E8722C55}.bk-b.prof{background:#2a1f15;border-style:dashed;opacity:.7}
+.bk-ecra{max-width:100%;text-align:center;background:var(--accent);color:#111;font-weight:800;letter-spacing:.2em;font-size:11px;border-radius:5px;padding:2px}
+.bk-pl{position:relative;flex:0 0 auto;box-sizing:content-box;background-color:#141922;background-image:linear-gradient(#232a36 1px,transparent 1px),linear-gradient(90deg,#232a36 1px,transparent 1px);border:1px solid #2a313d;border-radius:8px}
+.bk-b{position:absolute;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#202734;color:#fff;border:2px solid #4b5568;border-radius:8px;font:800 var(--bf,18px) system-ui,sans-serif;padding:0;line-height:1}
+.bk-b small{font-size:8px;font-weight:600;color:var(--muted);max-width:95%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.bk-b:active{transform:scale(.95)}.bk-b.oc{opacity:.45}.bk-b.meu{border-color:var(--accent);box-shadow:0 0 0 3px #E8722C55}.bk-b.prof{background:#3a2a1a;border-color:#E8722C;opacity:1;font-size:calc(var(--bf,18px) * .8)}.bk-b.prof small{color:#d9b89a}
+.bk-num{width:100%;display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:8px 10px}
+.bk-num label{font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap}
+.bk-num input{flex:1;min-width:0;width:60px;background:#0B0E13;border:2px solid var(--border);border-radius:10px;color:#fff;font:800 26px 'Barlow Condensed',sans-serif;text-align:center;padding:4px 6px}
+.bk-num input:focus{outline:none;border-color:var(--accent)}
+.bk-num button{background:var(--accent);color:#140a03;border:0;border-radius:10px;font:800 15px Inter,sans-serif;padding:11px 14px;white-space:nowrap}
+.bk-ou{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
 .bk-lista{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:13px;padding:6px}
 .bk-dica{color:var(--muted);font-size:14px;margin:20px 0}
 .home .home-grid.tabs{grid-template-columns:repeat(3,1fr)!important}
@@ -1873,10 +1879,7 @@ body:has(#setupScreen.active) .legal{display:none}
     try{ firebase.appCheck().activate(new firebase.appCheck.ReCaptchaEnterpriseProvider(APPCHECK_SITE_KEY), true); }
     catch(e){ console.error('App Check falhou', e); }
   }
-  // sem internet (ou rede fraca) as bibliotecas do Firebase podem não carregar: a app abre na mesma e volta a tentar quando a rede voltar
-  const fbCarregou = typeof firebase !== 'undefined' && !!firebase.initializeApp;
-  if(!fbCarregou) window.addEventListener('online', ()=> location.reload(), { once: true });
-  const firebaseReady = fbCarregou && firebaseConfig.apiKey !== 'COLA_AQUI' && !!firebaseConfig.databaseURL;
+  const firebaseReady = firebaseConfig.apiKey !== 'COLA_AQUI' && !!firebaseConfig.databaseURL;
   let fbDb = null;
   if(firebaseReady){
     try{ firebase.initializeApp(firebaseConfig); ativarAppCheck(); fbDb = firebase.database(); }
@@ -6799,7 +6802,7 @@ body:has(#setupScreen.active) .legal{display:none}
   // =====================================================================
   // CONTA DO ALUNO — treinos guardados em alunos/{uid}
   // =====================================================================
-  let auth = null; try{ if(fbDb && typeof firebase.auth === 'function') auth = firebase.auth(); }catch(e){ console.error('Auth falhou', e); }
+  const auth = firebaseReady ? firebase.auth() : null;
   let user = null, perfil = null, savePending = false;
   let treinosCache = [];
   let returnTo = 'homeScreen';
@@ -7715,15 +7718,21 @@ body:has(#setupScreen.active) .legal{display:none}
       const mm = BKS.mapa, eu = bkMeu();
       let h = '<div class="bk-box"><div class="bk-h"><b>Em que bike estás?</b><button type="button" class="bk-x" aria-label="Fechar">✕</button></div>' +
         '<div class="bk-salas">' + Object.keys(SALAS).map(k=> '<button type="button" data-s="' + k + '" class="' + (k === BKS.sala ? 'on' : '') + '">' + SALAS[k] + '</button>').join('') + '</div>';
+      // pelo número: o aluno escreve o número que está na bike e a app liga ao sensor dessa bike
+      if(mm && mm.b.some(b=> !b.p)) h += '<form class="bk-num"><label for="bkNumIn">Nº da bike</label><input id="bkNumIn" type="text" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="—" value="' + (eu && eu.s === BKS.sala ? escapeHtml(String(eu.n)) : '') + '"><button type="submit">Ligar</button></form><div class="bk-ou">ou toca no teu lugar na sala</div>';
       if(!mm || !mm.b.length) h += '<p class="bk-dica">Ainda não há planta desta sala.</p>';
       else{
-        const xs = mm.b.map(b=> b.x), ys = mm.b.map(b=> b.y), x0 = Math.min(...xs), y0 = Math.min(...ys), W = Math.max(...xs) - x0 + 2, H = Math.max(...ys) - y0 + 2;
-        const cel = Math.min((Math.min(window.innerWidth, 520) - 48) / W, (window.innerHeight * .58) / H, 40);
-        const ecra = '<div class="bk-ecra">ECRÃ</div>';
-        h += (mm.f === 'b' ? '' : ecra) + '<div class="bk-pl" style="width:' + (W * cel) + 'px;height:' + (H * cel) + 'px">' + mm.b.map(b=>{
+        // igual ao "Mapa da sala" do Coach: a mesma grelha, cada bike numa quadrícula, o professor e o ecrã no mesmo sítio
+        const mx = Math.max(12, ...mm.b.map(b=> b.x + 2)), my = Math.max(...mm.b.map(b=> b.y + 2));
+        const cel = Math.floor(Math.min((Math.min(window.innerWidth, 560) - 50) / mx, (window.innerHeight * .5) / my, 60));
+        const ecra = '<div class="bk-ecra" style="width:' + Math.round(mx * cel * .8) + 'px">ECRÃ</div>';
+        // no telemóvel a quadrícula é pequena para o dedo: se as bikes estão afastadas (como na grelha do Coach), o botão cresce à volta da sua quadrícula
+        let gap = 9; mm.b.forEach((a, i)=> mm.b.forEach((c, k)=>{ if(k > i) gap = Math.min(gap, Math.max(Math.abs(a.x - c.x), Math.abs(a.y - c.y))); }));
+        const tam = cel * Math.min(1.7, Math.max(1, gap - .3)), off = (cel - tam) / 2; const P = Math.ceil(Math.max(0, -off));   // margem para os botões da beira não saírem da grelha
+        h += (mm.f === 'b' ? '' : ecra) + '<div class="bk-pl" style="width:' + (mx * cel + 2 * P) + 'px;height:' + (my * cel + 2 * P) + 'px;background-size:' + cel + 'px ' + cel + 'px;background-position:' + P + 'px ' + P + 'px;--bf:' + Math.max(14, Math.round(cel * .62)) + 'px">' + mm.b.map(b=>{
           const oc = !b.p && BKS.oc[b.n], meu = eu && eu.s === BKS.sala && eu.n === String(b.n);
-          return '<button type="button" class="bk-b' + (b.p ? ' prof' : '') + (oc ? ' oc' : '') + (meu ? ' meu' : '') + '"' + (b.p ? ' disabled' : '') + ' data-n="' + escapeHtml(String(b.n)) + '" style="left:' + ((b.x - x0) * cel) + 'px;top:' + ((b.y - y0) * cel) + 'px;width:' + (cel * 2 - 6) + 'px;height:' + (cel * 2 - 6) + 'px">' +
-            (b.p ? '🎤' : escapeHtml(String(b.n))) + (oc ? '<small>' + escapeHtml(oc) + '</small>' : '') + '</button>'; }).join('') + '</div>' + (mm.f === 'b' ? ecra : '');
+          return '<button type="button" class="bk-b' + (b.p ? ' prof' : '') + (oc ? ' oc' : '') + (meu ? ' meu' : '') + '"' + (b.p ? ' disabled' : '') + ' data-n="' + escapeHtml(String(b.n)) + '" style="left:' + Math.round(P + b.x * cel + off + 2) + 'px;top:' + Math.round(P + b.y * cel + off + 2) + 'px;width:' + Math.round(tam - 4) + 'px;height:' + Math.round(tam - 4) + 'px">' +
+            (b.p ? '🎤' + (tam > 44 ? '<small>professor</small>' : '') : escapeHtml(String(b.n))) + (oc ? '<small>' + escapeHtml(oc) + '</small>' : '') + '</button>'; }).join('') + '</div>' + (mm.f === 'b' ? ecra : '');
       }
       h += '<button type="button" class="bk-lista">A minha bike não está aqui · procurar na lista</button></div>';
       d.innerHTML = h; d.classList.add('on');
@@ -7732,12 +7741,16 @@ body:has(#setupScreen.active) .legal{display:none}
       d.querySelectorAll('.bk-salas [data-s]').forEach(b=> b.onclick = async ()=>{ BKS.sala = b.dataset.s; try{ localStorage.setItem('prSala', BKS.sala); }catch(e){} BKS.mapa = await bkMapa(BKS.sala); pinta(); });
       d.querySelector('.bk-lista').onclick = ()=>{ d.classList.remove('on'); connectBike(false); };
       d.querySelectorAll('.bk-b:not(.prof)').forEach(el=> el.onclick = ()=> bkEscolhe(el.dataset.n));
+      const fn = d.querySelector('.bk-num'); if(fn) fn.onsubmit = e=>{ e.preventDefault(); const v = fn.querySelector('input').value.trim(); if(v) bkEscolhe(v); };
     };
     pinta();
     bkOcupadas().then(oc=>{ BKS.oc = oc; if(d.classList.contains('on')) pinta(); });
   }
   function bkEscolhe(n){
-    const b = BKS.mapa && BKS.mapa.b.find(x=> !x.p && String(x.n) === n); if(!b) return;
+    const nz = v=> String(v).trim().toUpperCase().replace(/^0+(?=\w)/, '');   // "07" = "7"
+    const b = BKS.mapa && BKS.mapa.b.find(x=> !x.p && nz(x.n) === nz(n));
+    if(!b){ toast('Não há nenhuma bike nº ' + n + ' na planta ' + (SALAS[BKS.sala] ? 'de ' + SALAS[BKS.sala] : 'desta sala')); return; }
+    n = String(b.n);
     if(BKS.oc[n] && !confirm('A bike ' + n + ' já foi escolhida por ' + BKS.oc[n] + '. É mesmo esta a tua?')) return;
     try{ localStorage.setItem('prBk', JSON.stringify({ s: BKS.sala, n: n, t: Date.now() })); }catch(e){}
     me.bk = n; $('bkSheet').classList.remove('on'); bkPinta();
