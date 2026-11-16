@@ -3247,7 +3247,7 @@ body:has(#setupScreen.active) .legal{display:none}
     const est = $('n2Est'); est.style.setProperty('--ec', ec); $('n2EstI').textContent = ico; $('n2EstT').textContent = txt;
   }
   // ===== o meu ciclista: no início das aulas com percurso virtual, o aluno escolhe o veículo e as cores (fica guardado no telemóvel) =====
-  const AV_ESTRADAS = ['p_serra', 'p_neon', 'p_paris', 'p_lsdpnf', 'p_pnflsd', 'p_porto', 'p_cyber', 'p_kart'];
+  const AV_ESTRADAS = ['p_serra', 'p_neon', 'p_paris', 'p_lsdpnf', 'p_pnflsd', 'p_porto', 'p_cyber', 'p_kart', 'p_gpx'];
   try{ me.av = localStorage.getItem('prAv') || null; }catch(e){}
   const AVE = { a: null, raf: 0 };
   function avAbre(){
@@ -4656,6 +4656,10 @@ body:has(#setupScreen.active) .legal{display:none}
     { km:41.63, lado:1, d:36, t:'vidro', n:'SEA LIFE Porto' }
   ];
   Object.assign(VALE_ICO, { forte:'🏰', vidro:'🏢', anemona:'🎐', sinal:'📍', farol:'🗼', farolim:'🗼', pergola:'🏛️', jardim:'🌴', eletrico:'🚋', palacio:'🏛️', luis:'🌉', mosteiro:'⛪', teleferico:'🚡', caves:'🍷', ponte:'🌉' });
+  // percurso carregado de um ficheiro GPX (Strava, Garmin, Komoot…): os pontos reais, a altimetria e o nome
+  function gpxRota(G){ if(!G || !G.pts || G.pts.length < 2) return null; const T = String(G.nome || 'Percurso GPX').toUpperCase();
+    return { titulo: T, km: G.km, pts: G.pts, ruas: [[0, G.km + 1, G.nome || 'Percurso GPX', G.amb || 'campo']], pois: [], ele: G.ele || null,
+      ini: ['PARTIDA', T], fim: ['META', T], nIni: 'Partida · ' + (G.nome || 'GPX'), nFim: 'Meta · ' + (G.nome || 'GPX'), santKm: null, santLado: 1, vilas: ['Partida', 'Meta'], gpx: true, id: G.id }; }
   ROTAS.porto = { titulo:'MARATONA DO PORTO', km: 42.2, estilo:'porto', pts: PORTO_GEO.map(p=> ({ km: p[0], la: p[1], lo: p[2] })), ruas: PORTO_RUAS, pois: PORTO_POI, ele: PORTO_ELE,
     ini:['PARTIDA', 'MARATONA DO PORTO · SEA LIFE'], fim:['META', 'QUEIMÓDROMO · PARQUE DA CIDADE'], nIni:'Partida · SEA LIFE Porto', nFim:'Meta · Queimódromo', santKm: null, vilas:[],
     rotulos:[{ n:'Matosinhos', la:41.1825, lo:-8.6905 }, { n:'Leça', la:41.2035, lo:-8.7085 }, { n:'Foz', la:41.1525, lo:-8.6735 }, { n:'Ribeira', la:41.1420, lo:-8.6125 }, { n:'Gaia', la:41.1352, lo:-8.6110 }, { n:'Freixo', la:41.1452, lo:-8.5800 }] };
@@ -5049,7 +5053,7 @@ body:has(#setupScreen.active) .legal{display:none}
   function srRotaMapa(ctx, W, H, camZ, R){
     const w = Math.round(Math.min(560, W * (W > 1400 ? .34 : .3))), h = Math.round(Math.min(250, H * (W > 1400 ? .3 : .26))), x0 = 18, y0 = H - h - 18, hp = Math.round(h * .26);
     const key = R.titulo + w + 'x' + h;
-    const k = Math.cos(41.24 * Math.PI / 180), P = R.pts.concat(R.santKm != null ? [VALE_SANT] : []);
+    const k = Math.cos((R.gpx ? R.pts[0].la : 41.24) * Math.PI / 180), P = R.pts.concat(R.santKm != null ? [VALE_SANT] : []);
     let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity;
     P.forEach(p=>{ a = Math.min(a, p.lo * k); b = Math.max(b, p.lo * k); c = Math.min(c, p.la); d = Math.max(d, p.la); });
     const pad = 18, hm = h - hp - 16, sc = Math.min((w - pad * 2) / (b - a), (hm - pad) / (d - c)), ox = (w - (b - a) * sc) / 2, oy = 16 + (hm - (d - c) * sc) / 2;
@@ -5206,7 +5210,7 @@ body:has(#setupScreen.active) .legal{display:none}
   }
   function srSpritesTema(){
     const tema = SR.tema || 'serra', noite = !!(SR.met && SR.met.fase === 'noite');
-    const k = tema + (tema === 'vale' ? SR.rota : '') + (tema !== 'neon' && tema !== 'cyber' && tema !== 'kart' && SR.met && SR.met.tempo === 'neve' ? '-neve' : '') + ((tema === 'paris' || tema === 'vale') && noite ? '-noite' : '');
+    const k = tema + (tema === 'vale' ? SR.rota + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id : '') : '') + (tema !== 'neon' && tema !== 'cyber' && tema !== 'kart' && SR.met && SR.met.tempo === 'neve' ? '-neve' : '') + ((tema === 'paris' || tema === 'vale') && noite ? '-noite' : '');
     if(SR.spr && SR.sprT === k) return; SR.sprT = k;
     if(tema === 'neon') srSpritesNeon(); else if(tema === 'cyber') srSpritesCyber(); else if(tema === 'kart') srSpritesKart(); else { if(tema === 'paris') srSpritesParis(noite); else if(tema === 'vale'){ if(SR.rota === 'porto') srSpritesPorto(noite, ROTAS.porto); else srSpritesVale(noite, ROTAS[SR.rota] || ROTAS.lp); } else srSprites(); if(k.includes('-neve')) srSpritesNeve(); }
   }
@@ -5284,7 +5288,7 @@ body:has(#setupScreen.active) .legal{display:none}
     if(SR.tema === 'neon') return srFundoNeon(W, H);
     if(SR.tema === 'cyber') return srFundoCyber(W, H);
     if(SR.tema === 'kart') return srFundoKart(W, H);
-    const M = SR.met, key = W + 'x' + H + zc + (M ? M.fase + M.tempo : '') + SR.tema + (SR.rota || ''); if(SR.bgKey === key) return; SR.bgKey = key;
+    const M = SR.met, key = W + 'x' + H + zc + (M ? M.fase + M.tempo : '') + SR.tema + (SR.rota || '') + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id : ''); if(SR.bgKey === key) return; SR.bgKey = key;
     const mk = (w, h)=>{ const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
     const sky = mk(W, H), g = sky.getContext('2d');
     const gr = g.createLinearGradient(0, 0, 0, H * .62);
@@ -6026,7 +6030,7 @@ body:has(#setupScreen.active) .legal{display:none}
     if(leve && E3.draw > 160) E3.draw = 160;
     if(cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)){ cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const key = blocos.length + ':' + totalDuration(blocos) + ':' + modo + ':' + SR.tema + (SR.rota || '');
+    const key = blocos.length + ':' + totalDuration(blocos) + ':' + modo + ':' + SR.tema + (SR.rota || '') + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id : '');
     if(SR.key !== key){ SR.key = key; srPista(); }
     SR.met = SR.tema === 'neon' || SR.tema === 'cyber' || SR.tema === 'kart' ? null : (E3.m ? { fase: E3.m[0], tempo: E3.m[1], temp: E3.m[2] } : metEstado({}, null));
     srSpritesTema();
@@ -6243,14 +6247,18 @@ body:has(#setupScreen.active) .legal{display:none}
     p_cyber:['🌆','Cidade do Futuro','Quem cumpre a zona vai à frente no pelotão, entre os arranha-céus da cidade do futuro.'],
     p_porto:['🌉','Maratona do Porto','Quem cumpre a zona vai à frente no pelotão, pelo percurso da Maratona do Porto.'],
     p_paris:['🗼','Paris','Quem cumpre a zona vai à frente no pelotão, pelas ruas de Paris.'],
+    p_gpx:['🗺️','Percurso GPX','Quem cumpre a zona vai à frente no pelotão, num percurso real escolhido pelo professor.'],
     p_neon:['🌆','Estrada Néon','Quem cumpre a zona vai à frente no pelotão.']
   };
   function renderEcra3(b, next, remaining, range, totalSec, elapsed){
     const k = b.jogo, J = JOGOS_ALUNO[k];
-    const estrada = ['p_serra', 'p_neon', 'p_paris', 'p_lsdpnf', 'p_pnflsd', 'p_porto', 'p_cyber', 'p_kart'].includes(k);
+    const estrada = ['p_serra', 'p_neon', 'p_paris', 'p_lsdpnf', 'p_pnflsd', 'p_porto', 'p_cyber', 'p_kart', 'p_gpx'].includes(k);
+    // percurso GPX do professor: vem com a aula (sessions/PIN/gpx); enquanto não chega, mostra a Serra
+    if(k === 'p_gpx' && !ROTAS.gpx && !RV.gpxPede && fbDb && pin){ RV.gpxPede = true; fbDb.ref('sessions/' + pin + '/gpx').on('value', sn=>{ const G = sn.val(); const R = gpxRota(G); if(R){ ROTAS.gpx = R; } }); }
+    const gpxOk = k !== 'p_gpx' || !!ROTAS.gpx;
     $('e3Serra').hidden = !estrada; $('e3Card').hidden = !J || estrada; $('e3Vazio').hidden = !!J;
     if(estrada){
-      SERRA3.tema(k === 'p_neon' ? 'neon' : k === 'p_cyber' ? 'cyber' : k === 'p_kart' ? 'kart' : k === 'p_paris' ? 'paris' : k === 'p_lsdpnf' || k === 'p_pnflsd' || k === 'p_porto' ? 'vale' : 'serra', k === 'p_lsdpnf' ? 'lp' : k === 'p_pnflsd' ? 'pl' : k === 'p_porto' ? 'porto' : null);
+      SERRA3.tema(k === 'p_neon' ? 'neon' : k === 'p_cyber' ? 'cyber' : k === 'p_kart' ? 'kart' : k === 'p_paris' ? 'paris' : k === 'p_lsdpnf' || k === 'p_pnflsd' || k === 'p_porto' || (k === 'p_gpx' && gpxOk) ? 'vale' : 'serra', k === 'p_lsdpnf' ? 'lp' : k === 'p_pnflsd' ? 'pl' : k === 'p_porto' ? 'porto' : k === 'p_gpx' && gpxOk ? 'gpx' : null);
       const E = SERRA3.E3; if(E.el == null || Math.abs(elapsed - E.el) > .05){ E.el = elapsed; E.elT = performance.now(); } E.rem = remaining; E.alvo = pctTxt(b, range) + (modo === 'fc' ? ' FC' : ' FTP'); E.arpm = rpmTxt(b);
       E.w = hasPowerSource() ? Math.round(dispPower) : null; E.rpm = hasPowerSource() ? Math.round(S.cadence) : null; E.fcp = me.fc && myHr() > 0 ? Math.round(myHr() / me.fc * 100) : null; E.bpm = myHr() > 0 ? Math.round(myHr()) : null; E.kmh = hasPowerSource() || myHr() > 0 ? (me.spd || 0) : null;   // a mesma velocidade do ecrã 1 (simulação de estrada) E.pftp = hasPowerSource() && me.ftp ? Math.round(dispPower / me.ftp * 100) : null;
       if(!E.toqueOk){ E.toqueOk = true; try{ E.vPct = localStorage.getItem('prConsP') === '1'; E.vBpm = localStorage.getItem('prConsF') === '1'; }catch(e){}
@@ -7739,6 +7747,9 @@ body:has(#setupScreen.active) .legal{display:none}
     let sala, m;
     if(BKS.pre && BKS.pre.pin === pin){ sala = BKS.pre.sala; m = BKS.pre.m; bkPrepara(); }
     else { sala = await bkSala(); m = sala ? await bkMapa(sala) : null; }
+    // telemóvel novo (ainda não sabe a sala nem tem plantas guardadas): vai buscar as plantas das duas salas e mostra a que existir
+    if(!sala){ const SS = Object.keys(SALAS), ms = await Promise.all(SS.map(x=> bkMapa(x).catch(()=> null)));
+      const i = ms.findIndex(x=> x && x.pl !== 0 && Array.isArray(x.b) && x.b.some(b=> !b.p)); if(i >= 0){ sala = SS[i]; m = ms[i]; } }
     // já ligada: com planta abre-a (dá para mudar de lugar ou desligar); sem planta pergunta se queres desligar
     if(bikeConnected()){ if(m && m.pl !== 0 && m.b.some(b=> !b.p)) return bkAbre(sala, m); connectBike(false); return; }
     if(m && m.pl === 0){ connectBike(false); return; }   // o professor escolheu ligar pelo sensor (lista do Bluetooth)

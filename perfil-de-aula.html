@@ -1248,6 +1248,13 @@ body[data-view="ano"] .legal{margin-top:8px;}
 .jg-pn.ok{background:rgba(61,212,92,.2);color:#B8F5C8;}
 .jg-pnomes .fogo{color:#FFAA2B;font-weight:800;font-size:13px;}
 /* percurso */
+.gpx-p{flex:1;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;text-align:center;padding:30px;color:#E8ECF2}
+.gpx-p h3{margin:0;font:800 34px 'Barlow Condensed',sans-serif}.gpx-p p{margin:0;max-width:640px;color:#aab3c0;font-size:16px;line-height:1.45}
+.gpx-up{cursor:pointer;background:#E8722C;color:#140a03;border-radius:12px;font:800 18px Inter,sans-serif;padding:14px 22px}
+.gpx-l{display:flex;flex-direction:column;gap:8px;width:min(560px,100%)}.gpx-i{display:flex;gap:6px}.gpx-i button{background:#12161D;border:1px solid #262D39;border-radius:10px;color:#E8ECF2;padding:10px 14px;cursor:pointer}
+.gpx-i button[data-g]{flex:1;display:flex;justify-content:space-between;gap:10px;text-align:left}.gpx-i button[data-g] span{color:#8A93A3}.gpx-i.on button[data-g]{border-color:#E8722C;box-shadow:0 0 0 2px #E8722C55}
+.gpx-volta{background:none;border:1px solid #262D39;color:#c9d1dd;border-radius:10px;padding:8px 14px;cursor:pointer}
+.gpx-troca{position:absolute;left:10px;bottom:10px;z-index:6;background:rgba(10,13,18,.75);border:1px solid #262D39;color:#E8ECF2;border-radius:10px;padding:6px 10px;font:700 12px Inter,sans-serif;cursor:pointer;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sr-box{container-type:size;position:relative;flex:1 1 auto;min-height:340px;border-radius:14px;overflow:hidden;border:1px solid #1B212B;background:#0A1424;}
 .sr-box canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
 .sr-box.full{position:fixed;inset:0;z-index:4000;border-radius:0;border:none;}
@@ -2363,7 +2370,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   // técnicas por defeito (podes escolher "Outra…" e escrever a tua)
   const TECNICAS = ['Plano Sentado', 'Plano em Pé', 'Combinado no Plano', 'Subida Sentada', 'Subida em Pé', 'Combinado na Subida', 'Sprint'];
   const TEC_OUTRA = '__outra__';
-  var JOGO_KEYS = /^(cabo|escalada|sobre|cores|sinc|cpares|estafeta|p_etapa|p_circuito|p_contra|p_serp|p_serra|p_neon|p_paris|p_lsdpnf|p_pnflsd|p_porto|p_cyber|p_kart)$/;
+  var JOGO_KEYS = /^(cabo|escalada|sobre|cores|sinc|cpares|estafeta|p_etapa|p_circuito|p_contra|p_serp|p_serra|p_neon|p_paris|p_lsdpnf|p_pnflsd|p_porto|p_cyber|p_kart|p_gpx)$/;
   function newBlock(overrides){
     return Object.assign({
       id: uid(), nome:'', min:2, sec:0, ftp:70, alvo:0, rpm:85, tecnica:'Plano Sentado'
@@ -4023,6 +4030,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, alvo:alvoOf(x), teste:x.teste ? true : null, rpm:x.rpm, rpm2:x.rpm2||null, tipo:x.tipo||null, tecnica:x.tecnica||'', jogo:x.jogo||null})),
       state: { blockIndex: 0, status: 'paused', remainingAtStart: blockDurationSec(b), startedAt: TS() },
       raceMetric: raceMetric,
+      gpx: current.blocos.some(x=> x.jogo === 'p_gpx') ? GPX.atual() : null,   // percurso GPX: vai para os telemóveis dos alunos
       sala: salaLive(),
       crit: (typeof CR !== 'undefined' && CR.crit) || 'dist',   // o que conta na corrida (a app do aluno ordena igual)   // estúdio da aula: a app do aluno mostra a planta desta sala para escolher a bike
       createdAt: TS(),
@@ -4519,8 +4527,8 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       o = { k, r: {} };
       visRiders().forEach(r=>{ const x = jgInfoRider(k, r.id); if(x) o.r[r.id] = x; });
       // Serra 3D: a posição de todos, para cada telemóvel desenhar a estrada vista do próprio guiador
-      if(k !== 'p_neon' && (k === 'p_serra' || k === 'p_neon' || k === 'p_paris' || k === 'p_lsdpnf' || k === 'p_pnflsd' || k === 'p_porto') && SR.met) o.m = [SR.met.fase, SR.met.tempo, SR.met.temp];   // hora e tempo da Serra, iguais nos telemóveis
-      if((k === 'p_serra' || k === 'p_neon' || k === 'p_paris' || k === 'p_lsdpnf' || k === 'p_pnflsd' || k === 'p_porto' || k === 'p_cyber' || k === 'p_kart')){ o.p = {}; visRiders().filter(jgPedala).forEach(r=>{ o.p[r.id] = [Math.round((JG.perc[r.id] || 0) * 10) / 10, (r.n || '?').split(' ')[0].slice(0, 14), JG.z[r.id] ? 1 : 0, (JG.cog || {})[r.id] || 0, Math.round(jgRpm(r)), r.av || 0, Math.round((JG.dm || {})[r.id] || 0), ...(()=>{ const F = (JG.fx || {})[r.id] || {}, t = performance.now(); return [(F.b > t ? 1 : 0) + (F.t > t ? 2 : 0) + (F.G > t ? 4 : 0) + (F.V > t ? 8 : 0) + (F.R > t ? 16 : 0), F.por || 0, F.tiros || 0, F.alvo || 0]; })()]; }); }
+      if(k !== 'p_neon' && (k === 'p_serra' || k === 'p_neon' || k === 'p_paris' || k === 'p_lsdpnf' || k === 'p_pnflsd' || k === 'p_porto' || k === 'p_gpx') && SR.met) o.m = [SR.met.fase, SR.met.tempo, SR.met.temp];   // hora e tempo da Serra, iguais nos telemóveis
+      if((k === 'p_serra' || k === 'p_neon' || k === 'p_paris' || k === 'p_lsdpnf' || k === 'p_pnflsd' || k === 'p_porto' || k === 'p_cyber' || k === 'p_kart' || k === 'p_gpx')){ o.p = {}; visRiders().filter(jgPedala).forEach(r=>{ o.p[r.id] = [Math.round((JG.perc[r.id] || 0) * 10) / 10, (r.n || '?').split(' ')[0].slice(0, 14), JG.z[r.id] ? 1 : 0, (JG.cog || {})[r.id] || 0, Math.round(jgRpm(r)), r.av || 0, Math.round((JG.dm || {})[r.id] || 0), ...(()=>{ const F = (JG.fx || {})[r.id] || {}, t = performance.now(); return [(F.b > t ? 1 : 0) + (F.t > t ? 2 : 0) + (F.G > t ? 4 : 0) + (F.V > t ? 8 : 0) + (F.R > t ? 16 : 0), F.por || 0, F.tiros || 0, F.alvo || 0]; })()]; }); }
     }
     const gg = godOut();   // God Mode: relâmpagos, boosts, vento e FTP enviados pelo professor
     if(gg){ o = o || {}; o.g = gg; }
@@ -4706,6 +4714,8 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       v:'A posição dele no pelotão, a rua onde vai e a altitude real nesse ponto.', q:'Aulas da casa, para pedalar no caminho entre os dois clubes. Fica melhor em ecrã inteiro (botão ⛶).' },
     p_pnflsd:   { n:'Penafiel → Lousada', ico:'🏘️', d:'O mesmo caminho real ao contrário: parte da Praça do Município, em Penafiel, desce para o vale pela EN 106 e pela Variante, atravessa Lousada e acaba na Praça das Pocinhas. Mini-mapa e altimetria real; as subidas e os sprints vêm dos blocos.',
       v:'A posição dele no pelotão, a rua onde vai e a altitude real nesse ponto.', q:'Aulas da casa. Fica melhor em ecrã inteiro (botão ⛶).' },
+    p_gpx:      { n:'O teu percurso (GPX)', ico:'🗺️', d:'Um percurso real carregado de um ficheiro GPX (Strava, Garmin, Komoot, Wikiloc…): a estrada segue as curvas verdadeiras, o mapa mostra o traçado e a altitude real em cada ponto. Os blocos da aula continuam a decidir as subidas, como nos outros percursos.',
+      v:'A posição dele no pelotão, o ponto do percurso e a altitude real nesse ponto.', q:'Para pedalar uma etapa conhecida, uma volta da zona ou a prova que os alunos vão fazer. Carrega o GPX no ecrã do percurso (botão 🗺️). Fica melhor em ecrã inteiro (botão ⛶).' },
     p_kart:     { n:'Grande Prémio do Cogumelo', ico:'🍄', d:'Circuito arcade de karts com zebras vermelhas e brancas, bancadas com público, setas de turbo e quatro zonas que se repetem: Prado das Bandeiras, Praia do Turbo, Vale dos Doces (com o castelo de doces) e Ponte da Lava. Quem passa nas setas de turbo dentro da zona ganha +20% de velocidade durante 5 s; quem apanha uma tartaruga atira-a a quem vai logo à frente (−30% durante 5 s). À frente do pelotão aparecem linhas de cogumelos a flutuar: quando o pelotão lhes passa por cima, cada aluno que está DENTRO DA ZONA apanha +1 🍄 (nos blocos duros há cogumelos dourados que valem 5). A contagem aparece na classificação da projeção e no telemóvel de cada um.',
       v:'Quantos cogumelos já apanhou, a posição no pelotão e se está na zona (só assim apanha).', q:'Aulas divertidas e para miúdos; ótimo para motivar a cumprir a zona. Fica melhor em ecrã inteiro (botão ⛶).' },
     p_cyber:    { n:'Cidade do Futuro', ico:'🌆', d:'Uma avenida entre arranha-céus de vidro azul que se perdem na névoa, com faixas e riscas de luz laranja nas fachadas, montras acesas, painéis holográficos, drones e passadiços suspensos. O chão é de lajes molhadas com dois rios de luz laranja a ondular. Os ciclistas vestem um fato-armadura com luzes (laranja dentro da zona, azul fora) e rodas lenticulares com anel de luz. As subidas e os sprints vêm dos blocos; nos telemóveis, os ecrãs 1 e 2 mudam para o mesmo tema.',
@@ -5932,7 +5942,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       const l = Math.max(18, Math.min(60, Math.round(Math.abs(th) * 42))), c = Math.max(-7, Math.min(7, th * 76 / (2 * l / Math.PI))), k0 = kOf(P[i].km) - Math.round(l / 2);
       for(let k = 0; k < l; k++){ const q = k0 + k; if(q >= 0 && q < N) segs[q].curve += c * Math.sin(k / l * Math.PI); }
     }
-    { const D = srGeoDenso(R.estilo === 'porto' ? 'porto' : R === ROTAS.pl ? 'pl' : 'lp', R.pts); srRumos(segs, D || R.pts, R.km, !!D); }   // curvas reais pelas ruas
+    if(R.gpx) srRumos(segs, R.pts, R.km, true); else { const D = srGeoDenso(R.estilo === 'porto' ? 'porto' : R === ROTAS.pl ? 'pl' : 'lp', R.pts); srRumos(segs, D || R.pts, R.km, !!D); }   // curvas reais pelas ruas
     segs.forEach((s, k)=>{
       const f = k / (N - 1) * R.km, rua = R.ruas.find(r=> f >= r[0] && f < r[1]) || R.ruas[R.ruas.length - 1], am = rua[3];
       s.rua = rua[2]; s.amb = am;
@@ -6124,6 +6134,56 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     { km:41.63, lado:1, d:36, t:'vidro', n:'SEA LIFE Porto' }
   ];
   Object.assign(VALE_ICO, { forte:'🏰', vidro:'🏢', anemona:'🎐', sinal:'📍', farol:'🗼', farolim:'🗼', pergola:'🏛️', jardim:'🌴', eletrico:'🚋', palacio:'🏛️', luis:'🌉', mosteiro:'⛪', teleferico:'🚡', caves:'🍷', ponte:'🌉' });
+  // percurso carregado de um ficheiro GPX (Strava, Garmin, Komoot…): os pontos reais, a altimetria e o nome
+  function gpxRota(G){ if(!G || !G.pts || G.pts.length < 2) return null; const T = String(G.nome || 'Percurso GPX').toUpperCase();
+    return { titulo: T, km: G.km, pts: G.pts, ruas: [[0, G.km + 1, G.nome || 'Percurso GPX', G.amb || 'campo']], pois: [], ele: G.ele || null,
+      ini: ['PARTIDA', T], fim: ['META', T], nIni: 'Partida · ' + (G.nome || 'GPX'), nFim: 'Meta · ' + (G.nome || 'GPX'), santKm: null, santLado: 1, vilas: ['Partida', 'Meta'], gpx: true, id: G.id }; }
+  // ---- biblioteca de percursos GPX (fica neste PC e vai com a aula para os telemóveis dos alunos) ----
+  const GPX = (()=>{
+    const LK = 'prGpxLib', SK = 'prGpxSel';
+    const lib = ()=>{ try{ return JSON.parse(localStorage.getItem(LK) || '[]'); }catch(e){ return []; } };
+    const grava = L=>{ try{ localStorage.setItem(LK, JSON.stringify(L)); return true; }catch(e){ toast('Sem espaço neste PC para mais percursos: apaga algum'); return false; } };
+    const hav = (a, b)=>{ const R = 6371, r = Math.PI / 180, dLa = (b.la - a.la) * r, dLo = (b.lo - a.lo) * r, x = Math.sin(dLa / 2) ** 2 + Math.cos(a.la * r) * Math.cos(b.la * r) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.min(1, Math.sqrt(x))); };
+    function le(txt, fich){
+      const doc = new DOMParser().parseFromString(txt, 'application/xml');
+      if(doc.getElementsByTagName('parsererror').length) throw new Error('O ficheiro não é um GPX válido.');
+      let P = [...doc.getElementsByTagName('trkpt')]; if(P.length < 2) P = [...doc.getElementsByTagName('rtept')];
+      const raw = P.map(p=>{ const e = p.getElementsByTagName('ele')[0]; return { la: +p.getAttribute('lat'), lo: +p.getAttribute('lon'), e: e ? +e.textContent : NaN }; }).filter(p=> isFinite(p.la) && isFinite(p.lo));
+      if(raw.length < 2) throw new Error('O ficheiro não tem pontos de percurso.');
+      let km = 0; raw.forEach((p, i)=>{ if(i) km += hav(raw[i - 1], p); p.km = km; });
+      if(km < .2) throw new Error('O percurso tem menos de 200 m.');
+      const passo = Math.max(.03, km / 900), pts = []; let nx = 0;
+      raw.forEach((p, i)=>{ if(p.km >= nx || i === raw.length - 1){ pts.push({ km: +p.km.toFixed(3), la: +p.la.toFixed(6), lo: +p.lo.toFixed(6) }); nx = p.km + passo; } });
+      let ele = null; const comE = raw.filter(p=> isFinite(p.e));
+      if(comE.length > raw.length * .5){ ele = []; let j = 0;
+        for(let i = 0; i < 200; i++){ const d = i / 199 * km; while(j < comE.length - 2 && comE[j + 1].km < d) j++; const a = comE[j], b = comE[j + 1] || a, f = b.km > a.km ? Math.max(0, Math.min(1, (d - a.km) / (b.km - a.km))) : 0; ele.push(a.e + (b.e - a.e) * f); }
+        ele = ele.map((v, i, A)=>{ let s = 0, n = 0; for(let q = -3; q <= 3; q++){ const x = A[i + q]; if(x != null){ s += x; n++; } } return Math.round(s / n); }); }
+      const nm = (doc.querySelector('trk > name') || doc.querySelector('metadata > name') || doc.querySelector('rte > name') || {}).textContent;
+      let sobe = 0; if(ele) for(let i = 1; i < ele.length; i++) if(ele[i] > ele[i - 1]) sobe += ele[i] - ele[i - 1];
+      return { id: 'g' + Date.now().toString(36), nome: (nm || fich.replace(/\.gpx$/i, '') || 'Percurso GPX').trim().slice(0, 60), km: +km.toFixed(2), sobe: Math.round(sobe), pts, ele };
+    }
+    function usa(G){ ROTAS.gpx = gpxRota(G); try{ localStorage.setItem(SK, G.id); }catch(e){}
+      try{ if(typeof sessionPin !== 'undefined' && sessionPin && fbDb) sessionRef(sessionPin).child('gpx').set(G).catch(()=>{}); }catch(e){} }
+    function ativa(){ if(ROTAS.gpx) return true; let id = null; try{ id = localStorage.getItem(SK); }catch(e){} const G = lib().find(x=> x.id === id) || lib()[0]; if(G){ usa(G); return true; } return false; }
+    function atual(){ if(!ativa()) return null; let id = null; try{ id = localStorage.getItem(SK); }catch(e){} return lib().find(x=> x.id === id) || null; }
+    function painel(gp){
+      gp.dataset.gpx = '1'; const L = lib();
+      gp.innerHTML = '<div class="gpx-p"><h3>🗺️ O teu percurso (GPX)</h3><p>Carrega um ficheiro <b>.gpx</b> (exportado do Strava, Garmin Connect, Komoot, Wikiloc…). A estrada da aula segue as curvas e o mapa mostra o traçado e a altitude real.</p>' +
+        '<label class="gpx-up">📂 Carregar ficheiro GPX<input type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" id="gpxFich" hidden></label>' +
+        (L.length ? '<div class="gpx-l">' + L.map(G=> '<div class="gpx-i' + (ROTAS.gpx && ROTAS.gpx.id === G.id ? ' on' : '') + '"><button type="button" data-g="' + G.id + '"><b>' + escapeHtml(G.nome) + '</b><span>' + String(G.km).replace('.', ',') + ' km' + (G.sobe ? ' · ↗ ' + G.sobe + ' m' : '') + '</span></button><button type="button" class="gpx-x" data-x="' + G.id + '" title="Apagar">🗑</button></div>').join('') + '</div>' : '') +
+        (ROTAS.gpx ? '<button type="button" class="gpx-volta" id="gpxVolta">← Voltar ao percurso</button>' : '') + '</div>';
+      const fecha = ()=>{ delete gp.dataset.gpx; gp.innerHTML = ''; delete gp.dataset.serra; SR.key = ''; try{ srMonta(gp); botao(gp); }catch(e){} };
+      $('gpxFich').onchange = e=>{ const f = e.target.files[0]; if(!f) return; const rd = new FileReader();
+        rd.onload = ()=>{ try{ const G = le(String(rd.result), f.name), L2 = lib().filter(x=> x.nome !== G.nome); L2.unshift(G); if(!grava(L2.slice(0, 12))) return; usa(G); toast('🗺️ ' + G.nome + ' · ' + String(G.km).replace('.', ',') + ' km'); fecha(); }catch(err){ toast('GPX: ' + (err.message || err)); } };
+        rd.readAsText(f); };
+      gp.querySelectorAll('[data-g]').forEach(b=> b.onclick = ()=>{ const G = lib().find(x=> x.id === b.dataset.g); if(G){ usa(G); fecha(); } });
+      gp.querySelectorAll('[data-x]').forEach(b=> b.onclick = ()=>{ const G = lib().find(x=> x.id === b.dataset.x); if(!G || !confirm('Apagar o percurso "' + G.nome + '" deste PC?')) return; grava(lib().filter(x=> x.id !== G.id)); if(ROTAS.gpx && ROTAS.gpx.id === G.id){ delete ROTAS.gpx; try{ localStorage.removeItem(SK); }catch(e){} } painel(gp); });
+      if($('gpxVolta')) $('gpxVolta').onclick = fecha;
+    }
+    function botao(gp){ const bx = $('srBox'); if(!bx || $('gpxTroca')) return; const b = document.createElement('button'); b.id = 'gpxTroca'; b.className = 'gpx-troca'; b.type = 'button'; b.title = 'Escolher ou carregar outro percurso GPX'; b.textContent = '🗺️ ' + (ROTAS.gpx ? ROTAS.gpx.titulo : 'GPX');
+      b.onclick = ()=>{ srPara(); painel(gp); }; bx.appendChild(b); }
+    return { ativa, atual, painel, botao, le };
+  })();
   ROTAS.porto = { titulo:'MARATONA DO PORTO', km: 42.2, estilo:'porto', pts: PORTO_GEO.map(p=> ({ km: p[0], la: p[1], lo: p[2] })), ruas: PORTO_RUAS, pois: PORTO_POI, ele: PORTO_ELE,
     ini:['PARTIDA', 'MARATONA DO PORTO · SEA LIFE'], fim:['META', 'QUEIMÓDROMO · PARQUE DA CIDADE'], nIni:'Partida · SEA LIFE Porto', nFim:'Meta · Queimódromo', santKm: null, vilas:[],
     rotulos:[{ n:'Matosinhos', la:41.1825, lo:-8.6905 }, { n:'Leça', la:41.2035, lo:-8.7085 }, { n:'Foz', la:41.1525, lo:-8.6735 }, { n:'Ribeira', la:41.1420, lo:-8.6125 }, { n:'Gaia', la:41.1352, lo:-8.6110 }, { n:'Freixo', la:41.1452, lo:-8.5800 }] };
@@ -6517,7 +6577,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function srRotaMapa(ctx, W, H, camZ, R){
     const w = Math.round(Math.min(560, W * (W > 1400 ? .34 : .3))), h = Math.round(Math.min(250, H * (W > 1400 ? .3 : .26))), x0 = 18, y0 = H - h - 18, hp = Math.round(h * .26);
     const key = R.titulo + w + 'x' + h;
-    const k = Math.cos(41.24 * Math.PI / 180), P = R.pts.concat(R.santKm != null ? [VALE_SANT] : []);
+    const k = Math.cos((R.gpx ? R.pts[0].la : 41.24) * Math.PI / 180), P = R.pts.concat(R.santKm != null ? [VALE_SANT] : []);
     let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity;
     P.forEach(p=>{ a = Math.min(a, p.lo * k); b = Math.max(b, p.lo * k); c = Math.min(c, p.la); d = Math.max(d, p.la); });
     const pad = 18, hm = h - hp - 16, sc = Math.min((w - pad * 2) / (b - a), (hm - pad) / (d - c)), ox = (w - (b - a) * sc) / 2, oy = 16 + (hm - (d - c) * sc) / 2;
@@ -6698,7 +6758,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   }
   function srSpritesTema(){
     const tema = SR.tema || 'serra', noite = !!(SR.met && SR.met.fase === 'noite');
-    const k = tema + (tema === 'vale' ? SR.rota : '') + (tema !== 'neon' && tema !== 'cyber' && tema !== 'kart' && SR.met && SR.met.tempo === 'neve' ? '-neve' : '') + ((tema === 'paris' || tema === 'vale') && noite ? '-noite' : '');
+    const k = tema + (tema === 'vale' ? SR.rota + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id : '') : '') + (tema !== 'neon' && tema !== 'cyber' && tema !== 'kart' && SR.met && SR.met.tempo === 'neve' ? '-neve' : '') + ((tema === 'paris' || tema === 'vale') && noite ? '-noite' : '');
     if(SR.spr && SR.sprT === k) return; SR.sprT = k;
     if(tema === 'neon') srSpritesNeon(); else if(tema === 'cyber') srSpritesCyber(); else if(tema === 'kart') srSpritesKart(); else { if(tema === 'paris') srSpritesParis(noite); else if(tema === 'vale'){ if(SR.rota === 'porto') srSpritesPorto(noite, ROTAS.porto); else srSpritesVale(noite, ROTAS[SR.rota] || ROTAS.lp); } else srSprites(); if(k.includes('-neve')) srSpritesNeve(); }
   }
@@ -6776,7 +6836,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     if(SR.tema === 'neon') return srFundoNeon(W, H);
     if(SR.tema === 'cyber') return srFundoCyber(W, H);
     if(SR.tema === 'kart') return srFundoKart(W, H);
-    const M = SR.met, key = W + 'x' + H + zc + (M ? M.fase + M.tempo : '') + SR.tema + (SR.rota || ''); if(SR.bgKey === key) return; SR.bgKey = key;
+    const M = SR.met, key = W + 'x' + H + zc + (M ? M.fase + M.tempo : '') + SR.tema + (SR.rota || '') + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id : ''); if(SR.bgKey === key) return; SR.bgKey = key;
     const mk = (w, h)=>{ const c = document.createElement('canvas'); c.width = w; c.height = h; return c; };
     const sky = mk(W, H), g = sky.getContext('2d');
     const gr = g.createLinearGradient(0, 0, 0, H * .62);
@@ -9426,7 +9486,7 @@ const SR3 = (()=>{
     const tF = performance.now();
     if(cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)){ cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    const key = current.blocos.length + ':' + totalDuration(current.blocos) + ':' + modoAtual() + ':' + SR.tema + (SR.rota || '');
+    const key = current.blocos.length + ':' + totalDuration(current.blocos) + ':' + modoAtual() + ':' + SR.tema + (SR.rota || '') + (SR.rota === 'gpx' && ROTAS.gpx ? ROTAS.gpx.id : '');
     if(SR.key !== key){ SR.key = key; srPista(); try{ if(liveShade) drawLiveProfile(); }catch(e){} }
     srSpritesTema();
     const T = srPal();
@@ -9705,7 +9765,9 @@ const SR3 = (()=>{
     const rs = visRiders();
     $('rpMeta').innerHTML = '<b>' + rs.filter(r=> JG.z[r.id]).length + '</b> de ' + rs.filter(jgPedala).length + ' dentro da zona agora';
     $('rpEmpty').style.display = 'none';
-    if(mode === 'percurso' && ['p_serra', 'p_neon', 'p_paris', 'p_lsdpnf', 'p_pnflsd', 'p_porto', 'p_cyber', 'p_kart'].includes(pk)){ SR.tema = pk === 'p_neon' ? 'neon' : pk === 'p_cyber' ? 'cyber' : pk === 'p_kart' ? 'kart' : pk === 'p_paris' ? 'paris' : pk === 'p_lsdpnf' || pk === 'p_pnflsd' || pk === 'p_porto' ? 'vale' : 'serra'; SR.rota = pk === 'p_lsdpnf' ? 'lp' : pk === 'p_pnflsd' ? 'pl' : pk === 'p_porto' ? 'porto' : null; gp.style.display = 'flex'; srMonta(gp); return; }   // estrada 3D: o desenho corre sozinho
+    if(mode === 'percurso' && ['p_serra', 'p_neon', 'p_paris', 'p_lsdpnf', 'p_pnflsd', 'p_porto', 'p_cyber', 'p_kart', 'p_gpx'].includes(pk)){ SR.tema = pk === 'p_neon' ? 'neon' : pk === 'p_cyber' ? 'cyber' : pk === 'p_kart' ? 'kart' : pk === 'p_paris' ? 'paris' : pk === 'p_lsdpnf' || pk === 'p_pnflsd' || pk === 'p_porto' || pk === 'p_gpx' ? 'vale' : 'serra'; SR.rota = pk === 'p_lsdpnf' ? 'lp' : pk === 'p_pnflsd' ? 'pl' : pk === 'p_porto' ? 'porto' : pk === 'p_gpx' ? 'gpx' : null; gp.style.display = 'flex';
+      if(pk === 'p_gpx'){ if(gp.dataset.gpx === '1') return; if(!GPX.ativa()){ if(gp.dataset.serra) srPara(); GPX.painel(gp); return; } }
+      srMonta(gp); if(pk === 'p_gpx') GPX.botao(gp); return; }   // estrada 3D: o desenho corre sozinho
     if(gp.dataset.serra) srPara();
     if(!rs.length){   // ainda sem alunos: já dá para escolher o jogo e a forma das equipas
       gp.style.display = 'flex';
