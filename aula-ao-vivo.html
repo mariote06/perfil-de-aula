@@ -1037,6 +1037,7 @@ body.ecra4-on #kartCog{display:none!important;}
 .bk-num input{flex:1;min-width:0;width:60px;background:#0B0E13;border:2px solid var(--border);border-radius:10px;color:#fff;font:800 26px 'Barlow Condensed',sans-serif;text-align:center;padding:4px 6px}
 .bk-num input:focus{outline:none;border-color:var(--accent)}
 .bk-num button{background:var(--accent);color:#140a03;border:0;border-radius:10px;font:800 15px Inter,sans-serif;padding:11px 14px;white-space:nowrap}
+.bk-desl{width:100%;border:2px solid #FF5A5A;background:rgba(255,90,90,.12);color:#FF8A8A;border-radius:14px;font:800 16px Inter,sans-serif;padding:12px}
 .bk-ou{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
 .bk-lista{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:13px;padding:6px}
 .bk-dica{color:var(--muted);font-size:14px;margin:20px 0}
@@ -2210,7 +2211,7 @@ body:has(#setupScreen.active) .legal{display:none}
     if(favDev || favNome){ if(bikeConnected()) disconnectBike(); S.bikeDev = null; }
     if(!hasBluetooth){ showBtWarning(); return; }
     if(S.bikeDev && S.bikeDev.gatt.connected){
-      if(!confirm('Desligar a bike ' + (S.bikeName||'') + '?')) return;
+      const nmB = bkNome(S.bikeName || ''); if(!confirm('Desligar ' + (/^Bike /.test(nmB) ? 'a ' + nmB : 'a bike') + '?')) return;   // nunca mostra o nome do sensor
       disconnectBike(); return;
     }
     // perdeu a ligação a meio da aula: a bike é a mesma, por isso tenta logo voltar a ligar (sem abrir a lista)
@@ -2735,7 +2736,7 @@ body:has(#setupScreen.active) .legal{display:none}
       iz: Math.round(me.iz), as: Math.round(modo === 'fc' ? me.ts : me.as),
       dev: hasPowerSource() || (modo === 'fc' && myHr() > 0), demo: demo || null, left: null,
       bn: bikeConnected() && !demo && S.bikeName ? S.bikeName : null,
-      bk: (()=>{ const v = bkMeu(); return v ? v.n : null; })(),   // número da bike que o aluno escolheu na planta da sala   // nome Bluetooth da bike: o professor põe o aluno no lugar certo do mapa da sala
+      bk: (()=>{ const v = bkMeu(); return v ? v.n : null; })(),   // lugar escolhido na planta: conta com ou sem a bike ligada   // número da bike que o aluno escolheu na planta da sala   // nome Bluetooth da bike: o professor põe o aluno no lugar certo do mapa da sala
       pw: hasPowerSource() && (demo || performance.now() - S.lastPowerAt < 5000) ? true : false,   // bike ligada e a enviar watts; 5 s sem dados (ligação congelada) → o professor passa a contar a FC até os watts voltarem
       rx: me.rx || null, fa: me.fa || null,
       est: semSens && !bikeConnected() && !demo ? (semSens === 'bolso' ? 'b' : 'g') : null,   // sem sensores: watts (e FC) estimados pelo esforço
@@ -7762,6 +7763,7 @@ body:has(#setupScreen.active) .legal{display:none}
           return '<button type="button" class="bk-b' + (b.p ? ' prof' : '') + (oc ? ' oc' : '') + (meu ? ' meu' : '') + '"' + (b.p ? ' disabled' : '') + ' data-n="' + escapeHtml(String(b.n)) + '" style="left:' + Math.round(P + b.x * cel + off + 2) + 'px;top:' + Math.round(P + b.y * cel + off + 2) + 'px;width:' + Math.round(tam - 4) + 'px;height:' + Math.round(tam - 4) + 'px">' +
             (b.p ? '🎤' + (tam > 44 ? '<small>professor</small>' : '') : escapeHtml(String(b.n))) + (oc ? '<small>' + escapeHtml(oc) + '</small>' : '') + '</button>'; }).join('') + '</div>' + (mm.f === 'b' ? ecra : '');
       }
+      if(bikeConnected()) h += '<button type="button" class="bk-desl">⏏ Desligar ' + escapeHtml(/^Bike /.test(bkNome(S.bikeName || '')) ? 'a ' + bkNome(S.bikeName || '') : 'a bike') + '</button>';
       h += '<button type="button" class="bk-lista">A minha bike não está aqui · procurar na lista</button></div>';
       d.innerHTML = h; d.classList.add('on');
       d.querySelector('.bk-x').onclick = ()=> d.classList.remove('on');
@@ -7769,6 +7771,7 @@ body:has(#setupScreen.active) .legal{display:none}
       d.querySelectorAll('.bk-salas [data-s]').forEach(b=> b.onclick = async ()=>{ BKS.sala = b.dataset.s; try{ localStorage.setItem('prSala', BKS.sala); }catch(e){} BKS.mapa = await bkMapa(BKS.sala); pinta(); });
       d.querySelector('.bk-lista').onclick = ()=>{ d.classList.remove('on'); connectBike(false); };
       d.querySelectorAll('.bk-b:not(.prof)').forEach(el=> el.onclick = ()=> bkEscolhe(el.dataset.n));
+      const fd = d.querySelector('.bk-desl'); if(fd) fd.onclick = ()=>{ disconnectBike(); d.classList.remove('on'); toast('Bike desligada'); };
       const fn = d.querySelector('.bk-num'); if(fn) fn.onsubmit = e=>{ e.preventDefault(); const v = fn.querySelector('input').value.trim(); if(v) bkEscolhe(v); };
     };
     pinta();
@@ -7782,12 +7785,15 @@ body:has(#setupScreen.active) .legal{display:none}
     if(BKS.oc[n] && !confirm('A bike ' + n + ' já foi escolhida por ' + BKS.oc[n] + '. É mesmo esta a tua?')) return;
     try{ localStorage.setItem('prBk', JSON.stringify({ s: BKS.sala, n: n, t: Date.now() })); }catch(e){}
     me.bk = n; $('bkSheet').classList.remove('on'); bkPinta();
-    if(b.bt){ setBikeStatus('a ligar à bike ' + n + '… pedala para acordar a consola', false); favLiga({ t: 'bike', n: b.bt, bk: n }); }   // liga ao sensor desta bike (o nome do sensor não aparece)
+    if(b.bt){ setBikeStatus('a ligar à bike ' + n + '… pedala para acordar a consola', false);
+      favLiga({ t: 'bike', n: b.bt, bk: n }); }   // liga ao sensor desta bike (o nome do sensor não aparece)
     else { toast('A bike ' + n + ' ainda não tem o sensor registado: escolhe-a na lista'); connectBike(false); }
   }
   // nome a mostrar para um sensor: o número da bike no mapa da sala (o nome Bluetooth fica escondido)
   function bkNome(bt){ const c = (typeof BKS !== 'undefined' && BKS.cache) || {}, N = String(bt || '').trim().toUpperCase();
     for(const k in c){ const b = c[k] && c[k].pl !== 0 && Array.isArray(c[k].b) && c[k].b.find(x=> !x.p && x.bt && String(x.bt).trim().toUpperCase() === N); if(b) return 'Bike ' + b.n; } return bt; }
+  // larga o lugar na sala: deixa de aparecer na bike na planta do professor
+  function bkLarga(){ try{ localStorage.removeItem('prBk'); }catch(e){} me.bk = null; me.bn = null; bkPinta(); try{ if(riderRef) pushRider(); }catch(e){} }
   function bkPinta(){ const el = $('bkNum'), v = bkMeu(); if(!el) return; el.hidden = !v; if(v) el.textContent = v.n; }
   // =====================================================================
   // ENTRADA RÁPIDA: a app vê as aulas a decorrer no estúdio (live/{sala}/{pin}, anunciadas pela projeção).

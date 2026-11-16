@@ -8372,7 +8372,8 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       if(b){
         h += '<h3>' + (b.p ? 'Bike do professor' : 'Bike ' + escapeHtml(b.n)) + '</h3>' +
           (b.p ? '' : '<label>Número (o que está escrito na bike)</label><input id="seN" value="' + escapeHtml(b.n || '') + '">') +
-          '<label>Sensor da bike (nome Bluetooth, como aparece na lista)</label><input id="seBt" placeholder="ex.: SCHWINN 0457" value="' + escapeHtml(b.bt || '') + '">' +
+          '<label>Sensor da bike (nome Bluetooth, como aparece na lista)</label><div class="se-row" style="flex-wrap:nowrap"><input id="seBt" placeholder="ex.: SCHWINN 0457" value="' + escapeHtml(b.bt || '') + '" style="flex:1;min-width:0"><button type="button" id="seProc" title="Pedala na bike para a consola acordar e escolhe-a na lista">📡 Procurar</button></div>' +
+          (navigator.bluetooth ? '<div class="se-dica">Pedala nesta bike para a consola acordar, carrega em <b>📡 Procurar</b> e escolhe-a na lista. A seguir passa sozinho para a bike seguinte.</div>' : '<div class="se-dica" style="color:#F0A070">Este browser não tem Bluetooth: escreve o nome à mão (ou abre o Coach no Chrome).</div>') +
           '<div class="se-dica">O aluno só vê o número da bike: toca nela na planta e a app liga a este sensor. Sem sensor gravado, abre a lista do Bluetooth.</div>' +
           (ligadas.length ? '<label>Bikes ligadas agora na aula (toca para usar o nome)</label><div class="se-chips">' + ligadas.map(l=> '<button type="button" data-bt="' + escapeHtml(l.bn) + '">' + escapeHtml(l.bn) + ' · ' + escapeHtml((l.n || '').split(' ')[0]) + '</button>').join('') + '</div>' : '') +
           '<div class="se-row" style="margin-top:12px"><button id="seDel">🗑️ Apagar bike</button></div><div class="se-dica">Arrasta para mudar de lugar (largar em cima de outra troca as duas) ou usa as setas do teclado.</div>';
@@ -8383,6 +8384,25 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       p.innerHTML = h;
       if(b){ const n = $('seN'); if(n) n.oninput = ()=>{ b.n = n.value.trim(); E.sujo = true; atualizaB(b); };
         $('seBt').oninput = ()=>{ b.bt = $('seBt').value.trim(); E.sujo = true; atualizaB(b); };
+        // procurar o sensor pelo Bluetooth deste computador (bikes com potência: FTMS, Cycling Power ou velocidade/cadência)
+        $('seProc').onclick = async ()=>{
+          if(!navigator.bluetooth){ toast('Este browser não tem Bluetooth: usa o Chrome ou escreve o nome à mão'); return; }
+          let dev;
+          try{ dev = await navigator.bluetooth.requestDevice({ filters: [{ services: [0x1826] }, { services: [0x1818] }, { services: [0x1816] }] }); }
+          catch(e){ if(e && e.name !== 'NotFoundError') toast('Bluetooth: ' + (e.message || e)); return; }
+          const nm = (dev && dev.name || '').trim();
+          if(!nm){ toast('Esse sensor não tem nome: escreve-o à mão'); return; }
+          const outra = E.m.b.find(x=> x !== b && x.bt && x.bt.trim().toUpperCase() === nm.toUpperCase());
+          if(outra && !confirm(nm + ' já está na bike ' + outra.n + '. Passar para a bike ' + b.n + '?')) return;
+          if(outra){ outra.bt = ''; atualizaB(outra); }
+          b.bt = nm; E.sujo = true; atualizaB(b);
+          // passa à bike seguinte (pelo número) para ir associando uma a uma
+          const L = E.m.b.filter(x=> !x.p).sort((x, y)=> (parseInt(x.n, 10) || 0) - (parseInt(y.n, 10) || 0) || String(x.n).localeCompare(String(y.n)));
+          const prox = L[L.indexOf(b) + 1];
+          toast('Bike ' + b.n + ' → ' + nm + (prox ? ' · agora a bike ' + prox.n : ' · todas feitas: carrega em Guardar'));
+          if(prox) E.sel = prox.id;
+          desenha();
+        };
         p.querySelectorAll('[data-bt]').forEach(x=> x.onclick = ()=>{ b.bt = x.dataset.bt; E.sujo = true; desenha(); });
         $('seDel').onclick = ()=> apaga(b.id); }
       p.querySelectorAll('[data-pl]').forEach(x=> x.onclick = ()=>{ const v = +x.dataset.pl; E.m.pl = v;
@@ -11078,6 +11098,20 @@ const SR3 = (()=>{
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pv2Monta); else setTimeout(pv2Monta, 0);
   // cartão "A seguir": zona (bloco de cor), técnica, tempo, cadência e o alvo do treino (%FTP ou %FC máx, conforme a aula)
+  // Projeção: números que não cabem no cartão (ex.: "106–120%") encolhem até caberem, em vez de saírem do cartão
+  function pvAjustaTxt(){
+    document.querySelectorAll('#liveActive .live-metric .v, .pv-nx .pv-nv, .pv-nx .pv-ntop, .pv-nx .pv-nz').forEach(el=>{
+      el.style.zoom = '';
+      const tem = el.clientWidth, quer = el.scrollWidth;
+      if(tem > 0 && quer > tem + 1) el.style.zoom = Math.max(.45, Math.floor(tem / quer * 98) / 100);
+    });
+  }
+  (function(){
+    let pend = 0; const corre = ()=>{ if(pend) return; pend = requestAnimationFrame(()=>{ pend = 0; try{ pvAjustaTxt(); }catch(e){} }); };
+    const liga = ()=>{ const lb = document.getElementById('liveBody'); if(!lb) return setTimeout(liga, 500);
+      new MutationObserver(corre).observe(lb, { childList: true, characterData: true, subtree: true }); };
+    liga(); window.addEventListener('resize', corre);
+  })();
   function pv2Seguinte(next, lab){
     const z = blkZone(next), nm = zNome(z, current.blocos, liveIdx + 1), sp = nm.indexOf(' ');
     const zt = /^Z\d/.test(nm) ? nm.slice(0, sp > 0 ? sp : nm.length) : (next.tipo === 'cool' ? '↓' : '★'), zn = /^Z\d/.test(nm) && sp > 0 ? nm.slice(sp + 1) : nm;
