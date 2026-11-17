@@ -230,6 +230,11 @@ body:has(#liveScreen.active) .coach-bal.vivo{opacity:1}
 .cav .vel{opacity:0}.cav.puxa .vel,.cav.forte .vel{opacity:1;animation:cavVel .4s linear infinite}
 @keyframes cavVel{from{transform:translateX(6px)}to{transform:translateX(-6px)}}
 .cav .fumo{opacity:0}.cav.zanga .fumo{opacity:1;animation:cavFumo .8s ease-out infinite}@keyframes cavFumo{from{opacity:.9;transform:translateY(0)}to{opacity:0;transform:translateY(-16px)}}
+.coachvoz{position:fixed;inset:0;z-index:9500;background:rgba(5,7,10,.7);display:none;align-items:flex-end;justify-content:center}.coachvoz.on{display:flex}
+.cv-box{width:min(520px,100%);max-height:80vh;overflow:auto;background:var(--surface,#12161D);border-radius:18px 18px 0 0;padding:16px 16px calc(env(safe-area-inset-bottom,0px) + 16px);color:#fff;text-align:left}
+.cv-box b{font-size:18px}.cv-box p{color:var(--muted,#8A93A3);font-size:13px;margin:4px 0 10px}
+.cv-box button{display:block;width:100%;text-align:left;background:#0B0E13;border:1px solid var(--border,#262D39);border-radius:10px;color:#fff;padding:11px 12px;margin-bottom:6px;font:600 15px Inter,sans-serif}
+.cv-box button.on{border-color:#E8722C;background:#2a1a10}.cv-box button small{color:var(--muted,#8A93A3);font-size:11px}.cv-box .cv-x{text-align:center;margin-top:6px}
 .coachchip{font-size:16px}.coachchip.texto{opacity:.85}.coachchip.off{opacity:.45;filter:grayscale(1)}
 .leave-btn{
   background:#3DD45C;border:none;color:#06210d;padding:10px 13px;border-radius:10px;
@@ -1535,7 +1540,7 @@ body:has(#setupScreen.active) .legal{display:none}
   <button id="enterBtn" class="btn-primary">Entrar na aula</button>
   <div id="setupError" class="err"></div>
   <button id="demoBtn" class="btn-link">Experimentar sem bike (modo teste)</button>
-  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 17/11 13:00</div>
+  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 17/11 13:15</div>
 </div>
 
 <!-- 3. AULA -->
@@ -1961,8 +1966,25 @@ body:has(#setupScreen.active) .legal{display:none}
   function coachPinta(){ const b = $('chipCoach'); if(b){ b.classList.toggle('texto', COACH.modo === 'texto'); b.classList.toggle('off', COACH.modo === 'off');
       b.innerHTML = COACH.modo === 'off' ? '🔕' : '<i class="cav">' + cavSvg('feliz') + '</i>' + (COACH.modo === 'texto' ? '💬' : '🔊'); }
     const el = $('coachBal'); if(el){ el.classList.toggle('vivo', COACH.modo !== 'off'); const av = el.querySelector('.cav'); if(av && !av.innerHTML) cavPoe(av, 'feliz'); } }
-  function coachVoz(){ if(COACH.voz || !window.speechSynthesis) return COACH.voz; const V = speechSynthesis.getVoices();
-    COACH.voz = V.find(v=> /^pt[-_]PT/i.test(v.lang)) || V.find(v=> /^pt/i.test(v.lang)) || null; return COACH.voz; }
+  // voz masculina e o mais natural possível: escolhe pelo nome (Duarte, Cristiano, vozes Google pmj/jmn…) e prefere as "Natural/Online/Premium"
+  const VOZ_MASC = /duarte|cristiano|ant[oó]nio|pedro|ricardo|daniel|jo[aã]o|tiago|pmj|jmn|male|mascul|homem/i, VOZ_FEM = /joana|catarina|raquel|fernanda|in[eê]s|helena|maria|luciana|francisca|jfb|sfs|female|femin|mulher/i, VOZ_BOA = /natural|online|neural|premium|enhanced|network|melhorad/i;
+  function coachVozes(){ try{ return speechSynthesis.getVoices().filter(v=> /^pt/i.test(v.lang)); }catch(e){ return []; } }
+  function coachVoz(){
+    if(COACH.voz || !window.speechSynthesis) return COACH.voz; const V = coachVozes(); if(!V.length) return null;
+    let esc = null; try{ esc = localStorage.getItem('prCoachVoz'); }catch(e){}
+    const pt = v=> /^pt[-_]PT/i.test(v.lang) ? 4 : 0, nota = v=> pt(v) + (VOZ_MASC.test(v.name) ? 10 : VOZ_FEM.test(v.name) ? -10 : 0) + (VOZ_BOA.test(v.name) ? 3 : 0) + (v.localService ? 0 : 1);
+    COACH.voz = (esc && V.find(v=> v.name === esc)) || V.slice().sort((a, b)=> nota(b) - nota(a))[0]; return COACH.voz; }
+  // escolher a voz: toque longo no botão do coach (lista das vozes em português deste telemóvel, com "ouvir")
+  function coachEscolheVoz(){
+    const V = coachVozes(); let d = $('coachVozOv'); if(!d){ d = document.createElement('div'); d.id = 'coachVozOv'; d.className = 'coachvoz'; document.body.appendChild(d); }
+    const at = coachVoz(), nm = v=> v.name.replace(/Microsoft |Google |\(.*?\)/g, '').trim() || v.name;
+    d.innerHTML = '<div class="cv-box"><b>🗣️ Voz do Pulso</b><p>Vozes em português deste telemóvel. As marcadas ♂ são masculinas; ✨ mais naturais.</p>' +
+      (V.length ? V.map(v=> '<button type="button" data-v="' + escapeHtml(v.name) + '" class="' + (at && at.name === v.name ? 'on' : '') + '">' + (VOZ_MASC.test(v.name) ? '♂ ' : VOZ_FEM.test(v.name) ? '♀ ' : '') + escapeHtml(nm(v)) + (VOZ_BOA.test(v.name) ? ' ✨' : '') + ' <small>' + escapeHtml(v.lang) + '</small></button>').join('') : '<p>Este telemóvel não tem vozes em português instaladas. No Android: Definições → Gestão geral → Texto para voz → instala Português (Portugal).</p>') +
+      '<button type="button" class="cv-x">Fechar</button></div>';
+    d.classList.add('on'); d.onclick = e=>{ if(e.target === d || e.target.classList.contains('cv-x')) d.classList.remove('on'); };
+    d.querySelectorAll('[data-v]').forEach(b=> b.onclick = ()=>{ try{ localStorage.setItem('prCoachVoz', b.dataset.v); }catch(e){} COACH.voz = null; coachVoz();
+      d.querySelectorAll('[data-v]').forEach(x=> x.classList.toggle('on', x === b)); coachDiz('pisca', null, '#E8722C', true, 'Olá' + (coachNome() ? ', ' + coachNome() : '') + '! Sou o Pulso, o teu coach. Vamos a isto?'); });
+  }
   if(window.speechSynthesis) try{ speechSynthesis.onvoiceschanged = ()=>{ COACH.voz = null; coachVoz(); }; }catch(e){}
   function coachDiz(tipo, vars, cor, forca, txtPronto){
     if(COACH.modo === 'off') return false; const ag = Date.now();
@@ -1977,9 +1999,15 @@ body:has(#setupScreen.active) .legal{display:none}
     clearTimeout(COACH.tf); COACH.tf = setTimeout(()=>{ if(av) av.classList.remove('fala'); }, Math.min(6000, 600 + txt.length * 60));
     if(el){ const sp = el.querySelector('span'); sp.innerHTML = '<small>Pulso · o teu coach</small>' + escapeHtml(txt); el.style.setProperty('--cb', cor || '#E8722C'); el.classList.add('on'); clearTimeout(COACH.tm);
       COACH.tm = setTimeout(()=>{ el.classList.remove('on'); setTimeout(()=> cavPoe(el.querySelector('.cav'), 'feliz'), 400); }, Math.max(4500, txt.length * 75)); }
-    if(COACH.modo === 'voz' && window.speechSynthesis){ try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(txt.replace(/(\d+)–(\d+)/g, '$1 a $2').replace(/[🔥💥💪🤩❤️👀]/gu, ''));
-      u.lang = 'pt-PT'; const v = coachVoz(); if(v) u.voice = v; u.rate = tipo === 'raspa' || tipo === 'parado' ? 1.12 : tipo === 'seguir' || tipo === 'ultimos' ? 1.1 : 1.03; u.pitch = tipo === 'raspa' ? .9 : tipo === 'seguir' || tipo === 'sobe' || tipo === 'rec' ? 1.15 : 1; u.volume = 1;
-      u.onend = ()=>{ const a = document.querySelector('#coachBal .cav'); if(a) a.classList.remove('fala'); }; speechSynthesis.speak(u); }catch(e){} }
+    if(COACH.modo === 'voz' && window.speechSynthesis){ try{ speechSynthesis.cancel();
+      // mais orgânico: frase a frase (pausas naturais), tom de homem e pequenas variações de ritmo e entoação
+      const limpo = txt.replace(/(\d+)–(\d+)/g, '$1 a $2').replace(/\brpm\b/g, 'rotações').replace(/\bFC\b/g, 'frequência cardíaca').replace(/%/g, ' por cento').replace(/\bZ(\d)\b/g, 'zona $1').replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]\uFE0F?/gu, '').trim();
+      const partes = limpo.match(/[^.!?]+[.!?]*/g) || [limpo], v = coachVoz();
+      const base = tipo === 'raspa' || tipo === 'parado' ? { r: 1.1, p: .82 } : tipo === 'seguir' || tipo === 'ultimos' || tipo === 'sobe' || tipo === 'rec' ? { r: 1.08, p: 1.02 } : tipo === 'fc' || tipo === 'alto' ? { r: .95, p: .9 } : { r: 1, p: .94 };
+      partes.forEach((f, i)=>{ const u = new SpeechSynthesisUtterance(f.trim()); u.lang = (v && v.lang) || 'pt-PT'; if(v) u.voice = v;
+        const exc = /!$/.test(f.trim()); u.rate = Math.max(.8, Math.min(1.3, base.r + (Math.random() - .5) * .06 + (exc ? .04 : 0))); u.pitch = Math.max(.6, Math.min(1.3, base.p + (Math.random() - .5) * .06 + (exc ? .06 : 0) + (/\?$/.test(f.trim()) ? .08 : 0))); u.volume = 1;
+        if(i === partes.length - 1) u.onend = ()=>{ const a = document.querySelector('#coachBal .cav'); if(a) a.classList.remove('fala'); };
+        speechSynthesis.speak(u); }); }catch(e){} }
     return true;
   }
   // anúncio entusiasmado do bloco seguinte
@@ -2024,10 +2052,15 @@ body:has(#setupScreen.active) .legal{display:none}
     if(me.mw && temSens && me.ts > 120){ if(COACH.recW && me.mw >= COACH.recW + 25){ coachDiz('rec', { w: Math.round(me.mw) }, '#FFD60A'); COACH.recW = me.mw; } else if(!COACH.recW) COACH.recW = me.mw; }
   }
   coachPinta();
+  if($('chipCoach')){ let lp = 0, lpF = false; const ch = $('chipCoach');
+    ch.addEventListener('pointerdown', ()=>{ lpF = false; clearTimeout(lp); lp = setTimeout(()=>{ lpF = true; coachEscolheVoz(); }, 600); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev=> ch.addEventListener(ev, ()=> clearTimeout(lp)));
+    ch.addEventListener('contextmenu', e=>{ e.preventDefault(); lpF = true; coachEscolheVoz(); });
+    ch.addEventListener('click', e=>{ if(lpF){ e.stopImmediatePropagation(); lpF = false; } }, true); }
   $('chipCoach') && $('chipCoach').addEventListener('click', ()=>{
     COACH.modo = COACH.modo === 'voz' ? 'texto' : COACH.modo === 'texto' ? 'off' : 'voz'; try{ localStorage.setItem('prCoach', COACH.modo); }catch(e){}
     coachPinta(); if(window.speechSynthesis) try{ speechSynthesis.cancel(); }catch(e){}
-    toast(COACH.modo === 'voz' ? '🗣️ Coach virtual com voz' : COACH.modo === 'texto' ? '💬 Coach virtual só com texto' : '🔕 Coach virtual desligado');
+    toast(COACH.modo === 'voz' ? '🗣️ Coach com voz (toque longo para escolher a voz)' : COACH.modo === 'texto' ? '💬 Coach virtual só com texto' : '🔕 Coach virtual desligado');
     if(COACH.modo !== 'off') coachDiz('dentro', null, '#E8722C', true);
   });
   function checkBlockChange(b){
