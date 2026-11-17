@@ -208,21 +208,32 @@ body:has(#goSheet.on) .coach-bal,body:has(.coachvoz.on) .coach-bal{opacity:0!imp
 .coach-bal>i.bate{animation:pulBate .2s ease-out}@keyframes pulBate{0%{transform:scale(.7,1.25)}100%{transform:scale(1)}}
 .coach-bal>i.anda .corpo{animation:cavSalta .32s ease-in-out infinite}
 .coach-bal>i.tonto{animation:pulTonto .9s ease-in-out 2}@keyframes pulTonto{0%,100%{transform:rotate(0)}25%{transform:rotate(-14deg)}75%{transform:rotate(14deg)}}
+.coach-bal.ini>i{opacity:0}.coach-bal.entra>span{opacity:0!important;max-width:0!important;padding:0!important}
+.cav.toca .br{animation:cavToca .33s ease-in-out infinite}@keyframes cavToca{0%,100%{transform:rotate(-100deg)}45%{transform:rotate(-116deg) scale(1.32)}}
+.cav.encosta svg{transform:scale(1.05,.95)}
+.cav.treme svg{animation:pulTreme .2s ease-out}@keyframes pulTreme{0%{transform:translate(0,0)}25%{transform:translate(-1.5px,1px)}50%{transform:translate(1.5px,-1px)}75%{transform:translate(-1px,0)}100%{transform:translate(0,0)}}
+.pul-vidro{position:fixed;inset:0;pointer-events:none;z-index:59;opacity:0;transition:opacity .5s;background:linear-gradient(115deg,transparent 26%,rgba(255,255,255,.09) 34%,transparent 42%,transparent 58%,rgba(255,255,255,.06) 62%,transparent 68%)}.pul-vidro.on{opacity:1}
+.pul-toc{position:fixed;z-index:61;pointer-events:none;width:0;height:0}
+.pul-toc i{position:absolute;left:-12px;top:-12px;width:24px;height:24px;border-radius:50%;border:3px solid rgba(255,255,255,.8);animation:pulOnda .7s ease-out forwards}@keyframes pulOnda{to{transform:scale(5);opacity:0;border-width:1px}}
+.pul-toc b{position:absolute;left:14px;top:-40px;font:900 20px Inter,sans-serif;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.7);animation:pulTocTx .85s ease-out forwards;white-space:nowrap}@keyframes pulTocTx{0%{opacity:0;transform:translateY(8px) scale(.6)}25%{opacity:1;transform:translateY(0) scale(1.1)}100%{opacity:0;transform:translateY(-18px)}}
+.pul-marca{position:fixed;z-index:61;pointer-events:none;width:50px;height:44px;margin:-22px 0 0 -25px;border-radius:45%;background:radial-gradient(circle,rgba(255,255,255,.2),rgba(255,255,255,.06) 60%,transparent 72%);animation:pulMarca 3.2s ease-out forwards}@keyframes pulMarca{0%{opacity:0}10%{opacity:1}100%{opacity:0}}
+.pul-bafo{position:fixed;z-index:61;pointer-events:none;width:130px;height:76px;margin:-38px 0 0 -65px;border-radius:50%;background:radial-gradient(ellipse,rgba(230,240,255,.38),rgba(230,240,255,.12) 55%,transparent 72%);filter:blur(3px);animation:pulBafo 2.6s ease-out forwards}@keyframes pulBafo{0%{opacity:0;transform:scale(.6)}20%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.15)}}
 .pul-ac{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;align-items:center}
-.pul-ac button{font:700 13.5px/1.2 Inter,sans-serif;color:#fff;background:#1d2430;border:1.5px solid #3a4555;border-radius:999px;padding:8px 12px;cursor:pointer}
+.pul-ac button{font:700 15px/1.2 Inter,sans-serif;color:#fff;background:#1d2430;border:1.5px solid #3a4555;border-radius:999px;padding:8px 12px;cursor:pointer}
 .pul-ac button:active{transform:scale(.96)}
 .pul-ac button.pri{background:var(--cb,#E8722C);border-color:var(--cb,#E8722C);color:#111}
 .pul-ac button.x{padding:8px 11px;color:#aab3c0}
-.pul-ac i{font:700 11px Inter,sans-serif;font-style:normal;color:#8a94a3;margin-left:auto}
+.pul-ac i{font:700 12.5px Inter,sans-serif;font-style:normal;color:#8a94a3;margin-left:auto}
 .pul-ac.col{flex-direction:column;align-items:stretch}.pul-ac.col button{text-align:left;border-radius:12px}
 body:has(#liveScreen.active) .coach-bal.vivo{opacity:1}
-.coach-bal>i{font-style:normal;flex:none;width:62px;height:62px;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5));transition:transform .3s}
+.coach-bal>i{font-style:normal;flex:none;width:72px;height:72px;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5));transition:transform .3s}
 .coach-bal.on>i{transform:scale(1.18)}
-.coach-bal>span{display:block;max-width:0;overflow:hidden;white-space:normal;background:rgba(18,22,29,.97);border:2px solid var(--cb,#E8722C);border-radius:16px 16px 4px 16px;padding:0;color:#fff;font:700 clamp(15px,4.3vw,19px)/1.28 Inter,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.55);opacity:0;transition:max-width .35s,opacity .25s,padding .35s}
+.coach-bal>span{display:block;max-width:0;overflow:hidden;white-space:normal;background:rgba(18,22,29,.97);border:2px solid var(--cb,#E8722C);border-radius:16px 16px 4px 16px;padding:0;color:#fff;font:700 clamp(17px,4.9vw,21px)/1.3 Inter,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.55);opacity:0;transition:max-width .35s,opacity .25s,padding .35s}
 .coach-bal.on>span{max-width:min(var(--bw,74vw),440px);padding:10px 14px;opacity:1}
-.coach-bal>span small{display:block;font:800 10px Inter,sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--cb,#E8722C);margin-bottom:2px}
+.coach-bal>span small{display:block;font:800 11.5px Inter,sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--cb,#E8722C);margin-bottom:2px}
 .coach-bal .cav svg{width:100%;height:100%;overflow:visible}
 /* vida: respira, balança os braços, pestaneja e olha à volta (o JS muda as classes ao acaso) */
+.cav svg{transform:perspective(420px) rotateY(var(--ry,0deg)) rotateX(var(--rx,0deg));transition:transform .5s ease-out}
 .cav .cor{transform-origin:100px 120px;animation:cavBate .9s ease-in-out infinite}
 .cav .corpo{transform-origin:100px 170px;animation:cavResp 3.2s ease-in-out infinite}
 @keyframes cavResp{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-1.5deg)}}
@@ -1559,7 +1570,7 @@ body:has(#setupScreen.active) .legal{display:none}
   <button id="enterBtn" class="btn-primary">Entrar na aula</button>
   <div id="setupError" class="err"></div>
   <button id="demoBtn" class="btn-link">Experimentar sem bike (modo teste)</button>
-  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 17/11 18:00</div>
+  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 17/11 23:55</div>
 </div>
 
 <!-- 3. AULA -->
@@ -1953,28 +1964,46 @@ body:has(#setupScreen.active) .legal{display:none}
   const COACH_SEG = ['Prepara-te, {nome}! A seguir:', 'Atenção que vem aí:', 'Já a seguir, {nome}:', 'Pronto para o próximo? Vem aí:', 'Olha o que vem a seguir:'];
   const COACH_SEG_FIM = { 0: ['Vamos recuperar bem!', 'Respira e solta as pernas.'], 1: ['Ritmo confortável, vamos!', 'Bom para ganhar fôlego.'], 2: ['Vamos a isso!', 'Mantém a cabeça fria!'], 3: ['Isto vai doer, mas tu aguentas! 💪', 'Agora é a sério!'], 4: ['Prepara-te para sofrer bonito! 🔥', 'Hora de dar tudo!'], 5: ['Explosão total! 💥', 'Tudo ou nada!'], 6: ['Sprint! Dá o máximo!', 'Mostra-me o teu sprint!'] };
   // frases gravadas pelo professor (Voz do coach no PlayRide Coach): quando existem, o Pulso fala com a voz dele
-  const VOZ_FR = [{"id": "dentro1", "t": "dentro", "f": "Isso mesmo! Exatamente aí."}, {"id": "dentro2", "t": "dentro", "f": "Perfeito, assim é que se treina!"}, {"id": "dentro3", "t": "dentro", "f": "Que ritmo bonito, mantém!"}, {"id": "dentro4", "t": "dentro", "f": "Estás na zona certa, continua!"}, {"id": "dentro5", "t": "dentro", "f": "Impecável! Nem eu fazia melhor."}, {"id": "dentro6", "t": "dentro", "f": "Assim mesmo, cabeça fria e pernas a trabalhar."}, {"id": "dentro7", "t": "dentro", "f": "Gosto de ver! Mantém esse ritmo."}, {"id": "dentro8", "t": "dentro", "f": "Olha só para ti! Muito bem."}, {"id": "baixo1", "t": "baixo", "f": "Falta-te um bocadinho. Sobe mais um pouco!"}, {"id": "baixo2", "t": "baixo", "f": "Eu sei que tens mais aí dentro. Vamos!"}, {"id": "baixo3", "t": "baixo", "f": "Força nesses pedais!"}, {"id": "baixo4", "t": "baixo", "f": "Mais um dente na resistência!"}, {"id": "baixo5", "t": "baixo", "f": "Está quase, só mais um empurrão!"}, {"id": "baixo6", "t": "baixo", "f": "Não me deixes sozinho cá em cima, sobe!"}, {"id": "baixo7", "t": "baixo", "f": "Vamos lá, aperta um pouco mais!"}, {"id": "baixo8", "t": "baixo", "f": "Estás abaixo da zona. Pressiona!"}, {"id": "alto1", "t": "alto", "f": "Ei, calma! Ainda há aula. Baixa um bocadinho."}, {"id": "alto2", "t": "alto", "f": "Estás a voar! Guarda um pouco para depois."}, {"id": "alto3", "t": "alto", "f": "Tira o pé do acelerador, que o treino é na zona."}, {"id": "alto4", "t": "alto", "f": "Que energia! Mas hoje o alvo é mais abaixo."}, {"id": "alto5", "t": "alto", "f": "Alivia um pouco, que ainda vem muito pela frente."}, {"id": "raspa1", "t": "raspa", "f": "Isto não é um passeio de domingo! Sobe já para a zona!"}, {"id": "raspa2", "t": "raspa", "f": "Já te avisei! Mais força, vamos!"}, {"id": "raspa3", "t": "raspa", "f": "Assim não chegamos lá! Bora, aperta!"}, {"id": "raspa4", "t": "raspa", "f": "Eu não vim cá para te ver a passear!"}, {"id": "raspa5", "t": "raspa", "f": "Acorda! Quero ver esforço a sério!"}, {"id": "parado1", "t": "parado", "f": "Os pedais não andam sozinhos! Bora!"}, {"id": "parado2", "t": "parado", "f": "Então? Parado? A aula não parou!"}, {"id": "parado3", "t": "parado", "f": "Ei! Volta a pedalar, que eu estou a contar contigo!"}, {"id": "ultimos1", "t": "ultimos", "f": "Últimos quinze segundos! Esvazia o tanque!"}, {"id": "ultimos2", "t": "ultimos", "f": "Reta final! Dá tudo o que tens!"}, {"id": "ultimos3", "t": "ultimos", "f": "Só mais um bocadinho! Aguenta!"}, {"id": "ultimos4", "t": "ultimos", "f": "Quinze segundos! Vais conseguir!"}, {"id": "ultimos5", "t": "ultimos", "f": "Agora é coração e cabeça! Força!"}, {"id": "inicio1", "t": "inicio", "f": "Este bloco é teu. Bora!"}, {"id": "inicio2", "t": "inicio", "f": "Respira fundo… e ataca!"}, {"id": "inicio3", "t": "inicio", "f": "Hora de mostrar o que vales!"}, {"id": "inicio4", "t": "inicio", "f": "Agora começa a parte boa!"}, {"id": "inicio5", "t": "inicio", "f": "Foco no alvo. Tu consegues!"}, {"id": "cadBaixa1", "t": "cadBaixa", "f": "Pernas mais rápidas! Sobe a cadência."}, {"id": "cadBaixa2", "t": "cadBaixa", "f": "Mais rotação! Gira mais depressa."}, {"id": "cadBaixa3", "t": "cadBaixa", "f": "Pedalada mais solta, vamos!"}, {"id": "cadAlta1", "t": "cadAlta", "f": "Mais carga e menos rotação!"}, {"id": "cadAlta2", "t": "cadAlta", "f": "Isso não é uma batedeira! Põe resistência."}, {"id": "cadAlta3", "t": "cadAlta", "f": "Calma nas rotações, pedalada mais pesada."}, {"id": "sobe1", "t": "sobe", "f": "Ultrapassagem! Continua assim!"}, {"id": "sobe2", "t": "sobe", "f": "Boa! Subiste na classificação!"}, {"id": "sobe3", "t": "sobe", "f": "Mais um que ficou para trás! Força!"}, {"id": "rec1", "t": "rec", "f": "Novo recorde da aula! Que máquina!"}, {"id": "rec2", "t": "rec", "f": "Uau! Esse é o teu máximo de hoje!"}, {"id": "rec3", "t": "rec", "f": "Que potência! Recorde batido!"}, {"id": "fc1", "t": "fc", "f": "O coração está muito alto. Respira e alivia uns segundos."}, {"id": "fc2", "t": "fc", "f": "Vai com calma, frequência cardíaca muito alta."}, {"id": "fc3", "t": "fc", "f": "Respira fundo e baixa um pouco a intensidade."}, {"id": "meio1", "t": "meio", "f": "Já vamos a meio! A melhor parte vem aí."}, {"id": "meio2", "t": "meio", "f": "Metade feita! Estou orgulhoso de ti."}, {"id": "meio3", "t": "meio", "f": "Meio da aula e estás a arrasar!"}, {"id": "ultimo1", "t": "ultimo", "f": "Último bloco! Fecha com chave de ouro!"}, {"id": "ultimo2", "t": "ultimo", "f": "É o último! Tudo o que guardaste, gasta agora!"}, {"id": "ultimo3", "t": "ultimo", "f": "Último esforço da aula! Vamos acabar em grande!"}, {"id": "seg_z0", "t": "seguir", "f": "A seguir: recuperação. Respira e solta as pernas!"}, {"id": "seg_z1", "t": "seguir", "f": "A seguir: zona dois, ritmo confortável. Vamos!"}, {"id": "seg_z2", "t": "seguir", "f": "A seguir: zona três. Mantém a cabeça fria!"}, {"id": "seg_z3", "t": "seguir", "f": "A seguir: zona quatro, limiar. Isto vai doer, mas tu aguentas!"}, {"id": "seg_z4", "t": "seguir", "f": "A seguir: zona cinco! Prepara-te para dar tudo!"}, {"id": "seg_z5", "t": "seguir", "f": "A seguir: anaeróbio! Explosão total!"}, {"id": "seg_z6", "t": "seguir", "f": "A seguir: sprint! Mostra-me o que vales!"}, {"id": "seg_teste", "t": "seguir", "f": "A seguir: teste de FTP. O mais forte e constante que conseguires!"}, {"id": "ola1", "t": "ola", "f": "Olá! Eu sou o Pulso, o teu coach. Toca em mim se precisares de ajuda."}, {"id": "ola2", "t": "ola", "f": "Bem-vindo! Bora pedalar? Estou aqui se precisares de mim."}, {"id": "ola3", "t": "ola", "f": "Então, vamos a isso? Se tiveres dúvidas, toca em mim."}];
+  const VOZ_FR = [{"id": "dentro1", "t": "dentro", "f": "Isso mesmo! Exatamente aí."}, {"id": "dentro2", "t": "dentro", "f": "Perfeito, assim é que se treina!"}, {"id": "dentro3", "t": "dentro", "f": "Que ritmo bonito, mantém!"}, {"id": "dentro4", "t": "dentro", "f": "Estás na zona certa, continua!"}, {"id": "dentro5", "t": "dentro", "f": "Impecável! Nem eu fazia melhor."}, {"id": "dentro6", "t": "dentro", "f": "Assim mesmo, cabeça fria e pernas a trabalhar."}, {"id": "dentro7", "t": "dentro", "f": "Gosto de ver! Mantém esse ritmo."}, {"id": "dentro8", "t": "dentro", "f": "Olha só para ti! Muito bem."}, {"id": "baixo1", "t": "baixo", "f": "Falta-te um bocadinho. Sobe mais um pouco!"}, {"id": "baixo2", "t": "baixo", "f": "Eu sei que tens mais aí dentro. Vamos!"}, {"id": "baixo3", "t": "baixo", "f": "Força nesses pedais!"}, {"id": "baixo4", "t": "baixo", "f": "Mais um dente na resistência!"}, {"id": "baixo5", "t": "baixo", "f": "Está quase, só mais um empurrão!"}, {"id": "baixo6", "t": "baixo", "f": "Não me deixes sozinho cá em cima, sobe!"}, {"id": "baixo7", "t": "baixo", "f": "Vamos lá, aperta um pouco mais!"}, {"id": "baixo8", "t": "baixo", "f": "Estás abaixo da zona. Pressiona!"}, {"id": "alto1", "t": "alto", "f": "Ei, calma! Ainda há aula. Baixa um bocadinho."}, {"id": "alto2", "t": "alto", "f": "Estás a voar! Guarda um pouco para depois."}, {"id": "alto3", "t": "alto", "f": "Tira o pé do acelerador, que o treino é na zona."}, {"id": "alto4", "t": "alto", "f": "Que energia! Mas hoje o alvo é mais abaixo."}, {"id": "alto5", "t": "alto", "f": "Alivia um pouco, que ainda vem muito pela frente."}, {"id": "raspa1", "t": "raspa", "f": "Isto não é um passeio de domingo! Sobe já para a zona!"}, {"id": "raspa2", "t": "raspa", "f": "Já te avisei! Mais força, vamos!"}, {"id": "raspa3", "t": "raspa", "f": "Assim não chegamos lá! Bora, aperta!"}, {"id": "raspa4", "t": "raspa", "f": "Eu não vim cá para te ver a passear!"}, {"id": "raspa5", "t": "raspa", "f": "Acorda! Quero ver esforço a sério!"}, {"id": "parado1", "t": "parado", "f": "Os pedais não andam sozinhos! Bora!"}, {"id": "parado2", "t": "parado", "f": "Então? Parado? A aula não parou!"}, {"id": "parado3", "t": "parado", "f": "Ei! Volta a pedalar, que eu estou a contar contigo!"}, {"id": "ultimos1", "t": "ultimos", "f": "Últimos quinze segundos! Esvazia o tanque!"}, {"id": "ultimos2", "t": "ultimos", "f": "Reta final! Dá tudo o que tens!"}, {"id": "ultimos3", "t": "ultimos", "f": "Só mais um bocadinho! Aguenta!"}, {"id": "ultimos4", "t": "ultimos", "f": "Quinze segundos! Vais conseguir!"}, {"id": "ultimos5", "t": "ultimos", "f": "Agora é coração e cabeça! Força!"}, {"id": "inicio1", "t": "inicio", "f": "Este bloco é teu. Bora!"}, {"id": "inicio2", "t": "inicio", "f": "Respira fundo… e ataca!"}, {"id": "inicio3", "t": "inicio", "f": "Hora de mostrar o que vales!"}, {"id": "inicio4", "t": "inicio", "f": "Agora começa a parte boa!"}, {"id": "inicio5", "t": "inicio", "f": "Foco no alvo. Tu consegues!"}, {"id": "cadBaixa1", "t": "cadBaixa", "f": "Pernas mais rápidas! Sobe a cadência."}, {"id": "cadBaixa2", "t": "cadBaixa", "f": "Mais rotação! Gira mais depressa."}, {"id": "cadBaixa3", "t": "cadBaixa", "f": "Pedalada mais solta, vamos!"}, {"id": "cadAlta1", "t": "cadAlta", "f": "Mais carga e menos rotação!"}, {"id": "cadAlta2", "t": "cadAlta", "f": "Isso não é uma batedeira! Põe resistência."}, {"id": "cadAlta3", "t": "cadAlta", "f": "Calma nas rotações, pedalada mais pesada."}, {"id": "sobe1", "t": "sobe", "f": "Ultrapassagem! Continua assim!"}, {"id": "sobe2", "t": "sobe", "f": "Boa! Subiste na classificação!"}, {"id": "sobe3", "t": "sobe", "f": "Mais um que ficou para trás! Força!"}, {"id": "rec1", "t": "rec", "f": "Novo recorde da aula! Que máquina!"}, {"id": "rec2", "t": "rec", "f": "Uau! Esse é o teu máximo de hoje!"}, {"id": "rec3", "t": "rec", "f": "Que potência! Recorde batido!"}, {"id": "fc1", "t": "fc", "f": "O coração está muito alto. Respira e alivia uns segundos."}, {"id": "fc2", "t": "fc", "f": "Vai com calma, frequência cardíaca muito alta."}, {"id": "fc3", "t": "fc", "f": "Respira fundo e baixa um pouco a intensidade."}, {"id": "meio1", "t": "meio", "f": "Já vamos a meio! A melhor parte vem aí."}, {"id": "meio2", "t": "meio", "f": "Metade feita! Estou orgulhoso de ti."}, {"id": "meio3", "t": "meio", "f": "Meio da aula e estás a arrasar!"}, {"id": "ultimo1", "t": "ultimo", "f": "Último bloco! Fecha com chave de ouro!"}, {"id": "ultimo2", "t": "ultimo", "f": "É o último! Tudo o que guardaste, gasta agora!"}, {"id": "ultimo3", "t": "ultimo", "f": "Último esforço da aula! Vamos acabar em grande!"}, {"id": "seg_z0", "t": "seguir", "f": "A seguir: recuperação. Respira e solta as pernas!"}, {"id": "seg_z1", "t": "seguir", "f": "A seguir: zona dois, ritmo confortável. Vamos!"}, {"id": "seg_z2", "t": "seguir", "f": "A seguir: zona três. Mantém a cabeça fria!"}, {"id": "seg_z3", "t": "seguir", "f": "A seguir: zona quatro, limiar. Isto vai doer, mas tu aguentas!"}, {"id": "seg_z4", "t": "seguir", "f": "A seguir: zona cinco! Prepara-te para dar tudo!"}, {"id": "seg_z5", "t": "seguir", "f": "A seguir: anaeróbio! Explosão total!"}, {"id": "seg_z6", "t": "seguir", "f": "A seguir: sprint! Mostra-me o que vales!"}, {"id": "seg_teste", "t": "seguir", "f": "A seguir: teste de FTP. O mais forte e constante que conseguires!"}, {"id": "ola1", "t": "ola", "f": "Olá! Eu sou o Pulso, o teu coach. Toca em mim se precisares de ajuda."}, {"id": "ola2", "t": "ola", "f": "Bem-vindo! Bora pedalar? Estou aqui se precisares de mim."}, {"id": "ola3", "t": "ola", "f": "Então, vamos a isso? Se tiveres dúvidas, toca em mim."}, {"id": "apres1", "t": "apres", "f": "Olá! Eu sou o Pulso, o teu coach virtual. 💓"}, {"id": "apres2", "t": "apres", "f": "Vou treinar contigo: digo-te se estás na zona certa, aviso-te do que vem a seguir e festejo as tuas vitórias."}, {"id": "apres3", "t": "apres", "f": "Toca em mim e explico-te como funciona a app e o objetivo do treino. E podes arrastar-me para onde quiseres!"}, {"id": "quem1", "t": "quem", "f": "Eu sou o Pulso, o teu coach virtual! 💓 Um coração com braços e muita energia."}, {"id": "quem2", "t": "quem", "f": "A minha função é treinar contigo: durante a aula digo-te se estás abaixo, dentro ou acima da zona e aviso-te do bloco que vem a seguir."}, {"id": "quem3", "t": "quem", "f": "Festejo quando bates um recorde ou passas alguém. Mas se te deixares ir abaixo da zona… levas um raspanete! 😤"}, {"id": "quem4", "t": "quem", "f": "Também fico de olho na tua frequência cardíaca e na cadência, para treinares com segurança."}, {"id": "quem5", "t": "quem", "f": "Podes arrastar-me para onde quiseres. Na aula, o botão 🔊 escolhe voz, só texto ou silêncio; com toque longo mudas a minha voz."}, {"id": "app1", "t": "app", "f": "Primeiro diz-me como te sentes hoje e confirma. Depois escolhes como queres pedalar."}, {"id": "app2", "t": "app", "f": "Aula ao vivo: entras com o PIN que aparece no ecrã da sala. Só pedalar: treino livre ao teu ritmo. Biblioteca: treinos guiados para fazeres sozinho."}, {"id": "app3", "t": "app", "f": "Antes de começar, liga a bike e a cinta cardíaca por Bluetooth e escolhe o número da tua bike na sala."}, {"id": "app4", "t": "app", "f": "Na aula, cada bloco tem uma zona de esforço com uma cor. O objetivo é manteres a tua potência dentro dessa zona."}, {"id": "app5", "t": "app", "f": "Desliza para o lado, ou toca nos pontinhos em baixo, para mudares de ecrã: o bloco atual, o perfil da aula, a corrida e o percurso."}, {"id": "app6", "t": "app", "f": "No fim, o treino fica guardado em «Treinos realizados», com o relatório."}, {"id": "app7", "t": "app", "f": "Mantém a tua ficha atualizada, com a idade e a FC máxima, para as zonas ficarem certas para ti."}, {"id": "obj1", "t": "obj", "f": "O objetivo de cada treino é treinares na intensidade certa para ti: nem a mais, nem a menos."}, {"id": "obj2", "t": "obj", "f": "As zonas vão da Z1, recuperação, até à Z7, explosão. A Z2 treina a resistência, a Z4 o limiar e a Z5 o VO2máx."}, {"id": "obj3", "t": "obj", "f": "Quando entrares numa aula, toca em mim e digo-te o objetivo do treino de hoje e do bloco em que estás."}, {"id": "agarra1", "t": "agarra", "f": "Ei! Para onde me levas? 😮"}, {"id": "agarra2", "t": "agarra", "f": "Uiii! Cuidado comigo!"}, {"id": "agarra3", "t": "agarra", "f": "Vamos passear? 😄"}, {"id": "agarra4", "t": "agarra", "f": "Devagar, que eu sou sensível! 💓"}, {"id": "agarra5", "t": "agarra", "f": "Opa! Lá vou eu!"}, {"id": "agarra6", "t": "agarra", "f": "Upa! Que força!"}, {"id": "poisa1", "t": "poisa", "f": "Aqui está bom! 👍"}, {"id": "poisa2", "t": "poisa", "f": "Boa vista daqui!"}, {"id": "poisa3", "t": "poisa", "f": "Ok, fico por aqui."}, {"id": "poisa4", "t": "poisa", "f": "Ufa, chão firme!"}, {"id": "poisa5", "t": "poisa", "f": "Gosto deste cantinho."}, {"id": "poisa6", "t": "poisa", "f": "Daqui vejo tudo! 👀"}, {"id": "enjoo1", "t": "enjoo", "f": "Pára, que fico enjoado! 🤢"}, {"id": "enjoo2", "t": "enjoo", "f": "Ai, ai… está tudo à roda! 😵"}, {"id": "enjoo3", "t": "enjoo", "f": "Calma! Não sou um batido! 🥤"}, {"id": "atira1", "t": "atira", "f": "Wheee! 🚀"}, {"id": "atira2", "t": "atira", "f": "Uaaau!"}, {"id": "atira3", "t": "atira", "f": "Lá vou eu a voar!"}, {"id": "tonto1", "t": "tonto", "f": "Fiquei tonto… 😵‍💫"}, {"id": "tonto2", "t": "tonto", "f": "Que viagem! Outra vez? 😄"}, {"id": "tonto3", "t": "tonto", "f": "Uff… aterragem perfeita. Quase."}, {"id": "longe1", "t": "longe", "f": "Ainda falta muito? 😅"}, {"id": "longe2", "t": "longe", "f": "Já me doem os braços!"}, {"id": "longe3", "t": "longe", "f": "Pousa-me onde quiseres, eu espero."}, {"id": "olaM1", "t": "olaM", "f": "Bom dia! Coração acordado, pernas prontas. Bora começar o dia a pedalar! ☀️"}, {"id": "olaM2", "t": "olaM", "f": "Bom dia! Quem treina de manhã ganha o dia inteiro. 💪"}, {"id": "olaM3", "t": "olaM", "f": "Bom dia! Hoje vai ser um grande dia, e começa aqui. 🚴"}, {"id": "olaT1", "t": "olaT", "f": "Boa tarde! Ainda há muita energia nesse coração. Vamos gastá-la? ⚡"}, {"id": "olaT2", "t": "olaT", "f": "Boa tarde! A melhor pausa do dia é em cima da bike."}, {"id": "olaT3", "t": "olaT", "f": "Boa tarde! Bora transformar o cansaço do dia em energia? 🔋"}, {"id": "olaN1", "t": "olaN", "f": "Boa noite! Fechar o dia a pedalar é coisa de campeão. 🌙"}, {"id": "olaN2", "t": "olaN", "f": "Boa noite! Dormir bem começa com um bom treino. 😴"}, {"id": "olaN3", "t": "olaN", "f": "Boa noite! O dia foi longo, mas o melhor ficou para o fim. 💪"}, {"id": "olaD1", "t": "olaD", "f": "Segunda-feira! Quem começa a semana forte, acaba-a em grande. 🔥"}, {"id": "olaD2", "t": "olaD", "f": "Sexta-feira! Um treino agora e o fim de semana sabe o dobro. 😎"}, {"id": "olaD3", "t": "olaD", "f": "Fim de semana e tu aqui? Isso é que é atitude! 👏"}, {"id": "olaX1", "t": "olaX", "f": "Cada treino conta. Hoje é mais um tijolo no teu melhor eu. 🧱"}, {"id": "olaX2", "t": "olaX", "f": "Eu bato 60 vezes por minuto à tua espera. Vamos pô-lo a 150? 💓"}, {"id": "olaX3", "t": "olaX", "f": "Não precisas de ser o mais rápido. Precisas é de aparecer. E já apareceste! 🙌"}, {"id": "olaX4", "t": "olaX", "f": "Daqui a uma hora vais agradecer-te por teres vindo. Confia em mim! 😉"}, {"id": "cutuca1", "t": "cutuca", "f": "Então? A bike não se pedala sozinha! 😄"}, {"id": "cutuca2", "t": "cutuca", "f": "Estou aqui a aquecer… e tu? 🔥"}, {"id": "cutuca3", "t": "cutuca", "f": "Psst… um treinozinho? Prometo que sais daqui melhor! 😉"}, {"id": "cutuca4", "t": "cutuca", "f": "O sofá não te vai dar medalhas. Eu dou! 🏅"}, {"id": "bora1", "t": "bora", "f": "Bora! Eu vou contigo! 🚴"}, {"id": "bora2", "t": "bora", "f": "É isso! Vamos a isto! 💪"}, {"id": "bora3", "t": "bora", "f": "Grande decisão! Bora pedalar! 🔥"}, {"id": "hum1", "t": "humor", "f": "Dias assim também contam. Hoje vamos com calma: aparecer já é meio treino. 🫶"}, {"id": "hum2", "t": "humor", "f": "Eu conheço um remédio: uns minutos de pedal e endorfinas a rodos. Confia em mim! 💊"}, {"id": "hum3", "t": "humor", "f": "Normal? Daqui a pouco vais estar em grande. Eu trato disso! 😉"}, {"id": "hum4", "t": "humor", "f": "Boa! Com essa energia vamos fazer um treino bonito. 💪"}, {"id": "hum5", "t": "humor", "f": "É assim mesmo! Hoje vamos partir isto tudo! 🔥"}];
   const CVOZ = { d: null, pede: false, audio: null };
-  function cvozCarrega(){ if(CVOZ.pede || !fbDb) return; CVOZ.pede = true; try{ fbDb.ref('coachVoz').once('value').then(sn=>{ const v = sn.val() || {}; CVOZ.d = {}; Object.keys(v).forEach(k=>{ if(v[k] && v[k].d) CVOZ.d[k] = v[k].d; if(v[k] && v[k].fr && v[k].tp && !VOZ_FR.some(f=> f.id === k)) VOZ_FR.push({ id: k, t: v[k].tp, f: v[k].fr }); }); }, ()=>{ CVOZ.d = {}; }); }catch(e){} }   // inclui as frases escritas pelo professor
+  // gravações do professor: ouve o Firebase em direto (gravações novas chegam sem reabrir a app); se falhar tenta outra vez
+  function cvozCarrega(){ if(CVOZ.pede || typeof fbDb === 'undefined' || !fbDb) return; CVOZ.pede = true;
+    try{ fbDb.ref('coachVoz').on('value', sn=>{ const v = sn.val() || {}, d = {}; Object.keys(v).forEach(k=>{ if(v[k] && v[k].d) d[k] = v[k].d; if(v[k] && v[k].fr && v[k].tp && !VOZ_FR.some(f=> f.id === k)) VOZ_FR.push({ id: k, t: v[k].tp, f: v[k].fr }); }); CVOZ.d = d; },
+      e=>{ CVOZ.pede = false; console.warn('coachVoz', e && e.code); setTimeout(cvozCarrega, 20000); }); }catch(e){ CVOZ.pede = false; } }
+  setTimeout(function cvozArranca(){ cvozCarrega(); if(!CVOZ.pede) setTimeout(cvozArranca, 2000); }, 1500);
   function cvozClip(tipo, k){ if(!CVOZ.d) return null; const L = k ? VOZ_FR.filter(f=> f.id === k && CVOZ.d[f.id]) : VOZ_FR.filter(f=> f.t === tipo && CVOZ.d[f.id]); return L.length ? L[Math.floor(Math.random() * L.length)] : null; }
   function coachEsc(tipo, A){ A = A || COACH_TXT[tipo] || [String(tipo)]; const u = COACH.usados[tipo] || (COACH.usados[tipo] = []);
     let op = A.map((_, i)=> i).filter(i=> u.indexOf(i) < 0); if(!op.length){ u.length = 0; op = A.map((_, i)=> i); }
     const k = op[Math.floor(Math.random() * op.length)]; u.push(k); if(u.length > A.length - 1) u.shift(); return A[k]; }
   function coachNome(){ const n = String((perfil && perfil.nome) || me.n || '').trim().split(/\s+/)[0]; return n && !/^aluno/i.test(n) ? n : ''; }
   const CAV_HUMOR = { inicio: 'puxa', baixo: 'puxa', alto: 'calmo', dentro: 'feliz', ultimos: 'forte', cadBaixa: 'puxa', cadAlta: 'calmo', sobe: 'festa', rec: 'festa', fc: 'alerta', meio: 'feliz', ultimo: 'forte', raspa: 'zanga', parado: 'zanga', seguir: 'festa', pisca: 'feliz' };
+  var CAV_N = 0;
   function cavSvg(h){
     const cor = h === 'alerta' ? '#FF3B3B' : h === 'zanga' ? '#E8253F' : '#FF3B5C';
     const sobr = { feliz: 'M70 92q10-6 20 0M110 92q10-6 20 0', puxa: 'M68 86l22 8M132 86l-22 8', forte: 'M68 84l22 10M132 84l-22 10', calmo: 'M70 94h20M110 94h20', alerta: 'M70 88q10 8 20 4M130 88q-10 8-20 4', festa: 'M70 90q10-10 20 0M110 90q10-10 20 0', zanga: 'M66 82l26 14M134 82l-26 14' }[h] || 'M70 92q10-6 20 0M110 92q10-6 20 0';
     const boca = { feliz: 'M84 124q16 16 32 0z', puxa: 'M86 126h28q-2 12-14 12t-14-12z', forte: 'M82 122h36q-4 18-18 18t-18-18z', calmo: 'M88 128q12 6 24 0', alerta: 'M90 130a10 8 0 1 0 20 0a10 8 0 1 0 -20 0', festa: 'M80 120q20 26 40 0z', zanga: 'M84 136q16-12 32 0z' }[h] || 'M84 124q16 16 32 0z';
-    const aberta = h !== 'calmo';
-    return '<svg viewBox="0 0 200 200" aria-hidden="true"><g class="vel" stroke="#FF8A1F" stroke-width="7" stroke-linecap="round"><path d="M16 118h22M10 98h20M22 138h16"/></g>' +
+    const aberta = h !== 'calmo', u = 'cv' + (++CAV_N), cl = { '#FF3B3B': ['#ff8a8a', '#a31212', '#6e0a0a'], '#E8253F': ['#f27a8a', '#8f0f22', '#5e0915'] }[cor] || ['#ff8aa0', '#a3122e', '#7a0c22'];
+    // volume: luz em cima à esquerda, sombra em baixo, contorno, brilho; mãos com luvas de ciclismo (como no modelo 3D)
+    // mãos: luvas de ciclismo escuras e almofadadas (cantos redondos), com brilho por cima
+    const mao = (x, y)=> '<rect x="' + (x - 13) + '" y="' + (y - 11) + '" width="26" height="22" rx="9" fill="url(#' + u + 'l)" stroke="#12151a" stroke-width="2"/>' +
+      '<path d="M' + (x - 8) + ' ' + (y - 6) + 'q8-4 16 0" stroke="#fff" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".35"/>';
+    return '<svg viewBox="0 0 200 200" aria-hidden="true"><defs>' +
+      '<radialGradient id="' + u + 'g" cx="38%" cy="30%" r="78%"><stop offset="0" stop-color="' + cl[0] + '"/><stop offset=".45" stop-color="' + cor + '"/><stop offset="1" stop-color="' + cl[1] + '"/></radialGradient>' +
+      '<linearGradient id="' + u + 'f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2a8"/><stop offset=".5" stop-color="#FFD60A"/><stop offset="1" stop-color="#c79a00"/></linearGradient>' +
+      '<radialGradient id="' + u + 'o" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#d4dae3"/></radialGradient>' +
+      '<radialGradient id="' + u + 'l" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#6c7480"/><stop offset=".5" stop-color="#3a414b"/><stop offset="1" stop-color="#1e2229"/></radialGradient></defs>' +
+      '<ellipse class="chao" cx="100" cy="188" rx="44" ry="6" fill="rgba(0,0,0,.35)"/>' +
+      '<g class="vel" stroke="#FF8A1F" stroke-width="7" stroke-linecap="round"><path d="M16 118h22M10 98h20M22 138h16"/></g>' +
       '<g class="fumo" fill="#c9d1dd"><circle cx="58" cy="52" r="7"/><circle cx="142" cy="52" r="7"/></g>' +
-      '<g class="corpo"><g class="bl"><path d="M58 128q-22 4-24 24" stroke="' + cor + '" stroke-width="11" stroke-linecap="round" fill="none"/><circle cx="34" cy="154" r="10" fill="' + cor + '"/></g>' +
-      '<g class="br"><path d="M142 128q22 4 24 24" stroke="' + cor + '" stroke-width="11" stroke-linecap="round" fill="none"/><circle cx="166" cy="154" r="10" fill="' + cor + '"/></g>' +
-      '<g class="cor"><path d="M100 172C38 130 34 92 48 68c15-23 43-21 52 4 9-25 37-27 52-4 14 24 10 62-52 104z" fill="' + cor + '"/>' +
-      '<path d="M46 74c32-9 76-9 108 0l-2 13c-32-9-72-9-104 0z" fill="#FFD60A"/>' +
+      '<g class="corpo"><g class="bl"><path d="M58 126q-22 4-24 24" stroke="' + cl[2] + '" stroke-width="13" stroke-linecap="round" fill="none"/><path d="M58 126q-22 4-24 24" stroke="' + cor + '" stroke-width="8.5" stroke-linecap="round" fill="none"/>' + mao(34, 158) + '</g>' +
+      '<g class="br"><path d="M142 126q22 4 24 24" stroke="' + cl[2] + '" stroke-width="13" stroke-linecap="round" fill="none"/><path d="M142 126q22 4 24 24" stroke="' + cor + '" stroke-width="8.5" stroke-linecap="round" fill="none"/>' + mao(166, 158) + '</g>' +
+      '<g class="cor"><path d="M100 172C38 130 34 92 48 68c15-23 43-21 52 4 9-25 37-27 52-4 14 24 10 62-52 104z" fill="url(#' + u + 'g)" stroke="' + cl[2] + '" stroke-width="3"/>' +
+      '<path d="M46 74c32-9 76-9 108 0l-2 13c-32-9-72-9-104 0z" fill="url(#' + u + 'f)" stroke="#9c7800" stroke-width="1.5"/>' +
+      '<ellipse cx="64" cy="64" rx="10" ry="5.5" fill="#fff" opacity=".55" transform="rotate(-32 64 64)"/><ellipse cx="136" cy="150" rx="7" ry="3" fill="#fff" opacity=".12" transform="rotate(-40 136 150)"/>' +
       '<path d="' + sobr + '" stroke="#5a0b18" stroke-width="5" stroke-linecap="round" fill="none"/>' +
-      '<g class="olho"><circle cx="80" cy="104" r="10" fill="#fff"/><circle class="pup" cx="82" cy="106" r="5" fill="#12161D"/></g><g class="olho"><circle cx="120" cy="104" r="10" fill="#fff"/><circle class="pup" cx="122" cy="106" r="5" fill="#12161D"/></g>' +
+      '<g class="olho"><circle cx="80" cy="104" r="11" fill="url(#' + u + 'o)"/><g class="pup"><circle cx="82" cy="106" r="5.5" fill="#12161D"/><circle cx="84" cy="103.5" r="1.8" fill="#fff"/></g></g>' +
+      '<g class="olho"><circle cx="120" cy="104" r="11" fill="url(#' + u + 'o)"/><g class="pup"><circle cx="122" cy="106" r="5.5" fill="#12161D"/><circle cx="124" cy="103.5" r="1.8" fill="#fff"/></g></g>' +
+      '<ellipse cx="62" cy="122" rx="7" ry="4" fill="' + cl[0] + '" opacity=".7"/><ellipse cx="138" cy="122" rx="7" ry="4" fill="' + cl[0] + '" opacity=".7"/>' +
       '<path class="boca" d="' + boca + '" ' + (aberta ? 'fill="#7a1022" stroke="#7a1022"' : 'fill="none" stroke="#7a1022"') + ' stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>' +
       '<path class="suor" d="M150 92q10 8 6 18q-8 0-8-9z" fill="#7fd4ff"/></g></g></svg>';
   }
@@ -1984,7 +2013,7 @@ body:has(#setupScreen.active) .legal{display:none}
   (function cavVive(){
     const av = ()=> document.querySelector('#coachBal .cav');
     (function pisca(){ const a = av(); if(a){ a.classList.add('pisca'); setTimeout(()=> a.classList.remove('pisca'), 140); if(Math.random() < .25) setTimeout(()=>{ a.classList.add('pisca'); setTimeout(()=> a.classList.remove('pisca'), 120); }, 260); } setTimeout(pisca, 1800 + Math.random() * 4200); })();
-    (function olha(){ const a = av(); if(a){ const ang = Math.random() * Math.PI * 2, r = Math.random() < .35 ? 0 : 3.5; a.style.setProperty('--ox', (Math.cos(ang) * r).toFixed(1) + 'px'); a.style.setProperty('--oy', (Math.sin(ang) * r * .7).toFixed(1) + 'px'); } setTimeout(olha, 1200 + Math.random() * 3000); })();
+    (function olha(){ const a = av(); if(a){ const ang = Math.random() * Math.PI * 2, r = Math.random() < .35 ? 0 : 3.5; a.style.setProperty('--ox', (Math.cos(ang) * r).toFixed(1) + 'px'); a.style.setProperty('--oy', (Math.sin(ang) * r * .7).toFixed(1) + 'px'); if(!PUL || (!PUL.arr && !PUL.voa)){ a.style.setProperty('--ry', (Math.cos(ang) * r * 4).toFixed(1) + 'deg'); a.style.setProperty('--rx', (-Math.sin(ang) * r * 3).toFixed(1) + 'deg'); } } setTimeout(olha, 1200 + Math.random() * 3000); })();
     setInterval(()=>{ const a = av(); if(a && !a.classList.contains('fala') && Math.random() < .3 && COACH.humor === 'feliz'){ a.classList.add('acena'); setTimeout(()=> a.classList.remove('acena'), 1800); } }, 9000);
   })();
   function coachPinta(){ const b = $('chipCoach'); if(b){ b.classList.toggle('texto', COACH.modo === 'texto'); b.classList.toggle('off', COACH.modo === 'off');
@@ -2027,7 +2056,7 @@ body:has(#setupScreen.active) .legal{display:none}
     // voz do professor gravada para esta situação? toca a gravação (o balão mostra o texto completo)
     const clip = COACH.modo === 'voz' ? cvozClip(tipo, clipK) : null;
     if(clip){ try{ if(window.speechSynthesis) speechSynthesis.cancel(); if(CVOZ.audio) CVOZ.audio.pause(); const au = new Audio(CVOZ.d[clip.id]); CVOZ.audio = au; au.volume = 1;
-      au.onended = ()=>{ const a2 = document.querySelector('#coachBal .cav'); if(a2) a2.classList.remove('fala'); }; au.play().catch(()=>{}); }catch(e){}
+      au.onended = ()=>{ const a2 = document.querySelector('#coachBal .cav'); if(a2) a2.classList.remove('fala'); }; const tts = ()=>{ if(CVOZ.audio === au){ CVOZ.audio = null; coachFala(txtPronto || clip.f, tipo); } }; au.onerror = tts; au.play().catch(e=>{ if(!e || e.name !== 'AbortError') tts(); }); }catch(e){}
       if(!txtPronto && el){ el.querySelector('span').innerHTML = '<small>Pulso · o teu coach</small>' + escapeHtml(clip.f); }
       return true; }
     if(COACH.modo === 'voz') coachFala(txt, tipo);
@@ -2108,15 +2137,15 @@ body:has(#setupScreen.active) .legal{display:none}
   function pulEl(){ return $('coachBal'); }
   function pulVisivel(){ return currentScreen === 'homeScreen' || (currentScreen === 'liveScreen' && COACH.modo !== 'off'); }
   function pulGesto(){ try{ if(navigator.userActivation) return navigator.userActivation.hasBeenActive; }catch(e){} return PUL.gesto; }
-  function pulLim(){ const W = innerWidth, H = innerHeight; return { x0: 34, x1: W - 34, y0: 56, y1: H - 46 }; }
+  function pulLim(){ const W = innerWidth, H = innerHeight; return { x0: 40, x1: W - 40, y0: 56, y1: H - 46 }; }
   function pulCl(v, a, b){ return Math.max(a, Math.min(b, v)); }
   function pulRnd(A){ return A[Math.floor(Math.random() * A.length)]; }
   // põe o Pulso na posição (x, y = centro do boneco) e o balão do lado com mais espaço
   function pulPoe(){
     const el = pulEl(); if(!el) return; const W = innerWidth, dir = PUL.x > W / 2;
     el.classList.toggle('esq', !dir); el.style.top = Math.round(PUL.y) + 'px';
-    if(dir){ el.style.right = Math.round(W - PUL.x - 31) + 'px'; el.style.left = 'auto'; } else { el.style.left = Math.round(PUL.x - 31) + 'px'; el.style.right = 'auto'; }
-    el.style.setProperty('--bw', Math.max(150, Math.round((dir ? PUL.x : W - PUL.x) - 31 - 8 - 12)) + 'px');
+    if(dir){ el.style.right = Math.round(W - PUL.x - 36) + 'px'; el.style.left = 'auto'; } else { el.style.left = Math.round(PUL.x - 36) + 'px'; el.style.right = 'auto'; }
+    el.style.setProperty('--bw', Math.max(150, Math.round((dir ? PUL.x : W - PUL.x) - 36 - 8 - 12)) + 'px');
     pulAjusta();
   }
   // o balão nunca sai do ecrã por cima nem por baixo
@@ -2128,7 +2157,7 @@ body:has(#setupScreen.active) .legal{display:none}
   function pulGuarda(){ PUL.ancora = { x: PUL.x, y: PUL.y }; try{ localStorage.setItem('prPulPos', JSON.stringify({ fx: PUL.x / innerWidth, fy: PUL.y / innerHeight })); }catch(e){} }
   function pulCarrega(){
     const L = pulLim(); let p = null; try{ p = JSON.parse(localStorage.getItem('prPulPos') || 'null'); }catch(e){}
-    PUL.x = pulCl(p && isFinite(p.fx) ? p.fx * innerWidth : innerWidth - 39, L.x0, L.x1);
+    PUL.x = pulCl(p && isFinite(p.fx) ? p.fx * innerWidth : innerWidth - 44, L.x0, L.x1);
     PUL.y = pulCl(p && isFinite(p.fy) ? p.fy * innerHeight : innerHeight * .5, L.y0, L.y1);
     PUL.ancora = { x: PUL.x, y: PUL.y }; pulPoe();
   }
@@ -2156,10 +2185,10 @@ body:has(#setupScreen.active) .legal{display:none}
       const e = Math.min(sp, 40) / 40, base = PUL.arr ? 1.14 : 1;
       av.style.transition = 'none'; av.style.transformOrigin = PUL.arr ? '50% 12%' : '50% 60%';
       av.style.transform = 'rotate(' + PUL.ang.toFixed(1) + 'deg) scale(' + (base * (1 - e * .16)).toFixed(3) + ',' + (base * (1 + e * .26)).toFixed(3) + ')';
-      if(PUL.arr || PUL.voa){ av.style.setProperty('--ox', pulCl(PUL.vx * .5, -4, 4).toFixed(1) + 'px'); av.style.setProperty('--oy', pulCl(PUL.vy * .5, -3, 3).toFixed(1) + 'px'); }
+      if(PUL.arr || PUL.voa){ av.style.setProperty('--ox', pulCl(PUL.vx * .5, -4, 4).toFixed(1) + 'px'); av.style.setProperty('--oy', pulCl(PUL.vy * .5, -3, 3).toFixed(1) + 'px'); av.style.setProperty('--ry', pulCl(PUL.vx * 2.5, -35, 35).toFixed(1) + 'deg'); av.style.setProperty('--rx', pulCl(-PUL.vy * 2, -25, 25).toFixed(1) + 'deg'); }
       // abanar com força enjoa
-      if(PUL.arr && Math.abs(PUL.vx) > 9){ const sg = Math.sign(PUL.vx); if(sg !== PUL.ultVx){ PUL.ultVx = sg; const ag = Date.now(); if(ag - PUL.tViras > 900) PUL.viras = 0; PUL.tViras = ag; if(++PUL.viras >= 5 && ag - PUL.falouArr > 2500){ PUL.viras = 0; PUL.falouArr = ag; cavPoe(av, 'alerta'); av.classList.add('sua'); pulDiz(pulRnd(PUL_ENJOO), null, { ms: 2600 }); } } }
-      if(PUL.arr && Date.now() - PUL.d0 > 5000 && Date.now() - PUL.falouArr > 6000){ PUL.falouArr = Date.now(); pulDiz(pulRnd(PUL_LONGE), null, { ms: 2600 }); }
+      if(PUL.arr && Math.abs(PUL.vx) > 9){ const sg = Math.sign(PUL.vx); if(sg !== PUL.ultVx){ PUL.ultVx = sg; const ag = Date.now(); if(ag - PUL.tViras > 900) PUL.viras = 0; PUL.tViras = ag; if(++PUL.viras >= 5 && ag - PUL.falouArr > 2500){ PUL.viras = 0; PUL.falouArr = ag; cavPoe(av, 'alerta'); av.classList.add('sua'); pulDiz(pulRnd(PUL_ENJOO), null, { tipo: 'enjoo', ms: 2600 }); } } }
+      if(PUL.arr && Date.now() - PUL.d0 > 5000 && Date.now() - PUL.falouArr > 6000){ PUL.falouArr = Date.now(); pulDiz(pulRnd(PUL_LONGE), null, { tipo: 'longe', ms: 2600 }); }
       pulPoe();
       const vivo = PUL.arr || PUL.voa || PUL.passeio || Math.abs(PUL.ang) > .25 || Math.abs(PUL.angV) > .08 || sp > .2;
       if(vivo) PUL.raf = requestAnimationFrame(passo);
@@ -2173,13 +2202,13 @@ body:has(#setupScreen.active) .legal{display:none}
     cavPoe(av, tonto ? 'calmo' : 'feliz'); av.classList.add(tonto ? 'tonto' : 'aterra'); setTimeout(()=>{ av.classList.remove('aterra', 'tonto'); }, tonto ? 1900 : 600);
     try{ navigator.vibrate && navigator.vibrate(18); }catch(e){}
     pulGuarda(); PUL.ultMexe = Date.now();
-    if(tonto || Math.random() < .7) pulDiz(pulRnd(tonto ? PUL_TONTO : PUL_POISA), null, { ms: 2600 });
+    if(tonto || Math.random() < .7) pulDiz(pulRnd(tonto ? PUL_TONTO : PUL_POISA), null, { tipo: tonto ? 'tonto' : 'poisa', ms: 2600 });
   }
   // fala/mostra no balão; acoes = botões (o balão fica tocável); fim = quando acaba de falar
   function pulDiz(txt, h, o){
     o = o || {}; const el = pulEl(); if(!el) return; const sp = el.querySelector('span'), av = el.querySelector('.cav');
     clearTimeout(COACH.tm); clearTimeout(PUL.tAv); PUL.pend = null;
-    const clip = o.tipo && COACH.modo === 'voz' ? cvozClip(o.tipo) : null; if(clip) txt = clip.f;
+    cvozCarrega(); const clip = COACH.modo === 'voz' && (o.tipo || o.clipK) ? cvozClip(o.tipo, o.clipK) : null; if(clip) txt = clip.f;
     sp.innerHTML = '<small>Pulso · o teu coach</small>' + escapeHtml(txt) + (o.acoes ? '<div class="pul-ac' + (o.col ? ' col' : '') + '">' + o.acoes + '</div>' : '');
     el.style.setProperty('--cb', o.cor || '#E8722C'); el.classList.add('on'); el.classList.toggle('menu', !!o.acoes);
     if(h && !PUL.arr) cavPoe(av, h, true); else if(av) av.classList.add('fala');
@@ -2191,7 +2220,7 @@ body:has(#setupScreen.active) .legal{display:none}
     requestAnimationFrame(pulAjusta);
   }
   function pulVoz(txt, clip, fim){
-    if(clip && CVOZ.d && CVOZ.d[clip.id]){ try{ if(window.speechSynthesis) speechSynthesis.cancel(); if(CVOZ.audio) CVOZ.audio.pause(); const au = new Audio(CVOZ.d[clip.id]); CVOZ.audio = au; au.onended = fim; au.onerror = fim; au.play().catch(fim); }catch(e){ fim(); } return; }
+    if(clip && CVOZ.d && CVOZ.d[clip.id]){ try{ if(window.speechSynthesis) speechSynthesis.cancel(); if(CVOZ.audio) CVOZ.audio.pause(); const au = new Audio(CVOZ.d[clip.id]); CVOZ.audio = au; let foi = false; const tts = ()=>{ if(foi) return; foi = true; if(CVOZ.audio === au){ CVOZ.audio = null; coachFala(txt, 'dentro', fim); } else fim(); }; au.onended = fim; au.onerror = tts; au.play().catch(e=>{ if(!e || e.name !== 'AbortError') tts(); }); }catch(e){ coachFala(txt, 'dentro', fim); } return; }
     coachFala(txt, 'dentro', fim);
   }
   function pulCala(){ try{ if(window.speechSynthesis) speechSynthesis.cancel(); if(CVOZ.audio) CVOZ.audio.pause(); }catch(e){} }
@@ -2203,34 +2232,22 @@ body:has(#setupScreen.active) .legal{display:none}
   // explicações em várias partes: avança sozinho quando acaba de falar (ou com "Seguinte")
   function pulConta(partes, h, cor){ pulCala(); PUL.seq = { p: partes.filter(Boolean), i: 0, h: h || 'feliz', cor }; pulParte(); }
   function pulParte(){
-    const S = PUL.seq; if(!S) return; const i = S.i, ult = i === S.p.length - 1;
-    pulDiz(S.p[i], S.h, { cor: S.cor, fica: true,
+    const S = PUL.seq; if(!S) return; const i = S.i, ult = i === S.p.length - 1, P = S.p[i];
+    pulDiz(typeof P === 'string' ? P : P.t, S.h, { cor: S.cor, fica: true, clipK: P && P.k,
       acoes: '<button type="button" class="pri" data-pul="seg">' + (ult ? 'Percebi ✓' : 'Seguinte ›') + '</button><button type="button" class="x" data-pul="x" aria-label="Fechar">✕</button><i>' + (i + 1) + '/' + S.p.length + '</i>',
       fim: ()=>{ if(PUL.seq !== S || S.i !== i) return; clearTimeout(PUL.tSeg); PUL.tSeg = setTimeout(()=>{ if(PUL.seq === S && S.i === i) pulAvanca(); }, ult ? 4000 : 1100); } });
   }
   function pulAvanca(){ const S = PUL.seq; if(!S) return; if(S.i >= S.p.length - 1){ pulFecha(); return; } S.i++; pulParte(); }
   // ——— o que o Pulso sabe explicar ———
   function pulQuem(){
-    const n = coachNome();
-    return ['Eu sou o Pulso' + (n ? ', ' + n : '') + ', o teu coach virtual! 💓 Um coração com braços e muita energia.',
-      'A minha função é treinar contigo: durante a aula digo-te se estás abaixo, dentro ou acima da zona e aviso-te do bloco que vem a seguir.',
-      'Festejo quando bates um recorde ou passas alguém. Mas se te deixares ir abaixo da zona… levas um raspanete! 😤',
-      'Também fico de olho na tua frequência cardíaca e na cadência, para treinares com segurança.',
-      'Podes arrastar-me para onde quiseres. Na aula, o botão 🔊 escolhe voz, só texto ou silêncio; com toque longo mudas a minha voz.'];
+    const n = coachNome(), P = [{ t: "Eu sou o Pulso, o teu coach virtual! 💓 Um coração com braços e muita energia.", k: 'quem1' }, { t: "A minha função é treinar contigo: durante a aula digo-te se estás abaixo, dentro ou acima da zona e aviso-te do bloco que vem a seguir.", k: 'quem2' }, { t: "Festejo quando bates um recorde ou passas alguém. Mas se te deixares ir abaixo da zona… levas um raspanete! 😤", k: 'quem3' }, { t: "Também fico de olho na tua frequência cardíaca e na cadência, para treinares com segurança.", k: 'quem4' }, { t: "Podes arrastar-me para onde quiseres. Na aula, o botão 🔊 escolhe voz, só texto ou silêncio; com toque longo mudas a minha voz.", k: 'quem5' }];
+    if(n) P[0].t = P[0].t.replace('Eu sou o Pulso,', 'Eu sou o Pulso, ' + n + ',');
+    return P;
   }
-  function pulApp(){
-    return ['Primeiro diz-me como te sentes hoje e confirma. Depois escolhes como queres pedalar.',
-      'Aula ao vivo: entras com o PIN que aparece no ecrã da sala. Só pedalar: treino livre ao teu ritmo. Biblioteca: treinos guiados para fazeres sozinho.',
-      'Antes de começar, liga a bike e a cinta cardíaca por Bluetooth e escolhe o número da tua bike na sala.',
-      'Na aula, cada bloco tem uma zona de esforço com uma cor. O objetivo é manteres a tua potência dentro dessa zona.',
-      'Desliza para o lado, ou toca nos pontinhos em baixo, para mudares de ecrã: o bloco atual, o perfil da aula, a corrida e o percurso.',
-      'No fim, o treino fica guardado em «Treinos realizados», com o relatório. ' + (typeof user !== 'undefined' && user ? 'Mantém «A minha ficha» atualizada, com a idade e a FC máxima, para as zonas ficarem certas para ti.' : 'Cria a tua ficha para guardares os treinos e as zonas ficarem certas para ti.')];
-  }
+  function pulApp(){ return [{ t: "Primeiro diz-me como te sentes hoje e confirma. Depois escolhes como queres pedalar.", k: 'app1' }, { t: "Aula ao vivo: entras com o PIN que aparece no ecrã da sala. Só pedalar: treino livre ao teu ritmo. Biblioteca: treinos guiados para fazeres sozinho.", k: 'app2' }, { t: "Antes de começar, liga a bike e a cinta cardíaca por Bluetooth e escolhe o número da tua bike na sala.", k: 'app3' }, { t: "Na aula, cada bloco tem uma zona de esforço com uma cor. O objetivo é manteres a tua potência dentro dessa zona.", k: 'app4' }, { t: "Desliza para o lado, ou toca nos pontinhos em baixo, para mudares de ecrã: o bloco atual, o perfil da aula, a corrida e o percurso.", k: 'app5' }, { t: "No fim, o treino fica guardado em «Treinos realizados», com o relatório.", k: 'app6' }, { t: "Mantém a tua ficha atualizada, com a idade e a FC máxima, para as zonas ficarem certas para ti.", k: 'app7' }]; }
   function pulObjetivo(){
     const live = currentScreen === 'liveScreen' && blocos && blocos.length;
-    if(!live) return ['O objetivo de cada treino é treinares na intensidade certa para ti: nem a mais, nem a menos.',
-      'As zonas vão da Z1, recuperação, até à Z7, explosão. A Z2 treina a resistência, a Z4 o limiar e a Z5 o VO2máx.',
-      'Quando entrares numa aula, toca em mim e digo-te o objetivo do treino de hoje e do bloco em que estás.'];
+    if(!live) return [{ t: "O objetivo de cada treino é treinares na intensidade certa para ti: nem a mais, nem a menos.", k: 'obj1' }, { t: "As zonas vão da Z1, recuperação, até à Z7, explosão. A Z2 treina a resistência, a Z4 o limiar e a Z5 o VO2máx.", k: 'obj2' }, { t: "Quando entrares numa aula, toca em mim e digo-te o objetivo do treino de hoje e do bloco em que estás.", k: 'obj3' }];
     const Z = zonesNow(), t = Z.map(()=> 0); let tot = 0, teste = false;
     blocos.forEach(b=>{ const d = blockDurationSec(b); tot += d; if(b.teste) teste = true; const zi = Z.indexOf(blkZone(b)); t[zi < 0 ? 0 : zi] += d; });
     if(!tot) return ['Ainda não tenho os blocos desta aula. Assim que o professor começar, explico-te tudo!'];
@@ -2257,14 +2274,110 @@ body:has(#setupScreen.active) .legal{display:none}
     if(PUL.ola || currentScreen !== 'homeScreen') return; PUL.ola = true; let viu = false; try{ viu = !!localStorage.getItem('prPulOla'); localStorage.setItem('prPulOla', '1'); }catch(e){}
     const n = coachNome(), el = pulEl(), av = el && el.querySelector('.cav');
     if(av){ av.classList.add('acena'); setTimeout(()=> av.classList.remove('acena'), 1800); }
-    if(!viu) pulConta(['Olá' + (n ? ', ' + n : '') + '! Eu sou o Pulso, o teu coach virtual. 💓',
-      'Vou treinar contigo: digo-te se estás na zona certa, aviso-te do que vem a seguir e festejo as tuas vitórias.',
-      'Toca em mim e explico-te como funciona a app e o objetivo do treino. E podes arrastar-me para onde quiseres!'], 'festa');
-    else pulDiz(pulRnd(['Olá' + (n ? ', ' + n : '') + '! Bora pedalar? Toca em mim se precisares de ajuda.', (n ? n + ', b' : 'B') + 'em-vindo de volta! Estou aqui se precisares de mim. 💓', 'Então' + (n ? ', ' + n : '') + ', vamos a isso? Se tiveres dúvidas, toca em mim.']), 'festa', { tipo: 'ola', ms: 6000 });
+    if(!viu){ const P = [{ t: "Olá! Eu sou o Pulso, o teu coach virtual. 💓", k: 'apres1' }, { t: "Vou treinar contigo: digo-te se estás na zona certa, aviso-te do que vem a seguir e festejo as tuas vitórias.", k: 'apres2' }, { t: "Toca em mim e explico-te como funciona a app e o objetivo do treino. E podes arrastar-me para onde quiseres!", k: 'apres3' }]; if(n) P[0].t = P[0].t.replace('Olá!', 'Olá, ' + n + '!'); pulConta(P, 'festa'); }
+    else pulSauda();
   }
+  PUL.ultAcao = Date.now();
+  // ——— personalidade: cumprimentos pela hora e pelo dia, reações ao humor, picardias quando o aluno fica parado ———
+  const PUL_SAUDA = {
+    olaM: ['Bom dia! Coração acordado, pernas prontas. Bora começar o dia a pedalar! ☀️', 'Bom dia! Quem treina de manhã ganha o dia inteiro. 💪', 'Bom dia! Hoje vai ser um grande dia, e começa aqui. 🚴'],
+    olaT: ['Boa tarde! Ainda há muita energia nesse coração. Vamos gastá-la? ⚡', 'Boa tarde! A melhor pausa do dia é em cima da bike.', 'Boa tarde! Bora transformar o cansaço do dia em energia? 🔋'],
+    olaN: ['Boa noite! Fechar o dia a pedalar é coisa de campeão. 🌙', 'Boa noite! Dormir bem começa com um bom treino. 😴', 'Boa noite! O dia foi longo, mas o melhor ficou para o fim. 💪'],
+    olaD: ['Segunda-feira! Quem começa a semana forte, acaba-a em grande. 🔥', 'Sexta-feira! Um treino agora e o fim de semana sabe o dobro. 😎', 'Fim de semana e tu aqui? Isso é que é atitude! 👏'],
+    olaX: ['Cada treino conta. Hoje é mais um tijolo no teu melhor eu. 🧱', 'Eu bato 60 vezes por minuto à tua espera. Vamos pô-lo a 150? 💓', 'Não precisas de ser o mais rápido. Precisas é de aparecer. E já apareceste! 🙌', 'Daqui a uma hora vais agradecer-te por teres vindo. Confia em mim! 😉']
+  };
+  const PUL_HUMOR = { 1: ['Dias assim também contam. Hoje vamos com calma: aparecer já é meio treino. 🫶', 'calmo'], 2: ['Eu conheço um remédio: uns minutos de pedal e endorfinas a rodos. Confia em mim! 💊', 'feliz'],
+    3: ['Normal? Daqui a pouco vais estar em grande. Eu trato disso! 😉', 'feliz'], 4: ['Boa! Com essa energia vamos fazer um treino bonito. 💪', 'forte'], 5: ['É assim mesmo! Hoje vamos partir isto tudo! 🔥', 'festa'] };
+  const PUL_CUTUCA = ['Então? A bike não se pedala sozinha! 😄', 'Estou aqui a aquecer… e tu? 🔥', 'Psst… um treinozinho? Prometo que sais daqui melhor! 😉', 'O sofá não te vai dar medalhas. Eu dou! 🏅'];
+  function pulComNome(t, n){ return n ? t.replace(/^([^!?.]+)([!?.])/, '$1, ' + n + '$2') : t; }
+  function pulSauda(){
+    const n = coachNome(), d = new Date(), h = d.getHours(), dw = d.getDay(), r = Math.random();
+    let tipo = h < 12 ? 'olaM' : h < 20 ? 'olaT' : 'olaN', A = PUL_SAUDA[tipo];
+    if(r < .3 && (dw === 1 || dw === 5 || dw === 0 || dw === 6)){ tipo = 'olaD'; A = [PUL_SAUDA.olaD[dw === 1 ? 0 : dw === 5 ? 1 : 2]]; }
+    else if(r > .75){ tipo = 'olaX'; A = PUL_SAUDA.olaX; }
+    const cl = COACH.modo === 'voz' && tipo !== 'olaD' ? cvozClip(tipo) : null;   // o "olaD" depende do dia: só o texto certo serve
+    const t = cl ? cl.f : pulComNome(pulRnd(A), n);
+    pulDiz(t, tipo === 'olaX' ? 'forte' : 'festa', cl ? { clipK: cl.id, ms: 6500 } : tipo === 'olaD' ? { clipK: dw === 1 ? 'olaD1' : dw === 5 ? 'olaD2' : 'olaD3', ms: 6500 } : { ms: 6500 });
+  }
+  function pulSleep(ms){ return new Promise(r=> setTimeout(r, ms)); }
+  // efeitos no "vidro" do ecrã: ondas do toque, marca do punho e bafo
+  function pulVidroFx(tipo, x, y){
+    const d = document.createElement('div'); d.className = 'pul-' + tipo; d.style.left = Math.round(x) + 'px'; d.style.top = Math.round(y) + 'px';
+    if(tipo === 'toc') d.innerHTML = '<i></i><b>TOC!</b>';
+    document.body.appendChild(d); setTimeout(()=> d.remove(), tipo === 'bafo' ? 2600 : tipo === 'marca' ? 3200 : 900);
+  }
+  // entrada: espreita de lado, vem até ao "vidro", bate por dentro e salta para o sítio dele
+  async function pulEntrada(){
+    const el = pulEl(), av = el && el.querySelector('.cav'); if(!av || PUL.entrou) return; PUL.entrou = true;
+    const W = innerWidth, H = innerHeight, dir = PUL.x > W / 2, s = dir ? 1 : -1;
+    let parar = false; const salta = ()=>{ parar = true; }; document.addEventListener('pointerdown', salta, { once: true, capture: true });
+    const vidro = document.createElement('div'); vidro.className = 'pul-vidro'; document.body.appendChild(vidro);
+    const T = (tr, ms, ease)=>{ av.style.transition = 'transform ' + ms + 'ms ' + (ease || 'cubic-bezier(.3,1.35,.5,1)'); av.style.transform = tr; };
+    const olha = (ox, oy)=>{ av.style.setProperty('--ox', ox + 'px'); av.style.setProperty('--oy', oy + 'px'); };
+    const pisca = ()=>{ av.classList.add('pisca'); setTimeout(()=> av.classList.remove('pisca'), 140); };
+    const espera = async ms=>{ await pulSleep(ms); return parar || currentScreen !== 'homeScreen'; };
+    const xOut = dir ? W - PUL.x + 70 : -(PUL.x + 70), xPeek = dir ? W - PUL.x - 10 : -(PUL.x - 10);
+    PUL.entra = true; el.classList.add('entra');
+    try{
+      cavPoe(av, 'feliz'); T('translate(' + xOut + 'px,0)', 0); void av.offsetWidth; el.classList.remove('ini');
+      if(await espera(500)) throw 0;
+      // 1) espreita de lado, desconfiado
+      T('translate(' + xPeek + 'px,0) rotate(' + (-24 * s) + 'deg)', 520); olha(-4 * s, -1);
+      if(await espera(800)) throw 0; pisca(); olha(-4 * s, 2);
+      if(await espera(600)) throw 0; olha(-2 * s, -3);
+      if(await espera(500)) throw 0;
+      // 2) esconde-se… e volta a espreitar, surpreendido por te ver
+      T('translate(' + (xPeek + 34 * s) + 'px,6px) rotate(' + (-10 * s) + 'deg)', 300, 'ease-in');
+      if(await espera(650)) throw 0;
+      cavPoe(av, 'alerta'); T('translate(' + (xPeek - 12 * s) + 'px,-4px) rotate(' + (-30 * s) + 'deg)', 360); olha(-4 * s, 0);
+      if(await espera(700)) throw 0;
+      // 3) vem a correr até ao "vidro" e encosta-se
+      cavPoe(av, 'festa'); const gx = W * .5 - PUL.x, gy = H * .42 - PUL.y, sc = Math.min(2.8, Math.max(2, W / 150));
+      vidro.classList.add('on'); T('translate(' + gx + 'px,' + gy + 'px) scale(' + sc + ')', 700, 'cubic-bezier(.2,.9,.25,1.15)');
+      if(await espera(760)) throw 0;
+      cavPoe(av, 'feliz'); olha(0, 0); av.classList.add('encosta');
+      let r = av.getBoundingClientRect(); pulVidroFx('bafo', r.left + r.width / 2, r.top + r.height * .66);
+      if(await espera(500)) throw 0;
+      // 4) toc, toc, toc — por dentro do vidro
+      av.classList.add('toca');
+      for(let i = 0; i < 3; i++){
+        if(await espera(i ? 330 : 280)) throw 0;
+        const g = av.querySelector('.br rect'); r = g ? g.getBoundingClientRect() : av.getBoundingClientRect();
+        const x = r.left + r.width / 2, y = r.top + r.height / 2; pulVidroFx('toc', x, y); pulVidroFx('marca', x, y);
+        av.classList.remove('treme'); void av.offsetWidth; av.classList.add('treme'); try{ navigator.vibrate && navigator.vibrate(25); }catch(e){}
+      }
+      if(await espera(420)) throw 0;
+      av.classList.remove('toca', 'encosta'); cavPoe(av, 'festa');
+      if(await espera(500)) throw 0;
+    }catch(e){}
+    // 5) salta para o sítio dele
+    document.removeEventListener('pointerdown', salta, true);
+    vidro.classList.remove('on'); setTimeout(()=> vidro.remove(), 600);
+    av.classList.remove('toca', 'encosta', 'treme'); T('', parar ? 250 : 650, 'cubic-bezier(.3,1.5,.5,1)'); olha(0, 0);
+    await pulSleep(parar ? 260 : 680);
+    av.style.transition = ''; el.classList.remove('entra', 'ini'); PUL.entra = false; cavPoe(av, 'feliz');
+    if(!parar){ av.classList.add('aterra'); setTimeout(()=> av.classList.remove('aterra'), 600); }
+    // depois cumprimenta (espera um pouco pelo nome do aluno, se a conta ainda estiver a carregar)
+    for(let t = 0; t < 3; t++){ try{ if((typeof perfil !== 'undefined' && perfil) || (typeof auth !== 'undefined' && auth && auth.currentUser === null)) break; }catch(e){} await pulSleep(400); }
+    pulOla();
+  }
+  // reage ao humor escolhido e ao "Confirmar"
+  function pulReacoes(){
+    const mo = $('moodOpts'); if(mo && !mo.__pul){ mo.__pul = 1; mo.addEventListener('click', e=>{ const b = e.target.closest('[data-m]'); if(!b || currentScreen !== 'homeScreen') return; const m = +b.dataset.m, R = PUL_HUMOR[m]; if(!R) return;
+      PUL.ultAcao = Date.now(); pulFecha(); setTimeout(()=> pulDiz(R[0], R[1], { clipK: 'hum' + m, ms: 5000 }), 120); }); }
+    const bb = $('boraBtn'); if(bb && !bb.__pul){ bb.__pul = 1; bb.addEventListener('click', ()=>{ PUL.ultAcao = Date.now(); pulFecha(); setTimeout(()=> pulDiz(pulRnd(['Bora! Eu vou contigo! 🚴', 'É isso! Vamos a isto! 💪', 'Grande decisão! Bora pedalar! 🔥']), 'festa', { tipo: 'bora', ms: 3500 }), 120); }); }
+  }
+  // se o aluno ficar parado no ecrã inicial, o Pulso picardeia (uma vez de cada vez que lá fica)
+  document.addEventListener('pointerdown', ()=>{ PUL.ultAcao = Date.now(); PUL.cutucou = false; }, true);
+  setInterval(()=>{
+    try{ if(currentScreen !== 'homeScreen' || PUL.entra || PUL.seq || PUL.arr || PUL.cutucou || document.hidden) return; }catch(e){ return; }
+    const el = pulEl(); if(!el || el.classList.contains('on') || Date.now() - (PUL.ultAcao || 0) < 45000) return;
+    PUL.cutucou = true; const av = el.querySelector('.cav'); if(av){ av.classList.add('acena'); setTimeout(()=> av.classList.remove('acena'), 1800); }
+    pulDiz(pulRnd(PUL_CUTUCA), 'feliz', { tipo: 'cutuca', ms: 5000 });
+  }, 5000);
   // passeios curtos à volta do sítio onde o deixaste (só no ecrã inicial)
   setInterval(()=>{
-    if(typeof currentScreen === 'undefined' || currentScreen !== 'homeScreen' || PUL.arr || PUL.voa || PUL.passeio || PUL.seq || document.hidden) return;
+    if(typeof currentScreen === 'undefined' || currentScreen !== 'homeScreen' || PUL.arr || PUL.voa || PUL.passeio || PUL.seq || PUL.entra || document.hidden) return;
     const el = pulEl(); if(!el || el.classList.contains('on') || Date.now() - PUL.ultMexe < 15000 || Math.random() < .4) return;
     const L = pulLim(), A = PUL.ancora || { x: PUL.x, y: PUL.y }, volta = Math.hypot(PUL.x - A.x, PUL.y - A.y) > 30;
     PUL.tx = volta ? A.x : pulCl(A.x + (Math.random() - .5) * 140, L.x0, L.x1); PUL.ty = volta ? A.y : pulCl(A.y + (Math.random() - .5) * 110, L.y0, L.y1);
@@ -2272,27 +2385,28 @@ body:has(#setupScreen.active) .legal{display:none}
   }, 7000);
   function pulLiga(){
     const el = pulEl(), av = el && el.querySelector('.cav'); if(!av || el.__pul) return; el.__pul = 1;
-    if(el.parentNode !== document.body) document.body.appendChild(el);   // fora do ecrã da aula, para aparecer também no ecrã inicial
+    if(el.parentNode !== document.body) document.body.appendChild(el);
+    el.classList.add('ini'); pulReacoes();   // fora do ecrã da aula, para aparecer também no ecrã inicial
     pulCarrega(); window.addEventListener('resize', ()=>{ const L = pulLim(); PUL.x = pulCl(PUL.x, L.x0, L.x1); PUL.y = pulCl(PUL.y, L.y0, L.y1); pulPoe(); });
     if(window.ResizeObserver) try{ new ResizeObserver(()=> pulAjusta()).observe(el.querySelector('span')); }catch(e){}
     // o primeiro toque em qualquer sítio desbloqueia a voz: diz o que estava no balão
     const solta = ()=>{ PUL.gesto = true; const P = PUL.pend; if(P){ PUL.pend = null; setTimeout(()=>{ if(el.classList.contains('on') && PUL.pend === null){ clearTimeout(PUL.tAv); pulVoz(P.txt, P.clip, P.fim); } }, 80); } };
     ['pointerup', 'keydown'].forEach(ev=> document.addEventListener(ev, solta, true));
     av.addEventListener('pointerdown', e=>{
-      if(!pulVisivel()) return; e.preventDefault(); try{ av.setPointerCapture(e.pointerId); }catch(_){}
+      if(!pulVisivel() || PUL.entra) return; e.preventDefault(); try{ av.setPointerCapture(e.pointerId); }catch(_){}
       PUL.arr = true; PUL.voa = false; PUL.passeio = false; av.classList.remove('anda'); PUL.mx = 0; PUL.d0 = Date.now(); PUL.agarrou = false; PUL.viras = 0;
       PUL.sx = e.clientX; PUL.sy = e.clientY; PUL.ox = e.clientX - PUL.x; PUL.oy = e.clientY - PUL.y; PUL.tx = PUL.x; PUL.ty = PUL.y; PUL.vx = PUL.vy = 0; pulAnda();
     });
     av.addEventListener('pointermove', e=>{
       if(!PUL.arr) return; PUL.mx = Math.max(PUL.mx, Math.hypot(e.clientX - PUL.sx, e.clientY - PUL.sy));
-      if(!PUL.agarrou && PUL.mx > 8){ PUL.agarrou = true; el.classList.add('agarrado'); pulFecha(true); cavPoe(av, 'alerta'); PUL.falouArr = Date.now(); pulDiz(pulRnd(PUL_AGARRA), null, { ms: 2400 }); try{ navigator.vibrate && navigator.vibrate(15); }catch(_){} }
+      if(!PUL.agarrou && PUL.mx > 8){ PUL.agarrou = true; el.classList.add('agarrado'); pulFecha(true); cavPoe(av, 'alerta'); PUL.falouArr = Date.now(); pulDiz(pulRnd(PUL_AGARRA), null, { tipo: 'agarra', ms: 2400 }); try{ navigator.vibrate && navigator.vibrate(15); }catch(_){} }
       if(PUL.agarrou){ const L = pulLim(); PUL.tx = pulCl(e.clientX - PUL.ox, L.x0 - 20, L.x1 + 20); PUL.ty = pulCl(e.clientY - PUL.oy, L.y0 - 20, L.y1 + 20); }
     });
     const larga = e=>{
       if(!PUL.arr) return; PUL.arr = false; PUL.ultMexe = Date.now();
       if(!PUL.agarrou){ if(e.type === 'pointerup' && Date.now() - PUL.d0 < 600){ const aberto = el.classList.contains('menu') && !PUL.seq; if(aberto) pulFecha(true); else pulMenu(); } return; }
       const v = Math.hypot(PUL.vx, PUL.vy);
-      if(v > 9){ PUL.voa = true; PUL.bates = 0; PUL.vx *= 1.6; PUL.vy *= 1.6; cavPoe(av, 'festa'); pulDiz(pulRnd(PUL_ATIRA), null, { ms: 1800 }); el.classList.remove('agarrado'); pulAnda(); }
+      if(v > 9){ PUL.voa = true; PUL.bates = 0; PUL.vx *= 1.6; PUL.vy *= 1.6; cavPoe(av, 'festa'); pulDiz(pulRnd(PUL_ATIRA), null, { tipo: 'atira', ms: 1800 }); el.classList.remove('agarrado'); pulAnda(); }
       else { PUL.vx *= .3; PUL.vy *= .3; pulAterra(false); pulAnda(); }
     };
     av.addEventListener('pointerup', larga); av.addEventListener('pointercancel', larga); av.addEventListener('lostpointercapture', e=>{ if(PUL.arr) larga({ type: 'pointercancel' }); });
@@ -2309,7 +2423,11 @@ body:has(#setupScreen.active) .legal{display:none}
   }
   setTimeout(()=>{ try{ coachPinta(); pulLiga(); }catch(e){} }, 0);
   // apresenta-se no ecrã inicial, depois de a conta carregar (para saber o nome)
-  (function pulEspera(t){ setTimeout(()=>{ try{ if(currentScreen === 'homeScreen' && (t > 3 || (typeof perfil !== 'undefined' && perfil) || (typeof auth !== 'undefined' && auth && auth.currentUser === null))) return pulOla(); }catch(e){} if(t < 12) pulEspera(t + 1); }, t ? 500 : 1600); })(0);
+  // ao abrir a app no ecrã inicial: entrada do Pulso (espreita e bate no vidro); noutro ecrã aparece logo
+  (function pulArranca(t){ setTimeout(()=>{ let home = false; try{ home = currentScreen === 'homeScreen'; }catch(e){}
+    if(home) return pulEntrada();
+    if(t < 20) return pulArranca(t + 1);
+    PUL.entrou = true; const el = pulEl(); if(el) el.classList.remove('ini'); }, t ? 300 : 60); })(0);
   function checkBlockChange(b){
     const idx = state.blockIndex;
     if(lastBlockIdx === idx) return;
