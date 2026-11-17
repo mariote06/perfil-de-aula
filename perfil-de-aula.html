@@ -1248,12 +1248,19 @@ body[data-view="ano"] .legal{margin-top:8px;}
 .jg-pn.ok{background:rgba(61,212,92,.2);color:#B8F5C8;}
 .jg-pnomes .fogo{color:#FFAA2B;font-weight:800;font-size:13px;}
 /* percurso */
-#vozEd{position:fixed;inset:0;z-index:9000;background:rgba(5,7,10,.85);display:none;overflow:auto;padding:30px 16px}#vozEd.on{display:block}
+#vozEd{position:fixed;inset:0;z-index:99990;background:rgba(5,7,10,.85);display:none;overflow:auto;padding:30px 16px}#vozEd.on{display:block}
 #vozEd .vz-c{max-width:760px;margin:0 auto;background:#161b23;border:1px solid #2a313d;border-radius:16px;padding:18px 20px;color:#E8ECF2}
 #vozEd .vz-h{display:flex;align-items:center;gap:10px}#vozEd .vz-h h2{flex:1;margin:0}#vozEd .vz-d{color:#9aa4b4;font-size:14px;line-height:1.45}
 #vozEd h3{margin:16px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:#E8722C}
 #vozEd .vz-i{display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid #1f2530}#vozEd .vz-i span{flex:1;font-size:15px}
 #vozEd button{background:#12161D;border:1px solid #2a313d;color:#E8ECF2;border-radius:9px;padding:7px 11px;cursor:pointer;font:600 13px Inter,sans-serif}
+#vozEd .vz-fx{background:#12161D;border:1px solid #2a313d;border-radius:14px;padding:4px 14px 12px;margin:10px 0}
+#vozEd .vz-pre{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+#vozEd .vz-sl{display:grid;grid-template-columns:180px 1fr 120px;align-items:center;gap:10px;padding:4px 0;font-size:14px}#vozEd .vz-sl b{text-align:right;color:#FFD60A;font-size:13px}
+#vozEd .vz-sl input{accent-color:#E8722C;width:100%}
+#vozEd .vz-sel{margin:8px 0;color:#c9d1dd;font-size:14px}#vozEd .vz-acts{display:flex;flex-wrap:wrap;gap:6px}#vozEd .vz-acts button:disabled{opacity:.4;cursor:default}
+#vozEd .vz-auto{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:13px;color:#aab3c0}#vozEd .vz-st{margin-top:6px;color:#FFD60A;font-size:13px;min-height:16px}
+#vozEd .vz-i.sel{background:rgba(232,114,44,.1);border-radius:8px}
 #vozEd button.rec{background:#FF3B3B;border-color:#FF3B3B;color:#fff;animation:vzPisca 1s infinite}@keyframes vzPisca{50%{opacity:.6}}
 .gpx-p{flex:1;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;text-align:center;padding:30px;color:#E8ECF2}
 .gpx-p h3{margin:0;font:800 34px 'Barlow Condensed',sans-serif}.gpx-p p{margin:0;max-width:640px;color:#aab3c0;font-size:16px;line-height:1.45}
@@ -1310,10 +1317,6 @@ body.sr-full-on #liveOverlay #srBox,body.sr-full-on #liveOverlay #srBox *{visibi
 .drc-on{display:flex;align-items:center;gap:8px;cursor:pointer;} .drc-on input{width:20px;height:20px;accent-color:#3DD45C;flex:none;} .drc-on span{display:flex;flex-direction:column;line-height:1.2;min-width:190px;} .drc-on b{white-space:nowrap;} .drc-on small{color:#9AA3B2;font-size:11px;}
 .drc-nums{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:12px;color:#C9D0DC;} .drc-nums label{display:flex;align-items:center;gap:3px;} .drc-nums input{width:54px;background:#0F121A;border:1px solid #39405A;color:#fff;border-radius:7px;padding:4px 5px;font:700 13px 'Inter',sans-serif;text-align:center;}
 .drc-mv{display:flex;gap:4px;} .drc-mv button{background:#232838;border:1px solid #39405A;color:#fff;border-radius:8px;width:30px;height:30px;cursor:pointer;} .drc-mv button[data-ir]{background:#1F7AE0;border-color:#1F7AE0;}
-.vz-row{display:flex;align-items:center;gap:10px;background:#181C26;border:1px solid #262C3E;border-radius:12px;padding:9px 12px;margin-bottom:6px;cursor:pointer;} .vz-row input[type=checkbox]{width:20px;height:20px;accent-color:#3DD45C;flex:none;} .vz-row span{display:flex;flex-direction:column;line-height:1.25;} .vz-row small{color:#9AA3B2;font-size:11px;}
-.vz-sel{width:100%;background:#0F121A;border:1px solid #39405A;color:#fff;border-radius:9px;padding:8px;font:600 13px 'Inter',sans-serif;margin-top:6px;}
-.vz-dica{font-size:12px;color:#9AA3B2;background:#141821;border-left:3px solid #FFD60A;border-radius:8px;padding:8px 10px;margin:8px 0;}
-#vozBtn.off{opacity:.5;}
 .drc-leg{font-size:11px;color:#8C95A6;margin:8px 0;} .drc-bts{display:flex;align-items:center;gap:12px;} .drc-bts button{background:#232838;border:1px solid #39405A;color:#fff;border-radius:10px;padding:8px 12px;font:600 13px 'Inter',sans-serif;cursor:pointer;} .drc-bts span{color:#3DD45C;font-weight:600;}
 @media (max-width:640px){ .drc-pl{grid-template-columns:1fr;} }
 .sr-hud .sr-t{display:flex;flex-direction:column;align-items:center;background:rgba(5,7,10,.6);border-radius:14px;padding:6px 18px;line-height:1;}
@@ -2151,7 +2154,6 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     <button class="ctrl" id="liveSkip" title="Bloco seguinte">⏭</button>
     <div class="ctrl-group right">
       <button id="metricBtn" title="Métrica do ranking (tecla M)">Ranking: Pontos</button>
-      <button id="vozBtn" title="Voz: a app anuncia os blocos em voz alta · clica para configurar (tecla V liga/desliga)">🗣️ Voz</button>
       <button id="soundBtn" title="Bip nos últimos 3 segundos de cada bloco">🔔</button>
     </div>
   </div>
@@ -10230,134 +10232,6 @@ const SR3 = (()=>{
     }catch(e){}
   }
 
-  // ================= VOZ (a app fala durante a aula, como a Alexa) =================
-  // Usa a síntese de voz do próprio browser (Web Speech API): sem servidor e sem custos.
-  // A qualidade depende das vozes do PC: no Windows, o Microsoft Edge tem as vozes naturais em português de Portugal (Raquel e Duarte).
-  var VOZ = { cfg: Object.assign({ on: true, voz: '', vel: 1.05, vol: 1, duck: 0.3, inicio: true, aviso: true, minuto: true, incentivo: true, fim: true },
-      (()=>{ try{ return JSON.parse(localStorage.getItem('prVoz') || '{}') || {}; }catch(e){ return {}; } })()),
-    duck: 1, refs: [], feito: {}, idx: -1, avisou: -1, comecou: false,
-    ok: 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window };
-  VOZ.guarda = ()=>{ try{ localStorage.setItem('prVoz', JSON.stringify(VOZ.cfg)); }catch(e){} };
-  if(VOZ.ok){ try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = ()=>{ const s = $('vzVoz'); if(s) vozCfgAbre(true); }; }catch(e){} }
-  function vozLista(){ if(!VOZ.ok) return []; try{ return speechSynthesis.getVoices().filter(v=> /^pt/i.test(v.lang)); }catch(e){ return []; } }
-  // a voz escolhida; se não houver, a melhor em português (PT-PT primeiro, depois as naturais/online)
-  function vozEscolhe(){
-    const L = vozLista(); if(!L.length) return null;
-    const c = VOZ.cfg.voz && L.find(v=> v.voiceURI === VOZ.cfg.voz); if(c) return c;
-    const pts = v=> (/pt[-_]PT/i.test(v.lang) ? 100 : 0) + (/natural|online|neural/i.test(v.name) ? 50 : 0) + (/google/i.test(v.name) ? 5 : 0);
-    return L.slice().sort((a, b)=> pts(b) - pts(a))[0];
-  }
-  // baixa a música enquanto a voz fala e volta a subir no fim
-  function vozDuck(on){
-    const d = on ? Math.max(0, Math.min(1, VOZ.cfg.duck)) : 1;
-    if(d === VOZ.duck) return; VOZ.duck = d;
-    try{ if(livePlaying) audSync(elapsedNow(), true); }catch(e){}
-  }
-  function vozFala(txt, urgente){
-    if(!VOZ.ok || !VOZ.cfg.on || !txt) return;
-    try{
-      if(urgente) speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(txt), v = vozEscolhe();
-      if(v){ u.voice = v; u.lang = v.lang; } else u.lang = 'pt-PT';
-      u.rate = VOZ.cfg.vel; u.volume = VOZ.cfg.vol; u.pitch = 1;
-      u.onstart = ()=> vozDuck(true);
-      u.onend = u.onerror = ()=> setTimeout(()=>{ if(!speechSynthesis.speaking && !speechSynthesis.pending) vozDuck(false); }, 120);
-      VOZ.refs.push(u); if(VOZ.refs.length > 8) VOZ.refs.shift();   // o Chrome perde frases se não houver referência a elas
-      speechSynthesis.speak(u);
-    }catch(e){}
-  }
-  function vozCala(){ if(!VOZ.ok) return; try{ speechSynthesis.cancel(); }catch(e){} vozDuck(false); }
-  // ---- textos ditos ----
-  function vozNum(t){ return String(t || '').replace(/(\d+)\s*[–-]\s*(\d+)/g, '$1 a $2').replace(/>\s*(\d+)/g, 'mais de $1').replace(/%/g, ' por cento'); }
-  function vozZonaRaw(b, i){ return b.teste ? 'Teste de FTP' : zNome(blkZone(b), current.blocos, i); }
-  function vozZona(b, i){
-    return vozZonaRaw(b, i).replace(/^Z(\d)\s+/, 'Zona $1, ').replace(/\s*·\s*/g, ', ').replace(/\bZ(\d)\b/g, 'zona $1').replace(/VO2\s*máx/i, 'VO2 máximo');
-  }
-  function vozInt(b){
-    if(b.teste || b.tipo) return '';
-    const m = modoAtual(); if(m === 'zonas') return '';
-    return vozNum(lblInt(b)) + (m === 'fc' ? ' da frequência cardíaca máxima' : ' do FTP');
-  }
-  function vozDur(s){ s = Math.round(s); const m = Math.floor(s / 60), r = s % 60, p = []; if(m) p.push(m + (m === 1 ? ' minuto' : ' minutos')); if(r) p.push(r + ' segundos'); return p.join(' e '); }
-  function vozRpm(b){ return b.rpm ? 'cadência ' + vozNum(rpmTxt(b)) : ''; }
-  function vozNome(b, i){   // não repete o nome quando é igual à zona ("Aquecimento" na zona "Z1 Aquecimento")
-    const n = (b.nome || '').trim(), z = vozZonaRaw(b, i).toLowerCase(), nl = n.toLowerCase();
-    return n && nl !== z && nl !== z.replace(/^z\d\s+/, '') ? n : '';
-  }
-  function vozZonaCurta(b){ const z = blkZone(b), m = /^Z(\d)/.exec(z.name || ''); return b.teste ? '' : m ? 'zona ' + m[1] : ''; }
-  function vozFrase(p){ return p.filter(Boolean).map(x=> x.replace(/[.!?\s]+$/, '')).map(x=> x.charAt(0).toUpperCase() + x.slice(1)).join('. ') + '.'; }
-  function vozBlocoTxt(b, i){
-    const jg = b.jogo ? (jogoInfo(b.jogo).n || '') : '';
-    const linha = [vozDur(blockDurationSec(b)), vozInt(b) ? 'a ' + vozInt(b) : '', vozRpm(b)].filter(Boolean).join(', ');
-    return vozFrase([vozNome(b, i), vozZona(b, i), jg ? 'Jogo: ' + jg : '', linha, (b.tecnica || '').trim()]);
-  }
-  function vozCurtoTxt(b, i){ return vozFrase([vozZona(b, i), (b.tecnica || '').trim()]); }   // depois do aviso, ao começar só se lembra a zona e a técnica
-  function vozProxTxt(b, i){
-    const n = vozNome(b, i), zc = vozZonaCurta(b);
-    return 'Daqui a 10 segundos: ' + vozFrase([n ? n + (zc ? ', ' + zc : '') : vozZona(b, i), [vozInt(b), vozRpm(b)].filter(Boolean).join(', ')]);
-  }
-  const VOZ_FORCA = ['Metade feita, mantém o ritmo!', 'Força, já passou metade!', 'Respira e aguenta, estás a meio!', 'Boa! Continua assim!', 'Não baixes agora, metade feita!'];
-  const VOZ_CALMO = ['Metade do bloco.', 'Já vamos a meio. Mantém a cadência.', 'Metade feita. Pedalada redonda.'];
-  function vozMeio(b){
-    const mm = modoAtual() === 'fc' ? 'fc' : 'ftp', zi = b.tipo ? 0 : zonesOf(mm).indexOf(getZone(b.ftp || 0, mm));
-    const L = (zi >= 3 || b.teste) ? VOZ_FORCA : VOZ_CALMO; return L[Math.floor(Math.random() * L.length)];
-  }
-  // ---- quando falar ----
-  function vozBloco(idx, inicioAula){
-    VOZ.idx = idx; VOZ.feito = {};
-    const curto = VOZ.avisou === idx && !inicioAula; VOZ.avisou = -1;
-    if(!VOZ.cfg.inicio) return;
-    const b = current.blocos[idx]; if(!b) return;
-    const rapido = !inicioAula && blockDurationSec(b) < 25;   // blocos curtos (intervalos): só o essencial, para não falar por cima do bloco seguinte
-    vozFala((inicioAula ? 'Vamos começar! ' : '') + (curto ? vozCurtoTxt(b, idx) : rapido ? vozFrase([vozNome(b, idx) || vozZona(b, idx), vozRpm(b)]) : vozBlocoTxt(b, idx)), !curto);
-  }
-  function vozTick(rem){
-    if(!VOZ.ok || !VOZ.cfg.on) return;
-    const b = current.blocos[liveIdx]; if(!b) return;
-    if(VOZ.idx !== liveIdx){ VOZ.idx = liveIdx; VOZ.feito = {}; }
-    const dur = blockDurationSec(b), F = VOZ.feito, next = current.blocos[liveIdx + 1];
-    if(VOZ.cfg.aviso && next && dur >= 25 && rem <= 11.5 && rem > 5 && !F.av){ F.av = 1; VOZ.avisou = liveIdx + 1; vozFala(vozProxTxt(next, liveIdx + 1)); return; }
-    if(VOZ.cfg.minuto && dur >= 150 && rem <= 60.5 && rem > 52 && !F.min){ F.min = 1; vozFala('Último minuto!'); return; }
-    const meio = dur / 2;
-    if(VOZ.cfg.incentivo && dur >= 90 && rem <= meio && rem > meio - 6 && Math.abs(meio - 60) > 15 && !F.meio){ F.meio = 1; vozFala(vozMeio(b)); }
-  }
-  // ---- painel de configuração ----
-  function vozBtnPinta(){ const b = $('vozBtn'); if(b){ b.classList.toggle('off', !VOZ.cfg.on); b.textContent = VOZ.cfg.on ? '🗣️ Voz' : '🤐 Voz'; } }
-  function vozLiga(on){ VOZ.cfg.on = on; VOZ.guarda(); vozBtnPinta(); if(!on) vozCala(); }
-  function vozCfgAbre(refaz){
-    let m = $('vozCfg');
-    if(m && !refaz){ m.remove(); return; }
-    if(!m){ if(refaz) return; m = document.createElement('div'); m.id = 'vozCfg'; m.className = 'drc'; document.body.appendChild(m); m.onclick = e=>{ if(e.target === m) m.remove(); }; }
-    const C = VOZ.cfg, L = vozLista(), atual = vozEscolhe();
-    const chk = (k, t, d)=> '<label class="vz-row"><input type="checkbox" data-vk="' + k + '"' + (C[k] ? ' checked' : '') + '><span><b>' + t + '</b><small>' + d + '</small></span></label>';
-    const rng = (id, t, v, mn, mx, st, fmt)=> '<div class="drc-vel"><label>' + t + ' <b id="' + id + 'T">' + fmt(v) + '</b></label><input type="range" id="' + id + '" min="' + mn + '" max="' + mx + '" step="' + st + '" value="' + v + '"></div>';
-    const pct = v=> Math.round(v * 100) + '%';
-    m.innerHTML = '<div class="drc-c"><div class="drc-top"><b>🗣️ Voz da aula</b><span>A app anuncia os blocos em voz alta pelas colunas da sala, como a Alexa.</span><button class="drc-x" title="Fechar">✕</button></div>' +
-      (VOZ.ok ? '' : '<div class="vz-dica">Este browser não tem síntese de voz. Usa o Microsoft Edge ou o Google Chrome.</div>') +
-      chk('on', 'Voz ligada', 'tecla V para ligar/desligar durante a aula') +
-      '<div class="drc-vel"><label>Voz</label><select class="vz-sel" id="vzVoz">' +
-        (L.length ? '<option value="">Automática' + (atual ? ' (' + escapeHtml(atual.name) + ')' : '') + '</option>' + L.map(v=> '<option value="' + escapeHtml(v.voiceURI) + '"' + (v.voiceURI === C.voz ? ' selected' : '') + '>' + escapeHtml(v.name) + ' · ' + escapeHtml(v.lang) + '</option>').join('')
-                  : '<option value="">Nenhuma voz em português neste PC</option>') + '</select>' +
-        (atual && /pt[-_]PT/i.test(atual.lang) && /natural|online|neural/i.test(atual.name) ? '' : '<div class="vz-dica">💡 Para uma voz natural em português de Portugal, abre a app no <b>Microsoft Edge</b> e escolhe a <b>Raquel</b> ou o <b>Duarte (Natural)</b>.</div>') + '</div>' +
-      rng('vzVel', 'Velocidade', C.vel, 0.8, 1.4, 0.05, v=> Number(v).toFixed(2).replace('.', ',') + '×') +
-      rng('vzVol', 'Volume da voz', C.vol, 0.2, 1, 0.05, pct) +
-      rng('vzDuck', 'Música enquanto a voz fala', C.duck, 0, 1, 0.05, pct) +
-      chk('inicio', 'Anunciar cada bloco', 'nome, zona, duração, intensidade, cadência e técnica') +
-      chk('aviso', 'Aviso 10 s antes do bloco seguinte', '"Daqui a 10 segundos: Subida, 95 por cento do FTP, cadência 70"') +
-      chk('minuto', '"Último minuto!"', 'nos blocos com 2 min e meio ou mais') +
-      chk('incentivo', 'Incentivos a meio do bloco', 'nos blocos com 1 min e meio ou mais (mais puxados nas zonas altas)') +
-      chk('fim', 'Mensagem no fim da aula', '"Aula terminada. Bom trabalho a todos!"') +
-      '<div class="drc-bts"><button id="vzTeste">🔊 Testar com o bloco atual</button><button id="vzPara">⏹ Parar</button></div></div>';
-    m.querySelector('.drc-x').onclick = ()=> m.remove();
-    m.querySelectorAll('[data-vk]').forEach(i=> i.onchange = ()=>{ const k = i.dataset.vk; if(k === 'on') vozLiga(i.checked); else { C[k] = i.checked; VOZ.guarda(); } });
-    m.querySelector('#vzVoz').onchange = e=>{ C.voz = e.target.value; VOZ.guarda(); vozFala('Olá! Esta é a minha voz.', true); };
-    [['vzVel', 'vel', v=> v.toFixed(2).replace('.', ',') + '×'], ['vzVol', 'vol', pct], ['vzDuck', 'duck', pct]].forEach(([id, k, f])=>{
-      const i = m.querySelector('#' + id); i.oninput = ()=>{ C[k] = Number(i.value); $(id + 'T').textContent = f(C[k]); VOZ.guarda(); if(k === 'duck' && VOZ.duck !== 1){ VOZ.duck = 2; vozDuck(true); } };
-    });
-    m.querySelector('#vzTeste').onclick = ()=>{ if(!C.on) vozLiga(true); const i = Math.max(0, Math.min(liveIdx, current.blocos.length - 1)), b = current.blocos[i]; vozFala(b ? vozBlocoTxt(b, i) : 'Olá! Vamos pedalar.', true); };
-    m.querySelector('#vzPara').onclick = vozCala;
-  }
-
   // ================= OBJETIVO + FRASES DO ECRÃ INICIAL =================
   var OBJETIVOS = {
     resist: {nome:'Resistência aeróbia', frases:[
@@ -10920,7 +10794,6 @@ const SR3 = (()=>{
     if(P.tipo !== 'el' || !playing) P.rate(r);
     let vol = a.vol == null ? 0.8 : a.vol;
     const fim = tot - T; if(fim < 6) vol *= Math.max(0, fim / 6);
-    vol *= VOZ.duck;   // a voz está a falar: a música baixa
     if(a.modo === 'cortar' && m != null && a.dur && a.dur - m < 3) vol *= Math.max(0, (a.dur - m) / 3);
     P.vol(Math.max(0, Math.min(1, vol)));
     if(!playing || m == null || T >= tot){ P.pause(); return; }
@@ -11265,7 +11138,6 @@ const SR3 = (()=>{
     liveIdx = 0;
     liveRemaining = blockDurationSec(current.blocos[0]);
     livePlaying = false;
-    VOZ.comecou = false; VOZ.avisou = -1; VOZ.idx = -1; vozCala();
     audPrevStop();
     jgReset(); JG.forma = current.equipas || 'equilibrado';
     summaryEntry = null;
@@ -11314,7 +11186,7 @@ const SR3 = (()=>{
     if($('godQr')) $('godQr').remove(); podioFecha();
     document.documentElement.classList.remove('live-on');
     clearInterval(liveTimerHandle); liveTimerHandle = null; livePlaying = false;
-    audStop(); vozCala(); if($('vozCfg')) $('vozCfg').remove();
+    audStop();
     stopRidersSync();
     endSession();
     releaseWakeLock();
@@ -11661,7 +11533,6 @@ const SR3 = (()=>{
     if(liveTimerHandle){ clearInterval(liveTimerHandle); liveTimerHandle = null; }
     livePlaying = false;
     $('livePlay').textContent = '▶';
-    vozCala();
     audSync(elapsedNow(), false);
     pushState();
   }
@@ -11673,7 +11544,6 @@ const SR3 = (()=>{
     $('qrPanel').classList.remove('active');
     resetTickBase();
     audPrevStop(); audSync(elapsedNow(), true, true);
-    if(!VOZ.comecou){ VOZ.comecou = true; vozBloco(liveIdx, elapsedNow() < 2); }   // a voz anuncia o primeiro bloco quando a aula arranca
     pushState();
     let audUlt = 0;
     liveTimerHandle = setInterval(()=>{
@@ -11686,7 +11556,6 @@ const SR3 = (()=>{
       } else {
         updateTimerText();
         updateLiveProgressMarker();
-        vozTick(liveRemaining);
         if(performance.now() - audUlt > 900){ audUlt = performance.now(); audSync(elapsedNow(), true); }
       }
     }, 200);
@@ -11703,7 +11572,6 @@ const SR3 = (()=>{
       if(passou === undefined) audSync(elapsedNow(), true, true);
     }
     updateLiveDisplay();
-    if(livePlaying) vozBloco(liveIdx);   // a voz anuncia o bloco novo
     pushState();
     renderRiders();
   }
@@ -11711,7 +11579,6 @@ const SR3 = (()=>{
   function finishLive(){
     clearInterval(liveTimerHandle); liveTimerHandle = null; livePlaying = false;
     audStop();
-    if(VOZ.cfg.fim) vozFala('Aula terminada. Bom trabalho a todos!', true);
     $('livePlay').textContent = '▶';
     liveIdx = current.blocos.length - 1; liveRemaining = 0;
     updateLiveProgressMarker();
@@ -11925,8 +11792,6 @@ const SR3 = (()=>{
     if(soundOn) beep(880, 0.1);
   });
 
-  $('vozBtn').addEventListener('click', ()=> vozCfgAbre());
-  vozBtnPinta();
   $('livePlay').addEventListener('click', ()=>{ if(livePlaying) stopTicking(); else { pedeEcraInteiro(); startTicking(); } });
   $('fsBtn').addEventListener('click', pedeEcraInteiro);
   $('liveSkip').addEventListener('click', ()=> goToBlock(liveIdx+1));
@@ -11943,9 +11808,9 @@ const SR3 = (()=>{
 
   document.addEventListener('keydown', (e)=>{
     if(!$('liveOverlay').classList.contains('active')) return;
-    if(e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT')) return;
+    if(e.target && e.target.tagName === 'INPUT') return;
     const done = $('liveOverlay').classList.contains('finished');
-    if(e.code === 'Escape'){ if(POD.on){ podioFecha(); return; } if($('drCfg')){ $('drCfg').remove(); return; } if($('vozCfg')){ $('vozCfg').remove(); return; } if($('godQr')){ $('godQr').remove(); return; } if(SR.full && SR.fsTroca){ SR.fsTroca(); return; } closeLive(); return; }
+    if(e.code === 'Escape'){ if(POD.on){ podioFecha(); return; } if($('drCfg')){ $('drCfg').remove(); return; } if($('godQr')){ $('godQr').remove(); return; } if(SR.full && SR.fsTroca){ SR.fsTroca(); return; } closeLive(); return; }
     if(e.code === 'KeyF' && !e.ctrlKey && !e.metaKey){ e.preventDefault(); if(emEcraInteiro()){ const x = document.exitFullscreen || document.webkitExitFullscreen; if(x) try{ x.call(document); }catch(_){} } else pedeEcraInteiro(); return; }
     if(liveStarting){ if(e.code === 'Space' || e.code === 'Enter'){ e.preventDefault(); pedeEcraInteiro(); beginFromStart(); } return; }
     if(done) return;
@@ -11962,7 +11827,6 @@ const SR3 = (()=>{
     if((e.key === 'e' || e.key === 'E') && SR.on && SR.fsTroca) SR.fsTroca();
     if(e.key === 'm' || e.key === 'M'){ toggleMetric(); }
     if(e.key === 'q' || e.key === 'Q'){ $('qrPanel').classList.toggle('active'); }
-    if((e.key === 'v' || e.key === 'V') && !e.ctrlKey && !e.metaKey){ vozLiga(!VOZ.cfg.on); toast(VOZ.cfg.on ? '🗣️ Voz ligada' : '🤐 Voz desligada'); }
   });
   window.addEventListener('beforeunload', ()=>{ if(sessionPin) endSession(); });
 
@@ -12545,40 +12409,132 @@ const SR3 = (()=>{
   document.querySelectorAll('[data-go]').forEach(b=> b.addEventListener('click', ()=> setView(b.dataset.go)));
   document.getElementById('navBonecos').addEventListener('click', ()=> CICED.abre());
   // ===== VOZ DO COACH: o professor grava as frases e o Pulso usa a voz dele na app dos alunos (coachVoz/{id} no Firebase) =====
-  const VGR_FR = [{"id": "dentro1", "t": "dentro", "f": "Isso mesmo! Exatamente aí."}, {"id": "dentro2", "t": "dentro", "f": "Perfeito, assim é que se treina!"}, {"id": "dentro3", "t": "dentro", "f": "Que ritmo bonito, mantém!"}, {"id": "baixo1", "t": "baixo", "f": "Falta-te um bocadinho. Sobe mais um pouco!"}, {"id": "baixo2", "t": "baixo", "f": "Eu sei que tens mais aí dentro. Vamos!"}, {"id": "baixo3", "t": "baixo", "f": "Força nesses pedais!"}, {"id": "alto1", "t": "alto", "f": "Ei, calma! Ainda há aula. Baixa um bocadinho."}, {"id": "alto2", "t": "alto", "f": "Estás a voar! Guarda um pouco para depois."}, {"id": "raspa1", "t": "raspa", "f": "Isto não é um passeio de domingo! Sobe já para a zona!"}, {"id": "raspa2", "t": "raspa", "f": "Já te avisei! Mais força, vamos!"}, {"id": "parado1", "t": "parado", "f": "Os pedais não andam sozinhos! Bora!"}, {"id": "ultimos1", "t": "ultimos", "f": "Últimos quinze segundos! Esvazia o tanque!"}, {"id": "ultimos2", "t": "ultimos", "f": "Reta final! Dá tudo o que tens!"}, {"id": "inicio1", "t": "inicio", "f": "Este bloco é teu. Bora!"}, {"id": "inicio2", "t": "inicio", "f": "Respira fundo… e ataca!"}, {"id": "cadBaixa1", "t": "cadBaixa", "f": "Pernas mais rápidas! Sobe a cadência."}, {"id": "cadAlta1", "t": "cadAlta", "f": "Mais carga e menos rotação!"}, {"id": "sobe1", "t": "sobe", "f": "Ultrapassagem! Continua assim!"}, {"id": "rec1", "t": "rec", "f": "Novo recorde da aula! Que máquina!"}, {"id": "fc1", "t": "fc", "f": "O coração está muito alto. Respira e alivia uns segundos."}, {"id": "meio1", "t": "meio", "f": "Já vamos a meio! A melhor parte vem aí."}, {"id": "ultimo1", "t": "ultimo", "f": "Último bloco! Fecha com chave de ouro!"}, {"id": "seg_z0", "t": "seguir", "f": "A seguir: recuperação. Respira e solta as pernas!"}, {"id": "seg_z1", "t": "seguir", "f": "A seguir: zona dois, ritmo confortável. Vamos!"}, {"id": "seg_z2", "t": "seguir", "f": "A seguir: zona três. Mantém a cabeça fria!"}, {"id": "seg_z3", "t": "seguir", "f": "A seguir: zona quatro, limiar. Isto vai doer, mas tu aguentas!"}, {"id": "seg_z4", "t": "seguir", "f": "A seguir: zona cinco! Prepara-te para dar tudo!"}, {"id": "seg_z5", "t": "seguir", "f": "A seguir: anaeróbio! Explosão total!"}, {"id": "seg_z6", "t": "seguir", "f": "A seguir: sprint! Mostra-me o que vales!"}, {"id": "seg_teste", "t": "seguir", "f": "A seguir: teste de FTP. O mais forte e constante que conseguires!"}];
-  const VGR = { rec: null, chunks: [], at: null, dados: {} };
-  function vgrAbre(){
+  const VOZ_FR = [{"id": "dentro1", "t": "dentro", "f": "Isso mesmo! Exatamente aí."}, {"id": "dentro2", "t": "dentro", "f": "Perfeito, assim é que se treina!"}, {"id": "dentro3", "t": "dentro", "f": "Que ritmo bonito, mantém!"}, {"id": "baixo1", "t": "baixo", "f": "Falta-te um bocadinho. Sobe mais um pouco!"}, {"id": "baixo2", "t": "baixo", "f": "Eu sei que tens mais aí dentro. Vamos!"}, {"id": "baixo3", "t": "baixo", "f": "Força nesses pedais!"}, {"id": "alto1", "t": "alto", "f": "Ei, calma! Ainda há aula. Baixa um bocadinho."}, {"id": "alto2", "t": "alto", "f": "Estás a voar! Guarda um pouco para depois."}, {"id": "raspa1", "t": "raspa", "f": "Isto não é um passeio de domingo! Sobe já para a zona!"}, {"id": "raspa2", "t": "raspa", "f": "Já te avisei! Mais força, vamos!"}, {"id": "parado1", "t": "parado", "f": "Os pedais não andam sozinhos! Bora!"}, {"id": "ultimos1", "t": "ultimos", "f": "Últimos quinze segundos! Esvazia o tanque!"}, {"id": "ultimos2", "t": "ultimos", "f": "Reta final! Dá tudo o que tens!"}, {"id": "inicio1", "t": "inicio", "f": "Este bloco é teu. Bora!"}, {"id": "inicio2", "t": "inicio", "f": "Respira fundo… e ataca!"}, {"id": "cadBaixa1", "t": "cadBaixa", "f": "Pernas mais rápidas! Sobe a cadência."}, {"id": "cadAlta1", "t": "cadAlta", "f": "Mais carga e menos rotação!"}, {"id": "sobe1", "t": "sobe", "f": "Ultrapassagem! Continua assim!"}, {"id": "rec1", "t": "rec", "f": "Novo recorde da aula! Que máquina!"}, {"id": "fc1", "t": "fc", "f": "O coração está muito alto. Respira e alivia uns segundos."}, {"id": "meio1", "t": "meio", "f": "Já vamos a meio! A melhor parte vem aí."}, {"id": "ultimo1", "t": "ultimo", "f": "Último bloco! Fecha com chave de ouro!"}, {"id": "seg_z0", "t": "seguir", "f": "A seguir: recuperação. Respira e solta as pernas!"}, {"id": "seg_z1", "t": "seguir", "f": "A seguir: zona dois, ritmo confortável. Vamos!"}, {"id": "seg_z2", "t": "seguir", "f": "A seguir: zona três. Mantém a cabeça fria!"}, {"id": "seg_z3", "t": "seguir", "f": "A seguir: zona quatro, limiar. Isto vai doer, mas tu aguentas!"}, {"id": "seg_z4", "t": "seguir", "f": "A seguir: zona cinco! Prepara-te para dar tudo!"}, {"id": "seg_z5", "t": "seguir", "f": "A seguir: anaeróbio! Explosão total!"}, {"id": "seg_z6", "t": "seguir", "f": "A seguir: sprint! Mostra-me o que vales!"}, {"id": "seg_teste", "t": "seguir", "f": "A seguir: teste de FTP. O mais forte e constante que conseguires!"}];
+  // dados: id → { d: áudio final (o que os alunos ouvem), o: gravação original (se foi editada), fx: ajustes }
+  const VOZ = { rec: null, chunks: [], dados: {}, sel: null, ocupado: false,
+    fx: Object.assign({ tom: 0, graves: 0, agudos: 0, vel: 100, presenca: 1, eco: 0, auto: 0 }, (()=>{ try{ return JSON.parse(localStorage.getItem('prVozFx') || '{}') || {}; }catch(e){ return {}; } })()) };
+  const VOZ_PRE = { natural: { tom: 0, graves: 0, agudos: 0, vel: 100, presenca: 1, eco: 0 }, grave: { tom: -3, graves: 5, agudos: -1, vel: 98, presenca: 1, eco: 0 },
+    aguda: { tom: 3, graves: -3, agudos: 3, vel: 102, presenca: 1, eco: 0 }, treinador: { tom: -1, graves: 3, agudos: 4, vel: 104, presenca: 2, eco: 0 },
+    radio: { tom: 0, graves: -8, agudos: 6, vel: 100, presenca: 2, eco: 0 }, estadio: { tom: -1, graves: 2, agudos: 2, vel: 100, presenca: 2, eco: 3 },
+    robot: { tom: -5, graves: 0, agudos: 5, vel: 95, presenca: 2, eco: 1 } };
+  const vozFxGuarda = ()=>{ try{ localStorage.setItem('prVozFx', JSON.stringify(VOZ.fx)); }catch(e){} };
+  // ---------- processamento: tom sem mudar a velocidade (WSOLA + reamostragem), equalização, presença, eco ----------
+  async function vozDecode(url){ const ab = await (await fetch(url)).arrayBuffer(); const ac = new (window.AudioContext || window.webkitAudioContext)(); try{ return await ac.decodeAudioData(ab); } finally { try{ ac.close(); }catch(e){} } }
+  async function vozMono(buf, sr){ const oc = new OfflineAudioContext(1, Math.ceil(buf.duration * sr), sr), s = oc.createBufferSource(); s.buffer = buf; s.connect(oc.destination); s.start(); return (await oc.startRendering()).getChannelData(0); }
+  function vozEstica(x, f, sr){   // estica o som no tempo sem mudar o tom (WSOLA)
+    if(Math.abs(f - 1) < .005) return x;
+    const N = Math.round(.04 * sr) & ~1, Hs = N / 2, Ha = Hs / f, tol = Math.round(.012 * sr), L = Math.ceil(x.length * f) + N, y = new Float32Array(L), nrm = new Float32Array(L), w = new Float32Array(N);
+    for(let i = 0; i < N; i++) w[i] = .5 - .5 * Math.cos(2 * Math.PI * i / (N - 1));
+    let prev = 0;
+    for(let k = 0; ; k++){
+      const out = k * Hs; if(out + N > L) break; let pos = Math.round(k * Ha);
+      if(k){ const alvo = prev + Hs; let best = 0, bd = 0;
+        for(let d = -tol; d <= tol; d += 2){ const p = pos + d; if(p < 0 || p + N > x.length) continue; let c = 0; for(let i = 0; i < Hs; i += 3) c += x[p + i] * (x[alvo + i] || 0); if(c > best || d === -tol){ best = c; bd = d; } }
+        pos += bd; }
+      if(pos + N > x.length) break;
+      for(let i = 0; i < N; i++){ y[out + i] += x[pos + i] * w[i]; nrm[out + i] += w[i]; }
+      prev = pos;
+    }
+    let fim = L; while(fim > 0 && nrm[fim - 1] < 1e-3) fim--;
+    const r = new Float32Array(fim); for(let i = 0; i < fim; i++) r[i] = y[i] / Math.max(nrm[i], .15); return r;
+  }
+  async function vozProcessa(url, fx){
+    const sr = 24000, buf = await vozDecode(url), x0 = await vozMono(buf, sr);
+    // corta silêncios no início e no fim
+    let a = 0, b = x0.length; const lim = .02; while(a < b && Math.abs(x0[a]) < lim) a++; while(b > a && Math.abs(x0[b - 1]) < lim) b--;
+    const x = x0.subarray(Math.max(0, a - sr * .05), Math.min(x0.length, b + sr * .12));
+    const ratio = Math.pow(2, (fx.tom || 0) / 12), vel = (fx.vel || 100) / 100, est = vozEstica(x, ratio / vel, sr);
+    const durOut = est.length / ratio / sr + (fx.eco ? .45 : 0), oc = new OfflineAudioContext(1, Math.ceil(durOut * sr), sr);
+    const ab = oc.createBuffer(1, est.length, sr); ab.copyToChannel(est, 0); const src = oc.createBufferSource(); src.buffer = ab; src.playbackRate.value = ratio;
+    const hp = oc.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = (fx.graves || 0) < -5 ? 300 : 70;
+    const lo = oc.createBiquadFilter(); lo.type = 'lowshelf'; lo.frequency.value = 220; lo.gain.value = fx.graves || 0;
+    const hi = oc.createBiquadFilter(); hi.type = 'highshelf'; hi.frequency.value = 3200; hi.gain.value = fx.agudos || 0;
+    const pr = oc.createBiquadFilter(); pr.type = 'peaking'; pr.frequency.value = 2500; pr.Q.value = 1; pr.gain.value = (fx.presenca || 0) * 2.5;
+    const cp = oc.createDynamicsCompressor(); cp.threshold.value = fx.presenca ? -28 + (2 - fx.presenca) * 6 : -6; cp.ratio.value = fx.presenca ? 4 + fx.presenca * 2 : 1.5; cp.attack.value = .004; cp.release.value = .18;
+    src.connect(hp); hp.connect(lo); lo.connect(hi); hi.connect(pr); pr.connect(cp); cp.connect(oc.destination);
+    if(fx.eco){ const dl = oc.createDelay(1); dl.delayTime.value = .09 + fx.eco * .03; const fb = oc.createGain(); fb.gain.value = .18 + fx.eco * .07; const wet = oc.createGain(); wet.gain.value = .22 + fx.eco * .06;
+      cp.connect(dl); dl.connect(fb); fb.connect(dl); dl.connect(wet); wet.connect(oc.destination); }
+    src.start();
+    const out = await oc.startRendering(), ch = out.getChannelData(0); let pk = 0; for(let i = 0; i < ch.length; i++) pk = Math.max(pk, Math.abs(ch[i]));
+    if(pk > 0){ const g = .89 / pk; for(let i = 0; i < ch.length; i++) ch[i] *= g; }   // normaliza para -1 dB
+    return out;
+  }
+  function vozWav(buf){   // fallback se não houver MediaRecorder: WAV 16 kHz
+    const sr = buf.sampleRate, d = buf.getChannelData(0), ab = new ArrayBuffer(44 + d.length * 2), v = new DataView(ab), w = (o, t)=>{ for(let i = 0; i < t.length; i++) v.setUint8(o + i, t.charCodeAt(i)); };
+    w(0, 'RIFF'); v.setUint32(4, 36 + d.length * 2, true); w(8, 'WAVE'); w(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true); v.setUint32(24, sr, true); v.setUint32(28, sr * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true); w(36, 'data'); v.setUint32(40, d.length * 2, true);
+    for(let i = 0; i < d.length; i++) v.setInt16(44 + i * 2, Math.max(-1, Math.min(1, d[i])) * 32767, true); return new Blob([ab], { type: 'audio/wav' }); }
+  function vozCodifica(buf){   // volta a comprimir em opus (pequeno) tocando o resultado para um gravador
+    return new Promise(res=>{
+      const tipo = ['audio/webm;codecs=opus', 'audio/ogg;codecs=opus', 'audio/mp4'].find(t=> window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t));
+      if(!tipo){ res(vozWav(buf)); return; }
+      const ac = new (window.AudioContext || window.webkitAudioContext)(), dst = ac.createMediaStreamDestination(), s = ac.createBufferSource(); s.buffer = buf; s.connect(dst);
+      const rec = new MediaRecorder(dst.stream, { mimeType: tipo, audioBitsPerSecond: 40000 }), ch = [];
+      rec.ondataavailable = e=>{ if(e.data && e.data.size) ch.push(e.data); }; rec.onstop = ()=>{ try{ ac.close(); }catch(e){} res(new Blob(ch, { type: tipo })); };
+      rec.start(); s.onended = ()=> setTimeout(()=> rec.stop(), 150); s.start(ac.currentTime + .05);
+    }); }
+  const vozUrl = blob=> new Promise(r=>{ const f = new FileReader(); f.onload = ()=> r(f.result); f.readAsDataURL(blob); });
+  function vozToca(buf){ const ac = new (window.AudioContext || window.webkitAudioContext)(), s = ac.createBufferSource(); s.buffer = buf; s.connect(ac.destination); s.onended = ()=>{ try{ ac.close(); }catch(e){} }; s.start(); }
+  async function vozAplica(id, fx){
+    const it = VOZ.dados[id]; if(!it) return; const orig = it.o || it.d;
+    const buf = await vozProcessa(orig, fx), url = await vozUrl(await vozCodifica(buf));
+    VOZ.dados[id] = { d: url, o: orig, fx: Object.assign({}, fx) };
+    try{ if(fbDb) await fbDb.ref('coachVoz/' + id).set({ d: url, o: orig, fx: VOZ.dados[id].fx, t: Date.now() }); }catch(e){ toast('Não gravou no Firebase: ' + (e.code || e.message)); }
+  }
+  function vozAbre(){
     let ov = document.getElementById('vozEd'); if(!ov){ ov = document.createElement('div'); ov.id = 'vozEd'; document.body.appendChild(ov); }
     ov.innerHTML = '<div class="vz-c"><div class="vz-h"><h2>🎙️ Voz do coach</h2><button type="button" id="vzX">Fechar</button></div>' +
-      '<p class="vz-d">Grava estas frases com a tua voz, com entusiasmo, como falas na aula. Na app dos alunos o Pulso passa a usar a tua voz. As frases que não gravares continuam com a voz do telemóvel. Cada gravação tem no máximo 6 segundos e fica no Firebase, para todos os telemóveis.</p>' +
-      '<div id="vzL" class="vz-l">A carregar…</div></div>';
-    ov.classList.add('on'); document.getElementById('vzX').onclick = ()=>{ vgrPara(); ov.classList.remove('on'); };
-    const pinta = ()=>{
-      const grupos = {}; VGR_FR.forEach(f=> (grupos[f.t] = grupos[f.t] || []).push(f));
-      const NOME = { dentro: 'Na zona', baixo: 'Abaixo da zona', alto: 'Acima da zona', raspa: 'Raspanete', parado: 'Parou de pedalar', ultimos: 'Últimos 15 s', inicio: 'Início de bloco intenso', cadBaixa: 'Cadência baixa', cadAlta: 'Cadência alta', sobe: 'Ultrapassagem', rec: 'Recorde', fc: 'FC muito alta', meio: 'Meio da aula', ultimo: 'Último bloco', seguir: 'A seguir (por zona)' };
-      document.getElementById('vzL').innerHTML = Object.keys(grupos).map(g=> '<h3>' + (NOME[g] || g) + '</h3>' + grupos[g].map(f=>{ const tem = !!VGR.dados[f.id];
-        return '<div class="vz-i' + (tem ? ' tem' : '') + '"><span>' + (tem ? '✅ ' : '') + escapeHtml(f.f) + '</span><button type="button" data-rec="' + f.id + '">● Gravar</button>' + (tem ? '<button type="button" data-ouve="' + f.id + '">▶</button><button type="button" data-del="' + f.id + '">🗑</button>' : '') + '</div>'; }).join('')).join('') +
-        '<p class="vz-d">' + Object.keys(VGR.dados).length + ' de ' + VGR_FR.length + ' frases gravadas.</p>';
-      ov.querySelectorAll('[data-rec]').forEach(b=> b.onclick = ()=> vgrGrava(b.dataset.rec, b, pinta));
-      ov.querySelectorAll('[data-ouve]').forEach(b=> b.onclick = ()=>{ try{ new Audio(VGR.dados[b.dataset.ouve]).play(); }catch(e){} });
-      ov.querySelectorAll('[data-del]').forEach(b=> b.onclick = ()=>{ if(!confirm('Apagar esta gravação?')) return; delete VGR.dados[b.dataset.del]; try{ if(fbDb) fbDb.ref('coachVoz/' + b.dataset.del).remove(); }catch(e){} pinta(); });
+      '<p class="vz-d">Grava estas frases com a tua voz, com entusiasmo, como falas na aula. Na app dos alunos, o Pulso passa a usar a tua voz. As frases que não gravares continuam com a voz do telemóvel. Cada gravação tem no máximo 6 segundos e fica no Firebase.</p>' +
+      '<div class="vz-fx" id="vzFx"></div><div id="vzL" class="vz-l">A carregar…</div></div>';
+    ov.classList.add('on'); document.getElementById('vzX').onclick = ()=>{ vozPara(); ov.classList.remove('on'); };
+    const NOME = { dentro: 'Na zona', baixo: 'Abaixo da zona', alto: 'Acima da zona', raspa: 'Raspanete', parado: 'Parou de pedalar', ultimos: 'Últimos 15 s', inicio: 'Início de bloco intenso', cadBaixa: 'Cadência baixa', cadAlta: 'Cadência alta', sobe: 'Ultrapassagem', rec: 'Recorde', fc: 'FC muito alta', meio: 'Meio da aula', ultimo: 'Último bloco', seguir: 'A seguir (por zona)' };
+    const SL = [['tom', '🎵 Tom (pitch)', -8, 8, 1, v=> (v > 0 ? '+' : '') + v + ' meios-tons'], ['graves', '🔈 Graves', -12, 12, 1, v=> (v > 0 ? '+' : '') + v + ' dB'], ['agudos', '🔊 Agudos', -12, 12, 1, v=> (v > 0 ? '+' : '') + v + ' dB'],
+      ['vel', '⏩ Velocidade', 80, 125, 1, v=> v + '%'], ['presenca', '💪 Presença / energia', 0, 3, 1, v=> ['nenhuma', 'suave', 'forte', 'máxima'][v]], ['eco', '🏟️ Eco de pavilhão', 0, 4, 1, v=> v ? v + '/4' : 'sem eco']];
+    const pintaFx = ()=>{
+      const F = VOZ.fx, sel = VOZ.sel && VOZ.dados[VOZ.sel] ? VOZ_FR.find(f=> f.id === VOZ.sel) : null, nGrav = Object.keys(VOZ.dados).length;
+      document.getElementById('vzFx').innerHTML = '<h3>🎚️ Editar a voz</h3><div class="vz-pre">' + Object.keys(VOZ_PRE).map(k=> '<button type="button" data-pre="' + k + '">' + { natural: 'Natural', grave: 'Mais grave', aguda: 'Mais aguda', treinador: 'Treinador', radio: 'Rádio', estadio: 'Pavilhão', robot: 'Robô' }[k] + '</button>').join('') + '</div>' +
+        SL.map(x=> '<label class="vz-sl"><span>' + x[1] + '</span><input type="range" min="' + x[2] + '" max="' + x[3] + '" step="' + x[4] + '" value="' + (F[x[0]] ?? 0) + '" data-fx="' + x[0] + '"><b id="vzv_' + x[0] + '">' + x[5](+F[x[0]] || 0) + '</b></label>').join('') +
+        '<div class="vz-sel">' + (sel ? 'Frase escolhida: <b>' + escapeHtml(sel.f) + '</b>' : 'Toca em ▶ numa frase gravada para a escolheres e ouvires os ajustes.') + '</div>' +
+        '<div class="vz-acts"><button type="button" id="vzOuve"' + (sel ? '' : ' disabled') + '>▶ Ouvir com estes ajustes</button><button type="button" id="vzUma"' + (sel ? '' : ' disabled') + '>✔ Aplicar a esta frase</button><button type="button" id="vzTodas"' + (nGrav ? '' : ' disabled') + '>✔ Aplicar a todas (' + nGrav + ')</button>' +
+        '<button type="button" id="vzOrig"' + (sel && VOZ.dados[VOZ.sel].o ? '' : ' disabled') + '>↺ Original desta frase</button></div>' +
+        '<label class="vz-auto"><input type="checkbox" id="vzAuto"' + (F.auto ? ' checked' : '') + '> Aplicar estes ajustes automaticamente às novas gravações</label><div class="vz-st" id="vzSt"></div>';
+      const box = document.getElementById('vzFx'), st = t=>{ const e = document.getElementById('vzSt'); if(e) e.textContent = t; };
+      box.querySelectorAll('[data-fx]').forEach(r=> r.oninput = ()=>{ VOZ.fx[r.dataset.fx] = +r.value; vozFxGuarda(); const x = SL.find(q=> q[0] === r.dataset.fx); document.getElementById('vzv_' + x[0]).textContent = x[5](+r.value); });
+      box.querySelectorAll('[data-pre]').forEach(b=> b.onclick = ()=>{ Object.assign(VOZ.fx, VOZ_PRE[b.dataset.pre]); vozFxGuarda(); pintaFx(); if(VOZ.sel) document.getElementById('vzOuve').click(); });
+      document.getElementById('vzAuto').onchange = e=>{ VOZ.fx.auto = e.target.checked ? 1 : 0; vozFxGuarda(); };
+      const corre = async (fn, msg)=>{ if(VOZ.ocupado) return; VOZ.ocupado = true; box.querySelectorAll('.vz-acts button').forEach(b=> b.disabled = true); st('⏳ ' + msg); try{ await fn(); }catch(e){ st('⚠ ' + (e.message || e)); } VOZ.ocupado = false; pintaFx(); pintaL(); };
+      document.getElementById('vzOuve').onclick = ()=> corre(async ()=>{ const it = VOZ.dados[VOZ.sel]; vozToca(await vozProcessa(it.o || it.d, VOZ.fx)); }, 'a processar…');
+      document.getElementById('vzUma').onclick = ()=> corre(async ()=>{ await vozAplica(VOZ.sel, VOZ.fx); toast('🎚️ Ajustes aplicados'); }, 'a aplicar…');
+      document.getElementById('vzTodas').onclick = ()=>{ if(!confirm('Aplicar estes ajustes a todas as ' + nGrav + ' frases gravadas? (o original de cada uma fica guardado)')) return;
+        corre(async ()=>{ const ids = Object.keys(VOZ.dados); for(let i = 0; i < ids.length; i++){ st('⏳ a aplicar ' + (i + 1) + ' de ' + ids.length + '…'); await vozAplica(ids[i], VOZ.fx); } toast('🎚️ Ajustes aplicados a todas as frases'); }, 'a aplicar…'); };
+      document.getElementById('vzOrig').onclick = ()=> corre(async ()=>{ const it = VOZ.dados[VOZ.sel]; if(!it.o) return; VOZ.dados[VOZ.sel] = { d: it.o }; if(fbDb) await fbDb.ref('coachVoz/' + VOZ.sel).set({ d: it.o, t: Date.now() }); new Audio(it.o).play(); }, 'a repor…');
     };
-    try{ if(fbDb) fbDb.ref('coachVoz').once('value').then(sn=>{ const v = sn.val() || {}; VGR.dados = {}; Object.keys(v).forEach(k=>{ if(v[k] && v[k].d) VGR.dados[k] = v[k].d; }); pinta(); }, ()=> pinta()); else pinta(); }catch(e){ pinta(); }
+    const pintaL = ()=>{
+      const grupos = {}; VOZ_FR.forEach(f=> (grupos[f.t] = grupos[f.t] || []).push(f));
+      document.getElementById('vzL').innerHTML = Object.keys(grupos).map(g=> '<h3>' + (NOME[g] || g) + '</h3>' + grupos[g].map(f=>{ const it = VOZ.dados[f.id];
+        return '<div class="vz-i' + (it ? ' tem' : '') + (VOZ.sel === f.id ? ' sel' : '') + '"><span>' + (it ? (it.o ? '🎚️ ' : '✅ ') : '') + escapeHtml(f.f) + '</span><button type="button" data-rec="' + f.id + '">● Gravar</button>' + (it ? '<button type="button" data-ouve="' + f.id + '" title="Ouvir e escolher para editar">▶</button><button type="button" data-del="' + f.id + '">🗑</button>' : '') + '</div>'; }).join('')).join('') +
+        '<p class="vz-d">' + Object.keys(VOZ.dados).length + ' de ' + VOZ_FR.length + ' frases gravadas. 🎚️ = editada (o original fica guardado).</p>';
+      ov.querySelectorAll('[data-rec]').forEach(b=> b.onclick = ()=> vozGrava(b.dataset.rec, b, ()=>{ pintaL(); pintaFx(); }));
+      ov.querySelectorAll('[data-ouve]').forEach(b=> b.onclick = ()=>{ VOZ.sel = b.dataset.ouve; try{ new Audio(VOZ.dados[b.dataset.ouve].d).play(); }catch(e){} pintaL(); pintaFx(); });
+      ov.querySelectorAll('[data-del]').forEach(b=> b.onclick = ()=>{ if(!confirm('Apagar esta gravação?')) return; delete VOZ.dados[b.dataset.del]; if(VOZ.sel === b.dataset.del) VOZ.sel = null; try{ if(fbDb) fbDb.ref('coachVoz/' + b.dataset.del).remove(); }catch(e){} pintaL(); pintaFx(); });
+    };
+    pintaFx();
+    try{ if(fbDb) fbDb.ref('coachVoz').once('value').then(sn=>{ const v = sn.val() || {}; VOZ.dados = {}; Object.keys(v).forEach(k=>{ if(v[k] && v[k].d) VOZ.dados[k] = { d: v[k].d, o: v[k].o || null, fx: v[k].fx || null }; }); pintaL(); pintaFx(); }, ()=> pintaL()); else pintaL(); }catch(e){ pintaL(); }
   }
-  function vgrPara(){ try{ if(VGR.rec && VGR.rec.state !== 'inactive') VGR.rec.stop(); }catch(e){} }
-  async function vgrGrava(id, btn, pinta){
-    if(VGR.rec && VGR.rec.state === 'recording'){ vgrPara(); return; }
+  function vozPara(){ try{ if(VOZ.rec && VOZ.rec.state !== 'inactive') VOZ.rec.stop(); }catch(e){} }
+  async function vozGrava(id, btn, pinta){
+    if(VOZ.rec && VOZ.rec.state === 'recording'){ vozPara(); return; }
     let st; try{ st = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }); }catch(e){ toast('Sem acesso ao microfone: autoriza o microfone no browser'); return; }
     const tipo = ['audio/webm;codecs=opus', 'audio/ogg;codecs=opus', 'audio/mp4', 'audio/webm'].find(t=> window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || '';
-    const rec = new MediaRecorder(st, tipo ? { mimeType: tipo, audioBitsPerSecond: 32000 } : undefined); VGR.rec = rec; VGR.chunks = [];
-    rec.ondataavailable = e=>{ if(e.data && e.data.size) VGR.chunks.push(e.data); };
-    rec.onstop = ()=>{ st.getTracks().forEach(t=> t.stop()); clearTimeout(VGR.tm); const blob = new Blob(VGR.chunks, { type: rec.mimeType || 'audio/webm' });
+    const rec = new MediaRecorder(st, tipo ? { mimeType: tipo, audioBitsPerSecond: 40000 } : undefined); VOZ.rec = rec; VOZ.chunks = [];
+    rec.ondataavailable = e=>{ if(e.data && e.data.size) VOZ.chunks.push(e.data); };
+    rec.onstop = async ()=>{ st.getTracks().forEach(t=> t.stop()); clearTimeout(VOZ.tm); const blob = new Blob(VOZ.chunks, { type: rec.mimeType || 'audio/webm' });
       if(blob.size < 1500){ toast('Gravação muito curta'); pinta(); return; }
-      const fr = new FileReader(); fr.onload = ()=>{ VGR.dados[id] = fr.result; try{ if(fbDb) fbDb.ref('coachVoz/' + id).set({ d: fr.result, t: Date.now() }).then(()=> toast('🎙️ Gravado'), e=> toast('Não gravou no Firebase: ' + (e.code || e.message))); }catch(e){}
-        try{ new Audio(fr.result).play(); }catch(e){} pinta(); }; fr.readAsDataURL(blob); };
-    rec.start(); btn.textContent = '■ Parar'; btn.classList.add('rec'); VGR.tm = setTimeout(vgrPara, 6000);
+      const url = await vozUrl(blob); VOZ.dados[id] = { d: url }; VOZ.sel = id;
+      if(VOZ.fx.auto){ try{ await vozAplica(id, VOZ.fx); }catch(e){} } else { try{ if(fbDb) fbDb.ref('coachVoz/' + id).set({ d: url, t: Date.now() }).catch(e=> toast('Não gravou no Firebase: ' + (e.code || e.message))); }catch(e){} }
+      try{ new Audio(VOZ.dados[id].d).play(); }catch(e){} toast('🎙️ Gravado'); pinta(); };
+    rec.start(); btn.textContent = '■ Parar'; btn.classList.add('rec'); VOZ.tm = setTimeout(vozPara, 6000);
   }
-  document.getElementById('navVoz').addEventListener('click', vgrAbre);
+  document.getElementById('navVoz').addEventListener('click', vozAbre);
   document.getElementById('navSala').addEventListener('click', ()=> SALA.abre());   // mapa da sala   // editor dos bonecos
   $('homeNewBtn').addEventListener('click', ()=>{ resetTreino(); setView('plan'); });
   // abrir uma aula leva sempre ao planeamento
