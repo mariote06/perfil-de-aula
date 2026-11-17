@@ -7746,7 +7746,7 @@ body:has(#setupScreen.active) .legal{display:none}
   // botão "Ligar" da bike: com o mapa da sala abre a planta; sem mapa, a lista do Bluetooth
   // a planta é lida antes de o aluno tocar em "Ligar" (o Bluetooth só abre se for logo a seguir ao toque)
   async function bkPrepara(){ if(BKS.prep) return; BKS.prep = 1; try{ const sala = await bkSala(); BKS.pre = { pin, sala, m: sala ? await bkMapa(sala) : null }; }catch(e){} BKS.prep = 0; }
-  setInterval(()=>{ if(pin && (!BKS.pre || BKS.pre.pin !== pin)) bkPrepara(); }, 3000);
+  setInterval(()=>{ if(pin && (!BKS.pre || BKS.pre.pin !== pin || !BKS.pre.m)) bkPrepara(); }, 3000);   // sem planta (falhou a rede): tenta outra vez
   async function ligarBike(){
     if(demo) return;
     if(!hasBluetooth && !bikeConnected()){ showBtWarning(); return; }
@@ -7754,7 +7754,8 @@ body:has(#setupScreen.active) .legal{display:none}
     if(BKS.pre && BKS.pre.pin === pin){ sala = BKS.pre.sala; m = BKS.pre.m; bkPrepara(); }
     else { sala = await bkSala(); m = sala ? await bkMapa(sala) : null; }
     // telemóvel novo (ainda não sabe a sala nem tem plantas guardadas): vai buscar as plantas das duas salas e mostra a que existir
-    if(!sala){ const SS = Object.keys(SALAS), ms = await Promise.all(SS.map(x=> bkMapa(x).catch(()=> null)));
+    // sem sala, ou a sala detetada ainda não tem planta (ex.: Penafiel por preencher): procura a planta nas duas salas
+    if(!sala || !m || !Array.isArray(m.b) || !m.b.some(b=> !b.p)){ const SS = Object.keys(SALAS), ms = await Promise.all(SS.map(x=> bkMapa(x).catch(()=> null)));
       const i = ms.findIndex(x=> x && x.pl !== 0 && Array.isArray(x.b) && x.b.some(b=> !b.p)); if(i >= 0){ sala = SS[i]; m = ms[i]; } }
     // já ligada: com planta abre-a (dá para mudar de lugar ou desligar); sem planta pergunta se queres desligar
     if(bikeConnected()){ if(m && m.pl !== 0 && m.b.some(b=> !b.p)) return bkAbre(sala, m); connectBike(false); return; }
