@@ -1041,6 +1041,7 @@ body.ecra4-on #kartCog{display:none!important;}
 .bk-numf button{background:var(--accent);color:#140a03;border:0;border-radius:10px;font:800 15px Inter,sans-serif;padding:11px 14px;white-space:nowrap}
 .bk-desl{width:100%;border:2px solid #FF5A5A;background:rgba(255,90,90,.12);color:#FF8A8A;border-radius:14px;font:800 16px Inter,sans-serif;padding:12px}
 .bk-ou{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.bk-salas .bk-semsala{border-style:dashed}
 .bk-lista{background:none;border:0;color:var(--muted);text-decoration:underline;font:inherit;font-size:13px;padding:6px}
 .bk-dica{color:var(--muted);font-size:14px;margin:20px 0}
 .home .home-grid.tabs{grid-template-columns:repeat(3,1fr)!important}
@@ -7769,7 +7770,7 @@ body:has(#setupScreen.active) .legal{display:none}
     const pinta = ()=>{
       const mm = BKS.mapa, eu = bkMeu();
       let h = '<div class="bk-box"><div class="bk-h"><b>Em que bike estás?</b><button type="button" class="bk-x" aria-label="Fechar">✕</button></div>' +
-        '<div class="bk-salas">' + Object.keys(SALAS).map(k=> '<button type="button" data-s="' + k + '" class="' + (k === BKS.sala ? 'on' : '') + '">' + SALAS[k] + '</button>').join('') + '</div>';
+        '<div class="bk-salas">' + Object.keys(SALAS).map(k=> '<button type="button" data-s="' + k + '" class="' + (k === BKS.sala ? 'on' : '') + '">' + SALAS[k] + '</button>').join('') + '<button type="button" class="bk-semsala" title="Procurar qualquer aparelho com potência ou cadência">Sem sala</button></div>';
       // pelo número: o aluno escreve o número que está na bike e a app liga ao sensor dessa bike
       if(mm && mm.b.some(b=> !b.p)) h += '<form class="bk-numf"><label for="bkNumIn">Nº da bike</label><input id="bkNumIn" type="text" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="—" value="' + (eu && eu.s === BKS.sala && eu.n !== 'prof' ? escapeHtml(String(eu.n)) : '') + '"><button type="submit">Ligar</button></form><div class="bk-ou">ou toca na tua bike na sala</div>';
       if(!mm || !mm.b.length) h += '<p class="bk-dica">Ainda não há planta desta sala.</p>';
@@ -7787,12 +7788,16 @@ body:has(#setupScreen.active) .legal{display:none}
             (b.p ? '🎤' + (tam > 44 ? '<small>professor</small>' : '') : escapeHtml(String(b.n))) + (oc ? '<small>' + escapeHtml(oc) + '</small>' : '') + '</button>'; }).join('') + '</div>' + (mm.f === 'b' ? ecra : '');
       }
       if(bikeConnected()) h += '<button type="button" class="bk-desl">⏏ Desligar ' + escapeHtml(/^Bike /.test(bkNome(S.bikeName || '')) ? 'a ' + bkNome(S.bikeName || '') : 'a bike') + '</button>';
-      h += '<button type="button" class="bk-lista">A minha bike não está aqui · procurar na lista</button></div>';
+      h += '</div>';
       d.innerHTML = h; d.classList.add('on');
       d.querySelector('.bk-x').onclick = ()=> d.classList.remove('on');
       d.onclick = e=>{ if(e.target === d) d.classList.remove('on'); };
       d.querySelectorAll('.bk-salas [data-s]').forEach(b=> b.onclick = async ()=>{ BKS.sala = b.dataset.s; try{ localStorage.setItem('prSala', BKS.sala); }catch(e){} BKS.mapa = await bkMapa(BKS.sala); pinta(); });
-      d.querySelector('.bk-lista').onclick = ()=>{ d.classList.remove('on'); connectBike(false); };
+      // sem sala: qualquer aparelho que transmita potência ou cadência (rolo, bike em casa, outro ginásio); larga a bike da planta
+      d.querySelector('.bk-semsala').onclick = ()=>{ d.classList.remove('on'); bkLarga(); if(bikeConnected()) disconnectBike();
+        const sl = BKS.sala, mp = BKS.mapa;
+        // se fechares a janela do Bluetooth sem escolher nada, volta a janela das salas
+        Promise.resolve(connectBike(false)).catch(()=>{}).then(()=>{ if(!bikeConnected() && !S.bikeDev) bkAbre(sl, mp); }); };
       d.querySelectorAll('.bk-b:not(.prof)').forEach(el=> el.onclick = ()=> bkEscolhe(el.dataset.n));
       d.querySelectorAll('.bk-b.prof').forEach(el=> el.onclick = ()=> bkEscolhe('prof'));   // a bike do professor também se pode ligar (pede confirmação)
       const fd = d.querySelector('.bk-desl'); if(fd) fd.onclick = ()=>{ disconnectBike(); d.classList.remove('on'); toast('Bike desligada'); };
