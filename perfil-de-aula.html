@@ -9946,44 +9946,42 @@ const SR3 = (()=>{
     const sc = Math.max(.5, Math.min(1.6, fh / 118, sw / 150));
     CR.chao = (CR.chao + dt * 140) % 46;
     const gapTxt = crGap;
-    // cada pista: o primeiro da pista fica à direita; os outros afastam-se ou aproximam-se conforme a diferença (escala estável)
-    const xR = W - 20 - .5 * sw, larg = W - 40 - sw * .9, minSep = Math.min(sw * .98, 165 * sc);
-    // escala de cada pista (muda devagar): vê-se quem se aproxima e quem se afasta
-    CR.escF = CR.escF || [];
-    for(let f = 0; f < nF; f++){ const a = L[f * POR], z = L[Math.min(L.length - 1, f * POR + POR - 1)], sp = crVal(a) - crVal(z), alvo = sp > 0 ? larg / sp : 0;
-      CR.escF[f] = CR.escF[f] ? CR.escF[f] + (alvo - CR.escF[f]) * Math.min(1, dt * .4) : alvo; }
-    const alvoX = new Array(L.length);
-    for(let k = 0; k < L.length; k++){ const lead = L[Math.floor(k / POR) * POR];
-      let x = k % POR === 0 ? xR : xR - (crVal(lead) - crVal(L[k])) * (CR.escF[Math.floor(k / POR)] || 0);
-      if(k % POR) x = Math.min(x, alvoX[k - 1] - minSep);
-      alvoX[k] = Math.max(20 + .45 * sw * .6, x); }
-    for(let k = L.length - 1; k >= 0; k--){ if(k % POR !== POR - 1 && k + 1 < L.length && Math.floor((k + 1) / POR) === Math.floor(k / POR)) alvoX[k] = Math.max(alvoX[k], alvoX[k + 1] + minSep); }
-    L.forEach((r, k)=>{ const S = CR.st[r.id] || (CR.st[r.id] = { ang: Math.random() * 6 }); S.px = S.px == null ? alvoX[k] : S.px + (alvoX[k] - S.px) * Math.min(1, dt * 3); S.py = topo + Math.floor(k / POR) * fh + fh - 34 * sc; S.pyS = S.pyS == null ? S.py : S.pyS + (S.py - S.pyS) * Math.min(1, dt * 7); });
-    // nunca se sobrepõem: dentro de cada pista, cada bicicleta fica pelo menos minSep atrás da da frente
-    const dx = L.map(r=> CR.st[r.id].px), xMin = 20 + 70 * sc;
-    for(let k = 0; k < L.length; k++){ if(k % POR) dx[k] = Math.min(dx[k], dx[k - 1] - minSep); }
-    for(let f = 0; f < nF; f++){ const i0 = f * POR, i1 = Math.min(L.length, i0 + POR) - 1; if(dx[i1] < xMin){ const fixo = dx[i0], esc = (fixo - xMin) / Math.max(1, fixo - dx[i1]); for(let k = i0 + 1; k <= i1; k++) dx[k] = fixo - (fixo - dx[k]) * esc; } }
+    // escala única para toda a corrida (muda devagar): a distância no ecrã é a distância real entre bicicletas
+    const xR = W - 20 - .5 * sw, xMin = 20 + 70 * sc, larg = xR - xMin, minSep = Math.min(sw * .98, 165 * sc);
+    { const sp = crVal(L[0]) - crVal(L[L.length - 1]), alvo = sp > 0 ? larg / sp : 0; CR.esc = CR.esc ? CR.esc + (alvo - CR.esc) * Math.min(1, dt * .4) : alvo; }
+    const alvoX = L.map(r=> Math.max(xMin, xR - (crVal(L[0]) - crVal(r)) * (CR.esc || 0)));
+    // pistas livres: cada bicicleta fica na sua pista enquanto houver espaço; se ia tocar noutra, sobe ou desce para a pista livre mais próxima
+    const ocup = Array.from({ length: nF }, ()=> []), pista = new Array(L.length);
+    L.forEach((r, k)=>{
+      const S = CR.st[r.id] || (CR.st[r.id] = { ang: Math.random() * 6 }), pref = S.lane != null && S.lane < nF ? S.lane : Math.min(nF - 1, Math.floor(k / POR));
+      const livre = f=> ocup[f].every(x=> Math.abs(x - alvoX[k]) >= minSep);
+      let f = -1; for(let dd = 0; dd < nF && f < 0; dd++){ for(const c of [pref - dd, pref + dd]) if(c >= 0 && c < nF && f < 0 && livre(c)) f = c; }
+      if(f < 0){   // sem espaço em nenhuma pista: fica na que tem mais folga e encosta atrás da bicicleta da frente
+        let melhor = pref, folga = -1; for(let c = 0; c < nF; c++){ const m = Math.min(...ocup[c].map(x=> Math.abs(x - alvoX[k])), 1e9); if(m > folga){ folga = m; melhor = c; } }
+        f = melhor; const frente = ocup[f].filter(x=> x >= alvoX[k] - minSep); if(frente.length) alvoX[k] = Math.max(xMin, Math.min(...frente) - minSep); }
+      ocup[f].push(alvoX[k]); pista[k] = f; S.lane = f;
+      S.px = S.px == null ? alvoX[k] : S.px + (alvoX[k] - S.px) * Math.min(1, dt * 3);
+      S.py = topo + f * fh + fh - 34 * sc; S.pyS = S.pyS == null ? S.py : S.pyS + (S.py - S.pyS) * Math.min(1, dt * 4);
+    });
+    const dx = L.map(r=> CR.st[r.id].px);
     const pos = k=> ({ x: dx[k], y: CR.st[L[k].id].pyS });
     for(let f = 0; f < nF; f++){   // estrada de cada pista
       const gy = topo + f * fh + fh - 34 * sc + 20 * sc;
       ctx.strokeStyle = 'rgba(255,255,255,.09)'; ctx.lineWidth = 2; for(let x = -CR.chao; x < W; x += 46){ ctx.beginPath(); ctx.moveTo(x, gy); ctx.lineTo(x + 22, gy); ctx.stroke(); }
       if(f){ ctx.fillStyle = 'rgba(255,255,255,.05)'; ctx.fillRect(0, topo + f * fh, W, 1); }
     }
-    // linhas da distância entre bicicletas seguidas
+    // distância entre bicicletas seguidas: na mesma pista e sem ninguém no meio, uma régua com os metros; senão, por baixo da bicicleta
     ctx.font = '800 ' + Math.round(18 * sc) + 'px "Barlow Condensed",sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    const notaGap = {};
     for(let k = 1; k < L.length; k++){
-      const a = pos(k - 1), b = pos(k), y = b.y + 20 * sc, txt = gapTxt(L[k - 1], L[k]);
-      if(k % POR){   // mesma pista: entre a de trás e a da frente
-        const x1 = b.x + 34 * sc, x2 = a.x - 34 * sc; if(x2 - x1 < 20) continue;
+      const a = pos(k - 1), b = pos(k), txt = gapTxt(L[k - 1], L[k]);
+      const junta = pista[k] === pista[k - 1] && !L.some((r, q)=> q !== k && q !== k - 1 && pista[q] === pista[k] && dx[q] < a.x && dx[q] > b.x);
+      const x1 = b.x + 34 * sc, x2 = a.x - 34 * sc;
+      if(junta && x2 - x1 >= 40 * sc){ const y = b.y + 20 * sc;
         ctx.strokeStyle = 'rgba(255,214,10,.55)'; ctx.lineWidth = 2 * sc; ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.moveTo(x1, y - 6 * sc); ctx.lineTo(x1, y + 6 * sc); ctx.moveTo(x2, y - 6 * sc); ctx.lineTo(x2, y + 6 * sc); ctx.stroke();
         const xm = (x1 + x2) / 2, tw = ctx.measureText(txt).width + 12 * sc;
         ctx.fillStyle = '#0A0D12'; ctx.fillRect(xm - tw / 2, y - 11 * sc, tw, 22 * sc); ctx.fillStyle = '#FFD60A'; ctx.fillText(txt, xm, y);
-      } else {   // mudança de pista: do último da pista de cima (5º) para o primeiro da seguinte (6º)
-        const x2 = W - 8, x1 = b.x + 34 * sc, ya = a.y + 20 * sc;
-        ctx.strokeStyle = 'rgba(255,214,10,.55)'; ctx.lineWidth = 2 * sc; ctx.setLineDash([6 * sc, 5 * sc]); ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.lineTo(x2, ya); ctx.lineTo(a.x - 34 * sc, ya); ctx.stroke(); ctx.setLineDash([]);
-        const xm = (x1 + x2) / 2, lbl = '↑ ' + (k) + 'º · ' + txt, tw = ctx.measureText(lbl).width + 12 * sc;
-        ctx.fillStyle = '#0A0D12'; ctx.fillRect(xm - tw / 2, y - 11 * sc, tw, 22 * sc); ctx.fillStyle = '#FFD60A'; ctx.fillText(lbl, xm, y);
-      }
+      } else notaGap[k] = (pista[k] < pista[k - 1] ? '↓ ' : pista[k] > pista[k - 1] ? '↑ ' : '→ ') + k + 'º · ' + txt;
     }
     // bicicletas
     L.forEach((r, k)=>{
@@ -10001,6 +9999,9 @@ const SR3 = (()=>{
       ctx.fillStyle = '#fff'; ctx.fillText(nm, x0 + wpo, ty);
       ctx.textAlign = 'center'; ctx.font = '700 ' + Math.round(19 * sc) + 'px "Barlow Condensed",sans-serif'; ctx.fillStyle = cor;
       ctx.fillText(Math.round(r.w || 0) + ' W · ' + (r.v || 0).toFixed(1).replace('.', ',') + ' km/h' + (CR.crit === 'zona' ? ' · ' + Math.round(crZona(r)) + '% zona' : CR.crit === 'pts' ? ' · ' + Math.round(r.pts || 0) + ' pts' : ''), P.x, ty + 21 * sc);
+      if(notaGap[k]){   // à frente da roda da frente, à altura da bicicleta (não tapa o nome da pista de baixo)
+        ctx.font = '800 ' + Math.round(16 * sc) + 'px "Barlow Condensed",sans-serif'; const tw = ctx.measureText(notaGap[k]).width + 10 * sc, xx = P.x + 44 * sc, yy = P.y - 30 * sc;
+        ctx.fillStyle = 'rgba(10,13,18,.85)'; ctx.fillRect(xx, yy - 10 * sc, tw, 20 * sc); ctx.fillStyle = '#FFD60A'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(notaGap[k], xx + 5 * sc, yy); ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; }
     });
   }
   function renderRiders(){
