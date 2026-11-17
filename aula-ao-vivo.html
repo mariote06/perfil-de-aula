@@ -195,6 +195,42 @@ body:has(#liveScreen.active) .legal{display:none;}
 .chip.on .dot{background:var(--ok);box-shadow:0 0 6px var(--ok);}
 .rank{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:20px;color:#fff;}
 .rank small{font-size:13px;color:var(--muted);font-family:'Inter',sans-serif;font-weight:500;}
+.coach-bal{position:fixed;right:8px;top:42%;z-index:60;display:flex;flex-direction:row-reverse;align-items:center;gap:8px;max-width:calc(100vw - 16px);pointer-events:none;opacity:0;transition:opacity .4s}
+body:has(#liveScreen.active) .coach-bal.vivo{opacity:1}
+.coach-bal>i{font-style:normal;flex:none;width:62px;height:62px;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5));transition:transform .3s}
+.coach-bal.on>i{transform:scale(1.18)}
+.coach-bal>span{display:block;max-width:0;overflow:hidden;white-space:normal;background:rgba(18,22,29,.97);border:2px solid var(--cb,#E8722C);border-radius:16px 16px 4px 16px;padding:0;color:#fff;font:700 clamp(15px,4.3vw,19px)/1.28 Inter,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.55);opacity:0;transition:max-width .35s,opacity .25s,padding .35s}
+.coach-bal.on>span{max-width:min(74vw,440px);padding:10px 14px;opacity:1}
+.coach-bal>span small{display:block;font:800 10px Inter,sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--cb,#E8722C);margin-bottom:2px}
+.coach-bal .cav svg{width:100%;height:100%;overflow:visible}
+/* vida: respira, balança os braços, pestaneja e olha à volta (o JS muda as classes ao acaso) */
+.cav .cor{transform-origin:100px 120px;animation:cavBate .9s ease-in-out infinite}
+.cav .corpo{transform-origin:100px 170px;animation:cavResp 3.2s ease-in-out infinite}
+@keyframes cavResp{0%,100%{transform:translateY(0) rotate(0)}50%{transform:translateY(-3px) rotate(-1.5deg)}}
+.cav.forte .cor,.cav.alerta .cor{animation-duration:.45s}.cav.calmo .cor{animation-duration:1.4s}
+@keyframes cavBate{0%,100%{transform:scale(1)}15%{transform:scale(1.07)}30%{transform:scale(.97)}45%{transform:scale(1.03)}}
+.cav .olho{transform-box:fill-box;transform-origin:center;transition:transform .08s}.cav.pisca .olho{transform:scaleY(.08)}
+.cav .pup{transition:transform .35s ease-out;transform:translate(var(--ox,0px),var(--oy,0px))}
+.cav .boca{transform-box:fill-box;transform-origin:center top}
+.cav.fala .boca{animation:cavFala .2s ease-in-out infinite alternate}
+@keyframes cavFala{from{transform:scaleY(.4)}to{transform:scaleY(1.15)}}
+.cav .bl,.cav .br{transform-box:fill-box;transform-origin:50% 0}
+.cav .bl{animation:cavBalL 2.6s ease-in-out infinite}.cav .br{animation:cavBalR 2.9s ease-in-out infinite}
+@keyframes cavBalL{0%,100%{transform:rotate(0)}50%{transform:rotate(9deg)}}@keyframes cavBalR{0%,100%{transform:rotate(0)}50%{transform:rotate(-9deg)}}
+.cav.acena .br{animation:cavAcena .28s ease-in-out 6 alternate}@keyframes cavAcena{from{transform:rotate(-20deg)}to{transform:rotate(-75deg)}}
+.cav.puxa .bl{animation:cavPuxaL .45s ease-in-out infinite alternate}.cav.puxa .br{animation:cavPuxaR .45s ease-in-out infinite alternate}
+@keyframes cavPuxaL{from{transform:rotate(0)}to{transform:rotate(28deg)}}@keyframes cavPuxaR{from{transform:rotate(0)}to{transform:rotate(-28deg)}}
+.cav.festa .bl{animation:cavFestaL .3s ease-in-out infinite alternate}.cav.festa .br{animation:cavFestaR .3s ease-in-out infinite alternate}
+@keyframes cavFestaL{from{transform:rotate(40deg)}to{transform:rotate(120deg)}}@keyframes cavFestaR{from{transform:rotate(-40deg)}to{transform:rotate(-120deg)}}
+.cav.festa .corpo{animation:cavSalta .5s ease-in-out infinite}@keyframes cavSalta{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.cav.zanga .bl,.cav.zanga .br{animation:none}.cav.zanga .bl{transform:rotate(-70deg)}.cav.zanga .br{transform:rotate(70deg)}
+.cav.zanga .corpo{animation:cavAbana .18s ease-in-out 6 alternate}@keyframes cavAbana{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+.cav .suor{opacity:0}.cav.sua .suor{animation:cavSuor 1s ease-in infinite}
+@keyframes cavSuor{0%{opacity:0;transform:translateY(-6px)}30%{opacity:1}100%{opacity:0;transform:translateY(14px)}}
+.cav .vel{opacity:0}.cav.puxa .vel,.cav.forte .vel{opacity:1;animation:cavVel .4s linear infinite}
+@keyframes cavVel{from{transform:translateX(6px)}to{transform:translateX(-6px)}}
+.cav .fumo{opacity:0}.cav.zanga .fumo{opacity:1;animation:cavFumo .8s ease-out infinite}@keyframes cavFumo{from{opacity:.9;transform:translateY(0)}to{opacity:0;transform:translateY(-16px)}}
+.coachchip{font-size:16px}.coachchip.texto{opacity:.85}.coachchip.off{opacity:.45;filter:grayscale(1)}
 .leave-btn{
   background:#3DD45C;border:none;color:#06210d;padding:10px 13px;border-radius:10px;
   font-size:14px;font-weight:800;letter-spacing:.2px;min-height:42px;margin-left:auto;white-space:nowrap;
@@ -357,6 +393,24 @@ body:has(#liveScreen.ecra5) .nx-float,body:has(#liveScreen.ecra5) .nx-burst{disp
 .acct-head{display:flex;justify-content:space-between;align-items:center;text-align:left;}
 .acct-name{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;}
 .ftp-mini{width:76px;background:var(--surface-2);border:1px solid var(--border);color:#fff;border-radius:8px;padding:8px;font-size:16px;font-weight:700;text-align:center;}
+.rel-btn{width:100%;display:block;text-align:left;margin:4px 0 10px;padding:12px 14px;border-radius:14px;border:1.5px solid rgba(31,200,176,.6);background:linear-gradient(120deg,rgba(31,200,176,.18),var(--surface) 70%);color:#fff;cursor:pointer}
+.rel-btn b{display:block;font-size:16px}.rel-btn span{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.rel-ov{position:fixed;inset:0;z-index:9000;background:#0A0D12;overflow:auto;display:none;-webkit-overflow-scrolling:touch}.rel-ov.on{display:block}
+.rel-c{max-width:640px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 18px) 16px 40px;color:var(--text);text-align:left}
+.rel-c h2{font-family:'Barlow Condensed',sans-serif;font-size:30px;margin:0 0 4px}.rel-c h3{font-size:16px;margin:20px 0 8px}
+.rel-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.rel-kpi>div{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center}
+.rel-kpi b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:28px;line-height:1.05}.rel-kpi b small{font-size:.5em}.rel-kpi span{font-size:11px;color:var(--muted)}
+.rel-bars{position:relative;display:flex;align-items:flex-end;gap:6px;height:130px;margin-top:22px;border-bottom:1px solid var(--border)}
+.rel-bars>div{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}.rel-bars i{display:block;width:100%;border-radius:6px 6px 0 0;min-height:2px}.rel-bars span{font-size:11px;color:var(--muted);margin-top:3px}
+.rel-bars>b{position:absolute;left:0;right:0;border-top:1px dashed #3DD45C;font-size:10px;color:#3DD45C;font-weight:700;text-align:right;transform:translateY(0)}
+.rel-leg{font-size:11.5px;color:var(--muted);margin-top:16px}
+.rel-zb{display:flex;height:22px;border-radius:8px;overflow:hidden}.rel-zl{display:flex;flex-wrap:wrap;gap:6px 12px;margin-top:8px;font-size:12px;color:var(--muted)}.rel-zl i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:middle}.rel-zl b{color:#fff}
+.rel-sp{width:100%;height:70px;background:var(--surface);border-radius:10px}
+.rel-pos{margin:0;padding-left:18px;line-height:1.5}.rel-pos li{margin-bottom:4px}
+.rel-s{display:flex;gap:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px}.rel-s>i{font-style:normal;font-size:24px}.rel-s b{font-size:15px}.rel-s p{margin:4px 0 0;font-size:13.5px;line-height:1.45;color:#c9d1dd}
+.rel-fc{margin-top:18px;border:2px solid #FF3B5C;border-radius:14px;padding:12px 14px;background:linear-gradient(160deg,rgba(255,59,92,.14),var(--surface) 70%)}.rel-fc h3{margin:0 0 6px}.rel-fc p,.rel-fc li{font-size:13.5px;line-height:1.45;color:#dfe5ee}.rel-fc ul{padding-left:18px}
+.rel-mt{margin-top:18px;font-size:12.5px;color:var(--muted)}.rel-mt summary{cursor:pointer;color:#c9d1dd}
+.rel-fecha{width:100%;margin-top:18px}
 .acct-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:6px;}
 .acct-stats > div{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 6px;}
 .acct-stats .v{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;}
@@ -1212,7 +1266,7 @@ body:has(#setupScreen.active) .legal{display:none}
   <div class="home-hello" id="homeHello"></div>
   <p class="home-msg" id="moodPhrase"></p>
   <button class="ficha-upd" id="fichaUpd" style="display:none"><b>📋 Atualiza a tua ficha</b><span>Acrescentámos o campo <b>Sexo</b>. Toca aqui para o indicar (30 segundos).</span></button>
-  <div class="reg-home" id="regHome" style="display:none"><div><b>Cria a tua conta grátis</b><span>Guarda todos os teus treinos e acompanha a tua evolução.</span></div><button type="button" class="btn-reg" id="regHomeBtn">Criar conta</button></div>
+  <div class="reg-home" id="regHome" style="display:none"><div><b>Ainda não tens ficha?</b><span>Cria a tua ficha grátis: guarda os teus treinos e acompanha a tua evolução.</span></div><button type="button" class="btn-reg" id="regHomeBtn">📋 Criar ficha</button></div>
   <div class="home-grid tabs" id="homeTabs">
     <button class="tile" id="tHist" style="--tc:#A35CFF"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg><b>Treinos realizados</b><span id="tHistSub">Gráficos e evolução dos teus treinos</span></button>
     <button class="tile" id="tAv" style="--tc:#1FC8B0"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="17" r="3.5"/><circle cx="18" cy="17" r="3.5"/><path d="M6 17l4-7h5l3 7M10 10l-1.5-3H6M14 6h2.5"/><circle cx="13.5" cy="4" r="1.6"/></svg><b>O meu ciclista</b><span>Veículo, roupa e cores no percurso</span></button>
@@ -1430,6 +1484,7 @@ body:has(#setupScreen.active) .legal{display:none}
       </div>
     </div>
     <div class="acct-stats" id="acctStats"></div>
+    <button type="button" class="rel-btn" id="relBtn" style="display:none"><b>📊 O meu relatório de desempenho</b><span>Carga, zonas cardíacas, evolução e sugestões para melhorar</span></button>
     <div class="section-t">Treinos realizados</div>
     <div id="treinoList"></div>
     <div id="treinoDetail" style="display:none"></div>
@@ -1480,7 +1535,7 @@ body:has(#setupScreen.active) .legal{display:none}
   <button id="enterBtn" class="btn-primary">Entrar na aula</button>
   <div id="setupError" class="err"></div>
   <button id="demoBtn" class="btn-link">Experimentar sem bike (modo teste)</button>
-  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 17/11 09:45</div>
+  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 17/11 13:00</div>
 </div>
 
 <!-- 3. AULA -->
@@ -1563,10 +1618,12 @@ body:has(#setupScreen.active) .legal{display:none}
       </div>
     </div>
     <button class="chip warnchip" id="chipSafety" aria-label="Aviso de segurança">⚠</button>
+    <button class="chip coachchip" id="chipCoach" aria-label="Coach virtual: voz, texto ou desligado" title="Coach virtual">🗣️</button>
     <button class="chip occhip" id="chipOculto" aria-pressed="false" aria-label="Aparecer ou não na projeção" title="Aparecer ou não na projeção"></button>
     <div class="rank" id="rankEl"></div>
     <button class="leave-btn" id="leaveBtn">GRAVAR &amp; SAIR</button>
   </div>
+  <div class="coach-bal" id="coachBal" aria-live="polite"><i class="cav"></i><span></span></div>
   <div class="safety safety-banner" id="safetyBanner" role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 2 20h20z"/><path d="M12 10v4M12 17.5v.01"/></svg><div id="safetyBannerTxt">Sentes <b>desconforto, dor no peito, tonturas ou falta de ar</b>? <b>Pára de pedalar</b> e pede ajuda ao professor da aula.</div><button id="safetyClose" aria-label="Fechar aviso">✕</button></div>
   <div class="body" id="bodyEl">
     <div class="neon-chao" id="neonChao1" aria-hidden="true"></div>
@@ -1846,6 +1903,133 @@ body:has(#setupScreen.active) .legal{display:none}
     if(inn) inn.textContent = 'em ' + Math.ceil(remaining);
     nxRoom(true, card);
   }
+  // ===== COACH MOTIVACIONAL VIRTUAL =====
+  // Durante a aula fala ao ouvido (voz do telemóvel, melhor com auriculares) e mostra a frase no ecrã.
+  // Reage à zona, ao fim do bloco, à cadência, às ultrapassagens, aos recordes e à FC muito alta. Modo: voz · texto · desligado (botão 🗣️).
+  const COACH = { modo: (()=>{ try{ return localStorage.getItem('prCoach') || 'voz'; }catch(e){ return 'voz'; } })(), ult: 0, cd: {}, bi: -1, fora: 0, dentro: 0, cadFora: 0, fcAlta: 0, pos: null, recW: 0, t0: 0, voz: null,
+    anunciou: -1, ult15: -1, avisos: 0, parado: 0, raspas: 0, usados: {}, humor: 'feliz' };
+  // O "Pulso" — o coração-treinador: bem-disposto, brincalhão, exigente quando é preciso. Fala contigo pelo nome.
+  const COACH_TXT = {
+    inicio: ['{nome}, este bloco é teu. Bora!', 'Vamos lá, {nome}! Cabeça no alvo e pernas a trabalhar.', 'Novo bloco, nova batalha. Estou contigo!', 'Respira fundo… e ataca! 💥', 'Hora de mostrar o que vales, {nome}!', 'Agora começa a parte boa. Confia em ti!'],
+    baixo: ['{nome}, falta-te um bocadinho: estás a {p}%, o alvo é {a}.', 'Eu sei que tens mais aí dentro. Sobe para {a}!', 'Mais um dente na resistência, {nome}. Vamos para {a}.', 'Está quase, só mais um empurrão! Alvo {a}.', 'Não me deixes cá sozinho em cima, {nome}! Sobe para {a}.', 'Força nesses pedais, que o alvo é {a}!'],
+    alto: ['Ei, ei, {nome}! Calma que ainda há aula. Alvo {a}.', 'Estás a voar! Guarda um pouco para depois: alvo {a}.', 'Que energia! Mas hoje o alvo é {a}. Baixa só um bocadinho.', 'Tira o pé do acelerador, {nome}. O treino certo é em {a}.', 'Uau, {p}%! Gosto da garra, mas fica em {a}.'],
+    dentro: ['Isso, {nome}! Exatamente aí.', 'Perfeito. Assim é que se treina!', 'Estou a sentir: estás na zona certa! ❤️', 'Que ritmo bonito, {nome}. Mantém!', 'Nem eu batia melhor. Continua assim!', 'Zona certa, cabeça fria. És um profissional!', 'Olha só para ti, {nome}. Impecável!'],
+    ultimos: ['Últimos 15 segundos, {nome}! Esvazia o tanque!', 'Só mais 15! Dá tudo o que tens!', 'Reta final! Agora é coração e cabeça!', 'Quinze segundos, {nome}! Vais conseguir!'],
+    cadBaixa: ['As pernas estão preguiçosas, {nome}! Cadência {r} rpm.', 'Mais rotação! Quero {r} rpm.', 'Gira mais depressa, {nome}: {r} rpm.', 'Pedalada mais solta, vamos aos {r} rpm!'],
+    cadAlta: ['Isso não é uma batedeira, {nome}! Mais carga, {r} rpm.', 'Calma nas rotações: põe resistência e fica nos {r} rpm.', 'Pedalada mais pesada e controlada: {r} rpm.'],
+    sobe: ['Ultrapassagem! Estás em {n}º, {nome}! 🔥', 'Boa, {nome}! Subiste para {n}º!', 'Quem é que vai em {n}º? És tu! Continua!'],
+    rec: ['{w} watts! Recorde da aula, {nome}! 🤩', 'Uau! {w} watts. Esse é o teu máximo de hoje!', 'Novo recorde: {w} watts. Que máquina!'],
+    fc: ['{nome}, o teu coração está a 95%. Respira e alivia uns segundos.', 'Ei, vai com calma: FC muito alta. Baixa um pouco.', 'Eu sou o teu coração e estou a pedir uma pausa. Alivia um bocadinho, {nome}.'],
+    meio: ['Já vamos a meio, {nome}! A melhor parte vem aí.', 'Metade feita! Estou orgulhoso de ti.', 'Meio da aula e estás a arrasar!'],
+    ultimo: ['Último bloco, {nome}! Fecha com chave de ouro!', 'É o último! Tudo o que guardaste, gasta agora!', 'Último esforço da aula. Vamos acabar em grande!'],
+    raspa: ['{nome}! Isto não é um passeio de domingo! Sobe para {a}, já!', 'Então, {nome}? Já te avisei três vezes. Alvo {a}, vamos!', 'Ó {nome}, assim não chegamos lá! Mais força, alvo {a}!', 'Eu não vim cá para te ver a passear! {a}, vá!'],
+    parado: ['{nome}, os pedais não andam sozinhos! Bora!', 'Então? Parado? A aula não parou, {nome}!', 'Ei! Volta a pedalar, que eu estou a contar contigo!'],
+    pisca: ['Estou de olho em ti, {nome} 👀', 'Bora, que isto está a correr bem!']
+  };
+  const COACH_SEG = ['Prepara-te, {nome}! A seguir:', 'Atenção que vem aí:', 'Já a seguir, {nome}:', 'Pronto para o próximo? Vem aí:', 'Olha o que vem a seguir:'];
+  const COACH_SEG_FIM = { 0: ['Vamos recuperar bem!', 'Respira e solta as pernas.'], 1: ['Ritmo confortável, vamos!', 'Bom para ganhar fôlego.'], 2: ['Vamos a isso!', 'Mantém a cabeça fria!'], 3: ['Isto vai doer, mas tu aguentas! 💪', 'Agora é a sério!'], 4: ['Prepara-te para sofrer bonito! 🔥', 'Hora de dar tudo!'], 5: ['Explosão total! 💥', 'Tudo ou nada!'], 6: ['Sprint! Dá o máximo!', 'Mostra-me o teu sprint!'] };
+  function coachEsc(tipo, A){ A = A || COACH_TXT[tipo] || [String(tipo)]; const u = COACH.usados[tipo] || (COACH.usados[tipo] = []);
+    let op = A.map((_, i)=> i).filter(i=> u.indexOf(i) < 0); if(!op.length){ u.length = 0; op = A.map((_, i)=> i); }
+    const k = op[Math.floor(Math.random() * op.length)]; u.push(k); if(u.length > A.length - 1) u.shift(); return A[k]; }
+  function coachNome(){ const n = String((perfil && perfil.nome) || me.n || '').trim().split(/\s+/)[0]; return n && !/^aluno/i.test(n) ? n : ''; }
+  const CAV_HUMOR = { inicio: 'puxa', baixo: 'puxa', alto: 'calmo', dentro: 'feliz', ultimos: 'forte', cadBaixa: 'puxa', cadAlta: 'calmo', sobe: 'festa', rec: 'festa', fc: 'alerta', meio: 'feliz', ultimo: 'forte', raspa: 'zanga', parado: 'zanga', seguir: 'festa', pisca: 'feliz' };
+  function cavSvg(h){
+    const cor = h === 'alerta' ? '#FF3B3B' : h === 'zanga' ? '#E8253F' : '#FF3B5C';
+    const sobr = { feliz: 'M70 92q10-6 20 0M110 92q10-6 20 0', puxa: 'M68 86l22 8M132 86l-22 8', forte: 'M68 84l22 10M132 84l-22 10', calmo: 'M70 94h20M110 94h20', alerta: 'M70 88q10 8 20 4M130 88q-10 8-20 4', festa: 'M70 90q10-10 20 0M110 90q10-10 20 0', zanga: 'M66 82l26 14M134 82l-26 14' }[h] || 'M70 92q10-6 20 0M110 92q10-6 20 0';
+    const boca = { feliz: 'M84 124q16 16 32 0z', puxa: 'M86 126h28q-2 12-14 12t-14-12z', forte: 'M82 122h36q-4 18-18 18t-18-18z', calmo: 'M88 128q12 6 24 0', alerta: 'M90 130a10 8 0 1 0 20 0a10 8 0 1 0 -20 0', festa: 'M80 120q20 26 40 0z', zanga: 'M84 136q16-12 32 0z' }[h] || 'M84 124q16 16 32 0z';
+    const aberta = h !== 'calmo';
+    return '<svg viewBox="0 0 200 200" aria-hidden="true"><g class="vel" stroke="#FF8A1F" stroke-width="7" stroke-linecap="round"><path d="M16 118h22M10 98h20M22 138h16"/></g>' +
+      '<g class="fumo" fill="#c9d1dd"><circle cx="58" cy="52" r="7"/><circle cx="142" cy="52" r="7"/></g>' +
+      '<g class="corpo"><g class="bl"><path d="M58 128q-22 4-24 24" stroke="' + cor + '" stroke-width="11" stroke-linecap="round" fill="none"/><circle cx="34" cy="154" r="10" fill="' + cor + '"/></g>' +
+      '<g class="br"><path d="M142 128q22 4 24 24" stroke="' + cor + '" stroke-width="11" stroke-linecap="round" fill="none"/><circle cx="166" cy="154" r="10" fill="' + cor + '"/></g>' +
+      '<g class="cor"><path d="M100 172C38 130 34 92 48 68c15-23 43-21 52 4 9-25 37-27 52-4 14 24 10 62-52 104z" fill="' + cor + '"/>' +
+      '<path d="M46 74c32-9 76-9 108 0l-2 13c-32-9-72-9-104 0z" fill="#FFD60A"/>' +
+      '<path d="' + sobr + '" stroke="#5a0b18" stroke-width="5" stroke-linecap="round" fill="none"/>' +
+      '<g class="olho"><circle cx="80" cy="104" r="10" fill="#fff"/><circle class="pup" cx="82" cy="106" r="5" fill="#12161D"/></g><g class="olho"><circle cx="120" cy="104" r="10" fill="#fff"/><circle class="pup" cx="122" cy="106" r="5" fill="#12161D"/></g>' +
+      '<path class="boca" d="' + boca + '" ' + (aberta ? 'fill="#7a1022" stroke="#7a1022"' : 'fill="none" stroke="#7a1022"') + ' stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<path class="suor" d="M150 92q10 8 6 18q-8 0-8-9z" fill="#7fd4ff"/></g></g></svg>';
+  }
+  function cavPoe(el, h, fala){ if(!el) return; COACH.humor = h; el.innerHTML = cavSvg(h);
+    el.className = 'cav ' + h + ' ' + ({ puxa: 'puxa', forte: 'forte sua', alerta: 'sua', festa: 'festa', zanga: 'zanga', feliz: '', calmo: '' }[h] || '') + (fala ? ' fala' : ''); }
+  // vida própria: pestaneja ao acaso, olha à volta e de vez em quando acena
+  (function cavVive(){
+    const av = ()=> document.querySelector('#coachBal .cav');
+    (function pisca(){ const a = av(); if(a){ a.classList.add('pisca'); setTimeout(()=> a.classList.remove('pisca'), 140); if(Math.random() < .25) setTimeout(()=>{ a.classList.add('pisca'); setTimeout(()=> a.classList.remove('pisca'), 120); }, 260); } setTimeout(pisca, 1800 + Math.random() * 4200); })();
+    (function olha(){ const a = av(); if(a){ const ang = Math.random() * Math.PI * 2, r = Math.random() < .35 ? 0 : 3.5; a.style.setProperty('--ox', (Math.cos(ang) * r).toFixed(1) + 'px'); a.style.setProperty('--oy', (Math.sin(ang) * r * .7).toFixed(1) + 'px'); } setTimeout(olha, 1200 + Math.random() * 3000); })();
+    setInterval(()=>{ const a = av(); if(a && !a.classList.contains('fala') && Math.random() < .3 && COACH.humor === 'feliz'){ a.classList.add('acena'); setTimeout(()=> a.classList.remove('acena'), 1800); } }, 9000);
+  })();
+  function coachPinta(){ const b = $('chipCoach'); if(b){ b.classList.toggle('texto', COACH.modo === 'texto'); b.classList.toggle('off', COACH.modo === 'off');
+      b.innerHTML = COACH.modo === 'off' ? '🔕' : '<i class="cav">' + cavSvg('feliz') + '</i>' + (COACH.modo === 'texto' ? '💬' : '🔊'); }
+    const el = $('coachBal'); if(el){ el.classList.toggle('vivo', COACH.modo !== 'off'); const av = el.querySelector('.cav'); if(av && !av.innerHTML) cavPoe(av, 'feliz'); } }
+  function coachVoz(){ if(COACH.voz || !window.speechSynthesis) return COACH.voz; const V = speechSynthesis.getVoices();
+    COACH.voz = V.find(v=> /^pt[-_]PT/i.test(v.lang)) || V.find(v=> /^pt/i.test(v.lang)) || null; return COACH.voz; }
+  if(window.speechSynthesis) try{ speechSynthesis.onvoiceschanged = ()=>{ COACH.voz = null; coachVoz(); }; }catch(e){}
+  function coachDiz(tipo, vars, cor, forca, txtPronto){
+    if(COACH.modo === 'off') return false; const ag = Date.now();
+    if(!forca && (ag - COACH.ult < 16000 || ag - (COACH.cd[tipo] || 0) < (tipo === 'dentro' ? 70000 : tipo === 'baixo' || tipo === 'alto' ? 28000 : 40000))) return false;
+    COACH.ult = ag; COACH.cd[tipo] = ag;
+    const nome = coachNome();
+    let txt = txtPronto || coachEsc(tipo); vars = Object.assign({ nome }, vars || {});
+    Object.keys(vars).forEach(k=> txt = txt.split('{' + k + '}').join(vars[k]));
+    txt = txt.replace(/^,\s*/, '').replace(/\s+,/g, ',').replace(/(^|[!?.]\s+)([a-zà-ú])/g, (m, a, b)=> a + b.toUpperCase()).replace(/,\s*!/g, '!').replace(/\s{2,}/g, ' ').replace(/^(Ó|Então|Boa|Ei),?\s*!/, '$1!').trim();
+    if(!nome) txt = txt.replace(/\b(Ó|Então,?)\s*!/, 'Então!');
+    const el = $('coachBal'), av = el && el.querySelector('.cav'); cavPoe(av, CAV_HUMOR[tipo] || 'feliz', true);
+    clearTimeout(COACH.tf); COACH.tf = setTimeout(()=>{ if(av) av.classList.remove('fala'); }, Math.min(6000, 600 + txt.length * 60));
+    if(el){ const sp = el.querySelector('span'); sp.innerHTML = '<small>Pulso · o teu coach</small>' + escapeHtml(txt); el.style.setProperty('--cb', cor || '#E8722C'); el.classList.add('on'); clearTimeout(COACH.tm);
+      COACH.tm = setTimeout(()=>{ el.classList.remove('on'); setTimeout(()=> cavPoe(el.querySelector('.cav'), 'feliz'), 400); }, Math.max(4500, txt.length * 75)); }
+    if(COACH.modo === 'voz' && window.speechSynthesis){ try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(txt.replace(/(\d+)–(\d+)/g, '$1 a $2').replace(/[🔥💥💪🤩❤️👀]/gu, ''));
+      u.lang = 'pt-PT'; const v = coachVoz(); if(v) u.voice = v; u.rate = tipo === 'raspa' || tipo === 'parado' ? 1.12 : tipo === 'seguir' || tipo === 'ultimos' ? 1.1 : 1.03; u.pitch = tipo === 'raspa' ? .9 : tipo === 'seguir' || tipo === 'sobe' || tipo === 'rec' ? 1.15 : 1; u.volume = 1;
+      u.onend = ()=>{ const a = document.querySelector('#coachBal .cav'); if(a) a.classList.remove('fala'); }; speechSynthesis.speak(u); }catch(e){} }
+    return true;
+  }
+  // anúncio entusiasmado do bloco seguinte
+  function coachSeguinte(next){
+    const z = blkZone(next), zi = Math.max(0, zonesNow().indexOf(z)), tec = (next.tecnica || '').trim(), d = blockDurationSec(next);
+    const dur = d >= 60 ? (Math.round(d / 60 * 2) / 2 + '').replace('.5', ' e meio') + (d >= 120 ? ' minutos' : ' minuto') : d + ' segundos';
+    const alvo = next.teste ? 'teste de FTP, o mais forte que conseguires' : z.name + (next.rpm ? ', a ' + rpmTxt(next).replace('–', ' a ') + ' rotações' : '');
+    const fecho = (COACH_SEG_FIM[Math.min(6, zi)] || COACH_SEG_FIM[2]);
+    const txt = coachEsc('seguir', COACH_SEG) + ' ' + (tec ? tec + ', ' : '') + alvo + ', durante ' + dur + '. ' + fecho[Math.floor(Math.random() * fecho.length)];
+    coachDiz('seguir', null, zoneColor(z.css), true, txt);
+  }
+  function coachTick(b, next, remaining, range){
+    if(COACH.modo === 'off' || state.status !== 'playing' || !b || solo === 'livre' || currentScreen !== 'liveScreen') return;
+    const now = Date.now(), dt = COACH.t0 ? Math.min(2, (now - COACH.t0) / 1000) : 0; COACH.t0 = now;
+    const z = blkZone(b), cor = zoneColor(z.css), idx = state.blockIndex, total = blocos.length, dur = blockDurationSec(b);
+    if(COACH.bi !== idx){ const prim = COACH.bi === -1; COACH.bi = idx; COACH.fora = 0; COACH.dentro = 0; COACH.cadFora = 0; COACH.avisos = 0; COACH.parado = 0;
+      if(!prim && COACH.anunciou !== idx - 1){ if(idx === total - 1) coachDiz('ultimo', null, cor, true); else if(idx === Math.floor(total / 2)) coachDiz('meio', null, cor, true); else if(range.min >= 76 || b.teste) coachDiz('inicio', null, cor); }
+      else if(!prim && idx === total - 1) setTimeout(()=> coachDiz('ultimo', null, cor, true), 4000);
+      return; }
+    // a acabar o bloco: anuncia com entusiasmo o que vem a seguir (blocos de 30 s ou mais)
+    if(next && remaining <= 12 && remaining >= 6 && COACH.anunciou !== idx && dur >= 30){ COACH.anunciou = idx; coachSeguinte(next); return; }
+    if(remaining <= 17 && remaining >= 14 && COACH.ult15 !== idx && dur >= 45 && (range.min >= 91 || b.teste)){ COACH.ult15 = idx; coachDiz('ultimos', null, cor, true); return; }
+    const decorrido = dur - remaining;
+    // parou de pedalar a meio do bloco
+    const cad = S.cadence || 0, temSens = hasPowerSource();
+    if(temSens && cad < 5 && dispPower < 5 && decorrido > 10 && range.min > 0){ COACH.parado += dt; if(COACH.parado > 10){ coachDiz('parado', null, '#FF3B3B'); COACH.parado = -30; } } else if(COACH.parado > 0) COACH.parado = 0; else COACH.parado = Math.min(0, COACH.parado + dt);
+    // intensidade atual (watts ou FC conforme o modo da aula)
+    let pct = null;
+    if(modo === 'fc'){ if(myHr() > 0 && me.fc) pct = myHr() / me.fc * 100; }
+    else if(temSens && me.ftp && dispPower > 0) pct = dispPower / me.ftp * 100;
+    if(pct != null && !b.teste && decorrido > 12 && remaining > 12){
+      const alvo = range.open ? 'mais de ' + range.min + '%' : range.min + ' a ' + range.max + '%';
+      if(pct < range.min - 4){ COACH.fora += dt; COACH.dentro = 0;
+        if(COACH.fora > 15){ const ok = COACH.avisos >= 2 ? coachDiz('raspa', { p: Math.round(pct), a: alvo }, '#FF3B3B') : coachDiz('baixo', { p: Math.round(pct), a: alvo }, cor); if(ok) COACH.avisos++; } }   // à 3.ª vez no mesmo bloco, raspanete
+      else if(!range.open && pct > range.max + 6){ COACH.fora += dt; COACH.dentro = 0; if(COACH.fora > 15) coachDiz('alto', { p: Math.round(pct), a: alvo }, cor); }
+      else { COACH.fora = 0; COACH.dentro += dt; if(COACH.dentro > 35) coachDiz('dentro', null, cor); }
+    }
+    const rAlvo = b.rpm || 0, rMax = b.rpm2 || rAlvo;
+    if(rAlvo && cad > 5 && decorrido > 15 && remaining > 12){ if(cad < rAlvo - 12 || cad > rMax + 15){ COACH.cadFora += dt; if(COACH.cadFora > 20) coachDiz(cad < rAlvo ? 'cadBaixa' : 'cadAlta', { r: rpmTxt(b).replace('–', ' a ') }, cor); } else COACH.cadFora = 0; }
+    if(me.fc && myHr() > me.fc * .95){ COACH.fcAlta += dt; if(COACH.fcAlta > 20){ coachDiz('fc', null, '#FF3B3B', true); COACH.fcAlta = -40; } } else if(COACH.fcAlta > 0) COACH.fcAlta = 0; else COACH.fcAlta = Math.min(0, COACH.fcAlta + dt);
+    if(myRank && myRank.p){ if(COACH.pos && myRank.p < COACH.pos && myRank.n > 1) coachDiz('sobe', { n: myRank.p }, '#FFD60A'); COACH.pos = myRank.p; }
+    if(me.mw && temSens && me.ts > 120){ if(COACH.recW && me.mw >= COACH.recW + 25){ coachDiz('rec', { w: Math.round(me.mw) }, '#FFD60A'); COACH.recW = me.mw; } else if(!COACH.recW) COACH.recW = me.mw; }
+  }
+  coachPinta();
+  $('chipCoach') && $('chipCoach').addEventListener('click', ()=>{
+    COACH.modo = COACH.modo === 'voz' ? 'texto' : COACH.modo === 'texto' ? 'off' : 'voz'; try{ localStorage.setItem('prCoach', COACH.modo); }catch(e){}
+    coachPinta(); if(window.speechSynthesis) try{ speechSynthesis.cancel(); }catch(e){}
+    toast(COACH.modo === 'voz' ? '🗣️ Coach virtual com voz' : COACH.modo === 'texto' ? '💬 Coach virtual só com texto' : '🔕 Coach virtual desligado');
+    if(COACH.modo !== 'off') coachDiz('dentro', null, '#E8722C', true);
+  });
   function checkBlockChange(b){
     const idx = state.blockIndex;
     if(lastBlockIdx === idx) return;
@@ -6426,6 +6610,7 @@ body:has(#setupScreen.active) .legal{display:none}
     kartAtualiza(b);
     if(ecraAtual === 2) renderEcra2(b, next, remaining, range, totalSec, elapsedBefore + (blockDurationSec(b) - remaining));
     if(ecraAtual === 5) rvRender(b, next, remaining, range);
+    try{ coachTick(b, next, remaining, range); }catch(e){}
     if(ecraAtual === 3) renderEcra3(b, next, remaining, range, totalSec, elapsedBefore + (blockDurationSec(b) - remaining));
     const temJogo = !!(b.jogo && JOGOS_ALUNO[b.jogo]); document.querySelectorAll('#e2Dots .d3').forEach(d=> d.classList.toggle('tem', temJogo));   // o 3.º ponto acende quando há jogo
   }
@@ -7232,6 +7417,103 @@ body:has(#setupScreen.active) .legal{display:none}
     const av = t.avaliacao || {}, a = EMO_ANTES[t.humor], d = EMO_DEPOIS[av.sente], x = EMO_TREINO[av.exp];
     return { a: a, d: d, x: x, any: !!(a || d || x) };
   }
+  // ===== RELATÓRIO DE DESEMPENHO (teoria do treino cardiovascular) =====
+  // Usa os treinos guardados: FC (zonas de %FC máx, TRIMP de Edwards, eficiência W/FC e desacoplamento),
+  // potência (zonas de %FTP, TSS), volume e frequência semanais e a relação carga aguda/crónica (ACWR).
+  function relAbre(){
+    let ov = $('relOv'); if(!ov){ ov = document.createElement('div'); ov.id = 'relOv'; ov.className = 'rel-ov'; document.body.appendChild(ov); }
+    ov.innerHTML = '<div class="rel-c">' + relHtml(treinosCache.filter(t=> !t.emCurso && (t.as || 0) >= 300)) + '<button type="button" class="btn-outline rel-fecha" id="relFecha">Fechar</button></div>';
+    ov.classList.add('on'); ov.scrollTop = 0; $('relFecha').onclick = ()=> ov.classList.remove('on');
+  }
+  function relZonasFc(t, fcm){   // segundos em cada zona de %FC máx: Z1 <60 · Z2 60–70 · Z3 70–80 · Z4 80–90 · Z5 ≥90
+    const z = [0, 0, 0, 0, 0], st = t.step || 5; if(!t.hr || !fcm) return null; let n = 0;
+    t.hr.forEach(h=>{ if(!(h > 40)) return; const p = h / fcm * 100; z[p < 60 ? 0 : p < 70 ? 1 : p < 80 ? 2 : p < 90 ? 3 : 4] += st; n++; });
+    return n >= 12 ? z : null; }
+  function relNP(t){ if(!t.w) return 0; const st = t.step || 5, k = Math.max(1, Math.round(30 / st)), W = t.w; if(W.length < k) return 0;
+    let s = 0, n = 0; for(let i = k - 1; i < W.length; i++){ let m = 0; for(let j = i - k + 1; j <= i; j++) m += W[j] || 0; m /= k; s += m ** 4; n++; } return Math.round((s / n) ** .25); }
+  function relSessao(t){
+    const fcm = t.fcMax || (perfil && perfil.fcMax) || null, min = (t.as || t.dur || 0) / 60, zf = relZonasFc(t, fcm);
+    const trimp = zf ? zf.reduce((a, s, i)=> a + s / 60 * (i + 1), 0) : null;   // Edwards: minutos × peso da zona (1 a 5)
+    const np = relNP(t), ftp = t.ftp || (perfil && perfil.ftp) || 0, IF = np && ftp ? np / ftp : 0, tss = IF ? (t.as || 0) / 3600 * IF * IF * 100 : null;
+    let ef = null, dec = null;
+    if(t.w && t.hr && !t.est){ const st = t.step || 5, N = Math.min(t.w.length, t.hr.length), par = [];
+      for(let i = Math.round(300 / st); i < N; i++) if(t.w[i] > 20 && t.hr[i] > 40) par.push([t.w[i], t.hr[i]]);
+      if(par.length >= 24){ const ra = L=> L.reduce((a, p)=> a + p[0], 0) / L.reduce((a, p)=> a + p[1], 0); ef = ra(par);
+        const h = Math.floor(par.length / 2), e1 = ra(par.slice(0, h)), e2 = ra(par.slice(h)); dec = (e1 - e2) / e1 * 100; } }
+    // carga: TRIMP se houver FC; senão TSS da potência; senão estimativa pela duração e pela sensação
+    const carga = trimp != null ? trimp : tss != null ? tss * 1.1 : min * ((t.avaliacao && t.avaliacao.sente) ? 1 + (5 - t.avaliacao.sente) * .4 : 2.2);
+    return { t, min, zf, trimp, tss, np, IF, ef, dec, carga, temFc: !!zf, fcm };
+  }
+  function relHtml(L){
+    if(!L.length) return '<h2>📊 O meu relatório</h2><p class="hint">Ainda não há treinos com pelo menos 5 minutos a pedalar. Faz uma aula com a conta iniciada e volta cá.</p>';
+    const D = 864e5, now = Date.now(), S = L.map(relSessao), sem = k=> S.filter(x=> now - x.t.date < k * 7 * D && now - x.t.date >= (k - 1) * 7 * D);
+    const u28 = S.filter(x=> now - x.t.date < 28 * D), p28 = S.filter(x=> now - x.t.date >= 28 * D && now - x.t.date < 56 * D);
+    const minSem = u28.reduce((a, x)=> a + x.min, 0) / 4, freq = u28.length / 4;
+    const agudo = S.filter(x=> now - x.t.date < 7 * D).reduce((a, x)=> a + x.carga, 0), cronico = u28.reduce((a, x)=> a + x.carga, 0) / 4, acwr = cronico > 0 ? agudo / cronico : null;
+    const comFc = u28.filter(x=> x.temFc), semFc = u28.length - comFc.length, todasFc = S.filter(x=> x.temFc);
+    const zt = [0, 0, 0, 0, 0]; comFc.forEach(x=> x.zf.forEach((s, i)=> zt[i] += s)); const ztot = zt.reduce((a, b)=> a + b, 0);
+    const baixa = ztot ? (zt[0] + zt[1]) / ztot * 100 : null, alta = ztot ? (zt[3] + zt[4]) / ztot * 100 : null, mod = ztot ? zt[2] / ztot * 100 : null;
+    const efs = S.filter(x=> x.ef).sort((a, b)=> a.t.date - b.t.date), decs = u28.filter(x=> x.dec != null);
+    const decM = decs.length ? decs.reduce((a, x)=> a + x.dec, 0) / decs.length : null;
+    let efTend = null; if(efs.length >= 4){ const h = Math.floor(efs.length / 2), m = A=> A.reduce((a, x)=> a + x.ef, 0) / A.length; efTend = (m(efs.slice(h)) - m(efs.slice(0, h))) / m(efs.slice(0, h)) * 100; }
+    const hrMaxObs = Math.max(0, ...S.map(x=> x.t.hrMax || 0)), fcm = (perfil && perfil.fcMax) || (S[0] && S[0].fcm) || null;
+    const ultTeste = L.filter(t=> t.ftpTeste).sort((a, b)=> b.date - a.date)[0];
+    const humores = u28.map(x=> x.t.avaliacao && x.t.avaliacao.sente).filter(Boolean), cansado = humores.filter(v=> v <= 2).length;
+    const f1 = v=> (Math.round(v * 10) / 10).toString().replace('.', ','), hm = m=> Math.floor(m / 60) + ' h ' + String(Math.round(m % 60)).padStart(2, '0');
+    // ---- gráficos ----
+    const semanas = []; for(let k = 8; k >= 1; k--){ const L2 = sem(k); semanas.push({ k, min: L2.reduce((a, x)=> a + x.min, 0), n: L2.length }); }
+    const maxMin = Math.max(150, ...semanas.map(x=> x.min));
+    const barras = '<div class="rel-bars">' + semanas.map(x=> '<div><i style="height:' + Math.round(x.min / maxMin * 100) + '%;background:' + (x.min >= 150 ? '#3DD45C' : x.min >= 75 ? '#FFD60A' : '#8A93A3') + '"></i><span>' + Math.round(x.min) + '</span></div>').join('') +
+      '<b style="bottom:' + Math.round(150 / maxMin * 100) + '%">150 min</b></div><div class="rel-leg">Minutos a pedalar por semana (últimas 8 semanas, a mais recente à direita)</div>';
+    const ZC = ['#1FA8F0', '#3DD45C', '#FFD60A', '#FF8A1F', '#FF3B3B'], ZN = ['Z1 recuperação', 'Z2 aeróbio', 'Z3 tempo', 'Z4 limiar', 'Z5 VO2máx'];
+    const zonas = ztot ? '<div class="rel-zb">' + zt.map((s, i)=> s ? '<i style="flex:' + s + ';background:' + ZC[i] + '" title="' + ZN[i] + '"></i>' : '').join('') + '</div><div class="rel-zl">' + zt.map((s, i)=> '<span><i style="background:' + ZC[i] + '"></i>' + ZN[i] + ' <b>' + Math.round(s / ztot * 100) + '%</b></span>').join('') + '</div>' : '';
+    const efSvg = efs.length >= 3 ? (()=>{ const v = efs.slice(-12).map(x=> x.ef), mn = Math.min(...v), mx = Math.max(...v), r = mx - mn || 1;
+      return '<svg class="rel-sp" viewBox="0 0 300 60" preserveAspectRatio="none"><polyline fill="none" stroke="#1FC8B0" stroke-width="3" points="' + v.map((e, i)=> (i / (v.length - 1) * 300).toFixed(1) + ',' + (55 - (e - mn) / r * 50).toFixed(1)).join(' ') + '"/></svg>'; })() : '';
+    // ---- leitura e sugestões ----
+    const sug = [], pos = [];
+    if(freq < 2) sug.push(['📅', 'Treina com mais regularidade', 'Fizeste ' + f1(freq) + ' treinos por semana nas últimas 4 semanas. Para melhorar a capacidade cardiovascular o ideal são <b>3 a 5 sessões por semana</b>: abaixo de 2, o corpo perde entre sessões o que ganhou na anterior.']);
+    else if(freq >= 3) pos.push('Frequência muito boa: ' + f1(freq) + ' treinos por semana.');
+    if(minSem < 150) sug.push(['⏱️', 'Chega aos 150 minutos por semana', 'Estás com <b>' + Math.round(minSem) + ' min/semana</b>. As recomendações (OMS/ACSM) para a saúde cardiovascular são pelo menos <b>150 min de intensidade moderada</b> ou 75 min de intensidade vigorosa por semana. Uma aula a mais por semana resolve.']);
+    else pos.push('Volume semanal dentro do recomendado: ' + Math.round(minSem) + ' min por semana (meta: 150 min).');
+    if(ztot){
+      if(alta > 35) sug.push(['🔥', 'Muito tempo em intensidade alta', '<b>' + Math.round(alta) + '%</b> do teu tempo foi em Z4–Z5. O modelo polarizado (≈80% leve, ≈20% intenso), usado por atletas de resistência, mostra melhores ganhos com menos fadiga. Inclui sessões em <b>Z2</b> (consegues falar frases inteiras) para construir base aeróbia e recuperar melhor.']);
+      else if(alta < 8 && freq >= 2) sug.push(['⚡', 'Falta estímulo de alta intensidade', 'Só <b>' + Math.round(alta) + '%</b> do tempo foi em Z4–Z5. Uma sessão de intervalos por semana (ex.: 4–6 × 3 min em Z4/Z5) melhora o VO2máx e o limiar.']);
+      else pos.push('Boa distribuição de intensidades: ' + Math.round(baixa) + '% em zonas leves e ' + Math.round(alta) + '% em zonas intensas.');
+      if(mod > 45) sug.push(['🎯', 'Muito tempo na "zona cinzenta" (Z3)', '<b>' + Math.round(mod) + '%</b> em Z3: cansa bastante mas estimula pouco. Torna os dias leves mais leves (Z2) e os intensos mais intensos (Z4–Z5).']);
+    }
+    if(acwr != null && u28.length >= 4){
+      if(acwr > 1.5) sug.push(['⚠️', 'A carga subiu demasiado depressa', 'A carga desta semana é <b>' + f1(acwr) + '×</b> a média das últimas 4 semanas. Acima de 1,5 aumenta o risco de lesão e sobretreino: faz a próxima sessão leve e dorme bem.']);
+      else if(acwr < .7) sug.push(['📉', 'Semana mais leve que o habitual', 'A carga desta semana é <b>' + f1(acwr) + '×</b> a das últimas 4 semanas. Se não foi de propósito (descanso), volta ao ritmo para não perderes forma.']);
+      else pos.push('Progressão de carga equilibrada (' + f1(acwr) + '× a média das últimas 4 semanas; ideal entre 0,8 e 1,3).');
+    }
+    if(efTend != null){ if(efTend > 3) pos.push('A tua eficiência aeróbia subiu ' + f1(efTend) + '%: fazes mais watts com a mesma frequência cardíaca. O coração está a adaptar-se. 💪');
+      else if(efTend < -5) sug.push(['🫀', 'Eficiência aeróbia a descer', 'Estás a fazer <b>menos watts para a mesma FC</b> (' + f1(efTend) + '%). Pode ser fadiga acumulada, pouco sono, doença ou desidratação. Uma semana mais leve costuma resolver.']); }
+    if(decM != null && decM > 7) sug.push(['🔋', 'A FC sobe ao longo do treino', 'Na 2.ª metade dos treinos fazes em média <b>' + f1(decM) + '% menos watts por batimento</b> do que na 1.ª (desacoplamento). Acima de 5% indica base aeróbia a melhorar: mais tempo contínuo em Z2 e hidratação durante a aula.']);
+    if(fcm && hrMaxObs > fcm + 2) sug.push(['❤️', 'Atualiza a tua FC máxima', 'Já registaste <b>' + hrMaxObs + ' bpm</b>, acima da FC máxima da tua ficha (' + fcm + ' bpm). Atualiza-a para as zonas ficarem certas.']);
+    if(!ultTeste || now - ultTeste.date > 56 * D) sug.push(['🧪', 'Faz um teste de FTP', (ultTeste ? 'O último teste foi há mais de 8 semanas.' : 'Ainda não fizeste nenhum teste de FTP.') + ' Com o FTP certo, as zonas de potência ficam ajustadas a ti e o progresso mede-se melhor. Pede ao professor uma aula de teste.']);
+    if(humores.length >= 3 && cansado / humores.length > .5) sug.push(['😴', 'Muitas vezes acabas exausto', 'Em ' + cansado + ' de ' + humores.length + ' treinos saíste exausto ou cansado. A adaptação acontece no descanso: dorme 7–9 h, come bem depois do treino e alterna dias fortes e leves.']);
+    // dispositivo de FC
+    const fcFalta = !todasFc.length || semFc / Math.max(1, u28.length) >= .5;
+    const disp = fcFalta ? '<div class="rel-fc"><h3>❤️ Recomendamos um sensor de frequência cardíaca</h3>' +
+      '<p>' + (todasFc.length ? 'Em <b>' + semFc + ' de ' + u28.length + '</b> treinos recentes não houve leitura de FC.' : 'Ainda não tens nenhum treino com leitura de FC.') + ' Sem FC não dá para saber em que zona o teu coração está, medir a carga real, ver a eficiência aeróbia nem a recuperação. Os watts dizem o que fazes; <b>a FC diz quanto isso te custa</b>.</p>' +
+      '<ul><li><b>Cinta de peito Bluetooth</b> (a mais precisa, mesmo em intervalos): ex. Polar H10, Garmin HRM-Dual / HRM-Pro, Wahoo TICKR, Coospo H6/H9.</li>' +
+      '<li><b>Braçadeira ótica</b> (mais confortável, boa em ritmo estável): ex. Polar Verity Sense, Scosche Rhythm, Coospo HW807.</li>' +
+      '<li>Confirma que tem <b>Bluetooth (BLE)</b>: os que são só ANT+ não ligam ao telemóvel. Os relógios de pulso costumam ser menos fiáveis nos sprints.</li></ul>' +
+      '<p class="hint">Liga-a em <b>Os teus sensores → Cinta de FC</b>. A partir daí este relatório fica muito mais completo.</p></div>' : '';
+    const kpi = (v, l)=> '<div><b>' + v + '</b><span>' + l + '</span></div>';
+    return '<h2>📊 O meu relatório de desempenho</h2><p class="hint">Últimas 4 semanas · ' + u28.length + ' treino' + (u28.length === 1 ? '' : 's') + (p28.length ? ' (4 semanas antes: ' + p28.length + ')' : '') + '</p>' +
+      '<div class="rel-kpi">' + kpi(f1(freq), 'treinos/semana') + kpi(Math.round(minSem), 'min/semana') + kpi(acwr != null ? f1(acwr) : '—', 'carga aguda/crónica') +
+        kpi(comFc.length ? Math.round(comFc.reduce((a, x)=> a + x.t.hrAvg, 0) / comFc.length) + '<small> bpm</small>' : '—', 'FC média') +
+        kpi(efs.length ? f1(efs[efs.length - 1].ef) : '—', 'eficiência W/bpm') + kpi(u28.some(x=> x.tss != null) ? Math.round(u28.reduce((a, x)=> a + (x.tss || 0), 0) / 4) : '—', 'TSS/semana') + '</div>' +
+      '<h3>Volume semanal</h3>' + barras +
+      (zonas ? '<h3>Tempo em cada zona cardíaca (últimas 4 semanas)</h3>' + zonas : '') +
+      (efSvg ? '<h3>Eficiência aeróbia (watts por batimento)</h3>' + efSvg + '<div class="rel-leg">A subir = melhor condição aeróbia</div>' : '') +
+      (pos.length ? '<h3>✅ O que está a correr bem</h3><ul class="rel-pos">' + pos.map(x=> '<li>' + x + '</li>').join('') + '</ul>' : '') +
+      (sug.length ? '<h3>💡 Sugestões para melhorar</h3>' + sug.map(x=> '<div class="rel-s"><i>' + x[0] + '</i><div><b>' + x[1] + '</b><p>' + x[2] + '</p></div></div>').join('') : '<h3>💡 Sugestões</h3><p>Está tudo equilibrado. Mantém a regularidade e vai variando as aulas. 👏</p>') +
+      disp +
+      '<details class="rel-mt"><summary>Como é calculado</summary><p><b>Zonas cardíacas</b> em % da FC máxima (Z1 &lt;60, Z2 60–70, Z3 70–80, Z4 80–90, Z5 ≥90). <b>Carga</b>: TRIMP de Edwards (minutos em cada zona × 1 a 5) ou, sem FC, TSS da potência (duração × IF² × 100). <b>Carga aguda/crónica</b>: carga dos últimos 7 dias ÷ média semanal das últimas 4 semanas. <b>Eficiência</b>: watts médios ÷ FC média (sem os primeiros 5 min). <b>Desacoplamento</b>: perda de eficiência da 1.ª para a 2.ª metade do treino. Recomendações de volume da OMS e do ACSM; distribuição de intensidade segundo o modelo polarizado (Seiler).</p><p>Isto é uma orientação de treino e não substitui uma avaliação médica. Se tiveres dor no peito, tonturas ou falta de ar fora do normal, para e consulta um médico.</p></details>';
+  }
+  $('relBtn') && $('relBtn').addEventListener('click', relAbre);
   function renderTreinoList(){
     const n = treinosCache.length;
     const now = Date.now(), d30 = 30*24*3600*1000;
@@ -7240,6 +7522,7 @@ body:has(#setupScreen.active) .legal{display:none}
       '<div><div class="v">' + n + '</div><div class="l">treinos</div></div>' +
       '<div><div class="v">' + last30.length + '</div><div class="l">últimos 30 dias</div></div>' +
       '<div><div class="v">' + Math.round(treinosCache.reduce((s,t)=>s+(t.kj||0),0)) + '</div><div class="l">kcal no total</div></div>';
+    if($('relBtn')) $('relBtn').style.display = n ? '' : 'none';
     if(!n){ $('treinoList').innerHTML = '<div class="hint" style="text-align:left">Ainda não tens treinos guardados. Entra numa aula com a conta iniciada e a bike ligada: no fim, o treino fica aqui.</div>'; return; }
     $('treinoList').innerHTML = '';
     treinosCache.forEach(t=>{
