@@ -1540,7 +1540,7 @@ body:has(#setupScreen.active) .legal{display:none}
   <button id="enterBtn" class="btn-primary">Entrar na aula</button>
   <div id="setupError" class="err"></div>
   <button id="demoBtn" class="btn-link">Experimentar sem bike (modo teste)</button>
-  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 17/11 13:15</div>
+  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 17/11 14:45</div>
 </div>
 
 <!-- 3. AULA -->
@@ -1933,6 +1933,11 @@ body:has(#setupScreen.active) .legal{display:none}
   };
   const COACH_SEG = ['Prepara-te, {nome}! A seguir:', 'Atenção que vem aí:', 'Já a seguir, {nome}:', 'Pronto para o próximo? Vem aí:', 'Olha o que vem a seguir:'];
   const COACH_SEG_FIM = { 0: ['Vamos recuperar bem!', 'Respira e solta as pernas.'], 1: ['Ritmo confortável, vamos!', 'Bom para ganhar fôlego.'], 2: ['Vamos a isso!', 'Mantém a cabeça fria!'], 3: ['Isto vai doer, mas tu aguentas! 💪', 'Agora é a sério!'], 4: ['Prepara-te para sofrer bonito! 🔥', 'Hora de dar tudo!'], 5: ['Explosão total! 💥', 'Tudo ou nada!'], 6: ['Sprint! Dá o máximo!', 'Mostra-me o teu sprint!'] };
+  // frases gravadas pelo professor (Voz do coach no PlayRide Coach): quando existem, o Pulso fala com a voz dele
+  const VOZ_FR = [{"id": "dentro1", "t": "dentro", "f": "Isso mesmo! Exatamente aí."}, {"id": "dentro2", "t": "dentro", "f": "Perfeito, assim é que se treina!"}, {"id": "dentro3", "t": "dentro", "f": "Que ritmo bonito, mantém!"}, {"id": "baixo1", "t": "baixo", "f": "Falta-te um bocadinho. Sobe mais um pouco!"}, {"id": "baixo2", "t": "baixo", "f": "Eu sei que tens mais aí dentro. Vamos!"}, {"id": "baixo3", "t": "baixo", "f": "Força nesses pedais!"}, {"id": "alto1", "t": "alto", "f": "Ei, calma! Ainda há aula. Baixa um bocadinho."}, {"id": "alto2", "t": "alto", "f": "Estás a voar! Guarda um pouco para depois."}, {"id": "raspa1", "t": "raspa", "f": "Isto não é um passeio de domingo! Sobe já para a zona!"}, {"id": "raspa2", "t": "raspa", "f": "Já te avisei! Mais força, vamos!"}, {"id": "parado1", "t": "parado", "f": "Os pedais não andam sozinhos! Bora!"}, {"id": "ultimos1", "t": "ultimos", "f": "Últimos quinze segundos! Esvazia o tanque!"}, {"id": "ultimos2", "t": "ultimos", "f": "Reta final! Dá tudo o que tens!"}, {"id": "inicio1", "t": "inicio", "f": "Este bloco é teu. Bora!"}, {"id": "inicio2", "t": "inicio", "f": "Respira fundo… e ataca!"}, {"id": "cadBaixa1", "t": "cadBaixa", "f": "Pernas mais rápidas! Sobe a cadência."}, {"id": "cadAlta1", "t": "cadAlta", "f": "Mais carga e menos rotação!"}, {"id": "sobe1", "t": "sobe", "f": "Ultrapassagem! Continua assim!"}, {"id": "rec1", "t": "rec", "f": "Novo recorde da aula! Que máquina!"}, {"id": "fc1", "t": "fc", "f": "O coração está muito alto. Respira e alivia uns segundos."}, {"id": "meio1", "t": "meio", "f": "Já vamos a meio! A melhor parte vem aí."}, {"id": "ultimo1", "t": "ultimo", "f": "Último bloco! Fecha com chave de ouro!"}, {"id": "seg_z0", "t": "seguir", "f": "A seguir: recuperação. Respira e solta as pernas!"}, {"id": "seg_z1", "t": "seguir", "f": "A seguir: zona dois, ritmo confortável. Vamos!"}, {"id": "seg_z2", "t": "seguir", "f": "A seguir: zona três. Mantém a cabeça fria!"}, {"id": "seg_z3", "t": "seguir", "f": "A seguir: zona quatro, limiar. Isto vai doer, mas tu aguentas!"}, {"id": "seg_z4", "t": "seguir", "f": "A seguir: zona cinco! Prepara-te para dar tudo!"}, {"id": "seg_z5", "t": "seguir", "f": "A seguir: anaeróbio! Explosão total!"}, {"id": "seg_z6", "t": "seguir", "f": "A seguir: sprint! Mostra-me o que vales!"}, {"id": "seg_teste", "t": "seguir", "f": "A seguir: teste de FTP. O mais forte e constante que conseguires!"}];
+  const CVOZ = { d: null, pede: false, audio: null };
+  function cvozCarrega(){ if(CVOZ.pede || !fbDb) return; CVOZ.pede = true; try{ fbDb.ref('coachVoz').once('value').then(sn=>{ const v = sn.val() || {}; CVOZ.d = {}; Object.keys(v).forEach(k=>{ if(v[k] && v[k].d) CVOZ.d[k] = v[k].d; }); }, ()=>{ CVOZ.d = {}; }); }catch(e){} }
+  function cvozClip(tipo, k){ if(!CVOZ.d) return null; const L = k ? VOZ_FR.filter(f=> f.id === k && CVOZ.d[f.id]) : VOZ_FR.filter(f=> f.t === tipo && CVOZ.d[f.id]); return L.length ? L[Math.floor(Math.random() * L.length)] : null; }
   function coachEsc(tipo, A){ A = A || COACH_TXT[tipo] || [String(tipo)]; const u = COACH.usados[tipo] || (COACH.usados[tipo] = []);
     let op = A.map((_, i)=> i).filter(i=> u.indexOf(i) < 0); if(!op.length){ u.length = 0; op = A.map((_, i)=> i); }
     const k = op[Math.floor(Math.random() * op.length)]; u.push(k); if(u.length > A.length - 1) u.shift(); return A[k]; }
@@ -1986,7 +1991,7 @@ body:has(#setupScreen.active) .legal{display:none}
       d.querySelectorAll('[data-v]').forEach(x=> x.classList.toggle('on', x === b)); coachDiz('pisca', null, '#E8722C', true, 'Olá' + (coachNome() ? ', ' + coachNome() : '') + '! Sou o Pulso, o teu coach. Vamos a isto?'); });
   }
   if(window.speechSynthesis) try{ speechSynthesis.onvoiceschanged = ()=>{ COACH.voz = null; coachVoz(); }; }catch(e){}
-  function coachDiz(tipo, vars, cor, forca, txtPronto){
+  function coachDiz(tipo, vars, cor, forca, txtPronto, clipK){
     if(COACH.modo === 'off') return false; const ag = Date.now();
     if(!forca && (ag - COACH.ult < 16000 || ag - (COACH.cd[tipo] || 0) < (tipo === 'dentro' ? 70000 : tipo === 'baixo' || tipo === 'alto' ? 28000 : 40000))) return false;
     COACH.ult = ag; COACH.cd[tipo] = ag;
@@ -1999,6 +2004,12 @@ body:has(#setupScreen.active) .legal{display:none}
     clearTimeout(COACH.tf); COACH.tf = setTimeout(()=>{ if(av) av.classList.remove('fala'); }, Math.min(6000, 600 + txt.length * 60));
     if(el){ const sp = el.querySelector('span'); sp.innerHTML = '<small>Pulso · o teu coach</small>' + escapeHtml(txt); el.style.setProperty('--cb', cor || '#E8722C'); el.classList.add('on'); clearTimeout(COACH.tm);
       COACH.tm = setTimeout(()=>{ el.classList.remove('on'); setTimeout(()=> cavPoe(el.querySelector('.cav'), 'feliz'), 400); }, Math.max(4500, txt.length * 75)); }
+    // voz do professor gravada para esta situação? toca a gravação (o balão mostra o texto completo)
+    const clip = COACH.modo === 'voz' ? cvozClip(tipo, clipK) : null;
+    if(clip){ try{ if(window.speechSynthesis) speechSynthesis.cancel(); if(CVOZ.audio) CVOZ.audio.pause(); const au = new Audio(CVOZ.d[clip.id]); CVOZ.audio = au; au.volume = 1;
+      au.onended = ()=>{ const a2 = document.querySelector('#coachBal .cav'); if(a2) a2.classList.remove('fala'); }; au.play().catch(()=>{}); }catch(e){}
+      if(!txtPronto && el){ el.querySelector('span').innerHTML = '<small>Pulso · o teu coach</small>' + escapeHtml(clip.f); }
+      return true; }
     if(COACH.modo === 'voz' && window.speechSynthesis){ try{ speechSynthesis.cancel();
       // mais orgânico: frase a frase (pausas naturais), tom de homem e pequenas variações de ritmo e entoação
       const limpo = txt.replace(/(\d+)–(\d+)/g, '$1 a $2').replace(/\brpm\b/g, 'rotações').replace(/\bFC\b/g, 'frequência cardíaca').replace(/%/g, ' por cento').replace(/\bZ(\d)\b/g, 'zona $1').replace(/[\u{1F300}-\u{1FAFF}\u2600-\u27BF]\uFE0F?/gu, '').trim();
@@ -2017,10 +2028,11 @@ body:has(#setupScreen.active) .legal{display:none}
     const alvo = next.teste ? 'teste de FTP, o mais forte que conseguires' : z.name + (next.rpm ? ', a ' + rpmTxt(next).replace('–', ' a ') + ' rotações' : '');
     const fecho = (COACH_SEG_FIM[Math.min(6, zi)] || COACH_SEG_FIM[2]);
     const txt = coachEsc('seguir', COACH_SEG) + ' ' + (tec ? tec + ', ' : '') + alvo + ', durante ' + dur + '. ' + fecho[Math.floor(Math.random() * fecho.length)];
-    coachDiz('seguir', null, zoneColor(z.css), true, txt);
+    coachDiz('seguir', null, zoneColor(z.css), true, txt, next.teste ? 'seg_teste' : 'seg_z' + Math.min(6, zi));
   }
   function coachTick(b, next, remaining, range){
     if(COACH.modo === 'off' || state.status !== 'playing' || !b || solo === 'livre' || currentScreen !== 'liveScreen') return;
+    cvozCarrega();
     const now = Date.now(), dt = COACH.t0 ? Math.min(2, (now - COACH.t0) / 1000) : 0; COACH.t0 = now;
     const z = blkZone(b), cor = zoneColor(z.css), idx = state.blockIndex, total = blocos.length, dur = blockDurationSec(b);
     if(COACH.bi !== idx){ const prim = COACH.bi === -1; COACH.bi = idx; COACH.fora = 0; COACH.dentro = 0; COACH.cadFora = 0; COACH.avisos = 0; COACH.parado = 0;

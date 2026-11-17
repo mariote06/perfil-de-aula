@@ -1248,6 +1248,13 @@ body[data-view="ano"] .legal{margin-top:8px;}
 .jg-pn.ok{background:rgba(61,212,92,.2);color:#B8F5C8;}
 .jg-pnomes .fogo{color:#FFAA2B;font-weight:800;font-size:13px;}
 /* percurso */
+#vozEd{position:fixed;inset:0;z-index:9000;background:rgba(5,7,10,.85);display:none;overflow:auto;padding:30px 16px}#vozEd.on{display:block}
+#vozEd .vz-c{max-width:760px;margin:0 auto;background:#161b23;border:1px solid #2a313d;border-radius:16px;padding:18px 20px;color:#E8ECF2}
+#vozEd .vz-h{display:flex;align-items:center;gap:10px}#vozEd .vz-h h2{flex:1;margin:0}#vozEd .vz-d{color:#9aa4b4;font-size:14px;line-height:1.45}
+#vozEd h3{margin:16px 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:#E8722C}
+#vozEd .vz-i{display:flex;align-items:center;gap:6px;padding:7px 0;border-bottom:1px solid #1f2530}#vozEd .vz-i span{flex:1;font-size:15px}
+#vozEd button{background:#12161D;border:1px solid #2a313d;color:#E8ECF2;border-radius:9px;padding:7px 11px;cursor:pointer;font:600 13px Inter,sans-serif}
+#vozEd button.rec{background:#FF3B3B;border-color:#FF3B3B;color:#fff;animation:vzPisca 1s infinite}@keyframes vzPisca{50%{opacity:.6}}
 .gpx-p{flex:1;display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center;text-align:center;padding:30px;color:#E8ECF2}
 .gpx-p h3{margin:0;font:800 34px 'Barlow Condensed',sans-serif}.gpx-p p{margin:0;max-width:640px;color:#aab3c0;font-size:16px;line-height:1.45}
 .gpx-up{cursor:pointer;background:#E8722C;color:#140a03;border-radius:12px;font:800 18px Inter,sans-serif;padding:14px 22px}
@@ -1303,6 +1310,10 @@ body.sr-full-on #liveOverlay #srBox,body.sr-full-on #liveOverlay #srBox *{visibi
 .drc-on{display:flex;align-items:center;gap:8px;cursor:pointer;} .drc-on input{width:20px;height:20px;accent-color:#3DD45C;flex:none;} .drc-on span{display:flex;flex-direction:column;line-height:1.2;min-width:190px;} .drc-on b{white-space:nowrap;} .drc-on small{color:#9AA3B2;font-size:11px;}
 .drc-nums{display:flex;flex-wrap:wrap;gap:6px 10px;font-size:12px;color:#C9D0DC;} .drc-nums label{display:flex;align-items:center;gap:3px;} .drc-nums input{width:54px;background:#0F121A;border:1px solid #39405A;color:#fff;border-radius:7px;padding:4px 5px;font:700 13px 'Inter',sans-serif;text-align:center;}
 .drc-mv{display:flex;gap:4px;} .drc-mv button{background:#232838;border:1px solid #39405A;color:#fff;border-radius:8px;width:30px;height:30px;cursor:pointer;} .drc-mv button[data-ir]{background:#1F7AE0;border-color:#1F7AE0;}
+.vz-row{display:flex;align-items:center;gap:10px;background:#181C26;border:1px solid #262C3E;border-radius:12px;padding:9px 12px;margin-bottom:6px;cursor:pointer;} .vz-row input[type=checkbox]{width:20px;height:20px;accent-color:#3DD45C;flex:none;} .vz-row span{display:flex;flex-direction:column;line-height:1.25;} .vz-row small{color:#9AA3B2;font-size:11px;}
+.vz-sel{width:100%;background:#0F121A;border:1px solid #39405A;color:#fff;border-radius:9px;padding:8px;font:600 13px 'Inter',sans-serif;margin-top:6px;}
+.vz-dica{font-size:12px;color:#9AA3B2;background:#141821;border-left:3px solid #FFD60A;border-radius:8px;padding:8px 10px;margin:8px 0;}
+#vozBtn.off{opacity:.5;}
 .drc-leg{font-size:11px;color:#8C95A6;margin:8px 0;} .drc-bts{display:flex;align-items:center;gap:12px;} .drc-bts button{background:#232838;border:1px solid #39405A;color:#fff;border-radius:10px;padding:8px 12px;font:600 13px 'Inter',sans-serif;cursor:pointer;} .drc-bts span{color:#3DD45C;font-weight:600;}
 @media (max-width:640px){ .drc-pl{grid-template-columns:1fr;} }
 .sr-hud .sr-t{display:flex;flex-direction:column;align-items:center;background:rgba(5,7,10,.6);border-radius:14px;padding:6px 18px;line-height:1;}
@@ -1849,6 +1860,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     <button data-go="hist"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>Treinos realizados</button>
     <a href="aula-ao-vivo.html?livre=1" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9h6l3.5 7.5M9 9 12 16.5h-3M14 6h2.5l-1.5 3"/></svg>Só pedalar</a>
     <button type="button" id="navSala" title="Mapa da sala: o lugar e o número de cada bike em Lousada e Penafiel, para a projeção mostrar cada aluno na sua bike"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v3h10V4M7 11h2M11 11h2M15 11h2M8 15.5h2M12 15.5h2"/></svg>Sala</button>
+    <button type="button" id="navVoz" title="Grava a tua voz para o coach virtual (Pulso) da app do aluno"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg>Voz do coach</button>
     <button type="button" id="navBonecos" title="Editor dos bonecos: afinar a postura, o pescoço, os capacetes e os chapéus dos ciclistas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="2.3"/><path d="M12 7v7M7 9.5l5 1.5 5-1.5M12 14l-3 7M12 14l3 7"/></svg>Bonecos</button>
   </nav>
   </div>
@@ -2139,6 +2151,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     <button class="ctrl" id="liveSkip" title="Bloco seguinte">⏭</button>
     <div class="ctrl-group right">
       <button id="metricBtn" title="Métrica do ranking (tecla M)">Ranking: Pontos</button>
+      <button id="vozBtn" title="Voz: a app anuncia os blocos em voz alta · clica para configurar (tecla V liga/desliga)">🗣️ Voz</button>
       <button id="soundBtn" title="Bip nos últimos 3 segundos de cada bloco">🔔</button>
     </div>
   </div>
@@ -10217,6 +10230,134 @@ const SR3 = (()=>{
     }catch(e){}
   }
 
+  // ================= VOZ (a app fala durante a aula, como a Alexa) =================
+  // Usa a síntese de voz do próprio browser (Web Speech API): sem servidor e sem custos.
+  // A qualidade depende das vozes do PC: no Windows, o Microsoft Edge tem as vozes naturais em português de Portugal (Raquel e Duarte).
+  var VOZ = { cfg: Object.assign({ on: true, voz: '', vel: 1.05, vol: 1, duck: 0.3, inicio: true, aviso: true, minuto: true, incentivo: true, fim: true },
+      (()=>{ try{ return JSON.parse(localStorage.getItem('prVoz') || '{}') || {}; }catch(e){ return {}; } })()),
+    duck: 1, refs: [], feito: {}, idx: -1, avisou: -1, comecou: false,
+    ok: 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window };
+  VOZ.guarda = ()=>{ try{ localStorage.setItem('prVoz', JSON.stringify(VOZ.cfg)); }catch(e){} };
+  if(VOZ.ok){ try{ speechSynthesis.getVoices(); speechSynthesis.onvoiceschanged = ()=>{ const s = $('vzVoz'); if(s) vozCfgAbre(true); }; }catch(e){} }
+  function vozLista(){ if(!VOZ.ok) return []; try{ return speechSynthesis.getVoices().filter(v=> /^pt/i.test(v.lang)); }catch(e){ return []; } }
+  // a voz escolhida; se não houver, a melhor em português (PT-PT primeiro, depois as naturais/online)
+  function vozEscolhe(){
+    const L = vozLista(); if(!L.length) return null;
+    const c = VOZ.cfg.voz && L.find(v=> v.voiceURI === VOZ.cfg.voz); if(c) return c;
+    const pts = v=> (/pt[-_]PT/i.test(v.lang) ? 100 : 0) + (/natural|online|neural/i.test(v.name) ? 50 : 0) + (/google/i.test(v.name) ? 5 : 0);
+    return L.slice().sort((a, b)=> pts(b) - pts(a))[0];
+  }
+  // baixa a música enquanto a voz fala e volta a subir no fim
+  function vozDuck(on){
+    const d = on ? Math.max(0, Math.min(1, VOZ.cfg.duck)) : 1;
+    if(d === VOZ.duck) return; VOZ.duck = d;
+    try{ if(livePlaying) audSync(elapsedNow(), true); }catch(e){}
+  }
+  function vozFala(txt, urgente){
+    if(!VOZ.ok || !VOZ.cfg.on || !txt) return;
+    try{
+      if(urgente) speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(txt), v = vozEscolhe();
+      if(v){ u.voice = v; u.lang = v.lang; } else u.lang = 'pt-PT';
+      u.rate = VOZ.cfg.vel; u.volume = VOZ.cfg.vol; u.pitch = 1;
+      u.onstart = ()=> vozDuck(true);
+      u.onend = u.onerror = ()=> setTimeout(()=>{ if(!speechSynthesis.speaking && !speechSynthesis.pending) vozDuck(false); }, 120);
+      VOZ.refs.push(u); if(VOZ.refs.length > 8) VOZ.refs.shift();   // o Chrome perde frases se não houver referência a elas
+      speechSynthesis.speak(u);
+    }catch(e){}
+  }
+  function vozCala(){ if(!VOZ.ok) return; try{ speechSynthesis.cancel(); }catch(e){} vozDuck(false); }
+  // ---- textos ditos ----
+  function vozNum(t){ return String(t || '').replace(/(\d+)\s*[–-]\s*(\d+)/g, '$1 a $2').replace(/>\s*(\d+)/g, 'mais de $1').replace(/%/g, ' por cento'); }
+  function vozZonaRaw(b, i){ return b.teste ? 'Teste de FTP' : zNome(blkZone(b), current.blocos, i); }
+  function vozZona(b, i){
+    return vozZonaRaw(b, i).replace(/^Z(\d)\s+/, 'Zona $1, ').replace(/\s*·\s*/g, ', ').replace(/\bZ(\d)\b/g, 'zona $1').replace(/VO2\s*máx/i, 'VO2 máximo');
+  }
+  function vozInt(b){
+    if(b.teste || b.tipo) return '';
+    const m = modoAtual(); if(m === 'zonas') return '';
+    return vozNum(lblInt(b)) + (m === 'fc' ? ' da frequência cardíaca máxima' : ' do FTP');
+  }
+  function vozDur(s){ s = Math.round(s); const m = Math.floor(s / 60), r = s % 60, p = []; if(m) p.push(m + (m === 1 ? ' minuto' : ' minutos')); if(r) p.push(r + ' segundos'); return p.join(' e '); }
+  function vozRpm(b){ return b.rpm ? 'cadência ' + vozNum(rpmTxt(b)) : ''; }
+  function vozNome(b, i){   // não repete o nome quando é igual à zona ("Aquecimento" na zona "Z1 Aquecimento")
+    const n = (b.nome || '').trim(), z = vozZonaRaw(b, i).toLowerCase(), nl = n.toLowerCase();
+    return n && nl !== z && nl !== z.replace(/^z\d\s+/, '') ? n : '';
+  }
+  function vozZonaCurta(b){ const z = blkZone(b), m = /^Z(\d)/.exec(z.name || ''); return b.teste ? '' : m ? 'zona ' + m[1] : ''; }
+  function vozFrase(p){ return p.filter(Boolean).map(x=> x.replace(/[.!?\s]+$/, '')).map(x=> x.charAt(0).toUpperCase() + x.slice(1)).join('. ') + '.'; }
+  function vozBlocoTxt(b, i){
+    const jg = b.jogo ? (jogoInfo(b.jogo).n || '') : '';
+    const linha = [vozDur(blockDurationSec(b)), vozInt(b) ? 'a ' + vozInt(b) : '', vozRpm(b)].filter(Boolean).join(', ');
+    return vozFrase([vozNome(b, i), vozZona(b, i), jg ? 'Jogo: ' + jg : '', linha, (b.tecnica || '').trim()]);
+  }
+  function vozCurtoTxt(b, i){ return vozFrase([vozZona(b, i), (b.tecnica || '').trim()]); }   // depois do aviso, ao começar só se lembra a zona e a técnica
+  function vozProxTxt(b, i){
+    const n = vozNome(b, i), zc = vozZonaCurta(b);
+    return 'Daqui a 10 segundos: ' + vozFrase([n ? n + (zc ? ', ' + zc : '') : vozZona(b, i), [vozInt(b), vozRpm(b)].filter(Boolean).join(', ')]);
+  }
+  const VOZ_FORCA = ['Metade feita, mantém o ritmo!', 'Força, já passou metade!', 'Respira e aguenta, estás a meio!', 'Boa! Continua assim!', 'Não baixes agora, metade feita!'];
+  const VOZ_CALMO = ['Metade do bloco.', 'Já vamos a meio. Mantém a cadência.', 'Metade feita. Pedalada redonda.'];
+  function vozMeio(b){
+    const mm = modoAtual() === 'fc' ? 'fc' : 'ftp', zi = b.tipo ? 0 : zonesOf(mm).indexOf(getZone(b.ftp || 0, mm));
+    const L = (zi >= 3 || b.teste) ? VOZ_FORCA : VOZ_CALMO; return L[Math.floor(Math.random() * L.length)];
+  }
+  // ---- quando falar ----
+  function vozBloco(idx, inicioAula){
+    VOZ.idx = idx; VOZ.feito = {};
+    const curto = VOZ.avisou === idx && !inicioAula; VOZ.avisou = -1;
+    if(!VOZ.cfg.inicio) return;
+    const b = current.blocos[idx]; if(!b) return;
+    const rapido = !inicioAula && blockDurationSec(b) < 25;   // blocos curtos (intervalos): só o essencial, para não falar por cima do bloco seguinte
+    vozFala((inicioAula ? 'Vamos começar! ' : '') + (curto ? vozCurtoTxt(b, idx) : rapido ? vozFrase([vozNome(b, idx) || vozZona(b, idx), vozRpm(b)]) : vozBlocoTxt(b, idx)), !curto);
+  }
+  function vozTick(rem){
+    if(!VOZ.ok || !VOZ.cfg.on) return;
+    const b = current.blocos[liveIdx]; if(!b) return;
+    if(VOZ.idx !== liveIdx){ VOZ.idx = liveIdx; VOZ.feito = {}; }
+    const dur = blockDurationSec(b), F = VOZ.feito, next = current.blocos[liveIdx + 1];
+    if(VOZ.cfg.aviso && next && dur >= 25 && rem <= 11.5 && rem > 5 && !F.av){ F.av = 1; VOZ.avisou = liveIdx + 1; vozFala(vozProxTxt(next, liveIdx + 1)); return; }
+    if(VOZ.cfg.minuto && dur >= 150 && rem <= 60.5 && rem > 52 && !F.min){ F.min = 1; vozFala('Último minuto!'); return; }
+    const meio = dur / 2;
+    if(VOZ.cfg.incentivo && dur >= 90 && rem <= meio && rem > meio - 6 && Math.abs(meio - 60) > 15 && !F.meio){ F.meio = 1; vozFala(vozMeio(b)); }
+  }
+  // ---- painel de configuração ----
+  function vozBtnPinta(){ const b = $('vozBtn'); if(b){ b.classList.toggle('off', !VOZ.cfg.on); b.textContent = VOZ.cfg.on ? '🗣️ Voz' : '🤐 Voz'; } }
+  function vozLiga(on){ VOZ.cfg.on = on; VOZ.guarda(); vozBtnPinta(); if(!on) vozCala(); }
+  function vozCfgAbre(refaz){
+    let m = $('vozCfg');
+    if(m && !refaz){ m.remove(); return; }
+    if(!m){ if(refaz) return; m = document.createElement('div'); m.id = 'vozCfg'; m.className = 'drc'; document.body.appendChild(m); m.onclick = e=>{ if(e.target === m) m.remove(); }; }
+    const C = VOZ.cfg, L = vozLista(), atual = vozEscolhe();
+    const chk = (k, t, d)=> '<label class="vz-row"><input type="checkbox" data-vk="' + k + '"' + (C[k] ? ' checked' : '') + '><span><b>' + t + '</b><small>' + d + '</small></span></label>';
+    const rng = (id, t, v, mn, mx, st, fmt)=> '<div class="drc-vel"><label>' + t + ' <b id="' + id + 'T">' + fmt(v) + '</b></label><input type="range" id="' + id + '" min="' + mn + '" max="' + mx + '" step="' + st + '" value="' + v + '"></div>';
+    const pct = v=> Math.round(v * 100) + '%';
+    m.innerHTML = '<div class="drc-c"><div class="drc-top"><b>🗣️ Voz da aula</b><span>A app anuncia os blocos em voz alta pelas colunas da sala, como a Alexa.</span><button class="drc-x" title="Fechar">✕</button></div>' +
+      (VOZ.ok ? '' : '<div class="vz-dica">Este browser não tem síntese de voz. Usa o Microsoft Edge ou o Google Chrome.</div>') +
+      chk('on', 'Voz ligada', 'tecla V para ligar/desligar durante a aula') +
+      '<div class="drc-vel"><label>Voz</label><select class="vz-sel" id="vzVoz">' +
+        (L.length ? '<option value="">Automática' + (atual ? ' (' + escapeHtml(atual.name) + ')' : '') + '</option>' + L.map(v=> '<option value="' + escapeHtml(v.voiceURI) + '"' + (v.voiceURI === C.voz ? ' selected' : '') + '>' + escapeHtml(v.name) + ' · ' + escapeHtml(v.lang) + '</option>').join('')
+                  : '<option value="">Nenhuma voz em português neste PC</option>') + '</select>' +
+        (atual && /pt[-_]PT/i.test(atual.lang) && /natural|online|neural/i.test(atual.name) ? '' : '<div class="vz-dica">💡 Para uma voz natural em português de Portugal, abre a app no <b>Microsoft Edge</b> e escolhe a <b>Raquel</b> ou o <b>Duarte (Natural)</b>.</div>') + '</div>' +
+      rng('vzVel', 'Velocidade', C.vel, 0.8, 1.4, 0.05, v=> Number(v).toFixed(2).replace('.', ',') + '×') +
+      rng('vzVol', 'Volume da voz', C.vol, 0.2, 1, 0.05, pct) +
+      rng('vzDuck', 'Música enquanto a voz fala', C.duck, 0, 1, 0.05, pct) +
+      chk('inicio', 'Anunciar cada bloco', 'nome, zona, duração, intensidade, cadência e técnica') +
+      chk('aviso', 'Aviso 10 s antes do bloco seguinte', '"Daqui a 10 segundos: Subida, 95 por cento do FTP, cadência 70"') +
+      chk('minuto', '"Último minuto!"', 'nos blocos com 2 min e meio ou mais') +
+      chk('incentivo', 'Incentivos a meio do bloco', 'nos blocos com 1 min e meio ou mais (mais puxados nas zonas altas)') +
+      chk('fim', 'Mensagem no fim da aula', '"Aula terminada. Bom trabalho a todos!"') +
+      '<div class="drc-bts"><button id="vzTeste">🔊 Testar com o bloco atual</button><button id="vzPara">⏹ Parar</button></div></div>';
+    m.querySelector('.drc-x').onclick = ()=> m.remove();
+    m.querySelectorAll('[data-vk]').forEach(i=> i.onchange = ()=>{ const k = i.dataset.vk; if(k === 'on') vozLiga(i.checked); else { C[k] = i.checked; VOZ.guarda(); } });
+    m.querySelector('#vzVoz').onchange = e=>{ C.voz = e.target.value; VOZ.guarda(); vozFala('Olá! Esta é a minha voz.', true); };
+    [['vzVel', 'vel', v=> v.toFixed(2).replace('.', ',') + '×'], ['vzVol', 'vol', pct], ['vzDuck', 'duck', pct]].forEach(([id, k, f])=>{
+      const i = m.querySelector('#' + id); i.oninput = ()=>{ C[k] = Number(i.value); $(id + 'T').textContent = f(C[k]); VOZ.guarda(); if(k === 'duck' && VOZ.duck !== 1){ VOZ.duck = 2; vozDuck(true); } };
+    });
+    m.querySelector('#vzTeste').onclick = ()=>{ if(!C.on) vozLiga(true); const i = Math.max(0, Math.min(liveIdx, current.blocos.length - 1)), b = current.blocos[i]; vozFala(b ? vozBlocoTxt(b, i) : 'Olá! Vamos pedalar.', true); };
+    m.querySelector('#vzPara').onclick = vozCala;
+  }
+
   // ================= OBJETIVO + FRASES DO ECRÃ INICIAL =================
   var OBJETIVOS = {
     resist: {nome:'Resistência aeróbia', frases:[
@@ -10779,6 +10920,7 @@ const SR3 = (()=>{
     if(P.tipo !== 'el' || !playing) P.rate(r);
     let vol = a.vol == null ? 0.8 : a.vol;
     const fim = tot - T; if(fim < 6) vol *= Math.max(0, fim / 6);
+    vol *= VOZ.duck;   // a voz está a falar: a música baixa
     if(a.modo === 'cortar' && m != null && a.dur && a.dur - m < 3) vol *= Math.max(0, (a.dur - m) / 3);
     P.vol(Math.max(0, Math.min(1, vol)));
     if(!playing || m == null || T >= tot){ P.pause(); return; }
@@ -11123,6 +11265,7 @@ const SR3 = (()=>{
     liveIdx = 0;
     liveRemaining = blockDurationSec(current.blocos[0]);
     livePlaying = false;
+    VOZ.comecou = false; VOZ.avisou = -1; VOZ.idx = -1; vozCala();
     audPrevStop();
     jgReset(); JG.forma = current.equipas || 'equilibrado';
     summaryEntry = null;
@@ -11171,7 +11314,7 @@ const SR3 = (()=>{
     if($('godQr')) $('godQr').remove(); podioFecha();
     document.documentElement.classList.remove('live-on');
     clearInterval(liveTimerHandle); liveTimerHandle = null; livePlaying = false;
-    audStop();
+    audStop(); vozCala(); if($('vozCfg')) $('vozCfg').remove();
     stopRidersSync();
     endSession();
     releaseWakeLock();
@@ -11518,6 +11661,7 @@ const SR3 = (()=>{
     if(liveTimerHandle){ clearInterval(liveTimerHandle); liveTimerHandle = null; }
     livePlaying = false;
     $('livePlay').textContent = '▶';
+    vozCala();
     audSync(elapsedNow(), false);
     pushState();
   }
@@ -11529,6 +11673,7 @@ const SR3 = (()=>{
     $('qrPanel').classList.remove('active');
     resetTickBase();
     audPrevStop(); audSync(elapsedNow(), true, true);
+    if(!VOZ.comecou){ VOZ.comecou = true; vozBloco(liveIdx, elapsedNow() < 2); }   // a voz anuncia o primeiro bloco quando a aula arranca
     pushState();
     let audUlt = 0;
     liveTimerHandle = setInterval(()=>{
@@ -11541,6 +11686,7 @@ const SR3 = (()=>{
       } else {
         updateTimerText();
         updateLiveProgressMarker();
+        vozTick(liveRemaining);
         if(performance.now() - audUlt > 900){ audUlt = performance.now(); audSync(elapsedNow(), true); }
       }
     }, 200);
@@ -11557,6 +11703,7 @@ const SR3 = (()=>{
       if(passou === undefined) audSync(elapsedNow(), true, true);
     }
     updateLiveDisplay();
+    if(livePlaying) vozBloco(liveIdx);   // a voz anuncia o bloco novo
     pushState();
     renderRiders();
   }
@@ -11564,6 +11711,7 @@ const SR3 = (()=>{
   function finishLive(){
     clearInterval(liveTimerHandle); liveTimerHandle = null; livePlaying = false;
     audStop();
+    if(VOZ.cfg.fim) vozFala('Aula terminada. Bom trabalho a todos!', true);
     $('livePlay').textContent = '▶';
     liveIdx = current.blocos.length - 1; liveRemaining = 0;
     updateLiveProgressMarker();
@@ -11777,6 +11925,8 @@ const SR3 = (()=>{
     if(soundOn) beep(880, 0.1);
   });
 
+  $('vozBtn').addEventListener('click', ()=> vozCfgAbre());
+  vozBtnPinta();
   $('livePlay').addEventListener('click', ()=>{ if(livePlaying) stopTicking(); else { pedeEcraInteiro(); startTicking(); } });
   $('fsBtn').addEventListener('click', pedeEcraInteiro);
   $('liveSkip').addEventListener('click', ()=> goToBlock(liveIdx+1));
@@ -11793,9 +11943,9 @@ const SR3 = (()=>{
 
   document.addEventListener('keydown', (e)=>{
     if(!$('liveOverlay').classList.contains('active')) return;
-    if(e.target && e.target.tagName === 'INPUT') return;
+    if(e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT')) return;
     const done = $('liveOverlay').classList.contains('finished');
-    if(e.code === 'Escape'){ if(POD.on){ podioFecha(); return; } if($('drCfg')){ $('drCfg').remove(); return; } if($('godQr')){ $('godQr').remove(); return; } if(SR.full && SR.fsTroca){ SR.fsTroca(); return; } closeLive(); return; }
+    if(e.code === 'Escape'){ if(POD.on){ podioFecha(); return; } if($('drCfg')){ $('drCfg').remove(); return; } if($('vozCfg')){ $('vozCfg').remove(); return; } if($('godQr')){ $('godQr').remove(); return; } if(SR.full && SR.fsTroca){ SR.fsTroca(); return; } closeLive(); return; }
     if(e.code === 'KeyF' && !e.ctrlKey && !e.metaKey){ e.preventDefault(); if(emEcraInteiro()){ const x = document.exitFullscreen || document.webkitExitFullscreen; if(x) try{ x.call(document); }catch(_){} } else pedeEcraInteiro(); return; }
     if(liveStarting){ if(e.code === 'Space' || e.code === 'Enter'){ e.preventDefault(); pedeEcraInteiro(); beginFromStart(); } return; }
     if(done) return;
@@ -11812,6 +11962,7 @@ const SR3 = (()=>{
     if((e.key === 'e' || e.key === 'E') && SR.on && SR.fsTroca) SR.fsTroca();
     if(e.key === 'm' || e.key === 'M'){ toggleMetric(); }
     if(e.key === 'q' || e.key === 'Q'){ $('qrPanel').classList.toggle('active'); }
+    if((e.key === 'v' || e.key === 'V') && !e.ctrlKey && !e.metaKey){ vozLiga(!VOZ.cfg.on); toast(VOZ.cfg.on ? '🗣️ Voz ligada' : '🤐 Voz desligada'); }
   });
   window.addEventListener('beforeunload', ()=>{ if(sessionPin) endSession(); });
 
@@ -12393,6 +12544,41 @@ const SR3 = (()=>{
   }
   document.querySelectorAll('[data-go]').forEach(b=> b.addEventListener('click', ()=> setView(b.dataset.go)));
   document.getElementById('navBonecos').addEventListener('click', ()=> CICED.abre());
+  // ===== VOZ DO COACH: o professor grava as frases e o Pulso usa a voz dele na app dos alunos (coachVoz/{id} no Firebase) =====
+  const VGR_FR = [{"id": "dentro1", "t": "dentro", "f": "Isso mesmo! Exatamente aí."}, {"id": "dentro2", "t": "dentro", "f": "Perfeito, assim é que se treina!"}, {"id": "dentro3", "t": "dentro", "f": "Que ritmo bonito, mantém!"}, {"id": "baixo1", "t": "baixo", "f": "Falta-te um bocadinho. Sobe mais um pouco!"}, {"id": "baixo2", "t": "baixo", "f": "Eu sei que tens mais aí dentro. Vamos!"}, {"id": "baixo3", "t": "baixo", "f": "Força nesses pedais!"}, {"id": "alto1", "t": "alto", "f": "Ei, calma! Ainda há aula. Baixa um bocadinho."}, {"id": "alto2", "t": "alto", "f": "Estás a voar! Guarda um pouco para depois."}, {"id": "raspa1", "t": "raspa", "f": "Isto não é um passeio de domingo! Sobe já para a zona!"}, {"id": "raspa2", "t": "raspa", "f": "Já te avisei! Mais força, vamos!"}, {"id": "parado1", "t": "parado", "f": "Os pedais não andam sozinhos! Bora!"}, {"id": "ultimos1", "t": "ultimos", "f": "Últimos quinze segundos! Esvazia o tanque!"}, {"id": "ultimos2", "t": "ultimos", "f": "Reta final! Dá tudo o que tens!"}, {"id": "inicio1", "t": "inicio", "f": "Este bloco é teu. Bora!"}, {"id": "inicio2", "t": "inicio", "f": "Respira fundo… e ataca!"}, {"id": "cadBaixa1", "t": "cadBaixa", "f": "Pernas mais rápidas! Sobe a cadência."}, {"id": "cadAlta1", "t": "cadAlta", "f": "Mais carga e menos rotação!"}, {"id": "sobe1", "t": "sobe", "f": "Ultrapassagem! Continua assim!"}, {"id": "rec1", "t": "rec", "f": "Novo recorde da aula! Que máquina!"}, {"id": "fc1", "t": "fc", "f": "O coração está muito alto. Respira e alivia uns segundos."}, {"id": "meio1", "t": "meio", "f": "Já vamos a meio! A melhor parte vem aí."}, {"id": "ultimo1", "t": "ultimo", "f": "Último bloco! Fecha com chave de ouro!"}, {"id": "seg_z0", "t": "seguir", "f": "A seguir: recuperação. Respira e solta as pernas!"}, {"id": "seg_z1", "t": "seguir", "f": "A seguir: zona dois, ritmo confortável. Vamos!"}, {"id": "seg_z2", "t": "seguir", "f": "A seguir: zona três. Mantém a cabeça fria!"}, {"id": "seg_z3", "t": "seguir", "f": "A seguir: zona quatro, limiar. Isto vai doer, mas tu aguentas!"}, {"id": "seg_z4", "t": "seguir", "f": "A seguir: zona cinco! Prepara-te para dar tudo!"}, {"id": "seg_z5", "t": "seguir", "f": "A seguir: anaeróbio! Explosão total!"}, {"id": "seg_z6", "t": "seguir", "f": "A seguir: sprint! Mostra-me o que vales!"}, {"id": "seg_teste", "t": "seguir", "f": "A seguir: teste de FTP. O mais forte e constante que conseguires!"}];
+  const VGR = { rec: null, chunks: [], at: null, dados: {} };
+  function vgrAbre(){
+    let ov = document.getElementById('vozEd'); if(!ov){ ov = document.createElement('div'); ov.id = 'vozEd'; document.body.appendChild(ov); }
+    ov.innerHTML = '<div class="vz-c"><div class="vz-h"><h2>🎙️ Voz do coach</h2><button type="button" id="vzX">Fechar</button></div>' +
+      '<p class="vz-d">Grava estas frases com a tua voz, com entusiasmo, como falas na aula. Na app dos alunos o Pulso passa a usar a tua voz. As frases que não gravares continuam com a voz do telemóvel. Cada gravação tem no máximo 6 segundos e fica no Firebase, para todos os telemóveis.</p>' +
+      '<div id="vzL" class="vz-l">A carregar…</div></div>';
+    ov.classList.add('on'); document.getElementById('vzX').onclick = ()=>{ vgrPara(); ov.classList.remove('on'); };
+    const pinta = ()=>{
+      const grupos = {}; VGR_FR.forEach(f=> (grupos[f.t] = grupos[f.t] || []).push(f));
+      const NOME = { dentro: 'Na zona', baixo: 'Abaixo da zona', alto: 'Acima da zona', raspa: 'Raspanete', parado: 'Parou de pedalar', ultimos: 'Últimos 15 s', inicio: 'Início de bloco intenso', cadBaixa: 'Cadência baixa', cadAlta: 'Cadência alta', sobe: 'Ultrapassagem', rec: 'Recorde', fc: 'FC muito alta', meio: 'Meio da aula', ultimo: 'Último bloco', seguir: 'A seguir (por zona)' };
+      document.getElementById('vzL').innerHTML = Object.keys(grupos).map(g=> '<h3>' + (NOME[g] || g) + '</h3>' + grupos[g].map(f=>{ const tem = !!VGR.dados[f.id];
+        return '<div class="vz-i' + (tem ? ' tem' : '') + '"><span>' + (tem ? '✅ ' : '') + escapeHtml(f.f) + '</span><button type="button" data-rec="' + f.id + '">● Gravar</button>' + (tem ? '<button type="button" data-ouve="' + f.id + '">▶</button><button type="button" data-del="' + f.id + '">🗑</button>' : '') + '</div>'; }).join('')).join('') +
+        '<p class="vz-d">' + Object.keys(VGR.dados).length + ' de ' + VGR_FR.length + ' frases gravadas.</p>';
+      ov.querySelectorAll('[data-rec]').forEach(b=> b.onclick = ()=> vgrGrava(b.dataset.rec, b, pinta));
+      ov.querySelectorAll('[data-ouve]').forEach(b=> b.onclick = ()=>{ try{ new Audio(VGR.dados[b.dataset.ouve]).play(); }catch(e){} });
+      ov.querySelectorAll('[data-del]').forEach(b=> b.onclick = ()=>{ if(!confirm('Apagar esta gravação?')) return; delete VGR.dados[b.dataset.del]; try{ if(fbDb) fbDb.ref('coachVoz/' + b.dataset.del).remove(); }catch(e){} pinta(); });
+    };
+    try{ if(fbDb) fbDb.ref('coachVoz').once('value').then(sn=>{ const v = sn.val() || {}; VGR.dados = {}; Object.keys(v).forEach(k=>{ if(v[k] && v[k].d) VGR.dados[k] = v[k].d; }); pinta(); }, ()=> pinta()); else pinta(); }catch(e){ pinta(); }
+  }
+  function vgrPara(){ try{ if(VGR.rec && VGR.rec.state !== 'inactive') VGR.rec.stop(); }catch(e){} }
+  async function vgrGrava(id, btn, pinta){
+    if(VGR.rec && VGR.rec.state === 'recording'){ vgrPara(); return; }
+    let st; try{ st = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }); }catch(e){ toast('Sem acesso ao microfone: autoriza o microfone no browser'); return; }
+    const tipo = ['audio/webm;codecs=opus', 'audio/ogg;codecs=opus', 'audio/mp4', 'audio/webm'].find(t=> window.MediaRecorder && MediaRecorder.isTypeSupported && MediaRecorder.isTypeSupported(t)) || '';
+    const rec = new MediaRecorder(st, tipo ? { mimeType: tipo, audioBitsPerSecond: 32000 } : undefined); VGR.rec = rec; VGR.chunks = [];
+    rec.ondataavailable = e=>{ if(e.data && e.data.size) VGR.chunks.push(e.data); };
+    rec.onstop = ()=>{ st.getTracks().forEach(t=> t.stop()); clearTimeout(VGR.tm); const blob = new Blob(VGR.chunks, { type: rec.mimeType || 'audio/webm' });
+      if(blob.size < 1500){ toast('Gravação muito curta'); pinta(); return; }
+      const fr = new FileReader(); fr.onload = ()=>{ VGR.dados[id] = fr.result; try{ if(fbDb) fbDb.ref('coachVoz/' + id).set({ d: fr.result, t: Date.now() }).then(()=> toast('🎙️ Gravado'), e=> toast('Não gravou no Firebase: ' + (e.code || e.message))); }catch(e){}
+        try{ new Audio(fr.result).play(); }catch(e){} pinta(); }; fr.readAsDataURL(blob); };
+    rec.start(); btn.textContent = '■ Parar'; btn.classList.add('rec'); VGR.tm = setTimeout(vgrPara, 6000);
+  }
+  document.getElementById('navVoz').addEventListener('click', vgrAbre);
   document.getElementById('navSala').addEventListener('click', ()=> SALA.abre());   // mapa da sala   // editor dos bonecos
   $('homeNewBtn').addEventListener('click', ()=>{ resetTreino(); setView('plan'); });
   // abrir uma aula leva sempre ao planeamento
