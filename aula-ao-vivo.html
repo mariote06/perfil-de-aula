@@ -1570,7 +1570,7 @@ body:has(#setupScreen.active) .legal{display:none}
   <button id="enterBtn" class="btn-primary">Entrar na aula</button>
   <div id="setupError" class="err"></div>
   <button id="demoBtn" class="btn-link">Experimentar sem bike (modo teste)</button>
-  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 17/11 23:55</div>
+  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 18/11 09:00</div>
 </div>
 
 <!-- 3. AULA -->
@@ -2083,6 +2083,8 @@ body:has(#setupScreen.active) .legal{display:none}
   function coachTick(b, next, remaining, range){
     if(COACH.modo === 'off' || state.status !== 'playing' || !b || solo === 'livre' || currentScreen !== 'liveScreen') return;
     cvozCarrega();
+    if(/alonga/i.test(b.nome || '')){   // alongamento: fora da bike, sem avisos de zona nem raspanetes — só uma palavra no início
+      if(COACH.along !== b){ COACH.along = b; coachDiz('ultimo', null, '#3DD45C', true, 'Hora de alongar! Desce da bike com calma e respira fundo. Grande treino! 👏'); } COACH.t0 = Date.now(); return; }
     const now = Date.now(), dt = COACH.t0 ? Math.min(2, (now - COACH.t0) / 1000) : 0; COACH.t0 = now;
     const z = blkZone(b), cor = zoneColor(z.css), idx = state.blockIndex, total = blocos.length, dur = blockDurationSec(b);
     if(COACH.bi !== idx){ const prim = COACH.bi === -1; COACH.bi = idx; COACH.fora = 0; COACH.dentro = 0; COACH.cadFora = 0; COACH.avisos = 0; COACH.parado = 0;

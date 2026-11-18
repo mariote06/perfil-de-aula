@@ -249,6 +249,29 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .ed-info{display:flex;justify-content:center;gap:10px 22px;flex-wrap:wrap;margin-bottom:12px;}
 .ed-info.disabled{opacity:.35;pointer-events:none;}
 .inf{display:flex;flex-direction:column;align-items:center;gap:4px;}
+#estOv{position:fixed;inset:0;z-index:9500;background:#0e1013;color:#e8ecf2;display:flex;flex-direction:column;font:13px Inter,system-ui,sans-serif}
+#estOv.drop{outline:3px dashed #E8722C;outline-offset:-8px}
+#estOv button,#estOv select{font:600 13px Inter,sans-serif;background:#1d2129;color:#e8ecf2;border:1px solid #333a45;border-radius:8px;padding:7px 11px;cursor:pointer}
+#estOv button:hover{border-color:#E8722C}#estOv .est-pri{background:#E8722C;border-color:#E8722C;color:#111}#estOv .est-ok{background:#3DD45C;border-color:#3DD45C;color:#111}
+.est-top{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #262b33;background:#14171c}.est-top b{font-size:16px}.est-aula{color:#8a93a3;margin-right:auto}
+.est-top label{display:flex;align-items:center;gap:6px;color:#aab3c0}
+.est-mid{display:grid;grid-template-columns:1fr 1.25fr;gap:10px;padding:10px 14px;min-height:0;flex:1 1 40%}
+.est-lib,.est-lis{display:flex;flex-direction:column;min-height:0;background:#000;border:1px solid #262b33;border-radius:8px}
+.est-h{display:flex;align-items:center;gap:10px;padding:7px 10px;border-bottom:1px solid #262b33;font-weight:800;color:#cfd6e0}.est-est,.est-res{font-weight:500;color:#8a93a3}
+.est-tab{overflow:auto;flex:1;min-height:0}.est-tab table{width:100%;border-collapse:collapse}.est-tab th{position:sticky;top:0;background:#121418;color:#8a93a3;font:700 11px Inter,sans-serif;text-align:left;padding:5px 6px;text-transform:uppercase}
+.est-tab td{padding:3px 6px;border-bottom:1px solid #15181d;white-space:nowrap;max-width:280px;overflow:hidden;text-overflow:ellipsis}.est-tab tr.sel td{background:#2a1d12}.est-tab tr[data-i]{cursor:pointer}
+.est-tab td button{padding:2px 7px;margin-left:3px}.est-tab input{width:62px;background:#111;color:#fff;border:1px solid #333a45;border-radius:5px;padding:2px 4px}
+.est-tab small.mau{color:#ff8a8a}.est-vz{padding:16px;color:#8a93a3;line-height:1.5}
+.est-tlw{flex:1 1 45%;min-height:220px;margin:0 14px;border:1px solid #262b33;border-radius:8px;overflow:hidden}
+#estCv{display:block;cursor:pointer}.est-av{display:flex;flex-direction:column;gap:3px;padding:6px 14px 10px;color:#ffb37a;font-size:12px}
+
+.bm{display:flex;justify-content:center;width:100%}.bm-on,.bm-off{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px}
+.bm-b,.bm-ini button{background:var(--surface-2,#1b2230);border:1px solid var(--border,#2a3240);color:var(--text,#E8ECF2);border-radius:8px;padding:6px 10px;font:600 13px Inter,sans-serif;cursor:pointer}
+.bm-b:hover{border-color:#E8722C}.bm-x{padding:6px 8px}.bm-n{font:700 13px Inter,sans-serif;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.bm-n small{color:var(--muted,#8A93A3);font-weight:600}
+.bm-ini{display:flex;align-items:center;gap:4px;font:600 12px Inter,sans-serif;color:var(--muted,#8A93A3)}.bm-ini input{width:52px;text-align:center;background:var(--surface,#12161D);border:1px solid var(--border,#2a3240);color:var(--text,#fff);border-radius:6px;padding:5px;font:700 13px Inter,sans-serif}.bm-ini button{padding:4px 9px}
+.bm-dica{font:500 12px Inter,sans-serif;color:var(--muted,#8A93A3)}
+#fMusIni{width:60px!important;min-width:0!important;flex:none!important;font:700 14px Inter,sans-serif!important;padding:5px!important;border:1px solid var(--border,#2a3240)!important;border-radius:6px!important}
+.ed-bar .b-mus{position:absolute;top:3px;right:3px;font-size:11px;line-height:1;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.6))}
 .inf label{font-size:12px;color:var(--muted);letter-spacing:.3px;}
 .inf input{background:transparent;border:1px solid transparent;border-bottom-color:var(--border);color:#fff;font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:600;text-align:center;width:64px;padding:0 2px;border-radius:4px;}
 .inf input:focus{outline:none;border-color:var(--accent);background:var(--surface-2);}
@@ -896,6 +919,11 @@ html.fs-on .live-head .fs-btn{display:none;}
 .main-nav button,.main-nav a{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;background:transparent;border:1px solid transparent;color:var(--muted);padding:8px 14px;border-radius:999px;font-size:14px;font-weight:600;text-decoration:none;font-family:'Inter',sans-serif;}
 .main-nav svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
 .main-nav button:hover,.main-nav a:hover{color:var(--text);border-color:var(--border);}
+.gest-menu{position:fixed;z-index:9000;display:flex;flex-direction:column;gap:4px;min-width:220px;padding:8px;background:var(--surface,#151a22);border:1px solid var(--border,#2a3240);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+.gest-menu[hidden]{display:none}
+.gest-menu button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:0;color:var(--text,#fff);padding:10px 12px;border-radius:10px;font:600 14px Inter,system-ui,sans-serif;cursor:pointer}
+.gest-menu button:hover{background:var(--surface-2,#1e2530)}.gest-menu svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.gest-seta{font-size:10px;margin-left:2px;opacity:.7}#navGestao[aria-expanded="true"]{background:var(--surface-2);border-color:var(--border);color:var(--text)}
 .main-nav button.on{background:var(--surface-2);border-color:var(--border);color:var(--text);}
 body[data-view="home"] [data-sec]:not([data-sec~="home"]),
 body[data-view="plan"] [data-sec]:not([data-sec~="plan"]),
@@ -1267,7 +1295,7 @@ body[data-view="ano"] .legal{margin-top:8px;}
 .gpx-p h3{margin:0;font:800 34px 'Barlow Condensed',sans-serif}.gpx-p p{margin:0;max-width:640px;color:#aab3c0;font-size:16px;line-height:1.45}
 .gpx-up{cursor:pointer;background:#E8722C;color:#140a03;border-radius:12px;font:800 18px Inter,sans-serif;padding:14px 22px}
 .gpx-l{display:flex;flex-direction:column;gap:8px;width:min(560px,100%)}.gpx-i{display:flex;gap:6px}.gpx-i button{background:#12161D;border:1px solid #262D39;border-radius:10px;color:#E8ECF2;padding:10px 14px;cursor:pointer}
-.gpx-i button[data-g]{flex:1;display:flex;justify-content:space-between;gap:10px;text-align:left}.gpx-i button[data-g] span{color:#8A93A3}.gpx-i.on button[data-g]{border-color:#E8722C;box-shadow:0 0 0 2px #E8722C55}
+.gpx-i button.gpx-aula{color:#FFD60A;white-space:nowrap;font-weight:700}.gpx-i button[data-g]{flex:1;display:flex;justify-content:space-between;gap:10px;text-align:left}.gpx-i button[data-g] span{color:#8A93A3}.gpx-i.on button[data-g]{border-color:#E8722C;box-shadow:0 0 0 2px #E8722C55}
 .gpx-pre{display:flex;flex-direction:column;gap:8px;width:min(560px,100%)}.gpx-pre>span{color:#aab3c0;font-size:14px}
 .gpx-pre button{background:linear-gradient(120deg,#1d2a1f,#12161D);border:1px solid #2f5a37;border-radius:12px;color:#E8ECF2;padding:12px 14px;text-align:left;cursor:pointer}.gpx-pre button b{display:block;font-size:17px}.gpx-pre button small{color:#9fb0a2;font-size:13px}.gpx-pre button:disabled{opacity:.5}
 .gpx-info{color:#FFD60A;font-size:14px;min-height:18px}
@@ -1298,7 +1326,7 @@ body.sr-full-on #liveOverlay #srBox,body.sr-full-on #liveOverlay #srBox *{visibi
 .sr-hud .sr-pin b{font-size:clamp(24px,3cqw,44px);font-weight:800;letter-spacing:2px;margin-left:6px;}
 .sr-neob.off,.sr-drb.off{opacity:.45;filter:grayscale(1);}
 .sr-metb.sr-drb{top:106px;} .sr-metb.sr-drc{top:154px;font-size:17px;} .sr-metb.sr-3d{top:202px;} .sr-3d.off{opacity:.45;filter:grayscale(1);}
-.sr-metb.sr-mg{top:250px;} .sr-metb.sr-est{top:298px;} .sr-mg.off{opacity:.45;filter:grayscale(1);}
+.sr-metb.sr-mg{top:250px;} .sr-metb.sr-heb{top:346px;} .sr-heb.off{opacity:.45;filter:grayscale(1);} .sr-box canvas.sr-heli{z-index:1;cursor:zoom-in;} .sr-box canvas.sr-heli[hidden]{display:none;} .sr-metb.sr-est{top:298px;} .sr-mg.off{opacity:.45;filter:grayscale(1);}
 .sr-vin{--rot:-3deg;--zc:#3DD45C;position:absolute;left:2.2%;top:50%;width:min(25cqw,38cqh);aspect-ratio:1/1;background:#fff;border:clamp(4px,.45cqw,8px) solid #111;box-shadow:clamp(6px,.7cqw,12px) clamp(6px,.7cqw,12px) 0 #111;transform:rotate(var(--rot)) scale(.2);opacity:0;transition:transform .35s cubic-bezier(.2,1.6,.4,1),opacity .2s;pointer-events:none;z-index:2;}
 .sr-vin.on{transform:rotate(var(--rot)) scale(1);opacity:1;}
 .sr-vin canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
@@ -1863,12 +1891,15 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     <button data-go="lib"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h5v14H4zM10 5h4v14h-4zM15.5 6.2l3.8-1 3 13.6-3.8 1z"/></svg>Biblioteca</button>
     <button data-go="hist"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5M4 19h16M8 15l3-4 3 2 5-6"/></svg>Treinos realizados</button>
     <a href="aula-ao-vivo.html?livre=1" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5.5" cy="16.5" r="3.5"/><circle cx="18.5" cy="16.5" r="3.5"/><path d="M5.5 16.5 9 9h6l3.5 7.5M9 9 12 16.5h-3M14 6h2.5l-1.5 3"/></svg>Só pedalar</a>
-    <button type="button" id="navSala" title="Mapa da sala: o lugar e o número de cada bike em Lousada e Penafiel, para a projeção mostrar cada aluno na sua bike"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v3h10V4M7 11h2M11 11h2M15 11h2M8 15.5h2M12 15.5h2"/></svg>Sala</button>
-    <button type="button" id="navVoz" title="Grava a tua voz para o coach virtual (Pulso) da app do aluno"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg>Voz do coach</button>
-    <button type="button" id="navBonecos" title="Editor dos bonecos: afinar a postura, o pescoço, os capacetes e os chapéus dos ciclistas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="2.3"/><path d="M12 7v7M7 9.5l5 1.5 5-1.5M12 14l-3 7M12 14l3 7"/></svg>Bonecos</button>
+    <button type="button" id="navGestao" hidden aria-haspopup="true" aria-expanded="false" title="Gestão: sala, voz do coach e bonecos (só para gestores)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>Gestão<span class="gest-seta">▾</span></button>
   </nav>
   </div>
 
+  <div class="gest-menu" id="gestMenu" role="menu" hidden>
+  <button type="button" id="navSala" title="Mapa da sala: o lugar e o número de cada bike em Lousada e Penafiel, para a projeção mostrar cada aluno na sua bike"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v3h10V4M7 11h2M11 11h2M15 11h2M8 15.5h2M12 15.5h2"/></svg>Sala</button>
+  <button type="button" id="navVoz" title="Grava a tua voz para o coach virtual (Pulso) da app do aluno"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3M9 21h6"/></svg>Voz do coach</button>
+  <button type="button" id="navBonecos" title="Editor dos bonecos: afinar a postura, o pescoço, os capacetes e os chapéus dos ciclistas"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="4.5" r="2.3"/><path d="M12 7v7M7 9.5l5 1.5 5-1.5M12 14l-3 7M12 14l3 7"/></svg>Bonecos</button>
+  </div>
   <!-- MENU INICIAL -->
   <div data-sec="home" id="homeSec">
     <div class="home-hero">
@@ -1965,6 +1996,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       <div class="inf"><label>rpm</label><div class="dur"><input type="number" id="fRpm" min="0" max="200" title="RPM mínimo"><span class="dash">-</span><input type="number" id="fRpm2" min="0" max="200" title="RPM máximo"></div></div>
       <div class="inf"><label>intensidade</label><div class="val rng" id="fRange">—</div><div class="dur exact" id="fIntWrap"><span class="ex-l">alvo</span><input type="number" id="fFtp" min="0" max="250"><span id="fUnit">% FTP</span></div><select id="fZsel" class="zsel" style="display:none"></select><div class="ztag" id="fZone">—</div></div>
       <div class="inf wide"><label>técnica</label><select id="fTecSel" class="zsel tec-sel"></select><input type="text" id="fTec" maxlength="80" placeholder="escreve a técnica" style="display:none"></div>
+      <div class="inf wide bm-row"><label>🎵 música do bloco</label><div class="bm" id="fMus"></div></div>
     </div>
 
     <div class="zfeel" id="fFeel"></div>
@@ -2688,6 +2720,8 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       tipo: (b.tipo === 'seg' || b.tipo === 'cool') ? b.tipo : undefined,
       teste: b.teste ? true : undefined,
       jogo: JOGO_KEYS.test(b.jogo || '') ? b.jogo : undefined,
+      aq: b.aq ? true : undefined,
+      mus: b.mus && typeof b.mus === 'object' && (b.mus.key || b.mus.uri || b.mus.url) ? { src: ['file', 'url', 'sptrack'].includes(b.mus.src) ? b.mus.src : 'file', key: b.mus.key ? String(b.mus.key).slice(0, 40) : undefined, uri: b.mus.uri ? String(b.mus.uri).slice(0, 80) : undefined, url: b.mus.url ? String(b.mus.url).slice(0, 600) : undefined, nome: String(b.mus.nome || '').slice(0, 60), dur: Math.max(0, Number(b.mus.dur) || 0), ini: Math.max(0, Number(b.mus.ini) || 0) } : undefined,
     });
   }
 
@@ -2981,6 +3015,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       html += '<div class="ed-bar' + (i === selIdx ? ' sel' : '') + (selSet.size > 1 && selSet.has(b.id) && i !== selIdx ? ' msel' : '') + '" data-i="' + i + '" style="left:' + x + 'px;width:' + (w - 2) + 'px;height:' + h + 'px;--c:' + c + '">' +
         '<div class="h-top" data-i="' + i + '"></div><div class="h-right" data-i="' + i + '"></div>' +
         (w > (modoAtual() === 'zonas' ? 24 : 40) ? '<div class="b-lbl">' + lblInt(b) + '</div>' : '') +
+        (bmMusDe(b) && w > 12 ? '<div class="b-mus" title="🎵 ' + escapeHtml(b.mus.nome || 'Música') + '">🎵</div>' : '') +
         (b.jogo && w > 12 ? '<div class="b-jg" title="' + escapeHtml(jogoInfo(b.jogo).n) + '">' + jogoInfo(b.jogo).ico + '</div>' : '') +
         (w > 86 && h > 34 ? '<div class="b-info">' + fmtTime(d) + '<small>s</small>&nbsp; ' + rpmTxt(b) + '<small>rpm</small></div>' : '') + '</div>';
       x += d * pps;
@@ -3032,7 +3067,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function renderInfo(){
     const b = selected();
     const box = $('edInfo');
-    box.classList.toggle('disabled', !b);
+    box.classList.toggle('disabled', !b); bmPinta(b);
     const set = (id, v)=>{ const el = $(id); if(document.activeElement !== el) el.value = v; };
     if(!b){
       ['fNome','fMin','fSec','fRpm','fRpm2','fFtp','fTec'].forEach(id=> set(id, ''));
@@ -5298,12 +5333,12 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   }
   // curvas a partir da direção real da estrada em cada troço: no 3D a viragem tem o ângulo real (dh, em radianos);
   // no 2D a mesma viragem, espalhada e limitada (o desenho 2D não aguenta curvas muito fechadas)
-  function srRumos(segs, pts, kmT, denso){
+  function srRumos(segs, pts, kmT, denso, kmOf){
     const N = segs.length; if(N < 3 || !pts || pts.length < 2) return;
     let j = 0; const pos = km=>{ while(j > 0 && pts[j].km > km) j--; while(j < pts.length - 2 && pts[j + 1].km < km) j++;
       const a = pts[j], b = pts[j + 1], f = b.km > a.km ? Math.max(0, Math.min(1, (km - a.km) / (b.km - a.km))) : 0; return { la: a.la + (b.la - a.la) * f, lo: a.lo + (b.lo - a.lo) * f }; };
     const passo = kmT / (N - 1), w = Math.max(denso ? .01 : .06, passo * 1.5), H = new Float64Array(N);
-    for(let k = 0; k < N; k++){ const km = k * passo; H[k] = parisRumo(pos(Math.max(0, km - w)), pos(Math.min(kmT, km + w))); }
+    for(let k = 0; k < N; k++){ const km = kmOf ? kmOf(k) : k * passo; H[k] = parisRumo(pos(Math.max(0, km - w)), pos(Math.min(kmT, km + w))); }
     const dh = new Float64Array(N); for(let k = 0; k < N - 1; k++){ let d = H[k + 1] - H[k]; while(d > Math.PI) d -= 2 * Math.PI; while(d < -Math.PI) d += 2 * Math.PI; dh[k] = d; }
     const G = 8, wg = []; let ws = 0; for(let q = -2 * G; q <= 2 * G; q++){ const v = Math.exp(-(q / G) * (q / G)); wg.push(v); ws += v; }
     for(let k = 0; k < N; k++){ let c = 0; for(let q = -2 * G; q <= 2 * G; q++){ const t = k + q; if(t >= 0 && t < N) c += dh[t] * wg[q + 2 * G]; }
@@ -5955,21 +5990,36 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   // altitude real no ponto da aula (fração 0..1 do percurso)
   function srRotaAlt(R, f){ const e = R.ele; if(!e) return null; const x = Math.max(0, Math.min(1, f)) * (e.length - 1), i = Math.floor(x); return Math.round(e[i] + ((e[i + 1] ?? e[i]) - e[i]) * (x - i)); }
   // aplica à estrada da aula as curvas reais, as ruas e freguesias, os ambientes e os pontos de interesse
+  // aquecimento no início e retorno à calma/alongamento no fim: em GPX ficam fora do percurso (zona neutra antes da partida e depois da meta)
+  function srBlocoAq(b){ return !!b && !b.tipo && (b.aq || /^aquec/i.test(b.nome || '') || (b.ftp || 0) < 56); }
+  function srBlocoFim(b){ return !!b && (b.tipo === 'cool' || /retorno|alonga/i.test(b.nome || '') || (!b.tipo && (b.ftp || 0) < 56)); }
+  function srRotaJanela(segs, R){
+    const N = segs.length, lin = k=> k / (N - 1) * R.km; segs.kmOf = lin; segs.kOfKm = km=> Math.round(km / R.km * (N - 1));
+    if(!R.gpx || N < 10) return;
+    const BL = current.blocos || []; let a = 0; while(a < BL.length - 1 && srBlocoAq(BL[a]) && (/^aquec/i.test(BL[a].nome || '') || BL[a].aq || (BL[a].ftp || 0) < 56)) a++;
+    let z = BL.length - 1; while(z > a && srBlocoFim(BL[z])) z--;
+    if(a === 0 && z === BL.length - 1) return;
+    let i0 = segs.findIndex(s=> s.b >= a), i1 = -1; for(let k = N - 1; k >= 0; k--) if(segs[k].b <= z){ i1 = k; break; }
+    if(i0 < 0 || i1 <= i0 + 5) return;
+    segs.kmOf = k=> Math.max(0, Math.min(1, (k - i0) / (i1 - i0))) * R.km;
+    segs.kOfKm = km=> Math.round(i0 + km / R.km * (i1 - i0));
+  }
   function srRotaAplica(segs, R){
-    const N = segs.length, P = R.pts, kOf = km=> Math.round(km / R.km * (N - 1)), rnd = srRnd(N * 17 + 3);
+    srRotaJanela(segs, R);
+    const N = segs.length, P = R.pts, kOf = km=> segs.kOfKm(km), kmOf = k=> segs.kmOf(k), rnd = srRnd(N * 17 + 3);
     segs.forEach(s=> s.curve = 0);
     // GPX com "telemetria real": a estrada sobe e desce como o percurso verdadeiro (mesmas inclinações), em vez de seguir os blocos da aula
     if(R.gpx && R.ele && R.altReal){ const E = R.ele, ea = f=>{ const x = Math.max(0, Math.min(1, f)) * (E.length - 1), i = Math.floor(x); return E[i] + ((E[i + 1] ?? E[i]) - E[i]) * (x - i); };
-      const kE = (N * SR_SEG / SR_M / 1000) / R.km, a0 = ea(0); segs.forEach((s, i)=>{ s.y = (ea(i / (N - 1)) - a0) * SR_M * SR_EXG * kE; s.real = true; }); }
+      const kE = (N * SR_SEG / SR_M / 1000) / R.km, a0 = ea(0); segs.forEach((s, i)=>{ s.y = (ea(kmOf(i) / R.km) - a0) * SR_M * SR_EXG * kE; s.real = true; }); }
     for(let i = 1; i < P.length - 1; i++){   // curvas: mudança de direção real entre os pontos da estrada
       let th = parisRumo(P[i], P[i + 1]) - parisRumo(P[i - 1], P[i]);
       while(th > Math.PI) th -= 2 * Math.PI; while(th < -Math.PI) th += 2 * Math.PI;
       const l = Math.max(18, Math.min(60, Math.round(Math.abs(th) * 42))), c = Math.max(-7, Math.min(7, th * 76 / (2 * l / Math.PI))), k0 = kOf(P[i].km) - Math.round(l / 2);
       for(let k = 0; k < l; k++){ const q = k0 + k; if(q >= 0 && q < N) segs[q].curve += c * Math.sin(k / l * Math.PI); }
     }
-    if(R.gpx) srRumos(segs, R.pts, R.km, true); else { const D = srGeoDenso(R.estilo === 'porto' ? 'porto' : R === ROTAS.pl ? 'pl' : 'lp', R.pts); srRumos(segs, D || R.pts, R.km, !!D); }   // curvas reais pelas ruas
+    if(R.gpx) srRumos(segs, R.pts, R.km, true, kmOf); else { const D = srGeoDenso(R.estilo === 'porto' ? 'porto' : R === ROTAS.pl ? 'pl' : 'lp', R.pts); srRumos(segs, D || R.pts, R.km, !!D); }   // curvas reais pelas ruas
     segs.forEach((s, k)=>{
-      const f = k / (N - 1) * R.km, rua = R.ruas.find(r=> f >= r[0] && f < r[1]) || R.ruas[R.ruas.length - 1], am = rua[3];
+      const f = kmOf(k), rua = R.ruas.find(r=> f >= r[0] && f < r[1]) || R.ruas[R.ruas.length - 1], am = rua[3];
       s.rua = rua[2]; s.amb = am;
       if(R.estilo === 'porto'){ srPortoTroco(s, k, f, am, R, rnd); return; }
       const sp = [], r1 = rnd(), r2 = rnd(), r3 = rnd();
@@ -6225,6 +6275,58 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
         sant: { km: Math.max(0, G.km - .12), n: P.sant, la: W[W.length - 1][1], lo: W[W.length - 1][0], lado: 1 } });
       return G;
     }
+
+    // ——— aula de 50 min feita a partir do percurso: 8′ de aquecimento em plano, ~34′ a seguir as subidas e descidas reais, 4′ de retorno à calma e 4′ de alongamento ———
+    const CAT = [
+      { k: 'D', max: -2.5, nome: 'Descida', ftp: 55, rpm: 95, rpm2: 105, tec: 'Plano Sentado' },
+      { k: 'P', max: 2, nome: 'Plano', ftp: 70, rpm: 90, rpm2: 100, tec: 'Plano Sentado' },
+      { k: 'S1', max: 4.5, nome: 'Subida suave', ftp: 78, rpm: 80, rpm2: 90, tec: 'Subida Sentada' },
+      { k: 'S2', max: 7.5, nome: 'Subida', ftp: 88, rpm: 70, rpm2: 80, tec: 'Subida Sentada' },
+      { k: 'S3', max: 10, nome: 'Subida dura', ftp: 97, rpm: 60, rpm2: 70, tec: 'Subida em Pé' },
+      { k: 'S4', max: 99, nome: 'Rampa', ftp: 105, rpm: 55, rpm2: 65, tec: 'Combinado na Subida' } ];
+    const catDe = g=> CAT.findIndex(c=> g < c.max);
+    function aula(G, minPrinc){
+      minPrinc = minPrinc || 34; const E = G.ele, n = E ? E.length : 0, km = G.km, fmt = v=> v.toFixed(1).replace('.', ',');
+      // troços com a inclinação média de ~300 m e a sua categoria
+      const T = []; if(n > 2){ const dk = km / (n - 1), w = Math.max(1, Math.round(.3 / dk));
+        for(let i = 0; i < n - 1; i++){ const a = Math.max(0, i - w), b = Math.min(n - 1, i + w + 1), g = (E[b] - E[a]) / ((b - a) * dk * 1000) * 100; T.push({ a: i * dk, b: (i + 1) * dk, g, c: catDe(g) }); } }
+      else T.push({ a: 0, b: km, g: 0, c: 1 });
+      // junta troços seguidos da mesma categoria
+      let S = []; T.forEach(t=>{ const u = S[S.length - 1]; if(u && u.c === t.c){ u.b = t.b; u.sg += t.g * (t.b - t.a); } else S.push({ a: t.a, b: t.b, c: t.c, sg: t.g * (t.b - t.a) }); });
+      // tempo de cada troço à velocidade de quem pedala a essa intensidade (FTP 200 W), depois escala para os minutos da parte principal
+      const tempo = x=>{ const C = CAT[x.c], gm = x.sg / Math.max(.001, x.b - x.a) / 100; return (x.b - x.a) / Math.max(5, srVRef(200 * C.ftp / 100, gm)) * 3600; };
+      const minSeg = 75;   // nenhum bloco com menos de 1′15″: os curtos juntam-se ao vizinho mais parecido
+      for(let it = 0; it < 200 && S.length > 1; it++){ const tot = S.reduce((s, x)=> s + tempo(x), 0), k = minPrinc * 60 / tot;
+        let iMin = -1, vMin = Infinity; S.forEach((x, i)=>{ const v = tempo(x) * k; if(v < vMin){ vMin = v; iMin = i; } });
+        if(vMin >= minSeg || S.length <= 2) break;
+        const x = S[iMin], L = S[iMin - 1], R = S[iMin + 1], j = !L ? iMin + 1 : !R ? iMin - 1 : Math.abs(L.c - x.c) <= Math.abs(R.c - x.c) ? iMin - 1 : iMin + 1, y = S[j];
+        const m = { a: Math.min(x.a, y.a), b: Math.max(x.b, y.b), sg: x.sg + y.sg }; m.c = catDe(m.sg / Math.max(.001, m.b - m.a)); S.splice(Math.min(iMin, j), 2, m);
+        for(let q = S.length - 1; q > 0; q--) if(S[q].c === S[q - 1].c){ S[q - 1].b = S[q].b; S[q - 1].sg += S[q].sg; S.splice(q, 1); } }
+      const tot = S.reduce((s, x)=> s + tempo(x), 0), k = minPrinc * 60 / tot;
+      let seg = S.map(x=> Math.max(30, Math.round(tempo(x) * k / 15) * 15)), dif = minPrinc * 60 - seg.reduce((a, b)=> a + b, 0);
+      for(let it = 0; dif !== 0 && it < 400; it++){ const i = seg.indexOf(Math.max(...seg)); const d = Math.sign(dif) * Math.min(15, Math.abs(dif)); seg[i] += d; dif -= d; }
+      const B = (o)=> newBlock(Object.assign({ jogo: 'p_gpx' }, o)), ms = v=> ({ min: Math.floor(v / 60), sec: v % 60 });
+      const blocos = [
+        B(Object.assign({ nome: 'Aquecimento', ftp: 50, rpm: 85, rpm2: 95, tecnica: 'Plano Sentado', aq: true }, ms(240))),
+        B(Object.assign({ nome: 'Aquecimento · ativar', ftp: 62, rpm: 90, rpm2: 100, tecnica: 'Plano Sentado', aq: true }, ms(120))),
+        B(Object.assign({ nome: 'Aquecimento · rumo à partida', ftp: 70, rpm: 90, rpm2: 100, tecnica: 'Plano Sentado', aq: true }, ms(120))) ];
+      S.forEach((x, i)=>{ const C = CAT[x.c], gm = x.sg / Math.max(.001, x.b - x.a), ult = i === S.length - 1;
+        blocos.push(B(Object.assign({ nome: (ult && x.c >= 2 ? 'Rumo à meta · ' : '') + C.nome + ' · km ' + fmt(x.a) + '–' + fmt(x.b) + ' (' + (gm >= 0 ? '' : '−') + Math.abs(gm).toFixed(1).replace('.', ',') + '%)',
+          ftp: C.ftp + (ult && x.c >= 1 ? 5 : 0), rpm: C.rpm, rpm2: C.rpm2, tecnica: C.tec }, ms(seg[i])))); });
+      blocos.push(B(Object.assign({ nome: 'Retorno à calma', ftp: 45, rpm: 80, rpm2: 90, tecnica: 'Plano Sentado' }, ms(240))));
+      blocos.push(B(Object.assign({ nome: 'Alongamento', tipo: 'cool', ftp: 40, rpm: 0, rpm2: 0, tecnica: 'Plano Sentado' }, ms(240))));
+      return blocos;
+    }
+    function criaAula(G){
+      if(!G) return;
+      if(current.blocos && current.blocos.length && !confirm('Criar uma aula de 50 min no percurso "' + G.nome + '"?\n\n8′ de aquecimento em plano · ~34′ com as subidas e descidas reais · 4′ de retorno à calma · 4′ de alongamento.\n\nOs blocos da aula aberta são substituídos (podes desfazer).')) return;
+      pushUndo(); if(modoAtual() === 'fc') current.modo = 'ftp';
+      current.blocos = aula(G); current.nome = G.nome.slice(0, 40).toUpperCase(); current.id = null;
+      const L = lib(), g = L.find(x=> x.id === G.id); if(g && g.ele){ g.alt = 'real'; grava(L); } usa(g || G); SR.key = '';
+      selIdx = 0; render(); try{ $('treinoNome').value = current.nome; }catch(e){}
+      try{ const ba = $('gpxAlt'); if(ba && altAtual() === 'real') ba.textContent = '⛰️ Telemetria real'; }catch(e){}
+      toast('📋 Aula de 50 min criada: ' + G.nome + ' (' + (current.blocos.length - 5) + ' blocos no percurso)');
+    }
     function usa(G){ ROTAS.gpx = gpxRota(G); try{ localStorage.setItem(SK, G.id); }catch(e){}
       try{ if(typeof sessionPin !== 'undefined' && sessionPin && fbDb) sessionRef(sessionPin).child('gpx').set(G).catch(()=>{}); }catch(e){} }
     // altimetria da estrada: 'treino' (os blocos decidem as subidas) ou 'real' (as subidas e descidas verdadeiras do GPX)
@@ -6239,7 +6341,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       gp.innerHTML = '<div class="gpx-p"><h3>🗺️ O teu percurso (GPX)</h3><p>Carrega um ficheiro <b>.gpx</b> (exportado do Strava, Garmin Connect, Komoot, Wikiloc…). A estrada da aula segue as curvas e o mapa mostra o traçado e a altitude real.</p>' +
         '<label class="gpx-up">📂 Carregar ficheiro GPX<input type="file" accept=".gpx,application/gpx+xml,application/xml,text/xml" id="gpxFich" hidden></label>' +
         '<div class="gpx-pre"><span>Percursos reais prontos (estrada do OpenStreetMap e altimetria real):</span>' + PRESETS.map(P=> '<button type="button" data-pre="' + P.id + '"><b>' + P.ico + ' ' + escapeHtml(P.nome) + '</b><small>' + escapeHtml(P.d) + '</small></button>').join('') + '<div id="gpxInfo" class="gpx-info"></div></div>' +
-        (L.length ? '<div class="gpx-l">' + L.map(G=> '<div class="gpx-i' + (ROTAS.gpx && ROTAS.gpx.id === G.id ? ' on' : '') + '"><button type="button" data-g="' + G.id + '"><b>' + escapeHtml(G.nome) + '</b><span>' + String(G.km).replace('.', ',') + ' km' + (G.sobe ? ' · ↗ ' + G.sobe + ' m' : '') + '</span></button><button type="button" class="gpx-x" data-x="' + G.id + '" title="Apagar">🗑</button></div>').join('') + '</div>' : '') +
+        (L.length ? '<div class="gpx-l">' + L.map(G=> '<div class="gpx-i' + (ROTAS.gpx && ROTAS.gpx.id === G.id ? ' on' : '') + '"><button type="button" data-g="' + G.id + '"><b>' + escapeHtml(G.nome) + '</b><span>' + String(G.km).replace('.', ',') + ' km' + (G.sobe ? ' · ↗ ' + G.sobe + ' m' : '') + '</span></button><button type="button" class="gpx-aula" data-aula="' + G.id + '" title="Criar uma aula de 50 min neste percurso: 8′ aquecimento, ~34′ no percurso real, 8′ retorno à calma e alongamento">📋 Aula 50′</button><button type="button" class="gpx-x" data-x="' + G.id + '" title="Apagar">🗑</button></div>').join('') + '</div>' : '') +
         (L.length ? '<div class="gpx-alt"><span>Subidas e descidas da estrada:</span><button type="button" data-alt="treino" class="' + (altAtual() !== 'real' ? 'on' : '') + '">📋 Programação do treino</button><button type="button" data-alt="real" class="' + (altAtual() === 'real' ? 'on' : '') + '">⛰️ Telemetria real do percurso</button></div>' : '') +
         (ROTAS.gpx ? '<button type="button" class="gpx-volta" id="gpxVolta">← Voltar ao percurso</button>' : '') + '</div>';
       const fecha = ()=>{ delete gp.dataset.gpx; gp.innerHTML = ''; delete gp.dataset.serra; SR.key = ''; try{ srMonta(gp); botao(gp); }catch(e){} };
@@ -6249,6 +6351,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       gp.querySelectorAll('[data-g]').forEach(b=> b.onclick = ()=>{ const G = lib().find(x=> x.id === b.dataset.g); if(G){ usa(G); fecha(); } });
       gp.querySelectorAll('[data-x]').forEach(b=> b.onclick = ()=>{ const G = lib().find(x=> x.id === b.dataset.x); if(!G || !confirm('Apagar o percurso "' + G.nome + '" deste PC?')) return; grava(lib().filter(x=> x.id !== G.id)); if(ROTAS.gpx && ROTAS.gpx.id === G.id){ delete ROTAS.gpx; try{ localStorage.removeItem(SK); }catch(e){} } painel(gp); });
       if($('gpxVolta')) $('gpxVolta').onclick = fecha;
+      gp.querySelectorAll('[data-aula]').forEach(b=> b.onclick = ()=>{ const G = lib().find(x=> x.id === b.dataset.aula); if(G){ criaAula(G); fecha(); } });
       gp.querySelectorAll('[data-alt]').forEach(b=> b.onclick = ()=>{ poeAlt(b.dataset.alt); painel(gp); });
       gp.querySelectorAll('[data-pre]').forEach(b=> b.onclick = async ()=>{
         const P = PRESETS.find(x=> x.id === b.dataset.pre), inf = $('gpxInfo'), info = t=>{ if(inf) inf.textContent = '⏳ ' + t; };
@@ -6264,8 +6367,9 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       b.onclick = ()=>{ srPara(); painel(gp); }; bx.appendChild(b);
       const a = document.createElement('button'); a.id = 'gpxAlt'; a.className = 'gpx-troca'; a.type = 'button';
       const pinta = ()=>{ a.textContent = altAtual() === 'real' ? '⛰️ Telemetria real' : '📋 Programação do treino'; a.title = 'Trocar as subidas da estrada entre a telemetria real do GPX e a programação do treino'; };
-      pinta(); a.onclick = ()=>{ poeAlt(altAtual() === 'real' ? 'treino' : 'real'); pinta(); }; bx.appendChild(a); }
-    return { ativa, atual, painel, botao, le, altAtual, poeAlt };
+      pinta(); a.onclick = ()=>{ poeAlt(altAtual() === 'real' ? 'treino' : 'real'); pinta(); }; bx.appendChild(a);
+      const c = document.createElement('button'); c.className = 'gpx-troca'; c.type = 'button'; c.textContent = '📋 Aula de 50′ neste percurso'; c.title = '8′ aquecimento · ~34′ no percurso real · 8′ retorno à calma e alongamento'; c.onclick = ()=> criaAula(atual()); bx.appendChild(c); }
+    return { ativa, atual, painel, botao, le, altAtual, poeAlt, aula, criaAula };
   })();
   ROTAS.porto = { titulo:'MARATONA DO PORTO', km: 42.2, estilo:'porto', pts: PORTO_GEO.map(p=> ({ km: p[0], la: p[1], lo: p[2] })), ruas: PORTO_RUAS, pois: PORTO_POI, ele: PORTO_ELE,
     ini:['PARTIDA', 'MARATONA DO PORTO · SEA LIFE'], fim:['META', 'QUEIMÓDROMO · PARQUE DA CIDADE'], nIni:'Partida · SEA LIFE Porto', nFim:'Meta · Queimódromo', santKm: null, vilas:[],
@@ -6684,7 +6788,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       SR.mapa = { key, cv };
     }
     ctx.drawImage(SR.mapa.cv, x0, y0);
-    const N = SR.trk.segs.length, f = Math.max(0, Math.min(1, camZ / ((N - 1) * SR_SEG))), alvo = f * R.km, Pt = R.pts;
+    const N = SR.trk.segs.length, f = Math.max(0, Math.min(1, camZ / ((N - 1) * SR_SEG))), alvo = SR.trk.segs.kmOf ? SR.trk.segs.kmOf(Math.min(N - 1, camZ / SR_SEG)) : f * R.km, Pt = R.pts;
     let i = 1; while(i < Pt.length - 1 && Pt[i].km < alvo) i++;
     const t = (alvo - Pt[i - 1].km) / ((Pt[i].km - Pt[i - 1].km) || 1), q = XY(Pt[i - 1].la + (Pt[i].la - Pt[i - 1].la) * t, Pt[i - 1].lo + (Pt[i].lo - Pt[i - 1].lo) * t);
     ctx.fillStyle = '#FFD60A'; ctx.strokeStyle = '#05070A'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x0 + q[0], y0 + q[1], 7, 0, 7); ctx.fill(); ctx.stroke();
@@ -9817,15 +9921,128 @@ const SR3 = (()=>{
     ctx.fillStyle = '#fff'; ctx.fillRect(cx - 1.5, y0, 3, h); ctx.beginPath(); ctx.arc(cx, y0 + h - (segs[Math.min(N - 1, Math.floor(camZ / SR_SEG))].y - A.mn) / A.rg * (h - 8) - 4, 8, 0, 7); ctx.fill();
     ctx.strokeStyle = '#0B0E13'; ctx.lineWidth = 3; ctx.stroke();
   }
+  // ——— 🛰️ Vista de helicóptero: o percurso visto lá do alto; cada aluno é um ponto com nome, watts, cadência e a distância ao da frente e ao de trás ———
+  // Usa as mesmas posições da estrada (relógio da aula + avanço de cada aluno), por isso bate certo com o que se vê em baixo.
+  const HELI = { raf: 0, geo: null, key: '', zoom: 'tudo', vis: null, nuvens: null };
+  function heliGeo(){
+    const tk = SR.trk; if(!tk || !tk.segs || tk.segs.length < 3) return null;
+    const segs = tk.segs, N = segs.length, P = new Array(N);
+    const R = SR.tema === 'vale' ? (ROTAS[SR.rota] || ROTAS.lp) : null;
+    if(R && R.pts && R.pts.length > 1 && R.pts[0].la != null){
+      // percursos reais: cada troço da estrada fica no ponto certo do mapa (latitude/longitude)
+      const pts = R.pts, k = Math.cos((pts[0].la || 41) * Math.PI / 180); let j = 0;
+      for(let i = 0; i < N; i++){ const km = segs.kmOf ? segs.kmOf(i) : i / (N - 1) * R.km;
+        while(j < pts.length - 2 && pts[j + 1].km < km) j++;
+        const a = pts[j], b = pts[j + 1] || a, f = b.km > a.km ? Math.max(0, Math.min(1, (km - a.km) / (b.km - a.km))) : 0;
+        P[i] = [(a.lo + (b.lo - a.lo) * f) * k * 111320, -(a.la + (b.la - a.la) * f) * 111320]; }
+    } else {
+      // percursos inventados: desenha-se a estrada a partir das curvas de cada troço
+      let h = 0, x = 0, y = 0; const passo = SR_SEG / SR_M;
+      for(let i = 0; i < N; i++){ h += (segs[i].curve || 0) * .011; x += Math.sin(h) * passo; y -= Math.cos(h) * passo; P[i] = [x, y]; }
+    }
+    let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity; P.forEach(p=>{ a = Math.min(a, p[0]); b = Math.max(b, p[0]); c = Math.min(c, p[1]); d = Math.max(d, p[1]); });
+    return { P, N, box: [a, b, c, d], real: !!R };
+  }
+  function heliMetros(dz){ return Math.abs(dz) / SR_M; }
+  function heliFmtM(m){ return m < 995 ? Math.round(m) + ' m' : (m / 1000).toFixed(1).replace('.', ',') + ' km'; }
+  function heliPos(G, z){ const f = Math.max(0, Math.min(G.N - 1.001, z / SR_SEG)), i = Math.floor(f), t = f - i, A = G.P[i], B = G.P[i + 1] || A; return [A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t]; }
+  function heliCor(id){ let h = 0; for(const ch of String(id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return 'hsl(' + (h % 360) + ',85%,60%)'; }
+  function heliFrame(now){
+    HELI.raf = 0; const cv = $('srHeliCv'); if(!SR.heli || !cv || !cv.isConnected || !SR.on) return;
+    HELI.raf = requestAnimationFrame(heliFrame);
+    const W = cv.clientWidth, H = cv.clientHeight; if(!W || !H) return; const dpr = Math.min(2, window.devicePixelRatio || 1);
+    if(cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)){ cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    if(HELI.key !== SR.key || !HELI.geo){ HELI.key = SR.key; HELI.geo = heliGeo(); HELI.vis = null; }
+    const G = HELI.geo; ctx.fillStyle = '#0d1a14'; ctx.fillRect(0, 0, W, H); if(!G) return;
+    // alunos: posição na estrada (z) e ordem
+    const rs = visRiders().filter(jgPedala), gs = SR.gaps || {}, zG = SR.zG || 0;
+    const L = rs.map(r=> ({ r, z: zG + (gs[r.id] || 0) })).sort((p, q)=> q.z - p.z);
+    L.forEach(o=> o.p = heliPos(G, o.z));
+    // enquadramento: o percurso todo, ou o pelotão (com folga); desliza suavemente entre os dois
+    let [a, b, c, d] = G.box;
+    if(HELI.zoom === 'grupo' && L.length){ const xs = L.map(o=> o.p[0]), ys = L.map(o=> o.p[1]), mx = (Math.min(...xs) + Math.max(...xs)) / 2, my = (Math.min(...ys) + Math.max(...ys)) / 2;
+      const half = Math.max(350, (Math.max(...xs) - Math.min(...xs)) * .65, (Math.max(...ys) - Math.min(...ys)) * .65); a = mx - half; b = mx + half; c = my - half; d = my + half; }
+    const alvo = [a, b, c, d]; HELI.vis = HELI.vis ? HELI.vis.map((v, i)=> v + (alvo[i] - v) * .06) : alvo.slice(); [a, b, c, d] = HELI.vis;
+    const lat = L.length ? Math.min(W * .28, Math.max(150, Math.min(15, W / 95) * 12)) : 0, pad = Math.min(W, H) * .06, sc = Math.min((W - lat * 2 - 60 - pad * 2) / Math.max(1, b - a), (H - pad * 2 - 40) / Math.max(1, d - c));
+    const ox = lat + (W - lat * 2 - 50 - (b - a) * sc) / 2 - a * sc, oy = 40 + (H - 40 - (d - c) * sc) / 2 - c * sc, XY = p=> [ox + p[0] * sc, oy + p[1] * sc];
+    // chão visto do alto: manchas de campo e mato, e a sombra das nuvens a passar
+    const g0 = ctx.createRadialGradient(W * .5, H * .45, 0, W * .5, H * .5, Math.max(W, H) * .75); g0.addColorStop(0, '#1d3a26'); g0.addColorStop(1, '#0b1610'); ctx.fillStyle = g0; ctx.fillRect(0, 0, W, H);
+    if(!HELI.nuvens){ const rn = srRnd(7); HELI.nuvens = Array.from({ length: 7 }, ()=> ({ x: rn(), y: rn(), r: .12 + rn() * .16, v: .004 + rn() * .006 })); }
+    const t = now / 1000;
+    ctx.save(); ctx.globalAlpha = .9; const rm = srRnd(G.N);
+    for(let i = 0; i < 70; i++){ const x = rm() * W, y = rm() * H, r = 20 + rm() * 70; ctx.fillStyle = rm() < .5 ? 'rgba(52,92,48,.35)' : 'rgba(24,52,30,.45)'; ctx.beginPath(); ctx.ellipse(x, y, r, r * (.5 + rm() * .5), rm() * 3, 0, 7); ctx.fill(); }
+    ctx.restore();
+    // estrada: contorno escuro, asfalto e o traço do meio com a cor da zona de cada bloco
+    const seg = G.P.map(XY), path = ()=>{ ctx.beginPath(); seg.forEach((p, i)=> i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
+    ctx.lineJoin = ctx.lineCap = 'round';
+    path(); ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.lineWidth = 11; ctx.stroke();
+    path(); ctx.strokeStyle = '#59606b'; ctx.lineWidth = 7; ctx.stroke();
+    const segs = SR.trk.segs; ctx.lineWidth = 2.2; let ib = -1;
+    for(let i = 1; i < seg.length; i++){ const bi = segs[i].b; if(bi !== ib){ if(ib >= 0) ctx.stroke(); ctx.beginPath(); ctx.moveTo(seg[i - 1][0], seg[i - 1][1]); ctx.strokeStyle = srCorBloco(bi); ib = bi; } ctx.lineTo(seg[i][0], seg[i][1]); }
+    ctx.stroke();
+    // partida e meta
+    const flag = (p, txt, cor)=>{ ctx.fillStyle = cor; ctx.beginPath(); ctx.arc(p[0], p[1], 7, 0, 7); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); ctx.font = '800 12px Inter,sans-serif'; ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.fillText(txt, p[0], p[1] - 12); };
+    flag(seg[Math.min(20, seg.length - 1)], 'PARTIDA', '#3DD45C'); flag(seg[seg.length - 1], 'META', '#FF3B5C');
+    // marcas de km
+    if(HELI.zoom === 'tudo'){ const kmT = G.real ? (ROTAS[SR.rota] || ROTAS.lp).km : (G.N * SR_SEG / SR_M / 1000), passoKm = kmT > 30 ? 5 : kmT > 12 ? 2 : 1;
+      ctx.font = '700 10px Inter,sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.textAlign = 'left';
+      for(let km = passoKm; km < kmT; km += passoKm){ const p = seg[Math.round(km / kmT * (seg.length - 1))]; ctx.beginPath(); ctx.arc(p[0], p[1], 2.2, 0, 7); ctx.fill(); ctx.fillText(km + ' km', p[0] + 5, p[1] + 3); } }
+    // sombras das nuvens por cima de tudo (vê-se que estamos lá no alto)
+    HELI.nuvens.forEach(n=>{ const x = ((n.x + t * n.v) % 1.3 - .15) * W, y = n.y * H, r = n.r * Math.min(W, H); const gr = ctx.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(0,0,0,.22)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = gr; ctx.fillRect(x - r, y - r, r * 2, r * 2); });
+    // alunos: ponto + cartão com nome, watts, cadência e distâncias (os cartões afastam-se uns dos outros para não se taparem)
+    // os cartões ficam em duas colunas (esquerda e direita do mapa), à altura do ponto sempre que possível, ligados por uma linha;
+    // com muitos alunos passam a uma linha só (nome · W · rpm · distâncias), para caberem todos sem se taparem
+    const topo = 46, baixo = H - 8, util = baixo - topo;
+    let fs = Math.max(11, Math.min(15, W / 95)), lh = fs * 1.25, cw = fs * 11.5, ch = lh * 3 + 8, compacto = false;
+    if(L.length * (ch + 4) > util * 2){ compacto = true; fs = Math.max(9, Math.min(13, util * 2 / Math.max(1, L.length) / 1.5)); lh = fs * 1.25; cw = fs * 19; ch = lh + 6; }
+    const cards = L.map((o, i)=>{ const s = XY(o.p); return { o, i, sx: s[0], sy: s[1] }; });
+    const lados = { E: [], D: [] }; cards.slice().sort((p, q)=> p.sx - q.sx).forEach((C, k, A)=> (k < A.length / 2 ? lados.E : lados.D).push(C));
+    const cabe = Math.floor(util / (ch + 4));
+    while(lados.E.length > cabe && lados.D.length < cabe) lados.D.push(lados.E.pop());
+    while(lados.D.length > cabe && lados.E.length < cabe) lados.E.push(lados.D.pop());
+    const colX = { E: 10, D: W - cw - 64 };   // à direita fica espaço para os botões
+    ['E', 'D'].forEach(k=>{ const A = lados[k].sort((p, q)=> p.sy - q.sy); let y = topo;
+      A.forEach(C=>{ C.x = colX[k]; C.y = Math.max(y, Math.min(baixo - ch, C.sy - ch / 2)); y = C.y + ch + 4; });
+      for(let j = A.length - 1, lim = baixo; j >= 0; j--){ if(A[j].y + ch > lim) A[j].y = lim - ch; lim = A[j].y - 4; }   // se passou do fundo, sobe os de cima
+      A.forEach(C=> C.lado = k); });
+    cards.forEach(C=>{ const o = C.o, r = o.r, cor = heliCor(r.id), pulso = 1 + Math.sin(t * 4 + C.i) * .15, ant = L[C.i - 1], dep = L[C.i + 1];
+      const ax = C.lado === 'E' ? C.x + cw : C.x, ay = C.y + ch / 2;
+      ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(C.sx, C.sy); ctx.lineTo(ax, ay); ctx.stroke();
+      ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.arc(C.sx + 2, C.sy + 3, 8, 0, 7); ctx.fill();
+      ctx.fillStyle = cor; ctx.beginPath(); ctx.arc(C.sx, C.sy, 7 * pulso, 0, 7); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+      ctx.fillStyle = 'rgba(8,11,16,.88)'; ctx.strokeStyle = cor; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(C.x, C.y, cw, ch, compacto ? 6 : 8) : ctx.rect(C.x, C.y, cw, ch); ctx.fill(); ctx.stroke();
+      const nome = (C.i + 1) + 'º ' + String(r.n || 'Aluno').split(' ')[0].slice(0, 11), dist = (ant ? '▲ ' + heliFmtM(heliMetros(ant.z - o.z)) : '🥇 líder') + (dep ? '  ▼ ' + heliFmtM(heliMetros(o.z - dep.z)) : '');
+      const x = C.x + 8; let y = C.y + (compacto ? 3 + fs : 4 + fs); ctx.textAlign = 'left';
+      if(compacto){ let xx = x; const part = (tx, cor2, peso, larg)=>{ ctx.font = peso + ' ' + fs + 'px Inter,sans-serif'; ctx.fillStyle = cor2; ctx.fillText(tx, xx, y); xx += larg; };
+        part(nome, '#fff', '800', fs * 6.2); part(Math.round(r.w || 0) + ' W', '#FFD60A', '700', fs * 3.6); part(Math.round(jgRpm(r)) + ' rpm', '#7fd4ff', '700', fs * 4); part(dist, '#cfd6e0', '600', 0); return; }
+      ctx.fillStyle = '#fff'; ctx.font = '800 ' + fs + 'px Inter,sans-serif'; ctx.fillText(nome, x, y); y += lh;
+      ctx.font = '700 ' + (fs * .92) + 'px Inter,sans-serif'; ctx.fillStyle = '#FFD60A'; ctx.fillText(Math.round(r.w || 0) + ' W', x, y);
+      ctx.fillStyle = '#7fd4ff'; ctx.fillText(Math.round(jgRpm(r)) + ' rpm', x + fs * 4.6, y); y += lh;
+      ctx.font = '600 ' + (fs * .85) + 'px Inter,sans-serif'; ctx.fillStyle = '#cfd6e0'; ctx.fillText(dist, x, y); });
+    // título
+    ctx.fillStyle = 'rgba(5,7,10,.7)'; ctx.fillRect(0, 0, W, 36); ctx.font = '800 15px Inter,sans-serif'; ctx.fillStyle = '#fff'; ctx.textAlign = 'left';
+    ctx.fillText('🛰️ Vista de helicóptero · ' + (HELI.zoom === 'tudo' ? 'percurso todo' : 'pelotão'), 14, 23);
+    ctx.textAlign = 'right'; ctx.font = '600 12px Inter,sans-serif'; ctx.fillStyle = '#aab3c0';
+    ctx.fillText(L.length ? (L.length + ' alunos · ' + (L.length > 1 ? 'grupo espalhado por ' + heliFmtM(heliMetros(L[0].z - L[L.length - 1].z)) : '')) + ' · clica para ' + (HELI.zoom === 'tudo' ? 'aproximar ao pelotão' : 'ver o percurso todo') : 'à espera dos alunos', W - 66, 23);
+  }
+  function heliTroca(on){
+    SR.heli = on == null ? !SR.heli : on; try{ localStorage.setItem('prSrHeli', SR.heli ? '1' : '0'); }catch(e){}
+    const cv = $('srHeliCv'), b = $('srHeli'); if(cv) cv.hidden = !SR.heli; if(b) b.classList.toggle('off', !SR.heli);
+    if(SR.heli && !HELI.raf) HELI.raf = requestAnimationFrame(heliFrame);
+  }
   function srMonta(gp){
     if(gp.dataset.serra === '1' && SR.cv && SR.cv.isConnected) return;
     gp.dataset.serra = '1';
-    gp.innerHTML = '<div class="sr-box' + (SR.full ? ' full' : '') + '" id="srBox"><canvas id="srCv" aria-label="Estrada da serra a andar com a aula"></canvas><div class="sr-hud" id="srHud"></div><div class="sr-rank" id="srRank"></div><button class="sr-fs" id="srFs" title="Ecrã inteiro (tecla E ou duplo clique na estrada)">⛶</button><button class="sr-metb" id="srMet" title="Hora do dia e tempo da Serra">🌤️</button><button class="sr-metb sr-neob" id="srNeo" title="Bonecos em néon ou com a roupa escolhida" hidden>✨</button><button class="sr-metb sr-drb" id="srDr" title="Câmara drone (a voar à volta dos alunos) ou fixa atrás do último">🚁</button><button class="sr-metb sr-drc" id="srDrC" title="Definir a velocidade, os planos e o trajeto do drone">⚙️</button><button class="sr-metb sr-3d" id="sr3d" title="Projeção em 3D ou em 2D (desenho clássico)">🧊</button><button class="sr-metb sr-mg" id="srMg" title="Estilo anime: cores vivas e contornos pretos, com vinhetas nos grandes planos">🖌️</button><button class="sr-metb sr-est" id="srEst" title="Bonecos: R realista · A anime · B ilustração suave · C banda desenhada">🎭</button><div class="sr-metm" id="srMetM" hidden></div></div>' +
+    gp.innerHTML = '<div class="sr-box' + (SR.full ? ' full' : '') + '" id="srBox"><canvas id="srCv" aria-label="Estrada da serra a andar com a aula"></canvas><div class="sr-hud" id="srHud"></div><div class="sr-rank" id="srRank"></div><canvas id="srHeliCv" class="sr-heli" hidden aria-label="Vista de helicóptero do percurso"></canvas><button class="sr-fs" id="srFs" title="Ecrã inteiro (tecla E ou duplo clique na estrada)">⛶</button><button class="sr-metb" id="srMet" title="Hora do dia e tempo da Serra">🌤️</button><button class="sr-metb sr-neob" id="srNeo" title="Bonecos em néon ou com a roupa escolhida" hidden>✨</button><button class="sr-metb sr-heb" id="srHeli" title="Vista de helicóptero: o percurso todo visto do alto, cada aluno é um ponto com nome, watts, cadência e distâncias (tecla H)">🛰️</button><button class="sr-metb sr-drb" id="srDr" title="Câmara drone (a voar à volta dos alunos) ou fixa atrás do último">🚁</button><button class="sr-metb sr-drc" id="srDrC" title="Definir a velocidade, os planos e o trajeto do drone">⚙️</button><button class="sr-metb sr-3d" id="sr3d" title="Projeção em 3D ou em 2D (desenho clássico)">🧊</button><button class="sr-metb sr-mg" id="srMg" title="Estilo anime: cores vivas e contornos pretos, com vinhetas nos grandes planos">🖌️</button><button class="sr-metb sr-est" id="srEst" title="Bonecos: R realista · A anime · B ilustração suave · C banda desenhada">🎭</button><div class="sr-metm" id="srMetM" hidden></div></div>' +
       '<div class="perc-info">🌲 Serra: a estrada nasce da cadência dos blocos. 80–115 rpm é plano; 60–80 rpm com técnica de subida é subida (menos rpm e zona mais alta = mais inclinada: 80 rpm em Z2 ≈ 3%, 60 rpm em Z4 ≈ 20%); Z1 e retorno à calma são descida; Z7 é sprint. Quem cumpre a zona vai à frente.</div>';
     SR.cv = $('srCv'); SR.ctx = SR.cv.getContext('2d'); SR.bgKey = '';
     const fsTroca = ()=>{ SR.full = !SR.full; $('srBox').classList.toggle('full', SR.full); document.body.classList.toggle('sr-full-on', SR.full); $('srFs').textContent = SR.full ? '✕' : '⛶'; $('srFs').title = SR.full ? 'Sair da estrada em ecrã inteiro (tecla E ou Esc)' : 'Ecrã inteiro (tecla E ou duplo clique na estrada)'; };
     $('srFs').onclick = fsTroca; SR.cv.ondblclick = fsTroca; SR.fsTroca = fsTroca;
     $('srDrC').onclick = droneCfgAbre;
+    $('srHeli').onclick = ()=> heliTroca(); $('srHeliCv').onclick = ()=>{ HELI.zoom = HELI.zoom === 'tudo' ? 'grupo' : 'tudo'; $('srHeliCv').style.cursor = HELI.zoom === 'tudo' ? 'zoom-in' : 'zoom-out'; };
+    $('srHeliCv').ondblclick = e=>{ e.stopPropagation(); };
+    heliTroca((()=>{ try{ return localStorage.getItem('prSrHeli') === '1'; }catch(e){ return false; } })());
     $('sr3d').classList.toggle('off', !SR.m3); if(SR.m3) SR3.carrega();
     $('sr3d').onclick = ()=>{ SR.m3 = !SR.m3; try{ localStorage.setItem('prSr3D', SR.m3 ? '1' : '0'); }catch(e){} $('sr3d').classList.toggle('off', !SR.m3); if(SR.m3) SR3.carrega(); else toast('🖼️ Projeção em 2D'); };
     $('srDr').classList.toggle('off', SR.drone === false);
@@ -10787,6 +11004,8 @@ const SR3 = (()=>{
   }
   // toca a música na posição certa do treino (chamada pela projeção e pela pré-escuta)
   function audSync(T, playing, force){
+    if(mixSync(T, playing, force)){ if(BM.P && BM.on){ try{ BM.P.pause(); }catch(e){} BM.on = false; } if(audP) try{ audP.pause(); }catch(e){} return; }   // mistura do Estúdio manda
+    if(bmSync(T, playing, force)){ if(audP) try{ audP.pause(); }catch(e){} return; }   // música do bloco manda
     const a = audInfo(), P = audP;
     if(!a || !P) return;
     const m = audMap(T), tot = audTot();
@@ -10808,7 +11027,352 @@ const SR3 = (()=>{
     } else if(pos != null && (force || Math.abs(pos - m) > 2.5)) P.seek(m);
     P.play();
   }
+  // ================= 🎛️ ESTÚDIO DE MÚSICA =================
+  // Biblioteca de músicas (ficheiros deste PC) com o BPM medido automaticamente; mistura que cobre a aula toda:
+  // cada música é acelerada/abrandada (sem mudar o tom) até ao BPM da cadência do bloco, as mudanças de bloco caem
+  // numa batida e as músicas encadeiam-se com transições de 8 ou 16 batidas. A mistura fica guardada na aula (current.mix).
+  var MIX = { els: {}, urls: {}, iv: 0, T0: 0, at: 0, play: false };
+  function estLib(){ try{ return JSON.parse(localStorage.getItem('prMusLib') || '[]'); }catch(e){ return []; } }
+  function estGravaLib(L){ try{ localStorage.setItem('prMusLib', JSON.stringify(L)); }catch(e){ toast('Sem espaço para guardar a biblioteca de músicas.'); } }
+  function mixAtivo(){ const m = current && current.mix; return m && m.itens && m.itens.length ? m : null; }
+  async function estUrl(id){
+    if(MIX.urls[id]) return MIX.urls[id];
+    const r = await audGet('mlib:' + id); if(!r || !r.blob) return null;
+    return (MIX.urls[id] = URL.createObjectURL(r.blob));
+  }
+  function mixT(){ return MIX.T0 + (MIX.play ? (performance.now() - MIX.at) / 1000 : 0); }
+  // chamado pelo audSync: quando a aula tem mistura, é ela que toca (a faixa e as músicas dos blocos ficam caladas)
+  function mixSync(T, playing, force){
+    const m = mixAtivo(); if(!m){ if(MIX.iv) mixPara(); return false; }
+    MIX.T0 = T; MIX.at = performance.now(); MIX.play = !!playing;
+    if(!MIX.iv) MIX.iv = setInterval(()=> mixPasso(false), 100);
+    mixPasso(!!force); return true;
+  }
+  function mixPasso(force){
+    const m = mixAtivo(); if(!m){ mixPara(); return; }
+    const T = mixT(), tot = audTot(), volM = m.vol != null ? m.vol : .85, vivos = {};
+    m.itens.forEach((it, i)=>{
+      const k = i + '|' + it.id, perto = T >= it.t0 - 10 && T < it.t1 + 1; let E = MIX.els[k];
+      if(!perto){ if(E && E.el && !E.el.paused) E.el.pause(); return; }
+      vivos[k] = 1;
+      if(!E){ E = MIX.els[k] = { el: null, force: true }; estUrl(it.id).then(u=>{ if(!u){ E.erro = true; return; } const el = new Audio(); el.preload = 'auto'; el.src = u;
+        el.preservesPitch = el.mozPreservesPitch = el.webkitPreservesPitch = true; E.el = el; }); return; }
+      const el = E.el; if(!el) return;
+      const want = it.ini + (T - it.t0) * it.rate; let v = volM;
+      if(T < it.t0) v = 0; else if(T - it.t0 < it.fIn) v *= (T - it.t0) / it.fIn;
+      if(it.t1 - T < it.fOut) v *= Math.max(0, (it.t1 - T) / it.fOut);
+      if(tot - T < 6) v *= Math.max(0, (tot - T) / 6);
+      el.volume = Math.max(0, Math.min(1, v));
+      const tocar = MIX.play && T >= it.t0 && T < it.t1 && T < tot;
+      if(!tocar){ if(!el.paused) el.pause(); if(el.readyState >= 1 && (E.force || Math.abs(el.currentTime - Math.max(it.ini, want)) > .3)){ try{ el.currentTime = Math.max(it.ini, Math.min(want, el.duration || want)); }catch(e){} E.force = false; } return; }
+      const d = el.currentTime - want;
+      if(force || E.force || Math.abs(d) > .35){ try{ el.currentTime = Math.max(0, want); }catch(e){} E.force = false; el.playbackRate = it.rate; }
+      else el.playbackRate = it.rate * (1 - Math.max(-.04, Math.min(.04, d * .5)));   // acerta devagar, sem saltos
+      if(el.paused) el.play().catch(()=>{});
+    });
+    Object.keys(MIX.els).forEach(k=>{ if(!vivos[k]){ const E = MIX.els[k]; if(E.el){ try{ E.el.pause(); E.el.removeAttribute('src'); E.el.load(); }catch(e){} } delete MIX.els[k]; } });
+  }
+  function mixPara(){
+    if(MIX.iv){ clearInterval(MIX.iv); MIX.iv = 0; } MIX.play = false;
+    Object.keys(MIX.els).forEach(k=>{ const E = MIX.els[k]; if(E.el) try{ E.el.pause(); }catch(e){} });
+  }
+  // ---- análise: BPM (autocorrelação dos ataques graves) e a primeira batida ----
+  function estAnalisa(ab){
+    const sr = ab.sampleRate, a = ab.getChannelData(0), b = ab.numberOfChannels > 1 ? ab.getChannelData(1) : a;
+    const hop = Math.max(64, Math.round(sr / 172)), fps = sr / hop, dur = ab.duration;
+    const s0 = Math.floor(Math.min(Math.max(0, dur * .2), 40) * sr), s1 = Math.min(a.length, s0 + Math.floor(120 * sr));
+    const kl = Math.exp(-2 * Math.PI * 160 / sr); let lp = 0, eAnt = 0, fAnt = 0; const env = [];
+    for(let i = s0; i + hop <= s1; i += hop){ let el = 0, ef = 0;
+      for(let j = i; j < i + hop; j++){ const x = (a[j] + b[j]) * .5; lp = lp * kl + x * (1 - kl); el += lp * lp; ef += x * x; }
+      el = Math.sqrt(el / hop); ef = Math.sqrt(ef / hop); env.push(Math.max(0, el - eAnt) + .35 * Math.max(0, ef - fAnt)); eAnt = el; fAnt = ef; }
+    const N = env.length, med = env.reduce((s, v)=> s + v, 0) / Math.max(1, N); for(let i = 0; i < N; i++) env[i] = Math.max(0, env[i] - med);
+    const ac = lag=>{ const l0 = Math.floor(lag), f = lag - l0; let s = 0; for(let i = 0; i + l0 + 1 < N; i++) s += env[i] * (env[i + l0] * (1 - f) + env[i + l0 + 1] * f); return s; };
+    let best = 0, bv = -1;
+    for(let bpm = 70; bpm <= 190; bpm += .25){ const L = 60 * fps / bpm, v = ac(L) + .5 * ac(L * 2) + .25 * ac(L / 2) * (bpm > 140 ? 0 : 1); if(v > bv){ bv = v; best = bpm; } }
+    { let fino = best, fv2 = -1; const b0 = best; for(let bpm = b0 - .5; bpm <= b0 + .5; bpm += .02){ const v = ac(60 * fps / bpm) + .5 * ac(120 * fps / bpm); if(v > fv2){ fv2 = v; fino = bpm; } } best = fino; }
+    while(best < 78) best *= 2; while(best > 185) best /= 2;
+    const P = 60 * fps / best; let fase = 0, fv = -1;
+    for(let p = 0; p < P; p += .5){ let s = 0; for(let x = p; x < N; x += P) s += env[Math.round(x)] || 0; if(s > fv){ fv = s; fase = p; } }
+    const per = 60 / best; let beat0 = (s0 / sr + fase / fps) % per;
+    const pk = [], n = Math.max(60, Math.min(900, Math.round(dur * 2))), st = a.length / n; let mx = 0;
+    for(let i = 0; i < n; i++){ let m = 0; for(let j = Math.floor(i * st), e = Math.min(a.length, Math.floor((i + 1) * st)); j < e; j += 16){ const v = Math.abs(a[j]); if(v > m) m = v; } pk.push(m); if(m > mx) mx = m; }
+    return { bpm: Math.round(best * 10) / 10, beat0: Math.round(beat0 * 1000) / 1000, dur: Math.round(dur * 10) / 10, pk: pk.map(v=> Math.round(v / (mx || 1) * 99)) };
+  }
+  async function estJunta(files){
+    files = [...files].filter(f=> /^audio\//.test(f.type) || /\.(mp3|m4a|aac|wav|ogg|flac|opus)$/i.test(f.name)); if(!files.length) return;
+    audPersiste(); const Off = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    for(let i = 0; i < files.length; i++){ const f = files[i]; EST.estado = 'A analisar ' + (i + 1) + '/' + files.length + ': ' + f.name + '…'; estPinta();
+      await new Promise(r=> setTimeout(r, 30));
+      try{ const ab = await new Off(1, 1, 22050).decodeAudioData(await f.arrayBuffer()); const A = estAnalisa(ab), id = 'm' + uid().slice(1);
+        await audPut('mlib:' + id, { blob: f, nome: f.name });
+        const L = estLib(); L.push(Object.assign({ id, nome: f.name.replace(/\.[^.]+$/, '').slice(0, 80) }, A)); estGravaLib(L); }
+      catch(e){ toast('Não consegui ler "' + f.name + '"'); } }
+    EST.estado = ''; estPinta();
+  }
+  // ---- encher a aula automaticamente ----
+  function estCad(b){ if(!b || b.tipo === 'seg') return -1; const r = Math.round(((b.rpm || 0) + (b.rpm2 || b.rpm || 0)) / 2); return r; }
+  function estAssin(){ return (current.blocos || []).map(b=> blockDurationSec(b) + ':' + estCad(b)).join(','); }
+  function estCandidatos(cad, M, usados, ultimo){
+    const L = estLib().filter(t=> t.bpm > 0 && t.dur > 20), modo = M.batida || 'auto', out = [];
+    L.forEach(t=>{ (cad <= 0 ? [1] : modo === '1' ? [1] : modo === '2' ? [2] : [1, 2, .5]).forEach(mu=>{
+      const eff = t.bpm * mu; if(cad > 0 && (eff < 50 || eff > 200)) return;
+      const rate = cad > 0 ? cad / eff : 1, dev = Math.abs(rate - 1); if(dev > .12) return;
+      out.push({ t, mu, rate, dev, sc: (cad > 0 ? dev : t.bpm / 1000) + (usados[t.id] || 0) * .25 + (t.id === ultimo ? 2 : 0) + (mu !== 1 ? .01 : 0) + (dev > .08 ? .3 : 0) }); }); });
+    return out.sort((p, q)=> p.sc - q.sc);
+  }
+  function estEnche(){
+    const M = current.mix = Object.assign({ trans: 8, batida: 'auto', vol: .85 }, current.mix || {}, { itens: [] });
+    const BL = current.blocos || []; let t = 0; const G = [];
+    BL.forEach(b=>{ const d = blockDurationSec(b), c = estCad(b), u = G[G.length - 1];
+      if(u && ((c > 0 && u.cad > 0 && Math.abs(c - u.cad) <= 2) || (c <= 0 && u.cad <= 0))) u.tE = t + d; else G.push({ tS: t, tE: t + d, cad: c }); t += d; });
+    const usados = {}, falta = []; let ult = null;
+    G.forEach((g, gi)=>{
+      let cur = g.tS, primeiro = true, guarda = 0;
+      while(cur < g.tE - 6 && guarda++ < 200){
+        const C = estCandidatos(g.cad, M, usados, ult)[0];
+        if(!C){ falta.push(g); break; }
+        const T = C.t, bl = 60 / T.bpm, cad = g.cad > 0 ? g.cad : T.bpm;
+        const ant = M.itens[M.itens.length - 1], mudaRitmo = primeiro && gi > 0 && ant;
+        const trans = !ant ? 0 : Math.min(mudaRitmo ? 2 : (M.trans || 8), 32) * 60 / cad;
+        const t0 = Math.max(0, cur - trans), want = (cur - t0) * C.rate;
+        let n = Math.ceil((want - T.beat0) / bl), ini = T.beat0 + n * bl - want; if(ini < 0) ini += bl;   // a mudança de bloco cai numa batida
+        const fim = t0 + (T.dur - ini - 1) / C.rate, t1 = Math.min(fim, g.tE);
+        if(t1 - cur < 4){ usados[T.id] = (usados[T.id] || 0) + 1; continue; }
+        if(ant && ant.t1 > cur) ant.t1 = cur;
+        if(ant){ ant.fOut = Math.max(.8, Math.min(trans || 1, ant.t1 - ant.t0 - 1)); }
+        M.itens.push({ id: T.id, t0: Math.round(t0 * 100) / 100, t1: Math.round(t1 * 100) / 100, ini: Math.round(ini * 1000) / 1000, rate: Math.round(C.rate * 10000) / 10000,
+          fIn: ant ? Math.max(.8, trans) : 1.5, fOut: 4, bpm: Math.round(cad), mu: C.mu });
+        usados[T.id] = (usados[T.id] || 0) + 1; ult = T.id; cur = t1; primeiro = false;
+      }
+    });
+    const ul = M.itens[M.itens.length - 1]; if(ul) ul.fOut = Math.min(8, Math.max(2, ul.t1 - ul.t0 - 1));
+    M.assin = estAssin(); M.falta = falta.map(g=> ({ tS: g.tS, tE: g.tE, cad: g.cad }));
+    mixPara(); persist(); renderAudBar && renderAudBar();
+    return M;
+  }
+  // ---- janela do Estúdio ----
+  var EST = { ov: null, sel: -1, pps: 0, zoom: 1, play: false, pT: 0, iv: 0, estado: '', ouveLib: null };
+  function estAbre(){
+    if(!current.blocos || !current.blocos.length){ toast('Cria primeiro os blocos da aula.'); return; }
+    audStop(); if(typeof audPrevStop === 'function') audPrevStop();
+    const ov = EST.ov = document.createElement('div'); ov.id = 'estOv';
+    ov.innerHTML = '<div class="est-top"><b>🎛️ Estúdio de música</b><span class="est-aula"></span>' +
+      '<label>batida <select id="estBat"><option value="auto">1 ou 2 por pedalada (auto)</option><option value="1">1 por pedalada (90 rpm = 90 BPM)</option><option value="2">2 por pedalada (90 rpm = 180 BPM)</option></select></label>' +
+      '<label>transição <select id="estTr"><option value="4">4 batidas</option><option value="8">8 batidas</option><option value="16">16 batidas</option></select></label>' +
+      '<label>🔊 <input type="range" id="estVol" min="0" max="1" step="0.05"></label>' +
+      '<button type="button" class="est-pri" id="estEnche">✨ Encher a aula automaticamente</button><button type="button" id="estPlay">▶ Ouvir</button><button type="button" id="estLimpa">🗑 Limpar mistura</button><button type="button" class="est-ok" id="estFecha">✓ Fechar</button></div>' +
+      '<div class="est-mid"><div class="est-lib"><div class="est-h">Biblioteca <button type="button" id="estAdd">＋ Músicas</button><input type="file" id="estFich" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac,.aac" multiple hidden><span class="est-est"></span></div><div class="est-tab" id="estLibT"></div></div>' +
+      '<div class="est-lis"><div class="est-h">Mistura da aula <span class="est-res"></span></div><div class="est-tab" id="estMixT"></div></div></div>' +
+      '<div class="est-tlw" id="estTlw"><canvas id="estCv"></canvas></div><div class="est-av" id="estAv"></div>';
+    document.body.appendChild(ov);
+    const M = current.mix || {}; $('estBat').value = M.batida || 'auto'; $('estTr').value = String(M.trans || 8); $('estVol').value = M.vol != null ? M.vol : .85;
+    const mexe = ()=>{ current.mix = Object.assign(current.mix || { itens: [] }, { batida: $('estBat').value, trans: +$('estTr').value, vol: +$('estVol').value }); persist(); };
+    $('estBat').onchange = $('estTr').onchange = ()=>{ mexe(); if(mixAtivo() && confirm('Voltar a encher a aula com esta regra?')) { estEnche(); estPinta(); } };
+    $('estVol').oninput = mexe;
+    $('estAdd').onclick = ()=> $('estFich').click(); $('estFich').onchange = e=>{ estJunta(e.target.files); e.target.value = ''; };
+    ov.addEventListener('dragover', e=>{ e.preventDefault(); ov.classList.add('drop'); }); ov.addEventListener('dragleave', ()=> ov.classList.remove('drop'));
+    ov.addEventListener('drop', e=>{ e.preventDefault(); ov.classList.remove('drop'); estJunta(e.dataTransfer.files); });
+    $('estEnche').onclick = ()=>{ if(!estLib().length){ toast('Junta primeiro músicas à biblioteca (＋ Músicas ou arrasta-as para aqui).'); return; }
+      if(mixAtivo() && !confirm('Substituir a mistura atual?')) return; estPrevPara(); estEnche(); EST.sel = -1; estPinta(); toast('✨ Aula preenchida com ' + current.mix.itens.length + ' músicas'); };
+    $('estLimpa').onclick = ()=>{ if(!mixAtivo() || !confirm('Tirar a mistura desta aula? (as músicas ficam na biblioteca)')) return; estPrevPara(); delete current.mix; persist(); estPinta(); };
+    $('estPlay').onclick = ()=> EST.play ? estPrevPara() : estPrevComeca();
+    $('estFecha').onclick = estFecha;
+    const cv = $('estCv'); let drag = null;
+    cv.addEventListener('pointerdown', e=>{ const h = estHit(e); if(h && h.it){ EST.sel = h.i; drag = { i: h.i, x: e.clientX, t0: h.it.t0, t1: h.it.t1 }; cv.setPointerCapture(e.pointerId); estPinta(); }
+      else if(h){ EST.pT = Math.max(0, h.T); if(EST.play) estPrevComeca(); else estDesenha(); } });
+    cv.addEventListener('pointermove', e=>{ if(!drag) return; const M = current.mix, it = M.itens[drag.i], d = (e.clientX - drag.x) / EST.pps;
+      it.t0 = Math.max(0, drag.t0 + d); it.t1 = drag.t1 + (it.t0 - drag.t0); estDesenha(); });
+    cv.addEventListener('pointerup', ()=>{ if(drag){ drag = null; persist(); estPintaLista(); } });
+    window.addEventListener('resize', estDesenha);
+    estPinta();
+  }
+  function estFecha(){ estPrevPara(); if(EST.ouveLib){ EST.ouveLib.pause(); EST.ouveLib = null; } if(EST.ov) EST.ov.remove(); EST.ov = null; window.removeEventListener('resize', estDesenha); persist(); renderAudBar(); }
+  function estPrevComeca(){ estPrevPara(); EST.play = true; EST.p0 = EST.pT; EST.pAt = performance.now(); mixSync(EST.pT, true, true);
+    EST.iv = setInterval(()=>{ EST.pT = EST.p0 + (performance.now() - EST.pAt) / 1000; if(EST.pT >= audTot()){ estPrevPara(); return; } mixSync(EST.pT, true); estDesenha(); }, 250); if($('estPlay')) $('estPlay').textContent = '⏹ Parar'; }
+  function estPrevPara(){ if(EST.iv) clearInterval(EST.iv); EST.iv = 0; EST.play = false; mixPara(); if($('estPlay')) $('estPlay').textContent = '▶ Ouvir'; }
+  function estPinta(){ if(!EST.ov) return; estPintaLib(); estPintaLista(); estDesenha(); }
+  function estPintaLib(){
+    const L = estLib().sort((a, b)=> a.bpm - b.bpm), M = mixAtivo(), uso = {}; (M ? M.itens : []).forEach(it=> uso[it.id] = (uso[it.id] || 0) + 1);
+    EST.ov.querySelector('.est-est').textContent = EST.estado || (L.length + ' músicas · arrasta ficheiros para aqui');
+    $('estLibT').innerHTML = L.length ? '<table><tr><th>Título</th><th>BPM</th><th>Tempo</th><th>Usada</th><th></th></tr>' + L.map(t=> '<tr><td title="' + escapeHtml(t.nome) + '">' + escapeHtml(t.nome) + '</td><td><input type="number" step="0.1" min="40" max="220" value="' + t.bpm + '" data-bpm="' + t.id + '" title="Se o BPM estiver errado (ex.: metade ou o dobro), corrige aqui"></td><td>' + fmtTime(Math.round(t.dur)) + '</td><td>' + (uso[t.id] ? '×' + uso[t.id] : '') + '</td><td><button type="button" data-ouv="' + t.id + '" title="Ouvir 15 s">▶</button><button type="button" data-del="' + t.id + '" title="Tirar da biblioteca">🗑</button></td></tr>').join('') + '</table>'
+      : '<p class="est-vz">Junta as tuas músicas (MP3, M4A, WAV…): carrega em <b>＋ Músicas</b> ou arrasta os ficheiros para esta janela. O BPM é medido sozinho.</p>';
+    $('estLibT').querySelectorAll('[data-bpm]').forEach(i=> i.onchange = ()=>{ const L2 = estLib(), t = L2.find(x=> x.id === i.dataset.bpm); if(!t) return; t.bpm = Math.max(40, Math.min(220, +i.value || t.bpm)); estGravaLib(L2); toast('BPM corrigido · carrega em ✨ para voltar a encher'); });
+    $('estLibT').querySelectorAll('[data-del]').forEach(b=> b.onclick = ()=>{ if(!confirm('Tirar esta música da biblioteca?')) return; estGravaLib(estLib().filter(x=> x.id !== b.dataset.del)); estPinta(); });
+    $('estLibT').querySelectorAll('[data-ouv]').forEach(b=> b.onclick = async ()=>{ if(EST.ouveLib){ EST.ouveLib.pause(); const era = EST.ouveLib._id; EST.ouveLib = null; if(era === b.dataset.ouv) return; }
+      const u = await estUrl(b.dataset.ouv); if(!u) return; const el = new Audio(u); el._id = b.dataset.ouv; const t = estLib().find(x=> x.id === b.dataset.ouv); el.currentTime = Math.min(60, (t ? t.dur : 60) * .3); el.volume = .8; el.play().catch(()=>{}); EST.ouveLib = el; setTimeout(()=>{ if(EST.ouveLib === el){ el.pause(); EST.ouveLib = null; } }, 15000); });
+  }
+  function estNomeDe(id){ const t = estLib().find(x=> x.id === id); return t ? t.nome : '(música em falta)'; }
+  function estPintaLista(){
+    if(!EST.ov) return; const M = mixAtivo(), lib = estLib(), av = [];
+    EST.ov.querySelector('.est-aula').textContent = (current.nome || 'Aula') + ' · ' + fmtTime(audTot());
+    if(M && M.assin && M.assin !== estAssin()) av.push('⚠️ Os blocos mudaram depois da mistura: carrega em ✨ para voltar a encher.');
+    (M && M.falta || []).forEach(g=> av.push('⚠️ ' + fmtTime(Math.round(g.tS)) + '–' + fmtTime(Math.round(g.tE)) + ' (' + g.cad + ' rpm): nenhuma música da biblioteca serve (precisas de ~' + Math.round(g.cad * .92) + '–' + Math.round(g.cad * 1.08) + ' BPM' + (M.batida !== '1' ? ' ou ~' + Math.round(g.cad * 1.84) + '–' + Math.round(g.cad * 2.16) : '') + ').'));
+    if(M) M.itens.forEach(it=>{ if(!lib.some(x=> x.id === it.id)) av.push('⚠️ "' + estNomeDe(it.id) + '" já não está na biblioteca deste PC.'); });
+    $('estAv').innerHTML = av.map(x=> '<span>' + escapeHtml(x) + '</span>').join('');
+    EST.ov.querySelector('.est-res').textContent = M ? M.itens.length + ' músicas' : '';
+    if(!M){ $('estMixT').innerHTML = '<p class="est-vz">Ainda sem mistura. Junta músicas à biblioteca e carrega em <b>✨ Encher a aula automaticamente</b>: cada bloco recebe músicas com o BPM da cadência.</p>'; return; }
+    $('estMixT').innerHTML = '<table><tr><th>#</th><th>Título</th><th>BPM</th><th>Alvo</th><th>Quando</th><th></th></tr>' + M.itens.map((it, i)=>{ const t = lib.find(x=> x.id === it.id) || { bpm: 0 }, pc = Math.round((it.rate - 1) * 1000) / 10;
+      return '<tr class="' + (i === EST.sel ? 'sel' : '') + '" data-i="' + i + '"><td>' + (i + 1) + '</td><td>' + escapeHtml(estNomeDe(it.id)) + '</td><td>' + (t.bpm || '—') + '</td><td>' + Math.round(t.bpm * (it.mu || 1) * it.rate * 10) / 10 + (it.mu === 2 ? ' ×½' : it.mu === .5 ? ' ×2' : '') + ' <small class="' + (Math.abs(pc) > 8 ? 'mau' : '') + '">(' + (pc >= 0 ? '+' : '') + String(pc).replace('.', ',') + '%)</small></td><td>' + fmtTime(Math.round(it.t0)) + '–' + fmtTime(Math.round(it.t1)) + '</td><td><button type="button" data-tr="' + i + '" title="Trocar por outra música com BPM parecido">↔</button><button type="button" data-tira="' + i + '" title="Tirar">🗑</button></td></tr>'; }).join('') + '</table>';
+    $('estMixT').querySelectorAll('tr[data-i]').forEach(r=> r.onclick = e=>{ if(e.target.closest('button')) return; EST.sel = +r.dataset.i; EST.pT = M.itens[EST.sel].t0; estPinta(); });
+    $('estMixT').querySelectorAll('[data-tira]').forEach(b=> b.onclick = ()=>{ M.itens.splice(+b.dataset.tira, 1); EST.sel = -1; persist(); estPinta(); });
+    $('estMixT').querySelectorAll('[data-tr]').forEach(b=> b.onclick = ()=>{ const i = +b.dataset.tr, it = M.itens[i], cad = it.bpm || 90, us = {}; M.itens.forEach(x=> us[x.id] = (us[x.id] || 0) + 1);
+      const C = estCandidatos(cad, M, us, it.id).filter(c=> c.t.id !== it.id); if(!C.length){ toast('Não há outra música com BPM parecido na biblioteca.'); return; }
+      const c = C[0], bl = 60 / c.t.bpm, want = 0; let ini = c.t.beat0 + Math.ceil((want - c.t.beat0) / bl) * bl; if(ini < 0) ini += bl;
+      Object.assign(it, { id: c.t.id, rate: Math.round(c.rate * 10000) / 10000, mu: c.mu, ini }); it.t1 = Math.min(it.t1, it.t0 + (c.t.dur - ini - 1) / c.rate);
+      persist(); estPinta(); toast('↔ ' + c.t.nome); });
+  }
+  function estHit(e){
+    const cv = $('estCv'), r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top, T = x / EST.pps, M = mixAtivo();
+    if(M && y > EST.yL){ const lane = Math.floor((y - EST.yL) / EST.hL); for(let i = M.itens.length - 1; i >= 0; i--){ const it = M.itens[i]; if(i % 2 === lane && T >= it.t0 && T <= it.t1) return { i, it, T }; } }
+    return { T };
+  }
+  function estDesenha(){
+    const cv = $('estCv'), w = $('estTlw'); if(!cv || !w) return;
+    const tot = audTot() || 1, W = Math.max(w.clientWidth - 2, 300), H = w.clientHeight || 260, dpr = Math.min(2, devicePixelRatio || 1);
+    EST.pps = W / tot; cv.style.width = W + 'px'; cv.style.height = H + 'px'; cv.width = W * dpr; cv.height = H * dpr;
+    const c = cv.getContext('2d'); c.setTransform(dpr, 0, 0, dpr, 0, 0); c.fillStyle = '#16181c'; c.fillRect(0, 0, W, H);
+    const X = t=> t * EST.pps, yR = 18, yB = 20, hB = 30; EST.yL = yB + hB + 6; EST.hL = (H - EST.yL - 4) / 2;
+    // régua
+    c.font = '600 10px Inter,sans-serif'; c.fillStyle = '#8a93a3'; c.strokeStyle = '#2b2f36'; const passo = tot > 2400 ? 300 : tot > 900 ? 120 : 60;
+    for(let t = 0; t <= tot; t += passo){ c.beginPath(); c.moveTo(X(t), 0); c.lineTo(X(t), H); c.stroke(); c.fillText(fmtTime(t), X(t) + 3, 12); }
+    // blocos com a cadência
+    let t = 0; (current.blocos || []).forEach(b=>{ const d = blockDurationSec(b), z = blkZone(b); c.fillStyle = zoneColor(z.css) || '#555'; c.globalAlpha = .85; c.fillRect(X(t) + .5, yB, Math.max(1, X(d) - 1), hB); c.globalAlpha = 1;
+      if(X(d) > 34){ c.fillStyle = /--z[56]/.test(z.css) ? '#fff' : '#0a0d12'; c.font = '700 11px Inter,sans-serif'; const cd = estCad(b); c.fillText(cd > 0 ? cd + ' rpm' : (b.tipo === 'seg' ? '' : '—'), X(t) + 4, yB + 19); } t += d; });
+    // faixas
+    const M = mixAtivo(), lib = estLib();
+    for(let l = 0; l < 2; l++){ c.fillStyle = l ? '#1b1e23' : '#1e2127'; c.fillRect(0, EST.yL + l * EST.hL, W, EST.hL - 2); }
+    if(M) M.itens.forEach((it, i)=>{ const T = lib.find(x=> x.id === it.id), y = EST.yL + (i % 2) * EST.hL + 2, h = EST.hL - 6, x0 = X(it.t0), x1 = X(it.t1);
+      c.fillStyle = i === EST.sel ? '#e9edf2' : '#c9ced6'; c.fillRect(x0, y, x1 - x0, h); c.strokeStyle = i === EST.sel ? '#E8722C' : '#8f96a1'; c.lineWidth = i === EST.sel ? 2 : 1; c.strokeRect(x0 + .5, y + .5, x1 - x0 - 1, h - 1);
+      if(T && T.pk){ c.fillStyle = '#7d848f'; const pps = T.pk.length / T.dur, mid = y + h * .6; for(let px = Math.max(0, x0); px < Math.min(W, x1); px += 1.5){ const s = it.ini + (px / EST.pps - it.t0) * it.rate, v = (T.pk[Math.floor(s * pps)] || 0) / 99 * h * .5; c.fillRect(px, mid - v * .7, 1.2, v); } }
+      // linha de volume (entrada e saída)
+      const v = y + 6, b0 = y + h - 2; c.strokeStyle = '#1FA8F0'; c.lineWidth = 1.6; c.beginPath(); c.moveTo(x0, b0); c.lineTo(X(it.t0 + it.fIn), v); c.lineTo(X(it.t1 - it.fOut), v); c.lineTo(x1, b0); c.stroke();
+      if(x1 - x0 > 50){ c.fillStyle = '#111'; c.font = '700 11px Inter,sans-serif'; c.save(); c.beginPath(); c.rect(x0, y, x1 - x0, h); c.clip();
+        c.fillText((i + 1) + ' · ' + estNomeDe(it.id), x0 + 4, y + 13); if(T){ c.font = '600 10px Inter,sans-serif'; c.fillStyle = '#333'; c.fillText(T.bpm + ' → ' + Math.round(T.bpm * it.rate * 10) / 10 + ' BPM', x0 + 4, y + 25); } c.restore(); } });
+    // cursor
+    c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.moveTo(X(EST.pT), 0); c.lineTo(X(EST.pT), H); c.stroke();
+    if(!M){ c.fillStyle = '#8a93a3'; c.font = '600 13px Inter,sans-serif'; c.textAlign = 'center'; c.fillText('A mistura aparece aqui, por baixo dos blocos da aula', W / 2, EST.yL + EST.hL); c.textAlign = 'left'; }
+  }
+  // ================= MÚSICA DE CADA BLOCO =================
+  // Cada bloco pode ter a sua música (ficheiro do PC, música do Spotify ou link), a começar no segundo escolhido (ex.: no refrão).
+  // A música começa quando o bloco começa e continua pelos blocos seguintes até outro bloco ter música ou ela acabar;
+  // aí volta a faixa da aula (se houver). Entra com fade-in e sai com fade-out antes da música seguinte.
+  var BM = { key: null, P: null, url: null, on: false, force: false, pend: null, ouve: null };
+  function bmMusDe(b){ const m = b && b.mus; return m && (m.key || m.url || m.uri) ? m : null; }
+  function bmKey(m){ return (m.src || 'file') + '|' + (m.key || m.uri || m.url); }
+  function bmAlvo(T){
+    const BL = current.blocos || []; let t = 0, i = -1; const st = [];
+    for(let k = 0; k < BL.length; k++){ st.push(t); t += blockDurationSec(BL[k]); if(i < 0 && T < t) i = k; }
+    if(i < 0) return null;
+    for(let j = i; j >= 0; j--){ const m = bmMusDe(BL[j]); if(!m) continue;
+      const pos = (m.ini || 0) + (T - st[j]); if(m.dur && pos >= m.dur - .05) return null;   // a música acabou: volta a faixa da aula
+      let prox = Infinity; for(let q = i + 1; q < BL.length; q++) if(bmMusDe(BL[q])){ prox = st[q]; break; }
+      return { m, pos, desde: T - st[j], fimEm: prox - T, k: bmKey(m) }; }
+    return null;
+  }
+  // leitor de uma música do Spotify (Web API, conta Premium do professor)
+  function bmSpPlayer(m){
+    const P = audSpApiPlayer({ uri: null, faixas: [{ u: m.uri, d: m.dur || 600 }] });
+    P.seek = function(s){ this._pos = s; this._at = performance.now(); this._tocar = true;
+      this._prepara().then(()=> this._cmd('/me/player/play', { uris: [m.uri], position_ms: Math.max(0, Math.round(s * 1000)) })).catch(()=>{ this._tocar = false; }); };
+    return P;
+  }
+  async function bmCria(m){
+    const src = m.src || 'file';
+    if(src === 'file'){ const rec = await audGet(m.key); if(!rec || !rec.blob) return { erro: 'A música "' + (m.nome || '') + '" não está neste PC: volta a escolher o ficheiro no bloco.' };
+      const url = URL.createObjectURL(rec.blob); return { P: audElPlayer(url), url }; }
+    if(src === 'url'){ const rec = await audGet('u:' + m.url); if(rec && rec.blob){ const url = URL.createObjectURL(rec.blob); return { P: audElPlayer(url), url }; } return { P: audElPlayer(m.url) }; }
+    if(src === 'sptrack'){ if(!spLigado()) return { erro: '🟢 Liga o Spotify (faixa de áudio da aula) para tocar as músicas do Spotify dos blocos.' }; return { P: bmSpPlayer(m) }; }
+    return { erro: 'Fonte de música desconhecida' };
+  }
+  async function bmEnsure(m){
+    const k = bmKey(m); if(BM.key === k && BM.P) return true; if(BM.pend === k) return false;
+    BM.pend = k; bmLarga();
+    try{ const r = await bmCria(m); if(BM.pend !== k) return false;
+      if(r.erro){ toast(r.erro); BM.key = k; BM.P = null; return false; }
+      BM.key = k; BM.P = r.P; BM.url = r.url || null; BM.force = true; return true; }
+    finally{ if(BM.pend === k) BM.pend = null; }
+  }
+  function bmLarga(){ if(BM.P){ try{ BM.P.pause(); BM.P.destroy(); }catch(e){} } if(BM.url) URL.revokeObjectURL(BM.url); BM.P = null; BM.url = null; BM.key = null; BM.on = false; }
+  // devolve true quando é a música de um bloco que manda neste momento (a faixa da aula fica em pausa)
+  function bmSync(T, playing, force){
+    const A = bmAlvo(T);
+    if(!A){ if(BM.P && BM.on){ try{ BM.P.pause(); }catch(e){} BM.on = false; } return false; }
+    if(BM.key !== A.k){ if(BM.P){ try{ BM.P.pause(); }catch(e){} } bmEnsure(A.m).then(ok=>{ if(ok && playing) bmSync(typeof elapsedNow === 'function' && livePlaying ? elapsedNow() : T, playing, true); }); return true; }
+    const P = BM.P; if(!P) return true;
+    let vol = A.m.vol != null ? A.m.vol : (current.audio && current.audio.vol != null ? current.audio.vol : .8);
+    if(A.desde < 1.5) vol *= Math.max(.15, A.desde / 1.5);
+    if(A.fimEm < 1.2) vol *= Math.max(0, A.fimEm / 1.2);
+    if(A.m.dur && A.m.dur - A.pos < 3) vol *= Math.max(0, (A.m.dur - A.pos) / 3);
+    const tot = audTot(); if(tot - T < 6) vol *= Math.max(0, (tot - T) / 6);
+    P.vol(Math.max(0, Math.min(1, vol)));
+    if(!playing || T >= tot){ P.pause(); BM.on = false; return true; }
+    const pos = P.pos();
+    if(force || BM.force || pos == null || Math.abs(pos - A.pos) > (P.tipo === 'el' ? 1.5 : 2.5)) P.seek(A.pos);
+    if(P.tipo === 'el') P.rate(1);
+    BM.force = false; P.play(); BM.on = true; return true;
+  }
+  // ---- no editor: escolher a música do bloco, o segundo onde começa, ouvir e tirar ----
+  function bmFmt(s){ s = Math.max(0, Math.round(s || 0)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+  function bmPinta(b){
+    const box = $('fMus'); if(!box) return;
+    if(!b || b.tipo === 'seg'){ box.innerHTML = '<span class="bm-dica">—</span>'; return; }
+    const m = bmMusDe(b), ico = m ? ({ file: '💾', url: '🔗', sptrack: '🟢' }[m.src || 'file'] || '🎵') : '';
+    box.innerHTML = m
+      ? '<div class="bm-on"><span class="bm-n" title="' + escapeHtml(m.nome || '') + '">' + ico + ' ' + escapeHtml(m.nome || 'Música') + (m.dur ? ' <small>' + bmFmt(m.dur) + '</small>' : '') + '</span>' +
+        '<label class="bm-ini" title="Em que segundo da música começa (ex.: no refrão)">começa aos <button type="button" data-bm="-">−</button><input type="text" id="fMusIni" value="' + bmFmt(m.ini) + '" inputmode="numeric"><button type="button" data-bm="+">+</button></label>' +
+        '<button type="button" class="bm-b" data-bm="ouve">' + (BM.ouve ? '⏹ parar' : '▶ ouvir') + '</button><button type="button" class="bm-b" data-bm="troca">🔁 trocar</button><button type="button" class="bm-b bm-x" data-bm="tira" title="Tirar a música deste bloco">🗑</button></div>'
+      : '<div class="bm-off"><button type="button" class="bm-b" data-bm="fich">💾 ficheiro do PC</button><button type="button" class="bm-b" data-bm="link">🟢 Spotify / 🔗 link</button>' +
+        '<span class="bm-dica">A música começa com o bloco e continua até outro bloco ter música.</span></div>';
+  }
+  async function bmPoeFicheiro(b, file){
+    if(!b || !file) return; toast('A preparar a música…');
+    let dur = 0; try{ dur = (await audDecode(await file.arrayBuffer())).dur; }catch(e){}
+    if(!dur) dur = await new Promise(res=>{ const el = new Audio(); el.preload = 'metadata'; el.onloadedmetadata = ()=> res(el.duration || 0); el.onerror = ()=> res(0); el.src = URL.createObjectURL(file); });
+    if(!dur || !isFinite(dur)){ toast('Não consegui ler este ficheiro de áudio.'); return; }
+    audPersiste(); const key = 'b' + uid();
+    try{ await audPut(key, { blob: file, dur, nome: file.name }); }catch(e){ toast('Não consegui guardar a música neste PC.'); return; }
+    pushUndo(); b.mus = { src: 'file', key, nome: file.name.replace(/\.[^.]+$/, '').slice(0, 60), dur: Math.round(dur * 10) / 10, ini: 0 };
+    renderEditor(); toast('🎵 Música no bloco · guarda a aula para ficar com ela');
+  }
+  async function bmPoeLink(b){
+    if(!b) return; const raw = prompt('Cola o link de uma música do Spotify (Partilhar → Copiar link da música) ou o link de um ficheiro (OneDrive, Dropbox, Google Drive…):'); if(!raw) return;
+    const L = audLink(raw); if(!L){ toast('Não reconheço este link.'); return; }
+    let m = null;
+    if(L.src === 'spotify'){
+      if(L.tipo !== 'track'){ toast('Para um bloco usa o link de UMA música (não de playlist ou álbum).'); return; }
+      m = { src: 'sptrack', uri: L.uri, nome: 'Spotify · música', dur: 0, ini: 0 };
+      if(spLigado()){ try{ const j = await spWeb('/tracks/' + L.uri.split(':').pop()); m.nome = (j.name || 'Música') + (j.artists && j.artists[0] ? ' · ' + j.artists[0].name : ''); m.dur = Math.round((j.duration_ms || 0) / 100) / 10; }catch(e){} }
+      else toast('🟢 Para tocar músicas do Spotify, liga o Spotify na faixa de áudio da aula (conta Premium).');
+    } else if(L.src === 'url'){ m = { src: 'url', url: L.url, nome: L.nome, dur: 0, ini: 0 };
+      try{ m.dur = Math.round(await new Promise(res=>{ const el = new Audio(); el.preload = 'metadata'; el.onloadedmetadata = ()=> res(el.duration || 0); el.onerror = ()=> res(0); el.src = L.url; setTimeout(()=> res(0), 8000); }) * 10) / 10; }catch(e){} }
+    else { toast('Para os blocos: ficheiro do PC, música do Spotify ou link direto de um ficheiro.'); return; }
+    pushUndo(); b.mus = m; renderEditor(); toast('🎵 Música no bloco · guarda a aula para ficar com ela');
+  }
+  async function bmOuve(b){
+    const m = bmMusDe(b); if(!m) return;
+    if(BM.ouve){ clearTimeout(BM.ouve); BM.ouve = null; try{ BM.P && BM.P.pause(); }catch(e){} bmPinta(b); return; }
+    if(!(await bmEnsure(m))) return;
+    BM.P.vol(m.vol != null ? m.vol : .8); BM.P.seek(m.ini || 0); if(BM.P.tipo === 'el') BM.P.play();
+    BM.ouve = setTimeout(()=>{ BM.ouve = null; try{ BM.P && BM.P.pause(); }catch(e){} bmPinta(selected()); }, 15000); bmPinta(b);
+  }
+  (function bmLiga(){
+    const box = $('fMus'); if(!box) return;
+    const fi = document.createElement('input'); fi.id = 'fMusFich'; fi.type = 'file'; fi.accept = 'audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac'; fi.hidden = true; document.body.appendChild(fi);
+    fi.onchange = ()=>{ const f = fi.files[0]; fi.value = ''; bmPoeFicheiro(selected(), f); };
+    box.addEventListener('click', e=>{ const t = e.target.closest('[data-bm]'); if(!t) return; const b = selected(); if(!b) return; const k = t.dataset.bm;
+      if(k === 'fich') fi.click();
+      else if(k === 'link') bmPoeLink(b);
+      else if(k === 'troca'){ if(confirm('Trocar a música deste bloco?\n\nOK = ficheiro do PC · Cancelar = link do Spotify / ficheiro online')) fi.click(); else bmPoeLink(b); }
+      else if(k === 'tira'){ pushUndo(); delete b.mus; renderEditor(); }
+      else if(k === 'ouve') bmOuve(b);
+      else if(k === '-' || k === '+'){ const m = bmMusDe(b); if(!m) return; m.ini = Math.max(0, Math.min(m.dur ? m.dur - 5 : 3600, (m.ini || 0) + (k === '+' ? 5 : -5))); persist(); bmPinta(b); if(BM.ouve){ clearTimeout(BM.ouve); BM.ouve = null; bmOuve(b); } } });
+    box.addEventListener('change', e=>{ if(e.target.id !== 'fMusIni') return; const b = selected(), m = bmMusDe(b); if(!m) return;
+      const p = String(e.target.value).split(':').map(x=> parseInt(x, 10) || 0), s = p.length > 1 ? p[0] * 60 + p[1] : p[0];
+      m.ini = Math.max(0, Math.min(m.dur ? m.dur - 5 : 3600, s)); persist(); bmPinta(b); });
+  })();
   function audStop(){
+    mixPara();
+    if(BM.P){ try{ BM.P.pause(); }catch(e){} BM.on = false; } if(BM.ouve){ clearTimeout(BM.ouve); BM.ouve = null; }
     if(audP) try{ audP.pause(); }catch(e){}
     if(audBlobPend) audUsarBlob(audBlobPend);
     audPrevStop();
@@ -10820,7 +11384,7 @@ const SR3 = (()=>{
     const tot = audTot(); if(!tot) return;
     if(edPos >= tot - 0.5) edPos = 0;
     audPrevT0 = edPos; audPrevAt = performance.now(); audPrevOn = true;
-    if(audP) audSync(edPos, true, true);
+    audSync(edPos, true, true);
     let ult = performance.now();
     const loop = ()=>{
       if(!audPrevOn) return;
@@ -10911,7 +11475,7 @@ const SR3 = (()=>{
     const bar = $('audBar'); if(!bar) return;
     const a = audInfo();
     if(!a || audEscolha){
-      let h = '<button class="aud-add" id="audAdd">📁 Ficheiro do dispositivo</button>' +
+      let h = '<button class="aud-add est-btn" id="estBtn" title="Monta a música da aula com as tuas músicas: BPM acertado à cadência e transições automáticas">🎛️ Estúdio de música (BPM)</button>' + (mixAtivo() ? '<span class="aud-note">🎛️ A aula usa a mistura do Estúdio (' + current.mix.itens.length + ' músicas)</span>' : '') + '<button class="aud-add" id="audAdd">📁 Ficheiro do dispositivo</button>' +
         '<button class="aud-add sp-add" id="audSpBtn">🟢 Playlist da minha conta Spotify</button>' +
         '<button class="aud-add" id="audLinkBtn">🔗 Link: OneDrive · Dropbox · Google Drive · SoundCloud · Spotify</button>' +
         (a ? '<button class="ghost" id="audCancel">cancelar</button>' : '');
@@ -10936,6 +11500,8 @@ const SR3 = (()=>{
       if(src !== 'spotify') h += '<label title="Volume">🔊 <input type="range" id="audVol" min="0" max="1" step="0.05" value="' + (a.vol == null ? 0.8 : a.vol) + '"></label>';
       h += '<button class="ghost" id="audTrocar" title="Trocar a música">↺ Trocar</button><button class="ghost" id="audDel" title="Tirar a música">✕</button>';
     }
+    h += '<button class="ghost est-btn" id="estBtn" title="Estúdio de música: BPM acertado à cadência e transições automáticas">🎛️ Estúdio</button>';
+    if(mixAtivo()) h += '<span class="aud-note warn">🎛️ A mistura do Estúdio (' + current.mix.itens.length + ' músicas) toca em vez desta faixa</span>';
     if(nota) h += '<span class="aud-note' + (nota.warn ? ' warn' : '') + '">' + nota.txt + '</span>';
     if(!audFalta){
       const net = src === 'file' || (src === 'url' && audGuardada) ? ['ok', '✓ Guardada neste dispositivo: toca mesmo se a internet falhar']
@@ -11021,6 +11587,7 @@ const SR3 = (()=>{
     const fim = ()=>{ if(drag){ drag = null; wrap.classList.remove('drag'); renderAudBar(); } };
     wrap.addEventListener('pointerup', fim); wrap.addEventListener('pointercancel', fim);
   })();
+  document.addEventListener('click', e=>{ if(e.target.closest && e.target.closest('#estBtn')) estAbre(); });
   $('audBar').addEventListener('click', e=>{
     const b = e.target.closest('button'); if(!b) return;
     if(b.id === 'audAdd'){ $('audFile').click(); return; }
@@ -11571,6 +12138,7 @@ const SR3 = (()=>{
       resetTickBase();
       // na passagem natural a música continua sem saltar; só salta quando o professor muda de bloco à mão
       if(passou === undefined) audSync(elapsedNow(), true, true);
+      else if(bmMusDe(current.blocos[liveIdx])) audSync(elapsedNow(), true);   // bloco com música: entra já, sem esperar
     }
     updateLiveDisplay();
     pushState();
@@ -11826,6 +12394,7 @@ const SR3 = (()=>{
     if(e.key === '4'){ godConfig(); }
     if(e.key === '5'){ viewMode = 'sala'; modoFixo = true; renderRiders(); }
     if((e.key === 'e' || e.key === 'E') && SR.on && SR.fsTroca) SR.fsTroca();
+    if((e.key === 'h' || e.key === 'H') && SR.on && $('srHeli')) heliTroca();
     if(e.key === 'm' || e.key === 'M'){ toggleMetric(); }
     if(e.key === 'q' || e.key === 'Q'){ $('qrPanel').classList.toggle('active'); }
   });
@@ -11942,7 +12511,7 @@ const SR3 = (()=>{
   async function onUser(user){
     detachData();
     if(!user){
-      userUid = null; userNome = ''; isAdmin = false;
+      userUid = null; userNome = ''; isAdmin = false; gestPinta(null);
       treinos = []; historico = []; partilhadas = [];
       showAuth('login');
       return;
@@ -11965,7 +12534,7 @@ const SR3 = (()=>{
       console.error(e);
       $('pendingEmail').textContent = 'Erro a ler a conta: ' + (e.message || e);
     }
-    $('pendingEmail').textContent = 'Conta: ' + user.email;
+    $('pendingEmail').textContent = 'Conta: ' + user.email; gestPinta(user);
     approvedRef = fbDb.ref('approved/' + user.uid);
     approvedRef.on('value', s=>{
       if(s.val() === true){ enterApp(); }
@@ -12408,7 +12977,7 @@ const SR3 = (()=>{
     }
   }
   document.querySelectorAll('[data-go]').forEach(b=> b.addEventListener('click', ()=> setView(b.dataset.go)));
-  document.getElementById('navBonecos').addEventListener('click', ()=> CICED.abre());
+  document.getElementById('navBonecos').addEventListener('click', ()=> gestOk(()=> CICED.abre())());
   // ===== VOZ DO COACH: o professor grava as frases e o Pulso usa a voz dele na app dos alunos (coachVoz/{id} no Firebase) =====
   const VOZ_FR = [{"id": "dentro1", "t": "dentro", "f": "Isso mesmo! Exatamente aí."}, {"id": "dentro2", "t": "dentro", "f": "Perfeito, assim é que se treina!"}, {"id": "dentro3", "t": "dentro", "f": "Que ritmo bonito, mantém!"}, {"id": "dentro4", "t": "dentro", "f": "Estás na zona certa, continua!"}, {"id": "dentro5", "t": "dentro", "f": "Impecável! Nem eu fazia melhor."}, {"id": "dentro6", "t": "dentro", "f": "Assim mesmo, cabeça fria e pernas a trabalhar."}, {"id": "dentro7", "t": "dentro", "f": "Gosto de ver! Mantém esse ritmo."}, {"id": "dentro8", "t": "dentro", "f": "Olha só para ti! Muito bem."}, {"id": "baixo1", "t": "baixo", "f": "Falta-te um bocadinho. Sobe mais um pouco!"}, {"id": "baixo2", "t": "baixo", "f": "Eu sei que tens mais aí dentro. Vamos!"}, {"id": "baixo3", "t": "baixo", "f": "Força nesses pedais!"}, {"id": "baixo4", "t": "baixo", "f": "Mais um dente na resistência!"}, {"id": "baixo5", "t": "baixo", "f": "Está quase, só mais um empurrão!"}, {"id": "baixo6", "t": "baixo", "f": "Não me deixes sozinho cá em cima, sobe!"}, {"id": "baixo7", "t": "baixo", "f": "Vamos lá, aperta um pouco mais!"}, {"id": "baixo8", "t": "baixo", "f": "Estás abaixo da zona. Pressiona!"}, {"id": "alto1", "t": "alto", "f": "Ei, calma! Ainda há aula. Baixa um bocadinho."}, {"id": "alto2", "t": "alto", "f": "Estás a voar! Guarda um pouco para depois."}, {"id": "alto3", "t": "alto", "f": "Tira o pé do acelerador, que o treino é na zona."}, {"id": "alto4", "t": "alto", "f": "Que energia! Mas hoje o alvo é mais abaixo."}, {"id": "alto5", "t": "alto", "f": "Alivia um pouco, que ainda vem muito pela frente."}, {"id": "raspa1", "t": "raspa", "f": "Isto não é um passeio de domingo! Sobe já para a zona!"}, {"id": "raspa2", "t": "raspa", "f": "Já te avisei! Mais força, vamos!"}, {"id": "raspa3", "t": "raspa", "f": "Assim não chegamos lá! Bora, aperta!"}, {"id": "raspa4", "t": "raspa", "f": "Eu não vim cá para te ver a passear!"}, {"id": "raspa5", "t": "raspa", "f": "Acorda! Quero ver esforço a sério!"}, {"id": "parado1", "t": "parado", "f": "Os pedais não andam sozinhos! Bora!"}, {"id": "parado2", "t": "parado", "f": "Então? Parado? A aula não parou!"}, {"id": "parado3", "t": "parado", "f": "Ei! Volta a pedalar, que eu estou a contar contigo!"}, {"id": "ultimos1", "t": "ultimos", "f": "Últimos quinze segundos! Esvazia o tanque!"}, {"id": "ultimos2", "t": "ultimos", "f": "Reta final! Dá tudo o que tens!"}, {"id": "ultimos3", "t": "ultimos", "f": "Só mais um bocadinho! Aguenta!"}, {"id": "ultimos4", "t": "ultimos", "f": "Quinze segundos! Vais conseguir!"}, {"id": "ultimos5", "t": "ultimos", "f": "Agora é coração e cabeça! Força!"}, {"id": "inicio1", "t": "inicio", "f": "Este bloco é teu. Bora!"}, {"id": "inicio2", "t": "inicio", "f": "Respira fundo… e ataca!"}, {"id": "inicio3", "t": "inicio", "f": "Hora de mostrar o que vales!"}, {"id": "inicio4", "t": "inicio", "f": "Agora começa a parte boa!"}, {"id": "inicio5", "t": "inicio", "f": "Foco no alvo. Tu consegues!"}, {"id": "cadBaixa1", "t": "cadBaixa", "f": "Pernas mais rápidas! Sobe a cadência."}, {"id": "cadBaixa2", "t": "cadBaixa", "f": "Mais rotação! Gira mais depressa."}, {"id": "cadBaixa3", "t": "cadBaixa", "f": "Pedalada mais solta, vamos!"}, {"id": "cadAlta1", "t": "cadAlta", "f": "Mais carga e menos rotação!"}, {"id": "cadAlta2", "t": "cadAlta", "f": "Isso não é uma batedeira! Põe resistência."}, {"id": "cadAlta3", "t": "cadAlta", "f": "Calma nas rotações, pedalada mais pesada."}, {"id": "sobe1", "t": "sobe", "f": "Ultrapassagem! Continua assim!"}, {"id": "sobe2", "t": "sobe", "f": "Boa! Subiste na classificação!"}, {"id": "sobe3", "t": "sobe", "f": "Mais um que ficou para trás! Força!"}, {"id": "rec1", "t": "rec", "f": "Novo recorde da aula! Que máquina!"}, {"id": "rec2", "t": "rec", "f": "Uau! Esse é o teu máximo de hoje!"}, {"id": "rec3", "t": "rec", "f": "Que potência! Recorde batido!"}, {"id": "fc1", "t": "fc", "f": "O coração está muito alto. Respira e alivia uns segundos."}, {"id": "fc2", "t": "fc", "f": "Vai com calma, frequência cardíaca muito alta."}, {"id": "fc3", "t": "fc", "f": "Respira fundo e baixa um pouco a intensidade."}, {"id": "meio1", "t": "meio", "f": "Já vamos a meio! A melhor parte vem aí."}, {"id": "meio2", "t": "meio", "f": "Metade feita! Estou orgulhoso de ti."}, {"id": "meio3", "t": "meio", "f": "Meio da aula e estás a arrasar!"}, {"id": "ultimo1", "t": "ultimo", "f": "Último bloco! Fecha com chave de ouro!"}, {"id": "ultimo2", "t": "ultimo", "f": "É o último! Tudo o que guardaste, gasta agora!"}, {"id": "ultimo3", "t": "ultimo", "f": "Último esforço da aula! Vamos acabar em grande!"}, {"id": "seg_z0", "t": "seguir", "f": "A seguir: recuperação. Respira e solta as pernas!"}, {"id": "seg_z1", "t": "seguir", "f": "A seguir: zona dois, ritmo confortável. Vamos!"}, {"id": "seg_z2", "t": "seguir", "f": "A seguir: zona três. Mantém a cabeça fria!"}, {"id": "seg_z3", "t": "seguir", "f": "A seguir: zona quatro, limiar. Isto vai doer, mas tu aguentas!"}, {"id": "seg_z4", "t": "seguir", "f": "A seguir: zona cinco! Prepara-te para dar tudo!"}, {"id": "seg_z5", "t": "seguir", "f": "A seguir: anaeróbio! Explosão total!"}, {"id": "seg_z6", "t": "seguir", "f": "A seguir: sprint! Mostra-me o que vales!"}, {"id": "seg_teste", "t": "seguir", "f": "A seguir: teste de FTP. O mais forte e constante que conseguires!"}, {"id": "ola1", "t": "ola", "f": "Olá! Eu sou o Pulso, o teu coach. Toca em mim se precisares de ajuda."}, {"id": "ola2", "t": "ola", "f": "Bem-vindo! Bora pedalar? Estou aqui se precisares de mim."}, {"id": "ola3", "t": "ola", "f": "Então, vamos a isso? Se tiveres dúvidas, toca em mim."}, {"id": "apres1", "t": "apres", "f": "Olá! Eu sou o Pulso, o teu coach virtual. 💓"}, {"id": "apres2", "t": "apres", "f": "Vou treinar contigo: digo-te se estás na zona certa, aviso-te do que vem a seguir e festejo as tuas vitórias."}, {"id": "apres3", "t": "apres", "f": "Toca em mim e explico-te como funciona a app e o objetivo do treino. E podes arrastar-me para onde quiseres!"}, {"id": "quem1", "t": "quem", "f": "Eu sou o Pulso, o teu coach virtual! 💓 Um coração com braços e muita energia."}, {"id": "quem2", "t": "quem", "f": "A minha função é treinar contigo: durante a aula digo-te se estás abaixo, dentro ou acima da zona e aviso-te do bloco que vem a seguir."}, {"id": "quem3", "t": "quem", "f": "Festejo quando bates um recorde ou passas alguém. Mas se te deixares ir abaixo da zona… levas um raspanete! 😤"}, {"id": "quem4", "t": "quem", "f": "Também fico de olho na tua frequência cardíaca e na cadência, para treinares com segurança."}, {"id": "quem5", "t": "quem", "f": "Podes arrastar-me para onde quiseres. Na aula, o botão 🔊 escolhe voz, só texto ou silêncio; com toque longo mudas a minha voz."}, {"id": "app1", "t": "app", "f": "Primeiro diz-me como te sentes hoje e confirma. Depois escolhes como queres pedalar."}, {"id": "app2", "t": "app", "f": "Aula ao vivo: entras com o PIN que aparece no ecrã da sala. Só pedalar: treino livre ao teu ritmo. Biblioteca: treinos guiados para fazeres sozinho."}, {"id": "app3", "t": "app", "f": "Antes de começar, liga a bike e a cinta cardíaca por Bluetooth e escolhe o número da tua bike na sala."}, {"id": "app4", "t": "app", "f": "Na aula, cada bloco tem uma zona de esforço com uma cor. O objetivo é manteres a tua potência dentro dessa zona."}, {"id": "app5", "t": "app", "f": "Desliza para o lado, ou toca nos pontinhos em baixo, para mudares de ecrã: o bloco atual, o perfil da aula, a corrida e o percurso."}, {"id": "app6", "t": "app", "f": "No fim, o treino fica guardado em «Treinos realizados», com o relatório."}, {"id": "app7", "t": "app", "f": "Mantém a tua ficha atualizada, com a idade e a FC máxima, para as zonas ficarem certas para ti."}, {"id": "obj1", "t": "obj", "f": "O objetivo de cada treino é treinares na intensidade certa para ti: nem a mais, nem a menos."}, {"id": "obj2", "t": "obj", "f": "As zonas vão da Z1, recuperação, até à Z7, explosão. A Z2 treina a resistência, a Z4 o limiar e a Z5 o VO2máx."}, {"id": "obj3", "t": "obj", "f": "Quando entrares numa aula, toca em mim e digo-te o objetivo do treino de hoje e do bloco em que estás."}, {"id": "agarra1", "t": "agarra", "f": "Ei! Para onde me levas? 😮"}, {"id": "agarra2", "t": "agarra", "f": "Uiii! Cuidado comigo!"}, {"id": "agarra3", "t": "agarra", "f": "Vamos passear? 😄"}, {"id": "agarra4", "t": "agarra", "f": "Devagar, que eu sou sensível! 💓"}, {"id": "agarra5", "t": "agarra", "f": "Opa! Lá vou eu!"}, {"id": "agarra6", "t": "agarra", "f": "Upa! Que força!"}, {"id": "poisa1", "t": "poisa", "f": "Aqui está bom! 👍"}, {"id": "poisa2", "t": "poisa", "f": "Boa vista daqui!"}, {"id": "poisa3", "t": "poisa", "f": "Ok, fico por aqui."}, {"id": "poisa4", "t": "poisa", "f": "Ufa, chão firme!"}, {"id": "poisa5", "t": "poisa", "f": "Gosto deste cantinho."}, {"id": "poisa6", "t": "poisa", "f": "Daqui vejo tudo! 👀"}, {"id": "enjoo1", "t": "enjoo", "f": "Pára, que fico enjoado! 🤢"}, {"id": "enjoo2", "t": "enjoo", "f": "Ai, ai… está tudo à roda! 😵"}, {"id": "enjoo3", "t": "enjoo", "f": "Calma! Não sou um batido! 🥤"}, {"id": "atira1", "t": "atira", "f": "Wheee! 🚀"}, {"id": "atira2", "t": "atira", "f": "Uaaau!"}, {"id": "atira3", "t": "atira", "f": "Lá vou eu a voar!"}, {"id": "tonto1", "t": "tonto", "f": "Fiquei tonto… 😵‍💫"}, {"id": "tonto2", "t": "tonto", "f": "Que viagem! Outra vez? 😄"}, {"id": "tonto3", "t": "tonto", "f": "Uff… aterragem perfeita. Quase."}, {"id": "longe1", "t": "longe", "f": "Ainda falta muito? 😅"}, {"id": "longe2", "t": "longe", "f": "Já me doem os braços!"}, {"id": "longe3", "t": "longe", "f": "Pousa-me onde quiseres, eu espero."}, {"id": "olaM1", "t": "olaM", "f": "Bom dia! Coração acordado, pernas prontas. Bora começar o dia a pedalar! ☀️"}, {"id": "olaM2", "t": "olaM", "f": "Bom dia! Quem treina de manhã ganha o dia inteiro. 💪"}, {"id": "olaM3", "t": "olaM", "f": "Bom dia! Hoje vai ser um grande dia, e começa aqui. 🚴"}, {"id": "olaT1", "t": "olaT", "f": "Boa tarde! Ainda há muita energia nesse coração. Vamos gastá-la? ⚡"}, {"id": "olaT2", "t": "olaT", "f": "Boa tarde! A melhor pausa do dia é em cima da bike."}, {"id": "olaT3", "t": "olaT", "f": "Boa tarde! Bora transformar o cansaço do dia em energia? 🔋"}, {"id": "olaN1", "t": "olaN", "f": "Boa noite! Fechar o dia a pedalar é coisa de campeão. 🌙"}, {"id": "olaN2", "t": "olaN", "f": "Boa noite! Dormir bem começa com um bom treino. 😴"}, {"id": "olaN3", "t": "olaN", "f": "Boa noite! O dia foi longo, mas o melhor ficou para o fim. 💪"}, {"id": "olaD1", "t": "olaD", "f": "Segunda-feira! Quem começa a semana forte, acaba-a em grande. 🔥"}, {"id": "olaD2", "t": "olaD", "f": "Sexta-feira! Um treino agora e o fim de semana sabe o dobro. 😎"}, {"id": "olaD3", "t": "olaD", "f": "Fim de semana e tu aqui? Isso é que é atitude! 👏"}, {"id": "olaX1", "t": "olaX", "f": "Cada treino conta. Hoje é mais um tijolo no teu melhor eu. 🧱"}, {"id": "olaX2", "t": "olaX", "f": "Eu bato 60 vezes por minuto à tua espera. Vamos pô-lo a 150? 💓"}, {"id": "olaX3", "t": "olaX", "f": "Não precisas de ser o mais rápido. Precisas é de aparecer. E já apareceste! 🙌"}, {"id": "olaX4", "t": "olaX", "f": "Daqui a uma hora vais agradecer-te por teres vindo. Confia em mim! 😉"}, {"id": "cutuca1", "t": "cutuca", "f": "Então? A bike não se pedala sozinha! 😄"}, {"id": "cutuca2", "t": "cutuca", "f": "Estou aqui a aquecer… e tu? 🔥"}, {"id": "cutuca3", "t": "cutuca", "f": "Psst… um treinozinho? Prometo que sais daqui melhor! 😉"}, {"id": "cutuca4", "t": "cutuca", "f": "O sofá não te vai dar medalhas. Eu dou! 🏅"}, {"id": "bora1", "t": "bora", "f": "Bora! Eu vou contigo! 🚴"}, {"id": "bora2", "t": "bora", "f": "É isso! Vamos a isto! 💪"}, {"id": "bora3", "t": "bora", "f": "Grande decisão! Bora pedalar! 🔥"}, {"id": "hum1", "t": "humor", "f": "Dias assim também contam. Hoje vamos com calma: aparecer já é meio treino. 🫶"}, {"id": "hum2", "t": "humor", "f": "Eu conheço um remédio: uns minutos de pedal e endorfinas a rodos. Confia em mim! 💊"}, {"id": "hum3", "t": "humor", "f": "Normal? Daqui a pouco vais estar em grande. Eu trato disso! 😉"}, {"id": "hum4", "t": "humor", "f": "Boa! Com essa energia vamos fazer um treino bonito. 💪"}, {"id": "hum5", "t": "humor", "f": "É assim mesmo! Hoje vamos partir isto tudo! 🔥"}];
   // dados: id → { d: áudio final (o que os alunos ouvem), o: gravação original (se foi editada), fx: ajustes }
@@ -12539,8 +13108,20 @@ const SR3 = (()=>{
       try{ new Audio(VOZ.dados[id].d).play(); }catch(e){} toast('🎙️ Gravado'); pinta(); };
     rec.start(); btn.textContent = '■ Parar'; btn.classList.add('rec'); VOZ.tm = setTimeout(vozPara, 6000);
   }
-  document.getElementById('navVoz').addEventListener('click', vozAbre);
-  document.getElementById('navSala').addEventListener('click', ()=> SALA.abre());   // mapa da sala   // editor dos bonecos
+  document.getElementById('navVoz').addEventListener('click', gestOk(vozAbre));
+  // ——— Gestão (Sala, Voz do coach, Bonecos): só para os gestores. O Firebase também só os deixa gravar a eles (ver regras) ———
+  var GESTORES = ['marioteixeira.gote@gmail.com', 'pedrobarbosasousa1994@gmail.com'];
+  function eGestor(user){ const e = String((user && user.email) || '').trim().toLowerCase(); return !!e && GESTORES.includes(e); }
+  function gestPinta(user){ const b = $('navGestao'), m = $('gestMenu'), ok = eGestor(user); if(b) b.hidden = !ok; if(m && !ok){ m.hidden = true; if(b) b.setAttribute('aria-expanded', 'false'); } }
+  (function(){ const b = $('navGestao'), m = $('gestMenu'); if(!b || !m) return;
+    const fecha = ()=>{ m.hidden = true; b.setAttribute('aria-expanded', 'false'); };
+    b.addEventListener('click', e=>{ e.stopPropagation(); if(!m.hidden) return fecha(); const r = b.getBoundingClientRect();
+      m.hidden = false; m.style.top = Math.round(r.bottom + 6) + 'px'; m.style.left = Math.round(Math.max(8, Math.min(innerWidth - m.offsetWidth - 8, r.left))) + 'px'; b.setAttribute('aria-expanded', 'true'); });
+    m.addEventListener('click', e=>{ if(e.target.closest('button')) fecha(); });
+    document.addEventListener('click', e=>{ if(!m.hidden && !m.contains(e.target) && e.target !== b) fecha(); });
+    addEventListener('resize', fecha); addEventListener('scroll', fecha, true); })();
+  function gestOk(fn){ return ()=>{ if(!eGestor(auth && auth.currentUser)){ toast('Só os gestores podem abrir isto.'); return; } fn(); }; }
+  document.getElementById('navSala').addEventListener('click', gestOk(()=> SALA.abre()));   // mapa da sala   // editor dos bonecos
   $('homeNewBtn').addEventListener('click', ()=>{ resetTreino(); setView('plan'); });
   // abrir uma aula leva sempre ao planeamento
   const _loadTreino = loadTreino;
