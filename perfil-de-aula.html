@@ -269,6 +269,9 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .est-insp label span{color:#fff;font-weight:700;min-width:42px;text-align:center}.est-insp small{color:#8a93a3;min-width:38px}
 .est-insp input[type=number]{width:62px;background:#111;color:#fff;border:1px solid #333a45;border-radius:6px;padding:4px}.est-insp input[type=range]{width:110px}
 #estOv .est-insp button,#estOv .est-insp select{padding:4px 9px}.est-dica{color:#8a93a3}
+.est-falta,.est-prog{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 14px 8px;padding:10px 12px;border-radius:8px;background:#2a1d12;border:1px solid #E8722C;color:#ffd2b0}
+.est-falta[hidden],.est-prog[hidden]{display:none}.est-falta span{color:#cfd6e0;font-size:12px;flex:1;min-width:200px}
+.est-prog{background:#12202a;border-color:#1FA8F0;color:#cfe9ff}.est-pb{flex:1;min-width:200px;height:10px;background:#0b1118;border-radius:6px;overflow:hidden}.est-pb i{display:block;height:100%;background:#1FA8F0;transition:width .3s}
 .est-nav{display:flex;align-items:center;gap:12px;margin:6px 14px 0;color:#8a93a3;font-size:11.5px}.est-nav span{flex:1}.est-nav label{display:flex;align-items:center;gap:4px;white-space:nowrap}#estPan{width:240px}
 #estCv{display:block;cursor:pointer}.est-av{display:flex;flex-direction:column;gap:3px;padding:6px 14px 10px;color:#ffb37a;font-size:12px}
 
@@ -11129,7 +11132,7 @@ const SR3 = (()=>{
       await new Promise(r=> setTimeout(r, 30));
       try{ const ab = await new Off(1, 1, 22050).decodeAudioData(await f.arrayBuffer()); const A = estAnalisa(ab), id = 'm' + uid().slice(1);
         await audPut('mlib:' + id, { blob: f, nome: f.name });
-        const L = estLib(); L.push(Object.assign({ id, nome: f.name.replace(/\.[^.]+$/, '').slice(0, 80) }, A)); estGravaLib(L); }
+        const L = estLib(); L.push(Object.assign({ id, nome: f.name.replace(/\.[^.]+$/, '').slice(0, 80), fich: f.name, tam: f.size }, A)); estGravaLib(L); }
       catch(e){ toast('Não consegui ler "' + f.name + '"'); } }
     EST.estado = ''; estPinta();
   }
@@ -11198,7 +11201,6 @@ const SR3 = (()=>{
   // ---- janela do Estúdio ----
   var EST = { ov: null, sel: -1, pps: 1, zoom: 1, x0: 0, play: false, pT: 0, iv: 0, estado: '', ouveLib: null, iman: true };
   function estAbre(){
-    if(!current.blocos || !current.blocos.length){ toast('Cria primeiro os blocos da aula.'); return; }
     audStop(); if(typeof audPrevStop === 'function') audPrevStop();
     const ov = EST.ov = document.createElement('div'); ov.id = 'estOv';
     ov.innerHTML = '<div class="est-top"><b>🎛️ Estúdio de música</b><span class="est-aula"></span>' +
@@ -11206,9 +11208,10 @@ const SR3 = (()=>{
       '<label>transição <select id="estTr">' + Object.keys(EST_TRANS).map(k=> '<option value="' + k + '">' + EST_TRANS[k].n + '</option>').join('') + '</select></label><button type="button" id="estTrTodas" title="Aplica esta transição a todas as passagens da mistura">aplicar a todas</button>' +
       '<label>pistas <select id="estPis">' + [2, 3, 4, 5, 6].map(n=> '<option>' + n + '</option>').join('') + '</select></label>' +
       '<label title="Volume geral da mistura">🔊 <input type="range" id="estVol" min="0" max="1" step="0.05"></label>' +
-      '<button type="button" class="est-pri" id="estEnche">✨ Encher a aula automaticamente</button><button type="button" id="estPlay">▶ Ouvir</button><button type="button" id="estLimpa">🗑 Limpar</button><button type="button" class="est-ok" id="estFecha">✓ Fechar</button></div>' +
+      '<button type="button" class="est-pri" id="estEnche">✨ Encher a aula automaticamente</button><button type="button" id="estPlay">▶ Ouvir</button><button type="button" id="estLimpa">🗑 Limpar</button><button type="button" id="estExp" title="Guarda um ficheiro com a aula e a mistura (só os nomes das músicas): abre-se noutro PC com as mesmas músicas">💾 Exportar playlist</button><button type="button" id="estAbr" title="Abre uma playlist exportada e liga-a às músicas deste PC">📂 Abrir playlist</button><input type="file" id="estAbrIn" accept=".json,application/json" hidden><button type="button" id="estMp3" title="Grava a aula toda num MP3 de 320 kbps">🎧 Exportar MP3</button><button type="button" class="est-ok" id="estFecha">✓ Fechar</button></div>' +
       '<div class="est-mid"><div class="est-lib"><div class="est-h">Biblioteca <button type="button" id="estAdd">＋ Músicas</button><input type="file" id="estFich" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac,.aac" multiple hidden><span class="est-est"></span></div><div class="est-tab" id="estLibT"></div></div>' +
       '<div class="est-lis"><div class="est-h">Mistura da aula <span class="est-res"></span></div><div class="est-tab" id="estMixT"></div></div></div>' +
+      '<div class="est-falta" id="estFalta" hidden></div><div class="est-prog" id="estProg" hidden></div>' +
       '<div class="est-insp" id="estInsp"></div>' +
       '<div class="est-tlw" id="estTlw"><canvas id="estCv"></canvas></div>' +
       '<div class="est-nav"><span>🔍 roda do rato = zoom · Shift + roda = andar · arrasta a música para mover (e para outra pista) · puxa as âncoras ▼ das pontas para escolher a parte · puxa os pontos azuis para os fades e a linha para o volume</span><label><input type="checkbox" id="estIman" checked> 🧲 encaixar</label><input type="range" id="estPan" min="0" max="1000" value="0"></div>' +
@@ -11226,15 +11229,16 @@ const SR3 = (()=>{
     ov.addEventListener('dragover', e=>{ if(e.dataTransfer && [...e.dataTransfer.types].includes('Files')){ e.preventDefault(); ov.classList.add('drop'); } });
     ov.addEventListener('dragleave', ()=> ov.classList.remove('drop'));
     ov.addEventListener('drop', e=>{ ov.classList.remove('drop'); if(e.dataTransfer && e.dataTransfer.files.length){ e.preventDefault(); estJunta(e.dataTransfer.files); } });
-    $('estEnche').onclick = ()=>{ if(!estLib().length){ toast('Junta primeiro músicas à biblioteca (＋ Músicas ou arrasta-as para aqui).'); return; }
+    $('estEnche').onclick = ()=>{ if(!audTot()){ toast('Cria primeiro os blocos da aula.'); return; } if(!estLib().length){ toast('Junta primeiro músicas à biblioteca (＋ Músicas ou arrasta-as para aqui).'); return; }
       if(mixAtivo() && !confirm('Substituir a mistura atual?')) return; estPrevPara(); current.mix = Object.assign(current.mix || {}, { trans: $('estTr').value, pistas: +$('estPis').value }); estEnche(); EST.sel = -1; estPinta(); toast('✨ Aula preenchida com ' + current.mix.itens.length + ' músicas'); };
     $('estLimpa').onclick = ()=>{ if(!mixAtivo() || !confirm('Tirar a mistura desta aula? (as músicas ficam na biblioteca)')) return; estPrevPara(); delete current.mix; persist(); EST.sel = -1; estPinta(); };
     $('estPlay').onclick = ()=> EST.play ? estPrevPara() : estPrevComeca();
+    $('estExp').onclick = estExporta; $('estMp3').onclick = estMp3; $('estAbr').onclick = ()=> $('estAbrIn').click(); $('estAbrIn').onchange = e=>{ const f = e.target.files[0]; e.target.value = ''; if(f) estImporta(f); };
     $('estFecha').onclick = estFecha;
     $('estPan').oninput = ()=>{ const tot = audTot(), vis = estVis(); EST.x0 = (+$('estPan').value / 1000) * Math.max(0, tot - vis); estDesenha(); };
     estLigaCanvas();
     window.addEventListener('resize', estDesenha);
-    estPinta();
+    estPinta(); estPintaFalta();
   }
   function estVis(){ const w = $('estTlw'); return (w ? w.clientWidth : 1000) / EST.pps; }
   function estFecha(){ estPrevPara(); if(EST.ouveLib){ EST.ouveLib.pause(); EST.ouveLib = null; } if(EST.ov) EST.ov.remove(); EST.ov = null; window.removeEventListener('resize', estDesenha); persist(); renderAudBar(); }
@@ -11408,6 +11412,110 @@ const SR3 = (()=>{
     // cursor
     c.strokeStyle = '#fff'; c.lineWidth = 2; c.beginPath(); c.moveTo(X(EST.pT), 0); c.lineTo(X(EST.pT), H); c.stroke();
     if(!M){ c.fillStyle = '#8a93a3'; c.font = '600 13px Inter,sans-serif'; c.textAlign = 'center'; c.fillText('A mistura aparece aqui, por baixo dos blocos da aula (arrasta músicas da biblioteca para as pistas)', W / 2, G.yL + 40); c.textAlign = 'left'; }
+  }
+  // ---- 💾 playlist da aula (só atalhos: nomes dos ficheiros + BPM + mistura) e 📂 reabrir com as músicas locais ----
+  async function estExporta(){
+    const M = mixAtivo(); if(!M){ toast('Ainda não há mistura para exportar.'); return; }
+    const ids = [...new Set(M.itens.map(it=> it.id))], lib = estLib(), mus = [];
+    for(const id of ids){ const t = lib.find(x=> x.id === id); if(!t) continue; let fich = t.fich, tam = t.tam;
+      if(!fich || !tam){ const r = await audGet('mlib:' + id); if(r){ fich = fich || r.nome; tam = tam || (r.blob && r.blob.size); } }
+      mus.push({ id, nome: t.nome, fich: fich || t.nome, tam: tam || 0, bpm: t.bpm, beat0: t.beat0, dur: t.dur, pk: t.pk }); }
+    const dados = { app: 'playride-mix', versao: 1, criado: new Date().toISOString(), aula: { nome: current.nome || 'Aula', modo: current.modo, blocos: current.blocos }, mix: M, musicas: mus };
+    download(slug(current.nome || 'aula') + '.playride.json', JSON.stringify(dados), 'application/json');
+    toast('💾 Playlist exportada (' + mus.length + ' músicas). Guarda-a junto da pasta das músicas.');
+  }
+  function estImporta(file){
+    const fr = new FileReader();
+    fr.onload = ()=>{ let d; try{ d = JSON.parse(fr.result); }catch(e){ toast('Este ficheiro não é uma playlist do PlayRide.'); return; }
+      if(!d || d.app !== 'playride-mix' || !d.mix || !d.aula){ toast('Este ficheiro não é uma playlist do PlayRide.'); return; }
+      if(!confirm('Abrir a playlist "' + (d.aula.nome || 'Aula') + '"?\n\nA aula aberta é substituída por esta (blocos e mistura). Podes desfazer.')) return;
+      pushUndo(); current.nome = d.aula.nome || current.nome; if(d.aula.modo) current.modo = d.aula.modo; current.blocos = (d.aula.blocos || []).map(sanitizeBlock); current.id = null; current.mix = d.mix;
+      EST.pend = d.musicas || []; estLiga2(); try{ $('treinoNome').value = current.nome; }catch(e){} renderEditor(); estPinta(); };
+    fr.readAsText(file);
+  }
+  // liga as músicas da playlist às da biblioteca (pelo nome do ficheiro e tamanho); as que faltam pedem-se ao professor
+  function estLiga2(){
+    const L = estLib(), M = current.mix, falta = [];
+    (EST.pend || []).forEach(m=>{ let t = L.find(x=> x.id === m.id) || L.find(x=> x.fich && x.fich === m.fich && (!m.tam || !x.tam || x.tam === m.tam)) || L.find(x=> x.nome === m.nome && Math.abs((x.dur || 0) - (m.dur || 0)) < 2);
+      if(t){ if(t.id !== m.id) M.itens.forEach(it=>{ if(it.id === m.id) it.id = t.id; }); } else falta.push(m); });
+    EST.pend = falta; persist(); estPintaFalta();
+  }
+  function estPintaFalta(){
+    const box = $('estFalta'); if(!box) return; const F = EST.pend || [];
+    if(!F.length){ box.hidden = true; box.innerHTML = ''; return; }
+    box.hidden = false;
+    box.innerHTML = '<b>📂 Faltam ' + F.length + ' músicas neste PC</b><span>' + F.slice(0, 6).map(m=> escapeHtml(m.fich)).join(' · ') + (F.length > 6 ? ' …' : '') + '</span>' +
+      '<button type="button" id="estPasta">Escolher a pasta das músicas</button><button type="button" id="estFichs">Escolher os ficheiros</button>' +
+      '<input type="file" id="estPastaIn" webkitdirectory multiple hidden><input type="file" id="estFichsIn" accept="audio/*" multiple hidden>';
+    $('estPasta').onclick = ()=> $('estPastaIn').click(); $('estFichs').onclick = ()=> $('estFichsIn').click();
+    $('estPastaIn').onchange = $('estFichsIn').onchange = e=> estRecebe(e.target.files);
+  }
+  async function estRecebe(files){
+    const F = EST.pend || [], M = current.mix, L = estLib(); let n = 0; audPersiste();
+    for(const f of [...files]){ const m = F.find(x=> x.fich === f.name && (!x.tam || x.tam === f.size)) || F.find(x=> x.fich === f.name); if(!m) continue;
+      const id = 'm' + uid().slice(1); await audPut('mlib:' + id, { blob: f, nome: f.name });
+      L.push({ id, nome: m.nome, fich: f.name, tam: f.size, bpm: m.bpm, beat0: m.beat0, dur: m.dur, pk: m.pk });   // o BPM vem da playlist: não é preciso analisar outra vez
+      M.itens.forEach(it=>{ if(it.id === m.id) it.id = id; }); EST.pend = EST.pend.filter(x=> x !== m); n++; }
+    estGravaLib(L); persist(); estPinta(); estPintaFalta();
+    toast(n ? '✓ ' + n + ' músicas ligadas' + (EST.pend.length ? ' · ainda faltam ' + EST.pend.length : '') : 'Nenhum ficheiro com os nomes da playlist.');
+  }
+  // ---- 🎧 exportar a aula num MP3 (320 kbps, 44,1 kHz, estéreo) ----
+  function estScript(url){ return new Promise((res, rej)=>{ if(window.lamejs) return res(); const s = document.createElement('script'); s.src = url; s.onload = res; s.onerror = ()=> rej(new Error('script')); document.head.appendChild(s); }); }
+  // muda a velocidade sem mudar o tom (WSOLA): procura o melhor encaixe de cada bocado para não haver "saltos" na batida
+  function estEstica(ch, rate, i0, nOut){
+    const N = 2048, Hs = 1024, D = 384, nC = ch.length, src = ch[0], src2 = ch[1] || ch[0];
+    const out = ch.map(()=> new Float32Array(nOut + N)), w = new Float32Array(N); for(let i = 0; i < N; i++) w[i] = .5 - .5 * Math.cos(2 * Math.PI * i / N);
+    let prev = i0; const len = src.length;
+    for(let o = 0; o < nOut; o += Hs){
+      const ideal = Math.round(i0 + o * rate); let best = ideal;
+      if(o > 0){ const nat = prev + Hs; let bv = -Infinity;
+        for(let d = -D; d <= D; d += 4){ const p = ideal + d; if(p < 0 || p + N >= len) continue; let s = 0;
+          for(let k = 0; k < N / 2; k += 8) s += (src[p + k] + src2[p + k]) * (src[nat + k] + src2[nat + k] || 0);
+          if(s > bv){ bv = s; best = p; } } }
+      best = Math.max(0, Math.min(len - 1, best));
+      for(let c = 0; c < nC; c++){ const S = ch[c], O = out[c]; for(let k = 0; k < N; k++){ const v = S[best + k]; if(v !== undefined) O[o + k] += v * w[k]; } }
+      prev = best;
+    }
+    return out.map(O=> O.subarray(0, nOut));
+  }
+  async function estMp3(){
+    const M = mixAtivo(); if(!M){ toast('Ainda não há mistura para exportar.'); return; }
+    const falta = M.itens.filter(it=> !estLib().some(x=> x.id === it.id)); if(falta.length){ toast('Faltam músicas neste PC: liga-as primeiro (📂).'); return; }
+    estPrevPara(); const prog = $('estProg'); prog.hidden = false; let cancela = false;
+    const pinta = (txt, f)=>{ prog.innerHTML = '<b>🎧 ' + txt + '</b><div class="est-pb"><i style="width:' + Math.round(f * 100) + '%"></i></div><button type="button" id="estProgX">Cancelar</button>'; $('estProgX').onclick = ()=>{ cancela = true; }; };
+    try{
+      pinta('A preparar o codificador MP3…', 0);
+      await estScript('https://cdnjs.cloudflare.com/ajax/libs/lamejs/1.2.1/lame.min.js');
+      // a aula é feita em bocados de 30 s (não enche a memória): cada música é preparada quando entra e largada quando sai
+      const SR = 44100, tot = audTot(), N = Math.ceil(tot * SR), CH = 30 * SR, volM = M.vol != null ? M.vol : .85, lib = estLib();
+      const Off = window.OfflineAudioContext || window.webkitOfflineAudioContext, its = M.itens.slice().sort((a, b)=> a.t0 - b.t0), prep = new Map();
+      const lim = x=>{ const a = Math.abs(x); return a < .85 ? x : Math.sign(x) * (.85 + .15 * Math.tanh((a - .85) / .15)); };
+      const enc = new lamejs.Mp3Encoder(2, SR, 320), partes = [], BL = 1152, bl = new Int16Array(BL), br = new Int16Array(BL), fadeN = Math.min(N, 6 * SR);
+      for(let c0 = 0; c0 < N; c0 += CH){
+        if(cancela) throw new Error('cancelado'); const c1 = Math.min(N, c0 + CH), n = c1 - c0, L = new Float32Array(n), R = new Float32Array(n);
+        pinta('A misturar e gravar o MP3 (320 kbps)… ' + fmtTime(Math.round(c0 / SR)) + ' / ' + fmtTime(Math.round(tot)), c0 / N); await new Promise(r=> setTimeout(r, 0));
+        for(const it of its){
+          const a0 = Math.max(0, Math.round(it.t0 * SR)), a1 = Math.min(N, Math.round(Math.min(it.t1, tot) * SR)); if(a1 <= c0 || a0 >= c1 || a1 <= a0) continue;
+          let P = prep.get(it);
+          if(!P){ const rec = await audGet('mlib:' + it.id); if(!rec || !rec.blob){ prep.set(it, { S: null }); continue; }
+            const ab = await new Off(2, 1, SR).decodeAudioData(await rec.blob.arrayBuffer()), ch = [ab.getChannelData(0), ab.numberOfChannels > 1 ? ab.getChannelData(1) : ab.getChannelData(0)];
+            const i0 = Math.round(it.ini * SR), nOut = a1 - a0;
+            P = { a0, a1, S: Math.abs(it.rate - 1) < .003 ? ch.map(x=> x.slice(i0, i0 + nOut)) : estEstica(ch, it.rate, i0, nOut) }; prep.set(it, P); }
+          if(!P.S) continue;
+          const j0 = Math.max(a0, c0), j1 = Math.min(a1, c1);
+          for(let k = j0; k < j1; k += 256){ const T = k / SR, ke = Math.min(j1, k + 256), g = volM * estVolEm(it, T), g2 = volM * estVolEm(it, Math.min(ke / SR, it.t1));
+            for(let j = k; j < ke; j++){ const gg = g + (g2 - g) * (j - k) / 256, s = j - a0; L[j - c0] += (P.S[0][s] || 0) * gg; R[j - c0] += (P.S[1][s] || 0) * gg; } }
+        }
+        prep.forEach((P, it)=>{ if(P.a1 !== undefined && P.a1 <= c1) prep.delete(it); });
+        for(let k = 0; k < n; k++){ const q = N - (c0 + k); if(q < fadeN){ const f = q / fadeN; L[k] *= f; R[k] *= f; } }   // fim da aula com fade
+        for(let k = 0; k < n; k += BL){ const m = Math.min(BL, n - k); for(let j = 0; j < m; j++){ bl[j] = lim(L[k + j]) * 32767; br[j] = lim(R[k + j]) * 32767; }
+          const o = enc.encodeBuffer(m < BL ? bl.subarray(0, m) : bl, m < BL ? br.subarray(0, m) : br); if(o.length) partes.push(new Uint8Array(o)); }
+      }
+      const fim = enc.flush(); if(fim.length) partes.push(new Uint8Array(fim));
+      const blob = new Blob(partes, { type: 'audio/mpeg' }), a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = slug(current.nome || 'aula') + '.mp3'; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 4000);
+      toast('🎧 MP3 exportado · ' + fmtTime(Math.round(tot)) + ' · ' + (blob.size / 1048576).toFixed(0) + ' MB');
+    }catch(e){ toast(e.message === 'cancelado' ? 'Exportação cancelada.' : e.message === 'script' ? 'Sem internet para carregar o codificador MP3 (só é preciso da primeira vez).' : 'Não consegui exportar: ' + e.message); }
+    finally{ prog.hidden = true; }
   }
   // ================= MÚSICA DE CADA BLOCO =================
   // Cada bloco pode ter a sua música (ficheiro do PC, música do Spotify ou link), a começar no segundo escolhido (ex.: no refrão).
