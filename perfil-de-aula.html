@@ -279,6 +279,10 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .est-dirs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:6px 10px;border-bottom:1px solid #262b33}.est-dirs[hidden]{display:none}
 .est-dir{display:inline-flex;align-items:center;gap:5px;background:#12202a;border:1px solid #1FA8F0;border-radius:999px;padding:2px 4px 2px 10px;font-weight:700;color:#cfe9ff}.est-dir small{color:#8a93a3}
 .est-dir.sem{border-color:#FFD60A;color:#ffe9a0}#estOv .est-dir button{padding:1px 6px;border-radius:999px;font-size:11px}
+.est-arm{position:fixed;inset:0;z-index:9600;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:20px}
+.est-arm-c{background:#14171c;border:1px solid #333a45;border-radius:12px;width:min(980px,100%);max-height:86vh;display:flex;flex-direction:column;overflow:hidden}
+.est-arm-h{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid #262b33}.est-arm-h span{color:#8a93a3;margin-right:auto}
+.est-arm-p{margin:0;padding:10px 14px;color:#aab3c0;font-size:12.5px;line-height:1.45}.est-arm .est-tab{max-height:60vh}.est-arm-n{color:#8a93a3;font-style:italic}
 #estOv .est-limpa{padding:3px 10px;font-size:12px}#estOv .est-perm{background:#FFD60A;border-color:#FFD60A;color:#111}.est-cop{color:#8a93a3;font-size:12px}
 .est-src{margin-right:5px;font-size:11px}.est-tab tr.falta td{opacity:.55}
 .est-falta,.est-prog{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 14px 8px;padding:10px 12px;border-radius:8px;background:#2a1d12;border:1px solid #E8722C;color:#ffd2b0}
@@ -11413,6 +11417,7 @@ const SR3 = (()=>{
     const box = $('estDirs'); if(!box) return; const P = estPastas(), C = estCopias(), falta = P.filter(p=> ESTD.perm[p.id] === false);
     let h = P.map(p=> '<span class="est-dir' + (ESTD.perm[p.id] === false ? ' sem' : '') + '" title="Pasta ligada: as músicas são lidas daqui, sem cópias">📁 ' + escapeHtml(p.nome) + ' <small>' + (p.n || 0) + '</small><button type="button" data-dre="' + p.id + '" title="Voltar a ler a pasta (músicas novas, mudadas ou apagadas)">🔄</button><button type="button" data-drx="' + p.id + '" title="Desligar esta pasta">✕</button></span>').join('');
     if(falta.length) h += '<button type="button" class="est-perm" id="estPermB">🔓 Dar acesso às músicas</button>';
+    h += '<button type="button" class="est-limpa" id="estArmB" title="Ver todas as músicas que o PlayRide guardou no navegador (faixas das aulas, blocos, links…) e apagar as que não queres">🗄️ Tudo o que está no navegador</button>';
     if(C.n) h += '<span class="est-cop" title="Músicas copiadas para dentro do navegador (versão anterior). Liga a pasta onde estão os originais e as cópias são apagadas automaticamente.">💾 ' + C.n + ' cópias no navegador (' + C.mb + ' MB)</span><button type="button" class="est-limpa" id="estLimpaC" title="Apaga só as cópias guardadas no navegador; tudo o resto fica">🧹 Limpar cópias</button>';
     const sf = estLib().filter(t=> t.semF).length; if(sf) h += '<span class="est-cop">⚠️ ' + sf + ' músicas sem ficheiro · liga a pasta dos originais</span>';
     if(!P.length && EST_FS && !C.n) h += '<span class="est-cop">Carrega em 📁 Ligar pasta e escolhe a pasta das tuas músicas.</span>';
@@ -11420,7 +11425,7 @@ const SR3 = (()=>{
     box.querySelectorAll('[data-dre]').forEach(b=> b.onclick = ()=> estLigaPasta(b.dataset.dre));
     box.querySelectorAll('[data-drx]').forEach(b=> b.onclick = async ()=>{ const id = b.dataset.drx; if(!confirm('Desligar esta pasta? As músicas dela saem da biblioteca (os ficheiros ficam no PC).')) return;
       estGravaPastas(estPastas().filter(p=> p.id !== id)); estGravaLib(estLib().filter(t=> t.dir !== id)); await audDel('mdir:' + id); delete ESTD.dirs[id]; estPinta(); });
-    const lc = $('estLimpaC'); if(lc) lc.onclick = estLimpaCopias;
+    const lc = $('estLimpaC'); if(lc) lc.onclick = estLimpaCopias; const ab = $('estArmB'); if(ab) ab.onclick = estArmAbre;
     const pb = $('estPermB'); if(pb) pb.onclick = async ()=>{ await estPermTodas(true); mixRefaz(); estPinta(); };
   }
   function estNomeDe(id){ const t = estLib().find(x=> x.id === id); return t ? t.nome : '(música em falta)'; }
@@ -11650,6 +11655,43 @@ const SR3 = (()=>{
       (Math.abs(V.mx + 1.5) > .5 ? '<button type="button" id="estNivAj" title="Ajusta o volume geral para o pico ficar em −1,5 dB">🎚️ Acertar o volume geral</button>' : '');
     const aj = $('estNivAj'); if(aj) aj.onclick = ()=>{ const M = mixAtivo(); if(!M) return; const f = Math.pow(10, (-1.5 - V.mx) / 20), nv = Math.max(.05, Math.min(1, (M.vol != null ? M.vol : .85) * f));
       if(nv >= 1 && f > 1) toast('O volume geral já está no máximo: sobe o volume das músicas mais baixas.'); M.vol = Math.round(nv * 100) / 100; $('estVol').value = M.vol; persist(); estNiveis(); };
+  }
+
+  // ---- 🗄️ todas as músicas guardadas dentro do navegador (biblioteca, faixas das aulas, músicas de blocos, links descarregados) ----
+  async function estArmazem(){
+    let db; try{ db = await audDb(); }catch(e){ return []; }
+    return new Promise(res=>{ const out = []; const rq = db.transaction('faixas').objectStore('faixas').openCursor();
+      rq.onsuccess = ()=>{ const c = rq.result; if(!c){ res(out); return; } const k = String(c.key), v = c.value || {};
+        if(v.blob) out.push({ k, nome: v.nome || (k.startsWith('u:') ? decodeURIComponent(k.slice(2).split('?')[0].split('/').pop() || 'link') : k), mb: (v.blob.size || 0) / 1048576 });
+        c.continue(); };
+      rq.onerror = ()=> res(out); });
+  }
+  function estUsos(){
+    const U = {}, poe = (k, n)=>{ if(!k) return; (U[k] = U[k] || new Set()).add(n); }, vistas = new Set();
+    const aulas = [current].concat(typeof treinos !== 'undefined' && Array.isArray(treinos) ? treinos : []);
+    aulas.forEach(a=>{ if(!a || (a.id && vistas.has(a.id))) return; if(a.id) vistas.add(a.id); const n = (a === current ? '✏️ ' : '') + (a.nome || 'Aula');
+      const au = a.audio; if(au){ if(au.key) poe(au.key, n); if(au.url) poe('u:' + au.url, n); }
+      (a.blocos || []).forEach(b=>{ const m = b && b.mus; if(m){ if(m.key) poe(m.key, n); if(m.url) poe('u:' + m.url, n); } });
+      (a.mix && a.mix.itens || []).forEach(it=> poe('mlib:' + it.id, n)); });
+    return U;
+  }
+  function estTipoDe(k){ return k.startsWith('mlib:') ? '🎛️ Biblioteca do Estúdio' : k.startsWith('u:') ? '🔗 Link descarregado' : /^b/.test(k) ? '🎵 Música de bloco' : '📀 Faixa de áudio da aula'; }
+  async function estArmAbre(){
+    const L = await estArmazem(), U = estUsos(), lib = estLib(); let tot = 0; L.forEach(x=> tot += x.mb);
+    const d = document.createElement('div'); d.className = 'est-arm'; d.id = 'estArm';
+    const linhas = L.sort((a, b)=> estTipoDe(a.k).localeCompare(estTipoDe(b.k)) || b.mb - a.mb).map(x=>{ const t = x.k.startsWith('mlib:') ? lib.find(q=> 'mlib:' + q.id === x.k) : null, us = U[x.k] ? [...U[x.k]] : [];
+      return '<tr><td>' + estTipoDe(x.k) + '</td><td title="' + escapeHtml(x.nome) + '">' + escapeHtml(t ? t.nome : x.nome) + '</td><td>' + x.mb.toFixed(1).replace('.', ',') + ' MB</td><td>' + (us.length ? escapeHtml(us.slice(0, 3).join(', ')) + (us.length > 3 ? ' +' + (us.length - 3) : '') : (t ? '<span class="est-arm-n">na biblioteca, sem aula</span>' : '<span class="est-arm-n">não usada</span>')) + '</td><td><button type="button" data-ak="' + escapeHtml(x.k) + '" title="Apagar do navegador">🗑</button></td></tr>'; }).join('');
+    d.innerHTML = '<div class="est-arm-c"><div class="est-arm-h"><b>🗄️ Músicas guardadas neste navegador</b><span>' + L.length + ' ficheiros · ' + tot.toFixed(0) + ' MB</span><button type="button" id="estArmNu">🗑 Apagar as não usadas</button><button type="button" id="estArmX">✕</button></div>' +
+      '<p class="est-arm-p">Inclui tudo o que o PlayRide copiou para o Chrome: a biblioteca do Estúdio, as faixas de áudio das aulas ("📁 Ficheiro do dispositivo"), as músicas dos blocos e os links descarregados. Apagar daqui não mexe nos ficheiros do teu PC. Se apagares uma que uma aula usa, essa aula pede-te o ficheiro outra vez.</p>' +
+      (L.length ? '<div class="est-tab"><table><tr><th>Tipo</th><th>Nome</th><th>Tamanho</th><th>Usada em</th><th></th></tr>' + linhas + '</table></div>' : '<p class="est-vz">Não há músicas guardadas no navegador.</p>') + '</div>';
+    (EST.ov || document.body).appendChild(d);
+    const apaga = async ks=>{ const L2 = estLib(); for(const k of ks){ await audDel(k); if(k.startsWith('mlib:')){ const t = L2.find(q=> 'mlib:' + q.id === k); if(t) t.semF = true; } } estGravaLib(L2); MIX.urls = {}; mixRefaz(); audPKey = null; d.remove(); estPinta(); estArmAbre(); };
+    d.querySelector('#estArmX').onclick = ()=> d.remove();
+    d.querySelectorAll('[data-ak]').forEach(b=> b.onclick = ()=>{ const k = b.dataset.ak, us = U[k] ? [...U[k]] : [];
+      if(!confirm('Apagar esta música do navegador?' + (us.length ? '\n\nÉ usada em: ' + us.join(', ') + '.\nEssas aulas vão pedir-te o ficheiro outra vez.' : ''))) return; apaga([k]); });
+    d.querySelector('#estArmNu').onclick = ()=>{ const ks = L.filter(x=> !U[x.k] && !x.k.startsWith('mlib:')).map(x=> x.k); const mb = L.filter(x=> ks.includes(x.k)).reduce((s, x)=> s + x.mb, 0);
+      if(!ks.length){ toast('Não há músicas sem uso (as da biblioteca limpam-se com 🧹 Limpar cópias).'); return; }
+      if(!confirm('Apagar ' + ks.length + ' músicas que nenhuma aula deste PC usa (' + mb.toFixed(0) + ' MB)?\n\nA biblioteca do Estúdio não é tocada.')) return; apaga(ks); };
   }
   // ---- 💾 playlist da aula (só atalhos: nomes dos ficheiros + BPM + mistura) e 📂 reabrir com as músicas locais ----
   async function estExporta(){
