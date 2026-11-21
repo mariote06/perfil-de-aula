@@ -276,6 +276,11 @@ button:disabled{opacity:.4;cursor:not-allowed;}
 .est-mb s{position:absolute;top:0;bottom:0;width:2px;background:#fff;z-index:2}
 .est-mdb{font:700 12px Inter,sans-serif;min-width:62px;text-align:right}.est-clip{font:800 10px Inter,sans-serif;padding:3px 6px;border-radius:4px;background:#2a1414;color:#6b3a3a}.est-clip.on{background:#FF3B3B;color:#fff;box-shadow:0 0 10px #FF3B3B}
 .est-nivr{display:flex;align-items:center;gap:8px;font-weight:700}.est-nivr .ok{color:#3DD45C}.est-nivr .mau{color:#FF8A8A}
+.est-dirs{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:6px 10px;border-bottom:1px solid #262b33}.est-dirs[hidden]{display:none}
+.est-dir{display:inline-flex;align-items:center;gap:5px;background:#12202a;border:1px solid #1FA8F0;border-radius:999px;padding:2px 4px 2px 10px;font-weight:700;color:#cfe9ff}.est-dir small{color:#8a93a3}
+.est-dir.sem{border-color:#FFD60A;color:#ffe9a0}#estOv .est-dir button{padding:1px 6px;border-radius:999px;font-size:11px}
+#estOv .est-limpa{padding:3px 10px;font-size:12px}#estOv .est-perm{background:#FFD60A;border-color:#FFD60A;color:#111}.est-cop{color:#8a93a3;font-size:12px}
+.est-src{margin-right:5px;font-size:11px}.est-tab tr.falta td{opacity:.55}
 .est-falta,.est-prog{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:0 14px 8px;padding:10px 12px;border-radius:8px;background:#2a1d12;border:1px solid #E8722C;color:#ffd2b0}
 .est-falta[hidden],.est-prog[hidden]{display:none}.est-falta span{color:#cfd6e0;font-size:12px;flex:1;min-width:200px}
 .est-prog{background:#12202a;border-color:#1FA8F0;color:#cfe9ff}.est-pb{flex:1;min-width:200px;height:10px;background:#0b1118;border-radius:6px;overflow:hidden}.est-pb i{display:block;height:100%;background:#1FA8F0;transition:width .3s}
@@ -11064,8 +11069,8 @@ const SR3 = (()=>{
   function mixAtivo(){ const m = current && current.mix; return m && m.itens && m.itens.length ? m : null; }
   async function estUrl(id){
     if(MIX.urls[id]) return MIX.urls[id];
-    const r = await audGet('mlib:' + id); if(!r || !r.blob) return null;
-    return (MIX.urls[id] = URL.createObjectURL(r.blob));
+    let f = null; try{ f = await estFicheiro(id); }catch(e){ if(e.message === 'perm' && !MIX.avisoPerm){ MIX.avisoPerm = true; toast('🔓 Dá acesso à pasta das músicas (abre o 🎛️ Estúdio e carrega em "Dar acesso").'); } return null; }
+    if(!f) return null; return (MIX.urls[id] = URL.createObjectURL(f));
   }
   function mixT(){ return MIX.T0 + (MIX.play ? (performance.now() - MIX.at) / 1000 : 0); }
   // forma das curvas de volume: lin = reta, eq = suave (mantém o volume no meio da mistura), exp = lenta no início
@@ -11161,22 +11166,106 @@ const SR3 = (()=>{
     for(let i = 0; i < n; i++){ let m = 0; for(let j = Math.floor(i * st), e = Math.min(a.length, Math.floor((i + 1) * st)); j < e; j += 8){ const v = Math.abs(a[j]); if(v > m) m = v; } pk.push(m); if(m > mx) mx = m; }
     return { bpm: Math.round(best * 10) / 10, beat0: Math.round(beat0 * 1000) / 1000, dur: Math.round(dur * 10) / 10, pk: pk.map(v=> Math.round(v / (mx || 1) * 99)) };
   }
-  async function estJunta(files){
-    files = [...files].filter(f=> /^audio\//.test(f.type) || /\.(mp3|m4a|aac|wav|ogg|flac|opus)$/i.test(f.name)); if(!files.length) return;
-    audPersiste(); const Off = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-    for(let i = 0; i < files.length; i++){ const f = files[i]; EST.estado = 'A analisar ' + (i + 1) + '/' + files.length + ': ' + f.name + '…'; estPinta();
-      await new Promise(r=> setTimeout(r, 30));
-      try{ const ab = await new Off(1, 1, 22050).decodeAudioData(await f.arrayBuffer()); const A = estAnalisa(ab), id = 'm' + uid().slice(1);
-        await audPut('mlib:' + id, { blob: f, nome: f.name });
-        const L = estLib(); L.push(Object.assign({ id, nome: f.name.replace(/\.[^.]+$/, '').slice(0, 80), fich: f.name, tam: f.size }, A)); estGravaLib(L); }
-      catch(e){ toast('Não consegui ler "' + f.name + '"'); } }
-    EST.estado = ''; estPinta();
+  // ---- 📁 biblioteca como no MixMeister: as músicas ficam na tua pasta; o PlayRide guarda só o atalho (não duplica nada) ----
+  // Usa o acesso a pastas do Chrome/Edge no PC. Onde não existe (ex.: Firefox, telemóvel), volta à cópia no navegador.
+  const EST_FS = !!(window.showDirectoryPicker && window.showOpenFilePicker);
+  const EST_EXT = /\.(mp3|m4a|aac|wav|ogg|flac|opus)$/i;
+  var ESTD = { dirs: {}, perm: {} };
+  async function audDel(k){ try{ const db = await audDb(); await new Promise(res=>{ const tx = db.transaction('faixas', 'readwrite'); tx.objectStore('faixas').delete(k); tx.oncomplete = res; tx.onerror = res; }); }catch(e){} }
+  function estPastas(){ try{ return JSON.parse(localStorage.getItem('prMusDirs') || '[]'); }catch(e){ return []; } }
+  function estGravaPastas(P){ try{ localStorage.setItem('prMusDirs', JSON.stringify(P)); }catch(e){} }
+  async function estHandle(dirId){ if(ESTD.dirs[dirId]) return ESTD.dirs[dirId]; const r = await audGet('mdir:' + dirId); return (ESTD.dirs[dirId] = r && r.h || null); }
+  // pede autorização para ler a pasta (o Chrome pergunta uma vez por sessão, ou nunca se escolheres "permitir sempre")
+  async function estPerm(h, pedir){
+    if(!h || !h.queryPermission) return false;
+    try{ let s = await h.queryPermission({ mode: 'read' }); if(s === 'granted') return true; if(!pedir) return false; s = await h.requestPermission({ mode: 'read' }); return s === 'granted'; }catch(e){ return false; }
   }
+  async function estPermTodas(pedir){
+    const P = estPastas(); let ok = true;
+    for(const p of P){ const h = await estHandle(p.id); const g = await estPerm(h, pedir); ESTD.perm[p.id] = g; if(!g) ok = false; }
+    return ok;
+  }
+  // devolve o ficheiro (da pasta, do atalho ou da cópia antiga no navegador)
+  async function estFicheiro(id){
+    const t = estLib().find(x=> x.id === id); if(!t) return null;
+    if(t.dir){ const h = await estHandle(t.dir); if(!(await estPerm(h, true))) throw new Error('perm');
+      let d = h; const parts = String(t.path || t.fich).split('/'); for(let i = 0; i < parts.length - 1; i++) d = await d.getDirectoryHandle(parts[i]);
+      return await (await d.getFileHandle(parts[parts.length - 1])).getFile(); }
+    if(t.fh){ const r = await audGet('mfh:' + id); const h = r && r.h; if(!(await estPerm(h, true))) throw new Error('perm'); return await h.getFile(); }
+    const r = await audGet('mlib:' + id); return r && r.blob || null;
+  }
+  async function* estVarre(dir, pre, nivel){
+    for await (const [nome, h] of dir.entries()){
+      if(h.kind === 'file' && EST_EXT.test(nome)) yield { path: pre + nome, h };
+      else if(h.kind === 'directory' && nivel < 4 && !nome.startsWith('.')) yield* estVarre(h, pre + nome + '/', nivel + 1);
+    }
+  }
+  async function estAnalisaFich(f){ const Off = window.OfflineAudioContext || window.webkitOfflineAudioContext; return estAnalisa(await new Off(1, 1, 22050).decodeAudioData(await f.arrayBuffer())); }
+  // liga (ou volta a ler) uma pasta: junta as músicas novas, reconhece as que já lá estavam e transforma as cópias antigas em atalhos
+  async function estLigaPasta(dirId){
+    let P = estPastas(), p = dirId ? P.find(x=> x.id === dirId) : null, h;
+    if(!p){ try{ h = await window.showDirectoryPicker({ id: 'playride-musicas', mode: 'read' }); }catch(e){ return 0; }
+      for(const q of P){ const hq = await estHandle(q.id); if(hq && hq.isSameEntry && await hq.isSameEntry(h)){ p = q; break; } }
+      if(!p){ p = { id: 'd' + uid().slice(1), nome: h.name }; P.push(p); estGravaPastas(P); await audPut('mdir:' + p.id, { h }); }
+      ESTD.dirs[p.id] = h; }
+    else h = await estHandle(p.id);
+    if(!(await estPerm(h, true))){ toast('Sem autorização para ler a pasta "' + p.nome + '".'); return 0; }
+    ESTD.perm[p.id] = true; audPersiste();
+    let L = estLib(), novos = 0, ligados = 0, libertos = 0, vistos = new Set(), lista = [];
+    EST.estado = 'A ler a pasta "' + p.nome + '"…'; estPinta();
+    for await (const x of estVarre(h, '', 0)) lista.push(x);
+    for(let i = 0; i < lista.length; i++){ const x = lista[i]; let f; try{ f = await x.h.getFile(); }catch(e){ continue; }
+      vistos.add(x.path); const nome = f.name;
+      let t = L.find(q=> q.dir === p.id && q.path === x.path);
+      if(t){ t.tam = f.size; t.falta = false; continue; }
+      t = L.find(q=> !q.dir && (q.fich || q.nome) === nome && (!q.tam || q.tam === f.size)) || L.find(q=> !q.dir && q.nome === nome.replace(/\.[^.]+$/, '').slice(0, 80) && (!q.tam || q.tam === f.size));
+      if(t){ if(t.fh) await audDel('mfh:' + t.id); else if(!t.semF){ await audDel('mlib:' + t.id); libertos++; } Object.assign(t, { dir: p.id, path: x.path, fich: nome, tam: f.size, falta: false }); delete t.fh; delete t.semF; ligados++; continue; }   // a cópia antiga passa a atalho: liberta espaço
+      if(L.some(q=> q.fich === nome && q.tam === f.size)) continue;   // a mesma música noutra pasta: não duplica
+      EST.estado = 'A analisar ' + (i + 1) + '/' + lista.length + ': ' + nome + '…'; estPinta(); await new Promise(r=> setTimeout(r, 15));
+      try{ const A = await estAnalisaFich(f); L.push(Object.assign({ id: 'm' + uid().slice(1), nome: nome.replace(/\.[^.]+$/, '').slice(0, 80), fich: nome, tam: f.size, dir: p.id, path: x.path }, A)); novos++; estGravaLib(L); }
+      catch(e){ /* não é áudio que o navegador leia */ } }
+    L.forEach(q=>{ if(q.dir === p.id) q.falta = !vistos.has(q.path); });
+    p.n = L.filter(q=> q.dir === p.id && !q.falta).length; estGravaPastas(P); estGravaLib(L);
+    EST.estado = ''; estPinta(); mixRefaz();
+    toast('📁 ' + p.nome + ': ' + p.n + ' músicas' + (novos ? ' · ' + novos + ' novas' : '') + (ligados ? ' · ' + ligados + ' ligadas' + (libertos ? ' (cópias apagadas do navegador)' : '') : ''));
+    if(EST.pend && EST.pend.length) estLiga2();
+    return novos + ligados;
+  }
+  // junta ficheiros soltos: com o Chrome guarda só o atalho do ficheiro (não copia); sem ele, copia como antes
+  async function estJuntaItens(itens){
+    itens = itens.filter(x=> x.file && (/^audio\//.test(x.file.type) || EST_EXT.test(x.file.name))); if(!itens.length) return;
+    audPersiste(); let rep = 0;
+    for(let i = 0; i < itens.length; i++){ const { file: f, h } = itens[i]; const L = estLib();
+      if(L.some(q=> q.fich === f.name && q.tam === f.size)){ rep++; continue; }   // já está na biblioteca: não duplica
+      EST.estado = 'A analisar ' + (i + 1) + '/' + itens.length + ': ' + f.name + '…'; estPinta(); await new Promise(r=> setTimeout(r, 30));
+      try{ const A = await estAnalisaFich(f), id = 'm' + uid().slice(1), e = { id, nome: f.name.replace(/\.[^.]+$/, '').slice(0, 80), fich: f.name, tam: f.size };
+        if(h){ await audPut('mfh:' + id, { h }); e.fh = true; } else await audPut('mlib:' + id, { blob: f, nome: f.name });
+        const L2 = estLib(); L2.push(Object.assign(e, A)); estGravaLib(L2); }
+      catch(e){ toast('Não consegui ler "' + f.name + '"'); } }
+    EST.estado = ''; estPinta(); if(rep) toast(rep + (rep === 1 ? ' música já estava' : ' músicas já estavam') + ' na biblioteca (não dupliquei)');
+  }
+  async function estJunta(files){ return estJuntaItens([...files].map(f=> ({ file: f, h: null }))); }
+  async function estEscolheFicheiros(){
+    if(!EST_FS){ $('estFich').click(); return; }
+    let hs; try{ hs = await window.showOpenFilePicker({ id: 'playride-musicas', multiple: true, types: [{ description: 'Música', accept: { 'audio/*': ['.mp3', '.m4a', '.aac', '.wav', '.ogg', '.flac', '.opus'] } }] }); }catch(e){ return; }
+    const itens = []; for(const h of hs){ try{ itens.push({ file: await h.getFile(), h }); }catch(e){} } estJuntaItens(itens);
+  }
+  // espaço que as cópias antigas ocupam no navegador
+  function estCopias(){ const L = estLib().filter(t=> !t.dir && !t.fh && !t.semF); return { n: L.length, mb: Math.round(L.reduce((s, t)=> s + (t.tam || 0), 0) / 1048576) }; }
+  // apaga só as cópias das músicas guardadas dentro do navegador; a biblioteca (BPM, onda), as aulas e as misturas ficam iguais
+  async function estLimpaCopias(){
+    const L = estLib(), C = L.filter(t=> !t.dir && !t.fh && !t.semF); if(!C.length){ toast('Não há cópias no navegador.'); return; }
+    const M = mixAtivo(), usadas = M ? C.filter(t=> M.itens.some(it=> it.id === t.id)).length : 0;
+    if(!confirm('Apagar do navegador as ' + C.length + ' cópias de músicas (' + estCopias().mb + ' MB)?\n\nNão apaga mais nada: a biblioteca (nomes, BPM), as aulas, as misturas e as playlists ficam iguais. Os ficheiros originais no teu PC também não são tocados.\n\n' + (usadas ? usadas + ' destas músicas estão nesta mistura: para voltarem a tocar, liga a pasta onde estão os originais (📁 Ligar pasta).' : 'Para voltarem a tocar, liga a pasta onde estão os originais (📁 Ligar pasta).'))) return;
+    for(const t of C){ await audDel('mlib:' + t.id); t.semF = true; }
+    estGravaLib(L); MIX.urls = {}; mixRefaz(); estPinta(); toast('🧹 ' + C.length + ' cópias apagadas do navegador. Liga a pasta dos originais para voltarem a tocar.');
+  }
+  async function estApaga(t){ if(t.dir) return; await audDel(t.fh ? 'mfh:' + t.id : 'mlib:' + t.id); }
   // ---- regra BPM → cadência e enchimento automático ----
   // acima de 120 BPM conta-se metade (128 BPM = 64 rpm), abaixo de 60 BPM conta-se o dobro (55 BPM = 110 rpm)
   function estMu(bpm){ return bpm > 120 ? .5 : bpm < 60 ? 2 : 1; }
   function estKbps(t){ return t && t.tam && t.dur ? Math.round(t.tam * 8 / t.dur / 1000) : 0; }
-  async function estCompleta(){ const L = estLib(); let mud = false; for(const t of L){ if(t.tam && t.fich) continue; const r = await audGet('mlib:' + t.id); if(r && r.blob){ t.tam = r.blob.size; t.fich = t.fich || r.nome; mud = true; } } if(mud){ estGravaLib(L); estPinta(); } }
+  async function estCompleta(){ const L = estLib(); let mud = false; for(const t of L){ if((t.tam && t.fich) || t.dir || t.fh) continue; const r = await audGet('mlib:' + t.id); if(r && r.blob){ t.tam = r.blob.size; t.fich = t.fich || r.nome; mud = true; } } if(mud){ estGravaLib(L); estPinta(); } }
   function estCadDe(bpm){ return Math.round(bpm * estMu(bpm) * 10) / 10; }
   function estCad(b){ if(!b || b.tipo === 'seg') return -1; return Math.round(((b.rpm || 0) + (b.rpm2 || b.rpm || 0)) / 2); }
   function estAssin(){ return (current.blocos || []).map(b=> blockDurationSec(b) + ':' + estCad(b)).join(','); }
@@ -11248,7 +11337,7 @@ const SR3 = (()=>{
       '<label title="Volume geral da mistura">🔊 <input type="range" id="estVol" min="0" max="1" step="0.05"></label>' +
       '<div class="est-med" id="estMed" title="Medidor de dB ao ouvir: o vermelho (acima de −1 dB) e a luz CLIP avisam distorção"><div class="est-mb"><em>L</em><span><u></u><i></i><s></s></span></div><div class="est-mb"><em>R</em><span><u></u><i></i><s></s></span></div><b class="est-mdb">−∞ dB</b><b class="est-clip">CLIP</b></div>' +
       '<button type="button" class="est-pri" id="estEnche">✨ Encher a aula automaticamente</button><button type="button" id="estPlay">▶ Ouvir</button><button type="button" id="estLimpa">🗑 Limpar</button><button type="button" id="estExp" title="Guarda um ficheiro com a aula e a mistura (só os nomes das músicas): abre-se noutro PC com as mesmas músicas">💾 Exportar playlist</button><button type="button" id="estAbr" title="Abre uma playlist exportada e liga-a às músicas deste PC">📂 Abrir playlist</button><input type="file" id="estAbrIn" accept=".json,application/json" hidden><button type="button" id="estMp3" title="Grava a aula toda num MP3 de 320 kbps">🎧 Exportar MP3</button><button type="button" id="estNiv" title="Verifica os níveis da aula toda (como vai sair) e mostra onde pode distorcer">📊 Verificar níveis</button><span class="est-nivr" id="estNivRes"></span><button type="button" class="est-ok" id="estFecha">✓ Fechar</button></div>' +
-      '<div class="est-mid"><div class="est-lib"><div class="est-h">Biblioteca <button type="button" id="estAdd">＋ Músicas</button><input type="file" id="estFich" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac,.aac" multiple hidden><span class="est-est"></span></div><div class="est-tab" id="estLibT"></div></div>' +
+      '<div class="est-mid"><div class="est-lib"><div class="est-h">Biblioteca ' + (EST_FS ? '<button type="button" id="estDir" title="Como no MixMeister: escolhe a pasta onde tens as músicas. O PlayRide lê-as de lá e não faz cópias">📁 Ligar pasta</button>' : '') + '<button type="button" id="estAdd" title="' + (EST_FS ? 'Junta músicas soltas (fica só o atalho, sem cópia)' : 'Junta músicas (ficam copiadas no navegador)') + '">＋ Músicas</button><input type="file" id="estFich" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac,.aac" multiple hidden><span class="est-est"></span></div><div class="est-dirs" id="estDirs"></div><div class="est-tab" id="estLibT"></div></div>' +
       '<div class="est-lis"><div class="est-h">Mistura da aula <span class="est-res"></span></div><div class="est-tab" id="estMixT"></div></div></div>' +
       '<div class="est-falta" id="estFalta" hidden></div><div class="est-prog" id="estProg" hidden></div>' +
       '<div class="est-insp" id="estInsp"></div>' +
@@ -11265,10 +11354,17 @@ const SR3 = (()=>{
     $('estVol').oninput = ()=>{ garante().vol = +$('estVol').value; persist(); if(EST.niv){ EST.niv = null; estPintaNiv(); estDesenha(); } };
     $('estIman').onchange = ()=> EST.iman = $('estIman').checked;
     ov.querySelectorAll('[data-lin]').forEach(i=> i.onchange = ()=>{ EST.lin[i.dataset.lin] = i.checked; try{ localStorage.setItem('prEstLin', JSON.stringify(EST.lin)); }catch(e){} estDesenha(); });
-    $('estAdd').onclick = ()=> $('estFich').click(); $('estFich').onchange = e=>{ estJunta(e.target.files); e.target.value = ''; };
+    $('estAdd').onclick = estEscolheFicheiros; $('estFich').onchange = e=>{ estJunta(e.target.files); e.target.value = ''; }; if($('estDir')) $('estDir').onclick = ()=> estLigaPasta();
     ov.addEventListener('dragover', e=>{ if(e.dataTransfer && [...e.dataTransfer.types].includes('Files')){ e.preventDefault(); ov.classList.add('drop'); } });
     ov.addEventListener('dragleave', ()=> ov.classList.remove('drop'));
-    ov.addEventListener('drop', e=>{ ov.classList.remove('drop'); if(e.dataTransfer && e.dataTransfer.files.length){ e.preventDefault(); estJunta(e.dataTransfer.files); } });
+    ov.addEventListener('drop', e=>{ ov.classList.remove('drop'); if(!(e.dataTransfer && e.dataTransfer.files.length)) return; e.preventDefault();
+      const its = [...e.dataTransfer.items].filter(i=> i.kind === 'file'), fs = [...e.dataTransfer.files];
+      if(its.length && its[0].getAsFileSystemHandle){ const ps = its.map(i=> i.getAsFileSystemHandle());   // atalhos (sem cópia); uma pasta arrastada é ligada como pasta
+        Promise.all(ps).then(async hs=>{ const itens = []; for(let k = 0; k < hs.length; k++){ const h = hs[k]; if(!h) continue;
+          if(h.kind === 'directory'){ let P = estPastas(), q = null; for(const x of P){ const hx = await estHandle(x.id); if(hx && await hx.isSameEntry(h)){ q = x; break; } }
+            if(!q){ q = { id: 'd' + uid().slice(1), nome: h.name }; P.push(q); estGravaPastas(P); await audPut('mdir:' + q.id, { h }); } ESTD.dirs[q.id] = h; await estLigaPasta(q.id); }
+          else itens.push({ file: await h.getFile(), h }); } if(itens.length) estJuntaItens(itens); }).catch(()=> estJunta(fs)); }
+      else estJunta(fs); });
     $('estEnche').onclick = ()=>{ if(!audTot()){ toast('Cria primeiro os blocos da aula.'); return; } if(!estLib().length){ toast('Junta primeiro músicas à biblioteca (＋ Músicas ou arrasta-as para aqui).'); return; }
       if(mixAtivo() && !confirm('Substituir a mistura atual?')) return; estPrevPara(); current.mix = Object.assign(current.mix || {}, { trans: $('estTr').value, pistas: +$('estPis').value }); estEnche(); EST.sel = -1; estPinta(); toast('✨ Aula preenchida com ' + current.mix.itens.length + ' músicas'); };
     $('estLimpa').onclick = ()=>{ if(!mixAtivo() || !confirm('Tirar a mistura desta aula? (as músicas ficam na biblioteca)')) return; estPrevPara(); delete current.mix; persist(); EST.sel = -1; estPinta(); };
@@ -11279,7 +11375,7 @@ const SR3 = (()=>{
     $('estPan').oninput = ()=>{ const tot = audTot(), vis = estVis(); EST.x0 = (+$('estPan').value / 1000) * Math.max(0, tot - vis); estDesenha(); };
     estLigaCanvas();
     window.addEventListener('resize', estDesenha);
-    estPinta(); estPintaFalta(); estCompleta();
+    estPinta(); estPintaFalta(); estCompleta(); estPermTodas(false).then(()=> estPintaDirs());
   }
   function estVis(){ const w = $('estTlw'); return (w ? w.clientWidth : 1000) / EST.pps; }
   function estFecha(){ estPrevPara(); estMedidorDesliga(); EST.niv = null; if(EST.ouveLib){ EST.ouveLib.pause(); EST.ouveLib = null; } if(EST.ov) EST.ov.remove(); EST.ov = null; window.removeEventListener('resize', estDesenha); persist(); renderAudBar(); }
@@ -11290,11 +11386,12 @@ const SR3 = (()=>{
   function estPinta(){ if(!EST.ov) return; estPintaLib(); estPintaLista(); estPintaInsp(); estDesenha(); }
   function estPintaLib(){
     const L = estLib().sort((a, b)=> a.bpm - b.bpm), M = mixAtivo(), uso = {}; (M ? M.itens : []).forEach(it=> uso[it.id] = (uso[it.id] || 0) + 1);
+    estPintaDirs();
     EST.ov.querySelector('.est-est').textContent = EST.estado || (L.length + ' músicas · arrasta ficheiros para aqui · arrasta uma música para a linha do tempo');
-    $('estLibT').innerHTML = L.length ? '<table><tr><th>Título</th><th>BPM</th><th>Cadência</th><th>Tempo</th><th>kbps</th><th>Usada</th><th></th></tr>' + L.map(t=> '<tr draggable="true" data-lib="' + t.id + '"><td title="' + escapeHtml(t.nome) + '">' + escapeHtml(t.nome) + '</td><td><input type="number" step="0.1" min="40" max="220" value="' + t.bpm + '" data-bpm="' + t.id + '" title="Se o BPM estiver errado (ex.: metade ou o dobro), corrige aqui"></td><td>' + estCadDe(t.bpm) + ' rpm' + (estMu(t.bpm) !== 1 ? ' <small>(' + (estMu(t.bpm) < 1 ? '÷2' : '×2') + ')</small>' : '') + '</td><td>' + fmtTime(Math.round(t.dur)) + '</td><td class="' + (estKbps(t) && estKbps(t) < 192 ? 'mau' : '') + '" title="' + (estKbps(t) && estKbps(t) < 192 ? 'Qualidade baixa: nota-se nas colunas da sala' : 'Qualidade média do ficheiro') + '">' + (estKbps(t) || '…') + '</td><td>' + (uso[t.id] ? '×' + uso[t.id] : '') + '</td><td><button type="button" data-ouv="' + t.id + '" title="Ouvir 15 s">▶</button><button type="button" data-por="' + t.id + '" title="Pôr na mistura no cursor">＋</button><button type="button" data-del="' + t.id + '" title="Tirar da biblioteca">🗑</button></td></tr>').join('') + '</table>'
+    $('estLibT').innerHTML = L.length ? '<table><tr><th>Título</th><th>BPM</th><th>Cadência</th><th>Tempo</th><th>kbps</th><th>Usada</th><th></th></tr>' + L.map(t=> '<tr draggable="true" data-lib="' + t.id + '"' + (t.falta || t.semF ? ' class="falta"' : '') + '><td title="' + escapeHtml((t.dir ? '📁 ' + (estPastas().find(q=> q.id === t.dir) || {}).nome + '/' + (t.path || '') : t.fh ? '🔗 atalho para o ficheiro' : '💾 cópia guardada no navegador') + (t.falta ? ' · NÃO ENCONTRADA na pasta' : '')) + '">' + (t.dir ? '<span class="est-src">📁</span>' : t.fh ? '<span class="est-src">🔗</span>' : t.semF ? '<span class="est-src" title="sem ficheiro: liga a pasta dos originais">⚠️</span>' : '<span class="est-src" title="cópia no navegador">💾</span>') + escapeHtml(t.nome) + (t.falta ? ' <small class="mau">(não encontrada)</small>' : '') + '</td><td><input type="number" step="0.1" min="40" max="220" value="' + t.bpm + '" data-bpm="' + t.id + '" title="Se o BPM estiver errado (ex.: metade ou o dobro), corrige aqui"></td><td>' + estCadDe(t.bpm) + ' rpm' + (estMu(t.bpm) !== 1 ? ' <small>(' + (estMu(t.bpm) < 1 ? '÷2' : '×2') + ')</small>' : '') + '</td><td>' + fmtTime(Math.round(t.dur)) + '</td><td class="' + (estKbps(t) && estKbps(t) < 192 ? 'mau' : '') + '" title="' + (estKbps(t) && estKbps(t) < 192 ? 'Qualidade baixa: nota-se nas colunas da sala' : 'Qualidade média do ficheiro') + '">' + (estKbps(t) || '…') + '</td><td>' + (uso[t.id] ? '×' + uso[t.id] : '') + '</td><td><button type="button" data-ouv="' + t.id + '" title="Ouvir 15 s">▶</button><button type="button" data-por="' + t.id + '" title="Pôr na mistura no cursor">＋</button><button type="button" data-del="' + t.id + '" title="Tirar da biblioteca">🗑</button></td></tr>').join('') + '</table>'
       : '<p class="est-vz">Junta as tuas músicas (MP3, M4A, WAV…): carrega em <b>＋ Músicas</b> ou arrasta os ficheiros para esta janela. O BPM é medido sozinho.</p>';
     $('estLibT').querySelectorAll('[data-bpm]').forEach(i=> i.onchange = ()=>{ const L2 = estLib(), t = L2.find(x=> x.id === i.dataset.bpm); if(!t) return; t.bpm = Math.max(40, Math.min(220, +i.value || t.bpm)); estGravaLib(L2); estPinta(); toast('BPM corrigido · ✨ para voltar a encher'); });
-    $('estLibT').querySelectorAll('[data-del]').forEach(b=> b.onclick = ()=>{ if(!confirm('Tirar esta música da biblioteca?')) return; estGravaLib(estLib().filter(x=> x.id !== b.dataset.del)); estPinta(); });
+    $('estLibT').querySelectorAll('[data-del]').forEach(b=> b.onclick = async ()=>{ const t = estLib().find(x=> x.id === b.dataset.del); if(!t || !confirm('Tirar esta música da biblioteca?' + (t.dir ? '\n\n(O ficheiro fica na tua pasta; volta a aparecer se carregares em 🔄 na pasta.)' : ''))) return; await estApaga(t); estGravaLib(estLib().filter(x=> x.id !== t.id)); estPinta(); });
     $('estLibT').querySelectorAll('[data-por]').forEach(b=> b.onclick = ()=> estPoe(b.dataset.por, EST.pT, null));
     $('estLibT').querySelectorAll('tr[data-lib]').forEach(r=> r.ondragstart = e=>{ e.dataTransfer.setData('text/est-lib', r.dataset.lib); e.dataTransfer.effectAllowed = 'copy'; });
     $('estLibT').querySelectorAll('[data-ouv]').forEach(b=> b.onclick = async ()=>{ if(EST.ouveLib){ EST.ouveLib.pause(); const era = EST.ouveLib._id; EST.ouveLib = null; if(era === b.dataset.ouv) return; }
@@ -11311,6 +11408,20 @@ const SR3 = (()=>{
     if(p == null){ p = 0; while(usadas.has(p) && p < estPistas(M) - 1) p++; }
     M.itens.push({ id, t0, t1, ini: t.beat0, rate: Math.round(rate * 10000) / 10000, fIn: 2, fOut: 4, cIn: 'eq', cOut: 'eq', g: 1, bpm: cad > 0 ? cad : Math.round(t.bpm * mu), mu, p, ov: true });
     EST.sel = M.itens.length - 1; mixRefaz(); persist(); estPinta();
+  }
+  function estPintaDirs(){
+    const box = $('estDirs'); if(!box) return; const P = estPastas(), C = estCopias(), falta = P.filter(p=> ESTD.perm[p.id] === false);
+    let h = P.map(p=> '<span class="est-dir' + (ESTD.perm[p.id] === false ? ' sem' : '') + '" title="Pasta ligada: as músicas são lidas daqui, sem cópias">📁 ' + escapeHtml(p.nome) + ' <small>' + (p.n || 0) + '</small><button type="button" data-dre="' + p.id + '" title="Voltar a ler a pasta (músicas novas, mudadas ou apagadas)">🔄</button><button type="button" data-drx="' + p.id + '" title="Desligar esta pasta">✕</button></span>').join('');
+    if(falta.length) h += '<button type="button" class="est-perm" id="estPermB">🔓 Dar acesso às músicas</button>';
+    if(C.n) h += '<span class="est-cop" title="Músicas copiadas para dentro do navegador (versão anterior). Liga a pasta onde estão os originais e as cópias são apagadas automaticamente.">💾 ' + C.n + ' cópias no navegador (' + C.mb + ' MB)</span><button type="button" class="est-limpa" id="estLimpaC" title="Apaga só as cópias guardadas no navegador; tudo o resto fica">🧹 Limpar cópias</button>';
+    const sf = estLib().filter(t=> t.semF).length; if(sf) h += '<span class="est-cop">⚠️ ' + sf + ' músicas sem ficheiro · liga a pasta dos originais</span>';
+    if(!P.length && EST_FS && !C.n) h += '<span class="est-cop">Carrega em 📁 Ligar pasta e escolhe a pasta das tuas músicas.</span>';
+    box.innerHTML = h; box.hidden = !h;
+    box.querySelectorAll('[data-dre]').forEach(b=> b.onclick = ()=> estLigaPasta(b.dataset.dre));
+    box.querySelectorAll('[data-drx]').forEach(b=> b.onclick = async ()=>{ const id = b.dataset.drx; if(!confirm('Desligar esta pasta? As músicas dela saem da biblioteca (os ficheiros ficam no PC).')) return;
+      estGravaPastas(estPastas().filter(p=> p.id !== id)); estGravaLib(estLib().filter(t=> t.dir !== id)); await audDel('mdir:' + id); delete ESTD.dirs[id]; estPinta(); });
+    const lc = $('estLimpaC'); if(lc) lc.onclick = estLimpaCopias;
+    const pb = $('estPermB'); if(pb) pb.onclick = async ()=>{ await estPermTodas(true); mixRefaz(); estPinta(); };
   }
   function estNomeDe(id){ const t = estLib().find(x=> x.id === id); return t ? t.nome : '(música em falta)'; }
   function estPintaLista(){
@@ -11515,7 +11626,7 @@ const SR3 = (()=>{
       for(let c0 = 0; c0 < N; c0 += CH){ if(cancela) throw new Error('cancelado'); pinta(c0 / N); await new Promise(r=> setTimeout(r, 0));
         const c1 = Math.min(N, c0 + CH), n = c1 - c0, L = new Float32Array(n), R = new Float32Array(n);
         for(const it of its){ const a0 = Math.max(0, Math.round(it.t0 * SR)), a1 = Math.min(N, Math.round(Math.min(it.t1, tot) * SR)); if(a1 <= c0 || a0 >= c1) continue;
-          let P = prep.get(it); if(!P){ const r = await audGet('mlib:' + it.id); if(!r || !r.blob){ prep.set(it, { a1, ch: null }); continue; }
+          let P = prep.get(it); if(!P){ const r = { blob: await estFicheiro(it.id).catch(()=> null) }; if(!r.blob){ prep.set(it, { a1, ch: null }); continue; }
             const ab = await new Off(2, 1, SR).decodeAudioData(await r.blob.arrayBuffer()); P = { a1, ch: [ab.getChannelData(0), ab.numberOfChannels > 1 ? ab.getChannelData(1) : ab.getChannelData(0)] }; prep.set(it, P); }
           if(!P.ch) continue; const i0 = it.ini * SR;
           for(let k = Math.max(a0, c0); k < Math.min(a1, c1); k += 128){ const g = volM * estVolEm(it, k / SR), ke = Math.min(a1, c1, k + 128);
@@ -11574,7 +11685,7 @@ const SR3 = (()=>{
     box.innerHTML = '<b>📂 Faltam ' + F.length + ' músicas neste PC</b><span>' + F.slice(0, 6).map(m=> escapeHtml(m.fich)).join(' · ') + (F.length > 6 ? ' …' : '') + '</span>' +
       '<button type="button" id="estPasta">Escolher a pasta das músicas</button><button type="button" id="estFichs">Escolher os ficheiros</button>' +
       '<input type="file" id="estPastaIn" webkitdirectory multiple hidden><input type="file" id="estFichsIn" accept="audio/*" multiple hidden>';
-    $('estPasta').onclick = ()=> $('estPastaIn').click(); $('estFichs').onclick = ()=> $('estFichsIn').click();
+    $('estPasta').onclick = ()=> EST_FS ? estLigaPasta() : $('estPastaIn').click(); $('estFichs').onclick = ()=> $('estFichsIn').click();
     $('estPastaIn').onchange = $('estFichsIn').onchange = e=> estRecebe(e.target.files);
   }
   async function estRecebe(files){
@@ -11624,7 +11735,7 @@ const SR3 = (()=>{
         for(const it of its){
           const a0 = Math.max(0, Math.round(it.t0 * SR)), a1 = Math.min(N, Math.round(Math.min(it.t1, tot) * SR)); if(a1 <= c0 || a0 >= c1 || a1 <= a0) continue;
           let P = prep.get(it);
-          if(!P){ const rec = await audGet('mlib:' + it.id); if(!rec || !rec.blob){ prep.set(it, { S: null }); continue; }
+          if(!P){ const rec = { blob: await estFicheiro(it.id).catch(()=> null) }; if(!rec.blob){ prep.set(it, { S: null }); continue; }
             const ab = await new Off(2, 1, SR).decodeAudioData(await rec.blob.arrayBuffer()), ch = [ab.getChannelData(0), ab.numberOfChannels > 1 ? ab.getChannelData(1) : ab.getChannelData(0)];
             const i0 = Math.round(it.ini * SR), nOut = a1 - a0;
             P = { a0, a1, S: Math.abs(it.rate - 1) < .003 ? ch.map(x=> x.slice(i0, i0 + nOut)) : estEstica(ch, it.rate, i0, nOut) }; prep.set(it, P); }
