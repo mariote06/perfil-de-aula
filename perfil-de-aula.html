@@ -3444,13 +3444,13 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     'MONTANHA':              { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:70, z:[1,2,3,4,5] },
     'INTERVALADO EXTENSIVO': { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:30, z:[1,4], ext:{ t:420, r:180 } },
     'BAIXO ENDURANCE':       { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:20, z:[1,2] },
-    'FARTLEK':               { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:40, z:[1,2,3,4,5,6] },
+    'FARTLEK':               { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:40, z:[1,2,3,4,5,6], fart:{ n:6, r:90 } },
     'INTERVALADO INTENSIVO': { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:20, z:[1,5,6,7], int:{ 5:{ t:60, r:60 }, 6:{ t:30, r:30 }, 7:{ t:15, r:45 } } },
     'COMPETIÇÃO':            { dur:50, aq:8, rc:9, cadP:[80,115], cadS:[60,80], pctS:35, z:[1,2,3,4,5,6,7] },
     'RECUPERAÇÃO':           { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:10, z:[1,2] }
   };
   let modRegrasMeus = {}; try{ modRegrasMeus = JSON.parse(localStorage.getItem('prModRegras') || '{}') || {}; }catch(e){}
-  function modRegras(g){ return JSON.parse(JSON.stringify(Object.assign({}, MOD_REGRAS_BASE[g], modRegrasMeus[g] || {}))); }
+  function modRegras(g){ const R = JSON.parse(JSON.stringify(Object.assign({}, MOD_REGRAS_BASE[g], modRegrasMeus[g] || {}))); if(g === 'FARTLEK' && !R.fart) R.fart = { n:6, r:90 }; return R; }
   function modGuardaRegras(){ try{ localStorage.setItem('prModRegras', JSON.stringify(modRegrasMeus)); }catch(e){} if(fbDb && userUid) fbDb.ref('profiles/' + userUid + '/modRegras').set(Object.keys(modRegrasMeus).length ? modRegrasMeus : null).catch(()=>{}); }
   const MOD_DO_PLANO = { A:'ALTO ENDURANCE', I:'INTERVALADO EXTENSIVO', F:'FARTLEK', D:'FARTLEK', M:'MONTANHA', V:'RECUPERAÇÃO', R:'RECUPERAÇÃO' };
   const MOD_ZV = [50, 66, 83, 98, 113, 135, 160];   // %FTP no meio de cada zona (Z1..Z7)
@@ -3472,9 +3472,13 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     else if(g === 'MONTANHA'){ fimForte = true; let n = 1; for(let k = 0; k < 40; k++){ const z1 = pick(fortes(3).filter(z=> z <= 4).concat([zona(3)])), z2 = pick(fortes(4).filter(z=> z <= 5).concat([zona(4)])), s1 = rnd30(180, 420), s2 = pick([30, 60, 60, 90]), r = rnd30(60, 180);
       if(!cabe(s1 + s2 + r)) break; add('Subida ' + n, s1, z1, 'trab', .95); add('Subida ' + n + ' · ataque', s2, z2, 'trab', .9); add(Math.random() < .5 ? 'Descida' : 'Recupera', r, desc, 'rec'); n++; } }
     else if(g === 'INTERVALADO EXTENSIVO'){ fimForte = true; const e = R.ext || { t:420, r:180 }, zT = zona(4); for(let k = 0; k < 60; k++){ if(!cabe(e.t + e.r)) break; add('Intervalo ' + (k + 1) + ' · Z' + zT, e.t, zT, 'trab', .5); if(e.r) add('Recupera Z' + desc, e.r, desc, 'rec'); } }
-    else if(g === 'FARTLEK'){ fimForte = true; const menu = [()=>{ const z = pick(Z.filter(z=> z >= 2 && z <= 3).concat([zona(2)])); return ['Rolar', rnd30(120, 240), z, 'trab', .3]; }, ()=>{ const z = pick(fortes(4).filter(z=> z <= 5).concat([zona(4)])); return ['Ataque', pick([30, 45, 60, 90]), z, 'trab', .5]; },
-        ()=>{ const z = pick(fortes(6).concat([zona(6)])); return ['Sprint', pick([15, 20, 30]), z, 'sprint', 0]; }, ()=> ['Recupera', pick([60, 90, 120]), desc, 'rec', 0]];
-      let ult = -1; for(let k = 0; k < 80; k++){ let i; do i = Math.floor(Math.random() * menu.length); while(i === ult || (i === 3 && (ult === 3 || ult === -1))); const [n, s, z, kk, sub] = menu[i](); if(!cabe(s)) break; add(n, s, z, kk, sub); ult = i; } }
+    else if(g === 'FARTLEK'){ fimForte = true; const F = R.fart || { n:6, r:90 }, nR = Math.max(0, Math.round(F.n)), rS = Math.max(0, Math.round(F.r)), W = M - nR * rS, seg = Math.max(30, W / (nR + 1));
+      // entre as recuperações Z1 (número e duração escolhidos nas regras), esforços ao acaso: rolar, ataque e sprint
+      const ef = [()=>{ const z = pick(Z.filter(z=> z >= 2 && z <= 3).concat([zona(2)])); return ['Rolar', rnd30(60, 180), z, 'trab', .3]; }, ()=>{ const z = pick(fortes(4).filter(z=> z <= 5).concat([zona(4)])); return ['Ataque', pick([30, 45, 60, 90]), z, 'trab', .5]; }, ()=>{ const z = pick(fortes(6).concat([zona(6)])); return ['Sprint', pick([15, 20, 30]), z, 'sprint', 0]; }];
+      let feito = 0; for(let k = 0; k <= nR; k++){ const fim = Math.round(seg * (k + 1) / 5) * 5; let ult = -1, n0 = L.length;
+        for(let q = 0; q < 30 && feito < fim; q++){ let i; do i = Math.floor(Math.random() * ef.length); while(i === ult && ef.length > 1); let [n, s2, z, kk, sub] = ef[i](); if(feito + s2 > fim){ s2 = fim - feito; if(s2 < 15) break; } add(n, s2, z, kk, sub); feito += s2; ult = i; }
+        if(L.length === n0){ add('Rolar', Math.max(30, fim - feito), zona(2), 'trab', .3); feito = fim; }
+        if(k < nR && rS) add('Recupera Z' + desc + ' ' + (k + 1) + '/' + nR, rS, desc, 'rec'); } }
     else if(g === 'INTERVALADO INTENSIVO'){ fimForte = true; const I = R.int || {}, ser = [5, 6, 7].filter(z=> tem(z) && I[z] && I[z].t > 0).sort(()=> Math.random() - .5), pausa = 180, S = ser.length ? (M - pausa * (ser.length - 1)) / ser.length : 0;
       ser.forEach((z, si)=>{ const t = I[z].t, r = I[z].r || 0, n = Math.max(1, Math.floor((S + r) / (t + r))); for(let i = 1; i <= n; i++){ add('Série ' + (si + 1) + ' · Z' + z + ' ' + i + '/' + n, t, z, z >= 6 ? 'sprint' : 'trab', z >= 6 ? .1 : .4); if(r && i < n) add('Recupera Z' + desc, r, desc, 'rec'); } if(si < ser.length - 1) add('Recupera longa', pausa, desc, 'rec'); }); }
     else if(g === 'COMPETIÇÃO'){ fimForte = true; const base = [['Partida', 120, 5, 'trab', .2], ['Pelotão', 360, 3, 'trab', .3], ['Ataque', 60, 6, 'sprint', 0], ['Pelotão', 240, 3, 'trab', .3], ['Subida da prova', 300, 4, 'trab', 1], ['Topo · ataque', 60, 5, 'trab', 1], ['Descida', 120, 1, 'rec', 0], ['Contra-relógio', 480, 4, 'trab', .2], ['Recupera', 120, 1, 'rec', 0], ['Sprint final', 30, 7, 'sprint', 0]];
@@ -3499,17 +3503,17 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   }
   function modBlocos(g, d, R){
     R = R || modRegras(g); const A = modBlocoAno(d || new Date()), f = A ? A.f : 1, I = modTerreno(modGeraItens(g, R), R);
-    const jan = (r, z)=>{ const w = Math.min(10, r[1] - r[0]); if(w <= 0) return [r[0], r[0]]; const lo = r[0] + Math.round(Math.random() * (r[1] - r[0] - w) / 5) * 5; return [lo, lo + w]; };
+    const uma = (a, b)=>{ a = Math.round(a / 5) * 5; b = Math.round(b / 5) * 5; return b <= a ? a : a + 5 * Math.floor(Math.random() * ((b - a) / 5 + 1)); };   // uma só cadência por bloco (de 5 em 5)
     return I.map(x=>{
       let p, tec = 'Plano Sentado', cad, nome = x.n;
-      if(x.k === 'cool'){ p = 45; cad = [Math.min(80, R.cadP[0] + 5), Math.min(90, R.cadP[0] + 10)]; }
-      else if(x.k === 'aq'){ p = x.p; cad = [Math.max(R.cadP[0], 85), Math.min(R.cadP[1], 95)]; }
+      if(x.k === 'cool'){ p = 45; cad = Math.max(R.cadP[0], Math.min(R.cadP[1], 85)); }
+      else if(x.k === 'aq'){ p = x.p; cad = Math.max(R.cadP[0], Math.min(R.cadP[1], x.p >= 55 ? 95 : 90)); }
       else { const [a, b] = MOD_ZR[x.z - 1], ZB = [[0,55],[56,75],[76,90],[91,105],[106,120],[121,150],[151,250]][x.z - 1]; p = rndI(a, b); if(x.z >= 3) p = Math.max(ZB[0], Math.min(ZB[1], Math.round(p * f)));   // o ajuste do bloco do ano nunca muda a zona
-        if(x.subida){ cad = jan(R.cadS); tec = x.z >= 5 ? pick(['Subida em Pé', 'Combinado na Subida']) : pick(['Subida Sentada', 'Subida Sentada', 'Combinado na Subida']); if(!/subida|descida/i.test(nome)) nome += ' · subida'; }
-        else if(x.k === 'sprint'){ cad = [Math.max(R.cadP[0], R.cadP[1] - 10), R.cadP[1]]; tec = 'Sprint'; }
-        else if(x.k === 'rec'){ cad = jan([R.cadP[0], Math.min(R.cadP[1], R.cadP[0] + 20)]); }
-        else { cad = jan(x.z >= 4 ? [Math.round((R.cadP[0] + R.cadP[1]) / 2) - 10, R.cadP[1]] : R.cadP); tec = x.z >= 4 ? pick(['Plano Sentado', 'Combinado no Plano', 'Plano em Pé']) : pick(['Plano Sentado', 'Plano Sentado', 'Combinado no Plano']); } }
-      return newBlock(Object.assign({ nome, min: Math.floor(x.s / 60), sec: x.s % 60, ftp: p, alvo: 0, rpm: cad[0], rpm2: cad[1], tecnica: tec }, x.k === 'cool' ? { tipo: 'cool' } : {}));
+        if(x.subida){ cad = uma(R.cadS[0], R.cadS[1]); tec = x.z >= 5 ? pick(['Subida em Pé', 'Combinado na Subida']) : pick(['Subida Sentada', 'Subida Sentada', 'Combinado na Subida']); if(!/subida|descida/i.test(nome)) nome += ' · subida'; }
+        else if(x.k === 'sprint'){ cad = uma(Math.max(R.cadP[0], R.cadP[1] - 10), R.cadP[1]); tec = 'Sprint'; }
+        else if(x.k === 'rec'){ cad = uma(Math.max(R.cadP[0], 85), Math.min(R.cadP[1], 95)); }
+        else { cad = x.z >= 4 ? uma(Math.max(R.cadP[0], 90), Math.min(R.cadP[1], 110)) : uma(Math.max(R.cadP[0], 85), Math.min(R.cadP[1], 105)); tec = x.z >= 4 ? pick(['Plano Sentado', 'Combinado no Plano', 'Plano em Pé']) : pick(['Plano Sentado', 'Plano Sentado', 'Combinado no Plano']); } }
+      return newBlock(Object.assign({ nome, min: Math.floor(x.s / 60), sec: x.s % 60, ftp: p, alvo: 0, rpm: cad, rpm2: cad, tecnica: tec }, x.k === 'cool' ? { tipo: 'cool' } : {}));
     });
   }
   function modAplica(g, d, sem, blocos){
@@ -3551,15 +3555,16 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
         '<div class="mc-ps"><span>Terreno</span><b id="mcPl">' + (100 - (R.pctS || 0)) + '% plano</b><input type="range" data-k="pctS" min="0" max="100" step="5" value="' + (R.pctS || 0) + '"><b id="mcSu">' + (R.pctS || 0) + '% subida</b></div>' +
         '<div class="mc-z"><span>Zonas que pode usar</span>' + [1,2,3,4,5,6,7].map(z=> '<button type="button" data-z="' + z + '" class="' + (R.z.includes(z) ? 'on' : '') + '" style="--zc:' + zoneColor(ZONES[z - 1].css) + '">Z' + z + '</button>').join('') + '</div>' +
         (R.ext ? '<div class="mc-r"><b>Intervalos Z4 : Z1</b><label>Trabalho Z4<span>' + num('extT', R.ext.t, 30, 1800, 15) + ' s (' + ms(R.ext.t) + ')</span></label><label>Recuperação Z1<span>' + num('extR', R.ext.r, 0, 900, 15) + ' s (' + ms(R.ext.r) + ')</span></label><em>rácio ' + rac(R.ext.t, R.ext.r) + '</em></div>' : '') +
+        (R.fart ? '<div class="mc-r"><b>Recuperações em Z1</b><label>Número de recuperações<span>' + num('fN', R.fart.n, 0, 30) + '</span></label><label>Duração de cada<span>' + num('fR', R.fart.r, 15, 600, 15) + ' s (' + ms(R.fart.r) + ')</span></label><em>' + R.fart.n + ' × ' + ms(R.fart.r) + ' = ' + ms(R.fart.n * R.fart.r) + ' em Z1</em></div>' : '') +
         (R.int ? '<div class="mc-r"><b>Séries trabalho : Z1</b>' + [5, 6, 7].map(z=> '<div class="mc-ri' + (R.z.includes(z) ? '' : ' off') + '"><i style="background:' + zoneColor(ZONES[z - 1].css) + '">Z' + z + '</i><label>trabalho<span>' + num('i' + z + 't', (R.int[z] || {}).t || 0, 5, 600, 5) + ' s</span></label><label>pausa Z1<span>' + num('i' + z + 'r', (R.int[z] || {}).r || 0, 0, 600, 5) + ' s</span></label><em>' + rac((R.int[z] || {}).t || 0, (R.int[z] || {}).r || 0) + '</em></div>').join('') + '</div>' : '') +
         '<div class="mc-pv">' + modBarra(g, R) + '<button type="button" class="mod-cfg" data-a="pv" title="Ver outra versão aleatória">🎲</button></div><div class="mc-bt"><button type="button" data-a="repor">Repor predefinições</button><button type="button" data-a="cancel">Cancelar</button><button type="button" class="pri" data-a="ok">Guardar regras</button></div></div>';
     };
     pinta(); document.body.appendChild(ov);
     ov.addEventListener('input', e=>{ const k = e.target.dataset.k; if(!k) return; const v = +e.target.value; if(!isFinite(v)) return;
       if(k === 'cadP0') R.cadP[0] = v; else if(k === 'cadP1') R.cadP[1] = v; else if(k === 'cadS0') R.cadS[0] = v; else if(k === 'cadS1') R.cadS[1] = v;
-      else if(k === 'extT') R.ext.t = v; else if(k === 'extR') R.ext.r = v; else if(/^i\d[tr]$/.test(k)){ const z = k[1]; R.int[z] = R.int[z] || { t:30, r:30 }; R.int[z][k[2]] = v; } else R[k] = v;
+      else if(k === 'fN') R.fart.n = v; else if(k === 'fR') R.fart.r = v; else if(k === 'extT') R.ext.t = v; else if(k === 'extR') R.ext.r = v; else if(/^i\d[tr]$/.test(k)){ const z = k[1]; R.int[z] = R.int[z] || { t:30, r:30 }; R.int[z][k[2]] = v; } else R[k] = v;
       if(k === 'pctS'){ ov.querySelector('#mcPl').textContent = (100 - v) + '% plano'; ov.querySelector('#mcSu').textContent = v + '% subida'; }
-      const pv = ov.querySelector('.mc-pv'); if(pv) pv.innerHTML = modBarra(g, R) + '<button type="button" class="mod-cfg" data-a="pv" title="Ver outra versão aleatória">🎲</button>'; ov.querySelectorAll('.mc-r em').forEach((el, i)=>{ if(R.ext && i === 0) el.textContent = 'rácio ' + rac(R.ext.t, R.ext.r); else if(R.int){ const z = [5,6,7][i]; if(z) el.textContent = rac((R.int[z] || {}).t || 0, (R.int[z] || {}).r || 0); } }); });
+      const pv = ov.querySelector('.mc-pv'); if(pv) pv.innerHTML = modBarra(g, R) + '<button type="button" class="mod-cfg" data-a="pv" title="Ver outra versão aleatória">🎲</button>'; ov.querySelectorAll('.mc-r em').forEach((el, i)=>{ if(R.fart && i === 0){ const m2 = s2=> Math.floor(s2 / 60) + ':' + String(s2 % 60).padStart(2, '0'); el.textContent = R.fart.n + ' × ' + m2(R.fart.r) + ' = ' + m2(R.fart.n * R.fart.r) + ' em Z1'; } else if(R.ext && i === 0) el.textContent = 'rácio ' + rac(R.ext.t, R.ext.r); else if(R.int){ const z = [5,6,7][i]; if(z) el.textContent = rac((R.int[z] || {}).t || 0, (R.int[z] || {}).r || 0); } }); });
     ov.addEventListener('click', e=>{ const zb = e.target.closest('[data-z]'); if(zb){ const z = +zb.dataset.z; R.z = R.z.includes(z) ? R.z.filter(x=> x !== z) : R.z.concat(z).sort((a, b)=> a - b); if(!R.z.length) R.z = [z]; pinta(); return; }
       const b = e.target.closest('[data-a]'); if(!b && e.target !== ov) return; const a = b ? b.dataset.a : 'cancel';
       if(a === 'pv'){ ov.querySelector('.mc-pv').firstChild && (ov.querySelector('.mc-pv').innerHTML = modBarra(g, R) + '<button type="button" class="mod-cfg" data-a="pv" title="Ver outra versão aleatória">🎲</button>'); return; }
