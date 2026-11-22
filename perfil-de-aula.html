@@ -489,6 +489,8 @@ html.live-on,html.live-on body{overflow:hidden !important;}
 .live-main{flex:1;display:flex;min-height:0;}
 /* lâmpada: acende com a eletricidade gerada (kJ ÷ 3,6 × 80% de um gerador) */
 .lamp{position:absolute;top:var(--lt,6px);right:var(--lr,8px);z-index:5;display:flex;flex-direction:column;align-items:center;gap:1px;pointer-events:none;--lv:0;}
+.ftp-menu{position:fixed;z-index:9800;width:340px;background:#15181d;border:1px solid #FFD60A66;border-radius:12px;padding:12px;box-shadow:0 12px 40px rgba(0,0,0,.55);display:flex;flex-direction:column;gap:7px;font:13px Inter,system-ui,sans-serif;color:#e8ecf2}.ftp-menu>b{color:#FFD60A;font-size:14px}.ftp-menu>small{color:#8a93a3;line-height:1.35}
+.ftp-menu button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;background:#1f242b;border:1px solid #2f353e;border-radius:9px;padding:9px 11px;color:#fff;cursor:pointer;font:700 13px Inter,sans-serif}.ftp-menu button:hover{border-color:#FFD60A;background:#262b33}.ftp-menu button em{font:500 11px Inter,sans-serif;font-style:normal;color:#8a93a3}
 .lamp svg{width:var(--lw,40px);height:auto;overflow:visible;filter:drop-shadow(0 0 calc(2px + 26px * var(--lv)) rgba(255,205,70,calc(var(--lv) * .95)));transition:filter .8s ease;}
 .lamp .lg{fill:rgba(255,214,90,calc(.06 + .9 * var(--lv)));stroke:color-mix(in srgb,#FFD86B calc(var(--lv) * 100%),#5B6472);stroke-width:2.2;transition:fill .8s ease;}
 .lamp .lf{fill:none;stroke:color-mix(in srgb,#FFF4C2 calc(var(--lv) * 100%),#8A93A1);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
@@ -1257,6 +1259,7 @@ body[data-view="lib"] .saved-list, body[data-view="hist"] .saved-list{max-height
 }
 body[data-view="ano"] .legal{margin-top:8px;}
 /* ---------- jogos e percurso na projeção ---------- */
+.tf-cv{flex:1;width:100%;min-height:0;border-radius:14px;display:block}
 .game-panel{display:none;flex:1;flex-direction:column;gap:10px;min-height:0;overflow:auto;}
 .jg-bar{display:flex;flex-direction:column;gap:6px;}
 .jg-tipos,.jg-forma{display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
@@ -2214,6 +2217,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       <button data-mode="turma" title="Tecla 2">Turma</button>
       <button data-mode="corrida" title="Tecla 3">Corrida</button>
       <button data-mode="sala" title="Cada aluno na sua bike, na planta da sala (tecla 5)">Sala</button>
+      <button data-mode="teste" id="pvTeste" hidden title="Vista do teste FTP: a bolha é o alvo; quem está dentro do alvo fica dentro da bolha">⚡ Teste</button>
       <button type="button" id="pvPerc" hidden title="Volta ao jogo ou percurso deste bloco e a projeção passa outra vez a seguir os blocos sozinha (tecla 6)">🏞️ Percurso</button>
       <button class="god-btn" id="godBtn" title="God Mode na tua app PlayRide: ligar, desligar e escolher a conta (tecla 4)">⚡ God</button>
     </div>
@@ -3331,7 +3335,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     h += '<button class="zb" id="zbSplit" title="Separador de segmento: na projeção mostra o segmento seguinte" style="--c:#A35CFF;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_SPLIT + '</span></span><span class="zl">Dividir em segmentos</span></button>';
     h += '<button class="zb" id="zbCool" title="Acrescenta o retorno à calma (fica sempre no fim)" style="--c:#1FC8B0;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_COOL + '</span></span><span class="zl">Retorno à calma</span></button>';
     h += '<span class="gap"></span>';
-    h += '<button class="zb" id="zbFtpTest" title="Teste FTP de 20 minutos (Allen-Coggan): no fim a app calcula o FTP de cada aluno" style="--c:#FFD60A;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_TEST + '</span></span><span class="zl">Teste FTP</span></button>';
+    h += '<button class="zb" id="zbFtpTest" title="Teste FTP de 20 minutos (Allen-Coggan): acrescenta o bloco de teste à aula (ou monta a aula inteira de teste). No fim a app calcula o FTP de cada aluno" style="--c:#FFD60A;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_TEST + '</span></span><span class="zl">Teste FTP</span></button>';
     h += '<button class="zb" id="zbJogos" title="Jogos e percursos virtuais: escolhe um jogo para cada bloco da aula" style="--c:#FF4FA3;--p:100%"><span class="zb-ring"><span class="zb-core zb-emo">🎮</span></span><span class="zl">Jogos e percursos</span></button>';
     h += '<button class="zb tool2" id="zbImport" title="Importar aulas de um ficheiro .json"><span class="zb-ring"><span class="zb-core">' + ICON_PLUS + '</span></span><span class="zl">Importar</span></button>';
     h += '<button class="zb tool2 total" id="zbTotal" title="Duração total da aula" tabindex="-1"><span class="zb-ring"><span class="zb-core">T</span></span><span class="zl" id="zbTotalTxt">0:00</span></button>';
@@ -3347,9 +3351,36 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     render(); scrollToSel();
   }
   // aula de teste FTP (protocolo de 20 min, Allen-Coggan): FTP = média dos 20 min × 0,95
-  function doFtpTest(){
+  // com blocos na aula, o botão pergunta: só o bloco de teste, o bloco com a preparação, ou a aula inteira de teste
+  function ftpTestMenu(btn){
+    let m = $('ftpMenu'); if(m){ m.remove(); return; }
+    m = document.createElement('div'); m.id = 'ftpMenu'; m.className = 'ftp-menu';
+    const onde = selIdx >= 0 && current.blocos[selIdx] ? 'depois do bloco ' + (selIdx + 1) : 'no fim (antes do retorno à calma)';
+    m.innerHTML = '<b>Teste FTP</b><small>Entra ' + onde + '. A média dos 20 min × 0,95 dá o FTP de cada aluno.</small>' +
+      '<button type="button" data-f="bloco"><span>⚡ Só o bloco de teste</span><em>20 min o mais forte e constante possível</em></button>' +
+      '<button type="button" data-f="prep"><span>⚡ Bloco de teste com preparação</span><em>3 ativações · 5 min forte · 10 min recupera · 20 min teste (≈36 min)</em></button>' +
+      '<button type="button" data-f="aula"><span>🔁 Substituir a aula pelo protocolo completo</span><em>aquecimento + preparação + teste + retorno à calma (58 min)</em></button>';
+    document.body.appendChild(m); const rc = btn.getBoundingClientRect(); m.style.left = Math.max(8, Math.min(innerWidth - m.offsetWidth - 8, rc.left + rc.width / 2 - m.offsetWidth / 2)) + 'px'; m.style.top = (rc.bottom + 8) + 'px';
+    const fecha = e=>{ if(!m.contains(e.target) && e.target !== btn && !btn.contains(e.target)){ m.remove(); document.removeEventListener('pointerdown', fecha, true); } };
+    setTimeout(()=> document.addEventListener('pointerdown', fecha, true), 0);
+    m.onclick = e=>{ const b = e.target.closest('[data-f]'); if(!b) return; m.remove(); document.removeEventListener('pointerdown', fecha, true); const f = b.dataset.f; if(f === 'aula') doFtpTest(true); else ftpTestInsere(f === 'prep'); };
+  }
+  function ftpTestInsere(prep){
+    if(current.blocos.some(x=> x.teste) && !confirm('Esta aula já tem um bloco de teste FTP. Acrescentar outro? (o FTP conta a média de todos os blocos de teste)')) return;
+    pushUndo();
+    const m = modoAtual(), B = (nome, min, ftp, rpm, rpm2, extra)=> newBlock(Object.assign({ nome, min, sec:0, ftp: m === 'ftp' ? ftp : (m === 'zonas' ? ZONE_MID[Math.min(ZONE_MID.length - 1, ftp >= 105 ? 4 : ftp >= 95 ? 3 : ftp >= 60 ? 1 : 0)] : Math.min(95, Math.round(ftp * .75 + 20))), alvo:0, rpm, rpm2, tecnica:'Plano Sentado' }, extra || {}));
+    const novos = prep ? [ B('Ativação 1', 1, 110, 95, 105), B('Recupera', 1, 50, 85, 90), B('Ativação 2', 1, 110, 95, 105), B('Recupera', 1, 50, 85, 90), B('Ativação 3', 1, 110, 95, 105), B('Recupera', 1, 50, 85, 90),
+      B('Esforço máximo 5 min', 5, 115, 90, 100), B('Recuperação', 10, 50, 80, 90) ] : [];
+    novos.push(B('TESTE FTP · 20 min', 20, 100, 85, 95, { teste:true }));
+    let i = selIdx >= 0 && current.blocos[selIdx] ? selIdx + 1 : current.blocos.length; const c = coolIdx(); if(c >= 0 && i > c) i = c;
+    current.blocos.splice(i, 0, ...novos); selIdx = i + novos.length - 1; clearMulti();
+    render(); try{ scrollToSel(); }catch(e){}
+    toast(prep ? 'Bloco de teste FTP com preparação acrescentado (36 min)' : 'Bloco de teste FTP acrescentado (20 min)');
+  }
+  function doFtpTest(sub){
     const temBlocos = current.blocos.length > 1 || (current.blocos[0] && !['', 'Aquecimento'].includes(current.blocos[0].nome || ''));
-    if(temBlocos && !confirm('Substituir os intervalos desta aula pelo protocolo do teste FTP (20 min)?')) return;
+    if(temBlocos && !sub){ ftpTestMenu($('zbFtpTest')); return; }
+    if(temBlocos && !confirm('Substituir todos os blocos desta aula pelo protocolo completo do teste FTP (58 min)?')) return;
     pushUndo();
     if(modoAtual() !== 'ftp'){ current.modo = 'ftp'; renderModeUi(); }
     const B = (nome, min, ftp, rpm, rpm2, extra)=> newBlock(Object.assign({ nome, min, sec:0, ftp, alvo:0, rpm, rpm2, tecnica:'Plano Sentado' }, extra || {}));
@@ -4234,7 +4265,9 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function metricLabel(){ return raceMetric === 'kj' ? 'kJ' : 'pontos'; }
 
   function effectiveMode(){
+    if(viewMode === 'teste' && !(current.blocos[liveIdx] && current.blocos[liveIdx].teste)) return visRiders().length ? 'turma' : 'aula';
     if(viewMode !== 'auto') return viewMode;
+    if(current.blocos[liveIdx] && current.blocos[liveIdx].teste && visRiders().length) return 'teste';   // no bloco do teste FTP a projeção passa sozinha para a vista do teste
     return visRiders().length ? 'turma' : 'aula';
   }
 
@@ -4246,6 +4279,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       btn.classList.toggle('on', btn.dataset.mode === mode);
     });
     { const pp = $('pvPerc'); if(pp) pp.classList.toggle('on', mode === 'percurso' || mode === 'jogos'); }
+    { const bt = $('pvTeste'); if(bt) bt.hidden = !(current.blocos[liveIdx] && current.blocos[liveIdx].teste); }
     $('metricBtn').textContent = 'Ranking: ' + (raceMetric==='kj' ? 'kJ' : 'Pontos');
     $('soundBtn').textContent = soundOn ? '🔔' : '🔕';
     // na vista com a turma, a lâmpada fica em cima, logo por baixo da linha do PIN e dos tempos
@@ -10272,11 +10306,83 @@ const SR3 = (()=>{
         ctx.fillStyle = 'rgba(10,13,18,.85)'; ctx.fillRect(xx, yy - 10 * sc, tw, 20 * sc); ctx.fillStyle = '#FFD60A'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(notaGap[k], xx + 5 * sc, yy); ctx.textAlign = 'center'; ctx.textBaseline = 'alphabetic'; }
     });
   }
+  // ---- ⚡ vista do teste FTP (estilo "bolha"): a bolha ao centro é a potência-alvo do teste ----
+  // cada aluno é um ponto: dentro da bolha = dentro do alvo (±5%) · sai para a esquerda se está abaixo, para a direita se está acima; quanto mais longe, mais fora do alvo
+  // alvo de cada aluno = FTP atual ÷ 0,95 (a potência média que mantém o FTP); sem FTP, a sua própria média do teste (manter constante)
+  const TF = { on: false, raf: 0, pos: {}, list: [], t0: performance.now(), tl: 0, dentro: {}, tot: {}, pin: null };
+  function tfPara(){ TF.on = false; cancelAnimationFrame(TF.raf); }
+  function tfRender(list){
+    const gp = $('gamePanel'); gp.style.display = 'flex'; $('rgrid').style.display = 'none'; $('lanes').style.display = 'none';
+    if(!$('tfCv')){ gp.innerHTML = '<canvas id="tfCv" class="tf-cv"></canvas>'; }
+    if(TF.pin !== sessionPin + ':' + liveIdx){ TF.pin = sessionPin + ':' + liveIdx; TF.dentro = {}; TF.tot = {}; TF.pos = {}; }
+    TF.list = list; if(!TF.on){ TF.on = true; TF.tl = performance.now(); TF.raf = requestAnimationFrame(tfFrame); }
+  }
+  function tfMedia(r){ return r.tt > 20 && r.tw ? r.tw / r.tt : (r.w || 0); }
+  function tfAlvo(r){ if(r.ftp) return r.ftp / .95; const m = tfMedia(r); return m > 0 ? m : null; }
+  function tfFrame(now){
+    if(!TF.on) return; TF.raf = requestAnimationFrame(tfFrame);
+    const cv = $('tfCv'); if(!cv || !cv.isConnected){ tfPara(); return; }
+    const dpr = Math.min(2, devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight; if(W < 50 || H < 50) return;
+    if(cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)){ cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
+    const g = cv.getContext('2d'); g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, W, H);
+    const t = (now - TF.t0) / 1000, dt = Math.min(.5, (now - TF.tl) / 1000), U = Math.min(W, H * 1.6) / 1000, F = '"Barlow Condensed",Inter,sans-serif'; TF.tl = now;
+    const bg = g.createRadialGradient(W / 2, H * .45, 0, W / 2, H * .45, Math.max(W, H) * .75); bg.addColorStop(0, '#2a2140'); bg.addColorStop(.55, '#15121f'); bg.addColorStop(1, '#09080d'); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+    // cabeçalho
+    const b = current.blocos[liveIdx], dur = b ? blockDurationSec(b) : 1200, rest = Math.max(0, liveRemaining), prog = Math.max(0, Math.min(1, 1 - rest / Math.max(1, dur)));
+    const on = TF.list.filter(r=> r.online), n = on.length;
+    g.textAlign = 'center'; g.textBaseline = 'alphabetic'; g.fillStyle = '#fff'; g.font = '800 ' + Math.round(40 * U) + 'px ' + F; g.fillText('TESTE FTP · ' + Math.round(dur / 60) + ' MIN', W / 2, 52 * U);
+    g.fillStyle = '#9b93b8'; g.font = '600 ' + Math.round(17 * U) + 'px ' + F; g.fillText(n + (n === 1 ? ' aluno' : ' alunos') + ' · mantém o teu ponto dentro da bolha', W / 2, 78 * U);
+    const bx = 24 * U, bw = Math.min(W * .3, W / 2 - 24 * U - 250 * U), by = 30 * U; g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(bx, by, bw, 8 * U); const pg = g.createLinearGradient(bx, 0, bx + bw, 0); pg.addColorStop(0, '#7a5cff'); pg.addColorStop(1, '#FFD60A'); g.fillStyle = pg; g.fillRect(bx, by, bw * prog, 8 * U);
+    g.textAlign = 'left'; g.fillStyle = '#cfc8e6'; g.font = '700 ' + Math.round(15 * U) + 'px ' + F; g.fillText(fmtTime(Math.floor(dur - rest)) + ' / ' + fmtTime(Math.floor(dur)), bx, by + 28 * U);
+    g.textAlign = 'right'; g.fillStyle = '#fff'; g.font = '800 ' + Math.round(46 * U) + 'px ' + F; g.fillText(fmtCountdown(rest), W - 24 * U, 58 * U); g.fillStyle = '#9b93b8'; g.font = '600 ' + Math.round(14 * U) + 'px ' + F; g.fillText('falta', W - 24 * U, 76 * U);
+    // pista em elipse com escala à volta (como um conta-rotações): esquerda = abaixo do alvo · direita = acima
+    const LW = 250 * U, cx = LW + (W - LW) / 2, cy = H * .55, rx = Math.min(W * .33, (W - LW) / 2 / 1.36), ry = H * .25, D = .3, ang = d=> d < 0 ? Math.PI / 2 + Math.min(1, -d / D) * (Math.PI / 2 + .5) : Math.PI / 2 - Math.min(1, d / D) * (Math.PI / 2 + .5), pt = (a, k)=> [cx + rx * k * Math.cos(a), cy + ry * k * Math.sin(a)];
+    g.strokeStyle = 'rgba(255,255,255,.8)'; g.lineWidth = 2 * U; g.beginPath(); g.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2); g.stroke();
+    for(let i = -30; i <= 30; i += 2.5){ const d = i / 100, a = ang(d), fr = (Math.sin(a) + 1) / 2, mai = i % 10 === 0, [x1, y1] = pt(a, 1.05), [x2, y2] = pt(a, mai ? 1.2 : 1.13);
+      g.strokeStyle = i === 0 ? '#FFD60A' : 'rgba(255,255,255,' + (.3 + fr * .6) + ')'; g.lineWidth = (i === 0 ? 5 : mai ? 4 : 2.5) * U * (.55 + fr * .7); g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
+      if(mai){ const [lx, ly] = pt(a, 1.3); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = i === 0 ? '#FFD60A' : 'rgba(255,255,255,.65)'; g.font = (i === 0 ? '800 ' : '600 ') + Math.round((i === 0 ? 16 : 14) * U) + 'px ' + F; g.fillText(i === 0 ? 'ALVO' : (i > 0 ? '+' : '') + i + '%', lx, ly); } }
+    // bolha do alvo
+    const ox = cx, oy = cy - ry * .2, oR = Math.min(W, H) * .1, pul = 1 + Math.sin(t * 2.2) * .02;
+    const gl = g.createRadialGradient(ox, oy, oR * .3, ox, oy, oR * 2.2); gl.addColorStop(0, 'rgba(170,140,255,.5)'); gl.addColorStop(1, 'rgba(170,140,255,0)'); g.fillStyle = gl; g.beginPath(); g.arc(ox, oy, oR * 2.2, 0, 7); g.fill();
+    for(let k = 0; k < 3; k++){ g.save(); g.translate(ox, oy); g.rotate(t * (.3 + k * .17) * (k % 2 ? -1 : 1)); g.beginPath(); for(let i = 0; i <= 64; i++){ const a = i / 64 * Math.PI * 2, rr = oR * pul * (1 + .06 * Math.sin(a * (3 + k) + t * (1.5 + k * .4))); i ? g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : g.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); } g.closePath();
+      g.fillStyle = ['rgba(60,40,120,.55)', 'rgba(200,120,255,.14)', 'rgba(90,170,255,.12)'][k]; g.fill(); g.strokeStyle = 'rgba(255,255,255,' + (.35 + k * .15) + ')'; g.lineWidth = 1.4 * U; g.stroke(); g.restore(); }
+    g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 1.5 * U; g.beginPath(); g.ellipse(ox, oy + oR * .35, oR * 1.15, oR * .3, 0, 0, Math.PI * 2); g.stroke();   // anel da bolha
+    // alunos: desvio face ao alvo, tempo dentro do alvo
+    const L = on.map((r, i)=>{ const al = tfAlvo(r), w = r.w || 0, d = al ? w / al - 1 : 0, ok = al && Math.abs(d) <= .05; if(livePlaying && w > 0){ TF.tot[r.id] = (TF.tot[r.id] || 0) + dt; if(ok) TF.dentro[r.id] = (TF.dentro[r.id] || 0) + dt; } return { r, i, al, w, d, ok }; });
+    const dentro = L.filter(o=> o.ok), fora = L.filter(o=> !o.ok);
+    // dentro da bolha: em espiral à volta do centro
+    dentro.forEach((o, k)=>{ const a = k * 2.4, rr = oR * .55 * Math.sqrt((k + .5) / Math.max(1, dentro.length)); o.tx = ox + Math.cos(a) * rr; o.ty = oy + Math.sin(a) * rr * .8; });
+    // fora: na direção do desvio, mais longe quanto mais fora (entre a bolha e a pista)
+    fora.forEach(o=>{ const a = ang(Math.max(-D, Math.min(D, o.d))), k = Math.min(1, (Math.abs(o.d) - .05) / (D - .05)), [px, py] = pt(a, 1); const sx = ox + Math.cos(a) * oR * 1.05, sy = oy + Math.sin(a) * oR * .85; o.tx = sx + (px - sx) * (.25 + .75 * k); o.ty = sy + (py - sy) * (.25 + .75 * k); });
+    for(let it = 0; it < 4; it++) for(let p = 0; p < L.length; p++) for(let q = p + 1; q < L.length; q++){ const A = L[p], B = L[q]; if(A.ok !== B.ok) continue; const dx = B.tx - A.tx, dy = B.ty - A.ty, dd = Math.hypot(dx, dy) || .01, mn = (A.ok ? 26 : 44) * U; if(dd < mn){ const f = (mn - dd) / 2 / dd; A.tx -= dx * f; A.ty -= dy * f; B.tx += dx * f; B.ty += dy * f; } }   // não se tapam
+    L.forEach(o=>{ const P = TF.pos[o.r.id] || (TF.pos[o.r.id] = { x: o.tx, y: o.ty }); P.x += (o.tx - P.x) * .08; P.y += (o.ty - P.y) * .08; o.x = P.x; o.y = P.y; o.num = o.r.bk && o.r.bk !== 'prof' ? String(o.r.bk) : String(o.i + 1); });
+    fora.forEach(o=>{ const cor = o.d < 0 ? '#FF5A6E' : '#4FC3FF', ln = g.createLinearGradient(ox, oy, o.x, o.y); ln.addColorStop(0, 'rgba(255,255,255,0)'); ln.addColorStop(1, cor); g.strokeStyle = ln; g.lineWidth = 3 * U; g.beginPath(); g.moveTo(ox, oy); g.lineTo(o.x, o.y); g.stroke(); });
+    L.forEach(o=>{ const cor = o.ok ? '#5BE37D' : (o.d < 0 ? '#FF5A6E' : '#4FC3FF'), rad = (o.ok ? 12 : 15) * U;
+      const hl = g.createRadialGradient(o.x, o.y, 0, o.x, o.y, rad * 2.4); hl.addColorStop(0, cor + 'aa'); hl.addColorStop(1, cor + '00'); g.fillStyle = hl; g.beginPath(); g.arc(o.x, o.y, rad * 2.4, 0, 7); g.fill();
+      g.fillStyle = o.ok ? cor : '#fff'; g.beginPath(); g.arc(o.x, o.y, rad, 0, 7); g.fill(); g.strokeStyle = cor; g.lineWidth = 2.5 * U; g.stroke();
+      g.fillStyle = '#10121a'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '800 ' + Math.round(rad * 1.1) + 'px ' + F; g.fillText(o.num, o.x, o.y + 1 * U);
+      if(!o.ok){ const vz = fora.find(q=> q !== o && q.x < o.x && Math.abs(q.x - o.x) < 80 * U && Math.abs(q.y - o.y) < 40 * U && !q.lb); o.lb = !!vz; g.fillStyle = '#fff'; g.font = '800 ' + Math.round(15 * U) + 'px ' + F; g.fillText(String(o.r.n || '').split(' ')[0] + ' ' + (o.d > 0 ? '+' : '') + Math.round(o.d * 100) + '%', o.x, o.lb ? o.y + rad + 13 * U : o.y - rad - 11 * U); } });
+    g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = 'rgba(255,255,255,.85)'; g.font = '700 ' + Math.round(13 * U) + 'px ' + F; g.fillText(dentro.length ? '' : 'ALVO', ox, oy);
+    // lista à esquerda: nº, nome, watts, % do alvo, tempo dentro do alvo e FTP previsto
+    g.textAlign = 'left'; g.fillStyle = '#9b93b8'; g.font = '700 ' + Math.round(13 * U) + 'px ' + F; g.fillText('mais tempo na bolha ↓', 24 * U, 108 * U);
+    const lx = 24 * U, ly0 = 130 * U, lh = Math.min(30 * U, (H - ly0 - 60 * U) / Math.max(1, L.length)); g.textBaseline = 'middle';
+    L.slice().sort((p, q)=> (TF.dentro[q.r.id] || 0) / Math.max(1, TF.tot[q.r.id] || 0) - (TF.dentro[p.r.id] || 0) / Math.max(1, TF.tot[p.r.id] || 0)).forEach((o, k)=>{ const y = ly0 + k * lh, cor = o.ok ? '#5BE37D' : (o.d < 0 ? '#FF5A6E' : '#4FC3FF'), fs = Math.round(Math.min(16, lh / 1.9 / U) * U);
+      g.fillStyle = cor; g.beginPath(); g.arc(lx + 10 * U, y, 9 * U, 0, 7); g.fill(); g.fillStyle = '#10121a'; g.textAlign = 'center'; g.font = '800 ' + Math.round(11 * U) + 'px ' + F; g.fillText(o.num, lx + 10 * U, y + .5 * U);
+      g.textAlign = 'left'; g.fillStyle = '#fff'; g.font = '700 ' + fs + 'px ' + F; g.fillText(String(o.r.n || 'Aluno').split(' ')[0], lx + 26 * U, y);
+      g.fillStyle = '#cfc8e6'; g.font = '600 ' + fs + 'px ' + F; const pc = TF.tot[o.r.id] > 5 ? Math.round((TF.dentro[o.r.id] || 0) / TF.tot[o.r.id] * 100) : null, nv = o.r.ftp && o.r.tt > 60 ? Math.round(tfMedia(o.r) * .95) : null;
+      const t1 = Math.round(o.w) + ' W' + (o.al ? ' · ' + Math.round(o.w / o.al * 100) + '%' : ''); g.fillText(t1, lx + 92 * U, y); const x2 = lx + 92 * U + g.measureText(t1).width + 8 * U; g.fillStyle = '#9b93b8'; g.font = '600 ' + Math.round(fs * .8) + 'px ' + F; g.fillText((pc != null ? 'bolha ' + pc + '%' : '') + (nv ? (pc != null ? ' · ' : '') + 'FTP≈' + nv : ''), x2, y); });
+    // contador: quantos estão dentro do alvo
+    const txt = String(dentro.length).padStart(2, '0') + '/' + String(n).padStart(2, '0'), cw = 26 * U, ch = 44 * U;
+    for(let i = 0; i < txt.length; i++){ const xx = W - 24 * U - (txt.length - i) * (cw + 4 * U), yy = H - 24 * U - ch; if(txt[i] !== '/'){ g.strokeStyle = 'rgba(255,255,255,.8)'; g.lineWidth = 1.5 * U; g.strokeRect(xx, yy, cw, ch); } g.fillStyle = txt[i] === '/' ? '#9b93b8' : '#fff'; g.textAlign = 'center'; g.font = '800 ' + Math.round(30 * U) + 'px ' + F; g.fillText(txt[i], xx + cw / 2, yy + ch / 2 + 2 * U); }
+    g.textAlign = 'right'; g.fillStyle = '#9b93b8'; g.font = '600 ' + Math.round(13 * U) + 'px ' + F; g.fillText('dentro do alvo', W - 24 * U, H - 24 * U - ch - 12 * U);
+    g.textAlign = 'left'; g.fillText('alvo = FTP atual ÷ 0,95 (±5%) · ◀ abaixo · acima ▶ · no fim: média dos ' + Math.round(dur / 60) + ' min × 0,95 = FTP novo', 24 * U, H - 24 * U);
+  }
   function renderRiders(){
     if(!$('liveOverlay').classList.contains('active')) return;
     jgTick();
     const mode = applyMode();
     if(mode !== 'corrida') crMostra(false);
+    if(mode !== 'teste') tfPara();
     { const f = mode === 'corrida' && CR.full; $('liveOverlay').classList.toggle('crFull', f); $('crTop').hidden = !f; $('crFs').hidden = mode !== 'corrida'; $('crCrit').hidden = mode !== 'corrida'; $('crCrit').textContent = 'Conta: ' + CR_CRIT[CR.crit] + ' ▾'; $('crFs').textContent = CR.full ? '✕ Sair do ecrã total' : '⛶ Ecrã total'; }
     if(mode === 'aula') return;
     const gpn = $('gamePanel');
@@ -10284,6 +10390,7 @@ const SR3 = (()=>{
       $('rgrid').style.display = 'none'; $('lanes').style.display = 'none';
       renderJogos(mode); return;
     }
+    if(mode === 'teste'){ const ls = visRiders(); $('rpTitle').textContent = 'Teste FTP'; $('rpMeta').innerHTML = '<b>' + ls.filter(r=> r.online).length + '</b> a pedalar'; $('rpEmpty').style.display = 'none'; tfRender(ls); return; }
     if(mode === 'sala'){   // planta da sala com cada aluno na sua bike
       const ls = sortRidersBy(visRiders(), raceMetric), bl = current.blocos[liveIdx];
       $('rpTitle').textContent = 'Sala'; $('rpMeta').innerHTML = '<b>' + ls.filter(r=> r.online).length + '</b> a pedalar';

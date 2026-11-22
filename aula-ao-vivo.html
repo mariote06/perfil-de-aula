@@ -228,6 +228,31 @@ body:has(#goSheet.on) .coach-bal,body:has(.coachvoz.on) .coach-bal{opacity:0!imp
 body:has(#liveScreen.active) .coach-bal.vivo{opacity:1}
 .coach-bal>i{font-style:normal;flex:none;width:72px;height:72px;display:block;filter:drop-shadow(0 4px 10px rgba(0,0,0,.5));transition:transform .3s}
 .coach-bal.on>i{transform:scale(1.18)}
+.coach-bal.teste>i{width:88px;height:88px}.coach-bal.teste>span{font:800 clamp(21px,6vw,29px)/1.25 Inter,sans-serif;border-width:3px}.coach-bal.teste.on>span{max-width:min(var(--bw,80vw),600px);padding:14px 18px}
+.cav.danca svg{animation:pulDanca .5s ease-in-out infinite}@keyframes pulDanca{0%,100%{transform:rotate(-14deg) translateY(0)}25%{transform:rotate(0) translateY(-8px)}50%{transform:rotate(14deg) translateY(0)}75%{transform:rotate(0) translateY(-8px)}}
+.cav.agarra .bl{animation:none;transform:rotate(95deg) scale(1.25)}.cav.agarra .br{animation:none;transform:rotate(-95deg) scale(1.25)}
+.coach-bal.semBal>span{opacity:0!important}
+.pul-grito{position:fixed;left:0;right:0;top:12vh;z-index:62;text-align:center;pointer-events:none;font:900 clamp(44px,14vw,84px)/1 'Barlow Condensed',Inter,sans-serif;color:#fff;letter-spacing:2px;text-shadow:0 0 18px rgba(255,90,110,.9),0 6px 20px rgba(0,0,0,.8);animation:pulGrito .5s cubic-bezier(.3,1.6,.5,1)}.pul-grito.sai{opacity:0;transform:scale(.8);transition:all .45s}
+@keyframes pulGrito{0%{opacity:0;transform:scale(.4) rotate(-6deg)}100%{opacity:1;transform:scale(1)}}
+.cav.empurra .bl{animation:none;transform:rotate(150deg)}.cav.empurra .br{animation:none;transform:rotate(-150deg)}.cav.empurra .corpo{animation:pulEmp .42s ease-in-out infinite}@keyframes pulEmp{0%,100%{transform:translateY(5px) scale(1.06,.9)}50%{transform:translateY(-7px) scale(.96,1.06)}}
+.pul-med{position:fixed;left:4px;top:19vh;height:58vh;width:74px;z-index:58;display:none;flex-direction:column;align-items:center;gap:4px;pointer-events:none;font-family:Inter,sans-serif;background:rgba(10,12,18,.88);border:2px solid rgba(255,214,10,.55);border-radius:16px;padding:8px 4px 8px;box-shadow:0 0 22px rgba(255,214,10,.25),0 10px 30px rgba(0,0,0,.6);animation:pmBrilho 2.4s ease-in-out infinite}
+@keyframes pmBrilho{0%,100%{box-shadow:0 0 14px rgba(255,214,10,.2),0 10px 30px rgba(0,0,0,.6)}50%{box-shadow:0 0 30px rgba(255,214,10,.45),0 10px 30px rgba(0,0,0,.6)}}
+.pul-med.acima{border-color:rgba(91,227,125,.75);animation-name:pmBrilhoV}@keyframes pmBrilhoV{0%,100%{box-shadow:0 0 16px rgba(91,227,125,.25)}50%{box-shadow:0 0 36px rgba(91,227,125,.6)}}
+.pul-med.on{display:flex}body:not(:has(#liveScreen.active)) .pul-med{display:none}
+.pm-tit{font:900 10px/1.1 Inter,sans-serif;letter-spacing:1px;text-transform:uppercase;color:#FFD60A;text-align:center}
+.pm-val{font:900 27px/1 'Barlow Condensed',Inter,sans-serif;color:#FFD60A;text-shadow:0 0 12px rgba(255,214,10,.6)}.pul-med.acima .pm-val{color:#5BE37D;text-shadow:0 0 14px rgba(91,227,125,.7)}
+.pm-val.bump{animation:pmBump .5s ease-out}@keyframes pmBump{0%{transform:scale(1.35)}100%{transform:scale(1)}}
+.pm-pe{font:900 14px Inter,sans-serif;color:#5BE37D;min-height:17px}
+.pm-tr{position:relative;flex:1;width:24px;margin:4px 0;border-radius:12px;background:linear-gradient(0deg,rgba(255,90,110,.35),rgba(255,214,10,.3) 50%,rgba(91,227,125,.45));border:2px solid rgba(255,255,255,.35)}
+.pm-ag{position:absolute;left:3px;right:3px;bottom:3px;border-radius:8px;background:linear-gradient(0deg,#1FA8F0,#9be7ff);transition:height .6s ease-out;opacity:.85}
+.pm-at{position:absolute;left:-12px;right:-12px;height:0;border-top:3px dashed #fff}.pm-at span{display:none}
+.pm-pr{position:absolute;left:-14px;right:-14px;height:0;transition:bottom 1s cubic-bezier(.3,1.3,.5,1)}.pm-pr::after{content:'';position:absolute;left:12px;right:12px;top:-3px;height:6px;border-radius:3px;background:#FFD60A;box-shadow:0 0 12px #FFD60A,0 0 24px rgba(255,214,10,.7)}
+.pm-pr::before{content:'';position:absolute;left:-6px;top:-10px;border:10px solid transparent;border-left:14px solid #FFD60A;filter:drop-shadow(0 0 8px #FFD60A)}.pm-pr b{display:none}
+.pm-pr em{position:absolute;left:50%;margin-left:-8px;top:-34px;font:900 22px Inter,sans-serif;font-style:normal;color:#FFD60A;opacity:0;text-shadow:0 0 10px #FFD60A}
+.pm-pr.acima::after{background:#5BE37D;box-shadow:0 0 12px #5BE37D,0 0 26px rgba(91,227,125,.8)}.pm-pr.acima::before{border-left-color:#5BE37D;filter:drop-shadow(0 0 8px #5BE37D)}.pm-pr.acima em{color:#5BE37D}
+.pul-med.empurra .pm-pr em{animation:pmSobe .5s ease-out infinite}@keyframes pmSobe{0%{opacity:0;transform:translateY(10px)}40%{opacity:1}100%{opacity:0;transform:translateY(-14px)}}.pul-med.empurra .pm-pr{filter:brightness(1.5)}.pul-med.empurra{border-color:#fff}
+.pm-ref{font:700 10px/1.15 Inter,sans-serif;color:#aab3c0;text-align:center}.pm-ref b{font:900 15px 'Barlow Condensed',Inter,sans-serif;color:#fff}
+
 .coach-bal>span{display:block;max-width:0;overflow:hidden;white-space:normal;background:rgba(18,22,29,.97);border:2px solid var(--cb,#E8722C);border-radius:16px 16px 4px 16px;padding:0;color:#fff;font:700 clamp(17px,4.9vw,21px)/1.3 Inter,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.55);opacity:0;transition:max-width .35s,opacity .25s,padding .35s}
 .coach-bal.on>span{max-width:min(var(--bw,74vw),440px);padding:10px 14px;opacity:1}
 .coach-bal>span small{display:block;font:800 11.5px Inter,sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:var(--cb,#E8722C);margin-bottom:2px}
@@ -1570,7 +1595,7 @@ body:has(#setupScreen.active) .legal{display:none}
   <button id="enterBtn" class="btn-primary">Entrar na aula</button>
   <div id="setupError" class="err"></div>
   <button id="demoBtn" class="btn-link">Experimentar sem bike (modo teste)</button>
-  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 18/11 09:00</div>
+  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 22/11 16:40</div>
 </div>
 
 <!-- 3. AULA -->
@@ -2095,9 +2120,11 @@ body:has(#setupScreen.active) .legal{display:none}
     if(next && remaining <= 12 && remaining >= 6 && COACH.anunciou !== idx && dur >= 30){ COACH.anunciou = idx; coachSeguinte(next); return; }
     if(remaining <= 17 && remaining >= 14 && COACH.ult15 !== idx && dur >= 45 && (range.min >= 91 || b.teste)){ COACH.ult15 = idx; coachDiz('ultimos', null, cor, true); return; }
     const decorrido = dur - remaining;
+    if(!b.teste) ptFim();
     // parou de pedalar a meio do bloco
     const cad = S.cadence || 0, temSens = hasPowerSource();
     if(temSens && cad < 5 && dispPower < 5 && decorrido > 10 && range.min > 0){ COACH.parado += dt; if(COACH.parado > 10){ coachDiz('parado', null, '#FF3B3B'); COACH.parado = -30; } } else if(COACH.parado > 0) COACH.parado = 0; else COACH.parado = Math.min(0, COACH.parado + dt);
+    if(b.teste){ pulTesteTick(b, remaining, dur, decorrido, dt); return; }   // ⚡ teste FTP: o Pulso trata da estratégia e do feedback
     // intensidade atual (watts ou FC conforme o modo da aula)
     let pct = null;
     if(modo === 'fc'){ if(myHr() > 0 && me.fc) pct = myHr() / me.fc * 100; }
@@ -2127,6 +2154,125 @@ body:has(#setupScreen.active) .legal{display:none}
     toast(COACH.modo === 'voz' ? '🗣️ Coach com voz (toque longo para escolher a voz)' : COACH.modo === 'texto' ? '💬 Coach virtual só com texto' : '🔕 Coach virtual desligado');
     if(COACH.modo !== 'off') coachDiz('dentro', null, '#E8722C', true);
   });
+  // ——— ⚡ Pulso no teste FTP: estratégia minuto a minuto, feedback ao vivo, vai ao medidor do FTP teórico empurrar para cima e bate no vidro se achar que não estás bem ———
+  var PT = { acimaT: 0, abaixoT: 0, foiAcima: false, tDanca: 0, tAi: 0, bi: -1, ditos: {}, tUlt: 0, cima: 0, baixo: 0, dentro: 0, mal: 0, tMal: 0, pausa: 0, parou: false, rec: false, ocupado: false, tEmp: 0 };
+  function ptAlvo(){ const m = me.tt > 20 ? me.tw / me.tt : 0; return me.ftp ? me.ftp / .95 : (m || null); }
+  function ptMedidor(on){
+    let g = $('pulMed'); if(!on){ if(g) g.classList.remove('on'); return null; }
+    if(!g){ g = document.createElement('div'); g.id = 'pulMed'; g.className = 'pul-med'; g.innerHTML = '<div class="pm-tit">FTP<br>teórico</div><div class="pm-val">…</div><div class="pm-pe"></div><div class="pm-tr"><div class="pm-ag"></div><div class="pm-at"><span></span></div><div class="pm-pr"><b></b><em>↑</em></div></div><div class="pm-ref"></div>'; document.body.appendChild(g); }
+    g.classList.add('on'); return g;
+  }
+  // escala do medidor: 80% a 120% do FTP atual (ou da própria média, sem FTP)
+  function ptEscala(){ const base = me.ftp || ((me.tt > 20 ? me.tw / me.tt : dispPower) * .95) || 150; return { lo: base * .8, hi: base * 1.2, base }; }
+  function ptY(v){ const g = $('pulMed'), tr = g && g.querySelector('.pm-tr'); if(!tr) return null; const E = ptEscala(), r = tr.getBoundingClientRect(), f = Math.max(0, Math.min(1, (v - E.lo) / (E.hi - E.lo))); return r.bottom - f * r.height; }
+  function ptPinta(){
+    const g = ptMedidor(true), E = ptEscala(), med = me.tt > 20 ? me.tw / me.tt : 0, prev = med ? Math.round(med * .95) : null, agora = dispPower * .95, pc = v=> Math.max(0, Math.min(100, (v - E.lo) / (E.hi - E.lo) * 100));
+    g.querySelector('.pm-ag').style.height = pc(agora) + '%';
+    const at = g.querySelector('.pm-at'); at.style.bottom = pc(E.base) + '%'; g.querySelector('.pm-ref').innerHTML = me.ftp ? 'atual<br><b>' + me.ftp + '</b>' : '';
+    const pr = g.querySelector('.pm-pr'); pr.style.bottom = pc(prev || E.lo) + '%'; pr.style.opacity = prev ? 1 : .35; pr.querySelector('b').textContent = prev ? prev + ' W' : '…';
+    pr.classList.toggle('acima', !!(prev && me.ftp && prev >= me.ftp)); g.classList.toggle('acima', !!(prev && me.ftp && prev >= me.ftp)); const vv = g.querySelector('.pm-val'); if(vv.textContent !== (prev ? prev + '' : '…')){ vv.textContent = prev ? prev + '' : '…'; vv.classList.remove('bump'); void vv.offsetWidth; vv.classList.add('bump'); } const pe = g.querySelector('.pm-pe'); pe.textContent = prev && me.ftp ? (prev >= me.ftp ? '+' : '') + (prev - me.ftp) + ' W' : ''; pe.style.color = prev && me.ftp && prev < me.ftp ? '#FF8A8A' : '#5BE37D';
+  }
+  // o Pulso vai até ao marcador do FTP teórico e empurra-o para cima
+  async function ptEmpurra(txt){
+    const el = pulEl(), av = el && el.querySelector('.cav'), g = $('pulMed'); if(!av || !g || PUL.arr || PT.ocupado) return; PT.ocupado = true;
+    const pr = g.querySelector('.pm-pr').getBoundingClientRect(), volta = PUL.ancora ? { x: PUL.ancora.x, y: PUL.ancora.y } : { x: PUL.x, y: PUL.y };
+    PUL.tx = pr.right + 46; PUL.ty = pr.top + pr.height / 2 + 24; PUL.passeio = true; av.classList.add('anda'); pulAnda();
+    await pulSleep(1100); av.classList.remove('anda'); cavPoe(av, 'forte'); av.classList.add('empurra'); g.classList.add('empurra');
+    if(txt) pulDiz(txt, null, { cor: '#FFD60A', ms: 5200 });
+    try{ navigator.vibrate && navigator.vibrate([30, 120, 30, 120, 30]); }catch(e){}
+    await pulSleep(4200); av.classList.remove('empurra'); g.classList.remove('empurra'); cavPoe(av, 'feliz');
+    PUL.tx = volta.x; PUL.ty = volta.y; PUL.passeio = true; av.classList.add('anda'); pulAnda(); await pulSleep(1300); av.classList.remove('anda'); PT.ocupado = false;
+  }
+  // bate no vidro por dentro e pergunta se está tudo bem
+  async function ptEstasBem(){
+    const el = pulEl(), av = el && el.querySelector('.cav'); if(!av || PT.ocupado || PUL.arr) return; PT.ocupado = true; PT.tMal = Date.now();
+    const volta = PUL.ancora ? { x: PUL.ancora.x, y: PUL.ancora.y } : { x: PUL.x, y: PUL.y };
+    pulFecha(true); PUL.tx = innerWidth * .84; PUL.ty = innerHeight * .4; PUL.passeio = true; av.classList.add('anda'); pulAnda(); await pulSleep(1000); av.classList.remove('anda');
+    cavPoe(av, 'alerta'); av.classList.add('encosta', 'toca');
+    for(let i = 0; i < 3; i++){ await pulSleep(i ? 330 : 260); const gr = av.querySelector('.br rect'), r = gr ? gr.getBoundingClientRect() : av.getBoundingClientRect(); pulVidroFx('toc', r.left + r.width / 2, r.top + r.height / 2); pulVidroFx('marca', r.left + r.width / 2, r.top + r.height / 2); av.classList.remove('treme'); void av.offsetWidth; av.classList.add('treme'); try{ navigator.vibrate && navigator.vibrate(30); }catch(e){} }
+    await pulSleep(300); av.classList.remove('toca');
+    const nome = me.n ? String(me.n).split(' ')[0] : '';
+    pulDiz('Toc, toc… ' + (nome ? nome + ', e' : 'E') + 'stás bem? 🤔', null, { cor: '#4FC3FF', fica: true, col: true,
+      acoes: '<button type="button" class="pri" data-pt="ok">💪 Estou bem, bora!</button><button type="button" data-pt="custa">😮‍💨 Está a custar muito</button><button type="button" data-pt="para">🛑 Preciso de parar</button>' });
+    const fim = resp=>{ el.removeEventListener('click', ouve, true); clearTimeout(tm); av.classList.remove('encosta');
+      if(resp === 'ok'){ pulDiz('Assim é que é! Respira fundo e volta à bolha. Eu empurro contigo! 💪', null, { cor: '#5BE37D', ms: 4500 }); PT.mal = 0; setTimeout(()=>{ PT.ocupado = false; ptEmpurra(); }, 2600); return; }
+      if(resp === 'custa'){ cavPoe(av, 'calmo'); pulDiz('É normal, é um teste! Baixa só um pouco, respira fundo 3 vezes e daqui a 1 minuto voltamos a subir juntos. Tu consegues! 💙', null, { cor: '#4FC3FF', ms: 8000 }); PT.pausa = Date.now() + 70000; }
+      else if(resp === 'para'){ cavPoe(av, 'calmo'); pulDiz('A saúde vem primeiro! Pedala leve, bebe água e respira. Estou aqui contigo. 💚 Se sentires dor no peito ou tonturas, pára e chama o instrutor.', null, { cor: '#5BE37D', ms: 10000 }); PT.parou = true; }
+      else pulFecha();
+      PUL.tx = volta.x; PUL.ty = volta.y; PUL.passeio = true; av.classList.add('anda'); pulAnda(); setTimeout(()=>{ av.classList.remove('anda'); PT.ocupado = false; }, 1300); };
+    const ouve = e=>{ const b = e.target.closest('[data-pt]'); if(!b) return; e.stopPropagation(); fim(b.dataset.pt); };
+    el.addEventListener('click', ouve, true); const tm = setTimeout(()=> fim(''), 15000);
+  }
+  // acima do FTP: o Pulso festeja, dança e passeia pelo ecrã
+  async function ptDanca(){
+    const el = pulEl(), av = el && el.querySelector('.cav'); if(!av || PT.ocupado || PUL.arr) return; PT.ocupado = true;
+    const volta = PUL.ancora ? { x: PUL.ancora.x, y: PUL.ancora.y } : { x: PUL.x, y: PUL.y }, L = pulLim();
+    cavPoe(av, 'festa'); av.classList.add('danca');
+    pulDiz(pulRnd(['Acima do FTP! 🎉 Olha-me a dançar!', 'ISSO! Estás a bater o teu FTP! 💃🕺', 'Que máquina! Acima do FTP! 🔥🎶', 'É disto que eu gosto! Continua aí em cima! 🥳']), null, { cor: '#5BE37D', ms: 5200 });
+    try{ navigator.vibrate && navigator.vibrate([40, 80, 40, 80, 80]); }catch(e){}
+    for(let i = 0; i < 4; i++){ if(currentScreen !== 'liveScreen') break; PUL.tx = L.x0 + 30 + Math.random() * (L.x1 - L.x0 - 60); PUL.ty = L.y0 + 60 + Math.random() * (L.y1 - L.y0 - 120); PUL.passeio = true; pulAnda(); await pulSleep(1150); }
+    PUL.tx = volta.x; PUL.ty = volta.y; PUL.passeio = true; pulAnda(); await pulSleep(1300);
+    av.classList.remove('danca'); cavPoe(av, 'feliz'); PT.ocupado = false;
+  }
+  // desceu abaixo do FTP: agarra o ecrã, encosta o olho ao vidro, procura o atleta… "ESTÁS AÍ?"
+  async function ptEstasAi(){
+    const el = pulEl(), av = el && el.querySelector('.cav'); if(!av || PT.ocupado || PUL.arr) return; PT.ocupado = true;
+    pulFecha(true); const W = innerWidth, H = innerHeight, s = PUL.x > W / 2 ? 1 : -1;
+    const T = (tr, ms, ease)=>{ av.style.transition = 'transform ' + ms + 'ms ' + (ease || 'cubic-bezier(.3,1.25,.5,1)'); av.style.transform = tr; };
+    const olha = (ox, oy)=>{ av.style.setProperty('--ox', ox + 'px'); av.style.setProperty('--oy', oy + 'px'); };
+    const gx = W * .5 - PUL.x, gy = H * .45 - PUL.y, sc = Math.min(16, Math.max(9, W / 32));   // desvia para o olho ficar ao centro
+    cavPoe(av, 'alerta'); const vidro = document.createElement('div'); vidro.className = 'pul-vidro on'; document.body.appendChild(vidro);
+    T('translate(' + gx + 'px,' + gy + 'px) scale(1.6)', 450, 'ease-in'); await pulSleep(460);
+    av.classList.add('agarra', 'encosta');
+    // mede onde fica o olho com o zoom e acerta para o olho ficar no meio do ecrã
+    const antes = av.style.transform; av.style.transition = 'none'; av.style.transform = 'translate(' + gx + 'px,' + gy + 'px) scale(' + sc + ')';
+    const olhos = av.querySelectorAll('.olho'), oe = olhos[s > 0 ? 0 : olhos.length - 1], ro = oe ? oe.getBoundingClientRect() : null;
+    const cx = ro ? W / 2 - (ro.left + ro.width / 2) : 0, cy = ro ? H * .46 - (ro.top + ro.height / 2) : 0;
+    av.style.transform = antes; void av.offsetWidth;
+    T('translate(' + (gx + cx) + 'px,' + (gy + cy) + 'px) scale(' + sc + ')', 700, 'cubic-bezier(.2,.9,.25,1.1)');
+    try{ navigator.vibrate && navigator.vibrate([60, 60, 60]); }catch(e){} await pulSleep(680);
+    pulVidroFx('marca', 22, H * .5); pulVidroFx('marca', W - 22, H * .5); pulVidroFx('bafo', W / 2, H * .62);   // as mãos agarram as bordas do ecrã
+    const grito = document.createElement('div'); grito.className = 'pul-grito'; grito.textContent = 'ESTÁS AÍ?'; document.body.appendChild(grito);
+    el.classList.add('semBal'); pulDiz('Estás aí?', null, { cor: '#FF5A6E', ms: 3500 });
+    for(const [ox, oy, ms] of [[-5, 0, 650], [5, -1, 650], [0, -3, 500], [-3, 2, 500], [0, 0, 400]]){ olha(ox, oy); av.classList.add('pisca'); setTimeout(()=> av.classList.remove('pisca'), 120); await pulSleep(ms); }
+    grito.classList.add('sai'); setTimeout(()=> grito.remove(), 500);
+    av.classList.remove('agarra', 'encosta'); vidro.classList.remove('on'); setTimeout(()=> vidro.remove(), 600); olha(0, 0);
+    T('', 600, 'cubic-bezier(.3,1.5,.5,1)'); await pulSleep(620); av.style.transition = ''; el.classList.remove('semBal'); cavPoe(av, 'forte'); PT.ocupado = false;
+    pulDiz('Desceste abaixo do FTP… volta para cima, eu sei que consegues! 💪', null, { cor: '#FF5A6E', ms: 5000 });
+  }
+  function ptFim(){ ptMedidor(false); const el = pulEl(); if(el) el.classList.remove('teste'); }
+  function ptDiz(chave, txt, o){ if(PT.ditos[chave]) return false; PT.ditos[chave] = 1; PT.tUlt = Date.now(); pulDiz(txt, (o && o.h) || null, Object.assign({ cor: '#FFD60A', ms: Math.max(6000, txt.length * 80) }, o || {})); return true; }
+  function pulTesteTick(b, remaining, dur, dec, dt){
+    const el = pulEl(); if(el) el.classList.add('teste');
+    if(PT.bi !== state.blockIndex){ Object.assign(PT, { acimaT: 0, abaixoT: 0, foiAcima: false, tDanca: 0, tAi: 0, bi: state.blockIndex, ditos: {}, tUlt: 0, cima: 0, baixo: 0, dentro: 0, mal: 0, pausa: 0, parou: false, rec: false }); }
+    ptPinta(); if(PT.ocupado) return;
+    const alvo = ptAlvo(), w = dispPower, med = me.tt > 20 ? me.tw / me.tt : 0, prev = med ? Math.round(med * .95) : null, f = dec / dur, falta = Math.ceil(remaining), agora = Date.now();
+    const d = alvo && w > 0 ? w / alvo - 1 : 0, a1 = alvo ? Math.round(alvo * .95) : null, a2 = alvo ? Math.round(alvo * .98) : null, A = alvo ? Math.round(alvo) : null, mins = Math.round(dur / 60);
+    // estratégia por fases (as mensagens grandes do Pulso)
+    if(dec >= 4 && ptDiz('ini', mins + ' minutos! O segredo: os primeiros ' + Math.max(2, Math.round(mins / 4)) + ' com calma' + (a1 ? ', entre ' + a1 + ' e ' + a2 + ' W' : '') + '. Deve parecer fácil demais. Confia em mim! 😉', { h: 'calmo' })) return;
+    if(f >= .25 && ptDiz('f25', 'Agora sim: entra na bolha' + (A ? ', ' + A + ' W' : '') + ', e fica constante. Cadência estável, sem picos. 🎯', { h: 'forte' })) return;
+    if(f >= .5 && ptDiz('f50', 'Metade feita! ' + (prev ? 'Média ' + Math.round(med) + ' W → FTP ≈ ' + prev + ' W' + (me.ftp ? ' (' + (prev >= me.ftp ? '+' : '') + (prev - me.ftp) + ')' : '') + '. ' : '') + 'Divide o resto em blocos de 5 minutos. 💪', { h: 'forte' })) return;
+    if(f >= .75 && ptDiz('f75', 'Se ainda tens margem, é agora: sobe 2 a 3%. Eu vou empurrar contigo! 🚀', { h: 'festa' })){ setTimeout(()=> ptEmpurra(), 2500); return; }
+    if(remaining <= 120 && remaining > 60 && dur >= 600 && ptDiz('u2', 'Últimos 2 minutos! Tudo o que tens guardado é para AGORA! 🔥', { h: 'festa' })){ setTimeout(()=> ptEmpurra(), 2500); return; }
+    if(remaining <= 60 && remaining > 20 && ptDiz('u1', '60 segundos! Não penses, pedala! Cada watt conta para o teu FTP! ⚡', { h: 'festa' })) return;
+    if(PT.parou) return;
+    // sinais de que não está bem: potência a cair muito, cadência a morrer ou FC no limite
+    const cad = S.cadence || 0, fcA = me.fc && myHr() > me.fc * .96;
+    if(f > .15 && agora > PT.pausa && w > 0 && alvo && (d < -.2 || (cad > 0 && cad < 55) || fcA)) PT.mal += dt; else PT.mal = Math.max(0, PT.mal - dt);
+    if(PT.mal > 15 && agora - PT.tMal > 180000){ PT.mal = 0; ptEstasBem(); return; }
+    // acima do FTP (potência que dá um FTP maior que o atual) durante 20 s: festa · desceu abaixo depois de estar acima: "ESTÁS AÍ?"
+    if(me.ftp && w > 0 && dec > 30){ const eq = w * .95;
+      if(eq >= me.ftp){ PT.acimaT += dt; PT.abaixoT = 0; if(PT.acimaT > 8) PT.foiAcima = true; if(PT.acimaT > 20 && agora - PT.tDanca > 50000){ PT.tDanca = agora; PT.tUlt = agora; PT.acimaT = 0; ptDanca(); return; } }
+      else if(eq < me.ftp * .97){ PT.abaixoT += dt; PT.acimaT = 0; if(PT.foiAcima && PT.abaixoT > 6 && agora - PT.tAi > 45000 && agora > PT.pausa){ PT.tAi = agora; PT.tUlt = agora; PT.foiAcima = false; PT.abaixoT = 0; ptEstasAi(); return; } } }
+    if(agora - PT.tUlt < 28000 || !alvo || w <= 0 || agora < PT.pausa) return;
+    // feedback ao vivo face à bolha (alvo ±5%)
+    if(d > .06){ PT.cima += dt; PT.baixo = 0; PT.dentro = 0; } else if(d < -.05){ PT.baixo += dt; PT.cima = 0; PT.dentro = 0; } else { PT.dentro += dt; PT.cima = 0; PT.baixo = 0; }
+    const diz = (t, o)=>{ PT.tUlt = agora; pulDiz(t, (o && o.h) || null, Object.assign({ cor: '#FFD60A', ms: Math.max(5500, t.length * 80) }, o || {})); };
+    if(f < .3 && PT.cima > 8){ PT.cima = 0; diz('Calma! Estás ' + Math.round(d * 100) + '% acima do alvo. Começar forte demais é o erro nº 1. Fica perto de ' + A + ' W e guarda para o fim. 🧊', { h: 'alerta', cor: '#4FC3FF' }); return; }
+    if(f >= .3 && PT.baixo > 15){ PT.baixo = 0; const nf = Math.max(1, Math.round(A - w)); PT.tUlt = agora; ptEmpurra('Faltam ' + nf + ' W para voltares à bolha! Anda, eu empurro contigo! 💪'); return; }
+    if(PT.dentro > 60){ PT.dentro = 0; diz(pulRnd(['Perfeito! Constante a ' + Math.round(w) + ' W. É assim que se bate o FTP. 👌', 'Dentro da bolha há um minuto! Ritmo de campeão! 🏆', 'Isso! Respira, cadência estável, mantém. 🎯']), { h: 'feliz', cor: '#5BE37D' }); return; }
+    if(!PT.rec && me.ftp && prev && f > .4 && prev > me.ftp){ PT.rec = true; PT.tUlt = agora; cavPoe(pulEl().querySelector('.cav'), 'festa'); ptEmpurra('Vais a caminho de um FTP NOVO: ' + prev + ' W (+' + (prev - me.ftp) + ')! Empurra comigo! 🔥'); return; }
+  }
   // ——— Pulso livre: apresenta-se no ecrã inicial, explica a app e o treino, e pode ser arrastado (e sente-o!) ———
   var PUL = { x: 0, y: 0, vx: 0, vy: 0, tx: 0, ty: 0, ang: 0, angV: 0, arr: false, voa: false, passeio: false, raf: 0, ox: 0, oy: 0, sx: 0, sy: 0, mx: 0, d0: 0,
     seq: null, pend: null, gesto: false, tAv: 0, tSeg: 0, tMenu: 0, ola: false, ultMexe: Date.now(), viras: 0, ultVx: 0, tViras: 0, falouArr: 0, ancora: null, bates: 0 };
