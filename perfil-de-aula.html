@@ -489,6 +489,23 @@ html.live-on,html.live-on body{overflow:hidden !important;}
 .live-main{flex:1;display:flex;min-height:0;}
 /* lâmpada: acende com a eletricidade gerada (kJ ÷ 3,6 × 80% de um gerador) */
 .lamp{position:absolute;top:var(--lt,6px);right:var(--lr,8px);z-index:5;display:flex;flex-direction:column;align-items:center;gap:1px;pointer-events:none;--lv:0;}
+.mod-menu{position:fixed;z-index:9800;width:min(560px,94vw);max-height:84vh;overflow:auto;background:#14171c;border:1px solid #2f353e;border-radius:14px;padding:12px;box-shadow:0 14px 44px rgba(0,0,0,.6);display:flex;flex-direction:column;gap:7px;font:13px Inter,system-ui,sans-serif;color:#e8ecf2}
+.mod-h b{display:block;font-size:15px;color:#fff}.mod-h small{color:#8a93a3;line-height:1.35}.mod-h small b{display:inline;font-size:inherit;color:#FFD60A}
+.mod-it{display:grid;grid-template-columns:1fr;gap:3px;text-align:left;background:#1b1f26;border:1px solid #2f353e;border-left:5px solid var(--c);border-radius:10px;padding:8px 11px;color:#fff;cursor:pointer}.mod-it:hover{background:#232831;border-color:var(--c)}
+.mod-it.sug{box-shadow:0 0 0 2px #FFD60A inset}.mod-n{font:800 13.5px Inter,sans-serif;letter-spacing:.4px;color:var(--c)}.mod-d{font:500 12px/1.35 Inter,sans-serif;color:#aab3c0}
+.mod-v{display:flex;align-items:flex-end;gap:8px}.mod-bar{flex:1;display:flex;align-items:flex-end;gap:1px;height:26px}.mod-bar i{display:block;border-radius:2px 2px 0 0;min-width:2px}.mod-v em{font:700 11px Inter,sans-serif;font-style:normal;color:#8a93a3}
+.mod-p{margin:2px 0 0;font-size:11.5px;color:#7d8693}
+.mod-it{cursor:pointer}.mod-n{display:flex;align-items:center;gap:6px}.mod-n small{font:600 11px Inter,sans-serif;color:#FFD60A}.mod-cfg{margin-left:auto;font:700 11.5px Inter,sans-serif;background:#262b33;border:1px solid #3a414c;color:#dfe3e8;border-radius:7px;padding:3px 8px;cursor:pointer}.mod-cfg:hover{border-color:#FFD60A}.mod-d i{font-style:normal;color:#7FB2FF;font-weight:600}
+.mod-cfg-ov{position:fixed;inset:0;z-index:9900;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:12px}.mc-box{width:min(600px,96vw);max-height:92vh;overflow:auto;background:#14171c;border:1px solid #3a414c;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:12px;font:13px Inter,sans-serif;color:#e8ecf2;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.mc-h{display:flex;align-items:center}.mc-h b{flex:1;font-size:15px}.mc-h button{background:none;border:0;color:#aab3c0;font-size:18px;cursor:pointer}
+.mc-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}.mc-box label{display:flex;flex-direction:column;gap:4px;background:#1b1f26;border:1px solid #2a3039;border-radius:9px;padding:7px 9px;color:#aab3c0;font-weight:600;font-size:12px}.mc-box label span{display:flex;align-items:center;gap:5px;color:#dfe3e8}
+.mc-box input[type=number]{width:62px;background:#0f1216;border:1px solid #3a414c;border-radius:6px;color:#fff;font:700 14px Inter,sans-serif;padding:4px 6px}
+.mc-z{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.mc-z>span{color:#aab3c0;font-weight:600;font-size:12px;margin-right:4px}.mc-z button{min-width:42px;padding:6px 8px;border-radius:8px;border:2px solid var(--zc);background:transparent;color:#8a93a3;font:800 13px Inter,sans-serif;cursor:pointer;opacity:.55}.mc-z button.on{background:var(--zc);color:#0a0d12;opacity:1}
+.mc-r{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#171b21;border:1px solid #2a3039;border-radius:10px;padding:9px}.mc-r>b{width:100%;font-size:12.5px;color:#fff}.mc-r em{font:800 13px Inter,sans-serif;font-style:normal;color:#FFD60A}
+.mc-ri{display:flex;align-items:center;gap:8px;width:100%}.mc-ri.off{opacity:.4}.mc-ri>i{font:800 12px Inter,sans-serif;font-style:normal;color:#0a0d12;border-radius:6px;padding:4px 7px}
+.mc-pv{display:flex;align-items:flex-end;gap:8px;background:#0f1216;border-radius:9px;padding:8px}.mc-pv .mod-bar{height:34px}
+.mc-bt{display:flex;gap:8px;justify-content:flex-end}.mc-bt button{font:700 13px Inter,sans-serif;border-radius:9px;padding:8px 14px;border:1px solid #3a414c;background:#22272f;color:#e8ecf2;cursor:pointer}.mc-bt button.pri{background:#FFD60A;border-color:#FFD60A;color:#111}.mc-bt button:first-child{margin-right:auto}
+
 .ftp-menu{position:fixed;z-index:9800;width:340px;background:#15181d;border:1px solid #FFD60A66;border-radius:12px;padding:12px;box-shadow:0 12px 40px rgba(0,0,0,.55);display:flex;flex-direction:column;gap:7px;font:13px Inter,system-ui,sans-serif;color:#e8ecf2}.ftp-menu>b{color:#FFD60A;font-size:14px}.ftp-menu>small{color:#8a93a3;line-height:1.35}
 .ftp-menu button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;background:#1f242b;border:1px solid #2f353e;border-radius:9px;padding:9px 11px;color:#fff;cursor:pointer;font:700 13px Inter,sans-serif}.ftp-menu button:hover{border-color:#FFD60A;background:#262b33}.ftp-menu button em{font:500 11px Inter,sans-serif;font-style:normal;color:#8a93a3}
 .lamp svg{width:var(--lw,40px);height:auto;overflow:visible;filter:drop-shadow(0 0 calc(2px + 26px * var(--lv)) rgba(255,205,70,calc(var(--lv) * .95)));transition:filter .8s ease;}
@@ -3340,6 +3357,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     h += '<button class="zb" id="zbCool" title="Acrescenta o retorno à calma (fica sempre no fim)" style="--c:#1FC8B0;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_COOL + '</span></span><span class="zl">Retorno à calma</span></button>';
     h += '<span class="gap"></span>';
     h += '<button class="zb" id="zbFtpTest" title="Teste FTP de 20 minutos (Allen-Coggan): acrescenta o bloco de teste à aula (ou monta a aula inteira de teste). No fim a app calcula o FTP de cada aluno" style="--c:#FFD60A;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_TEST + '</span></span><span class="zl">Teste FTP</span></button>';
+    h += '<button class="zb" id="zbModelos" title="Modelos de aula de 50 min (Alto/Baixo Endurance, Montanha, Intervalados, Fartlek, Competição, Recuperação) ajustados ao plano anual" style="--c:#7FB2FF;--p:100%"><span class="zb-ring"><span class="zb-core zb-emo">📋</span></span><span class="zl">Modelos</span></button>';
     h += '<button class="zb" id="zbJogos" title="Jogos e percursos virtuais: escolhe um jogo para cada bloco da aula" style="--c:#FF4FA3;--p:100%"><span class="zb-ring"><span class="zb-core zb-emo">🎮</span></span><span class="zl">Jogos e percursos</span></button>';
     h += '<button class="zb tool2" id="zbImport" title="Importar aulas de um ficheiro .json"><span class="zb-ring"><span class="zb-core">' + ICON_PLUS + '</span></span><span class="zl">Importar</span></button>';
     h += '<button class="zb tool2 total" id="zbTotal" title="Duração total da aula" tabindex="-1"><span class="zb-ring"><span class="zb-core">T</span></span><span class="zl" id="zbTotalTxt">0:00</span></button>';
@@ -3404,6 +3422,123 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     selIdx = 0; clearMulti();
     render();
     toast('Protocolo do teste FTP criado (58 min)');
+  }
+  // =====================================================================
+  // 📋 MODELOS DE AULA (50 min) ajustados ao plano anual: [nome, min, seg, %FTP, rpm, rpm2, técnica, tipo]
+  // o retorno à calma é um pouco mais longo (8–9 min) · os blocos de trabalho ajustam-se ao bloco do ano
+  // =====================================================================
+  const MOD_AULAS = {
+    'ALTO ENDURANCE': { obj:'resist', d:'Ritmo estável em Z2–Z3: capacidade aeróbia, eficiência e oxidação de gordura.' },
+    'MONTANHA': { obj:'forca', d:'Subidas com carga elevada: força muscular e tolerância ao lactato.' },
+    'INTERVALADO EXTENSIVO': { obj:'limiar', d:'Intervalos longos no limiar (Z4) com pausas em Z1: sobe o limiar anaeróbio.' },
+    'BAIXO ENDURANCE': { obj:'resist', d:'Aeróbio leve em Z1–Z2: base, técnica de pedalada e recuperação ativa com volume.' },
+    'FARTLEK': { obj:'hiit', d:'Jogo de velocidades: variações constantes de ritmo, terreno e resistência.' },
+    'INTERVALADO INTENSIVO': { obj:'hiit', d:'Intervalos curtos e muito intensos (Z5–Z7) com pausas em Z1: VO2 máx e capacidade anaeróbia.' },
+    'COMPETIÇÃO': { obj:'hiit', d:'Simulação de prova: partida forte, ataques, subida, contra-relógio e sprint final.' },
+    'RECUPERAÇÃO': { obj:'recup', d:'Regenerativa: pedalar leve em Z1–Z2 com técnica de cadência, para recuperar.' }
+  };
+  // regras de cada modelo (editáveis em ⚙️): duração, aquecimento, retorno à calma (min), cadências (plano / subida), zonas permitidas e rácios dos intervalados
+  const MOD_REGRAS_BASE = {
+    'ALTO ENDURANCE':        { dur:50, aq:8, rc:8, cadP:[85,95],  cadS:[70,85], z:[1,2,3] },
+    'MONTANHA':              { dur:50, aq:8, rc:8, cadP:[85,95],  cadS:[60,80], z:[1,2,3,4,5] },
+    'INTERVALADO EXTENSIVO': { dur:50, aq:8, rc:8, cadP:[85,95],  cadS:[70,85], z:[1,2,4], ext:{ t:420, r:180 } },
+    'BAIXO ENDURANCE':       { dur:50, aq:6, rc:8, cadP:[85,100], cadS:[75,85], z:[1,2] },
+    'FARTLEK':               { dur:50, aq:8, rc:8, cadP:[90,105], cadS:[65,80], z:[1,2,3,4,5,6] },
+    'INTERVALADO INTENSIVO': { dur:50, aq:8, rc:8, cadP:[95,105], cadS:[70,85], z:[1,2,5,6,7], int:{ 5:{ t:60, r:60 }, 6:{ t:30, r:30 }, 7:{ t:15, r:45 } } },
+    'COMPETIÇÃO':            { dur:50, aq:8, rc:9, cadP:[90,100], cadS:[65,80], z:[1,2,3,4,5,6,7] },
+    'RECUPERAÇÃO':           { dur:50, aq:6, rc:8, cadP:[85,95],  cadS:[75,85], z:[1,2] }
+  };
+  let modRegrasMeus = {}; try{ modRegrasMeus = JSON.parse(localStorage.getItem('prModRegras') || '{}') || {}; }catch(e){}
+  function modRegras(g){ return JSON.parse(JSON.stringify(Object.assign({}, MOD_REGRAS_BASE[g], modRegrasMeus[g] || {}))); }
+  function modGuardaRegras(){ try{ localStorage.setItem('prModRegras', JSON.stringify(modRegrasMeus)); }catch(e){} if(fbDb && userUid) fbDb.ref('profiles/' + userUid + '/modRegras').set(Object.keys(modRegrasMeus).length ? modRegrasMeus : null).catch(()=>{}); }
+  const MOD_DO_PLANO = { A:'ALTO ENDURANCE', I:'INTERVALADO EXTENSIVO', F:'FARTLEK', D:'FARTLEK', M:'MONTANHA', V:'RECUPERAÇÃO', R:'RECUPERAÇÃO' };
+  const MOD_ZV = [50, 66, 83, 98, 113, 135, 160];   // %FTP no meio de cada zona (Z1..Z7)
+  // bloco do ano para a data: ajusta a intensidade dos blocos de trabalho (Z3 para cima)
+  function modBlocoAno(d){ const ym = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); const i = PA_BLOCOS.findIndex(b=> ym >= b.de && ym <= b.ate); return i < 0 ? null : { i, b: PA_BLOCOS[i], f: [.97, 1.03, 1][i], t: ['base: −3% nos blocos fortes', 'intensificação: +3% nos blocos fortes', 'manutenção'][i] }; }
+  // gera a aula a partir das regras → lista [nome, segundos, zona, cadência ('P' plano · 'S' subida · 'A' alta · 'C' calma), técnica]
+  function modGeraLista(g, R){
+    const Z = (R.z && R.z.length ? R.z : [1,2]).slice().sort((a, b)=> a - b), tem = z=> Z.includes(z);
+    const zona = z=>{ if(tem(z)) return z; let best = Z[0]; Z.forEach(x=>{ if(Math.abs(x - z) < Math.abs(best - z) || (Math.abs(x - z) === Math.abs(best - z) && x < best)) best = x; }); return best; };
+    const desc = zona(1), topo = (lim)=> Z.filter(x=> x <= lim).pop() || zona(lim);
+    const aq = Math.round(R.aq * 60), rc = Math.round(R.rc * 60), M = Math.max(60, Math.round(R.dur * 60) - aq - rc);
+    const L = [], ini = []; let fimForte = false, cyc = null, fixo = [];
+    if(g === 'ALTO ENDURANCE'){ const T = topo(4) >= 3 ? topo(3) : topo(4); fixo = [['Z' + zona(2) + ' · base aeróbia', 480, zona(2), 'P']];
+      cyc = k=> [[k % 3 === 1 ? 'Z' + T + ' · tempo pesado' : 'Z' + T + ' · tempo', 360, T, k % 3 === 1 ? 'S' : 'P', k % 3 === 1 ? 'Subida Sentada' : (k % 3 === 2 ? 'Combinado no Plano' : 'Plano Sentado')], ['Z' + zona(2) + ' · rolar', 180, zona(2), 'P']]; }
+    else if(g === 'BAIXO ENDURANCE'){ fixo = [['Z' + zona(2) + ' · base', 600, zona(2), 'P']]; cyc = k=> [[k % 2 ? 'Z' + zona(2) + ' · cadência alta' : 'Z' + zona(2) + ' · constante', 480, zona(2), k % 2 ? 'A' : 'P', k % 2 ? 'Combinado no Plano' : 'Plano Sentado'], ['Z' + desc + ' · solta', 120, desc, 'P']]; }
+    else if(g === 'MONTANHA'){ fimForte = true; cyc = k=>{ const s1 = zona(k % 2 ? 4 : 3), s2 = zona(k % 2 ? 5 : 4); return [['Subida ' + (k + 1), 240 + 60 * (k % 3), s1, 'S', k % 2 ? 'Combinado na Subida' : 'Subida Sentada'], ['Subida ' + (k + 1) + ' · em pé', 60, s2, 'S', 'Subida em Pé'], ['Recupera', 120, desc, 'P']]; }; }
+    else if(g === 'INTERVALADO EXTENSIVO'){ fimForte = true; const e = R.ext || { t:420, r:180 }, zT = zona(4); cyc = k=> [['Intervalo ' + (k + 1) + ' · Z' + zT, e.t, zT, 'P', k % 2 ? 'Combinado no Plano' : 'Plano Sentado'], ['Recupera Z' + desc, e.r, desc, 'P']]; }
+    else if(g === 'FARTLEK'){ fimForte = true; cyc = k=>{ const sp = topo(6) >= 6 ? 6 : topo(7); return [[k % 2 ? 'Rolar rápido' : 'Rolar', 180, zona(k % 2 ? 3 : 2), 'P'], [k % 2 ? 'Subida curta' : 'Ataque', 60, zona(k % 2 ? 4 : 5), k % 2 ? 'S' : 'P', k % 2 ? 'Subida em Pé' : 'Combinado no Plano'], ['Sprint', 30, sp, 'A', 'Sprint'], ['Recupera', 90, desc, 'P']]; }; }
+    else if(g === 'INTERVALADO INTENSIVO'){ fimForte = true; const I = R.int || {}, ser = [5, 6, 7].filter(z=> tem(z) && I[z] && I[z].t > 0), pausa = 180;
+      const S = ser.length ? (M - pausa * (ser.length - 1)) / ser.length : 0;
+      ser.forEach((z, si)=>{ const t = I[z].t, r = I[z].r || 0, n = Math.max(1, Math.floor((S + r) / (t + r)));
+        for(let i = 1; i <= n; i++){ L.push(['Série ' + (si + 1) + ' · Z' + z + ' ' + i + '/' + n, t, z, z >= 6 ? 'A' : 'P', z >= 6 ? 'Sprint' : 'Plano Sentado']); if(r && i < n) L.push(['Recupera Z' + desc, r, desc, 'P']); }
+        if(si < ser.length - 1) L.push(['Recupera longa', pausa, desc, 'P']); }); }
+    else if(g === 'COMPETIÇÃO'){ fimForte = true; const base = [['Partida', 120, zona(5), 'P', 'Combinado no Plano'], ['Pelotão', 360, zona(3), 'P'], ['Ataque', 60, zona(6), 'P', 'Plano em Pé'], ['Pelotão', 240, zona(3), 'P'], ['Subida da prova', 300, zona(4), 'S', 'Subida Sentada'], ['Topo · em pé', 60, zona(5), 'S', 'Subida em Pé'], ['Descida', 120, zona(2), 'A'], ['Contra-relógio', 480, zona(4), 'P'], ['Recupera', 120, desc, 'P'], ['Sprint final', 30, zona(7), 'A', 'Sprint']];
+      const tb = base.reduce((s, x)=> s + x[1], 0), f = M / tb; base.forEach(x=>{ L.push([x[0], x[0] === 'Sprint final' ? 30 : Math.max(30, Math.round(x[1] * f / 30) * 30), x[2], x[3], x[4]]); }); }
+    else { fixo = [['Z' + desc + ' · rolar', 480, desc, 'P']]; cyc = k=> k < 4 ? [['Técnica · cadência alta ' + (k + 1) + '/4', 60, desc, 'A'], ['Solta', 60, desc, 'P']] : [[(k % 2 ? 'Z' + desc + ' · rolar' : 'Z' + zona(2) + ' · suave'), k % 2 ? 360 : 600, k % 2 ? desc : zona(2), 'P']]; }
+    if(cyc){ L.push(...fixo); let t = L.reduce((s, x)=> s + x[1], 0); for(let k = 0; k < 60; k++){ const c = cyc(k), d = c.reduce((s, x)=> s + x[1], 0); if(t + d > M) break; L.push(...c); t += d; } }
+    if(fimForte){ while(L.length && L[L.length - 1][2] === desc && desc <= 1) L.pop(); }   // acaba num bloco forte (o tempo vai para o início)
+    let sobra = M - L.reduce((s, x)=> s + x[1], 0);
+    if(sobra >= 60) L.unshift(['Z' + zona(2) + ' · preparação', sobra, zona(2), 'P']); else if(sobra > 0 && L.length) L[0][1] += sobra; else if(sobra < 0 && L.length) L[0][1] = Math.max(30, L[0][1] + sobra);
+    const aqL = aq >= 240 ? [['Aquecimento', Math.round(aq / 2 / 30) * 30, 1, 'P'], ['Aquecimento progressivo', aq - Math.round(aq / 2 / 30) * 30, zona(2), 'P']] : (aq > 0 ? [['Aquecimento', aq, 1, 'P']] : []);
+    return aqL.concat(L, rc > 0 ? [[g === 'RECUPERAÇÃO' ? 'Retorno à calma + alongar' : 'Retorno à calma', rc, 0, 'C']] : []);
+  }
+  function modBlocos(g, d, R){
+    R = R || modRegras(g); const A = modBlocoAno(d || new Date()), f = A ? A.f : 1, cad = c=> c === 'S' ? R.cadS : c === 'A' ? [R.cadP[1], R.cadP[1] + 10] : c === 'C' ? [Math.min(80, R.cadP[0]), Math.min(85, R.cadP[1])] : R.cadP;
+    return modGeraLista(g, R).map(([nome, s, z, c, tec])=>{ const p = z === 0 ? 45 : (z === 1 && /^Aquecimento$/.test(nome) ? 55 : (z >= 3 ? Math.round(MOD_ZV[z - 1] * f) : MOD_ZV[z - 1])), [r1, r2] = cad(c);
+      return newBlock(Object.assign({ nome, min: Math.floor(s / 60), sec: s % 60, ftp: p, alvo: 0, rpm: r1, rpm2: r2, tecnica: tec || 'Plano Sentado' }, z === 0 ? { tipo: 'cool' } : {})); });
+  }
+  function modAplica(g, d, sem){
+    const M = MOD_AULAS[g]; if(!M) return;
+    const temBlocos = current.blocos.length > 1 || (current.blocos[0] && !['', 'Aquecimento'].includes(current.blocos[0].nome || ''));
+    if(temBlocos && !sem && !confirm('Substituir os blocos desta aula pelo modelo "' + g + '"?')) return;
+    pushUndo(); if(modoAtual() !== 'ftp'){ current.modo = 'ftp'; renderModeUi(); }
+    const dd = d || new Date(), A = modBlocoAno(dd), R = modRegras(g);
+    current.blocos = modBlocos(g, dd, R); current.grupo = g; current.objetivo = M.obj;
+    if(!current.nome || /^(ALTO ENDURANCE|MONTANHA|INTERVALADO|BAIXO ENDURANCE|FARTLEK|COMPETIÇÃO|RECUPERAÇÃO)/.test(current.nome)) current.nome = g + ' ' + dd.toLocaleDateString('pt-PT').replace(/\//g, '-');
+    current.descricao = M.d + ' Cadência ' + R.cadP[0] + '–' + R.cadP[1] + ' rpm (planos) · ' + R.cadS[0] + '–' + R.cadS[1] + ' rpm (subidas).' + (A ? ' ' + A.b.n + ' (' + A.b.foco + '): ' + A.t + '.' : '');
+    selIdx = 0; clearMulti(); render(); toast('📋 Modelo ' + g + ' (' + R.dur + ' min)' + (A ? ' · ' + A.b.n + ': ' + A.t : ''));
+  }
+  function modBarra(g, R){ const B = modBlocos(g, new Date(), R), tot = B.reduce((s, x)=> s + blockDurationSec(x), 0);
+    return '<span class="mod-bar">' + B.map(x=>{ const z = x.tipo === 'cool' ? COOL_Z : getZone(x.ftp, 'ftp'); return '<i title="' + escapeHtml(x.nome) + ' · ' + fmtTime(blockDurationSec(x)) + '" style="flex:' + blockDurationSec(x) + ';height:' + Math.max(18, Math.min(100, x.ftp / 1.6)) + '%;background:' + zoneColor(z.css) + '"></i>'; }).join('') + '</span><em>' + fmtTime(tot) + '</em>'; }
+  function modMenu(btn){
+    let m = $('modMenu'); if(m){ m.remove(); return; }
+    const hoje = new Date(), pt = (()=>{ try{ return paTipo(hoje); }catch(e){ return null; } })(), sug = pt && MOD_DO_PLANO[pt.k], A = modBlocoAno(hoje);
+    m = document.createElement('div'); m.id = 'modMenu'; m.className = 'mod-menu';
+    const pinta = ()=>{ m.innerHTML = '<div class="mod-h"><b>📋 Modelos de aula</b><small>' + (A ? A.b.n + ' · ' + A.b.foco + ' (' + A.t + ')' : 'Plano anual') + (pt && pt.tipo ? ' · hoje no plano: <b>' + escapeHtml(pt.tipo.n) + '</b>' : '') + '</small></div>' +
+      Object.keys(MOD_AULAS).map(g=>{ const c = (GRUPOS_BASE.find(x=> x.n === g) || {}).c || '#B07CFF', R = modRegras(g); return '<div class="mod-it' + (g === sug ? ' sug' : '') + '" data-mod="' + g + '" style="--c:' + c + '"><span class="mod-n">' + (g === sug ? '⭐ ' : '') + g + (modRegrasMeus[g] ? ' <small>· regras tuas</small>' : '') + '<button type="button" class="mod-cfg" data-cfg="' + g + '" title="Editar as regras deste modelo">⚙️ regras</button></span><span class="mod-d">' + MOD_AULAS[g].d + ' <i>' + R.dur + ' min · aquec. ' + R.aq + ' · calma ' + R.rc + ' · Z' + R.z.join(' Z') + '</i></span><span class="mod-v">' + modBarra(g) + '</span></div>'; }).join('') +
+      '<p class="mod-p">Carrega num modelo para o usar · ⚙️ para mudar as regras. "Último bloco" na projeção = o último bloco de Z2 a Z7.</p>'; };
+    pinta(); document.body.appendChild(m); const rc = btn.getBoundingClientRect(); m.style.left = Math.max(8, Math.min(innerWidth - m.offsetWidth - 8, rc.left + rc.width / 2 - m.offsetWidth / 2)) + 'px'; m.style.top = Math.max(8, Math.min(innerHeight - m.offsetHeight - 8, rc.bottom + 8)) + 'px';
+    const fecha = e=>{ if(!m.contains(e.target) && !btn.contains(e.target) && !e.target.closest('#modCfg')){ m.remove(); document.removeEventListener('pointerdown', fecha, true); } };
+    setTimeout(()=> document.addEventListener('pointerdown', fecha, true), 0);
+    m.onclick = e=>{ const c = e.target.closest('[data-cfg]'); if(c){ e.stopPropagation(); modCfgAbre(c.dataset.cfg, pinta); return; }
+      const b = e.target.closest('[data-mod]'); if(!b) return; m.remove(); document.removeEventListener('pointerdown', fecha, true); modAplica(b.dataset.mod); };
+  }
+  // ⚙️ editor das regras de um modelo
+  function modCfgAbre(g, depois){
+    let R = modRegras(g); const ov = document.createElement('div'); ov.id = 'modCfg'; ov.className = 'mod-cfg-ov';
+    const ms = s=> Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'), num = (id, v, a, b, st)=> '<input type="number" data-k="' + id + '" value="' + v + '" min="' + a + '" max="' + b + '" step="' + (st || 1) + '">';
+    const rac = (t, r)=> r ? (t / r).toFixed(2).replace(/\.?0+$/, '').replace('.', ',') + ' : 1' : 'sem pausa';
+    const pinta = ()=>{
+      ov.innerHTML = '<div class="mc-box"><div class="mc-h"><b>⚙️ Regras · ' + g + '</b><button type="button" data-a="x">✕</button></div>' +
+        '<div class="mc-g"><label>Duração da aula<span>' + num('dur', R.dur, 20, 120) + ' min</span></label><label>Aquecimento<span>' + num('aq', R.aq, 0, 30, .5) + ' min</span></label><label>Retorno à calma<span>' + num('rc', R.rc, 0, 20, .5) + ' min</span></label></div>' +
+        '<div class="mc-g"><label>Cadência em plano<span>' + num('cadP0', R.cadP[0], 40, 140) + ' – ' + num('cadP1', R.cadP[1], 40, 140) + ' rpm</span></label><label>Cadência em subida<span>' + num('cadS0', R.cadS[0], 40, 140) + ' – ' + num('cadS1', R.cadS[1], 40, 140) + ' rpm</span></label></div>' +
+        '<div class="mc-z"><span>Zonas que pode usar</span>' + [1,2,3,4,5,6,7].map(z=> '<button type="button" data-z="' + z + '" class="' + (R.z.includes(z) ? 'on' : '') + '" style="--zc:' + zoneColor(ZONES[z - 1].css) + '">Z' + z + '</button>').join('') + '</div>' +
+        (R.ext ? '<div class="mc-r"><b>Intervalos Z4 : Z1</b><label>Trabalho Z4<span>' + num('extT', R.ext.t, 30, 1800, 15) + ' s (' + ms(R.ext.t) + ')</span></label><label>Recuperação Z1<span>' + num('extR', R.ext.r, 0, 900, 15) + ' s (' + ms(R.ext.r) + ')</span></label><em>rácio ' + rac(R.ext.t, R.ext.r) + '</em></div>' : '') +
+        (R.int ? '<div class="mc-r"><b>Séries trabalho : Z1</b>' + [5, 6, 7].map(z=> '<div class="mc-ri' + (R.z.includes(z) ? '' : ' off') + '"><i style="background:' + zoneColor(ZONES[z - 1].css) + '">Z' + z + '</i><label>trabalho<span>' + num('i' + z + 't', (R.int[z] || {}).t || 0, 5, 600, 5) + ' s</span></label><label>pausa Z1<span>' + num('i' + z + 'r', (R.int[z] || {}).r || 0, 0, 600, 5) + ' s</span></label><em>' + rac((R.int[z] || {}).t || 0, (R.int[z] || {}).r || 0) + '</em></div>').join('') + '</div>' : '') +
+        '<div class="mc-pv">' + modBarra(g, R) + '</div><div class="mc-bt"><button type="button" data-a="repor">Repor predefinições</button><button type="button" data-a="cancel">Cancelar</button><button type="button" class="pri" data-a="ok">Guardar regras</button></div></div>';
+    };
+    pinta(); document.body.appendChild(ov);
+    ov.addEventListener('input', e=>{ const k = e.target.dataset.k; if(!k) return; const v = +e.target.value; if(!isFinite(v)) return;
+      if(k === 'cadP0') R.cadP[0] = v; else if(k === 'cadP1') R.cadP[1] = v; else if(k === 'cadS0') R.cadS[0] = v; else if(k === 'cadS1') R.cadS[1] = v;
+      else if(k === 'extT') R.ext.t = v; else if(k === 'extR') R.ext.r = v; else if(/^i\d[tr]$/.test(k)){ const z = k[1]; R.int[z] = R.int[z] || { t:30, r:30 }; R.int[z][k[2]] = v; } else R[k] = v;
+      const pv = ov.querySelector('.mc-pv'); if(pv) pv.innerHTML = modBarra(g, R); ov.querySelectorAll('.mc-r em').forEach((el, i)=>{ if(R.ext && i === 0) el.textContent = 'rácio ' + rac(R.ext.t, R.ext.r); else if(R.int){ const z = [5,6,7][i]; if(z) el.textContent = rac((R.int[z] || {}).t || 0, (R.int[z] || {}).r || 0); } }); });
+    ov.addEventListener('click', e=>{ const zb = e.target.closest('[data-z]'); if(zb){ const z = +zb.dataset.z; R.z = R.z.includes(z) ? R.z.filter(x=> x !== z) : R.z.concat(z).sort((a, b)=> a - b); if(!R.z.length) R.z = [z]; pinta(); return; }
+      const b = e.target.closest('[data-a]'); if(!b && e.target !== ov) return; const a = b ? b.dataset.a : 'cancel';
+      if(a === 'repor'){ R = JSON.parse(JSON.stringify(MOD_REGRAS_BASE[g])); pinta(); return; }
+      if(a === 'ok'){ if(R.aq + R.rc >= R.dur){ toast('O aquecimento e o retorno à calma não podem ocupar a aula toda'); return; } if(R.cadP[0] > R.cadP[1]) R.cadP.reverse(); if(R.cadS[0] > R.cadS[1]) R.cadS.reverse();
+        if(JSON.stringify(R) === JSON.stringify(MOD_REGRAS_BASE[g])) delete modRegrasMeus[g]; else modRegrasMeus[g] = R; modGuardaRegras(); toast('⚙️ Regras de ' + g + ' guardadas'); }
+      ov.remove(); if(depois) depois(); });
   }
   // =====================================================================
   // IMPORTAR AULA DE IMAGENS (capturas Time · %FTP · RPM · Position) — leitura com Tesseract.js no próprio browser
@@ -3697,6 +3832,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     else if(btn.id === 'zbCool') doCooldown();
     else if(btn.id === 'zbImport') openImgImport();
     else if(btn.id === 'zbFtpTest') doFtpTest();
+    else if(btn.id === 'zbModelos') modMenu(btn);
     else if(btn.id === 'zbJogos') jpAbrir();
   });
   $('cmdSaveBtn').addEventListener('click', ()=> saveCurrent(false));
@@ -12896,10 +13032,10 @@ const SR3 = (()=>{
 
     const next = current.blocos[liveIdx+1];
     const ln = $('liveNext');
-    // o "força até ao fim!" aparece no último bloco forte (Z3 a Z7), não no retorno à calma
+    // o "força até ao fim!" (último bloco) aparece no último bloco de Z2 a Z7: nunca em Z1 nem no retorno à calma
     let ultForte = -1;
     const mzN = modoAtual() === 'fc' ? 'fc' : 'ftp';
-    current.blocos.forEach((x, k)=>{ if(!x.tipo && !x.teste && zonesOf(mzN).indexOf(getZone(x.ftp || 0, mzN)) >= 2) ultForte = k; });
+    current.blocos.forEach((x, k)=>{ if(!x.tipo && !x.teste && zonesOf(mzN).indexOf(getZone(x.ftp || 0, mzN)) >= 1) ultForte = k; });
     ln.classList.toggle('last', !next);
     if(next){
       const nz = zoneColor(blkZone(next).css);
@@ -13096,6 +13232,7 @@ const SR3 = (()=>{
     if(idx < 0) idx = 0;
     liveIdx = idx;
     liveRemaining = blockDurationSec(current.blocos[liveIdx]) - (passou > 0 ? passou : 0);
+    { const bT = current.blocos[liveIdx]; if(bT && bT.teste && TF.bloco !== liveIdx){ TF.bloco = liveIdx; viewMode = 'teste'; modoFixo = true; TF.full = true; setTimeout(()=>{ try{ renderRiders(); applyMode(); }catch(e){} }, 0); } else if(!(bT && bT.teste)){ if(TF.bloco != null && viewMode === 'teste'){ viewMode = 'auto'; modoFixo = false; } TF.bloco = null; } }   // ⚡ teste FTP: a projeção passa sozinha para a vista do teste em ecrã total
     if(livePlaying){
       resetTickBase();
       // na passagem natural a música continua sem saltar; só salta quando o professor muda de bloco à mão
@@ -13491,6 +13628,7 @@ const SR3 = (()=>{
       pendingRegName = '';
       userNome = prof.nome || user.email;
       if(prof.god) JG.godCfg = Object.assign({ on: false, uid: null, rid: null, n: '' }, prof.god);   // God Mode na app PlayRide
+      if(prof.modRegras && typeof prof.modRegras === 'object'){ modRegrasMeus = prof.modRegras; try{ localStorage.setItem('prModRegras', JSON.stringify(modRegrasMeus)); }catch(e){} }   // regras dos modelos de aula
       gruposMeus = Array.isArray(prof.grupos) ? prof.grupos.filter(Boolean) : Object.values(prof.grupos || {});
       isAdmin = (await fbDb.ref('admins/' + user.uid).once('value')).val() === true;
     }catch(e){
@@ -13841,6 +13979,7 @@ const SR3 = (()=>{
     if(info.tipo.obj) current.objetivo = info.tipo.obj;
     current.descricao = info.tipo.d + ' Cadência alvo: ' + info.tipo.rpm + '.';
     setView('plan'); render();
+    const mg = MOD_DO_PLANO[info.k]; if(mg){ setTimeout(()=>{ modAplica(mg, d, true); current.nome = info.tipo.n + ' — ' + String(dd).padStart(2,'0') + '/' + String(m).padStart(2,'0'); render(); }, 0); }
     if(info.tipo.teste) toast('Dica: usa o botão "Teste FTP" para montar o protocolo de 20 min');
   }
   $('paSala').addEventListener('click', e=>{ const b = e.target.closest('button[data-s]'); if(!b) return; paSala = b.dataset.s; try{ localStorage.setItem('prPaSala', paSala); }catch(err){} renderPlanoAnual(); renderPlanoHoje(); });
