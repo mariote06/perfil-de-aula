@@ -495,11 +495,12 @@ html.live-on,html.live-on body{overflow:hidden !important;}
 .mod-it.sug{box-shadow:0 0 0 2px #FFD60A inset}.mod-n{font:800 13.5px Inter,sans-serif;letter-spacing:.4px;color:var(--c)}.mod-d{font:500 12px/1.35 Inter,sans-serif;color:#aab3c0}
 .mod-v{display:flex;align-items:flex-end;gap:8px}.mod-bar{flex:1;display:flex;align-items:flex-end;gap:1px;height:26px}.mod-bar i{display:block;border-radius:2px 2px 0 0;min-width:2px}.mod-v em{font:700 11px Inter,sans-serif;font-style:normal;color:#8a93a3}
 .mod-p{margin:2px 0 0;font-size:11.5px;color:#7d8693}
-.mod-it{cursor:pointer}.mod-n{display:flex;align-items:center;gap:6px}.mod-n small{font:600 11px Inter,sans-serif;color:#FFD60A}.mod-cfg{margin-left:auto;font:700 11.5px Inter,sans-serif;background:#262b33;border:1px solid #3a414c;color:#dfe3e8;border-radius:7px;padding:3px 8px;cursor:pointer}.mod-cfg:hover{border-color:#FFD60A}.mod-d i{font-style:normal;color:#7FB2FF;font-weight:600}
+.mod-it{cursor:pointer}.mod-n{display:flex;align-items:center;gap:6px}.mod-n small{font:600 11px Inter,sans-serif;color:#FFD60A}.mod-cfg{margin-left:auto;font:700 11.5px Inter,sans-serif;background:#262b33;border:1px solid #3a414c;color:#dfe3e8;border-radius:7px;padding:3px 8px;cursor:pointer}.mod-cfg:hover{border-color:#FFD60A}.mod-cfg+.mod-cfg{margin-left:4px}.mod-d i{font-style:normal;color:#7FB2FF;font-weight:600}
 .mod-cfg-ov{position:fixed;inset:0;z-index:9900;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:12px}.mc-box{width:min(600px,96vw);max-height:92vh;overflow:auto;background:#14171c;border:1px solid #3a414c;border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:12px;font:13px Inter,sans-serif;color:#e8ecf2;box-shadow:0 20px 60px rgba(0,0,0,.6)}
 .mc-h{display:flex;align-items:center}.mc-h b{flex:1;font-size:15px}.mc-h button{background:none;border:0;color:#aab3c0;font-size:18px;cursor:pointer}
 .mc-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px}.mc-box label{display:flex;flex-direction:column;gap:4px;background:#1b1f26;border:1px solid #2a3039;border-radius:9px;padding:7px 9px;color:#aab3c0;font-weight:600;font-size:12px}.mc-box label span{display:flex;align-items:center;gap:5px;color:#dfe3e8}
 .mc-box input[type=number]{width:62px;background:#0f1216;border:1px solid #3a414c;border-radius:6px;color:#fff;font:700 14px Inter,sans-serif;padding:4px 6px}
+.mc-ps{display:flex;align-items:center;gap:10px;background:#1b1f26;border:1px solid #2a3039;border-radius:9px;padding:8px 10px}.mc-ps>span{color:#aab3c0;font-weight:600;font-size:12px}.mc-ps b{font:800 13px Inter,sans-serif;white-space:nowrap}.mc-ps b#mcPl{color:#4FC3FF}.mc-ps b#mcSu{color:#FF9F43}.mc-ps input{flex:1;accent-color:#FF9F43}
 .mc-z{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.mc-z>span{color:#aab3c0;font-weight:600;font-size:12px;margin-right:4px}.mc-z button{min-width:42px;padding:6px 8px;border-radius:8px;border:2px solid var(--zc);background:transparent;color:#8a93a3;font:800 13px Inter,sans-serif;cursor:pointer;opacity:.55}.mc-z button.on{background:var(--zc);color:#0a0d12;opacity:1}
 .mc-r{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#171b21;border:1px solid #2a3039;border-radius:10px;padding:9px}.mc-r>b{width:100%;font-size:12.5px;color:#fff}.mc-r em{font:800 13px Inter,sans-serif;font-style:normal;color:#FFD60A}
 .mc-ri{display:flex;align-items:center;gap:8px;width:100%}.mc-ri.off{opacity:.4}.mc-ri>i{font:800 12px Inter,sans-serif;font-style:normal;color:#0a0d12;border-radius:6px;padding:4px 7px}
@@ -3439,14 +3440,14 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   };
   // regras de cada modelo (editáveis em ⚙️): duração, aquecimento, retorno à calma (min), cadências (plano / subida), zonas permitidas e rácios dos intervalados
   const MOD_REGRAS_BASE = {
-    'ALTO ENDURANCE':        { dur:50, aq:8, rc:8, cadP:[85,95],  cadS:[70,85], z:[1,2,3] },
-    'MONTANHA':              { dur:50, aq:8, rc:8, cadP:[85,95],  cadS:[60,80], z:[1,2,3,4,5] },
-    'INTERVALADO EXTENSIVO': { dur:50, aq:8, rc:8, cadP:[85,95],  cadS:[70,85], z:[1,2,4], ext:{ t:420, r:180 } },
-    'BAIXO ENDURANCE':       { dur:50, aq:6, rc:8, cadP:[85,100], cadS:[75,85], z:[1,2] },
-    'FARTLEK':               { dur:50, aq:8, rc:8, cadP:[90,105], cadS:[65,80], z:[1,2,3,4,5,6] },
-    'INTERVALADO INTENSIVO': { dur:50, aq:8, rc:8, cadP:[95,105], cadS:[70,85], z:[1,2,5,6,7], int:{ 5:{ t:60, r:60 }, 6:{ t:30, r:30 }, 7:{ t:15, r:45 } } },
-    'COMPETIÇÃO':            { dur:50, aq:8, rc:9, cadP:[90,100], cadS:[65,80], z:[1,2,3,4,5,6,7] },
-    'RECUPERAÇÃO':           { dur:50, aq:6, rc:8, cadP:[85,95],  cadS:[75,85], z:[1,2] }
+    'ALTO ENDURANCE':        { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:30, z:[1,2,3] },
+    'MONTANHA':              { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:70, z:[1,2,3,4,5] },
+    'INTERVALADO EXTENSIVO': { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:30, z:[1,4], ext:{ t:420, r:180 } },
+    'BAIXO ENDURANCE':       { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:20, z:[1,2] },
+    'FARTLEK':               { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:40, z:[1,2,3,4,5,6] },
+    'INTERVALADO INTENSIVO': { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:20, z:[1,5,6,7], int:{ 5:{ t:60, r:60 }, 6:{ t:30, r:30 }, 7:{ t:15, r:45 } } },
+    'COMPETIÇÃO':            { dur:50, aq:8, rc:9, cadP:[80,115], cadS:[60,80], pctS:35, z:[1,2,3,4,5,6,7] },
+    'RECUPERAÇÃO':           { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:10, z:[1,2] }
   };
   let modRegrasMeus = {}; try{ modRegrasMeus = JSON.parse(localStorage.getItem('prModRegras') || '{}') || {}; }catch(e){}
   function modRegras(g){ return JSON.parse(JSON.stringify(Object.assign({}, MOD_REGRAS_BASE[g], modRegrasMeus[g] || {}))); }
@@ -3455,64 +3456,88 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   const MOD_ZV = [50, 66, 83, 98, 113, 135, 160];   // %FTP no meio de cada zona (Z1..Z7)
   // bloco do ano para a data: ajusta a intensidade dos blocos de trabalho (Z3 para cima)
   function modBlocoAno(d){ const ym = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); const i = PA_BLOCOS.findIndex(b=> ym >= b.de && ym <= b.ate); return i < 0 ? null : { i, b: PA_BLOCOS[i], f: [.97, 1.03, 1][i], t: ['base: −3% nos blocos fortes', 'intensificação: +3% nos blocos fortes', 'manutenção'][i] }; }
-  // gera a aula a partir das regras → lista [nome, segundos, zona, cadência ('P' plano · 'S' subida · 'A' alta · 'C' calma), técnica]
-  function modGeraLista(g, R){
+  // ---- 🎲 gerador aleatório: cada vez que é usado cria uma aula diferente, sempre dentro das regras do modelo ----
+  const MOD_ZR = [[45,55],[58,72],[77,88],[92,103],[107,118],[122,145],[152,170]];   // %FTP que se usa dentro de cada zona (Z1..Z7)
+  const rnd = (a, b)=> a + Math.random() * (b - a), rndI = (a, b)=> Math.round(rnd(a, b)), pick = A=> A[Math.floor(Math.random() * A.length)], rnd30 = (a, b)=> Math.round(rnd(a, b) / 30) * 30;
+  // itens: {n nome, s segundos, z zona, k 'aq'|'rec'|'trab'|'sprint'|'cool', sub: preferência por subida (0..1)}
+  function modGeraItens(g, R){
     const Z = (R.z && R.z.length ? R.z : [1,2]).slice().sort((a, b)=> a - b), tem = z=> Z.includes(z);
     const zona = z=>{ if(tem(z)) return z; let best = Z[0]; Z.forEach(x=>{ if(Math.abs(x - z) < Math.abs(best - z) || (Math.abs(x - z) === Math.abs(best - z) && x < best)) best = x; }); return best; };
-    const desc = zona(1), topo = (lim)=> Z.filter(x=> x <= lim).pop() || zona(lim);
-    const aq = Math.round(R.aq * 60), rc = Math.round(R.rc * 60), M = Math.max(60, Math.round(R.dur * 60) - aq - rc);
-    const L = [], ini = []; let fimForte = false, cyc = null, fixo = [];
-    if(g === 'ALTO ENDURANCE'){ const T = topo(4) >= 3 ? topo(3) : topo(4); fixo = [['Z' + zona(2) + ' · base aeróbia', 480, zona(2), 'P']];
-      cyc = k=> [[k % 3 === 1 ? 'Z' + T + ' · tempo pesado' : 'Z' + T + ' · tempo', 360, T, k % 3 === 1 ? 'S' : 'P', k % 3 === 1 ? 'Subida Sentada' : (k % 3 === 2 ? 'Combinado no Plano' : 'Plano Sentado')], ['Z' + zona(2) + ' · rolar', 180, zona(2), 'P']]; }
-    else if(g === 'BAIXO ENDURANCE'){ fixo = [['Z' + zona(2) + ' · base', 600, zona(2), 'P']]; cyc = k=> [[k % 2 ? 'Z' + zona(2) + ' · cadência alta' : 'Z' + zona(2) + ' · constante', 480, zona(2), k % 2 ? 'A' : 'P', k % 2 ? 'Combinado no Plano' : 'Plano Sentado'], ['Z' + desc + ' · solta', 120, desc, 'P']]; }
-    else if(g === 'MONTANHA'){ fimForte = true; cyc = k=>{ const s1 = zona(k % 2 ? 4 : 3), s2 = zona(k % 2 ? 5 : 4); return [['Subida ' + (k + 1), 240 + 60 * (k % 3), s1, 'S', k % 2 ? 'Combinado na Subida' : 'Subida Sentada'], ['Subida ' + (k + 1) + ' · em pé', 60, s2, 'S', 'Subida em Pé'], ['Recupera', 120, desc, 'P']]; }; }
-    else if(g === 'INTERVALADO EXTENSIVO'){ fimForte = true; const e = R.ext || { t:420, r:180 }, zT = zona(4); cyc = k=> [['Intervalo ' + (k + 1) + ' · Z' + zT, e.t, zT, 'P', k % 2 ? 'Combinado no Plano' : 'Plano Sentado'], ['Recupera Z' + desc, e.r, desc, 'P']]; }
-    else if(g === 'FARTLEK'){ fimForte = true; cyc = k=>{ const sp = topo(6) >= 6 ? 6 : topo(7); return [[k % 2 ? 'Rolar rápido' : 'Rolar', 180, zona(k % 2 ? 3 : 2), 'P'], [k % 2 ? 'Subida curta' : 'Ataque', 60, zona(k % 2 ? 4 : 5), k % 2 ? 'S' : 'P', k % 2 ? 'Subida em Pé' : 'Combinado no Plano'], ['Sprint', 30, sp, 'A', 'Sprint'], ['Recupera', 90, desc, 'P']]; }; }
-    else if(g === 'INTERVALADO INTENSIVO'){ fimForte = true; const I = R.int || {}, ser = [5, 6, 7].filter(z=> tem(z) && I[z] && I[z].t > 0), pausa = 180;
-      const S = ser.length ? (M - pausa * (ser.length - 1)) / ser.length : 0;
-      ser.forEach((z, si)=>{ const t = I[z].t, r = I[z].r || 0, n = Math.max(1, Math.floor((S + r) / (t + r)));
-        for(let i = 1; i <= n; i++){ L.push(['Série ' + (si + 1) + ' · Z' + z + ' ' + i + '/' + n, t, z, z >= 6 ? 'A' : 'P', z >= 6 ? 'Sprint' : 'Plano Sentado']); if(r && i < n) L.push(['Recupera Z' + desc, r, desc, 'P']); }
-        if(si < ser.length - 1) L.push(['Recupera longa', pausa, desc, 'P']); }); }
-    else if(g === 'COMPETIÇÃO'){ fimForte = true; const base = [['Partida', 120, zona(5), 'P', 'Combinado no Plano'], ['Pelotão', 360, zona(3), 'P'], ['Ataque', 60, zona(6), 'P', 'Plano em Pé'], ['Pelotão', 240, zona(3), 'P'], ['Subida da prova', 300, zona(4), 'S', 'Subida Sentada'], ['Topo · em pé', 60, zona(5), 'S', 'Subida em Pé'], ['Descida', 120, zona(2), 'A'], ['Contra-relógio', 480, zona(4), 'P'], ['Recupera', 120, desc, 'P'], ['Sprint final', 30, zona(7), 'A', 'Sprint']];
-      const tb = base.reduce((s, x)=> s + x[1], 0), f = M / tb; base.forEach(x=>{ L.push([x[0], x[0] === 'Sprint final' ? 30 : Math.max(30, Math.round(x[1] * f / 30) * 30), x[2], x[3], x[4]]); }); }
-    else { fixo = [['Z' + desc + ' · rolar', 480, desc, 'P']]; cyc = k=> k < 4 ? [['Técnica · cadência alta ' + (k + 1) + '/4', 60, desc, 'A'], ['Solta', 60, desc, 'P']] : [[(k % 2 ? 'Z' + desc + ' · rolar' : 'Z' + zona(2) + ' · suave'), k % 2 ? 360 : 600, k % 2 ? desc : zona(2), 'P']]; }
-    if(cyc){ L.push(...fixo); let t = L.reduce((s, x)=> s + x[1], 0); for(let k = 0; k < 60; k++){ const c = cyc(k), d = c.reduce((s, x)=> s + x[1], 0); if(t + d > M) break; L.push(...c); t += d; } }
-    if(fimForte){ while(L.length && L[L.length - 1][2] === desc && desc <= 1) L.pop(); }   // acaba num bloco forte (o tempo vai para o início)
-    let sobra = M - L.reduce((s, x)=> s + x[1], 0);
-    if(sobra >= 60) L.unshift(['Z' + zona(2) + ' · preparação', sobra, zona(2), 'P']); else if(sobra > 0 && L.length) L[0][1] += sobra; else if(sobra < 0 && L.length) L[0][1] = Math.max(30, L[0][1] + sobra);
-    const aqL = aq >= 240 ? [['Aquecimento', Math.round(aq / 2 / 30) * 30, 1, 'P'], ['Aquecimento progressivo', aq - Math.round(aq / 2 / 30) * 30, zona(2), 'P']] : (aq > 0 ? [['Aquecimento', aq, 1, 'P']] : []);
-    return aqL.concat(L, rc > 0 ? [[g === 'RECUPERAÇÃO' ? 'Retorno à calma + alongar' : 'Retorno à calma', rc, 0, 'C']] : []);
+    const desc = zona(1), fortes = lo=> Z.filter(x=> x >= lo), aq = Math.round(R.aq * 60), rc = Math.round(R.rc * 60), M = Math.max(60, Math.round(R.dur * 60) - aq - rc);
+    const L = []; let fimForte = false; const T = ()=> L.reduce((s, x)=> s + x.s, 0), cabe = d=> T() + d <= M;
+    const add = (n, s, z, k, sub)=> L.push({ n, s, z, k: k || 'trab', sub: sub || 0 });
+    if(g === 'ALTO ENDURANCE'){ const tz = fortes(3).filter(z=> z <= 4); add('Z' + zona(2) + ' · base aeróbia', rnd30(300, 540), zona(2), 'trab', .1);
+      for(let k = 0; k < 40; k++){ const z = tz.length ? pick(tz) : zona(3), s = rnd30(240, 480), r = rnd30(120, 240); if(!cabe(s + r)) break; add('Z' + z + ' · tempo', s, z, 'trab', .6); add('Z' + zona(2) + ' · rolar', r, zona(2), 'trab', .1); } }
+    else if(g === 'BAIXO ENDURANCE'){ for(let k = 0; k < 40; k++){ const s = rnd30(360, 600), r = rnd30(60, 180); if(!cabe(s + r)) break; add(pick(['Z' + zona(2) + ' · constante', 'Z' + zona(2) + ' · cadência alta', 'Z' + zona(2) + ' · base']), s, zona(2), 'trab', .3); add('Z' + desc + ' · solta', r, desc, 'rec'); } }
+    else if(g === 'MONTANHA'){ fimForte = true; let n = 1; for(let k = 0; k < 40; k++){ const z1 = pick(fortes(3).filter(z=> z <= 4).concat([zona(3)])), z2 = pick(fortes(4).filter(z=> z <= 5).concat([zona(4)])), s1 = rnd30(180, 420), s2 = pick([30, 60, 60, 90]), r = rnd30(60, 180);
+      if(!cabe(s1 + s2 + r)) break; add('Subida ' + n, s1, z1, 'trab', .95); add('Subida ' + n + ' · ataque', s2, z2, 'trab', .9); add(Math.random() < .5 ? 'Descida' : 'Recupera', r, desc, 'rec'); n++; } }
+    else if(g === 'INTERVALADO EXTENSIVO'){ fimForte = true; const e = R.ext || { t:420, r:180 }, zT = zona(4); for(let k = 0; k < 60; k++){ if(!cabe(e.t + e.r)) break; add('Intervalo ' + (k + 1) + ' · Z' + zT, e.t, zT, 'trab', .5); if(e.r) add('Recupera Z' + desc, e.r, desc, 'rec'); } }
+    else if(g === 'FARTLEK'){ fimForte = true; const menu = [()=>{ const z = pick(Z.filter(z=> z >= 2 && z <= 3).concat([zona(2)])); return ['Rolar', rnd30(120, 240), z, 'trab', .3]; }, ()=>{ const z = pick(fortes(4).filter(z=> z <= 5).concat([zona(4)])); return ['Ataque', pick([30, 45, 60, 90]), z, 'trab', .5]; },
+        ()=>{ const z = pick(fortes(6).concat([zona(6)])); return ['Sprint', pick([15, 20, 30]), z, 'sprint', 0]; }, ()=> ['Recupera', pick([60, 90, 120]), desc, 'rec', 0]];
+      let ult = -1; for(let k = 0; k < 80; k++){ let i; do i = Math.floor(Math.random() * menu.length); while(i === ult || (i === 3 && (ult === 3 || ult === -1))); const [n, s, z, kk, sub] = menu[i](); if(!cabe(s)) break; add(n, s, z, kk, sub); ult = i; } }
+    else if(g === 'INTERVALADO INTENSIVO'){ fimForte = true; const I = R.int || {}, ser = [5, 6, 7].filter(z=> tem(z) && I[z] && I[z].t > 0).sort(()=> Math.random() - .5), pausa = 180, S = ser.length ? (M - pausa * (ser.length - 1)) / ser.length : 0;
+      ser.forEach((z, si)=>{ const t = I[z].t, r = I[z].r || 0, n = Math.max(1, Math.floor((S + r) / (t + r))); for(let i = 1; i <= n; i++){ add('Série ' + (si + 1) + ' · Z' + z + ' ' + i + '/' + n, t, z, z >= 6 ? 'sprint' : 'trab', z >= 6 ? .1 : .4); if(r && i < n) add('Recupera Z' + desc, r, desc, 'rec'); } if(si < ser.length - 1) add('Recupera longa', pausa, desc, 'rec'); }); }
+    else if(g === 'COMPETIÇÃO'){ fimForte = true; const base = [['Partida', 120, 5, 'trab', .2], ['Pelotão', 360, 3, 'trab', .3], ['Ataque', 60, 6, 'sprint', 0], ['Pelotão', 240, 3, 'trab', .3], ['Subida da prova', 300, 4, 'trab', 1], ['Topo · ataque', 60, 5, 'trab', 1], ['Descida', 120, 1, 'rec', 0], ['Contra-relógio', 480, 4, 'trab', .2], ['Recupera', 120, 1, 'rec', 0], ['Sprint final', 30, 7, 'sprint', 0]];
+      const tb = base.reduce((s, x)=> s + x[1], 0); base.forEach(x=> add(x[0], x[0] === 'Sprint final' ? 30 : Math.max(30, Math.round(x[1] * M / tb * rnd(.8, 1.2) / 30) * 30), zona(x[2]), x[3], x[4]));
+      while(T() > M){ const i = L.findIndex(x=> x.n === 'Pelotão' && x.s > 90) ; if(i < 0) break; L[i].s -= 30; } }
+    else { add('Z' + desc + ' · rolar', rnd30(300, 540), desc, 'rec'); for(let k = 0; k < 4; k++){ add('Técnica · cadência alta ' + (k + 1) + '/4', 60, desc, 'rec'); add('Solta', 60, desc, 'rec'); }
+      for(let k = 0; k < 40; k++){ const z = k % 2 ? desc : zona(2), s = rnd30(240, 540); if(!cabe(s)) break; add(z === desc ? 'Z' + desc + ' · rolar' : 'Z' + z + ' · suave', s, z, z === desc ? 'rec' : 'trab', .2); } }
+    if(fimForte) while(L.length && L[L.length - 1].k === 'rec') L.pop();   // acaba num bloco forte
+    let sobra = M - T();
+    while(sobra < 0){ const lg = L.slice().sort((a, b)=> b.s - a.s)[0]; if(!lg || lg.s <= 60) break; const tira = Math.min(-sobra, lg.s - 60); lg.s -= tira; sobra += tira; }
+    if(sobra > 0 && sobra < 60 && L.length){ L.slice().sort((a, b)=> b.s - a.s)[0].s += sobra; sobra = 0; }
+    if(sobra >= 60){ const z = tem(2) ? 2 : desc; L.unshift({ n: 'Z' + z + ' · preparação', s: sobra, z, k: z === 1 ? 'rec' : 'trab', sub: .2 }); }
+    // aquecimento: sempre Z1 (em duas partes, a 2.ª um pouco mais forte)
+    const aqL = aq >= 240 ? [{ n: 'Aquecimento', s: Math.round(aq / 2 / 30) * 30, z: 1, k: 'aq', p: 48 }, { n: 'Aquecimento · ativação', s: aq - Math.round(aq / 2 / 30) * 30, z: 1, k: 'aq', p: 55 }] : (aq > 0 ? [{ n: 'Aquecimento', s: aq, z: 1, k: 'aq', p: 52 }] : []);
+    return aqL.concat(L, rc > 0 ? [{ n: g === 'RECUPERAÇÃO' ? 'Retorno à calma + alongar' : 'Retorno à calma', s: rc, z: 0, k: 'cool' }] : []);
+  }
+  // terreno: marca blocos como subida até chegar à percentagem pedida (do tempo da parte principal), preferindo os que "pedem" subida
+  function modTerreno(I, R){
+    const prin = I.filter(x=> x.k === 'trab'), tot = I.filter(x=> x.k !== 'aq' && x.k !== 'cool').reduce((s, x)=> s + x.s, 0), alvo = tot * Math.max(0, Math.min(100, R.pctS == null ? 30 : R.pctS)) / 100;
+    let ac = 0; prin.slice().sort((a, b)=> (b.sub + Math.random() * .35) - (a.sub + Math.random() * .35)).forEach(x=>{ if(Math.abs(ac + x.s - alvo) < Math.abs(ac - alvo)){ x.subida = true; ac += x.s; } });
+    return I;
   }
   function modBlocos(g, d, R){
-    R = R || modRegras(g); const A = modBlocoAno(d || new Date()), f = A ? A.f : 1, cad = c=> c === 'S' ? R.cadS : c === 'A' ? [R.cadP[1], R.cadP[1] + 10] : c === 'C' ? [Math.min(80, R.cadP[0]), Math.min(85, R.cadP[1])] : R.cadP;
-    return modGeraLista(g, R).map(([nome, s, z, c, tec])=>{ const p = z === 0 ? 45 : (z === 1 && /^Aquecimento$/.test(nome) ? 55 : (z >= 3 ? Math.round(MOD_ZV[z - 1] * f) : MOD_ZV[z - 1])), [r1, r2] = cad(c);
-      return newBlock(Object.assign({ nome, min: Math.floor(s / 60), sec: s % 60, ftp: p, alvo: 0, rpm: r1, rpm2: r2, tecnica: tec || 'Plano Sentado' }, z === 0 ? { tipo: 'cool' } : {})); });
+    R = R || modRegras(g); const A = modBlocoAno(d || new Date()), f = A ? A.f : 1, I = modTerreno(modGeraItens(g, R), R);
+    const jan = (r, z)=>{ const w = Math.min(10, r[1] - r[0]); if(w <= 0) return [r[0], r[0]]; const lo = r[0] + Math.round(Math.random() * (r[1] - r[0] - w) / 5) * 5; return [lo, lo + w]; };
+    return I.map(x=>{
+      let p, tec = 'Plano Sentado', cad, nome = x.n;
+      if(x.k === 'cool'){ p = 45; cad = [Math.min(80, R.cadP[0] + 5), Math.min(90, R.cadP[0] + 10)]; }
+      else if(x.k === 'aq'){ p = x.p; cad = [Math.max(R.cadP[0], 85), Math.min(R.cadP[1], 95)]; }
+      else { const [a, b] = MOD_ZR[x.z - 1], ZB = [[0,55],[56,75],[76,90],[91,105],[106,120],[121,150],[151,250]][x.z - 1]; p = rndI(a, b); if(x.z >= 3) p = Math.max(ZB[0], Math.min(ZB[1], Math.round(p * f)));   // o ajuste do bloco do ano nunca muda a zona
+        if(x.subida){ cad = jan(R.cadS); tec = x.z >= 5 ? pick(['Subida em Pé', 'Combinado na Subida']) : pick(['Subida Sentada', 'Subida Sentada', 'Combinado na Subida']); if(!/subida|descida/i.test(nome)) nome += ' · subida'; }
+        else if(x.k === 'sprint'){ cad = [Math.max(R.cadP[0], R.cadP[1] - 10), R.cadP[1]]; tec = 'Sprint'; }
+        else if(x.k === 'rec'){ cad = jan([R.cadP[0], Math.min(R.cadP[1], R.cadP[0] + 20)]); }
+        else { cad = jan(x.z >= 4 ? [Math.round((R.cadP[0] + R.cadP[1]) / 2) - 10, R.cadP[1]] : R.cadP); tec = x.z >= 4 ? pick(['Plano Sentado', 'Combinado no Plano', 'Plano em Pé']) : pick(['Plano Sentado', 'Plano Sentado', 'Combinado no Plano']); } }
+      return newBlock(Object.assign({ nome, min: Math.floor(x.s / 60), sec: x.s % 60, ftp: p, alvo: 0, rpm: cad[0], rpm2: cad[1], tecnica: tec }, x.k === 'cool' ? { tipo: 'cool' } : {}));
+    });
   }
-  function modAplica(g, d, sem){
+  function modAplica(g, d, sem, blocos){
     const M = MOD_AULAS[g]; if(!M) return;
     const temBlocos = current.blocos.length > 1 || (current.blocos[0] && !['', 'Aquecimento'].includes(current.blocos[0].nome || ''));
     if(temBlocos && !sem && !confirm('Substituir os blocos desta aula pelo modelo "' + g + '"?')) return;
     pushUndo(); if(modoAtual() !== 'ftp'){ current.modo = 'ftp'; renderModeUi(); }
     const dd = d || new Date(), A = modBlocoAno(dd), R = modRegras(g);
-    current.blocos = modBlocos(g, dd, R); current.grupo = g; current.objetivo = M.obj;
+    current.blocos = blocos || modBlocos(g, dd, R); current.grupo = g; current.objetivo = M.obj;
     if(!current.nome || /^(ALTO ENDURANCE|MONTANHA|INTERVALADO|BAIXO ENDURANCE|FARTLEK|COMPETIÇÃO|RECUPERAÇÃO)/.test(current.nome)) current.nome = g + ' ' + dd.toLocaleDateString('pt-PT').replace(/\//g, '-');
-    current.descricao = M.d + ' Cadência ' + R.cadP[0] + '–' + R.cadP[1] + ' rpm (planos) · ' + R.cadS[0] + '–' + R.cadS[1] + ' rpm (subidas).' + (A ? ' ' + A.b.n + ' (' + A.b.foco + '): ' + A.t + '.' : '');
-    selIdx = 0; clearMulti(); render(); toast('📋 Modelo ' + g + ' (' + R.dur + ' min)' + (A ? ' · ' + A.b.n + ': ' + A.t : ''));
+    current.descricao = M.d + ' ' + (100 - (R.pctS || 0)) + '% plano (' + R.cadP[0] + '–' + R.cadP[1] + ' rpm) · ' + (R.pctS || 0) + '% subida (' + R.cadS[0] + '–' + R.cadS[1] + ' rpm).' + (A ? ' ' + A.b.n + ' (' + A.b.foco + '): ' + A.t + '.' : '');
+    selIdx = 0; clearMulti(); render(); toast('🎲 ' + g + ' (' + R.dur + ' min)' + (A ? ' · ' + A.b.n + ': ' + A.t : ''));
   }
-  function modBarra(g, R){ const B = modBlocos(g, new Date(), R), tot = B.reduce((s, x)=> s + blockDurationSec(x), 0);
+  function modBarra(g, R, B){ B = B || modBlocos(g, new Date(), R); const tot = B.reduce((s, x)=> s + blockDurationSec(x), 0);
     return '<span class="mod-bar">' + B.map(x=>{ const z = x.tipo === 'cool' ? COOL_Z : getZone(x.ftp, 'ftp'); return '<i title="' + escapeHtml(x.nome) + ' · ' + fmtTime(blockDurationSec(x)) + '" style="flex:' + blockDurationSec(x) + ';height:' + Math.max(18, Math.min(100, x.ftp / 1.6)) + '%;background:' + zoneColor(z.css) + '"></i>'; }).join('') + '</span><em>' + fmtTime(tot) + '</em>'; }
   function modMenu(btn){
     let m = $('modMenu'); if(m){ m.remove(); return; }
     const hoje = new Date(), pt = (()=>{ try{ return paTipo(hoje); }catch(e){ return null; } })(), sug = pt && MOD_DO_PLANO[pt.k], A = modBlocoAno(hoje);
-    m = document.createElement('div'); m.id = 'modMenu'; m.className = 'mod-menu';
-    const pinta = ()=>{ m.innerHTML = '<div class="mod-h"><b>📋 Modelos de aula</b><small>' + (A ? A.b.n + ' · ' + A.b.foco + ' (' + A.t + ')' : 'Plano anual') + (pt && pt.tipo ? ' · hoje no plano: <b>' + escapeHtml(pt.tipo.n) + '</b>' : '') + '</small></div>' +
-      Object.keys(MOD_AULAS).map(g=>{ const c = (GRUPOS_BASE.find(x=> x.n === g) || {}).c || '#B07CFF', R = modRegras(g); return '<div class="mod-it' + (g === sug ? ' sug' : '') + '" data-mod="' + g + '" style="--c:' + c + '"><span class="mod-n">' + (g === sug ? '⭐ ' : '') + g + (modRegrasMeus[g] ? ' <small>· regras tuas</small>' : '') + '<button type="button" class="mod-cfg" data-cfg="' + g + '" title="Editar as regras deste modelo">⚙️ regras</button></span><span class="mod-d">' + MOD_AULAS[g].d + ' <i>' + R.dur + ' min · aquec. ' + R.aq + ' · calma ' + R.rc + ' · Z' + R.z.join(' Z') + '</i></span><span class="mod-v">' + modBarra(g) + '</span></div>'; }).join('') +
-      '<p class="mod-p">Carrega num modelo para o usar · ⚙️ para mudar as regras. "Último bloco" na projeção = o último bloco de Z2 a Z7.</p>'; };
+    m = document.createElement('div'); m.id = 'modMenu'; m.className = 'mod-menu'; const AM = {}; const amostra = (g, nova)=> (nova || !AM[g]) ? (AM[g] = modBlocos(g, hoje)) : AM[g];
+    const pinta = (so)=>{ if(so) Object.keys(AM).forEach(k=> delete AM[k]); m.innerHTML = '<div class="mod-h"><b>📋 Modelos de aula</b><small>' + (A ? A.b.n + ' · ' + A.b.foco + ' (' + A.t + ')' : 'Plano anual') + (pt && pt.tipo ? ' · hoje no plano: <b>' + escapeHtml(pt.tipo.n) + '</b>' : '') + '</small></div>' +
+      Object.keys(MOD_AULAS).map(g=>{ const c = (GRUPOS_BASE.find(x=> x.n === g) || {}).c || '#B07CFF', R = modRegras(g); return '<div class="mod-it' + (g === sug ? ' sug' : '') + '" data-mod="' + g + '" style="--c:' + c + '"><span class="mod-n">' + (g === sug ? '⭐ ' : '') + g + (modRegrasMeus[g] ? ' <small>· regras tuas</small>' : '') + '<button type="button" class="mod-cfg" data-novo="' + g + '" title="Gerar outra versão aleatória">🎲 outra</button><button type="button" class="mod-cfg" data-cfg="' + g + '" title="Editar as regras deste modelo">⚙️ regras</button></span><span class="mod-d">' + MOD_AULAS[g].d + ' <i>' + R.dur + ' min · aquec. ' + R.aq + ' · calma ' + R.rc + ' · ' + (100 - (R.pctS || 0)) + '% plano / ' + (R.pctS || 0) + '% subida · Z' + R.z.join(' Z') + '</i></span><span class="mod-v">' + modBarra(g, R, amostra(g)) + '</span></div>'; }).join('') +
+      '<p class="mod-p">🎲 Cada aula é gerada ao acaso dentro das regras · carrega no modelo para usar a versão que vês · 🎲 outra para gerar outra · ⚙️ para mudar as regras. "Último bloco" na projeção = o último bloco de Z2 a Z7.</p>'; };
     pinta(); document.body.appendChild(m); const rc = btn.getBoundingClientRect(); m.style.left = Math.max(8, Math.min(innerWidth - m.offsetWidth - 8, rc.left + rc.width / 2 - m.offsetWidth / 2)) + 'px'; m.style.top = Math.max(8, Math.min(innerHeight - m.offsetHeight - 8, rc.bottom + 8)) + 'px';
     const fecha = e=>{ if(!m.contains(e.target) && !btn.contains(e.target) && !e.target.closest('#modCfg')){ m.remove(); document.removeEventListener('pointerdown', fecha, true); } };
     setTimeout(()=> document.addEventListener('pointerdown', fecha, true), 0);
-    m.onclick = e=>{ const c = e.target.closest('[data-cfg]'); if(c){ e.stopPropagation(); modCfgAbre(c.dataset.cfg, pinta); return; }
-      const b = e.target.closest('[data-mod]'); if(!b) return; m.remove(); document.removeEventListener('pointerdown', fecha, true); modAplica(b.dataset.mod); };
+    m.onclick = e=>{ const c = e.target.closest('[data-cfg]'); if(c){ e.stopPropagation(); modCfgAbre(c.dataset.cfg, ()=>{ delete AM[c.dataset.cfg]; pinta(); }); return; }
+      const nv = e.target.closest('[data-novo]'); if(nv){ e.stopPropagation(); const g = nv.dataset.novo, it = m.querySelector('[data-mod="' + g + '"] .mod-v'); if(it) it.innerHTML = modBarra(g, modRegras(g), amostra(g, true)); return; }
+      const b = e.target.closest('[data-mod]'); if(!b) return; m.remove(); document.removeEventListener('pointerdown', fecha, true); const g = b.dataset.mod; modAplica(g, null, false, AM[g] ? AM[g].map(x=> Object.assign({}, x, { id: uid() })) : null); };
   }
   // ⚙️ editor das regras de um modelo
   function modCfgAbre(g, depois){
@@ -3521,20 +3546,23 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     const rac = (t, r)=> r ? (t / r).toFixed(2).replace(/\.?0+$/, '').replace('.', ',') + ' : 1' : 'sem pausa';
     const pinta = ()=>{
       ov.innerHTML = '<div class="mc-box"><div class="mc-h"><b>⚙️ Regras · ' + g + '</b><button type="button" data-a="x">✕</button></div>' +
-        '<div class="mc-g"><label>Duração da aula<span>' + num('dur', R.dur, 20, 120) + ' min</span></label><label>Aquecimento<span>' + num('aq', R.aq, 0, 30, .5) + ' min</span></label><label>Retorno à calma<span>' + num('rc', R.rc, 0, 20, .5) + ' min</span></label></div>' +
+        '<div class="mc-g"><label>Duração da aula<span>' + num('dur', R.dur, 20, 120) + ' min</span></label><label>Aquecimento (sempre Z1)<span>' + num('aq', R.aq, 0, 30, .5) + ' min</span></label><label>Retorno à calma<span>' + num('rc', R.rc, 0, 20, .5) + ' min</span></label></div>' +
         '<div class="mc-g"><label>Cadência em plano<span>' + num('cadP0', R.cadP[0], 40, 140) + ' – ' + num('cadP1', R.cadP[1], 40, 140) + ' rpm</span></label><label>Cadência em subida<span>' + num('cadS0', R.cadS[0], 40, 140) + ' – ' + num('cadS1', R.cadS[1], 40, 140) + ' rpm</span></label></div>' +
+        '<div class="mc-ps"><span>Terreno</span><b id="mcPl">' + (100 - (R.pctS || 0)) + '% plano</b><input type="range" data-k="pctS" min="0" max="100" step="5" value="' + (R.pctS || 0) + '"><b id="mcSu">' + (R.pctS || 0) + '% subida</b></div>' +
         '<div class="mc-z"><span>Zonas que pode usar</span>' + [1,2,3,4,5,6,7].map(z=> '<button type="button" data-z="' + z + '" class="' + (R.z.includes(z) ? 'on' : '') + '" style="--zc:' + zoneColor(ZONES[z - 1].css) + '">Z' + z + '</button>').join('') + '</div>' +
         (R.ext ? '<div class="mc-r"><b>Intervalos Z4 : Z1</b><label>Trabalho Z4<span>' + num('extT', R.ext.t, 30, 1800, 15) + ' s (' + ms(R.ext.t) + ')</span></label><label>Recuperação Z1<span>' + num('extR', R.ext.r, 0, 900, 15) + ' s (' + ms(R.ext.r) + ')</span></label><em>rácio ' + rac(R.ext.t, R.ext.r) + '</em></div>' : '') +
         (R.int ? '<div class="mc-r"><b>Séries trabalho : Z1</b>' + [5, 6, 7].map(z=> '<div class="mc-ri' + (R.z.includes(z) ? '' : ' off') + '"><i style="background:' + zoneColor(ZONES[z - 1].css) + '">Z' + z + '</i><label>trabalho<span>' + num('i' + z + 't', (R.int[z] || {}).t || 0, 5, 600, 5) + ' s</span></label><label>pausa Z1<span>' + num('i' + z + 'r', (R.int[z] || {}).r || 0, 0, 600, 5) + ' s</span></label><em>' + rac((R.int[z] || {}).t || 0, (R.int[z] || {}).r || 0) + '</em></div>').join('') + '</div>' : '') +
-        '<div class="mc-pv">' + modBarra(g, R) + '</div><div class="mc-bt"><button type="button" data-a="repor">Repor predefinições</button><button type="button" data-a="cancel">Cancelar</button><button type="button" class="pri" data-a="ok">Guardar regras</button></div></div>';
+        '<div class="mc-pv">' + modBarra(g, R) + '<button type="button" class="mod-cfg" data-a="pv" title="Ver outra versão aleatória">🎲</button></div><div class="mc-bt"><button type="button" data-a="repor">Repor predefinições</button><button type="button" data-a="cancel">Cancelar</button><button type="button" class="pri" data-a="ok">Guardar regras</button></div></div>';
     };
     pinta(); document.body.appendChild(ov);
     ov.addEventListener('input', e=>{ const k = e.target.dataset.k; if(!k) return; const v = +e.target.value; if(!isFinite(v)) return;
       if(k === 'cadP0') R.cadP[0] = v; else if(k === 'cadP1') R.cadP[1] = v; else if(k === 'cadS0') R.cadS[0] = v; else if(k === 'cadS1') R.cadS[1] = v;
       else if(k === 'extT') R.ext.t = v; else if(k === 'extR') R.ext.r = v; else if(/^i\d[tr]$/.test(k)){ const z = k[1]; R.int[z] = R.int[z] || { t:30, r:30 }; R.int[z][k[2]] = v; } else R[k] = v;
-      const pv = ov.querySelector('.mc-pv'); if(pv) pv.innerHTML = modBarra(g, R); ov.querySelectorAll('.mc-r em').forEach((el, i)=>{ if(R.ext && i === 0) el.textContent = 'rácio ' + rac(R.ext.t, R.ext.r); else if(R.int){ const z = [5,6,7][i]; if(z) el.textContent = rac((R.int[z] || {}).t || 0, (R.int[z] || {}).r || 0); } }); });
+      if(k === 'pctS'){ ov.querySelector('#mcPl').textContent = (100 - v) + '% plano'; ov.querySelector('#mcSu').textContent = v + '% subida'; }
+      const pv = ov.querySelector('.mc-pv'); if(pv) pv.innerHTML = modBarra(g, R) + '<button type="button" class="mod-cfg" data-a="pv" title="Ver outra versão aleatória">🎲</button>'; ov.querySelectorAll('.mc-r em').forEach((el, i)=>{ if(R.ext && i === 0) el.textContent = 'rácio ' + rac(R.ext.t, R.ext.r); else if(R.int){ const z = [5,6,7][i]; if(z) el.textContent = rac((R.int[z] || {}).t || 0, (R.int[z] || {}).r || 0); } }); });
     ov.addEventListener('click', e=>{ const zb = e.target.closest('[data-z]'); if(zb){ const z = +zb.dataset.z; R.z = R.z.includes(z) ? R.z.filter(x=> x !== z) : R.z.concat(z).sort((a, b)=> a - b); if(!R.z.length) R.z = [z]; pinta(); return; }
       const b = e.target.closest('[data-a]'); if(!b && e.target !== ov) return; const a = b ? b.dataset.a : 'cancel';
+      if(a === 'pv'){ ov.querySelector('.mc-pv').firstChild && (ov.querySelector('.mc-pv').innerHTML = modBarra(g, R) + '<button type="button" class="mod-cfg" data-a="pv" title="Ver outra versão aleatória">🎲</button>'); return; }
       if(a === 'repor'){ R = JSON.parse(JSON.stringify(MOD_REGRAS_BASE[g])); pinta(); return; }
       if(a === 'ok'){ if(R.aq + R.rc >= R.dur){ toast('O aquecimento e o retorno à calma não podem ocupar a aula toda'); return; } if(R.cadP[0] > R.cadP[1]) R.cadP.reverse(); if(R.cadS[0] > R.cadS[1]) R.cadS.reverse();
         if(JSON.stringify(R) === JSON.stringify(MOD_REGRAS_BASE[g])) delete modRegrasMeus[g]; else modRegrasMeus[g] = R; modGuardaRegras(); toast('⚙️ Regras de ' + g + ' guardadas'); }
