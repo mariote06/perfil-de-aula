@@ -3371,7 +3371,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     const m = modoAtual(), B = (nome, min, ftp, rpm, rpm2, extra)=> newBlock(Object.assign({ nome, min, sec:0, ftp: m === 'ftp' ? ftp : (m === 'zonas' ? ZONE_MID[Math.min(ZONE_MID.length - 1, ftp >= 105 ? 4 : ftp >= 95 ? 3 : ftp >= 60 ? 1 : 0)] : Math.min(95, Math.round(ftp * .75 + 20))), alvo:0, rpm, rpm2, tecnica:'Plano Sentado' }, extra || {}));
     const novos = prep ? [ B('Ativação 1', 1, 110, 95, 105), B('Recupera', 1, 50, 85, 90), B('Ativação 2', 1, 110, 95, 105), B('Recupera', 1, 50, 85, 90), B('Ativação 3', 1, 110, 95, 105), B('Recupera', 1, 50, 85, 90),
       B('Esforço máximo 5 min', 5, 115, 90, 100), B('Recuperação', 10, 50, 80, 90) ] : [];
-    novos.push(B('TESTE FTP · 20 min', 20, 100, 85, 95, { teste:true }));
+    novos.push(B('TESTE FTP · 20 min', 20, 100, 85, 105, { teste:true }));
     let i = selIdx >= 0 && current.blocos[selIdx] ? selIdx + 1 : current.blocos.length; const c = coolIdx(); if(c >= 0 && i > c) i = c;
     current.blocos.splice(i, 0, ...novos); selIdx = i + novos.length - 1; clearMulti();
     render(); try{ scrollToSel(); }catch(e){}
@@ -3391,7 +3391,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       B('Ativação 3', 1, 110, 95, 105), B('Recupera', 1, 50, 85, 90),
       B('Esforço máximo 5 min', 5, 115, 90, 100),
       B('Recuperação', 10, 50, 80, 90),
-      B('TESTE FTP · 20 min', 20, 100, 85, 95, { teste:true }),
+      B('TESTE FTP · 20 min', 20, 100, 85, 105, { teste:true }),
       B('Retorno à calma', 10, 45, 80, 85, { tipo:'cool' })
     ];
     if(!current.nome) current.nome = 'TESTE FTP ' + new Date().toLocaleDateString('pt-PT').replace(/\//g, '-');
@@ -10342,8 +10342,10 @@ const SR3 = (()=>{
       g.strokeStyle = i === 0 ? '#FFD60A' : 'rgba(255,255,255,' + (.3 + fr * .6) + ')'; g.lineWidth = (i === 0 ? 5 : mai ? 4 : 2.5) * U * (.55 + fr * .7); g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
       if(mai){ const [lx, ly] = pt(a, 1.3); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = i === 0 ? '#FFD60A' : 'rgba(255,255,255,.65)'; g.font = (i === 0 ? '800 ' : '600 ') + Math.round((i === 0 ? 16 : 14) * U) + 'px ' + F; g.fillText(i === 0 ? 'ALVO' : (i > 0 ? '+' : '') + i + '%', lx, ly); } }
     // bolha do alvo
-    const ox = cx, oy = cy - ry * .2, oR = Math.min(W, H) * .1, pul = 1 + Math.sin(t * 2.2) * .02;
-    const gl = g.createRadialGradient(ox, oy, oR * .3, ox, oy, oR * 2.2); gl.addColorStop(0, 'rgba(170,140,255,.5)'); gl.addColorStop(1, 'rgba(170,140,255,0)'); g.fillStyle = gl; g.beginPath(); g.arc(ox, oy, oR * 2.2, 0, 7); g.fill();
+    const MB = musBatida(); let bt = 0, forte = false; if(MB){ const bl = 60 / MB.bpm, dd = mixT() - MB.tb, ph = ((dd % bl) + bl) % bl; forte = (((MB.k + Math.floor(dd / bl)) % 4) + 4) % 4 === 0; bt = Math.exp(-ph / bl * 5) * (forte ? 1 : .6); }   // 🎵 pulsa com a batida (mais forte no 1.º tempo)
+    const ox = cx, oy = cy - ry * .2, oR = Math.min(W, H) * .1, pul = MB ? 1 + bt * .1 : 1 + Math.sin(t * 2.2) * .02;
+    const gl = g.createRadialGradient(ox, oy, oR * .3, ox, oy, oR * (2.2 + bt * .8)); gl.addColorStop(0, 'rgba(170,140,255,' + (.5 + bt * .4).toFixed(2) + ')'); gl.addColorStop(1, 'rgba(170,140,255,0)'); g.fillStyle = gl; g.beginPath(); g.arc(ox, oy, oR * (2.2 + bt * .8), 0, 7); g.fill();
+    if(MB){ g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = 'rgba(214,204,255,' + (.55 + bt * .45).toFixed(2) + ')'; g.font = '700 ' + Math.round(14 * U) + 'px ' + F; g.fillText('♪ ' + Math.round(MB.bpm) + ' BPM · ' + MB.cad + ' rpm', ox, oy - oR * 1.35); }
     for(let k = 0; k < 3; k++){ g.save(); g.translate(ox, oy); g.rotate(t * (.3 + k * .17) * (k % 2 ? -1 : 1)); g.beginPath(); for(let i = 0; i <= 64; i++){ const a = i / 64 * Math.PI * 2, rr = oR * pul * (1 + .06 * Math.sin(a * (3 + k) + t * (1.5 + k * .4))); i ? g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : g.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); } g.closePath();
       g.fillStyle = ['rgba(60,40,120,.55)', 'rgba(200,120,255,.14)', 'rgba(90,170,255,.12)'][k]; g.fill(); g.strokeStyle = 'rgba(255,255,255,' + (.35 + k * .15) + ')'; g.lineWidth = 1.4 * U; g.stroke(); g.restore(); }
     g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 1.5 * U; g.beginPath(); g.ellipse(ox, oy + oR * .35, oR * 1.15, oR * .3, 0, 0, Math.PI * 2); g.stroke();   // anel da bolha
@@ -11270,6 +11272,20 @@ const SR3 = (()=>{
     if(!MIX.iv) MIX.iv = setInterval(()=> mixPasso(false), 80);
     mixPasso(!!force); return true;
   }
+  // 🎵 batida da música que está a tocar (a mais alta, se houver duas): BPM, instante da última batida (tempo da aula) e cadência
+  function musBatida(){
+    const m = mixAtivo(); if(!m || !MIX.play) return null; const T = mixT(), L = estLibMap(); let best = null, bv = -1;
+    m.itens.forEach(it=>{ const t = L[it.id]; if(T >= it.t0 && T < it.t1 && t && t.bpm){ const v = estVolEm(it, T); if(v > bv){ bv = v; best = it; } } });
+    if(!best || bv < .05) return null; const t = L[best.id], b0 = t.beat0 || 0, pos = estPosMus(best, T), bl = 60 / t.bpm, k = Math.floor((pos - b0) / bl), sb = b0 + k * bl, rt = estRateEm(best, T) || 1, bpm = estBpmEm(best, T);
+    return { bpm, tb: T - (pos - sb) / rt, k, cad: Math.round(bpm * (best.mu || estMu(t.bpm))) };
+  }
+  // a projeção manda a batida para as apps dos alunos (o Pulso "ouve" a música por aqui, sem microfone)
+  setInterval(()=>{ try{ if(!fbDb || !sessionPin) return; const B = livePlaying ? musBatida() : null, ref = sessionRef(sessionPin).child('mus');
+    if(!B){ if(MUS_ENV.on){ MUS_ENV.on = false; ref.set(null).catch(()=>{}); } return; }
+    const ts = Math.round(serverNow() - (mixT() - B.tb) * 1000), bl = 60000 / B.bpm, prev = MUS_ENV.v;
+    if(prev && Math.abs(prev.bpm - B.bpm) < .03 && Date.now() - MUS_ENV.t < 60000){ const d = ((ts - prev.ts) % bl + bl) % bl; if(Math.min(d, bl - d) < 25) return; }   // ainda certa: não volta a escrever
+    MUS_ENV.on = true; MUS_ENV.t = Date.now(); MUS_ENV.v = { bpm: Math.round(B.bpm * 100) / 100, ts, k: ((B.k % 4) + 4) % 4, cad: B.cad }; ref.set(MUS_ENV.v).catch(()=>{}); }catch(e){} }, 2500);
+  var MUS_ENV = { on: false, v: null, t: 0 };
   function mixPasso(force){
     const m = mixAtivo(); if(!m){ mixPara(); return; }
     const T = mixT(), tot = audTot(), volM = m.vol != null ? m.vol : .85, vivos = {};

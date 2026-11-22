@@ -230,11 +230,63 @@ body:has(#liveScreen.active) .coach-bal.vivo{opacity:1}
 .coach-bal.on>i{transform:scale(1.18)}
 .coach-bal.teste>i{width:88px;height:88px}.coach-bal.teste>span{font:800 clamp(21px,6vw,29px)/1.25 Inter,sans-serif;border-width:3px}.coach-bal.teste.on>span{max-width:min(var(--bw,80vw),600px);padding:14px 18px}
 .cav.danca svg{animation:pulDanca .5s ease-in-out infinite}@keyframes pulDanca{0%,100%{transform:rotate(-14deg) translateY(0)}25%{transform:rotate(0) translateY(-8px)}50%{transform:rotate(14deg) translateY(0)}75%{transform:rotate(0) translateY(-8px)}}
-.cav.agarra .bl{animation:none;transform:rotate(95deg) scale(1.25)}.cav.agarra .br{animation:none;transform:rotate(-95deg) scale(1.25)}
-.coach-bal.semBal>span{opacity:0!important}
-.pul-grito{position:fixed;left:0;right:0;top:12vh;z-index:62;text-align:center;pointer-events:none;font:900 clamp(44px,14vw,84px)/1 'Barlow Condensed',Inter,sans-serif;color:#fff;letter-spacing:2px;text-shadow:0 0 18px rgba(255,90,110,.9),0 6px 20px rgba(0,0,0,.8);animation:pulGrito .5s cubic-bezier(.3,1.6,.5,1)}.pul-grito.sai{opacity:0;transform:scale(.8);transition:all .45s}
-@keyframes pulGrito{0%{opacity:0;transform:scale(.4) rotate(-6deg)}100%{opacity:1;transform:scale(1)}}
+.cav.boceja svg{animation:pulBoceja 1.6s ease-in-out}@keyframes pulBoceja{0%,100%{transform:scale(1)}40%{transform:scale(.94,1.12) rotate(-4deg)}70%{transform:scale(1.03,.95)}}
+.cav.dorme .olho{transform:scaleY(.08)!important}.cav.dorme .corpo{animation:pulRespDorme 2.2s ease-in-out infinite}@keyframes pulRespDorme{0%,100%{transform:scale(1)}50%{transform:scale(1.04,.97)}}.cav.dorme .bl,.cav.dorme .br{animation:none}
+.pul-lencol{position:fixed;z-index:61;pointer-events:none;border-radius:16px 18px 18px 16px;background:repeating-linear-gradient(0deg,#8fb7ff 0 12px,#b9d2ff 12px 24px);border:3px solid #5f86d6;box-shadow:0 6px 16px rgba(0,0,0,.45);transform-origin:100% 50%;animation:pulLencol 1s cubic-bezier(.3,1.25,.5,1)}
+.pul-lencol::before{content:'';position:absolute;left:-3px;top:-3px;bottom:-3px;width:13px;border-radius:12px 4px 4px 12px;background:#fff;border:3px solid #5f86d6;border-right:0}
+@keyframes pulLencol{0%{transform:scaleX(.08);opacity:0}20%{opacity:1}100%{transform:scaleX(1)}}.pul-lencol.sai{transition:all .45s ease-in;transform:translateX(50px) scaleX(.2);opacity:0}
+.pul-z{position:fixed;z-index:62;pointer-events:none;font:900 22px 'Barlow Condensed',Inter,sans-serif;color:#c9c1ff;text-shadow:0 0 10px rgba(155,140,255,.8);animation:pulZ 2.6s ease-out forwards}@keyframes pulZ{0%{opacity:0;transform:translate(0,0) rotate(-10deg) scale(.6)}15%{opacity:1}100%{opacity:0;transform:translate(46px,-120px) rotate(14deg) scale(1.3)}}
 .cav.empurra .bl{animation:none;transform:rotate(150deg)}.cav.empurra .br{animation:none;transform:rotate(-150deg)}.cav.empurra .corpo{animation:pulEmp .42s ease-in-out infinite}@keyframes pulEmp{0%,100%{transform:translateY(5px) scale(1.06,.9)}50%{transform:translateY(-7px) scale(.96,1.06)}}
+#liveScreen.ftp-teste #activeBlock>:not(#ftpEcra){display:none!important}#liveScreen:not(.ftp-teste) #ftpEcra{display:none}body:has(#liveScreen.ftp-teste) .pul-med{display:none!important}
+#liveScreen.ftp-teste #myBatt,#liveScreen.ftp-teste #myLamp{display:none!important}
+.fe{width:100%;max-width:520px;display:flex;flex-direction:column;gap:10px;padding:2px 16px 8px;margin-top:22px;font-family:Inter,sans-serif;color:#fff}
+.fe-tit{text-align:center;font:900 16px Inter,sans-serif;letter-spacing:3px;color:#FFD60A}
+.fe-tempo{text-align:center;line-height:1}.fe-tempo b{font:800 clamp(60px,20vw,96px)/1 'Barlow Condensed',Inter,sans-serif;font-variant-numeric:tabular-nums}.fe-tempo small{display:block;font:700 12px Inter,sans-serif;letter-spacing:2px;text-transform:uppercase;color:#8a94a3;margin-top:2px}
+.fe-prog{height:12px;border-radius:6px;background:#1d222b;border:1.5px solid #2f3742;overflow:hidden}.fe-prog i{display:block;height:100%;border-radius:6px;background:linear-gradient(90deg,#7a5cff,#FFD60A)}
+.fe-duo{display:grid;grid-template-columns:1fr 1.25fr;gap:10px}
+.fe-c{position:relative;background:#12161d;border:2px solid #2a313c;border-radius:14px;padding:8px 8px 6px;text-align:center;overflow:hidden}.fe-c b{position:relative;display:block;font:800 clamp(34px,11vw,48px)/1 'Barlow Condensed',Inter,sans-serif;font-variant-numeric:tabular-nums}.fe-c small{position:relative;font:700 11px Inter,sans-serif;color:#9aa4b2;text-transform:uppercase;letter-spacing:.5px}
+.fe-c b.bom{color:#5BE37D}.fe-c b.mau{color:#FF8A8A}.fe-duo .fe-c:first-child b{color:#FFD60A}
+#liveScreen.ftp-teste ~ .nx-burst,body:has(#liveScreen.ftp-teste) #nxFloat,body:has(#liveScreen.ftp-teste) #nxBurst,#liveScreen.ftp-teste #nextEl,#liveScreen.ftp-teste #segNext{display:none!important}
+.fe-top{display:grid;grid-template-columns:1.35fr 1fr;gap:10px}
+.fe-tc{text-align:left!important;padding:8px 12px 10px!important}.fe-tc .fe-tit{display:block;text-align:left;font:900 12px Inter,sans-serif!important;letter-spacing:2px;color:#FFD60A!important;margin-bottom:2px}
+.fe-tc>b{font:800 clamp(46px,15vw,64px)/1 'Barlow Condensed',Inter,sans-serif!important;color:#fff}.fe-tc .fe-prog{margin-top:6px;height:9px}
+.fe-wkc{display:flex;flex-direction:column;justify-content:center}.fe-wkc b{font-size:clamp(44px,14vw,62px)!important;color:#FFD60A}
+.fe-duo2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.fe-duo2 b{font-size:clamp(40px,12.5vw,54px)!important}
+.fe-teo{padding:10px 8px 10px!important}.fe-teo b{font-size:clamp(50px,16vw,70px)!important}
+.fe-w{margin:0 -12px;border-radius:16px;min-height:clamp(118px,17vh,160px);display:flex;flex-direction:column;justify-content:center;padding:10px 12px 8px;background:linear-gradient(180deg,#151a22,#0e1218)}
+.fe-w>b{font-size:clamp(58px,19vw,86px)!important;text-shadow:0 2px 14px rgba(0,0,0,.8)}.fe-w>small{font-size:12px!important;letter-spacing:2px!important}
+.fe-w .fe-graf{left:0;right:0;bottom:0;top:8%;gap:2px;opacity:.55;padding:0 4px;-webkit-mask:linear-gradient(0deg,#000 55%,rgba(0,0,0,.35));mask:linear-gradient(0deg,#000 55%,rgba(0,0,0,.35))}
+.fe-w .fe-graf i{background:linear-gradient(0deg,#1FA8F0,#7fd4ff);border-radius:2px 2px 0 0}.fe-w .fe-graf i.ac{background:linear-gradient(0deg,#2ea44f,#7cf09a)}
+.fe-lft{position:absolute;left:0;right:0;height:0;border-top:2px dashed rgba(255,214,10,.75);pointer-events:none}
+.fe-wk{position:absolute;left:10px;top:8px;text-align:left;line-height:1;background:rgba(10,13,18,.82);border-radius:10px;padding:5px 8px;z-index:1}.fe-wk b{font:800 30px/1 'Barlow Condensed',Inter,sans-serif!important;color:#FFD60A;display:block;text-shadow:0 2px 8px rgba(0,0,0,.8)}.fe-wk small{font:700 10px Inter,sans-serif!important;color:#c9d1db}
+.fe-graf{position:absolute;left:6px;right:6px;bottom:4px;top:6px;display:flex;align-items:flex-end;gap:1px;opacity:.3}.fe-graf i{flex:1;min-width:1px;border-radius:1px 1px 0 0}
+.fe-mid{position:relative;display:grid;grid-template-columns:1fr 84px 1fr;align-items:stretch;height:clamp(190px,30vh,320px);margin:10px 0 8px}
+.fe-lbl{align-self:center;text-align:right;padding-right:20px;font:900 19px/1.1 Inter,sans-serif;color:#dfe6ee;text-transform:uppercase}
+.fe-tubo{position:relative;border-radius:42px;background:linear-gradient(0deg,rgba(255,90,110,.25),rgba(255,214,10,.18) 50%,rgba(91,227,125,.3));border:3px solid rgba(255,255,255,.35);overflow:visible}
+.fe-enc{position:absolute;left:6px;right:6px;bottom:6px;border-radius:36px;background:linear-gradient(0deg,#c99a00,#FFD60A);box-shadow:0 0 18px rgba(255,214,10,.5);transition:height 1s cubic-bezier(.3,1.2,.5,1);max-height:calc(100% - 10px)}
+.fe-tubo.acima .fe-enc{background:linear-gradient(0deg,#2ea44f,#5BE37D);box-shadow:0 0 22px rgba(91,227,125,.65)}
+.fe-inst{position:absolute;left:-6px;right:-6px;height:3px;margin-bottom:-1px;border-radius:2px;background:#4FC3FF;box-shadow:0 0 8px #4FC3FF;transition:bottom .5s}
+.fe-pr{position:absolute;left:0;right:0;height:0}
+.fe-anel{position:absolute;left:-16px;right:-16px;height:26px;margin-bottom:-13px;border-radius:14px;border:5px solid #fff;box-shadow:0 0 10px rgba(255,255,255,.6),inset 0 0 6px rgba(255,255,255,.4)}
+.fe-val{position:absolute;right:0;left:calc(50% + 58px);margin-bottom:-26px;font:800 clamp(40px,13vw,56px)/1 'Barlow Condensed',Inter,sans-serif;color:#fff}
+.fe.empurra .fe-enc{filter:brightness(1.35)}
+.fe-fim{display:grid;grid-template-columns:1.3fr 1fr;gap:10px;align-items:stretch}
+.fe-teo{position:relative;border-radius:18px;padding:14px 8px 10px;text-align:center;background:radial-gradient(circle at 50% 55%,rgba(255,214,10,.22),rgba(18,22,29,.9) 70%);border:2px solid rgba(255,214,10,.7);overflow:hidden;animation:feBrilho 2.2s ease-in-out infinite}
+.fe-teo.acima{border-color:#5BE37D;background:radial-gradient(circle at 50% 55%,rgba(91,227,125,.28),rgba(18,22,29,.9) 70%);animation-name:feBrilhoV}
+@keyframes feBrilho{0%,100%{box-shadow:0 0 14px rgba(255,214,10,.25)}50%{box-shadow:0 0 34px rgba(255,214,10,.6)}}@keyframes feBrilhoV{0%,100%{box-shadow:0 0 16px rgba(91,227,125,.3)}50%{box-shadow:0 0 38px rgba(91,227,125,.7)}}
+.fe-raios{position:absolute;left:50%;top:55%;width:260px;height:260px;margin:-130px 0 0 -130px;background:repeating-conic-gradient(rgba(255,214,10,.22) 0 6deg,transparent 6deg 22deg);border-radius:50%;-webkit-mask:radial-gradient(circle,transparent 34%,#000 36%,transparent 70%);mask:radial-gradient(circle,transparent 34%,#000 36%,transparent 70%);animation:feRoda 14s linear infinite}
+.fe-teo.acima .fe-raios{background:repeating-conic-gradient(rgba(91,227,125,.3) 0 6deg,transparent 6deg 22deg)}@keyframes feRoda{to{transform:rotate(360deg)}}
+.fe-teo small{position:relative;display:block;font:900 12px Inter,sans-serif;letter-spacing:1.5px;text-transform:uppercase;color:#FFD60A}.fe-teo.acima small,.fe-teo.acima b{color:#5BE37D}
+.fe-teo b{position:relative;display:block;font:900 clamp(52px,17vw,76px)/1 'Barlow Condensed',Inter,sans-serif;color:#FFD60A;text-shadow:0 0 16px rgba(255,214,10,.6)}.fe-teo em{position:relative;font:800 13px Inter,sans-serif;font-style:normal;color:#dfe6ee}
+.fe-lado{display:flex;flex-direction:column;gap:8px}.fe-lado .fe-c{flex:1;display:flex;flex-direction:column;justify-content:center}
+.fr-ov{position:fixed;inset:0;z-index:9000;background:rgba(5,7,10,.78);display:flex;align-items:center;justify-content:center;padding:16px;animation:frEntra .35s ease-out}.fr-ov.sai{opacity:0;transition:opacity .3s}@keyframes frEntra{from{opacity:0}}
+.fr-card{width:100%;max-width:440px;background:#12161d;border:2px solid #FFD60A;border-radius:20px;padding:18px 16px;box-shadow:0 0 40px rgba(255,214,10,.3);font-family:Inter,sans-serif;color:#fff;animation:frSobe .45s cubic-bezier(.3,1.4,.5,1)}.fr-card.inc{border-color:#FF9F43}@keyframes frSobe{from{transform:translateY(40px) scale(.95)}}
+.fr-tit{font:900 22px Inter,sans-serif;text-align:center;color:#FFD60A;margin-bottom:8px}.fr-card.inc .fr-tit{color:#FF9F43}.fr-av{text-align:center;color:#ffb27a;font:600 14px Inter,sans-serif;margin:0 0 8px}
+.fr-num{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:8px;margin:10px 0}.fr-num>div{background:#0c0f14;border-radius:12px;padding:8px 4px;text-align:center}.fr-num small{display:block;font:700 10.5px Inter,sans-serif;color:#8a94a3;text-transform:uppercase}
+.fr-num b{display:block;font:800 26px/1.1 'Barlow Condensed',Inter,sans-serif}.fr-num .fr-nv{border:2px solid #FFD60A}.fr-num .fr-nv b{font-size:40px;color:#FFD60A;white-space:nowrap}.fr-num .fr-nv b span{font-size:20px}.fr-num em{font:800 12px Inter,sans-serif;font-style:normal;color:#cfd6e0}.fr-num em.bom{color:#5BE37D}.fr-num em.mau{color:#FF8A8A}
+.fr-q{font:600 14px/1.4 Inter,sans-serif;color:#cfd6e0;text-align:center;margin:6px 0 12px}
+.fr-bt{display:flex;flex-direction:column;gap:9px}.fr-bt button{font:800 16px Inter,sans-serif;border-radius:12px;padding:13px;border:2px solid #3a4555;background:#1d2430;color:#fff;cursor:pointer}.fr-bt button.pri{background:#5BE37D;border-color:#5BE37D;color:#0a0d12}.fr-bt button.x{background:none;color:#aab3c0}
+.fr-aj{display:flex;gap:6px;align-items:center}.fr-aj input{flex:1;min-width:0;font:800 22px Inter,sans-serif;text-align:center;background:#0c0f14;color:#fff;border:2px solid #3a4555;border-radius:12px;padding:9px 4px}.fr-aj span{font:700 14px Inter,sans-serif;color:#8a94a3}.fr-aj button{padding:11px 14px}.fr-aj button[data-fr=guarda]{font-size:14px}
 .pul-med{position:fixed;left:4px;top:19vh;height:58vh;width:74px;z-index:58;display:none;flex-direction:column;align-items:center;gap:4px;pointer-events:none;font-family:Inter,sans-serif;background:rgba(10,12,18,.88);border:2px solid rgba(255,214,10,.55);border-radius:16px;padding:8px 4px 8px;box-shadow:0 0 22px rgba(255,214,10,.25),0 10px 30px rgba(0,0,0,.6);animation:pmBrilho 2.4s ease-in-out infinite}
 @keyframes pmBrilho{0%,100%{box-shadow:0 0 14px rgba(255,214,10,.2),0 10px 30px rgba(0,0,0,.6)}50%{box-shadow:0 0 30px rgba(255,214,10,.45),0 10px 30px rgba(0,0,0,.6)}}
 .pul-med.acima{border-color:rgba(91,227,125,.75);animation-name:pmBrilhoV}@keyframes pmBrilhoV{0%,100%{box-shadow:0 0 16px rgba(91,227,125,.25)}50%{box-shadow:0 0 36px rgba(91,227,125,.6)}}
@@ -1595,7 +1647,7 @@ body:has(#setupScreen.active) .legal{display:none}
   <button id="enterBtn" class="btn-primary">Entrar na aula</button>
   <div id="setupError" class="err"></div>
   <button id="demoBtn" class="btn-link">Experimentar sem bike (modo teste)</button>
-  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 22/11 16:40</div>
+  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 22/11 19:00</div>
 </div>
 
 <!-- 3. AULA -->
@@ -2124,6 +2176,7 @@ body:has(#setupScreen.active) .legal{display:none}
     // parou de pedalar a meio do bloco
     const cad = S.cadence || 0, temSens = hasPowerSource();
     if(temSens && cad < 5 && dispPower < 5 && decorrido > 10 && range.min > 0){ COACH.parado += dt; if(COACH.parado > 10){ coachDiz('parado', null, '#FF3B3B'); COACH.parado = -30; } } else if(COACH.parado > 0) COACH.parado = 0; else COACH.parado = Math.min(0, COACH.parado + dt);
+    if(decorrido > 15 && remaining > 12 && musCadTick(dt, b)) return;   // 🎵 cadência na batida da música
     if(b.teste){ pulTesteTick(b, remaining, dur, decorrido, dt); return; }   // ⚡ teste FTP: o Pulso trata da estratégia e do feedback
     // intensidade atual (watts ou FC conforme o modo da aula)
     let pct = null;
@@ -2137,7 +2190,7 @@ body:has(#setupScreen.active) .legal{display:none}
       else { COACH.fora = 0; COACH.dentro += dt; if(COACH.dentro > 35) coachDiz('dentro', null, cor); }
     }
     const rAlvo = b.rpm || 0, rMax = b.rpm2 || rAlvo;
-    if(rAlvo && cad > 5 && decorrido > 15 && remaining > 12){ if(cad < rAlvo - 12 || cad > rMax + 15){ COACH.cadFora += dt; if(COACH.cadFora > 20) coachDiz(cad < rAlvo ? 'cadBaixa' : 'cadAlta', { r: rpmTxt(b).replace('–', ' a ') }, cor); } else COACH.cadFora = 0; }
+    if(rAlvo && cad > 5 && decorrido > 15 && remaining > 12 && !musFase()){ if(cad < rAlvo - 12 || cad > rMax + 15){ COACH.cadFora += dt; if(COACH.cadFora > 20) coachDiz(cad < rAlvo ? 'cadBaixa' : 'cadAlta', { r: rpmTxt(b).replace('–', ' a ') }, cor); } else COACH.cadFora = 0; }
     if(me.fc && myHr() > me.fc * .95){ COACH.fcAlta += dt; if(COACH.fcAlta > 20){ coachDiz('fc', null, '#FF3B3B', true); COACH.fcAlta = -40; } } else if(COACH.fcAlta > 0) COACH.fcAlta = 0; else COACH.fcAlta = Math.min(0, COACH.fcAlta + dt);
     if(myRank && myRank.p){ if(COACH.pos && myRank.p < COACH.pos && myRank.n > 1) coachDiz('sobe', { n: myRank.p }, '#FFD60A'); COACH.pos = myRank.p; }
     if(me.mw && temSens && me.ts > 120){ if(COACH.recW && me.mw >= COACH.recW + 25){ coachDiz('rec', { w: Math.round(me.mw) }, '#FFD60A'); COACH.recW = me.mw; } else if(!COACH.recW) COACH.recW = me.mw; }
@@ -2154,6 +2207,26 @@ body:has(#setupScreen.active) .legal{display:none}
     toast(COACH.modo === 'voz' ? '🗣️ Coach com voz (toque longo para escolher a voz)' : COACH.modo === 'texto' ? '💬 Coach virtual só com texto' : '🔕 Coach virtual desligado');
     if(COACH.modo !== 'off') coachDiz('dentro', null, '#E8722C', true);
   });
+  // ——— 🎵 o Pulso "ouve" a música: a projeção manda a batida (BPM e instante de uma batida); ele mexe-se na batida e puxa pela cadência ———
+  var MUS = null, MC = { raf: 0, fora: 0, dentro: 0, tUlt: 0, tBom: 0 };
+  function musFase(){ if(!MUS || !MUS.bpm) return null; const bl = 60 / MUS.bpm, dt = (Date.now() + serverOffset - MUS.ts) / 1000; if(dt < -2 || dt > 120) return null; const ph = ((dt % bl) + bl) % bl, k = ((MUS.k + Math.floor(dt / bl)) % 4 + 4) % 4; return { ph: ph / bl, forte: k === 0 }; }
+  function musAnima(){
+    if(MC.raf) return; const passo = ()=>{ MC.raf = 0; const el = pulEl(), i = el && el.querySelector('i'); if(!i) return; const F = currentScreen === 'liveScreen' ? musFase() : null;
+      if(!F){ i.style.translate = ''; i.style.scale = ''; el.classList.remove('musica'); return; }
+      const b = Math.exp(-F.ph * 6) * (F.forte ? 1 : .65); el.classList.add('musica'); i.style.translate = '0 ' + (-b * 7).toFixed(1) + 'px'; i.style.scale = (1 + b * .09).toFixed(3) + ' ' + (1 - b * .05).toFixed(3);
+      MC.raf = requestAnimationFrame(passo); };
+    MC.raf = requestAnimationFrame(passo);
+  }
+  // incentivo à cadência: pedalar na batida da música
+  function musCadTick(dt, b){
+    if(!MUS || !MUS.cad || !musFase()) return false; const cad = S.cadence || 0; if(cad < 20) return false; const alvo = MUS.cad, agora = Date.now(); let d = cad - alvo; if(b && b.teste && cad > alvo && cad <= 105) d = 0;   // no teste FTP pode subir até 105 rpm
+    if(Math.abs(d) > 5){ MC.fora += dt; MC.dentro = 0; } else { MC.dentro += dt; MC.fora = 0; }
+    if(MC.fora > 15 && agora - MC.tUlt > 40000){ MC.fora = 0; MC.tUlt = agora;
+      pulDiz((d < 0 ? 'Mais rápido! 🎵 ' : 'Mais devagar! 🎵 ') + 'Ouve a música e pedala na batida: ' + alvo + ' rpm (estás a ' + Math.round(cad) + ').' + (MUS.bpm > 120 ? ' Uma pedalada a cada 2 batidas.' : MUS.bpm < 60 ? ' Duas pedaladas por batida.' : ' Uma pedalada por batida.'), null, { cor: '#c9a6ff', ms: 6000 }); return true; }
+    if(MC.dentro > 30 && agora - MC.tBom > 120000 && agora - MC.tUlt > 20000){ MC.dentro = 0; MC.tBom = agora; MC.tUlt = agora;
+      pulDiz(pulRnd(['Isso! Estás no ritmo da música! 🎶', 'Pedalada certinha na batida! 🥁 ' + alvo + ' rpm.', 'Tu e a música, sincronizados! 🎵💪']), 'festa', { cor: '#c9a6ff', ms: 4500 }); return true; }
+    return false;
+  }
   // ——— ⚡ Pulso no teste FTP: estratégia minuto a minuto, feedback ao vivo, vai ao medidor do FTP teórico empurrar para cima e bate no vidro se achar que não estás bem ———
   var PT = { acimaT: 0, abaixoT: 0, foiAcima: false, tDanca: 0, tAi: 0, bi: -1, ditos: {}, tUlt: 0, cima: 0, baixo: 0, dentro: 0, mal: 0, tMal: 0, pausa: 0, parou: false, rec: false, ocupado: false, tEmp: 0 };
   function ptAlvo(){ const m = me.tt > 20 ? me.tw / me.tt : 0; return me.ftp ? me.ftp / .95 : (m || null); }
@@ -2174,13 +2247,13 @@ body:has(#setupScreen.active) .legal{display:none}
   }
   // o Pulso vai até ao marcador do FTP teórico e empurra-o para cima
   async function ptEmpurra(txt){
-    const el = pulEl(), av = el && el.querySelector('.cav'), g = $('pulMed'); if(!av || !g || PUL.arr || PT.ocupado) return; PT.ocupado = true;
-    const pr = g.querySelector('.pm-pr').getBoundingClientRect(), volta = PUL.ancora ? { x: PUL.ancora.x, y: PUL.ancora.y } : { x: PUL.x, y: PUL.y };
-    PUL.tx = pr.right + 46; PUL.ty = pr.top + pr.height / 2 + 24; PUL.passeio = true; av.classList.add('anda'); pulAnda();
+    const el = pulEl(), av = el && el.querySelector('.cav'), g = $('pulMed'); if(!av || !g || PUL.arr || PT.ocupado) return; PT.ocupado = true; const feE = $('ftpEcra'); if(feE) feE.classList.add('empurra');
+    const fe = $('liveScreen').classList.contains('ftp-teste') && $('fePr'), pr = (fe || g.querySelector('.pm-pr')).getBoundingClientRect(), volta = PUL.ancora ? { x: PUL.ancora.x, y: PUL.ancora.y } : { x: PUL.x, y: PUL.y };
+    if(fe){ PUL.tx = pr.left + pr.width / 2 + 62; PUL.ty = pr.top + 40; } else { PUL.tx = pr.right + 46; PUL.ty = pr.top + pr.height / 2 + 24; } PUL.passeio = true; av.classList.add('anda'); pulAnda();
     await pulSleep(1100); av.classList.remove('anda'); cavPoe(av, 'forte'); av.classList.add('empurra'); g.classList.add('empurra');
     if(txt) pulDiz(txt, null, { cor: '#FFD60A', ms: 5200 });
     try{ navigator.vibrate && navigator.vibrate([30, 120, 30, 120, 30]); }catch(e){}
-    await pulSleep(4200); av.classList.remove('empurra'); g.classList.remove('empurra'); cavPoe(av, 'feliz');
+    await pulSleep(4200); av.classList.remove('empurra'); g.classList.remove('empurra'); if(feE) feE.classList.remove('empurra'); cavPoe(av, 'feliz');
     PUL.tx = volta.x; PUL.ty = volta.y; PUL.passeio = true; av.classList.add('anda'); pulAnda(); await pulSleep(1300); av.classList.remove('anda'); PT.ocupado = false;
   }
   // bate no vidro por dentro e pergunta se está tudo bem
@@ -2214,38 +2287,40 @@ body:has(#setupScreen.active) .legal{display:none}
     PUL.tx = volta.x; PUL.ty = volta.y; PUL.passeio = true; pulAnda(); await pulSleep(1300);
     av.classList.remove('danca'); cavPoe(av, 'feliz'); PT.ocupado = false;
   }
-  // desceu abaixo do FTP: agarra o ecrã, encosta o olho ao vidro, procura o atleta… "ESTÁS AÍ?"
+  // desceu abaixo do FTP: o Pulso fica com sono, deita-se, puxa o lençol e dorme (ZZZ) — acorda quando voltas a subir
   async function ptEstasAi(){
-    const el = pulEl(), av = el && el.querySelector('.cav'); if(!av || PT.ocupado || PUL.arr) return; PT.ocupado = true;
-    pulFecha(true); const W = innerWidth, H = innerHeight, s = PUL.x > W / 2 ? 1 : -1;
-    const T = (tr, ms, ease)=>{ av.style.transition = 'transform ' + ms + 'ms ' + (ease || 'cubic-bezier(.3,1.25,.5,1)'); av.style.transform = tr; };
-    const olha = (ox, oy)=>{ av.style.setProperty('--ox', ox + 'px'); av.style.setProperty('--oy', oy + 'px'); };
-    const gx = W * .5 - PUL.x, gy = H * .45 - PUL.y, sc = Math.min(16, Math.max(9, W / 32));   // desvia para o olho ficar ao centro
-    cavPoe(av, 'alerta'); const vidro = document.createElement('div'); vidro.className = 'pul-vidro on'; document.body.appendChild(vidro);
-    T('translate(' + gx + 'px,' + gy + 'px) scale(1.6)', 450, 'ease-in'); await pulSleep(460);
-    av.classList.add('agarra', 'encosta');
-    // mede onde fica o olho com o zoom e acerta para o olho ficar no meio do ecrã
-    const antes = av.style.transform; av.style.transition = 'none'; av.style.transform = 'translate(' + gx + 'px,' + gy + 'px) scale(' + sc + ')';
-    const olhos = av.querySelectorAll('.olho'), oe = olhos[s > 0 ? 0 : olhos.length - 1], ro = oe ? oe.getBoundingClientRect() : null;
-    const cx = ro ? W / 2 - (ro.left + ro.width / 2) : 0, cy = ro ? H * .46 - (ro.top + ro.height / 2) : 0;
-    av.style.transform = antes; void av.offsetWidth;
-    T('translate(' + (gx + cx) + 'px,' + (gy + cy) + 'px) scale(' + sc + ')', 700, 'cubic-bezier(.2,.9,.25,1.1)');
-    try{ navigator.vibrate && navigator.vibrate([60, 60, 60]); }catch(e){} await pulSleep(680);
-    pulVidroFx('marca', 22, H * .5); pulVidroFx('marca', W - 22, H * .5); pulVidroFx('bafo', W / 2, H * .62);   // as mãos agarram as bordas do ecrã
-    const grito = document.createElement('div'); grito.className = 'pul-grito'; grito.textContent = 'ESTÁS AÍ?'; document.body.appendChild(grito);
-    el.classList.add('semBal'); pulDiz('Estás aí?', null, { cor: '#FF5A6E', ms: 3500 });
-    for(const [ox, oy, ms] of [[-5, 0, 650], [5, -1, 650], [0, -3, 500], [-3, 2, 500], [0, 0, 400]]){ olha(ox, oy); av.classList.add('pisca'); setTimeout(()=> av.classList.remove('pisca'), 120); await pulSleep(ms); }
-    grito.classList.add('sai'); setTimeout(()=> grito.remove(), 500);
-    av.classList.remove('agarra', 'encosta'); vidro.classList.remove('on'); setTimeout(()=> vidro.remove(), 600); olha(0, 0);
-    T('', 600, 'cubic-bezier(.3,1.5,.5,1)'); await pulSleep(620); av.style.transition = ''; el.classList.remove('semBal'); cavPoe(av, 'forte'); PT.ocupado = false;
-    pulDiz('Desceste abaixo do FTP… volta para cima, eu sei que consegues! 💪', null, { cor: '#FF5A6E', ms: 5000 });
+    const el = pulEl(), av = el && el.querySelector('.cav'); if(!av || PT.ocupado || PUL.arr) return; PT.ocupado = true; PT.dorme = true; PT.acorda = false;
+    const W = innerWidth, H = innerHeight, volta = PUL.ancora ? { x: PUL.ancora.x, y: PUL.ancora.y } : { x: PUL.x, y: PUL.y };
+    const T = (tr, ms, ease)=>{ av.style.transition = 'transform ' + ms + 'ms ' + (ease || 'ease-in-out'); av.style.transform = tr; };
+    pulFecha(true); PUL.tx = W * .3; PUL.ty = H * .74; PUL.passeio = true; av.classList.add('anda'); pulAnda(); await pulSleep(1100); av.classList.remove('anda');
+    // 1) boceja
+    cavPoe(av, 'calmo'); av.classList.add('boceja'); pulDiz('Estou a ficar com sono… 🥱 Desceste abaixo do FTP.', null, { cor: '#9b8cff', ms: 3600 });
+    await pulSleep(1700); av.classList.remove('boceja');
+    // 2) deita-se
+    T('rotate(-90deg) scale(1.25) translate(-8px, 6px)', 700, 'cubic-bezier(.5,0,.3,1.3)'); av.classList.add('dorme'); await pulSleep(750);
+    // 3) puxa o lençol
+    const r = av.getBoundingClientRect(), len = document.createElement('div'); len.className = 'pul-lencol';
+    len.style.left = Math.round(r.left + r.width * .66) + 'px'; len.style.width = Math.round(r.width * .6) + 'px'; len.style.top = Math.round(r.top + r.height * .02) + 'px'; len.style.height = Math.round(r.height * .96) + 'px';   // cobre o corpo e deixa a cabeça (à esquerda) de fora
+    document.body.appendChild(len); await pulSleep(900);
+    pulDiz('Acorda-me quando voltares para cima do FTP… 😴', null, { cor: '#9b8cff', ms: 2800, voz: COACH.modo === 'voz' });
+    // 4) dorme: ZZZ a flutuar até voltares a subir (ou ~15 s)
+    let n = 0; const zz = setInterval(()=>{ const z = document.createElement('div'); z.className = 'pul-z'; z.textContent = n % 3 === 2 ? 'Z' : 'z'; z.style.left = Math.round(r.left + r.width * .15 + (n % 2) * 10) + 'px'; z.style.top = Math.round(r.top - 6) + 'px'; z.style.fontSize = (20 + (n % 3) * 9) + 'px'; document.body.appendChild(z); setTimeout(()=> z.remove(), 2600); n++; }, 650);
+    for(let t = 0; t < 30 && !PT.acorda && currentScreen === 'liveScreen'; t++) await pulSleep(500);
+    clearInterval(zz);
+    // 5) acorda: tira o lençol e salta
+    len.classList.add('sai'); setTimeout(()=> len.remove(), 500); av.classList.remove('dorme');
+    if(PT.acorda){ cavPoe(av, 'festa'); T('', 380, 'cubic-bezier(.3,1.6,.5,1)'); await pulSleep(400); av.classList.add('aterra'); pulDiz(pulRnd(['Ah! Voltaste! Acordei com a tua potência! 🔥', 'Uau, que despertar! Acima do FTP outra vez! ⚡', 'Já estou acordado! Bora, mantém aí em cima! 💪']), null, { cor: '#5BE37D', ms: 4500 }); }
+    else { cavPoe(av, 'alerta'); T('', 500, 'cubic-bezier(.3,1.5,.5,1)'); await pulSleep(520); av.classList.add('aterra'); pulDiz('Hmm… ainda abaixo do FTP. Vá, acorda-me tu a mim! Um bocadinho mais forte! 💪', null, { cor: '#FF5A6E', ms: 4500 }); }
+    setTimeout(()=> av.classList.remove('aterra'), 600); await pulSleep(700); av.style.transition = '';
+    PUL.tx = volta.x; PUL.ty = volta.y; PUL.passeio = true; av.classList.add('anda'); pulAnda(); await pulSleep(1300); av.classList.remove('anda');
+    PT.dorme = false; PT.ocupado = false;
   }
   function ptFim(){ ptMedidor(false); const el = pulEl(); if(el) el.classList.remove('teste'); }
   function ptDiz(chave, txt, o){ if(PT.ditos[chave]) return false; PT.ditos[chave] = 1; PT.tUlt = Date.now(); pulDiz(txt, (o && o.h) || null, Object.assign({ cor: '#FFD60A', ms: Math.max(6000, txt.length * 80) }, o || {})); return true; }
   function pulTesteTick(b, remaining, dur, dec, dt){
     const el = pulEl(); if(el) el.classList.add('teste');
     if(PT.bi !== state.blockIndex){ Object.assign(PT, { acimaT: 0, abaixoT: 0, foiAcima: false, tDanca: 0, tAi: 0, bi: state.blockIndex, ditos: {}, tUlt: 0, cima: 0, baixo: 0, dentro: 0, mal: 0, pausa: 0, parou: false, rec: false }); }
-    ptPinta(); if(PT.ocupado) return;
+    ptPinta(); if(PT.dorme && me.ftp && dispPower * .95 >= me.ftp) PT.acorda = true; if(PT.ocupado) return;
     const alvo = ptAlvo(), w = dispPower, med = me.tt > 20 ? me.tw / me.tt : 0, prev = med ? Math.round(med * .95) : null, f = dec / dur, falta = Math.ceil(remaining), agora = Date.now();
     const d = alvo && w > 0 ? w / alvo - 1 : 0, a1 = alvo ? Math.round(alvo * .95) : null, a2 = alvo ? Math.round(alvo * .98) : null, A = alvo ? Math.round(alvo) : null, mins = Math.round(dur / 60);
     // estratégia por fases (as mensagens grandes do Pulso)
@@ -2260,7 +2335,7 @@ body:has(#setupScreen.active) .legal{display:none}
     const cad = S.cadence || 0, fcA = me.fc && myHr() > me.fc * .96;
     if(f > .15 && agora > PT.pausa && w > 0 && alvo && (d < -.2 || (cad > 0 && cad < 55) || fcA)) PT.mal += dt; else PT.mal = Math.max(0, PT.mal - dt);
     if(PT.mal > 15 && agora - PT.tMal > 180000){ PT.mal = 0; ptEstasBem(); return; }
-    // acima do FTP (potência que dá um FTP maior que o atual) durante 20 s: festa · desceu abaixo depois de estar acima: "ESTÁS AÍ?"
+    // acima do FTP (potência que dá um FTP maior que o atual) durante 20 s: festa · desceu abaixo depois de estar acima: adormece
     if(me.ftp && w > 0 && dec > 30){ const eq = w * .95;
       if(eq >= me.ftp){ PT.acimaT += dt; PT.abaixoT = 0; if(PT.acimaT > 8) PT.foiAcima = true; if(PT.acimaT > 20 && agora - PT.tDanca > 50000){ PT.tDanca = agora; PT.tUlt = agora; PT.acimaT = 0; ptDanca(); return; } }
       else if(eq < me.ftp * .97){ PT.abaixoT += dt; PT.acimaT = 0; if(PT.foiAcima && PT.abaixoT > 6 && agora - PT.tAi > 45000 && agora > PT.pausa){ PT.tAi = agora; PT.tUlt = agora; PT.foiAcima = false; PT.abaixoT = 0; ptEstasAi(); return; } } }
@@ -3616,6 +3691,7 @@ body:has(#setupScreen.active) .legal{display:none}
       if(!v){ if(hadState) endOfSession(); return; }
       hadState = true; state = v;
     });
+    add(base.child('mus'), s=>{ MUS = s.val(); musAnima(); });
     add(base.child('rank/' + riderId), s=>{ myRank = s.val(); });
     add(base.child('jogo/r/' + riderId), s=> jogoMostra(s.val()));
     add(base.child('jogo/p'), s=>{ SERRA3.E3.p = s.val() || {}; });
@@ -7020,6 +7096,35 @@ body:has(#setupScreen.active) .legal{display:none}
     let prox = -1; for(let i = state.blockIndex + 1; i < blocos.length; i++){ if(blocos[i].jogo && JOGOS_ALUNO[blocos[i].jogo]){ prox = i; break; } }
     $('e3Vazio').innerHTML = prox >= 0 ? '<span style="font-size:52px">' + JOGOS_ALUNO[blocos[prox].jogo][0] + '</span><b>' + escapeHtml(JOGOS_ALUNO[blocos[prox].jogo][1]) + '</b><span>começa no bloco ' + (prox + 1) + '</span>' : '<span style="font-size:48px">🎮</span><b>Sem jogo agora</b><span>Este bloco não tem jogo nem percurso. Desliza para voltar aos teus dados.</span>';
   }
+  // ⚡ ecrã 1 no teste FTP (esquema do Mário): tempo · W/kg e Watts (com gráfico) · tubo com o FTP atual (anel) e o teórico (enchimento) · FTP teórico em destaque · RPM e FC
+  var FE = { h: [], t: 0 };
+  function ftpEcraPinta(b, rem){
+    const ls = $('liveScreen'), ab = $('activeBlock'); if(!ls || !ab) return;
+    const on = !!b && ecraAtual === 1; ls.classList.toggle('ftp-teste', on); if(!on){ FE.h = []; return; }
+    let P = $('ftpEcra');
+    if(!P){ P = document.createElement('div'); P.id = 'ftpEcra'; P.className = 'fe';
+      P.innerHTML = '<div class="fe-top"><div class="fe-c fe-tc"><small class="fe-tit">⚡ TESTE FTP</small><b id="feT">0:00</b><small>falta</small><div class="fe-prog"><i id="feProg"></i></div></div><div class="fe-c fe-wkc"><b id="feWkg">—</b><small>W/kg</small></div></div>' +
+        '<div class="fe-c fe-w"><div class="fe-graf" id="feGraf"></div><i class="fe-lft" id="feLft"></i><b id="feW">—</b><small>Watts</small></div>' +
+        '<div class="fe-duo2"><div class="fe-c"><b id="feRpm">—</b><small>RPM · 85–105</small></div><div class="fe-c"><b id="feFc">—</b><small id="feFcL">%FC máx</small></div></div>' +
+        '<div class="fe-mid"><div class="fe-lbl">FTP<br>atual</div><div class="fe-tubo" id="feTubo"><i class="fe-enc" id="feEnc"></i><i class="fe-inst" id="feInst"></i><span class="fe-anel" id="feAnel"></span><span class="fe-pr" id="fePr"></span></div><div class="fe-val" id="feAtV">—</div></div>' +
+        '<div class="fe-teo" id="feTeo"><div class="fe-raios"></div><small>FTP teórico</small><b id="feTeoV">—</b><em id="feTeoD"></em></div>';
+      ab.insertBefore(P, ab.firstChild); }
+    const kg = simCorpo().kg, w = Math.max(0, dispPower || 0), med = me.tt > 20 ? me.tw / me.tt : 0, prev = med ? Math.round(med * .95) : null, ftp = me.ftp || null, dur = blockDurationSec(b), dec = Math.max(0, dur - rem);
+    $('feT').textContent = fmtTime(Math.max(0, Math.ceil(rem))); $('feProg').style.width = Math.min(100, dec / Math.max(1, dur) * 100) + '%';
+    $('feWkg').textContent = w ? (w / kg).toFixed(2).replace('.', ',') : '—'; $('feW').textContent = w ? Math.round(w) : '—';
+    // gráfico dos watts (último minuto, uma barra por segundo)
+    const ag = Date.now(); if(ag - FE.t >= 1000){ FE.t = ag; FE.h.push(w); if(FE.h.length > 90) FE.h.shift(); const mx = Math.max(ftp ? ftp * 1.5 : 0, ...FE.h, 1);
+      $('feGraf').innerHTML = Array(Math.max(0, 90 - FE.h.length)).fill('<i></i>').join('') + FE.h.map(v=> '<i style="height:' + Math.round(v / mx * 100) + '%" class="' + (ftp && v * .95 >= ftp ? 'ac' : '') + '"></i>').join('');
+      const L = $('feLft'); L.style.display = ftp ? '' : 'none'; if(ftp) L.style.bottom = 'calc(4px + ' + Math.round(ftp / .95 / mx * 100) + '% * .92)'; }   // linha tracejada = potência que mantém o FTP atual
+    // tubo: 70% a 130% do FTP atual; enchimento = FTP teórico, risca fina = FTP instantâneo, anel = FTP atual
+    const base = ftp || prev || (w * .95) || 150, lo = base * .7, hi = base * 1.3, pc = v=> Math.max(0, Math.min(100, (v - lo) / (hi - lo) * 100)), acima = !!(prev && ftp && prev >= ftp);
+    $('feEnc').style.height = pc(prev || lo) + '%'; $('fePr').style.bottom = pc(prev || lo) + '%'; $('feInst').style.bottom = pc(w * .95) + '%';
+    $('feAnel').style.bottom = pc(ftp || base) + '%'; $('feAtV').textContent = ftp || '—'; $('feAtV').style.bottom = pc(ftp || base) + '%';
+    $('feTubo').classList.toggle('acima', acima); $('feTeo').classList.toggle('acima', acima);
+    $('feTeoV').textContent = prev || '…'; $('feTeoD').textContent = prev && ftp ? (prev >= ftp ? '+' : '') + (prev - ftp) + ' W · ' + (prev / kg).toFixed(2).replace('.', ',') + ' W/kg' : (prev ? (prev / kg).toFixed(2).replace('.', ',') + ' W/kg' : 'aparece aos 20 s');
+    const cad = Math.round(S.cadence || 0); $('feRpm').textContent = cad || '—'; $('feRpm').className = cad && (cad < 85 || cad > 105) ? 'mau' : (cad ? 'bom' : '');
+    const hr = Math.round(myHr() || 0), fcm = me.fc || null; $('feFc').textContent = hr ? (fcm ? Math.round(hr / fcm * 100) + '%' : hr) : '—'; $('feFcL').textContent = fcm ? '%FC máx' + (hr ? ' · ' + hr + ' bpm' : '') : 'FC (bpm)';
+  }
   function render(){
     updateFtpChip();
     hdrSync();
@@ -7037,6 +7142,7 @@ body:has(#setupScreen.active) .legal{display:none}
     $('liveScreen').classList.toggle('e2on', !finished && solo !== 'livre');
     if(finished && ecraAtual !== 1) ecraVai(1);
     if(finished){
+      ftpEcraPinta(null);
       if(!rateAuto && !rateDone){ rateAuto = true; setTimeout(()=> askRating(null), 900); }
       $('activeBlock').style.display = 'none';
       $('finishedEl').classList.add('active');
@@ -7072,6 +7178,7 @@ body:has(#setupScreen.active) .legal{display:none}
     const zone = blkZone(b);
     const zc = zoneColor(zone.css);
     const remaining = computeRemaining(state);
+    ftpEcraPinta(b.teste ? b : null, remaining);
 
     $('zoneEl').textContent = zNome(zone, blocos, state.blockIndex);
     $('zoneEl').style.color = zc;
@@ -7631,19 +7738,43 @@ body:has(#setupScreen.active) .legal{display:none}
     const novo = Math.round(avg * 0.95);
     const ok = me.tt >= dur * 0.9 && novo >= 50 && novo <= 600;
     me.ftpTest = { m20: Math.round(avg), ftp: novo, antes: me.ftp || null, min: Math.round(me.tt / 60), ok: ok };
-    if(ok){
-      me.ftp = novo;
-      lsSet(LS.ftp, String(novo));
-      if(user && fbDb){ fbDb.ref('alunos/' + user.uid + '/perfil/ftp').set(novo).catch(()=>{}); perfil = Object.assign({}, perfil, {ftp: novo}); }
-      if($('ftpInput')) $('ftpInput').value = novo;
-    }
     showFtpResult();
     try{ pushRider(); }catch(e){}
+    setTimeout(ftpPergunta, 600);   // mostra o resultado e pergunta se quer ajustar o FTP
+  }
+  function ftpAplica(v){
+    v = Math.round(+v); if(!(v >= 50 && v <= 600)) return false;
+    me.ftp = v; lsSet(LS.ftp, String(v));
+    if(user && fbDb){ fbDb.ref('alunos/' + user.uid + '/perfil/ftp').set(v).catch(()=>{}); perfil = Object.assign({}, perfil, {ftp: v}); }
+    if($('ftpInput')) $('ftpInput').value = v;
+    if(me.ftpTest) me.ftpTest.aplicado = v; showFtpResult(); try{ updateFtpChip(); }catch(e){} try{ pushRider(); }catch(e){} return true;
+  }
+  // 🎯 resultado do teste: mostra os números e pede para ajustar o FTP (atualizar, escolher outro valor ou manter)
+  function ftpPergunta(){
+    const R = me.ftpTest; if(!R || $('frOv')) return; const kg = simCorpo().kg, d = R.antes ? R.ftp - R.antes : null, mins = Math.round((testBlockSec() || 1200) / 60);
+    const ov = document.createElement('div'); ov.id = 'frOv'; ov.className = 'fr-ov';
+    ov.innerHTML = '<div class="fr-card' + (R.ok ? '' : ' inc') + '"><div class="fr-tit">' + (R.ok ? '🎯 Teste FTP concluído!' : '⏱ Teste FTP incompleto') + '</div>' +
+      (R.ok ? '' : '<p class="fr-av">Fizeste ' + R.min + ' de ' + mins + ' minutos. O resultado pode não ser fiável.</p>') +
+      '<div class="fr-num"><div><small>Média ' + R.min + ' min</small><b>' + R.m20 + ' W</b></div><div class="fr-nv"><small>FTP do teste</small><b>' + R.ftp + '<span> W</span></b><em>' + (R.ftp / kg).toFixed(2).replace('.', ',') + ' W/kg</em></div><div><small>FTP atual</small><b>' + (R.antes ? R.antes + ' W' : '—') + '</b>' + (d != null ? '<em class="' + (d >= 0 ? 'bom' : 'mau') + '">' + (d >= 0 ? '+' : '') + d + ' W (' + (d >= 0 ? '+' : '') + Math.round(d / R.antes * 100) + '%)</em>' : '') + '</div></div>' +
+      '<p class="fr-q">Queres ajustar o teu FTP? As zonas, os alvos em watts e os pontos das próximas aulas passam a usar este valor.</p>' +
+      '<div class="fr-bt"><button type="button" class="pri" data-fr="ok">✓ Atualizar para ' + R.ftp + ' W</button>' +
+      '<div class="fr-aj"><button type="button" data-fr="menos">−</button><input type="number" id="frVal" min="50" max="600" value="' + R.ftp + '" inputmode="numeric"><span>W</span><button type="button" data-fr="mais">+</button><button type="button" data-fr="guarda">Guardar este</button></div>' +
+      '<button type="button" class="x" data-fr="manter">' + (R.antes ? 'Manter ' + R.antes + ' W' : 'Agora não') + '</button></div></div>';
+    document.body.appendChild(ov);
+    const fecha = msg=>{ ov.classList.add('sai'); setTimeout(()=> ov.remove(), 300); if(msg) toast(msg); };
+    ov.addEventListener('click', e=>{ const b = e.target.closest('[data-fr]'); if(!b) return; const a = b.dataset.fr, inp = $('frVal');
+      if(a === 'menos' || a === 'mais'){ inp.value = Math.max(50, Math.min(600, (+inp.value || R.ftp) + (a === 'mais' ? 1 : -1))); return; }
+      if(a === 'ok'){ ftpAplica(R.ftp); fecha('⚡ FTP atualizado para ' + R.ftp + ' W'); try{ pulDiz('Novo FTP: ' + R.ftp + ' W! ' + (d > 0 ? 'Subiste ' + d + ' W, és uma máquina! 🏆' : 'Agora os treinos ficam à tua medida. 💪'), 'festa', { cor: '#5BE37D', ms: 6000 }); }catch(e){} }
+      else if(a === 'guarda'){ const v = Math.round(+inp.value); if(!ftpAplica(v)){ toast('Escreve um valor entre 50 e 600 W'); return; } fecha('⚡ FTP ajustado para ' + v + ' W'); }
+      else if(a === 'manter'){ fecha(R.antes ? 'FTP mantido em ' + R.antes + ' W' : ''); showFtpResult(); }
+    });
+    try{ pulDiz(R.ok ? (d != null && d > 0 ? 'Conseguiste! O teu teste deu ' + R.ftp + ' W, mais ' + d + ' W do que o teu FTP! 🎉' : 'Teste feito! Deu ' + R.ftp + ' W. Agora escolhe se ajustamos o teu FTP. 👇') : 'O teste ficou incompleto… vê o resultado e decide se queres ajustar. 👇', R.ok ? 'festa' : 'calmo', { cor: '#FFD60A', ms: 6000 }); }catch(e){}
   }
   function ftpResultTxt(){
     const r = me.ftpTest; if(!r) return '';
-    if(!r.ok) return '⏱ Teste FTP incompleto (' + r.min + ' min de ' + Math.round((testBlockSec()||1200)/60) + '): o teu FTP não foi alterado.';
-    return '🎯 Teste FTP concluído! Média 20 min: ' + r.m20 + ' W → <b>novo FTP ' + r.ftp + ' W</b>' + (r.antes ? ' (antes ' + r.antes + ' W)' : '') + '.';
+    const ap = r.aplicado ? ' · <b>FTP ajustado para ' + r.aplicado + ' W</b>' : (r.antes ? ' · FTP mantido em ' + r.antes + ' W' : '');
+    if(!r.ok) return '⏱ Teste FTP incompleto (' + r.min + ' min de ' + Math.round((testBlockSec()||1200)/60) + '): média ' + r.m20 + ' W → ' + r.ftp + ' W' + ap + '.';
+    return '🎯 Teste FTP concluído! Média 20 min: ' + r.m20 + ' W → <b>FTP do teste ' + r.ftp + ' W</b>' + (r.antes ? ' (antes ' + r.antes + ' W)' : '') + ap + '.';
   }
   function showFtpResult(){
     const el = $('ftpResult'); if(el){ el.innerHTML = ftpResultTxt(); el.style.display = me.ftpTest ? '' : 'none'; }
