@@ -1860,6 +1860,10 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 /* timer quadrado: maior, e o tempo nunca toca nos traços */
 .live-overlay.pv2 .ring-wrap{container-type:size;aspect-ratio:1;width:min(clamp(220px,36vh,420px),100%)!important}
 .live-overlay.pv2:not(.split) .ring-wrap{width:min(clamp(220px,37vh,440px),100%)!important}
+/* com a turma ao lado: o quadrado do tempo ajusta-se à altura que sobra, para os cartões nunca se sobreporem ao "A seguir" */
+.live-overlay.pv2.split .ring-wrap{width:min(clamp(150px,calc(100vh - 690px),380px),100%)!important}
+/* logótipos dos alvos (watts, FC e RPM) parados */
+#liveActive .live-metric .pv-ic svg{animation:none!important}
 .live-overlay.pv2 svg.ring.pvq{transform:none!important;width:100%;height:100%;overflow:visible}
 .live-overlay.pv2 .pvq .ring-fg,.live-overlay.pv2 .pvq .ring-bg{fill:none;stroke-width:12!important}
 .live-overlay.pv2 .pvq .ring-fg{stroke:var(--zc);stroke-dasharray:565.49}
@@ -10309,7 +10313,9 @@ const SR3 = (()=>{
   // ---- ⚡ vista do teste FTP (estilo "bolha"): a bolha ao centro é a potência-alvo do teste ----
   // cada aluno é um ponto: dentro da bolha = dentro do alvo (±5%) · sai para a esquerda se está abaixo, para a direita se está acima; quanto mais longe, mais fora do alvo
   // alvo de cada aluno = FTP atual ÷ 0,95 (a potência média que mantém o FTP); sem FTP, a sua própria média do teste (manter constante)
-  const TF = { on: false, raf: 0, pos: {}, list: [], t0: performance.now(), tl: 0, dentro: {}, tot: {}, pin: null };
+  const TF = { on: false, raf: 0, pos: {}, list: [], t0: performance.now(), tl: 0, dentro: {}, tot: {}, pin: null, num: {}, seq: 0, numPin: null, full: (()=>{ try{ return localStorage.getItem('prTfFull') === '1'; }catch(e){ return false; } })() };
+  // número de cada aluno no teste: o da bike, se tiver; senão um número fixo por ordem de chegada (é o mesmo que aparece na app dele)
+  function tfNum(r){ if(TF.numPin !== sessionPin){ TF.numPin = sessionPin; TF.num = {}; TF.seq = 0; } if(r.bk && r.bk !== 'prof') return String(r.bk); return String(TF.num[r.id] || (TF.num[r.id] = ++TF.seq)); }
   function tfPara(){ TF.on = false; cancelAnimationFrame(TF.raf); }
   function tfRender(list){
     const gp = $('gamePanel'); gp.style.display = 'flex'; $('rgrid').style.display = 'none'; $('lanes').style.display = 'none';
@@ -10342,10 +10348,12 @@ const SR3 = (()=>{
       g.strokeStyle = i === 0 ? '#FFD60A' : 'rgba(255,255,255,' + (.3 + fr * .6) + ')'; g.lineWidth = (i === 0 ? 5 : mai ? 4 : 2.5) * U * (.55 + fr * .7); g.beginPath(); g.moveTo(x1, y1); g.lineTo(x2, y2); g.stroke();
       if(mai){ const [lx, ly] = pt(a, 1.3); g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = i === 0 ? '#FFD60A' : 'rgba(255,255,255,.65)'; g.font = (i === 0 ? '800 ' : '600 ') + Math.round((i === 0 ? 16 : 14) * U) + 'px ' + F; g.fillText(i === 0 ? 'ALVO' : (i > 0 ? '+' : '') + i + '%', lx, ly); } }
     // bolha do alvo
-    const MB = musBatida(); let bt = 0, forte = false; if(MB){ const bl = 60 / MB.bpm, dd = mixT() - MB.tb, ph = ((dd % bl) + bl) % bl; forte = (((MB.k + Math.floor(dd / bl)) % 4) + 4) % 4 === 0; bt = Math.exp(-ph / bl * 5) * (forte ? 1 : .6); }   // 🎵 pulsa com a batida (mais forte no 1.º tempo)
-    const ox = cx, oy = cy - ry * .2, oR = Math.min(W, H) * .1, pul = MB ? 1 + bt * .1 : 1 + Math.sin(t * 2.2) * .02;
+    const MB = musBatida(); let bt = 0, forte = false, cadT = 0; if(MB){ const bl = 60 / MB.bpm, dd = mixT() - MB.tb, ph = ((dd % bl) + bl) % bl; forte = (((MB.k + Math.floor(dd / bl)) % 4) + 4) % 4 === 0; bt = Math.exp(-ph / bl * 5) * (forte ? 1 : .6); }
+    else { const cs = TF.list.filter(r=> r.online && (r.c || 0) > 20).map(r=> r.c); cadT = cs.length ? cs.reduce((a, c)=> a + c, 0) / cs.length : (b && b.rpm ? (b.rpm + (b.rpm2 || b.rpm)) / 2 : 0);   // sem música: pulsa à cadência média da turma (uma pulsação por pedalada)
+      if(cadT){ TF.ph = ((TF.ph || 0) + dt * cadT / 60) % 4; const ph = TF.ph % 1; forte = TF.ph < 1; bt = Math.exp(-ph * 5) * (forte ? 1 : .7); } }   // 🎵 pulsa com a batida (mais forte no 1.º tempo)
+    const ox = cx, oy = cy - ry * .2, oR = Math.min(W, H) * .1, pul = MB || cadT ? 1 + bt * .1 : 1 + Math.sin(t * 2.2) * .02;
     const gl = g.createRadialGradient(ox, oy, oR * .3, ox, oy, oR * (2.2 + bt * .8)); gl.addColorStop(0, 'rgba(170,140,255,' + (.5 + bt * .4).toFixed(2) + ')'); gl.addColorStop(1, 'rgba(170,140,255,0)'); g.fillStyle = gl; g.beginPath(); g.arc(ox, oy, oR * (2.2 + bt * .8), 0, 7); g.fill();
-    if(MB){ g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = 'rgba(214,204,255,' + (.55 + bt * .45).toFixed(2) + ')'; g.font = '700 ' + Math.round(14 * U) + 'px ' + F; g.fillText('♪ ' + Math.round(MB.bpm) + ' BPM · ' + MB.cad + ' rpm', ox, oy - oR * 1.35); }
+    if(MB || cadT){ g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = 'rgba(214,204,255,' + (.55 + bt * .45).toFixed(2) + ')'; g.font = '700 ' + Math.round(14 * U) + 'px ' + F; g.fillText(MB ? '♪ ' + Math.round(MB.bpm) + ' BPM · ' + MB.cad + ' rpm' : '⟳ ' + Math.round(cadT) + ' rpm da turma', ox, oy - oR * 1.35); }
     for(let k = 0; k < 3; k++){ g.save(); g.translate(ox, oy); g.rotate(t * (.3 + k * .17) * (k % 2 ? -1 : 1)); g.beginPath(); for(let i = 0; i <= 64; i++){ const a = i / 64 * Math.PI * 2, rr = oR * pul * (1 + .06 * Math.sin(a * (3 + k) + t * (1.5 + k * .4))); i ? g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : g.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); } g.closePath();
       g.fillStyle = ['rgba(60,40,120,.55)', 'rgba(200,120,255,.14)', 'rgba(90,170,255,.12)'][k]; g.fill(); g.strokeStyle = 'rgba(255,255,255,' + (.35 + k * .15) + ')'; g.lineWidth = 1.4 * U; g.stroke(); g.restore(); }
     g.strokeStyle = 'rgba(255,255,255,.5)'; g.lineWidth = 1.5 * U; g.beginPath(); g.ellipse(ox, oy + oR * .35, oR * 1.15, oR * .3, 0, 0, Math.PI * 2); g.stroke();   // anel da bolha
@@ -10357,7 +10365,7 @@ const SR3 = (()=>{
     // fora: na direção do desvio, mais longe quanto mais fora (entre a bolha e a pista)
     fora.forEach(o=>{ const a = ang(Math.max(-D, Math.min(D, o.d))), k = Math.min(1, (Math.abs(o.d) - .05) / (D - .05)), [px, py] = pt(a, 1); const sx = ox + Math.cos(a) * oR * 1.05, sy = oy + Math.sin(a) * oR * .85; o.tx = sx + (px - sx) * (.25 + .75 * k); o.ty = sy + (py - sy) * (.25 + .75 * k); });
     for(let it = 0; it < 4; it++) for(let p = 0; p < L.length; p++) for(let q = p + 1; q < L.length; q++){ const A = L[p], B = L[q]; if(A.ok !== B.ok) continue; const dx = B.tx - A.tx, dy = B.ty - A.ty, dd = Math.hypot(dx, dy) || .01, mn = (A.ok ? 26 : 44) * U; if(dd < mn){ const f = (mn - dd) / 2 / dd; A.tx -= dx * f; A.ty -= dy * f; B.tx += dx * f; B.ty += dy * f; } }   // não se tapam
-    L.forEach(o=>{ const P = TF.pos[o.r.id] || (TF.pos[o.r.id] = { x: o.tx, y: o.ty }); P.x += (o.tx - P.x) * .08; P.y += (o.ty - P.y) * .08; o.x = P.x; o.y = P.y; o.num = o.r.bk && o.r.bk !== 'prof' ? String(o.r.bk) : String(o.i + 1); });
+    L.forEach(o=>{ const P = TF.pos[o.r.id] || (TF.pos[o.r.id] = { x: o.tx, y: o.ty }); P.x += (o.tx - P.x) * .08; P.y += (o.ty - P.y) * .08; o.x = P.x; o.y = P.y; o.num = tfNum(o.r); });
     fora.forEach(o=>{ const cor = o.d < 0 ? '#FF5A6E' : '#4FC3FF', ln = g.createLinearGradient(ox, oy, o.x, o.y); ln.addColorStop(0, 'rgba(255,255,255,0)'); ln.addColorStop(1, cor); g.strokeStyle = ln; g.lineWidth = 3 * U; g.beginPath(); g.moveTo(ox, oy); g.lineTo(o.x, o.y); g.stroke(); });
     L.forEach(o=>{ const cor = o.ok ? '#5BE37D' : (o.d < 0 ? '#FF5A6E' : '#4FC3FF'), rad = (o.ok ? 12 : 15) * U;
       const hl = g.createRadialGradient(o.x, o.y, 0, o.x, o.y, rad * 2.4); hl.addColorStop(0, cor + 'aa'); hl.addColorStop(1, cor + '00'); g.fillStyle = hl; g.beginPath(); g.arc(o.x, o.y, rad * 2.4, 0, 7); g.fill();
@@ -10385,7 +10393,7 @@ const SR3 = (()=>{
     const mode = applyMode();
     if(mode !== 'corrida') crMostra(false);
     if(mode !== 'teste') tfPara();
-    { const f = mode === 'corrida' && CR.full; $('liveOverlay').classList.toggle('crFull', f); $('crTop').hidden = !f; $('crFs').hidden = mode !== 'corrida'; $('crCrit').hidden = mode !== 'corrida'; $('crCrit').textContent = 'Conta: ' + CR_CRIT[CR.crit] + ' ▾'; $('crFs').textContent = CR.full ? '✕ Sair do ecrã total' : '⛶ Ecrã total'; }
+    { const f = mode === 'corrida' && CR.full, ft = mode === 'teste' && TF.full; $('liveOverlay').classList.toggle('crFull', f || ft); $('crTop').hidden = !f; $('crFs').hidden = mode !== 'corrida' && mode !== 'teste'; $('crFs').textContent = (mode === 'teste' ? TF.full : CR.full) ? '⛶ Sair do ecrã total' : '⛶ Ecrã total'; $('crCrit').hidden = mode !== 'corrida'; $('crCrit').textContent = 'Conta: ' + CR_CRIT[CR.crit] + ' ▾'; $('crFs').textContent = CR.full ? '✕ Sair do ecrã total' : '⛶ Ecrã total'; }
     if(mode === 'aula') return;
     const gpn = $('gamePanel');
     if(mode === 'jogos' || mode === 'percurso'){
@@ -10516,7 +10524,8 @@ const SR3 = (()=>{
     const fim = $('liveOverlay').classList.contains('finished');
     const list = fim ? sortZona(visRiders()) : sortRidersBy(visRiders(), raceMetric);
     const rank = {};
-    list.forEach((r,i)=>{ rank[r.id] = {p:i+1, n:list.length}; });
+    const bT = current.blocos[liveIdx], teste = !!(bT && bT.teste);
+    list.forEach((r,i)=>{ rank[r.id] = {p:i+1, n:list.length}; if(teste) rank[r.id].k = tfNum(r); });   // k = número do aluno na vista do teste
     sessionRef(sessionPin).child('rank').set(list.length ? rank : null);
   }
 
@@ -13294,7 +13303,7 @@ const SR3 = (()=>{
   // volta ao jogo/percurso do bloco atual e a projeção passa outra vez a mudar sozinha com os blocos
   function pvPercurso(){ modoFixo = false; const b = current.blocos[liveIdx]; jgMudouBloco(b); }
   $('pvPerc').onclick = pvPercurso;
-  $('crFs').onclick = crFullTroca;
+  $('crFs').onclick = ()=>{ if(effectiveMode() === 'teste'){ TF.full = !TF.full; try{ localStorage.setItem('prTfFull', TF.full ? '1' : '0'); }catch(e){} renderRiders(); } else crFullTroca(); };
   $('crCrit').onclick = ()=>{ const K = Object.keys(CR_CRIT); crCritPoe(K[(K.indexOf(CR.crit) + 1) % K.length]); };
   $('godBtn').onclick = godConfig;   // God Mode na app PlayRide do professor: ligar/desligar e escolher a conta (tecla 4)
   document.querySelectorAll('.ctrl-group [data-mode]').forEach(btn=>{
@@ -13344,6 +13353,7 @@ const SR3 = (()=>{
     if(e.key === '3'){ viewMode = 'corrida'; modoFixo = true; renderRiders(); }
     if(e.key === '6'){ pvPercurso(); }
     if((e.key === 't' || e.key === 'T') && effectiveMode() === 'corrida') crFullTroca();
+    else if((e.key === 't' || e.key === 'T') && effectiveMode() === 'teste'){ TF.full = !TF.full; try{ localStorage.setItem('prTfFull', TF.full ? '1' : '0'); }catch(e){} renderRiders(); }
     if(e.key === '4'){ godConfig(); }
     if(e.key === '5'){ viewMode = 'sala'; modoFixo = true; renderRiders(); }
     if((e.key === 'e' || e.key === 'E') && SR.on && SR.fsTroca) SR.fsTroca();

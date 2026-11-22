@@ -247,10 +247,11 @@ body:has(#liveScreen.active) .coach-bal.vivo{opacity:1}
 .fe-c{position:relative;background:#12161d;border:2px solid #2a313c;border-radius:14px;padding:8px 8px 6px;text-align:center;overflow:hidden}.fe-c b{position:relative;display:block;font:800 clamp(34px,11vw,48px)/1 'Barlow Condensed',Inter,sans-serif;font-variant-numeric:tabular-nums}.fe-c small{position:relative;font:700 11px Inter,sans-serif;color:#9aa4b2;text-transform:uppercase;letter-spacing:.5px}
 .fe-c b.bom{color:#5BE37D}.fe-c b.mau{color:#FF8A8A}.fe-duo .fe-c:first-child b{color:#FFD60A}
 #liveScreen.ftp-teste ~ .nx-burst,body:has(#liveScreen.ftp-teste) #nxFloat,body:has(#liveScreen.ftp-teste) #nxBurst,#liveScreen.ftp-teste #nextEl,#liveScreen.ftp-teste #segNext{display:none!important}
-.fe-top{display:grid;grid-template-columns:1.35fr 1fr;gap:10px}
+.fe-top{display:grid;grid-template-columns:1.3fr .75fr 1fr;gap:8px}.fe-num{display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;padding:8px 4px!important}.fe-num small{font-size:10px!important}
+.fe-num b{width:clamp(50px,15vw,66px);height:clamp(50px,15vw,66px);border-radius:50%;display:flex!important;align-items:center;justify-content:center;background:#fff;color:#10121a;font:900 clamp(28px,9vw,38px)/1 'Barlow Condensed',Inter,sans-serif!important;box-shadow:0 0 0 4px #5BE37D,0 0 18px rgba(91,227,125,.6)}
 .fe-tc{text-align:left!important;padding:8px 12px 10px!important}.fe-tc .fe-tit{display:block;text-align:left;font:900 12px Inter,sans-serif!important;letter-spacing:2px;color:#FFD60A!important;margin-bottom:2px}
-.fe-tc>b{font:800 clamp(46px,15vw,64px)/1 'Barlow Condensed',Inter,sans-serif!important;color:#fff}.fe-tc .fe-prog{margin-top:6px;height:9px}
-.fe-wkc{display:flex;flex-direction:column;justify-content:center}.fe-wkc b{font-size:clamp(44px,14vw,62px)!important;color:#FFD60A}
+.fe-tc>b{font:800 clamp(40px,12.5vw,56px)/1 'Barlow Condensed',Inter,sans-serif!important;color:#fff}.fe-tc .fe-prog{margin-top:6px;height:9px}
+.fe-wkc{display:flex;flex-direction:column;justify-content:center}.fe-wkc b{font-size:clamp(36px,11.5vw,54px)!important;color:#FFD60A}
 .fe-duo2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.fe-duo2 b{font-size:clamp(40px,12.5vw,54px)!important}
 .fe-teo{padding:10px 8px 10px!important}.fe-teo b{font-size:clamp(50px,16vw,70px)!important}
 .fe-w{margin:0 -12px;border-radius:16px;min-height:clamp(118px,17vh,160px);display:flex;flex-direction:column;justify-content:center;padding:10px 12px 8px;background:linear-gradient(180deg,#151a22,#0e1218)}
@@ -1647,7 +1648,7 @@ body:has(#setupScreen.active) .legal{display:none}
   <button id="enterBtn" class="btn-primary">Entrar na aula</button>
   <div id="setupError" class="err"></div>
   <button id="demoBtn" class="btn-link">Experimentar sem bike (modo teste)</button>
-  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 22/11 19:00</div>
+  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 22/11 19:15</div>
 </div>
 
 <!-- 3. AULA -->
@@ -7103,7 +7104,7 @@ body:has(#setupScreen.active) .legal{display:none}
     const on = !!b && ecraAtual === 1; ls.classList.toggle('ftp-teste', on); if(!on){ FE.h = []; return; }
     let P = $('ftpEcra');
     if(!P){ P = document.createElement('div'); P.id = 'ftpEcra'; P.className = 'fe';
-      P.innerHTML = '<div class="fe-top"><div class="fe-c fe-tc"><small class="fe-tit">⚡ TESTE FTP</small><b id="feT">0:00</b><small>falta</small><div class="fe-prog"><i id="feProg"></i></div></div><div class="fe-c fe-wkc"><b id="feWkg">—</b><small>W/kg</small></div></div>' +
+      P.innerHTML = '<div class="fe-top"><div class="fe-c fe-tc"><small class="fe-tit">⚡ TESTE FTP</small><b id="feT">0:00</b><small>falta</small><div class="fe-prog"><i id="feProg"></i></div></div><div class="fe-c fe-num"><small>o teu nº</small><b id="feNum">—</b></div><div class="fe-c fe-wkc"><b id="feWkg">—</b><small>W/kg</small></div></div>' +
         '<div class="fe-c fe-w"><div class="fe-graf" id="feGraf"></div><i class="fe-lft" id="feLft"></i><b id="feW">—</b><small>Watts</small></div>' +
         '<div class="fe-duo2"><div class="fe-c"><b id="feRpm">—</b><small>RPM · 85–105</small></div><div class="fe-c"><b id="feFc">—</b><small id="feFcL">%FC máx</small></div></div>' +
         '<div class="fe-mid"><div class="fe-lbl">FTP<br>atual</div><div class="fe-tubo" id="feTubo"><i class="fe-enc" id="feEnc"></i><i class="fe-inst" id="feInst"></i><span class="fe-anel" id="feAnel"></span><span class="fe-pr" id="fePr"></span></div><div class="fe-val" id="feAtV">—</div></div>' +
@@ -7111,7 +7112,7 @@ body:has(#setupScreen.active) .legal{display:none}
       ab.insertBefore(P, ab.firstChild); }
     const kg = simCorpo().kg, w = Math.max(0, dispPower || 0), med = me.tt > 20 ? me.tw / me.tt : 0, prev = med ? Math.round(med * .95) : null, ftp = me.ftp || null, dur = blockDurationSec(b), dec = Math.max(0, dur - rem);
     $('feT').textContent = fmtTime(Math.max(0, Math.ceil(rem))); $('feProg').style.width = Math.min(100, dec / Math.max(1, dur) * 100) + '%';
-    $('feWkg').textContent = w ? (w / kg).toFixed(2).replace('.', ',') : '—'; $('feW').textContent = w ? Math.round(w) : '—';
+    $('feWkg').textContent = w ? (w / kg).toFixed(2).replace('.', ',') : '—'; $('feNum').textContent = myRank && myRank.k ? myRank.k : '—'; /* o número com que apareces na projeção */ $('feW').textContent = w ? Math.round(w) : '—';
     // gráfico dos watts (último minuto, uma barra por segundo)
     const ag = Date.now(); if(ag - FE.t >= 1000){ FE.t = ag; FE.h.push(w); if(FE.h.length > 90) FE.h.shift(); const mx = Math.max(ftp ? ftp * 1.5 : 0, ...FE.h, 1);
       $('feGraf').innerHTML = Array(Math.max(0, 90 - FE.h.length)).fill('<i></i>').join('') + FE.h.map(v=> '<i style="height:' + Math.round(v / mx * 100) + '%" class="' + (ftp && v * .95 >= ftp ? 'ac' : '') + '"></i>').join('');
