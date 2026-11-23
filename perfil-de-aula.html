@@ -11996,39 +11996,6 @@ const SR3 = (()=>{
   }
   function mixRefaz(){ Object.keys(MIX.els).forEach(k=>{ const E = MIX.els[k]; if(E.el){ try{ E.el.pause(); }catch(e){} } }); MIX.els = {}; }
   // ---- análise: BPM (autocorrelação dos ataques graves) e a primeira batida ----
-  function estAnalisa(ab){
-    const sr = ab.sampleRate, a = ab.getChannelData(0), b = ab.numberOfChannels > 1 ? ab.getChannelData(1) : a;
-    const hop = Math.max(64, Math.round(sr / 172)), fps = sr / hop, dur = ab.duration;
-    const s0 = Math.floor(Math.min(Math.max(0, dur * .2), 40) * sr), s1 = Math.min(a.length, s0 + Math.floor(120 * sr));
-    const kl = Math.exp(-2 * Math.PI * 160 / sr); let lp = 0, eAnt = 0, fAnt = 0; const env = [];
-    for(let i = s0; i + hop <= s1; i += hop){ let el = 0, ef = 0;
-      for(let j = i; j < i + hop; j++){ const x = (a[j] + b[j]) * .5; lp = lp * kl + x * (1 - kl); el += lp * lp; ef += x * x; }
-      el = Math.sqrt(el / hop); ef = Math.sqrt(ef / hop); env.push(Math.max(0, el - eAnt) + .35 * Math.max(0, ef - fAnt)); eAnt = el; fAnt = ef; }
-    const N = env.length, med = env.reduce((s, v)=> s + v, 0) / Math.max(1, N); for(let i = 0; i < N; i++) env[i] = Math.max(0, env[i] - med);
-    // autocorrelação normalizada (média por par, para não favorecer os andamentos rápidos) e pontuação que exige a batida, o meio compasso e o
-    // compasso inteiro: os ritmos sincopados (Afro, breakbeat, hip hop) deixam de enganar com andamentos de 4/3 ou 2/3 do verdadeiro.
-    // Uma preferência suave à volta de 115 BPM (em oitavas) desempata entre o dobro e a metade. Ex.: Moby – Extreme Ways dava 127,9 e agora dá 100.
-    const ac = lag=>{ const l0 = Math.floor(lag), f = lag - l0; let s = 0; for(let i = 0; i + l0 + 1 < N; i++) s += env[i] * (env[i + l0] * (1 - f) + env[i + l0 + 1] * f); return s / Math.max(1, N - l0 - 1); };
-    const pri = bpm=> Math.exp(-.5 * Math.pow(Math.log2(bpm / 115) / .9, 2));
-    let best = 0, bv = -1;
-    for(let bpm = 60; bpm <= 200; bpm += .25){ const L = 60 * fps / bpm, v = (ac(L) + ac(L * 2) + ac(L * 4) + .25 * ac(L / 2)) * pri(bpm); if(v > bv){ bv = v; best = bpm; } }
-    while(best < 70) best *= 2; while(best > 190) best /= 2;
-    // afinação fina: procura o BPM e a fase em que as batidas caem sempre nos ataques ao longo de 2 minutos (fica certo à centésima)
-    const pente = bpm=>{ const P = 60 * fps / bpm; let bv = -1, bp = 0; for(let p = 0; p < P; p += .5){ let s = 0; for(let x = p; x < N; x += P){ const i = Math.round(x); s += (env[i] || 0) + .5 * ((env[i - 1] || 0) + (env[i + 1] || 0)); } if(s > bv){ bv = s; bp = p; } } return [bv, bp]; };
-    let fase = 0; { let bc = -1, bf = best; const b0 = best; for(let bpm = b0 - .35; bpm <= b0 + .35; bpm += .01){ const [v, p] = pente(bpm); if(v > bc){ bc = v; bf = bpm; fase = p; } } best = bf; }
-    const per = 60 / best; let beat0 = (s0 / sr + fase / fps) % per;
-    const pk = [], n = Math.max(60, Math.min(1800, Math.round(dur * 4))), st = a.length / n; let mx = 0;
-    for(let i = 0; i < n; i++){ let m = 0; for(let j = Math.floor(i * st), e = Math.min(a.length, Math.floor((i + 1) * st)); j < e; j += 8){ const v = Math.abs(a[j]); if(v > m) m = v; } pk.push(m); if(m > mx) mx = m; }
-    return Object.assign({ bpm: Math.round(best * 10) / 10, beat0: Math.round(beat0 * 1000) / 1000, dur: Math.round(dur * 10) / 10, pk: pk.map(v=> Math.round(v / (mx || 1) * 99)) }, estChave(ab), estEnergiaRaw(ab));
-  }
-  // ---- ⚡ energia da música: volume médio, "pancada" (ataques fortes e frequentes) e brilho (agudos); a nota 1–10 é relativa à tua biblioteca ----
-  function estEnergiaRaw(ab){
-    try{ const sr = ab.sampleRate, a = ab.getChannelData(0), b = ab.numberOfChannels > 1 ? ab.getChannelData(1) : a, dur = ab.duration, hop = 512;
-      const s0 = Math.floor(Math.min(Math.max(0, dur * .15), 30) * sr), s1 = Math.min(a.length, s0 + Math.floor(150 * sr)); let sq = 0, n = 0, ant = 0, fl = 0, fr = 0; const fs = [];
-      for(let i = s0; i + hop <= s1; i += hop){ let e = 0; for(let j = i; j < i + hop; j += 2){ const x = (a[j] + b[j]) * .5; e += x * x; } e = Math.sqrt(e / (hop / 2)); fs.push(e); sq += e * e; n++; if(e > ant) fl += e - ant; ant = e; fr++; }
-      const rms = Math.sqrt(sq / Math.max(1, n)); fs.sort((p, q)=> p - q); const q10 = fs[Math.floor(fs.length * .1)] || 0, q90 = fs[Math.floor(fs.length * .9)] || 0;
-      return { eR: Math.round(20 * Math.log10(Math.max(1e-6, rms)) * 10) / 10, eO: Math.round(fl / Math.max(1, fr) / Math.max(1e-6, rms) * 1000) / 1000, eD: Math.round(20 * Math.log10(Math.max(1e-6, q90) / Math.max(1e-6, q10)) * 10) / 10 }; }catch(e){ return {}; }
-  }
   function estEnStats(){ if(EST_LM.en) return EST_LM.en; const L = estLib().filter(t=> t.eR != null), st = {};
     ['eR', 'eO', 'eH', 'bpmE'].forEach(k=>{ const v = L.map(t=> k === 'bpmE' ? t.bpm * estMu(t.bpm) : t[k]).filter(x=> x != null && isFinite(x)), m = v.reduce((s, x)=> s + x, 0) / Math.max(1, v.length), d = Math.sqrt(v.reduce((s, x)=> s + (x - m) * (x - m), 0) / Math.max(1, v.length)); st[k] = [m, d || 1]; });
     return (EST_LM.en = st); }
@@ -12039,30 +12006,9 @@ const SR3 = (()=>{
   function estAlvoEn(T){ let s = 0; for(const b of (current.blocos || [])){ const d = blockDurationSec(b); if(T < s + d){ if(b.tipo === 'seg') return null; const f = +b.ftp || 0; if(!f) return null; return Math.max(1, Math.min(10, Math.round((f - 30) / 9.5 * 10) / 10)); } s += d; } return null; }
   const EST_ENC = ['', '#3b6fd9', '#3f8fe0', '#3fb4d9', '#3fd0a6', '#5fd068', '#a8d04a', '#e0c44a', '#f0954a', '#f0664a', '#e8384f'];
   function estEnTag(e, alvo){ if(e == null) return '<small style="color:#5c6470">—</small>'; const d = alvo != null ? e - alvo : 0; return '<b class="est-en" style="background:' + EST_ENC[e] + '" title="Energia ' + e + '/10' + (alvo != null ? ' · o bloco pede ' + String(alvo).replace('.', ',') : '') + '">⚡' + e + '</b>' + (alvo != null && Math.abs(d) >= 2 ? '<small class="mau"> ' + (d > 0 ? '▲' : '▼') + '</small>' : ''); }
-  // ---- 🎹 chave da música (roda de Camelot): cromagrama com FFT e perfis de Krumhansl ----
-  function estFft(re, im){ const n = re.length; for(let i = 1, j = 0; i < n; i++){ let b = n >> 1; for(; j & b; b >>= 1) j ^= b; j ^= b; if(i < j){ let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
-    for(let len = 2; len <= n; len <<= 1){ const a = -2 * Math.PI / len, wr = Math.cos(a), wi = Math.sin(a), h = len >> 1;
-      for(let i = 0; i < n; i += len){ let cr = 1, ci = 0; for(let k = 0; k < h; k++){ const p = i + k, q = p + h, tr = re[q] * cr - im[q] * ci, ti = re[q] * ci + im[q] * cr; re[q] = re[p] - tr; im[q] = im[p] - ti; re[p] += tr; im[p] += ti; const nr = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = nr; } } } }
-  const EST_KMAJ = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88], EST_KMIN = [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17];
   const EST_NOTAS = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
   function estCamDe(pc, menor){ return (menor ? ((pc * 7 - 63) % 12 + 12 + 7) % 12 + 1 : ((pc * 7) % 12 + 7) % 12 + 1) + (menor ? 'A' : 'B'); }
   function estTomDe(cam){ const m = /^(\d+)([AB])$/.exec(cam || ''); if(!m) return ''; for(let pc = 0; pc < 12; pc++) if(estCamDe(pc, m[2] === 'A') === cam) return EST_NOTAS[pc] + (m[2] === 'A' ? 'm' : ''); return ''; }
-  function estChave(ab){
-    try{ const sr = ab.sampleRate, a = ab.getChannelData(0), b = ab.numberOfChannels > 1 ? ab.getChannelData(1) : a, N = 8192, dur = ab.duration;
-      const s0 = Math.floor(Math.min(Math.max(0, dur * .15), 30) * sr), s1 = Math.min(a.length - N, s0 + Math.floor(150 * sr)), passo = Math.max(N, Math.floor((s1 - s0) / 160));
-      const win = new Float32Array(N); for(let i = 0; i < N; i++) win[i] = .5 - .5 * Math.cos(2 * Math.PI * i / N);
-      const lo = Math.ceil(60 * N / sr), hi = Math.min(N / 2 - 1, Math.floor(2100 * N / sr)), pcs = new Int8Array(hi + 1), chroma = new Float64Array(12);
-      for(let k = lo; k <= hi; k++){ const m = 12 * Math.log2(k * sr / N / 440) + 69; pcs[k] = ((Math.round(m) % 12) + 12) % 12; }
-      const re = new Float64Array(N), im = new Float64Array(N), kA = Math.floor(2500 * N / sr), kB = Math.min(N / 2 - 1, Math.floor(9000 * N / sr)); let hiE = 0, alE = 0;
-      for(let i = s0; i < s1; i += passo){ for(let j = 0; j < N; j++){ re[j] = (a[i + j] + b[i + j]) * .5 * win[j]; im[j] = 0; } estFft(re, im);
-        for(let k = lo; k <= kB; k++){ const v = re[k] * re[k] + im[k] * im[k]; alE += v; if(k >= kA) hiE += v; }
-        const fr = new Float64Array(12); let tot = 0; for(let k = lo; k <= hi; k++){ const v = Math.sqrt(re[k] * re[k] + im[k] * im[k]); fr[pcs[k]] += v; tot += v; }
-        if(tot > 1e-6) for(let q = 0; q < 12; q++) chroma[q] += fr[q] / tot; }
-      const cor = (P, rot)=>{ let mx = 0, my = 0; for(let i = 0; i < 12; i++){ mx += chroma[(i + rot) % 12]; my += P[i]; } mx /= 12; my /= 12; let sxy = 0, sxx = 0, syy = 0; for(let i = 0; i < 12; i++){ const x = chroma[(i + rot) % 12] - mx, y = P[i] - my; sxy += x * y; sxx += x * x; syy += y * y; } return sxy / Math.sqrt(sxx * syy || 1); };
-      let best = -2, pc = 0, menor = false; for(let k = 0; k < 12; k++){ const vM = cor(EST_KMAJ, k), vm = cor(EST_KMIN, k); if(vM > best){ best = vM; pc = k; menor = false; } if(vm > best){ best = vm; pc = k; menor = true; } }
-      const eH = Math.round(hiE / Math.max(1e-9, alE) * 10000) / 10000;
-      if(!(best > .25)) return { eH }; return { cam: estCamDe(pc, menor), camC: Math.round(best * 100) / 100, eH }; }catch(e){ return {}; }
-  }
   // compatibilidade na roda de Camelot: 0 = mesma chave · 1 = vizinha (±1 ou relativa A/B) · 2 = +2 / diagonal (subida de energia) · 3 = choca
   function estCamDist(a, b){ const A = /^(\d+)([AB])$/.exec(a || ''), B = /^(\d+)([AB])$/.exec(b || ''); if(!A || !B) return -1; const d = Math.min((+A[1] - +B[1] + 12) % 12, (+B[1] - +A[1] + 12) % 12);
     if(A[2] === B[2]) return d === 0 ? 0 : d === 1 ? 1 : d === 2 ? 2 : 3; return d === 0 ? 1 : d === 1 ? 2 : 3; }
@@ -12102,7 +12048,29 @@ const SR3 = (()=>{
       else if(h.kind === 'directory' && nivel < 4 && !nome.startsWith('.')) yield* estVarre(h, pre + nome + '/', nivel + 1);
     }
   }
-  async function estAnalisaFich(f){ const Off = window.OfflineAudioContext || window.webkitOfflineAudioContext; return estAnalisa(await new Off(1, 1, 22050).decodeAudioData(await f.arrayBuffer())); }
+  // ⚙️ análise em paralelo: o navegador descodifica o MP3 e os "workers" (um por núcleo, até 6) medem BPM, batida, chave e energia ao mesmo tempo
+  var EST_WK = { ws: [], livres: [], fila: [], esp: {}, n: 0, url: null, falhou: false };
+  function estWkN(){ return Math.max(1, Math.min(6, (navigator.hardwareConcurrency || 4) - 1)); }
+  function estWkCria(){
+    if(EST_WK.falhou) return null; try{
+      if(!EST_WK.url) EST_WK.url = URL.createObjectURL(new Blob([$('estWkSrc').textContent], { type: 'text/javascript' }));
+      const w = new Worker(EST_WK.url); w.onmessage = e=>{ const m = e.data, cb = EST_WK.esp[m.id]; delete EST_WK.esp[m.id]; EST_WK.livres.push(w); estWkCorre(); if(cb) m.erro ? cb.no(new Error(m.erro)) : cb.ok(m.r); };
+      w.onerror = e=>{ e.preventDefault && e.preventDefault(); EST_WK.falhou = true; Object.values(EST_WK.esp).forEach(cb=> cb.no(new Error('worker'))); EST_WK.esp = {}; };
+      EST_WK.ws.push(w); return w; }catch(e){ EST_WK.falhou = true; return null; } }
+  function estWkCorre(){ while(EST_WK.fila.length){ let w = EST_WK.livres.pop(); if(!w && EST_WK.ws.length < estWkN()) w = estWkCria(); if(!w) return; const j = EST_WK.fila.shift(); EST_WK.esp[j.m.id] = j; w.postMessage(j.m, [j.m.a.buffer]); } }
+  function estWkMede(m){ return new Promise((ok, no)=>{ EST_WK.fila.push({ m, ok, no }); estWkCorre(); }); }
+  function estWkLocal(ab){   // sem workers (navegador antigo): corre na página, como antes
+    if(!self.estAnalisa){ (0, eval)($('estWkSrc').textContent); } return self.estAnalisa(ab); }
+  async function estAnalisaFich(f){
+    const Off = window.OfflineAudioContext || window.webkitOfflineAudioContext, ab = await new Off(1, 1, 22050).decodeAudioData(await f.arrayBuffer());
+    if(EST_WK.falhou || typeof Worker === 'undefined') return estWkLocal(ab);
+    const L = ab.getChannelData(0), R = ab.numberOfChannels > 1 ? ab.getChannelData(1) : null, a = new Float32Array(L.length);   // mistura as duas colunas numa só (metade da memória)
+    if(R) for(let i = 0; i < a.length; i++) a[i] = (L[i] + R[i]) * .5; else a.set(L);
+    try{ return await estWkMede({ id: ++EST_WK.n, sr: ab.sampleRate, dur: ab.duration, a }); }catch(e){ if(EST_WK.falhou) return estWkLocal(ab); throw e; }
+  }
+  // corre fn(item, i) em vários itens ao mesmo tempo (tantos quantos os workers), pela ordem da lista
+  async function estParalelo(itens, fn){ let i = 0; const K = EST_WK.falhou ? 1 : estWkN() + 1; const um = async ()=>{ while(i < itens.length){ const k = i++; await fn(itens[k], k); } };
+    await Promise.all(Array.from({ length: Math.min(K, itens.length) }, um)); }
   // liga (ou volta a ler) uma pasta: junta as músicas novas, reconhece as que já lá estavam e transforma as cópias antigas em atalhos
   async function estLigaPasta(dirId){
     let P = estPastas(), p = dirId ? P.find(x=> x.id === dirId) : null, h;
@@ -12116,16 +12084,18 @@ const SR3 = (()=>{
     let L = estLib(), novos = 0, ligados = 0, libertos = 0, vistos = new Set(), lista = [];
     EST.estado = 'A ler a pasta "' + p.nome + '"…'; estPinta();
     for await (const x of estVarre(h, '', 0)) lista.push(x);
-    for(let i = 0; i < lista.length; i++){ const x = lista[i]; let f; try{ f = await x.h.getFile(); }catch(e){ continue; }
+    let feitos = 0; const t0 = performance.now();
+    await estParalelo(lista, async (x, i)=>{ let f; try{ f = await x.h.getFile(); }catch(e){ return; }
       vistos.add(x.path); const nome = f.name;
       let t = L.find(q=> q.dir === p.id && q.path === x.path);
-      if(t){ t.tam = f.size; t.falta = false; continue; }
+      if(t){ t.tam = f.size; t.falta = false; return; }
       t = L.find(q=> !q.dir && (q.fich || q.nome) === nome && (!q.tam || q.tam === f.size)) || L.find(q=> !q.dir && q.nome === nome.replace(/\.[^.]+$/, '').slice(0, 80) && (!q.tam || q.tam === f.size));
-      if(t){ if(t.fh) await audDel('mfh:' + t.id); else if(!t.semF){ await audDel('mlib:' + t.id); libertos++; } Object.assign(t, { dir: p.id, path: x.path, fich: nome, tam: f.size, falta: false }); delete t.fh; delete t.semF; ligados++; continue; }   // a cópia antiga passa a atalho: liberta espaço
-      if(L.some(q=> q.fich === nome && q.tam === f.size)) continue;   // a mesma música noutra pasta: não duplica
-      EST.estado = 'A analisar ' + (i + 1) + '/' + lista.length + ': ' + nome + '…'; estPinta(); await new Promise(r=> setTimeout(r, 15));
-      try{ const A = await estAnalisaFich(f); L.push(Object.assign({ id: 'm' + uid().slice(1), nome: nome.replace(/\.[^.]+$/, '').slice(0, 80), fich: nome, tam: f.size, dir: p.id, path: x.path }, A)); novos++; estGravaLib(L); }
-      catch(e){ /* não é áudio que o navegador leia */ } }
+      if(t){ if(t.fh) await audDel('mfh:' + t.id); else if(!t.semF){ await audDel('mlib:' + t.id); libertos++; } Object.assign(t, { dir: p.id, path: x.path, fich: nome, tam: f.size, falta: false }); delete t.fh; delete t.semF; ligados++; return; }   // a cópia antiga passa a atalho: liberta espaço
+      if(L.some(q=> q.fich === nome && q.tam === f.size)) return;   // a mesma música noutra pasta: não duplica
+      try{ const A = await estAnalisaFich(f); if(!L.some(q=> q.fich === nome && q.tam === f.size)){ L.push(Object.assign({ id: 'm' + uid().slice(1), nome: nome.replace(/\.[^.]+$/, '').slice(0, 80), fich: nome, tam: f.size, dir: p.id, path: x.path }, A)); novos++; estGravaLib(L); } }
+      catch(e){ /* não é áudio que o navegador leia */ }
+      feitos++; const vel = feitos / Math.max(1, (performance.now() - t0) / 60000);   // músicas por minuto
+      EST.estado = 'A analisar ' + feitos + '/' + lista.length + ' (' + estWkN() + ' em paralelo · ' + Math.round(vel) + ' músicas/min): ' + nome + '…'; estPintaLib(); });
     L.forEach(q=>{ if(q.dir === p.id) q.falta = !vistos.has(q.path); });
     p.n = L.filter(q=> q.dir === p.id && !q.falta).length; estGravaPastas(P); estGravaLib(L);
     EST.estado = ''; estPinta(); mixRefaz();
@@ -12295,8 +12265,8 @@ const SR3 = (()=>{
       for(const t of sel) await estApaga(t); estGravaLib(L.filter(t=> !S.has(t.id))); S.clear(); estPinta(); };
     $('estReA').onclick = async ()=>{ const S = EST.libSel || new Set(), L = estLib(), alvo = L.filter(t=> !S.size || S.has(t.id)); if(!alvo.length) return;
       if(!confirm('Voltar a medir o BPM, a batida, a chave (Camelot) e a energia de ' + alvo.length + ' música' + (alvo.length === 1 ? '' : 's') + '?\n\n(Se corrigiste algum BPM à mão, volta a ser medido.)')) return;
-      let ok = 0; for(let i = 0; i < alvo.length; i++){ const t = alvo[i]; EST.estado = 'A reanalisar ' + (i + 1) + '/' + alvo.length + ': ' + t.nome + '…'; estPintaLib(); await new Promise(r=> setTimeout(r, 20));
-        try{ const f = await estFicheiro(t.id); if(!f) continue; const A = await estAnalisaFich(f), L2 = estLib(), q = L2.find(x=> x.id === t.id); if(q){ Object.assign(q, { bpm: A.bpm, beat0: A.beat0, dur: A.dur, pk: A.pk }); if(A.cam && !q.camM){ q.cam = A.cam; q.camC = A.camC; } ['eR', 'eO', 'eH', 'eD'].forEach(k=>{ if(A[k] != null) q[k] = A[k]; }); estGravaLib(L2); ok++; } }catch(e){} }
+      let ok = 0, nf = 0; await estParalelo(alvo, async (t)=>{ nf++; EST.estado = 'A reanalisar ' + nf + '/' + alvo.length + ' (' + estWkN() + ' em paralelo): ' + t.nome + '…'; estPintaLib();
+        try{ const f = await estFicheiro(t.id); if(!f) return; const A = await estAnalisaFich(f), L2 = estLib(), q = L2.find(x=> x.id === t.id); if(q){ Object.assign(q, { bpm: A.bpm, beat0: A.beat0, dur: A.dur, pk: A.pk }); if(A.cam && !q.camM){ q.cam = A.cam; q.camC = A.camC; } ['eR', 'eO', 'eH', 'eD'].forEach(k=>{ if(A[k] != null) q[k] = A[k]; }); estGravaLib(L2); ok++; } }catch(e){} });
       EST.estado = ''; Object.keys(EST_HI).forEach(k=> delete EST_HI[k]); estPinta(); toast('🔁 ' + ok + ' músicas reanalisadas'); };
     $('estAdd').onclick = estEscolheFicheiros; $('estFich').onchange = e=>{ estJunta(e.target.files); e.target.value = ''; }; if($('estDir')) $('estDir').onclick = ()=> estLigaPasta();
     ov.addEventListener('dragover', e=>{ if(e.dataTransfer && [...e.dataTransfer.types].includes('Files')){ e.preventDefault(); ov.classList.add('drop'); } });
@@ -15169,6 +15139,69 @@ window.PR_INSTALL_CFG = { key:'coach', name:'PlayRide Coach', icon:'icon-prof-19
     if(inp.form) inp.form.addEventListener('submit', function(){ if(inp.type === 'text'){ inp.type = 'password'; b.innerHTML = EYE; b.classList.remove('on'); } }, true);
   });
 })();
+</script>
+<script type="text/js-worker" id="estWkSrc">
+// 🎵 análise das músicas (BPM, batida, chave e energia) — corre em vários "workers" ao mesmo tempo, um por núcleo do processador.
+// O código desta caixa é lido pelo Estúdio de música e posto a correr à parte (não bloqueia a página).
+  const EST_KMAJ = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88], EST_KMIN = [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17];
+  function estCamDe(pc, menor){ return (menor ? ((pc * 7 - 63) % 12 + 12 + 7) % 12 + 1 : ((pc * 7) % 12 + 7) % 12 + 1) + (menor ? 'A' : 'B'); }
+  // ---- 🎹 chave da música (roda de Camelot): cromagrama com FFT e perfis de Krumhansl ----
+  function estFft(re, im){ const n = re.length; for(let i = 1, j = 0; i < n; i++){ let b = n >> 1; for(; j & b; b >>= 1) j ^= b; j ^= b; if(i < j){ let t = re[i]; re[i] = re[j]; re[j] = t; t = im[i]; im[i] = im[j]; im[j] = t; } }
+    for(let len = 2; len <= n; len <<= 1){ const a = -2 * Math.PI / len, wr = Math.cos(a), wi = Math.sin(a), h = len >> 1;
+      for(let i = 0; i < n; i += len){ let cr = 1, ci = 0; for(let k = 0; k < h; k++){ const p = i + k, q = p + h, tr = re[q] * cr - im[q] * ci, ti = re[q] * ci + im[q] * cr; re[q] = re[p] - tr; im[q] = im[p] - ti; re[p] += tr; im[p] += ti; const nr = cr * wr - ci * wi; ci = cr * wi + ci * wr; cr = nr; } } } }
+  // ---- ⚡ energia da música: volume médio, "pancada" (ataques fortes e frequentes) e brilho (agudos); a nota 1–10 é relativa à tua biblioteca ----
+  function estEnergiaRaw(ab){
+    try{ const sr = ab.sampleRate, a = ab.getChannelData(0), b = ab.numberOfChannels > 1 ? ab.getChannelData(1) : a, dur = ab.duration, hop = 512;
+      const s0 = Math.floor(Math.min(Math.max(0, dur * .15), 30) * sr), s1 = Math.min(a.length, s0 + Math.floor(150 * sr)); let sq = 0, n = 0, ant = 0, fl = 0, fr = 0; const fs = [];
+      for(let i = s0; i + hop <= s1; i += hop){ let e = 0; for(let j = i; j < i + hop; j += 2){ const x = (a[j] + b[j]) * .5; e += x * x; } e = Math.sqrt(e / (hop / 2)); fs.push(e); sq += e * e; n++; if(e > ant) fl += e - ant; ant = e; fr++; }
+      const rms = Math.sqrt(sq / Math.max(1, n)); fs.sort((p, q)=> p - q); const q10 = fs[Math.floor(fs.length * .1)] || 0, q90 = fs[Math.floor(fs.length * .9)] || 0;
+      return { eR: Math.round(20 * Math.log10(Math.max(1e-6, rms)) * 10) / 10, eO: Math.round(fl / Math.max(1, fr) / Math.max(1e-6, rms) * 1000) / 1000, eD: Math.round(20 * Math.log10(Math.max(1e-6, q90) / Math.max(1e-6, q10)) * 10) / 10 }; }catch(e){ return {}; }
+  }
+  function estChave(ab){
+    try{ const sr = ab.sampleRate, a = ab.getChannelData(0), b = ab.numberOfChannels > 1 ? ab.getChannelData(1) : a, N = 8192, dur = ab.duration;
+      const s0 = Math.floor(Math.min(Math.max(0, dur * .15), 30) * sr), s1 = Math.min(a.length - N, s0 + Math.floor(150 * sr)), passo = Math.max(N, Math.floor((s1 - s0) / 160));
+      const win = new Float32Array(N); for(let i = 0; i < N; i++) win[i] = .5 - .5 * Math.cos(2 * Math.PI * i / N);
+      const lo = Math.ceil(60 * N / sr), hi = Math.min(N / 2 - 1, Math.floor(2100 * N / sr)), pcs = new Int8Array(hi + 1), chroma = new Float64Array(12);
+      for(let k = lo; k <= hi; k++){ const m = 12 * Math.log2(k * sr / N / 440) + 69; pcs[k] = ((Math.round(m) % 12) + 12) % 12; }
+      const re = new Float64Array(N), im = new Float64Array(N), kA = Math.floor(2500 * N / sr), kB = Math.min(N / 2 - 1, Math.floor(9000 * N / sr)); let hiE = 0, alE = 0;
+      for(let i = s0; i < s1; i += passo){ for(let j = 0; j < N; j++){ re[j] = (a[i + j] + b[i + j]) * .5 * win[j]; im[j] = 0; } estFft(re, im);
+        for(let k = lo; k <= kB; k++){ const v = re[k] * re[k] + im[k] * im[k]; alE += v; if(k >= kA) hiE += v; }
+        const fr = new Float64Array(12); let tot = 0; for(let k = lo; k <= hi; k++){ const v = Math.sqrt(re[k] * re[k] + im[k] * im[k]); fr[pcs[k]] += v; tot += v; }
+        if(tot > 1e-6) for(let q = 0; q < 12; q++) chroma[q] += fr[q] / tot; }
+      const cor = (P, rot)=>{ let mx = 0, my = 0; for(let i = 0; i < 12; i++){ mx += chroma[(i + rot) % 12]; my += P[i]; } mx /= 12; my /= 12; let sxy = 0, sxx = 0, syy = 0; for(let i = 0; i < 12; i++){ const x = chroma[(i + rot) % 12] - mx, y = P[i] - my; sxy += x * y; sxx += x * x; syy += y * y; } return sxy / Math.sqrt(sxx * syy || 1); };
+      let best = -2, pc = 0, menor = false; for(let k = 0; k < 12; k++){ const vM = cor(EST_KMAJ, k), vm = cor(EST_KMIN, k); if(vM > best){ best = vM; pc = k; menor = false; } if(vm > best){ best = vm; pc = k; menor = true; } }
+      const eH = Math.round(hiE / Math.max(1e-9, alE) * 10000) / 10000;
+      if(!(best > .25)) return { eH }; return { cam: estCamDe(pc, menor), camC: Math.round(best * 100) / 100, eH }; }catch(e){ return {}; }
+  }
+  function estAnalisa(ab){
+    const sr = ab.sampleRate, a = ab.getChannelData(0), b = ab.numberOfChannels > 1 ? ab.getChannelData(1) : a;
+    const hop = Math.max(64, Math.round(sr / 172)), fps = sr / hop, dur = ab.duration;
+    const s0 = Math.floor(Math.min(Math.max(0, dur * .2), 40) * sr), s1 = Math.min(a.length, s0 + Math.floor(120 * sr));
+    const kl = Math.exp(-2 * Math.PI * 160 / sr); let lp = 0, eAnt = 0, fAnt = 0; const env = [];
+    for(let i = s0; i + hop <= s1; i += hop){ let el = 0, ef = 0;
+      for(let j = i; j < i + hop; j++){ const x = (a[j] + b[j]) * .5; lp = lp * kl + x * (1 - kl); el += lp * lp; ef += x * x; }
+      el = Math.sqrt(el / hop); ef = Math.sqrt(ef / hop); env.push(Math.max(0, el - eAnt) + .35 * Math.max(0, ef - fAnt)); eAnt = el; fAnt = ef; }
+    const N = env.length, med = env.reduce((s, v)=> s + v, 0) / Math.max(1, N); for(let i = 0; i < N; i++) env[i] = Math.max(0, env[i] - med);
+    // autocorrelação normalizada (média por par, para não favorecer os andamentos rápidos) e pontuação que exige a batida, o meio compasso e o
+    // compasso inteiro: os ritmos sincopados (Afro, breakbeat, hip hop) deixam de enganar com andamentos de 4/3 ou 2/3 do verdadeiro.
+    // Uma preferência suave à volta de 115 BPM (em oitavas) desempata entre o dobro e a metade. Ex.: Moby – Extreme Ways dava 127,9 e agora dá 100.
+    const ac = lag=>{ const l0 = Math.floor(lag), f = lag - l0; let s = 0; for(let i = 0; i + l0 + 1 < N; i++) s += env[i] * (env[i + l0] * (1 - f) + env[i + l0 + 1] * f); return s / Math.max(1, N - l0 - 1); };
+    const pri = bpm=> Math.exp(-.5 * Math.pow(Math.log2(bpm / 115) / .9, 2));
+    let best = 0, bv = -1;
+    for(let bpm = 60; bpm <= 200; bpm += .25){ const L = 60 * fps / bpm, v = (ac(L) + ac(L * 2) + ac(L * 4) + .25 * ac(L / 2)) * pri(bpm); if(v > bv){ bv = v; best = bpm; } }
+    while(best < 70) best *= 2; while(best > 190) best /= 2;
+    // afinação fina: procura o BPM e a fase em que as batidas caem sempre nos ataques ao longo de 2 minutos (fica certo à centésima)
+    const pente = bpm=>{ const P = 60 * fps / bpm; let bv = -1, bp = 0; for(let p = 0; p < P; p += .5){ let s = 0; for(let x = p; x < N; x += P){ const i = Math.round(x); s += (env[i] || 0) + .5 * ((env[i - 1] || 0) + (env[i + 1] || 0)); } if(s > bv){ bv = s; bp = p; } } return [bv, bp]; };
+    let fase = 0; { let bc = -1, bf = best; const b0 = best; for(let bpm = b0 - .35; bpm <= b0 + .35; bpm += .01){ const [v, p] = pente(bpm); if(v > bc){ bc = v; bf = bpm; fase = p; } } best = bf; }
+    const per = 60 / best; let beat0 = (s0 / sr + fase / fps) % per;
+    const pk = [], n = Math.max(60, Math.min(1800, Math.round(dur * 4))), st = a.length / n; let mx = 0;
+    for(let i = 0; i < n; i++){ let m = 0; for(let j = Math.floor(i * st), e = Math.min(a.length, Math.floor((i + 1) * st)); j < e; j += 8){ const v = Math.abs(a[j]); if(v > m) m = v; } pk.push(m); if(m > mx) mx = m; }
+    return Object.assign({ bpm: Math.round(best * 10) / 10, beat0: Math.round(beat0 * 1000) / 1000, dur: Math.round(dur * 10) / 10, pk: pk.map(v=> Math.round(v / (mx || 1) * 99)) }, estChave(ab), estEnergiaRaw(ab));
+  }
+  if(typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope){
+    self.onmessage = e=>{ const m = e.data; try{ const a = m.a, ab = { sampleRate: m.sr, numberOfChannels: 1, duration: m.dur, length: a.length, getChannelData: ()=> a };
+      self.postMessage({ id: m.id, r: estAnalisa(ab) }); }catch(err){ self.postMessage({ id: m.id, erro: String(err && err.message || err) }); } };
+  } else self.estAnalisa = estAnalisa;   // sem workers: fica disponível na página
 </script>
 <script src="instalar.js"></script>
 
