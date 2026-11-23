@@ -11832,10 +11832,34 @@ const SR3 = (()=>{
     sobe:   { n: 'Entrada em crescendo (16 batidas)', bt: 16, cIn: 'exp', cOut: 'eq', outBt: 4 },
     desce:  { n: 'Saída lenta (16 batidas)', bt: 16, cIn: 'eq', cOut: 'exp', inBt: 4 }
   };
-  function estLib(){ try{ return JSON.parse(localStorage.getItem('prMusLib') || '[]'); }catch(e){ return []; } }
+  // 🎵 biblioteca de músicas: guardada na base de dados do navegador (IndexedDB, centenas de MB) em vez do localStorage (só ~5 MB,
+  //    enchia por volta das 1000 músicas). Fica em memória para ser rápida; cada mudança é gravada pouco depois.
+  //    Na primeira vez passa sozinha a biblioteca antiga do localStorage, sem voltar a analisar nada.
+  var EST_LIB = { L: null, ok: false, t: 0, falha: false };
+  function estLib(){
+    if(!EST_LIB.ok){ if(EST_LIB.falha){ try{ return JSON.parse(localStorage.getItem('prMusLib') || '[]'); }catch(e){ return []; } } return []; }
+    return EST_LIB.L.map(t=> Object.assign({}, t));   // cópia (a onda é partilhada: só se lê)
+  }
+  async function estLibCarrega(){
+    try{
+      let r = await audGet('mlibidx'), L = r && Array.isArray(r.L) ? r.L : null;
+      if(!L){ let velho = []; try{ velho = JSON.parse(localStorage.getItem('prMusLib') || '[]') || []; }catch(e){}
+        L = velho; await audPut('mlibidx', { L, upd: Date.now() });
+        if(velho.length){ const r2 = await audGet('mlibidx'); if(r2 && r2.L && r2.L.length === velho.length) try{ localStorage.removeItem('prMusLib'); }catch(e){} } }   // só apaga o antigo depois de confirmar a cópia
+      EST_LIB.L = L; EST_LIB.ok = true;
+    }catch(e){ EST_LIB.falha = true; }
+    EST_LM.m = null; EST_LM.en = null;
+    try{ estPinta(); }catch(e){}
+  }
+  function estLibGrava(){ clearTimeout(EST_LIB.t); EST_LIB.t = setTimeout(()=>{ audPut('mlibidx', { L: EST_LIB.L, upd: Date.now() }).catch(()=> toast('⚠ Não consegui guardar a biblioteca de músicas.')); }, 400); }
+  window.addEventListener('pagehide', ()=>{ if(EST_LIB.ok && EST_LIB.t){ clearTimeout(EST_LIB.t); audPut('mlibidx', { L: EST_LIB.L, upd: Date.now() }).catch(()=>{}); } });
   function estLibMap(){ if(!EST_LM.m){ EST_LM.m = {}; estLib().forEach(t=> EST_LM.m[t.id] = t); } return EST_LM.m; }
   var EST_LM = { m: null };
-  function estGravaLib(L){ EST_LM.m = null; EST_LM.en = null; try{ localStorage.setItem('prMusLib', JSON.stringify(L)); }catch(e){ toast('Sem espaço para guardar a biblioteca de músicas.'); } }
+  function estGravaLib(L){ EST_LM.m = null; EST_LM.en = null;
+    if(EST_LIB.ok){ EST_LIB.L = L.map(t=> Object.assign({}, t)); estLibGrava(); return; }
+    if(EST_LIB.falha){ try{ localStorage.setItem('prMusLib', JSON.stringify(L)); }catch(e){ toast('Sem espaço para guardar a biblioteca de músicas.'); } return; }
+    toast('A biblioteca de músicas ainda está a carregar… tenta outra vez daqui a um segundo.'); }
+  setTimeout(estLibCarrega, 0);
   function mixAtivo(){ const m = current && current.mix; return m && m.itens && m.itens.length ? m : null; }
   async function estUrl(id){
     if(MIX.urls[id]) return MIX.urls[id];
@@ -12223,7 +12247,7 @@ const SR3 = (()=>{
       '<label>pistas <select id="estPis">' + [2, 3, 4, 5, 6].map(n=> '<option>' + n + '</option>').join('') + '</select></label>' +
       '<label title="Volume geral da mistura">🔊 <input type="range" id="estVol" min="0" max="1" step="0.05"></label>' +
       '<div class="est-med" id="estMed" title="Medidor de dB ao ouvir: o vermelho (acima de −1 dB) e a luz CLIP avisam distorção"><div class="est-mb"><em>L</em><span><u></u><i></i><s></s></span></div><div class="est-mb"><em>R</em><span><u></u><i></i><s></s></span></div><b class="est-mdb">−∞ dB</b><b class="est-clip">CLIP</b></div>' +
-      '<button type="button" class="est-pri" id="estEnche">✨ Encher a aula automaticamente</button><button type="button" id="estPlay">▶ Ouvir</button><button type="button" id="estLimpa">🗑 Limpar</button><button type="button" id="estExp" title="Guarda um ficheiro com a aula e a mistura (só os nomes das músicas): abre-se noutro PC com as mesmas músicas">💾 Exportar playlist</button><button type="button" id="estAbr" title="Abre uma playlist exportada e liga-a às músicas deste PC">📂 Abrir playlist</button><input type="file" id="estAbrIn" accept=".json,application/json" hidden><button type="button" id="estMp3" title="Grava a aula toda num MP3 de 320 kbps">🎧 Exportar MP3</button><button type="button" id="estNiv" title="Verifica os níveis da aula toda (como vai sair) e mostra onde pode distorcer">📊 Verificar níveis</button><span class="est-nivr" id="estNivRes"></span><button type="button" class="est-ok" id="estFecha">✓ Fechar</button></div>' +
+      '<button type="button" class="est-pri" id="estEnche">✨ Encher a aula automaticamente</button><button type="button" id="estPlay">▶ Ouvir</button><button type="button" id="estLimpa">🗑 Limpar</button><button type="button" id="estExp" title="Guarda um ficheiro com a aula e a mistura (só os nomes das músicas): abre-se noutro PC com as mesmas músicas">💾 Exportar playlist</button><button type="button" id="estAbr" title="Abre uma playlist exportada do PlayRide ou uma mistura do MixMeister (.mmp) e liga-a às músicas deste PC">📂 Abrir playlist / MixMeister</button><input type="file" id="estAbrIn" accept=".json,application/json,.mmp" hidden><button type="button" id="estMp3" title="Grava a aula toda num MP3 de 320 kbps">🎧 Exportar MP3</button><button type="button" id="estNiv" title="Verifica os níveis da aula toda (como vai sair) e mostra onde pode distorcer">📊 Verificar níveis</button><span class="est-nivr" id="estNivRes"></span><button type="button" class="est-ok" id="estFecha">✓ Fechar</button></div>' +
       '<div class="est-mid"><div class="est-lib"><div class="est-h">Biblioteca ' + (EST_FS ? '<button type="button" id="estDir" title="Como no MixMeister: escolhe a pasta onde tens as músicas. O PlayRide lê-as de lá e não faz cópias">📁 Ligar pasta</button>' : '') + '<button type="button" id="estAdd" title="' + (EST_FS ? 'Junta músicas soltas (fica só o atalho, sem cópia)' : 'Junta músicas (ficam copiadas no navegador)') + '">＋ Músicas</button><input type="file" id="estFich" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac,.aac" multiple hidden><button type="button" id="estReA" title="Volta a medir o BPM, a batida e a chave Camelot (das selecionadas, ou de todas se nenhuma estiver selecionada) com a análise nova, mais precisa">🔁 Reanalisar BPM</button><button type="button" id="estLibDel" hidden title="Tira da biblioteca as músicas selecionadas (Ctrl/Shift + clique)">🗑 Tirar</button><span class="est-est"></span></div><div class="est-dirs" id="estDirs"></div><div class="est-tab" id="estLibT"></div></div>' +
       '<div class="est-spv" id="estSpV" title="Arrasta para mudar a largura"></div><div class="est-lis"><div class="est-h">Mistura da aula <span class="est-res"></span></div><div class="est-tab" id="estMixT"></div></div></div>' +
       '<div class="est-sph" id="estSpH" title="Arrasta para mudar a altura"></div><div class="est-falta" id="estFalta" hidden></div><div class="est-prog" id="estProg" hidden></div>' +
@@ -12774,6 +12798,7 @@ const SR3 = (()=>{
     toast('💾 Playlist exportada (' + mus.length + ' músicas). Guarda-a junto da pasta das músicas.');
   }
   function estImporta(file){
+    if(/\.mmp$/i.test(file.name)) return estImportaMmp(file);   // mistura do MixMeister
     const fr = new FileReader();
     fr.onload = ()=>{ let d; try{ d = JSON.parse(fr.result); }catch(e){ toast('Este ficheiro não é uma playlist do PlayRide.'); return; }
       if(!d || d.app !== 'playride-mix' || !d.mix || !d.aula){ toast('Este ficheiro não é uma playlist do PlayRide.'); return; }
@@ -12782,12 +12807,80 @@ const SR3 = (()=>{
       EST.pend = d.musicas || []; estLiga2(); try{ $('treinoNome').value = current.nome; }catch(e){} renderEditor(); estPinta(); };
     fr.readAsText(file);
   }
+  // ---- 🎛️ abrir misturas do MixMeister (.mmp) ----
+  // O .mmp é um ficheiro RIFF. Cada música (TRKI) tem: o caminho (TRKF); a grelha (TKTH = microssegundos por compasso de 4 tempos,
+  // TKTM = marcas das batidas); e a disposição na mistura (TKLY): ponto de entrada (1), ponto de saída (2), volume da entrada (0x80)
+  // e da saída (0x100) em dB, e o BPM da mistura (0x1000000). A música seguinte entra quando a anterior chega ao ponto de saída.
+  function mmpLe(buf){
+    const d = new DataView(buf), u8 = new Uint8Array(buf), tag = o=> String.fromCharCode(u8[o], u8[o + 1], u8[o + 2], u8[o + 3]);
+    if(buf.byteLength < 12 || tag(0) !== 'RIFF' || tag(8) !== 'MXMP') throw new Error('não é uma mistura do MixMeister');
+    const filhos = (o, fim)=>{ const r = []; while(o + 8 <= fim && o + 8 <= buf.byteLength){ const id = tag(o), sz = d.getUint32(o + 4, true); r.push({ id, o, sz, tipo: id === 'RIFF' || id === 'LIST' ? tag(o + 8) : null }); o += 8 + sz + (sz & 1); } return r; };
+    const dentro = c=> filhos(c.o + 12, c.o + 8 + c.sz), i64 = o=> Number(d.getBigInt64(o, true)), td = new TextDecoder('utf-16le');
+    const lista = filhos(12, 8 + d.getUint32(4, true)).find(c=> c.tipo === 'TRKL'); if(!lista) throw new Error('mistura sem músicas');
+    return dentro(lista).filter(c=> c.tipo === 'TRKI').map(c=>{
+      const k = { path: '', bpm0: 0, beat0: 0, dur: 0, inP: null, outP: null, fi: [], fo: [], T: 0 };
+      dentro(c).forEach(x=>{
+        if(x.id === 'TRKF') k.path = td.decode(u8.subarray(x.o + 8, x.o + 8 + x.sz)).replace(/\0+$/, '');
+        else if(x.tipo === 'TKTM') dentro(x).forEach(y=>{ if(y.id === 'TKTH') k.bpm0 = 240e6 / i64(y.o + 8); else if(y.id === 'TRKM' && !k.beat0m){ k.beat0 = i64(y.o + 16) / 1e6; k.beat0m = true; } else if(y.id === 'TRKS') k.dur = i64(y.o + 24) / 1e6; });
+        else if(x.tipo === 'TKLY') dentro(x).forEach(y=>{
+          if(y.id === 'TRKS'){ k.dur = k.dur || i64(y.o + 24) / 1e6; return; } if(y.id !== 'TRKM') return;
+          const tp = d.getUint32(y.o + 12, true), pos = i64(y.o + 16) / 1e6, v = d.getFloat32(y.o + 28, true);
+          if(tp === 1) k.inP = pos; else if(tp === 2) k.outP = pos; else if(tp === 0x80) k.fi.push([Math.max(0, pos), v]); else if(tp === 0x100) k.fo.push([pos, v]); else if(tp === 0x1000000 && !k.T && v > 30 && v < 250) k.T = v; });
+      });
+      k.fich = k.path.split(/[\\/]/).pop(); k.nome = k.fich.replace(/\.[^.]+$/, '').slice(0, 80);
+      k.fi.sort((a, b)=> a[0] - b[0]); k.fo.sort((a, b)=> a[0] - b[0]); return k;
+    }).filter(k=> k.fich && k.bpm0 > 30 && k.dur > 5);
+  }
+  // transforma as músicas do .mmp em itens da mistura do PlayRide (mesmos tempos, BPM, entradas, saídas e volumes)
+  function mmpMistura(K){
+    const R = [], SIL = -45; let saidaAnt = null, fimAnt = 0;
+    K.forEach((k, i)=>{
+      const T = k.T || (i ? R[i - 1].T : Math.round(k.bpm0 * 10) / 10), r = T / k.bpm0;
+      const ini0 = i && saidaAnt != null && k.inP != null ? saidaAnt - k.inP / r : fimAnt, tl = s=> ini0 + s / r;
+      // entrada: do último ponto em silêncio até ao volume normal (o resto da curva vai para a linha de volume)
+      let s0 = 0, fIn = .05, env = []; const fi = k.fi, js = fi.map(p=> p[1] <= SIL).lastIndexOf(true);
+      if(js >= 0){ s0 = fi[js][0]; const nx = fi[js + 1]; fIn = nx ? Math.max(.05, (nx[0] - s0) / r) : 1; fi.slice(js + 1).forEach(p=> env.push(p)); } else fi.forEach(p=> env.push(p));
+      let s1 = k.dur, fOut = .5; const fo = k.fo, ks = fo.findIndex(p=> p[1] <= SIL);
+      if(ks >= 0){ s1 = Math.min(k.dur, fo[ks][0]); const pv = fo[ks - 1]; fOut = pv ? Math.max(.05, (s1 - pv[0]) / r) : 1; fo.slice(0, ks).forEach(p=> env.push(p)); } else fo.forEach(p=> env.push(p));
+      const t0 = tl(s0), it = { k, T, r, t0, t1: tl(s1), ini: s0, fIn, fOut, c: i && k.inP != null ? tl(k.inP) : t0, tIn: tl(k.inP != null ? k.inP : s0), tOut: tl(k.outP != null ? k.outP : s1) };
+      env = env.filter(p=> p[0] >= s0 && p[0] <= s1).map(p=> [Math.round((tl(p[0]) - t0) * 100) / 100, Math.max(-30, Math.min(6, Math.round(p[1] * 10) / 10))]);
+      if(env.some(p=> Math.abs(p[1]) > .05)) it.env = { v: env };
+      R.push(it); saidaAnt = it.tOut; fimAnt = it.t1;
+    });
+    const mn = Math.min(0, ...R.map(x=> x.t0)); if(mn < 0) R.forEach(x=>{ x.t0 -= mn; x.t1 -= mn; x.c -= mn; x.tIn -= mn; x.tOut -= mn; });   // nada antes do início da aula
+    return R;
+  }
+  async function estImportaMmp(file){
+    let K; try{ K = mmpLe(await file.arrayBuffer()); }catch(e){ toast('⚠ Não consegui ler esta mistura do MixMeister: ' + e.message); return; }
+    if(!K.length){ toast('Esta mistura do MixMeister não tem músicas.'); return; }
+    const R = mmpMistura(K), fim = Math.max(...R.map(x=> x.t1)), tot = audTot();
+    if(!confirm('Abrir a mistura do MixMeister "' + file.name.replace(/\.mmp$/i, '') + '"?\n\n' + K.length + ' músicas · ' + fmtTime(Math.round(fim)) + ' de mistura' + (tot && fim > tot ? ' (a aula só tem ' + fmtTime(tot) + ': o resto fica de fora)' : '') + '\n\nA mistura desta aula é substituída (os blocos ficam iguais). Podes desfazer.')) return;
+    pushUndo();
+    // liga às músicas da biblioteca pelo nome do ficheiro; a grelha do MixMeister (BPM e 1.ª batida) passa para a biblioteca, para as batidas ficarem certas
+    const L = estLib(), pend = []; let mudouLib = false;
+    const M = current.mix = { trans: 'eq', vol: (current.mix && current.mix.vol) || .85, pistas: 2, itens: [] };
+    R.forEach((x, i)=>{
+      const k = x.k; let t = L.find(q=> q.fich === k.fich) || L.find(q=> q.nome === k.nome);
+      const bpm0 = Math.round(k.bpm0 * 1000) / 1000, b0 = Math.round(k.beat0 * 1000) / 1000;
+      let id; if(t){ id = t.id; if(Math.abs((t.bpm || 0) - bpm0) > .001 || Math.abs((t.beat0 || 0) - b0) > .001){ t.bpm = bpm0; t.beat0 = b0; mudouLib = true; } }
+      else { id = 'm' + uid().slice(1); pend.push({ id, nome: k.nome, fich: k.fich, tam: 0, bpm: bpm0, beat0: b0, dur: k.dur, mm: true }); }
+      const mu = estMu(x.T), t1 = tot ? Math.min(tot, x.t1) : x.t1; if(tot && x.t0 >= tot) return;
+      const it = { id, t0: Math.round(x.t0 * 100) / 100, t1: Math.round(t1 * 100) / 100, ini: Math.round(x.ini * 1000) / 1000, rate: Math.round(x.r * 10000) / 10000, fIn: Math.round(x.fIn * 100) / 100, fOut: Math.round(x.fOut * 100) / 100, cIn: 'eq', cOut: 'eq', g: 1, bpm: Math.round(x.T * mu), mu, c: Math.round(x.c * 100) / 100, p: i % 2 };
+      if(x.env) it.env = x.env; M.itens.push(it);
+    });
+    // mapa de BPM da mistura: o BPM de cada música entre a entrada e a saída (como na faixa de BPM do MixMeister)
+    const P = []; R.forEach(x=>{ P.push([Math.round(x.tIn * 100) / 100, x.T], [Math.round(x.tOut * 100) / 100, x.T]); });
+    P.sort((a, b)=> a[0] - b[0]); M.tempo = P.filter((p, i)=> !i || p[0] !== P[i - 1][0] || p[1] !== P[i - 1][1]);
+    if(mudouLib) estGravaLib(L);
+    M.assin = estAssin(); EST.pend = pend; mixPara(); mixRefaz(); persist(); estLiga2(); estPinta(); try{ renderAudBar && renderAudBar(); }catch(e){}
+    toast('🎛️ Mistura do MixMeister aberta: ' + M.itens.length + ' músicas' + (pend.length ? ' · faltam ' + pend.length + ' neste PC (liga a pasta das músicas)' : ''));
+  }
   // liga as músicas da playlist às da biblioteca (pelo nome do ficheiro e tamanho); as que faltam pedem-se ao professor
   function estLiga2(){
-    const L = estLib(), M = current.mix, falta = [];
+    const L = estLib(), M = current.mix, falta = []; let mm = false;
     (EST.pend || []).forEach(m=>{ let t = L.find(x=> x.id === m.id) || L.find(x=> x.fich && x.fich === m.fich && (!m.tam || !x.tam || x.tam === m.tam)) || L.find(x=> x.nome === m.nome && Math.abs((x.dur || 0) - (m.dur || 0)) < 2);
-      if(t){ if(t.id !== m.id) M.itens.forEach(it=>{ if(it.id === m.id) it.id = t.id; }); } else falta.push(m); });
-    EST.pend = falta; persist(); estPintaFalta();
+      if(t){ if(t.id !== m.id) M.itens.forEach(it=>{ if(it.id === m.id) it.id = t.id; }); if(m.mm && m.bpm && (t.bpm !== m.bpm || t.beat0 !== m.beat0)){ t.bpm = m.bpm; t.beat0 = m.beat0; mm = true; } } else falta.push(m); });   // MixMeister: fica a grelha dele
+    if(mm) estGravaLib(L); EST.pend = falta; persist(); estPintaFalta();
   }
   function estPintaFalta(){
     const box = $('estFalta'); if(!box) return; const F = EST.pend || [];
@@ -14547,7 +14640,7 @@ const SR3 = (()=>{
     const u = auth.currentUser, v = Object.assign(paFoto(), { upd: Date.now(), por: u.email });
     const b = $('paGuardar'); if(b){ b.disabled = true; b.textContent = 'A guardar…'; }
     fbDb.ref('planoAnual').set(v).then(()=>{ PAE.sujo = false; PAE.base = paFoto(); PAE.upd = v.upd; try{ localStorage.setItem('prPlanoAnual', JSON.stringify({ p: v, upd: v.upd })); }catch(e){} toast('✅ Plano anual guardado · todos os professores já veem o plano novo'); paEdPinta(); },
-      e=>{ toast('⚠ Não consegui guardar o plano anual: ' + (e && e.message || e) + '. Confirma a regra "planoAnual" no Firebase.'); paEdPinta(); });
+      e=>{ toast('⚠ Não consegui guardar o plano anual: ' + (e && e.message || e) + '. Confirma a regra "planoAnual" no Firebase.'); const br = $('paEdBar'); if(br) br.dataset.k = ''; paEdPinta(); });   // o botão volta a "Guardar" para tentar outra vez
   }
   function paOriginal(){
     if(!confirm('Voltar ao plano anual original (o do Excel)? As tuas alterações saem da nuvem para todos.')) return;
