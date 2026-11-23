@@ -11884,7 +11884,7 @@ const SR3 = (()=>{
     const t = estLibMap()[it.id]; if(!estTemRampa(it) || !t) return it.ini + (T - it.t0) * it.rate;
     const G = estTempo(), r = Math.max(0, T - it.t0), quebras = G ? G.map(p=> p[0] - it.t0) : it.env.bpm.map(p=> p[0]);
     const pts = [0].concat(quebras.filter(x=> x > 0 && x < r), [r]); let s = 0;
-    for(let i = 1; i < pts.length; i++){ const a = pts[i - 1], b = pts[i]; s += (estBpmEm(it, it.t0 + a) + estBpmEm(it, it.t0 + b)) / 2 * (b - a); }
+    for(let i = 1; i < pts.length; i++){ const a = pts[i - 1], b = pts[i], e = Math.min(1e-4, (b - a) / 4); if(b <= a) continue; s += (estBpmEm(it, it.t0 + a + e) + estBpmEm(it, it.t0 + b - e)) / 2 * (b - a); }   // dentro de cada troço (num salto de BPM conta o valor novo)
     return it.ini + s / t.bpm;
   }
   // a velocidade guardada em cada música acompanha o BPM da mistura (para os cortes, a grelha e o painel)
@@ -12247,7 +12247,7 @@ const SR3 = (()=>{
       '<label>pistas <select id="estPis">' + [2, 3, 4, 5, 6].map(n=> '<option>' + n + '</option>').join('') + '</select></label>' +
       '<label title="Volume geral da mistura">🔊 <input type="range" id="estVol" min="0" max="1" step="0.05"></label>' +
       '<div class="est-med" id="estMed" title="Medidor de dB ao ouvir: o vermelho (acima de −1 dB) e a luz CLIP avisam distorção"><div class="est-mb"><em>L</em><span><u></u><i></i><s></s></span></div><div class="est-mb"><em>R</em><span><u></u><i></i><s></s></span></div><b class="est-mdb">−∞ dB</b><b class="est-clip">CLIP</b></div>' +
-      '<button type="button" class="est-pri" id="estEnche">✨ Encher a aula automaticamente</button><button type="button" id="estPlay">▶ Ouvir</button><button type="button" id="estLimpa">🗑 Limpar</button><button type="button" id="estExp" title="Guarda um ficheiro com a aula e a mistura (só os nomes das músicas): abre-se noutro PC com as mesmas músicas">💾 Exportar playlist</button><button type="button" id="estAbr" title="Abre uma playlist exportada do PlayRide ou uma mistura do MixMeister (.mmp) e liga-a às músicas deste PC">📂 Abrir playlist / MixMeister</button><input type="file" id="estAbrIn" accept=".json,application/json,.mmp" hidden><button type="button" id="estMp3" title="Grava a aula toda num MP3 de 320 kbps">🎧 Exportar MP3</button><button type="button" id="estNiv" title="Verifica os níveis da aula toda (como vai sair) e mostra onde pode distorcer">📊 Verificar níveis</button><span class="est-nivr" id="estNivRes"></span><button type="button" class="est-ok" id="estFecha">✓ Fechar</button></div>' +
+      '<button type="button" class="est-pri" id="estEnche">✨ Encher a aula automaticamente</button><button type="button" id="estPlay">▶ Ouvir</button><button type="button" id="estLimpa">🗑 Limpar</button><button type="button" id="estExp" title="Guarda um ficheiro com a aula e a mistura (só os nomes das músicas): abre-se noutro PC com as mesmas músicas">💾 Exportar playlist</button><button type="button" id="estExpMm" title="Guarda a mistura num ficheiro .mmp que abre no MixMeister (músicas, BPM, entradas, saídas e volumes)">🎛️ Exportar MixMeister</button><button type="button" id="estAbr" title="Abre uma playlist exportada do PlayRide ou uma mistura do MixMeister (.mmp) e liga-a às músicas deste PC">📂 Abrir playlist / MixMeister</button><input type="file" id="estAbrIn" accept=".json,application/json,.mmp" hidden><button type="button" id="estMp3" title="Grava a aula toda num MP3 de 320 kbps">🎧 Exportar MP3</button><button type="button" id="estNiv" title="Verifica os níveis da aula toda (como vai sair) e mostra onde pode distorcer">📊 Verificar níveis</button><span class="est-nivr" id="estNivRes"></span><button type="button" class="est-ok" id="estFecha">✓ Fechar</button></div>' +
       '<div class="est-mid"><div class="est-lib"><div class="est-h">Biblioteca ' + (EST_FS ? '<button type="button" id="estDir" title="Como no MixMeister: escolhe a pasta onde tens as músicas. O PlayRide lê-as de lá e não faz cópias">📁 Ligar pasta</button>' : '') + '<button type="button" id="estAdd" title="' + (EST_FS ? 'Junta músicas soltas (fica só o atalho, sem cópia)' : 'Junta músicas (ficam copiadas no navegador)') + '">＋ Músicas</button><input type="file" id="estFich" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac,.aac" multiple hidden><button type="button" id="estReA" title="Volta a medir o BPM, a batida e a chave Camelot (das selecionadas, ou de todas se nenhuma estiver selecionada) com a análise nova, mais precisa">🔁 Reanalisar BPM</button><button type="button" id="estLibDel" hidden title="Tira da biblioteca as músicas selecionadas (Ctrl/Shift + clique)">🗑 Tirar</button><span class="est-est"></span></div><div class="est-dirs" id="estDirs"></div><div class="est-tab" id="estLibT"></div></div>' +
       '<div class="est-spv" id="estSpV" title="Arrasta para mudar a largura"></div><div class="est-lis"><div class="est-h">Mistura da aula <span class="est-res"></span></div><div class="est-tab" id="estMixT"></div></div></div>' +
       '<div class="est-sph" id="estSpH" title="Arrasta para mudar a altura"></div><div class="est-falta" id="estFalta" hidden></div><div class="est-prog" id="estProg" hidden></div>' +
@@ -12293,7 +12293,7 @@ const SR3 = (()=>{
     $('estLimpa').onclick = ()=>{ if(!mixAtivo() || !confirm('Tirar a mistura desta aula? (as músicas ficam na biblioteca)')) return; estPrevPara(); delete current.mix; persist(); EST.sel = -1; estPinta(); };
     $('estPlay').onclick = ()=> EST.play ? estPrevPara() : estPrevComeca();
     $('estNiv').onclick = estNiveis; estMedidorLiga();
-    $('estExp').onclick = estExporta; $('estMp3').onclick = estMp3; $('estAbr').onclick = ()=> $('estAbrIn').click(); $('estAbrIn').onchange = e=>{ const f = e.target.files[0]; e.target.value = ''; if(f) estImporta(f); };
+    $('estExp').onclick = estExporta; $('estExpMm').onclick = estExportaMmp; $('estMp3').onclick = estMp3; $('estAbr').onclick = ()=> $('estAbrIn').click(); $('estAbrIn').onchange = e=>{ const f = e.target.files[0]; e.target.value = ''; if(f) estImporta(f); };
     $('estFecha').onclick = estFecha;
     $('estPan').oninput = ()=>{ const tot = audTot(), vis = estVis(); EST.x0 = (+$('estPan').value / 1000) * Math.max(0, tot - vis); estDesenha(); };
     estLigaCanvas();
@@ -12807,6 +12807,74 @@ const SR3 = (()=>{
       EST.pend = d.musicas || []; estLiga2(); try{ $('treinoNome').value = current.nome; }catch(e){} renderEditor(); estPinta(); };
     fr.readAsText(file);
   }
+  // ---- 🎛️ exportar a mistura para o MixMeister (.mmp) ----
+  // Escreve o mesmo formato RIFF que o MixMeister grava: cada música com o caminho no Windows, a grelha (BPM e batidas),
+  // os pontos de entrada e saída (a seguinte entra quando a anterior chega à saída), os volumes de entrada e saída e o BPM da mistura.
+  // O navegador não sabe em que disco estão as pastas: pergunta-se uma vez o caminho de cada pasta (ex.: E:\Músicas\Músicas) e fica guardado.
+  function mmpWin(){ try{ return JSON.parse(localStorage.getItem('prMusWin') || '{}') || {}; }catch(e){ return {}; } }
+  function mmpCaminhos(tracks){
+    const W = mmpWin(), P = estPastas(), L = estLib(), falta = [];
+    const base = k=>{ if(W[k]) return W[k];
+      const v = L.find(t=> (k === '_soltas' ? !t.dir : t.dir === k) && t.win);   // já veio de um .mmp: o caminho do Windows sabe-se
+      if(v){ const rel = k === '_soltas' ? (v.fich || '') : String(v.path || v.fich).replace(/\//g, '\\'); if(v.win.toLowerCase().endsWith(rel.toLowerCase())) return v.win.slice(0, v.win.length - rel.length).replace(/\\$/, ''); }
+      return ''; };
+    for(const t of tracks){ if(t.win) continue; const k = t.dir || '_soltas'; if(falta.some(f=> f.k === k)) continue;
+      if(!base(k)) falta.push({ k, nome: k === '_soltas' ? 'músicas soltas' : ((P.find(p=> p.id === k) || {}).nome || 'pasta') }); else W[k] = base(k); }
+    for(const f of falta){ const r = prompt('Para o MixMeister encontrar as músicas: em que pasta do Windows está a pasta "' + f.nome + '"?\n\nEx.: E:\\Músicas\\Músicas  (abre a pasta no Explorador do Windows e copia o caminho da barra de cima)', '');
+      if(!r || !r.trim()) return null; W[f.k] = r.trim().replace(/^"|"$/g, '').replace(/[\\/]+$/, ''); }
+    try{ localStorage.setItem('prMusWin', JSON.stringify(W)); }catch(e){}
+    return t=> t.win || (W[t.dir || '_soltas'] + '\\' + String(t.dir ? (t.path || t.fich) : t.fich).replace(/\//g, '\\'));
+  }
+  function mmpEscreve(F){
+    const partes = [], enc = (id, corpo)=>{ const b = new Uint8Array(8 + corpo.length + (corpo.length & 1)); b.set([...id].map(c=> c.charCodeAt(0)), 0); new DataView(b.buffer).setUint32(4, corpo.length, true); b.set(corpo, 8); return b; };
+    const junta = A=>{ const n = A.reduce((s, a)=> s + a.length, 0), o = new Uint8Array(n); let p = 0; A.forEach(a=>{ o.set(a, p); p += a.length; }); return o; };
+    const lista = (tipo, filhos)=> enc('LIST', junta([new Uint8Array([...tipo].map(c=> c.charCodeAt(0)))].concat(filhos)));
+    const us = s=>{ const b = new Uint8Array((s.length + 1) * 2); for(let i = 0; i < s.length; i++){ const c = s.charCodeAt(i); b[i * 2] = c & 255; b[i * 2 + 1] = c >> 8; } return b; };
+    const marca = (tp, pos, v, a)=>{ const b = new Uint8Array(32), d = new DataView(b.buffer); d.setUint16(0, 32, true); d.setUint16(2, 1, true); d.setUint32(4, tp >>> 0, true); d.setBigInt64(8, BigInt(Math.round(pos * 1e6)), true); d.setUint32(16, a == null ? 1 : a, true); d.setFloat32(20, v || 0, true); return enc('TRKM', b); };
+    const seg = (s0, len, tp)=>{ const b = new Uint8Array(32), d = new DataView(b.buffer); d.setUint16(0, 32, true); d.setUint32(4, tp, true); d.setBigInt64(8, BigInt(Math.round(s0 * 1e6)), true); d.setBigInt64(16, BigInt(Math.round(len * 1e6)), true); d.setBigInt64(24, BigInt(Math.round(s0 * 1e6)), true); return enc('TRKS', b); };
+    const trks = F.map((f, i)=>{
+      const h = new Uint8Array(56), d = new DataView(h.buffer); d.setUint32(0, 56, true); crypto.getRandomValues(h.subarray(8, 24)); d.setUint32(24, Math.round(f.bpm * 1000), true);
+      h.set([2, 0, 1, 0, 1, 0, 0x22, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0xfe, 0xff, 0xff, 0xff], 32);
+      const bl = 60 / f.bpm, bt = [], tkth = new Uint8Array(8); new DataView(tkth.buffer).setBigInt64(0, BigInt(Math.round(240e6 / f.bpm)), true);
+      for(let s = f.beat0; s < f.dur; s += 16 * bl) bt.push(marca(0x10000000, s, 0, 0));   // uma marca de 16 em 16 batidas (a grelha é regular)
+      const tm = lista('TKTM', [enc('TKTH', tkth)].concat(bt, [seg(0, f.dur, 1)]));
+      const ly = [marca(1, f.inP), marca(2, f.outP)];
+      f.fo.forEach(p=> ly.push(marca(0x100, p[0], p[1])));
+      ly.push(marca(0x1000000, f.outP, f.Tout));
+      f.fi.forEach(p=> ly.push(marca(0x80, p[0], p[1])));
+      ly.push(marca(0x1000000, f.inP, f.Tin), seg(0, f.dur, 1)); if(!i) ly.push(marca(0x2000000, f.inP, f.Tin, 0));
+      return lista('TRKI', [enc('TRKH', h), enc('TRKF', us(f.path)), enc('TRSI', us('Beatmix 8')), enc('TRSO', us('Beatmix 8')), tm, lista('TKEL', []), lista('TKLY', ly)]);
+    });
+    const hx = s=> Uint8Array.from(s.match(/../g).map(x=> parseInt(x, 16)));
+    const fim = [lista('GLBL', [enc('GBIN', hx('0800000000000000'))]), enc('MMVR', hx('0c0000000300070000000200')), lista('VIDL', [enc('VDMI', hx('10000000040000000000010000000000'))])];   // MMVR (versão) fica fora do GLBL, como no MixMeister
+    const corpo = junta([new Uint8Array([77, 88, 77, 80]), lista('TRKL', trks)].concat(fim));   // 'MXMP'
+    return enc('RIFF', corpo);
+  }
+  function estExportaMmp(){
+    const M = mixAtivo(); if(!M){ toast('Ainda não há mistura para exportar.'); return; }
+    const Lm = estLibMap(), O = M.itens.filter(it=> !it.ov && Lm[it.id]).sort((a, b)=> a.t0 - b.t0);
+    if(!O.length){ toast('A mistura não tem músicas da biblioteca.'); return; }
+    const camOf = mmpCaminhos(O.map(it=> Lm[it.id])); if(!camOf) return;
+    const SIL = -50, F = O.map(it=>{ const t = Lm[it.id]; return { it, t, path: camOf(t), bpm: t.bpm, beat0: t.beat0 || 0, dur: t.dur }; });
+    F.forEach((f, i)=>{
+      const it = f.it, nx = F[i + 1] && F[i + 1].it, pv = F[i - 1] && F[i - 1].it;
+      const X = it.c != null && i ? it.c : it.t0 + Math.min(it.fIn || 0, (it.t1 - it.t0) / 2);   // momento em que esta música passa a ser a principal
+      const Y = nx ? (nx.c != null ? nx.c : nx.t0 + Math.min(nx.fIn || 0, (nx.t1 - nx.t0) / 2)) : it.t1 - (it.fOut || 0);
+      const sp = T=> Math.max(0, Math.min(f.dur, estPosMus(it, Math.max(it.t0, Math.min(it.t1, T)))));
+      f.inP = sp(i ? X : it.t0); f.outP = Math.max(f.inP + 1, sp(Math.min(Y, it.t1)));
+      f.Tin = Math.round(estBpmEm(it, Math.max(it.t0, X) + .01) * 100) / 100; f.Tout = Math.round(estBpmEm(it, Math.min(it.t1, Y) - .01) * 100) / 100;
+      // volume: em silêncio antes da entrada (o MixMeister toca a música desde o início) e depois do fim; fades com os mesmos tempos; a linha de volume do PlayRide vai junto
+      const s0 = sp(it.t0), sIn = sp(it.t0 + (it.fIn || 0)), sOut = sp(it.t1 - (it.fOut || 0)), s1 = sp(it.t1), env = (it.env && it.env.v) || [];
+      const gdb = it.g && it.g !== 1 ? 20 * Math.log10(Math.max(.01, it.g)) : 0, vol = T=> Math.round(Math.max(-30, Math.min(6, estEnv(it, 'v', T) + gdb)) * 100) / 100 || 0;
+      f.fi = []; if(s0 > .05) f.fi.push([0, SIL]); f.fi.push([s0, SIL], [Math.max(s0 + .05, sIn), vol(it.t0 + (it.fIn || 0))]);
+      env.forEach(p=>{ const T = it.t0 + p[0]; if(T > it.t0 + (it.fIn || 0) && T < it.t1 - (it.fOut || 0)) f.fi.push([sp(T), vol(T)]); });
+      f.fo = [[Math.min(sOut, s1 - .05), vol(it.t1 - (it.fOut || 0))], [s1, SIL]]; if(s1 < f.dur - .05) f.fo.push([f.dur, SIL]);
+      if(i === 0 && !pv && s0 <= .05 && !(it.fIn > .3)) f.fi = [[0, vol(it.t0)]];
+    });
+    const b = mmpEscreve(F), nome = slug(current.nome || 'aula') + '.mmp';
+    const blob = new Blob([b], { type: 'application/octet-stream' }), a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    toast('🎛️ Mistura exportada para o MixMeister (' + F.length + ' músicas): abre o ' + nome + ' no MixMeister.');
+  }
   // ---- 🎛️ abrir misturas do MixMeister (.mmp) ----
   // O .mmp é um ficheiro RIFF. Cada música (TRKI) tem: o caminho (TRKF); a grelha (TKTH = microssegundos por compasso de 4 tempos,
   // TKTM = marcas das batidas); e a disposição na mistura (TKLY): ponto de entrada (1), ponto de saída (2), volume da entrada (0x80)
@@ -12862,8 +12930,8 @@ const SR3 = (()=>{
     R.forEach((x, i)=>{
       const k = x.k; let t = L.find(q=> q.fich === k.fich) || L.find(q=> q.nome === k.nome);
       const bpm0 = Math.round(k.bpm0 * 1000) / 1000, b0 = Math.round(k.beat0 * 1000) / 1000;
-      let id; if(t){ id = t.id; if(Math.abs((t.bpm || 0) - bpm0) > .001 || Math.abs((t.beat0 || 0) - b0) > .001){ t.bpm = bpm0; t.beat0 = b0; mudouLib = true; } }
-      else { id = 'm' + uid().slice(1); pend.push({ id, nome: k.nome, fich: k.fich, tam: 0, bpm: bpm0, beat0: b0, dur: k.dur, mm: true }); }
+      let id; if(t){ id = t.id; if(t.win !== k.path){ t.win = k.path; mudouLib = true; } if(Math.abs((t.bpm || 0) - bpm0) > .001 || Math.abs((t.beat0 || 0) - b0) > .001){ t.bpm = bpm0; t.beat0 = b0; mudouLib = true; } }
+      else { id = 'm' + uid().slice(1); pend.push({ id, nome: k.nome, fich: k.fich, tam: 0, bpm: bpm0, beat0: b0, dur: k.dur, mm: true, win: k.path }); }
       const mu = estMu(x.T), t1 = tot ? Math.min(tot, x.t1) : x.t1; if(tot && x.t0 >= tot) return;
       const it = { id, t0: Math.round(x.t0 * 100) / 100, t1: Math.round(t1 * 100) / 100, ini: Math.round(x.ini * 1000) / 1000, rate: Math.round(x.r * 10000) / 10000, fIn: Math.round(x.fIn * 100) / 100, fOut: Math.round(x.fOut * 100) / 100, cIn: 'eq', cOut: 'eq', g: 1, bpm: Math.round(x.T * mu), mu, c: Math.round(x.c * 100) / 100, p: i % 2 };
       if(x.env) it.env = x.env; M.itens.push(it);
@@ -12879,7 +12947,7 @@ const SR3 = (()=>{
   function estLiga2(){
     const L = estLib(), M = current.mix, falta = []; let mm = false;
     (EST.pend || []).forEach(m=>{ let t = L.find(x=> x.id === m.id) || L.find(x=> x.fich && x.fich === m.fich && (!m.tam || !x.tam || x.tam === m.tam)) || L.find(x=> x.nome === m.nome && Math.abs((x.dur || 0) - (m.dur || 0)) < 2);
-      if(t){ if(t.id !== m.id) M.itens.forEach(it=>{ if(it.id === m.id) it.id = t.id; }); if(m.mm && m.bpm && (t.bpm !== m.bpm || t.beat0 !== m.beat0)){ t.bpm = m.bpm; t.beat0 = m.beat0; mm = true; } } else falta.push(m); });   // MixMeister: fica a grelha dele
+      if(t){ if(t.id !== m.id) M.itens.forEach(it=>{ if(it.id === m.id) it.id = t.id; }); if(m.mm && m.bpm && (t.bpm !== m.bpm || t.beat0 !== m.beat0 || (m.win && t.win !== m.win))){ t.bpm = m.bpm; t.beat0 = m.beat0; if(m.win) t.win = m.win; mm = true; } } else falta.push(m); });   // MixMeister: fica a grelha dele
     if(mm) estGravaLib(L); EST.pend = falta; persist(); estPintaFalta();
   }
   function estPintaFalta(){
