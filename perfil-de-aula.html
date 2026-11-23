@@ -1382,7 +1382,7 @@ body.sr-full-on #liveOverlay #srBox,body.sr-full-on #liveOverlay #srBox *{visibi
 .sr-hud .sr-pin b{font-size:clamp(24px,3cqw,44px);font-weight:800;letter-spacing:2px;margin-left:6px;}
 .sr-neob.off,.sr-drb.off{opacity:.45;filter:grayscale(1);}
 .sr-metb.sr-drb{top:106px;} .sr-metb.sr-drc{top:154px;font-size:17px;} .sr-metb.sr-3d{top:202px;} .sr-3d.off{opacity:.45;filter:grayscale(1);}
-.sr-metb.sr-mg{top:250px;} .sr-metb.sr-heb{top:346px;} .sr-heb.off{opacity:.45;filter:grayscale(1);} .sr-box canvas.sr-heli{z-index:1;cursor:zoom-in;} .sr-box canvas.sr-heli[hidden]{display:none;} .sr-metb.sr-est{top:298px;} .sr-mg.off{opacity:.45;filter:grayscale(1);}
+.sr-metb.sr-mg{top:250px;} .sr-metb.sr-heb{top:346px;} .sr-heb.off{opacity:.45;filter:grayscale(1);} .sr-box canvas.sr-heli{z-index:1;cursor:zoom-in;} .sr-box canvas.sr-h3{position:absolute;inset:0;width:100%;height:100%;z-index:1;display:block;} .sr-metb.sr-h3b{top:394px;} .sr-metb.sr-h3b.on{background:#3DD45C;color:#05070a;border-color:#3DD45C;} .sr-h3t{position:absolute;left:0;right:0;top:0;z-index:2;pointer-events:none;background:rgba(5,7,10,.7);color:#fff;font:800 15px Inter,sans-serif;padding:9px 66px 9px 14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;} .sr-h3t[hidden],.sr-metb[hidden]{display:none;} .sr-box canvas.sr-heli[hidden]{display:none;} .sr-metb.sr-est{top:298px;} .sr-mg.off{opacity:.45;filter:grayscale(1);}
 .sr-vin{--rot:-3deg;--zc:#3DD45C;position:absolute;left:2.2%;top:50%;width:min(25cqw,38cqh);aspect-ratio:1/1;background:#fff;border:clamp(4px,.45cqw,8px) solid #111;box-shadow:clamp(6px,.7cqw,12px) clamp(6px,.7cqw,12px) 0 #111;transform:rotate(var(--rot)) scale(.2);opacity:0;transition:transform .35s cubic-bezier(.2,1.6,.4,1),opacity .2s;pointer-events:none;z-index:2;}
 .sr-vin.on{transform:rotate(var(--rot)) scale(1);opacity:1;}
 .sr-vin canvas{position:absolute;inset:0;width:100%;height:100%;display:block;}
@@ -7003,9 +7003,56 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     if(!SR.nuvens){ const rn = srRnd(9); SR.nuvens = Array.from({ length: 7 }, ()=> ({ x: rn(), y: .06 + rn() * .22, s: .6 + rn() * .9 })); }
   }
   // mini-mapa da rota real com a altimetria real por baixo
+  // ---- 🛰️ vista aérea (imagens de satélite Esri) e 🏛️ monumentos / pontos históricos (OpenStreetMap) nos percursos reais ----
+  const SAT = { img: {}, ok: {} };
+  function satImg(z, x, y, ref){ const u = 'https://server.arcgisonline.com/ArcGIS/rest/services/' + (ref ? 'Reference/World_Boundaries_and_Places' : 'World_Imagery') + '/MapServer/tile/' + z + '/' + y + '/' + x; let im = SAT.img[u];
+    if(!im){ im = SAT.img[u] = new Image(); im.crossOrigin = 'anonymous'; im.onload = ()=>{ SAT.ok[u] = 1; if(typeof SR !== 'undefined' && SR.mapa) SR.mapa = null; }; im.onerror = ()=>{ SAT.ok[u] = -1; }; im.src = u; }
+    return SAT.ok[u] === 1 ? im : null; }
+  const satLo = (x, z)=> x / Math.pow(2, z) * 360 - 180, satLa = (y, z)=>{ const n = Math.PI - 2 * Math.PI * y / Math.pow(2, z); return 180 / Math.PI * Math.atan(Math.sinh(n)); };
+  const satX = (lo, z)=> (lo + 180) / 360 * Math.pow(2, z), satY = (la, z)=>{ const r = la * Math.PI / 180; return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * Math.pow(2, z); };
+  // desenha as imagens que cobrem a zona [la0..la1] × [lo0..lo1]; P(la, lo) → [x, y] no ecrã; pxDeg = píxeis por grau de longitude
+  function satDesenha(g, P, la0, la1, lo0, lo1, pxDeg, ref){
+    let z = Math.round(Math.log2(Math.max(1e-9, pxDeg) * 360 / 256)); z = Math.max(2, Math.min(19, z));
+    const x0 = Math.floor(satX(lo0, z)), x1 = Math.floor(satX(lo1, z)), y0 = Math.floor(satY(la1, z)), y1 = Math.floor(satY(la0, z));
+    if((x1 - x0 + 1) * (y1 - y0 + 1) > 140) return;
+    for(let x = x0; x <= x1; x++) for(let y = y0; y <= y1; y++){ const im = satImg(z, x, y, ref); if(!im) continue; const a = P(satLa(y, z), satLo(x, z)), b = P(satLa(y + 1, z), satLo(x + 1, z)); g.drawImage(im, a[0], a[1], b[0] - a[0] + .6, b[1] - a[1] + .6); }
+  }
+  const MONU_IC = { castelo:'🏰', igreja:'⛪', palacio:'🏛️', monumento:'🗿', ruinas:'🏺', ponte:'🌉', torre:'🗼', museu:'🏛️', miradouro:'🔭', patrimonio:'⭐', atracao:'📍' };
+  // monumentos e pontos históricos a menos de 400 m do percurso (guardados 30 dias neste aparelho)
+  function monuDe(R){
+    if(!R || !R.pts || !R.pts.length || R.pts[0].la == null) return []; if(R.monu) return R.monu;
+    const k = 'prMonu:' + R.titulo + ':' + (+R.km || 0).toFixed(2);
+    try{ const c = JSON.parse(localStorage.getItem(k) || 'null'); if(c && Date.now() - c.t < 30 * 864e5){ R.monu = c.p; return R.monu; } }catch(e){}
+    if(!R.monuPedido){ R.monuPedido = true; monuBusca(R).then(p=>{ R.monu = p; try{ localStorage.setItem(k, JSON.stringify({ t: Date.now(), p })); }catch(e){} if(typeof SR !== 'undefined') SR.mapa = null; }).catch(()=>{ R.monuPedido = false; setTimeout(()=>{ if(!R.monu) R.monu = null; }, 60000); }); }
+    return [];
+  }
+  async function monuBusca(R){
+    let a = 90, b = -90, c = 180, d = -180; R.pts.forEach(p=>{ a = Math.min(a, p.la); b = Math.max(b, p.la); c = Math.min(c, p.lo); d = Math.max(d, p.lo); });
+    const m = .006, bb = [a - m, c - m, b + m, d + m].map(v=> v.toFixed(5)).join(',');
+    const q = '[out:json][timeout:25];(nwr["historic"~"^(castle|fort|monument|ruins|archaeological_site|church|chapel|monastery|palace|manor|tower|city_gate|bridge|aqueduct|pillory|citywalls|memorial)$"]["name"](' + bb + ');nwr["tourism"~"^(museum|viewpoint|attraction)$"]["name"](' + bb + ');nwr["amenity"="place_of_worship"]["name"](' + bb + ');nwr["heritage"]["name"](' + bb + '););out center tags 500;';
+    const r = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=' + encodeURIComponent(q), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    const J = await r.json(), kx = Math.cos(R.pts[0].la * Math.PI / 180) * 111320, ky = 111320, out = [];
+    (J.elements || []).forEach(e=>{ const la = e.lat != null ? e.lat : e.center && e.center.lat, lo = e.lon != null ? e.lon : e.center && e.center.lon; if(la == null) return; const t = e.tags || {}, n = t['name:pt'] || t.name; if(!n) return;
+      let best = 1e9, km = 0; for(let i = 0; i < R.pts.length; i++){ const p = R.pts[i], dd = Math.hypot((p.lo - lo) * kx, (p.la - la) * ky); if(dd < best){ best = dd; km = p.km; } }
+      if(best > 400) return; const h = t.historic, tu = t.tourism;
+      const tipo = /castle|fort|citywalls/.test(h || '') ? 'castelo' : (/monastery|church|chapel/.test(h || '') || t.amenity === 'place_of_worship') ? 'igreja' : /palace|manor/.test(h || '') ? 'palacio' : /monument|memorial|pillory/.test(h || '') ? 'monumento' : /ruins|archaeological_site/.test(h || '') ? 'ruinas' : /bridge|aqueduct/.test(h || '') ? 'ponte' : /tower|city_gate/.test(h || '') ? 'torre' : tu === 'museum' ? 'museu' : tu === 'viewpoint' ? 'miradouro' : t.heritage ? 'patrimonio' : 'atracao';
+      const peso = { castelo:9, palacio:8, ruinas:7, monumento:6, museu:6, ponte:6, torre:6, patrimonio:6, miradouro:5, igreja:4, atracao:3 }[tipo] + (t.heritage ? 2 : 0) + (t.wikipedia || t.wikidata ? 2 : 0) - best / 400;
+      out.push({ n: String(n).slice(0, 48), la: +la.toFixed(6), lo: +lo.toFixed(6), tipo, km: Math.round(km * 100) / 100, d: Math.round(best), peso: Math.round(peso * 10) / 10 }); });
+    const v = []; out.sort((x, y)=> y.peso - x.peso).forEach(p=>{ if(v.length < 40 && !v.some(q=> q.n === p.n && Math.abs(q.km - p.km) < .6)) v.push(p); });
+    return v.sort((x, y)=> x.km - y.km);
+  }
+  // ícones (e nomes dos mais importantes, sem se taparem) por cima de um mapa
+  function monuDesenha(g, M, P, fs, nomes){
+    g.textAlign = 'center'; g.textBaseline = 'middle'; const tomados = [];
+    M.forEach(p=>{ const q = P(p.la, p.lo); g.font = fs + 'px sans-serif'; g.fillStyle = 'rgba(0,0,0,.55)'; g.beginPath(); g.arc(q[0], q[1], fs * .72, 0, 7); g.fill(); g.fillStyle = '#fff'; g.fillText(MONU_IC[p.tipo] || '📍', q[0], q[1] + 1); });
+    if(nomes) M.slice().sort((x, y)=> y.peso - x.peso).slice(0, nomes).forEach(p=>{ const q = P(p.la, p.lo); g.font = '700 ' + Math.round(fs * .78) + 'px Inter,sans-serif'; const w = g.measureText(p.n).width + 10, x = q[0] - w / 2, y = q[1] - fs * 1.9;
+      if(tomados.some(r=> x < r[0] + r[2] && x + w > r[0] && y < r[1] + r[3] && y + fs * 1.1 > r[1])) return; tomados.push([x, y, w, fs * 1.1]);
+      g.fillStyle = 'rgba(8,11,16,.82)'; g.beginPath(); g.roundRect ? g.roundRect(x, y, w, fs * 1.1, 4) : g.rect(x, y, w, fs * 1.1); g.fill(); g.fillStyle = '#FFE082'; g.fillText(p.n, q[0], y + fs * .58); });
+    g.textBaseline = 'alphabetic';
+  }
   function srRotaMapa(ctx, W, H, camZ, R){
     const w = Math.round(Math.min(560, W * (W > 1400 ? .34 : .3))), h = Math.round(Math.min(250, H * (W > 1400 ? .3 : .26))), x0 = 18, y0 = H - h - 18, hp = Math.round(h * .26);
-    const key = R.titulo + w + 'x' + h;
+    const MN = monuDe(R), key = R.titulo + w + 'x' + h + ':' + MN.length;
     const k = Math.cos((R.gpx ? R.pts[0].la : 41.24) * Math.PI / 180), P = R.pts.concat(R.santKm != null && !(R.sant && R.sant.la == null) ? [R.sant || VALE_SANT] : []);
     let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity;
     P.forEach(p=>{ a = Math.min(a, p.lo * k); b = Math.max(b, p.lo * k); c = Math.min(c, p.la); d = Math.max(d, p.la); });
@@ -7015,14 +7062,19 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     if(!SR.mapa || SR.mapa.key !== key){
       const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const g = cv.getContext('2d');
       g.fillStyle = 'rgba(5,7,10,.72)'; g.beginPath(); g.roundRect ? g.roundRect(0, 0, w, h, 12) : g.rect(0, 0, w, h); g.fill();
-      g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = 4; g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); R.pts.forEach((p, i)=>{ const q = XY(p.la, p.lo); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.stroke();
+      if(R.pts[0].la != null){ g.save(); g.beginPath(); g.roundRect ? g.roundRect(0, 0, w, h - hp, [12, 12, 0, 0]) : g.rect(0, 0, w, h - hp); g.clip();   // fundo: vista aérea
+        const laX = y=> d - (y - oy) / sc, loX = x=> ((x - ox) / sc + a) / k; satDesenha(g, (la, lo)=> XY(la, lo), laX(h - hp), laX(0), loX(0), loX(w), sc * k);
+        g.fillStyle = 'rgba(0,0,0,.22)'; g.fillRect(0, 0, w, h - hp); g.restore(); }
+      g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = 'rgba(0,0,0,.6)'; g.lineWidth = 7; g.beginPath(); R.pts.forEach((p, i)=>{ const q = XY(p.la, p.lo); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.stroke();
+      g.strokeStyle = '#FFD60A'; g.lineWidth = 3.5; g.stroke();
+      if(MN.length) monuDesenha(g, MN, XY, 13, 5);
       g.font = '700 12px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.85)';
       g.fillStyle = 'rgba(255,214,10,.8)'; R.pois.forEach(p=>{ const k0 = R.pts.reduce((m, q, i)=> Math.abs(q.km - p.km) < Math.abs(R.pts[m].km - p.km) ? i : m, 0), q = XY(R.pts[k0].la, R.pts[k0].lo); g.beginPath(); g.arc(q[0], q[1], 2.2, 0, 7); g.fill(); });
       g.fillStyle = 'rgba(255,255,255,.85)';
       R.vilas.forEach((n, ix)=>{ const p = ix ? R.pts[R.pts.length - 1] : R.pts[0], q = XY(p.la, p.lo); g.textAlign = 'left'; g.fillText(n, q[0] + 10, q[1] + 4); g.fillStyle = '#FFD60A'; g.beginPath(); g.arc(q[0], q[1], 4, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,.85)'; });
       if(R.rotulos){ g.font = '700 11px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'center'; R.rotulos.forEach(o=>{ const q = XY(o.la, o.lo); g.fillText(o.n, q[0], q[1]); }); }
       if(R.santKm != null && (R.sant || VALE_SANT).la != null){ const q = XY((R.sant || VALE_SANT).la, (R.sant || VALE_SANT).lo); g.font = '15px sans-serif'; g.textAlign = 'center'; g.fillText('⛪', q[0], q[1] + 5); }
-      g.font = '700 11px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'left'; g.fillText(R.titulo + ' · ' + R.km.toFixed(1).replace('.', ',') + ' km reais', 10, 12);
+      g.font = '700 11px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'left'; g.fillText(R.titulo + ' · ' + R.km.toFixed(1).replace('.', ',') + ' km reais' + (MN.length ? ' · ' + MN.length + ' pontos históricos' : ''), 10, 12); g.font = '600 9px Inter,sans-serif'; g.fillStyle = 'rgba(255,255,255,.6)'; g.textAlign = 'right'; g.fillText('Imagens Esri · Monumentos © OpenStreetMap', w - 8, h - hp - 5); g.textAlign = 'left';
       // altimetria real
       g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(8, h - hp, w - 16, hp - 4);
       g.fillStyle = 'rgba(120,190,120,.55)'; g.beginPath(); g.moveTo(8, h - 6); e.forEach((v, i)=> g.lineTo(8 + i / (e.length - 1) * (w - 16), EY(v))); g.lineTo(w - 8, h - 6); g.closePath(); g.fill();
@@ -7035,6 +7087,10 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     const t = (alvo - Pt[i - 1].km) / ((Pt[i].km - Pt[i - 1].km) || 1), q = XY(Pt[i - 1].la + (Pt[i].la - Pt[i - 1].la) * t, Pt[i - 1].lo + (Pt[i].lo - Pt[i - 1].lo) * t);
     ctx.fillStyle = '#FFD60A'; ctx.strokeStyle = '#05070A'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x0 + q[0], y0 + q[1], 7, 0, 7); ctx.fill(); ctx.stroke();
     const ex = x0 + 8 + f * (w - 16), ey = y0 + EY(srRotaAlt(R, f)); ctx.beginPath(); ctx.arc(ex, ey, 5, 0, 7); ctx.fill(); ctx.stroke();
+    const perto = MN.filter(p=> p.km - alvo > -.15 && p.km - alvo < .45).sort((p, q)=> q.peso - p.peso)[0];
+    if(perto){ const txt = (MONU_IC[perto.tipo] || '📍') + '  ' + (perto.km - alvo > .05 ? 'A chegar: ' : 'A passar: ') + perto.n; ctx.font = '800 ' + Math.max(15, Math.round(w / 26)) + 'px Inter,sans-serif'; const tw = ctx.measureText(txt).width + 26, th = Math.max(30, w / 15);
+      ctx.fillStyle = 'rgba(8,11,16,.88)'; ctx.strokeStyle = '#FFD60A'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0, y0 - th - 8, tw, th, 10) : ctx.rect(x0, y0 - th - 8, tw, th); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#FFE082'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x0 + 13, y0 - th / 2 - 7); ctx.textBaseline = 'alphabetic'; }
   }
   // ---- Serra 3D: hora do dia e meteorologia (manhã, tarde, pôr do sol, noite × sol, nublado, chuva, neve, nevoeiro) ----
   const MET_FASES = { manha:['🌅', 'Manhã'], tarde:['🏞️', 'Tarde'], por:['🌇', 'Pôr do sol'], noite:['🌙', 'Noite'] };
@@ -10189,9 +10245,33 @@ const SR3 = (()=>{
   function heliFmtM(m){ return m < 995 ? Math.round(m) + ' m' : (m / 1000).toFixed(1).replace('.', ',') + ' km'; }
   function heliPos(G, z){ const f = Math.max(0, Math.min(G.N - 1.001, z / SR_SEG)), i = Math.floor(f), t = f - i, A = G.P[i], B = G.P[i + 1] || A; return [A[0] + (B[0] - A[0]) * t, A[1] + (B[1] - A[1]) * t]; }
   function heliCor(id){ let h = 0; for(const ch of String(id)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return 'hsl(' + (h % 360) + ',85%,60%)'; }
+  // direção da estrada (ângulo no mapa) no ponto z, e a faixa lateral de cada aluno (sempre a mesma, para não saltarem)
+  function heliRumo(G, z){ const f = Math.max(0, Math.min(G.N - 2, Math.floor(z / SR_SEG))), A = G.P[Math.max(0, f - 2)], B = G.P[Math.min(G.N - 1, f + 3)]; return Math.atan2(B[1] - A[1], B[0] - A[0]); }
+  function heliFaixa(id){ let h = 7; for(const ch of String(id)) h = (h * 33 + ch.charCodeAt(0)) >>> 0; return ((h % 7) - 3) * .75; }
+  // 🚴 ciclista visto do alto (1 m = s píxeis): rodas, quadro, guiador, pernas a pedalar, tronco com a cor do aluno e o capacete
+  function heliBici(g, G, o, C, s, cor, t){
+    const r = o.r, ang = o.hd || 0, rpm = Math.max(0, jgRpm(r) || 0), fa = t * rpm / 60 * Math.PI * 2 + (heliFaixa(r.id) * 9);
+    g.save(); g.translate(C.sx, C.sy); g.rotate(ang); const S = Math.max(s * 1.4, 8); g.scale(S, S);   // um pouco maior do que a escala real, para se ver bem na projeção
+    g.lineCap = 'round';
+    g.fillStyle = 'rgba(0,0,0,.32)'; g.beginPath(); g.ellipse(.18, .22, 1.05, .32, 0, 0, 7); g.fill();   // sombra
+    g.strokeStyle = '#111'; g.lineWidth = .07; [[.56], [-.56]].forEach(([x])=>{ g.beginPath(); g.moveTo(x - .34, 0); g.lineTo(x + .34, 0); g.stroke(); });   // rodas (vistas de cima são traços)
+    g.strokeStyle = '#d9dde3'; g.lineWidth = .05; g.beginPath(); g.moveTo(-.56, 0); g.lineTo(.5, 0); g.stroke();   // quadro
+    g.strokeStyle = '#222'; g.lineWidth = .05; g.beginPath(); g.moveTo(.47, -.21); g.lineTo(.47, .21); g.stroke();   // guiador
+    const k = Math.sin(fa) * .17;   // pernas: um joelho à frente, o outro atrás
+    g.strokeStyle = '#1b1e24'; g.lineWidth = .11; g.beginPath(); g.moveTo(-.12, -.1); g.lineTo(.12 + k, -.13); g.lineTo(.02 + k * .6, -.08); g.moveTo(-.12, .1); g.lineTo(.12 - k, .13); g.lineTo(.02 - k * .6, .08); g.stroke();
+    g.strokeStyle = cor; g.lineWidth = .09; g.beginPath(); g.moveTo(.22, -.17); g.lineTo(.46, -.2); g.moveTo(.22, .17); g.lineTo(.46, .2); g.stroke();   // braços
+    g.fillStyle = cor; g.beginPath(); g.ellipse(.06, 0, .3, .19, 0, 0, 7); g.fill(); g.strokeStyle = 'rgba(0,0,0,.5)'; g.lineWidth = .03; g.stroke();   // tronco (camisola)
+    g.fillStyle = 'rgba(255,255,255,.35)'; g.beginPath(); g.ellipse(.02, 0, .2, .05, 0, 0, 7); g.fill();   // risca da camisola
+    g.fillStyle = '#f4f6f8'; g.beginPath(); g.ellipse(.36, 0, .13, .11, 0, 0, 7); g.fill(); g.strokeStyle = cor; g.lineWidth = .04; g.stroke();   // capacete
+    g.restore();
+    // número/posição por cima do ciclista
+    g.font = '800 ' + Math.max(11, Math.min(18, s * .55)) + 'px Inter,sans-serif'; g.textAlign = 'center'; g.lineWidth = 3; g.strokeStyle = 'rgba(0,0,0,.75)'; const tx = (C.i + 1) + 'º';
+    g.strokeText(tx, C.sx, C.sy - Math.max(14, s * 1.3)); g.fillStyle = '#fff'; g.fillText(tx, C.sx, C.sy - Math.max(14, s * 1.3));
+  }
   function heliFrame(now){
     HELI.raf = 0; const cv = $('srHeliCv'); if(!SR.heli || !cv || !cv.isConnected || !SR.on) return;
     HELI.raf = requestAnimationFrame(heliFrame);
+    if(H3.on){ h3Frame(now); return; }
     const W = cv.clientWidth, H = cv.clientHeight; if(!W || !H) return; const dpr = Math.min(2, window.devicePixelRatio || 1);
     if(cv.width !== Math.round(W * dpr) || cv.height !== Math.round(H * dpr)){ cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr); }
     const ctx = cv.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -10203,9 +10283,12 @@ const SR3 = (()=>{
     L.forEach(o=> o.p = heliPos(G, o.z));
     // enquadramento: o percurso todo, ou o pelotão (com folga); desliza suavemente entre os dois
     let [a, b, c, d] = G.box;
-    if(HELI.zoom === 'grupo' && L.length){ const xs = L.map(o=> o.p[0]), ys = L.map(o=> o.p[1]), mx = (Math.min(...xs) + Math.max(...xs)) / 2, my = (Math.min(...ys) + Math.max(...ys)) / 2;
+    if(HELI.zoom === 'perto' && L.length){   // 🔍 bem perto: a frente da corrida (líder e quem vai colado a ele), com a estrada à largura real
+      const fr = L.filter(o=> heliMetros(L[0].z - o.z) < 45), xs = fr.map(o=> o.p[0]), ys = fr.map(o=> o.p[1]), mx = (Math.min(...xs) + Math.max(...xs)) / 2, my = (Math.min(...ys) + Math.max(...ys)) / 2;
+      const half = Math.max(18, (Math.max(...xs) - Math.min(...xs)) * .62, (Math.max(...ys) - Math.min(...ys)) * .62); a = mx - half; b = mx + half; c = my - half; d = my + half; }
+    else if(HELI.zoom === 'grupo' && L.length){ const xs = L.map(o=> o.p[0]), ys = L.map(o=> o.p[1]), mx = (Math.min(...xs) + Math.max(...xs)) / 2, my = (Math.min(...ys) + Math.max(...ys)) / 2;
       const half = Math.max(350, (Math.max(...xs) - Math.min(...xs)) * .65, (Math.max(...ys) - Math.min(...ys)) * .65); a = mx - half; b = mx + half; c = my - half; d = my + half; }
-    const alvo = [a, b, c, d]; HELI.vis = HELI.vis ? HELI.vis.map((v, i)=> v + (alvo[i] - v) * .06) : alvo.slice(); [a, b, c, d] = HELI.vis;
+    const alvo = [a, b, c, d], dtH = Math.min(.25, Math.max(0, (now - (HELI.tl || now)) / 1000)), fH = 1 - Math.pow(.94, dtH * 60); HELI.tl = now; HELI.vis = HELI.vis ? HELI.vis.map((v, i)=> v + (alvo[i] - v) * fH) : alvo.slice(); [a, b, c, d] = HELI.vis;
     const lat = L.length ? Math.min(W * .28, Math.max(150, Math.min(15, W / 95) * 12)) : 0, pad = Math.min(W, H) * .06, sc = Math.min((W - lat * 2 - 60 - pad * 2) / Math.max(1, b - a), (H - pad * 2 - 40) / Math.max(1, d - c));
     const ox = lat + (W - lat * 2 - 50 - (b - a) * sc) / 2 - a * sc, oy = 40 + (H - 40 - (d - c) * sc) / 2 - c * sc, XY = p=> [ox + p[0] * sc, oy + p[1] * sc];
     // chão visto do alto: manchas de campo e mato, e a sombra das nuvens a passar
@@ -10215,14 +10298,19 @@ const SR3 = (()=>{
     ctx.save(); ctx.globalAlpha = .9; const rm = srRnd(G.N);
     for(let i = 0; i < 70; i++){ const x = rm() * W, y = rm() * H, r = 20 + rm() * 70; ctx.fillStyle = rm() < .5 ? 'rgba(52,92,48,.35)' : 'rgba(24,52,30,.45)'; ctx.beginPath(); ctx.ellipse(x, y, r, r * (.5 + rm() * .5), rm() * 3, 0, 7); ctx.fill(); }
     ctx.restore();
+    const RR = G.real ? (ROTAS[SR.rota] || ROTAS.lp) : null, kk = RR ? Math.cos((RR.pts[0].la || 41) * Math.PI / 180) * 111320 : 0, PW = (la, lo)=> XY([lo * kk, -la * 111320]);
+    if(RR){ const loS = x=> ((x - ox) / sc) / kk, laS = y=> -((y - oy) / sc) / 111320; if(sc > .6) satDesenha(ctx, PW, laS(H), laS(0), loS(0), loS(W), sc * kk / 8); satDesenha(ctx, PW, laS(H), laS(0), loS(0), loS(W), sc * kk); satDesenha(ctx, PW, laS(H), laS(0), loS(0), loS(W), sc * kk, true); ctx.fillStyle = 'rgba(0,0,0,.12)'; ctx.fillRect(0, 0, W, H); }   // 🛰️ vista aérea real
     // estrada: contorno escuro, asfalto e o traço do meio com a cor da zona de cada bloco
     const seg = G.P.map(XY), path = ()=>{ ctx.beginPath(); seg.forEach((p, i)=> i ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1])); };
     ctx.lineJoin = ctx.lineCap = 'round';
-    path(); ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.lineWidth = 11; ctx.stroke();
-    path(); ctx.strokeStyle = '#59606b'; ctx.lineWidth = 7; ctx.stroke();
-    const segs = SR.trk.segs; ctx.lineWidth = 2.2; let ib = -1;
+    const rw = 7 * sc, perto = rw > 24;   // 7 m de estrada: ao aproximar, a estrada cresce à escala real
+    path(); ctx.strokeStyle = 'rgba(0,0,0,.55)'; ctx.lineWidth = Math.max(11, rw + Math.max(4, sc * 1.2)); ctx.stroke();
+    if(perto){ path(); ctx.strokeStyle = 'rgba(196,186,160,.9)'; ctx.lineWidth = rw + sc * .9; ctx.stroke(); }   // berma
+    path(); ctx.strokeStyle = '#59606b'; ctx.lineWidth = Math.max(7, rw); ctx.stroke();
+    if(perto){ path(); ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = rw - sc * .5; ctx.stroke(); path(); ctx.strokeStyle = '#555c66'; ctx.lineWidth = rw - sc * .8; ctx.stroke(); }   // linhas brancas das bordas
+    const segs = SR.trk.segs; ctx.lineWidth = Math.max(2.2, sc * .16); let ib = -1; if(perto) ctx.setLineDash([sc * 3, sc * 3]);
     for(let i = 1; i < seg.length; i++){ const bi = segs[i].b; if(bi !== ib){ if(ib >= 0) ctx.stroke(); ctx.beginPath(); ctx.moveTo(seg[i - 1][0], seg[i - 1][1]); ctx.strokeStyle = srCorBloco(bi); ib = bi; } ctx.lineTo(seg[i][0], seg[i][1]); }
-    ctx.stroke();
+    ctx.stroke(); ctx.setLineDash([]);
     // partida e meta
     const flag = (p, txt, cor)=>{ ctx.fillStyle = cor; ctx.beginPath(); ctx.arc(p[0], p[1], 7, 0, 7); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); ctx.font = '800 12px Inter,sans-serif'; ctx.fillStyle = '#fff'; ctx.textAlign = 'center'; ctx.fillText(txt, p[0], p[1] - 12); };
     flag(seg[Math.min(20, seg.length - 1)], 'PARTIDA', '#3DD45C'); flag(seg[seg.length - 1], 'META', '#FF3B5C');
@@ -10230,6 +10318,7 @@ const SR3 = (()=>{
     if(HELI.zoom === 'tudo'){ const kmT = G.real ? (ROTAS[SR.rota] || ROTAS.lp).km : (G.N * SR_SEG / SR_M / 1000), passoKm = kmT > 30 ? 5 : kmT > 12 ? 2 : 1;
       ctx.font = '700 10px Inter,sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.textAlign = 'left';
       for(let km = passoKm; km < kmT; km += passoKm){ const p = seg[Math.round(km / kmT * (seg.length - 1))]; ctx.beginPath(); ctx.arc(p[0], p[1], 2.2, 0, 7); ctx.fill(); ctx.fillText(km + ' km', p[0] + 5, p[1] + 3); } }
+    if(RR){ const MN = monuDe(RR); if(MN.length) monuDesenha(ctx, MN, PW, Math.max(16, Math.min(24, W / 70)), HELI.zoom === 'tudo' ? 10 : 6); ctx.font = '600 10px Inter,sans-serif'; ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.textAlign = 'center'; ctx.fillText('Imagens Esri, Maxar · Monumentos © OpenStreetMap', W / 2, H - 6); }   // 🏰 pontos históricos
     // sombras das nuvens por cima de tudo (vê-se que estamos lá no alto)
     HELI.nuvens.forEach(n=>{ const x = ((n.x + t * n.v) % 1.3 - .15) * W, y = n.y * H, r = n.r * Math.min(W, H); const gr = ctx.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, 'rgba(0,0,0,.22)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); ctx.fillStyle = gr; ctx.fillRect(x - r, y - r, r * 2, r * 2); });
     // alunos: ponto + cartão com nome, watts, cadência e distâncias (os cartões afastam-se uns dos outros para não se taparem)
@@ -10238,7 +10327,7 @@ const SR3 = (()=>{
     const topo = 46, baixo = H - 8, util = baixo - topo;
     let fs = Math.max(11, Math.min(15, W / 95)), lh = fs * 1.25, cw = fs * 11.5, ch = lh * 3 + 8, compacto = false;
     if(L.length * (ch + 4) > util * 2){ compacto = true; fs = Math.max(9, Math.min(13, util * 2 / Math.max(1, L.length) / 1.5)); lh = fs * 1.25; cw = fs * 19; ch = lh + 6; }
-    const cards = L.map((o, i)=>{ const s = XY(o.p); return { o, i, sx: s[0], sy: s[1] }; });
+    const cards = L.map((o, i)=>{ const hd = heliRumo(G, o.z), ln = sc > 4.5 ? heliFaixa(o.r.id) : 0, s = XY([o.p[0] - Math.sin(hd) * ln, o.p[1] + Math.cos(hd) * ln]); o.hd = hd; return { o, i, sx: s[0], sy: s[1] }; });
     const lados = { E: [], D: [] }; cards.slice().sort((p, q)=> p.sx - q.sx).forEach((C, k, A)=> (k < A.length / 2 ? lados.E : lados.D).push(C));
     const cabe = Math.floor(util / (ch + 4));
     while(lados.E.length > cabe && lados.D.length < cabe) lados.D.push(lados.E.pop());
@@ -10251,8 +10340,9 @@ const SR3 = (()=>{
     cards.forEach(C=>{ const o = C.o, r = o.r, cor = heliCor(r.id), pulso = 1 + Math.sin(t * 4 + C.i) * .15, ant = L[C.i - 1], dep = L[C.i + 1];
       const ax = C.lado === 'E' ? C.x + cw : C.x, ay = C.y + ch / 2;
       ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(C.sx, C.sy); ctx.lineTo(ax, ay); ctx.stroke();
-      ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.arc(C.sx + 2, C.sy + 3, 8, 0, 7); ctx.fill();
-      ctx.fillStyle = cor; ctx.beginPath(); ctx.arc(C.sx, C.sy, 7 * pulso, 0, 7); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
+      if(sc > 4.5) heliBici(ctx, G, o, C, sc, cor, t);   // 🚴 visto de cima: bicicleta e ciclista à escala, a pedalar na cadência
+      else { ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.beginPath(); ctx.arc(C.sx + 2, C.sy + 3, 8, 0, 7); ctx.fill();
+      ctx.fillStyle = cor; ctx.beginPath(); ctx.arc(C.sx, C.sy, 7 * pulso, 0, 7); ctx.fill(); ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke(); }
       ctx.fillStyle = 'rgba(8,11,16,.88)'; ctx.strokeStyle = cor; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(C.x, C.y, cw, ch, compacto ? 6 : 8) : ctx.rect(C.x, C.y, cw, ch); ctx.fill(); ctx.stroke();
       const nome = (C.i + 1) + 'º ' + String(r.n || 'Aluno').split(' ')[0].slice(0, 11), dist = (ant ? '▲ ' + heliFmtM(heliMetros(ant.z - o.z)) : '🥇 líder') + (dep ? '  ▼ ' + heliFmtM(heliMetros(o.z - dep.z)) : '');
       const x = C.x + 8; let y = C.y + (compacto ? 3 + fs : 4 + fs); ctx.textAlign = 'left';
@@ -10264,25 +10354,214 @@ const SR3 = (()=>{
       ctx.font = '600 ' + (fs * .85) + 'px Inter,sans-serif'; ctx.fillStyle = '#cfd6e0'; ctx.fillText(dist, x, y); });
     // título
     ctx.fillStyle = 'rgba(5,7,10,.7)'; ctx.fillRect(0, 0, W, 36); ctx.font = '800 15px Inter,sans-serif'; ctx.fillStyle = '#fff'; ctx.textAlign = 'left';
-    ctx.fillText('🛰️ Vista de helicóptero · ' + (HELI.zoom === 'tudo' ? 'percurso todo' : 'pelotão'), 14, 23);
+    ctx.fillText('🛰️ Vista de helicóptero · ' + ({ tudo: 'percurso todo', grupo: 'pelotão', perto: 'por cima dos ciclistas' })[HELI.zoom], 14, 23);
     ctx.textAlign = 'right'; ctx.font = '600 12px Inter,sans-serif'; ctx.fillStyle = '#aab3c0';
-    ctx.fillText(L.length ? (L.length + ' alunos · ' + (L.length > 1 ? 'grupo espalhado por ' + heliFmtM(heliMetros(L[0].z - L[L.length - 1].z)) : '')) + ' · clica para ' + (HELI.zoom === 'tudo' ? 'aproximar ao pelotão' : 'ver o percurso todo') : 'à espera dos alunos', W - 66, 23);
+    ctx.fillText(L.length ? (L.length + ' alunos · ' + (L.length > 1 ? 'grupo espalhado por ' + heliFmtM(heliMetros(L[0].z - L[L.length - 1].z)) : '')) + ' · clica para ' + ({ tudo: 'aproximar ao pelotão', grupo: 'ir mesmo por cima dos ciclistas', perto: 'ver o percurso todo' })[HELI.zoom] : 'à espera dos alunos', W - 120, 23);
+  }
+  // ——— ⛰️ Vista de helicóptero em 3D: o terreno com relevo (altitudes reais nos percursos GPX), a imagem de satélite por cima, a estrada com as cores dos blocos e os alunos;
+  //     a câmara fica de lado e inclinada (vê-se o relevo) e roda devagar; clicar aproxima: percurso todo → pelotão → por cima dos ciclistas ———
+  const H3 = { on: false, ren: null, cv: null, key: '', E: null, v: null, rw: 0, txt: '', rot: {} };
+  try{ H3.on = localStorage.getItem('prSrH3') === '1'; }catch(e){}
+  function h3Three(cb){
+    if(window.THREE) return cb && cb();
+    let s = document.querySelector('script[src*="three.min.js"]');
+    if(!s){ s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; s.onerror = ()=>{ toast('⚠ Sem internet para carregar a vista 3D.'); h3Troca(false); }; document.head.appendChild(s); }
+    if(cb) s.addEventListener('load', ()=> cb());
+  }
+  function h3Troca(on){
+    H3.on = on == null ? !H3.on : !!on; try{ localStorage.setItem('prSrH3', H3.on ? '1' : '0'); }catch(e){}
+    const b = $('srH3b'), cv = $('srH3Cv'), tt = $('srH3T'), vis = !!(H3.on && SR.heli);
+    if(b){ b.classList.toggle('on', H3.on); b.textContent = H3.on ? '🗺️' : '⛰️'; b.title = H3.on ? 'Voltar à vista de cima (mapa) (tecla R)' : 'Vista 3D com o relevo do terreno, vista de lado (tecla R)'; }
+    if(cv) cv.hidden = !vis; if(tt) tt.hidden = !vis;
+    if(vis && !window.THREE) h3Three();
+    if(!H3.on) h3Limpa();
+  }
+  function h3Solta(){ const E = H3.E; if(!E) return; E.cena.traverse(o=>{ if(o.geometry) o.geometry.dispose(); if(o.material){ [].concat(o.material).forEach(m=>{ if(m.map) m.map.dispose(); m.dispose(); }); } }); H3.E = null; H3.rot = {}; }
+  function h3Limpa(){ h3Solta(); if(H3.ren){ try{ H3.ren.dispose(); H3.ren.forceContextLoss(); }catch(e){} } H3.ren = null; H3.cv = null; H3.key = ''; H3.v = null; }
+  // altura (já com o exagero) num ponto local x, y (metros a partir do centro)
+  function h3Alt(E, x, y){ const n = E.n, fx = Math.max(0, Math.min(n - .0001, (x + E.S / 2) / E.S * n)), fy = Math.max(0, Math.min(n - .0001, (y + E.S / 2) / E.S * n)), i = Math.floor(fx), j = Math.floor(fy), u = fx - i, w = fy - j, H = E.h, m = n + 1;
+    const A = H[j * m + i], B = H[j * m + i + 1], C = H[(j + 1) * m + i], D = H[(j + 1) * m + i + 1];   // o mesmo triângulo da malha (a estrada fica sempre por cima do chão)
+    return (u + w <= 1 ? A + (B - A) * u + (C - A) * w : D + (C - D) * (1 - u) + (B - D) * (1 - w)) * E.exg; }
+  function h3Monta(G){
+    const T = THREE; h3Solta();
+    const [a, b, c, d] = G.box, cx = (a + b) / 2, cy = (c + d) / 2, S = Math.max(b - a, d - c) * 1.35 + 700, n = 180, segs = SR.trk.segs, N = G.N;
+    const RR = G.real ? (ROTAS[SR.rota] || ROTAS.lp) : null, kk = RR ? Math.cos((RR.pts[0].la || 41) * Math.PI / 180) * 111320 : 0;
+    const E = { cx, cy, S, n, RR, kk, exg: 1.6, h: new Float32Array((n + 1) * (n + 1)), cena: new T.Scene() };
+    // relevo inventado à volta da estrada: junto à estrada fica à altura dela; mais longe nascem colinas e vales (os percursos reais trocam-no pelas altitudes reais)
+    const st = Math.max(1, Math.floor(N / 450)), RP = []; for(let i = 0; i < N; i += st) RP.push([G.P[i][0] - cx, G.P[i][1] - cy, segs[i].y / SR_M / SR_EXG]);
+    let mn = Infinity, mx = -Infinity; RP.forEach(p=>{ mn = Math.min(mn, p[2]); mx = Math.max(mx, p[2]); });
+    const amp = 25 + (mx - mn) * .45 + Math.min(220, S * .006), rn = srRnd(N * 7 + 3), ph = Array.from({ length: 7 }, (_, k)=> [rn() * 6.28, rn() * 6.28, (1 + rn()) * Math.pow(2, k) * 6.28 / S * 1.6, 1 / Math.pow(1.85, k)]);
+    for(let j = 0, q = 0; j <= n; j++) for(let i = 0; i <= n; i++, q++){
+      const x = -S / 2 + S * i / n, y = -S / 2 + S * j / n; let bd = Infinity, ba = 0;
+      for(let k = 0; k < RP.length; k++){ const p = RP[k], dx = p[0] - x, dy = p[1] - y, dq = dx * dx + dy * dy; if(dq < bd){ bd = dq; ba = p[2]; } }
+      const w = Math.min(1, Math.sqrt(bd) / 300); let nz = 0; for(const f of ph) nz += Math.sin(x * f[2] + f[0]) * Math.cos(y * f[2] * .87 + f[1]) * f[3];
+      E.h[q] = ba - mn + w * w * amp * (.45 + nz * .8);
+    }
+    // malha do terreno
+    const m = n + 1, pos = new Float32Array(m * m * 3), uv = new Float32Array(m * m * 2), idx = [];
+    for(let j = 0, q = 0; j <= n; j++) for(let i = 0; i <= n; i++, q++){ pos[q * 3] = -S / 2 + S * i / n; pos[q * 3 + 2] = -S / 2 + S * j / n; uv[q * 2] = i / n; uv[q * 2 + 1] = 1 - j / n; }
+    for(let j = 0; j < n; j++) for(let i = 0; i < n; i++){ const A = j * m + i, B = A + 1, C = A + m, D = C + 1; idx.push(A, C, B, B, C, D); }
+    const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(pos, 3)); geo.setAttribute('uv', new T.BufferAttribute(uv, 2)); geo.setIndex(idx);
+    E.geo = geo; h3Relevo(E);
+    // textura: satélite (percursos reais) ou campos e matas desenhados
+    const tc = document.createElement('canvas'); tc.width = tc.height = 2048; E.tc = tc; E.tex = new T.CanvasTexture(tc); E.tex.anisotropy = 4; h3Pinta(E, G);
+    const ter = new T.Mesh(geo, new T.MeshLambertMaterial({ map: E.tex })); E.cena.add(ter);
+    // saia à volta (para o terreno não parecer uma folha a flutuar)
+    E.cena.background = new T.Color(0x0d1a14);
+    E.cena.add(new T.HemisphereLight(0xe8f2ff, 0x40362a, .62)); const sol = new T.DirectionalLight(0xfff4e0, .95); sol.position.set(-S * .5, S * .45, -S * .3); E.cena.add(sol);
+    E.cam = new T.PerspectiveCamera(42, 1, 1, S * 4);
+    // estrada: fita por cima do terreno (contorno escuro + cor do bloco); a largura acompanha a distância da câmara para se ver sempre
+    const RS = Math.max(1, Math.floor(N / 2500)); E.rIdx = []; for(let i = 0; i < N; i += RS) E.rIdx.push(i); if(E.rIdx[E.rIdx.length - 1] !== N - 1) E.rIdx.push(N - 1);
+    const fita = (cor)=>{ const M = E.rIdx.length, g = new T.BufferGeometry(); g.setAttribute('position', new T.BufferAttribute(new Float32Array(M * 6), 3)); if(cor) g.setAttribute('color', new T.BufferAttribute(new Float32Array(M * 6), 3));
+      const ix = []; for(let k = 0; k < M - 1; k++){ const A = k * 2; ix.push(A, A + 2, A + 1, A + 1, A + 2, A + 3); } g.setIndex(ix); return g; };
+    E.f0 = new T.Mesh(fita(false), new T.MeshBasicMaterial({ color: 0x15181d, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -4, side: T.DoubleSide }));
+    E.f1 = new T.Mesh(fita(true), new T.MeshBasicMaterial({ vertexColors: true, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -8, side: T.DoubleSide }));
+    const col = E.f1.geometry.attributes.color.array, cc = new T.Color(); E.rIdx.forEach((i, k)=>{ cc.set(srCorBloco(segs[i].b)); for(let s2 = 0; s2 < 2; s2++){ col[(k * 2 + s2) * 3] = cc.r; col[(k * 2 + s2) * 3 + 1] = cc.g; col[(k * 2 + s2) * 3 + 2] = cc.b; } });
+    E.f0.renderOrder = 1; E.f1.renderOrder = 2; E.cena.add(E.f0, E.f1);
+    // partida e meta
+    const bandeira = (i, cor)=>{ const p = G.P[i], x = p[0] - cx, y = p[1] - cy, g = new T.Mesh(new T.CylinderGeometry(1, 1, 1, 8), new T.MeshBasicMaterial({ color: cor })); g.userData = { x, y }; E.cena.add(g); return g; };
+    E.flags = [bandeira(Math.min(20, N - 1), 0x3DD45C), bandeira(N - 1, 0xFF3B5C)];
+    E.riders = {}; H3.E = E; H3.rw = 0;
+    if(RR) h3Dem(E);
+  }
+  function h3Relevo(E){ if(E.det) E.det.D = 0; const p = E.geo.attributes.position.array, n = E.n; for(let q = 0; q < (n + 1) * (n + 1); q++) p[q * 3 + 1] = E.h[q] * E.exg; E.geo.attributes.position.needsUpdate = true; E.geo.computeVertexNormals(); E.geo.computeBoundingSphere(); H3.rw = 0; }
+  function h3Pinta(E, G){
+    const tc = E.tc, g = tc.getContext('2d'), Z = tc.width, S = E.S;
+    if(E.RR){
+      const kk = E.kk, P = (la, lo)=> [(lo * kk - E.cx + S / 2) / S * Z, (-la * 111320 - E.cy + S / 2) / S * Z], lo = x=> (x / Z * S - S / 2 + E.cx) / kk, la = y=> -(y / Z * S - S / 2 + E.cy) / 111320;
+      g.fillStyle = '#2a3a2a'; g.fillRect(0, 0, Z, Z);
+      satDesenha(g, P, la(Z), la(0), lo(0), lo(Z), Z / S * kk); satDesenha(g, P, la(Z), la(0), lo(0), lo(Z), Z / S * kk, true);
+      const MN = monuDe(E.RR); if(MN.length) monuDesenha(g, MN, P, 30, 14);
+    } else {
+      const rn = srRnd(G.N * 3 + 11); g.fillStyle = '#3f6a35'; g.fillRect(0, 0, Z, Z);
+      for(let i = 0; i < 260; i++){ const x = rn() * Z, y = rn() * Z, w = 30 + rn() * 140, h = 20 + rn() * 90; g.save(); g.translate(x, y); g.rotate(rn() * 3.14); g.fillStyle = ['#6f8f3e', '#8a9a4a', '#56803a', '#a39a5a', '#4d7a33'][Math.floor(rn() * 5)]; g.globalAlpha = .55; g.fillRect(-w / 2, -h / 2, w, h); g.restore(); }   // campos
+      for(let i = 0; i < 420; i++){ const x = rn() * Z, y = rn() * Z, r = 6 + rn() * 34; g.fillStyle = rn() < .6 ? 'rgba(22,52,26,.75)' : 'rgba(34,70,34,.6)'; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); }   // matas
+      const segs = SR.trk.segs, P = G.P, X = p=> [(p[0] - E.cx + S / 2) / S * Z, (p[1] - E.cy + S / 2) / S * Z];
+      g.lineJoin = g.lineCap = 'round'; g.strokeStyle = 'rgba(205,195,165,.8)'; g.lineWidth = Math.max(3, 14 / S * Z); g.beginPath(); P.forEach((p, i)=>{ const q = X(p); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.stroke();   // berma
+      void segs;
+    }
+    E.tex.needsUpdate = true; E.pintado = performance.now();
+  }
+  // ⛰️ altitudes reais (modelo de terreno Terrarium, AWS Open Data): o terreno passa a ter as montanhas e vales verdadeiros
+  function h3Dem(E){
+    const kk = E.kk, S = E.S, lo0 = (E.cx - S / 2) / kk, lo1 = (E.cx + S / 2) / kk, la1 = -(E.cy - S / 2) / 111320, la0 = -(E.cy + S / 2) / 111320;
+    let z = Math.floor(Math.log2(360 * 5 / Math.max(1e-6, lo1 - lo0))); z = Math.max(6, Math.min(14, z));
+    const x0 = Math.floor(satX(lo0, z)), x1 = Math.floor(satX(lo1, z)), y0 = Math.floor(satY(la1, z)), y1 = Math.floor(satY(la0, z)), nx = x1 - x0 + 1, ny = y1 - y0 + 1; if(nx * ny > 49) return;
+    const c = document.createElement('canvas'); c.width = nx * 256; c.height = ny * 256; const g = c.getContext('2d', { willReadFrequently: true }); let falta = nx * ny, erro = 0;
+    const fim = ()=>{ if(H3.E !== E) return; if(erro > nx * ny / 3) return;
+      let D; try{ D = g.getImageData(0, 0, c.width, c.height).data; }catch(e){ return; }
+      const n = E.n, v = new Float32Array((n + 1) * (n + 1)); let mn = Infinity;
+      for(let j = 0, q = 0; j <= n; j++) for(let i = 0; i <= n; i++, q++){ const x = -S / 2 + S * i / n + E.cx, y = -S / 2 + S * j / n + E.cy, lo = x / kk, la = -y / 111320;
+        const px = Math.max(0, Math.min(c.width - 1, Math.floor((satX(lo, z) - x0) * 256))), py = Math.max(0, Math.min(c.height - 1, Math.floor((satY(la, z) - y0) * 256))), o = (py * c.width + px) * 4;
+        const h = D[o + 3] ? D[o] * 256 + D[o + 1] + D[o + 2] / 256 - 32768 : NaN; v[q] = h; if(h > -500 && h < mn) mn = h; }
+      if(!isFinite(mn)) return; for(let q = 0; q < v.length; q++) v[q] = (v[q] > -500 ? v[q] : mn) - mn;
+      E.h = v; E.dem = true; h3Relevo(E);
+    };
+    for(let x = x0; x <= x1; x++) for(let y = y0; y <= y1; y++){ const im = new Image(); im.crossOrigin = 'anonymous';
+      im.onload = ()=>{ g.drawImage(im, (x - x0) * 256, (y - y0) * 256); if(--falta === 0) fim(); }; im.onerror = ()=>{ erro++; if(--falta === 0) fim(); };
+      im.src = 'https://s3.amazonaws.com/elevation-tiles-prod/terrarium/' + z + '/' + x + '/' + y + '.png'; }
+  }
+  // pedaço de terreno com imagem de satélite em alta resolução à volta do ponto (x, y), com D metros de lado; segue os ciclistas
+  function h3Detalhe(E, x, y, D, now){
+    const T = THREE; let P = E.det, n = 72;
+    if(!P){ const m = n + 1, pos = new Float32Array(m * m * 3), uv = new Float32Array(m * m * 2), idx = [];
+      for(let j = 0, q = 0; j <= n; j++) for(let i = 0; i <= n; i++, q++){ uv[q * 2] = i / n; uv[q * 2 + 1] = 1 - j / n; }
+      for(let j = 0; j < n; j++) for(let i = 0; i < n; i++){ const A = j * m + i, B = A + 1, C = A + m, Dd = C + 1; idx.push(A, C, B, B, C, Dd); }
+      const geo = new T.BufferGeometry(); geo.setAttribute('position', new T.BufferAttribute(pos, 3)); geo.setAttribute('uv', new T.BufferAttribute(uv, 2)); geo.setIndex(idx);
+      const tc = document.createElement('canvas'); tc.width = tc.height = 2048; const tex = new T.CanvasTexture(tc); tex.anisotropy = 4;
+      const mesh = new T.Mesh(geo, new T.MeshLambertMaterial({ map: tex, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 })); E.cena.add(mesh);
+      P = E.det = { m: mesh, geo, tc, tex, D: 0, x: 0, y: 0, t0: 0, pint: 0 }; }
+    P.m.visible = true;
+    if(P.D !== D || Math.hypot(x - P.x, y - P.y) > D * .2){
+      P.x = x; P.y = y; P.D = D; P.t0 = now; P.pint = 0; const a = P.geo.attributes.position.array;
+      for(let j = 0, q = 0; j <= n; j++) for(let i = 0; i <= n; i++, q++){ const X = x - D / 2 + D * i / n, Y = y - D / 2 + D * j / n; a[q * 3] = X; a[q * 3 + 1] = h3Alt(E, X, Y) + .3; a[q * 3 + 2] = Y; }
+      P.geo.attributes.position.needsUpdate = true; P.geo.computeVertexNormals(); P.geo.computeBoundingSphere(); }
+    if(now - P.pint > 1500 && now - P.t0 < 30000){ P.pint = now;
+      const g = P.tc.getContext('2d'), Z = P.tc.width, kk = E.kk, ox = P.x - P.D / 2 + E.cx, oy = P.y - P.D / 2 + E.cy, Dd = P.D;
+      const Pm = (la, lo)=> [(lo * kk - ox) / Dd * Z, (-la * 111320 - oy) / Dd * Z], lo = px=> (px / Z * Dd + ox) / kk, la = py=> -(py / Z * Dd + oy) / 111320, es = E.tc.width / E.S;
+      g.drawImage(E.tc, (ox - E.cx + E.S / 2) * es, (oy - E.cy + E.S / 2) * es, Dd * es, Dd * es, 0, 0, Z, Z);   // base: a imagem geral (enquanto as nítidas chegam)
+      satDesenha(g, Pm, la(Z), la(0), lo(0), lo(Z), Z / Dd * kk); satDesenha(g, Pm, la(Z), la(0), lo(0), lo(Z), Z / Dd * kk, true);
+      const MN = monuDe(E.RR); if(MN.length) monuDesenha(g, MN, Pm, 34, 8);
+      P.tex.needsUpdate = true; }
+  }
+  // fita da estrada com a largura w (metros) por cima do terreno
+  function h3Fita(E, G, w){
+    const P = G.P, cx = E.cx, cy = E.cy, M = E.rIdx.length, a0 = E.f0.geometry.attributes.position.array, a1 = E.f1.geometry.attributes.position.array, lift = 1 + w * .25, perto = w < 9;
+    E.f0.material.color.set(perto ? 0x555a63 : 0x15181d);   // perto: asfalto cinzento com a cor do bloco ao meio; longe: contorno escuro com a cor do bloco
+    for(let k = 0; k < M; k++){ const i = E.rIdx[k], A = P[E.rIdx[Math.max(0, k - 1)]], B = P[E.rIdx[Math.min(M - 1, k + 1)]], dx = B[0] - A[0], dy = B[1] - A[1], l = Math.hypot(dx, dy) || 1, nx = -dy / l, ny = dx / l, x = P[i][0] - cx, y = P[i][1] - cy;
+      const wl = perto ? w : w * 1.7, hy = Math.max(h3Alt(E, x, y), h3Alt(E, x + nx * wl / 2, y + ny * wl / 2), h3Alt(E, x - nx * wl / 2, y - ny * wl / 2)) + lift;   // a estrada fica direita de lado a lado (como uma estrada aberta na encosta)
+      [[a0, wl, 0], [a1, perto ? w * .22 : w, .4 + w * .04]].forEach(([arr, ww, dy])=>{ for(let s2 = 0; s2 < 2; s2++){ const sg = s2 ? 1 : -1, o = (k * 2 + s2) * 3; arr[o] = x + nx * ww / 2 * sg; arr[o + 1] = hy + dy; arr[o + 2] = y + ny * ww / 2 * sg; } }); }
+    E.f0.geometry.attributes.position.needsUpdate = E.f1.geometry.attributes.position.needsUpdate = true; E.f0.geometry.computeBoundingSphere(); E.f1.geometry.computeBoundingSphere();
+  }
+  function h3Etiqueta(txt, cor){ const c = document.createElement('canvas'); c.width = 512; c.height = 112; const g = c.getContext('2d');
+    g.fillStyle = 'rgba(8,11,16,.86)'; g.strokeStyle = cor; g.lineWidth = 6; g.beginPath(); g.roundRect ? g.roundRect(4, 4, 504, 104, 22) : g.rect(4, 4, 504, 104); g.fill(); g.stroke();
+    g.font = '800 46px Inter,sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#fff'; g.fillText(txt, 256, 58, 480); return c; }
+  function h3Txt(t){ const el = $('srH3T'); if(el && H3.txt !== t){ H3.txt = t; el.textContent = t; } }
+  function h3Frame(now){
+    const cv = $('srH3Cv'); if(!cv || cv.hidden) return;
+    if(!window.THREE){ h3Three(); h3Txt('⛰️ A carregar a vista 3D…'); return; }
+    const W = cv.clientWidth, H = cv.clientHeight; if(!W || !H) return; const T = THREE;
+    if(!H3.ren || H3.cv !== cv){ h3Limpa(); try{ H3.ren = new T.WebGLRenderer({ canvas: cv, antialias: true }); }catch(e){ toast('⚠ Este computador não consegue mostrar o 3D.'); h3Troca(false); return; } H3.cv = cv; H3.ren.setPixelRatio(Math.min(1.5, window.devicePixelRatio || 1)); }
+    const ren = H3.ren, sz = ren.getSize(new T.Vector2()); if(sz.x !== W || sz.y !== H) ren.setSize(W, H, false);
+    if(HELI.key !== SR.key || !HELI.geo){ HELI.key = SR.key; HELI.geo = heliGeo(); HELI.vis = null; }
+    const G = HELI.geo; if(!G){ h3Txt('⛰️ Vista 3D · à espera do percurso'); return; }
+    if(H3.key !== SR.key || !H3.E){ try{ h3Monta(G); }catch(e){ console.error(e); toast('⚠ Não consegui montar a vista 3D: ' + e.message); h3Troca(false); return; } H3.key = SR.key; H3.v = null; }
+    const E = H3.E, t = now / 1000;
+    if(E.RR && now - E.pintado > 2500 && now - (E.t0 || (E.t0 = now)) < 40000) h3Pinta(E, G);   // as imagens de satélite vão chegando: repinta durante os primeiros segundos
+    // alunos
+    const rs = visRiders().filter(jgPedala), gs = SR.gaps || {}, zG = SR.zG || 0;
+    const L = rs.map(r=> ({ r, z: zG + (gs[r.id] || 0) })).sort((p, q)=> q.z - p.z); L.forEach(o=>{ const p = heliPos(G, o.z); o.x = p[0] - E.cx; o.y = p[1] - E.cy; });
+    // para onde olha a câmara
+    let tx = 0, ty = 0, dist = E.S * .62, el = .72, az = t * .03, modo = HELI.zoom;
+    if(modo !== 'tudo' && L.length){
+      const fr = modo === 'perto' ? L.filter(o=> heliMetros(L[0].z - o.z) < 45) : L, xs = fr.map(o=> o.x), ys = fr.map(o=> o.y);
+      tx = (Math.min(...xs) + Math.max(...xs)) / 2; ty = (Math.min(...ys) + Math.max(...ys)) / 2; const esp = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys));
+      const hd = heliRumo(G, L[0].z); dist = modo === 'perto' ? Math.max(45, esp * 1.5) : Math.max(420, esp * 1.9); el = modo === 'perto' ? .36 : .5; az = hd + Math.PI / 2 + .45 + Math.sin(t * .06) * .35;   // de lado e um pouco atrás: vê-se a subida
+    }
+    const alvo = { tx, ty, dist, el, az };
+    const dt3 = Math.min(.25, Math.max(0, (now - (H3.tl || now)) / 1000)); H3.tl = now; if(!H3.v) H3.v = Object.assign({}, alvo); else { const V = H3.v, f = 1 - Math.pow(.955, dt3 * 60); V.tx += (tx - V.tx) * f; V.ty += (ty - V.ty) * f; V.dist *= Math.pow(dist / V.dist, f); V.el += (el - V.el) * f; let da = az - V.az; da = Math.atan2(Math.sin(da), Math.cos(da)); V.az += da * (modo === 'tudo' ? 1 : f); }
+    const V = H3.v, cam = E.cam, th = h3Alt(E, V.tx, V.ty);
+    cam.position.set(V.tx + Math.cos(V.az) * Math.cos(V.el) * V.dist, th + Math.sin(V.el) * V.dist, V.ty + Math.sin(V.az) * Math.cos(V.el) * V.dist);
+    const chao = h3Alt(E, cam.position.x, cam.position.z) + 15; if(cam.position.y < chao) cam.position.y = chao;   // a câmara nunca entra na montanha
+    cam.near = Math.max(.5, V.dist / 60); cam.far = V.dist * 3 + E.S * 2; cam.aspect = W / H; cam.updateProjectionMatrix(); cam.lookAt(V.tx, th, V.ty);
+    if(E.RR && modo !== 'tudo') h3Detalhe(E, V.tx, V.ty, modo === 'perto' ? 700 : 3000, now); else if(E.det) E.det.m.visible = false;   // imagem de satélite nítida à volta dos ciclistas
+    // estrada: refaz a fita quando a largura muda bastante
+    const rw = Math.max(7, V.dist * .007); if(!H3.rw || Math.abs(rw / H3.rw - 1) > .18){ H3.rw = rw; h3Fita(E, G, rw); }
+    const k = Math.max(1.1, V.dist * .011);
+    E.flags.forEach(f=>{ const y0 = h3Alt(E, f.userData.x, f.userData.y); f.scale.set(k * .35, k * 6, k * .35); f.position.set(f.userData.x, y0 + k * 3, f.userData.y); });
+    // marcadores dos alunos: bola com a cor do aluno, pau até ao chão e etiqueta com posição, nome e watts
+    const vistos = {};
+    L.forEach((o, i)=>{ const id = o.r.id, cor = heliCor(id); vistos[id] = 1; let R = E.riders[id];
+      if(!R){ R = E.riders[id] = { g: new T.Group(), b: new T.Mesh(new T.SphereGeometry(1, 16, 12), new T.MeshLambertMaterial({ color: new T.Color(cor), emissive: new T.Color(cor), emissiveIntensity: .35 })), p: new T.Mesh(new T.CylinderGeometry(.12, .12, 1, 6), new T.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: .7 })), s: new T.Sprite(new T.SpriteMaterial({ depthTest: false, transparent: true })), txt: '' };
+        R.s.renderOrder = 10; R.g.add(R.b, R.p, R.s); E.cena.add(R.g); }
+      const ln = heliFaixa(id), hd = heliRumo(G, o.z), x = o.x - Math.sin(hd) * ln * Math.min(1, 60 / V.dist), y = o.y + Math.cos(hd) * ln * Math.min(1, 60 / V.dist), y0 = h3Alt(E, x, y) + H3.rw * .25 + 1;
+      const kk2 = modo === 'perto' ? Math.max(.8, k * .55) : k, alto = kk2 * 3.2;
+      R.g.position.set(x, y0, y); R.b.scale.setScalar(kk2 * (1 + Math.sin(t * 4 + i) * .08)); R.b.position.y = alto; R.p.scale.set(kk2, alto, kk2); R.p.position.y = alto / 2;
+      const mostra = modo !== 'tudo' || i < 3 || i === L.length - 1, txt = (i + 1) + 'º ' + String(o.r.n || 'Aluno').split(' ')[0].slice(0, 10) + ' · ' + Math.round(o.r.w || 0) + ' W';
+      R.s.visible = mostra; if(mostra && (txt !== R.txt && (!R.tt || now - R.tt > 700))){ R.txt = txt; R.tt = now; if(R.s.material.map) R.s.material.map.dispose(); R.s.material.map = new T.CanvasTexture(h3Etiqueta(txt, cor)); R.s.material.needsUpdate = true; }
+      R.s.scale.set(kk2 * 9, kk2 * 1.97, 1); R.s.position.y = alto + kk2 * (2.6 + (modo === 'tudo' ? 0 : (i % 3) * 2.3)); });   // etiquetas em degraus para não se taparem
+    Object.keys(E.riders).forEach(id=>{ if(!vistos[id]){ const R = E.riders[id]; E.cena.remove(R.g); R.g.traverse(o=>{ if(o.geometry) o.geometry.dispose(); if(o.material){ if(o.material.map) o.material.map.dispose(); o.material.dispose(); } }); delete E.riders[id]; } });
+    ren.render(E.cena, cam);
+    const nomeM = { tudo: 'percurso todo', grupo: 'pelotão', perto: 'junto aos ciclistas' }[modo], prox = { tudo: 'aproximar ao pelotão', grupo: 'ir junto aos ciclistas', perto: 'ver o percurso todo' }[modo];
+    h3Txt('⛰️ Vista 3D com relevo · ' + nomeM + (E.dem ? ' · altitudes reais' : '') + ' · relevo ×' + String(E.exg).replace('.', ',') + (L.length ? ' · ' + L.length + ' alunos' : '') + ' · clica para ' + prox + (E.RR ? '   ·   Imagens Esri, Maxar · Terreno AWS Terrarium' : ''));
   }
   function heliTroca(on){
     SR.heli = on == null ? !SR.heli : on; try{ localStorage.setItem('prSrHeli', SR.heli ? '1' : '0'); }catch(e){}
     const cv = $('srHeliCv'), b = $('srHeli'); if(cv) cv.hidden = !SR.heli; if(b) b.classList.toggle('off', !SR.heli);
+    if($('srH3b')) $('srH3b').hidden = !SR.heli; h3Troca(H3.on);
     if(SR.heli && !HELI.raf) HELI.raf = requestAnimationFrame(heliFrame);
   }
   function srMonta(gp){
     if(gp.dataset.serra === '1' && SR.cv && SR.cv.isConnected) return;
     gp.dataset.serra = '1';
-    gp.innerHTML = '<div class="sr-box' + (SR.full ? ' full' : '') + '" id="srBox"><canvas id="srCv" aria-label="Estrada da serra a andar com a aula"></canvas><div class="sr-hud" id="srHud"></div><div class="sr-rank" id="srRank"></div><canvas id="srHeliCv" class="sr-heli" hidden aria-label="Vista de helicóptero do percurso"></canvas><button class="sr-fs" id="srFs" title="Ecrã inteiro (tecla E ou duplo clique na estrada)">⛶</button><button class="sr-metb" id="srMet" title="Hora do dia e tempo da Serra">🌤️</button><button class="sr-metb sr-neob" id="srNeo" title="Bonecos em néon ou com a roupa escolhida" hidden>✨</button><button class="sr-metb sr-heb" id="srHeli" title="Vista de helicóptero: o percurso todo visto do alto, cada aluno é um ponto com nome, watts, cadência e distâncias (tecla H)">🛰️</button><button class="sr-metb sr-drb" id="srDr" title="Câmara drone (a voar à volta dos alunos) ou fixa atrás do último">🚁</button><button class="sr-metb sr-drc" id="srDrC" title="Definir a velocidade, os planos e o trajeto do drone">⚙️</button><button class="sr-metb sr-3d" id="sr3d" title="Projeção em 3D ou em 2D (desenho clássico)">🧊</button><button class="sr-metb sr-mg" id="srMg" title="Estilo anime: cores vivas e contornos pretos, com vinhetas nos grandes planos">🖌️</button><button class="sr-metb sr-est" id="srEst" title="Bonecos: R realista · A anime · B ilustração suave · C banda desenhada">🎭</button><div class="sr-metm" id="srMetM" hidden></div></div>' +
+    gp.innerHTML = '<div class="sr-box' + (SR.full ? ' full' : '') + '" id="srBox"><canvas id="srCv" aria-label="Estrada da serra a andar com a aula"></canvas><div class="sr-hud" id="srHud"></div><div class="sr-rank" id="srRank"></div><canvas id="srHeliCv" class="sr-heli" hidden aria-label="Vista de helicóptero do percurso"></canvas><canvas id="srH3Cv" class="sr-heli sr-h3" hidden aria-label="Vista de helicóptero em 3D com o relevo do terreno"></canvas><div class="sr-h3t" id="srH3T" hidden></div><button class="sr-metb sr-h3b" id="srH3b" hidden title="Vista 3D com o relevo do terreno, vista de lado (tecla R)">⛰️</button><button class="sr-fs" id="srFs" title="Ecrã inteiro (tecla E ou duplo clique na estrada)">⛶</button><button class="sr-metb" id="srMet" title="Hora do dia e tempo da Serra">🌤️</button><button class="sr-metb sr-neob" id="srNeo" title="Bonecos em néon ou com a roupa escolhida" hidden>✨</button><button class="sr-metb sr-heb" id="srHeli" title="Vista de helicóptero: o percurso todo visto do alto, cada aluno é um ponto com nome, watts, cadência e distâncias (tecla H)">🛰️</button><button class="sr-metb sr-drb" id="srDr" title="Câmara drone (a voar à volta dos alunos) ou fixa atrás do último">🚁</button><button class="sr-metb sr-drc" id="srDrC" title="Definir a velocidade, os planos e o trajeto do drone">⚙️</button><button class="sr-metb sr-3d" id="sr3d" title="Projeção em 3D ou em 2D (desenho clássico)">🧊</button><button class="sr-metb sr-mg" id="srMg" title="Estilo anime: cores vivas e contornos pretos, com vinhetas nos grandes planos">🖌️</button><button class="sr-metb sr-est" id="srEst" title="Bonecos: R realista · A anime · B ilustração suave · C banda desenhada">🎭</button><div class="sr-metm" id="srMetM" hidden></div></div>' +
       '<div class="perc-info">🌲 Serra: a estrada nasce da cadência dos blocos. 80–115 rpm é plano; 60–80 rpm com técnica de subida é subida (menos rpm e zona mais alta = mais inclinada: 80 rpm em Z2 ≈ 3%, 60 rpm em Z4 ≈ 20%); Z1 e retorno à calma são descida; Z7 é sprint. Quem cumpre a zona vai à frente.</div>';
     SR.cv = $('srCv'); SR.ctx = SR.cv.getContext('2d'); SR.bgKey = '';
     const fsTroca = ()=>{ SR.full = !SR.full; $('srBox').classList.toggle('full', SR.full); document.body.classList.toggle('sr-full-on', SR.full); $('srFs').textContent = SR.full ? '✕' : '⛶'; $('srFs').title = SR.full ? 'Sair da estrada em ecrã inteiro (tecla E ou Esc)' : 'Ecrã inteiro (tecla E ou duplo clique na estrada)'; };
     $('srFs').onclick = fsTroca; SR.cv.ondblclick = fsTroca; SR.fsTroca = fsTroca;
     $('srDrC').onclick = droneCfgAbre;
-    $('srHeli').onclick = ()=> heliTroca(); $('srHeliCv').onclick = ()=>{ HELI.zoom = HELI.zoom === 'tudo' ? 'grupo' : 'tudo'; $('srHeliCv').style.cursor = HELI.zoom === 'tudo' ? 'zoom-in' : 'zoom-out'; };
+    $('srHeli').onclick = ()=> heliTroca(); const heliZoom = ()=>{ HELI.zoom = ({ tudo: 'grupo', grupo: 'perto', perto: 'tudo' })[HELI.zoom] || 'tudo'; ['srHeliCv', 'srH3Cv'].forEach(k=>{ if($(k)) $(k).style.cursor = HELI.zoom === 'perto' ? 'zoom-out' : 'zoom-in'; }); };
+    $('srHeliCv').onclick = heliZoom; $('srH3Cv').onclick = heliZoom; $('srH3Cv').ondblclick = e=>{ e.stopPropagation(); }; $('srH3b').onclick = ()=> h3Troca();
     $('srHeliCv').ondblclick = e=>{ e.stopPropagation(); };
     heliTroca((()=>{ try{ return localStorage.getItem('prSrHeli') === '1'; }catch(e){ return false; } })());
     $('sr3d').classList.toggle('off', !SR.m3); if(SR.m3) SR3.carrega();
@@ -11720,6 +11999,22 @@ const SR3 = (()=>{
     mixPara(); mixRefaz(); persist(); renderAudBar && renderAudBar();
     return M;
   }
+  // preenche o espaço entre o fim da música A e o instante "ate" com músicas da mesma cadência (chave e energia como no "Encher")
+  function estPreencheVazio(M, A, ate){
+    const O = estOrdem(M), seg = O[O.indexOf(A) + 1], us = {}; M.itens.forEach(x=> us[x.id] = (us[x.id] || 0) + 1);
+    const np = estPistas(M), livre = (p, a, b)=> !M.itens.some(x=> (Math.min(np - 1, x.p || 0)) === p && x.t0 < b && x.t1 > a);
+    let ant = A, cur = A.t1, n = 0, guarda = 0;
+    while(ate - cur > 4 && guarda++ < 12){
+      const cadB = A.bpm || 90, C = estCandidatos(cadB, M, us, ant.id, estAlvoEn(cur + 20)).find(c=> c.t.id !== ant.id && c.t.id !== A.id) || null; if(!C) break;
+      const T = C.t, bl = 60 / T.bpm; let ini = T.beat0; while(ini < 0) ini += bl; if(T.dur - ini > 16 * bl + 40) ini += 16 * bl;
+      const t1 = Math.min(ate, cur + (T.dur - ini - 1) / C.rate); if(t1 - cur < 4){ us[T.id] = (us[T.id] || 0) + 5; continue; }
+      let p = ((ant.p || 0) + 1) % np; for(let q = 0; q < np && !livre(p, cur - 20, t1); q++) p = (p + 1) % np;
+      const B = { id: T.id, t0: cur, t1: Math.round(t1 * 100) / 100, ini, rate: Math.round(C.rate * 10000) / 10000, fIn: 1.5, fOut: 4, cIn: 'eq', cOut: 'eq', g: 1, bpm: cadB, mu: C.mu, c: cur, p };
+      estTransPar(ant, B, M.trans || 'eq'); M.itens.push(B); us[T.id] = (us[T.id] || 0) + 1; ant = B; cur = B.t1; n++;
+    }
+    if(seg && n) estTransPar(ant, seg, M.trans || 'eq');
+    return n;
+  }
   function estTransTodas(estilo){
     const M = mixAtivo(); if(!M) return; const O = estOrdem(M);
     for(let i = 1; i < O.length; i++) estTransPar(O[i - 1], O[i], estilo);
@@ -11892,7 +12187,9 @@ const SR3 = (()=>{
     EST.ov.appendChild(ov); let ouve = null; const para = ()=>{ if(ouve){ ouve.pause(); ouve = null; } };
     ov.onclick = async e=>{ const b = e.target.closest('button'); if(e.target === ov || (b && b.hasAttribute('data-x'))){ para(); ov.remove(); return; } if(!b) return;
       if(b.dataset.ouv2){ const id = b.dataset.ouv2, era = ouve && ouve._id; para(); ov.querySelectorAll('[data-ouv2]').forEach(x=> x.textContent = '▶'); if(era === id) return; const u = await estUrl(id); if(!u) return; const t = L[id], el = new Audio(u); el._id = id; el.currentTime = Math.min(60, (t ? t.dur : 60) * .3); el.volume = .8; el.play().catch(()=>{}); ouve = el; b.textContent = '⏸'; setTimeout(()=>{ if(ouve === el){ para(); b.textContent = '▶'; } }, 15000); return; }
-      if(b.dataset.usa != null){ const c = C[+b.dataset.usa]; para(); Object.assign(it, { id: c.t.id, rate: Math.round(c.rate * 10000) / 10000, mu: c.mu, ini: c.t.beat0 }); it.t1 = Math.min(it.t1, it.t0 + (c.t.dur - it.ini - 1) / c.rate); estTempoSync(); mixRefaz(); persist(); ov.remove(); estPinta(); toast('↔ ' + c.t.nome); } };
+      if(b.dataset.usa != null){ const c = C[+b.dataset.usa]; para(); const ate = it.t1; Object.assign(it, { id: c.t.id, rate: Math.round(c.rate * 10000) / 10000, mu: c.mu, ini: c.t.beat0 }); it.t1 = Math.min(ate, it.t0 + (c.t.dur - it.ini - 1) / c.rate);
+        const n = ate - it.t1 > 4 ? estPreencheVazio(M, it, ate) : 0;   // a música nova é mais curta: o espaço que fica é preenchido com outra(s) música(s)
+        estTempoSync(); mixRefaz(); persist(); ov.remove(); estPinta(); toast('↔ ' + c.t.nome + (n ? ' · +' + n + (n === 1 ? ' música' : ' músicas') + ' para preencher o espaço' : '')); } };
   }
   // painel da música escolhida: parte da música, BPM, volume, fades, curvas, pista e transição de entrada
   function estTempoDesloca(it, d){ const P = estTempo(); if(!P || !d) return; let n = 0; P.forEach(p=>{ if(p[0] >= it.t0 - .01 && p[0] <= it.t1 + .01){ p[1] = Math.round((p[1] + d) * 100) / 100; n++; } }); if(!n){ const v = Math.round((estTempoEm(P, it.t0) + d) * 100) / 100; P.push([Math.round(it.t0 * 100) / 100, v]); P.sort((a, b)=> a[0] - b[0]); } estTempoSync(); }
@@ -13528,6 +13825,7 @@ const SR3 = (()=>{
     if(e.key === '5'){ viewMode = 'sala'; modoFixo = true; renderRiders(); }
     if((e.key === 'e' || e.key === 'E') && SR.on && SR.fsTroca) SR.fsTroca();
     if((e.key === 'h' || e.key === 'H') && SR.on && $('srHeli')) heliTroca();
+    if((e.key === 'r' || e.key === 'R') && SR.on && SR.heli && $('srH3b')) h3Troca();
     if(e.key === 'm' || e.key === 'M'){ toggleMetric(); }
     if(e.key === 'q' || e.key === 'Q'){ $('qrPanel').classList.toggle('active'); }
   });

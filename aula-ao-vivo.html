@@ -1648,7 +1648,7 @@ body:has(#setupScreen.active) .legal{display:none}
   <button id="enterBtn" class="btn-primary">Entrar na aula</button>
   <div id="setupError" class="err"></div>
   <button id="demoBtn" class="btn-link">Experimentar sem bike (modo teste)</button>
-  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 22/11 19:15</div>
+  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 23/11 00:10</div>
 </div>
 
 <!-- 3. AULA -->
@@ -5865,9 +5865,56 @@ body:has(#setupScreen.active) .legal{display:none}
     if(!SR.nuvens){ const rn = srRnd(9); SR.nuvens = Array.from({ length: 7 }, ()=> ({ x: rn(), y: .06 + rn() * .22, s: .6 + rn() * .9 })); }
   }
   // mini-mapa da rota real com a altimetria real por baixo
+  // ---- 🛰️ vista aérea (imagens de satélite Esri) e 🏛️ monumentos / pontos históricos (OpenStreetMap) nos percursos reais ----
+  const SAT = { img: {}, ok: {} };
+  function satImg(z, x, y, ref){ const u = 'https://server.arcgisonline.com/ArcGIS/rest/services/' + (ref ? 'Reference/World_Boundaries_and_Places' : 'World_Imagery') + '/MapServer/tile/' + z + '/' + y + '/' + x; let im = SAT.img[u];
+    if(!im){ im = SAT.img[u] = new Image(); im.crossOrigin = 'anonymous'; im.onload = ()=>{ SAT.ok[u] = 1; if(typeof SR !== 'undefined' && SR.mapa) SR.mapa = null; }; im.onerror = ()=>{ SAT.ok[u] = -1; }; im.src = u; }
+    return SAT.ok[u] === 1 ? im : null; }
+  const satLo = (x, z)=> x / Math.pow(2, z) * 360 - 180, satLa = (y, z)=>{ const n = Math.PI - 2 * Math.PI * y / Math.pow(2, z); return 180 / Math.PI * Math.atan(Math.sinh(n)); };
+  const satX = (lo, z)=> (lo + 180) / 360 * Math.pow(2, z), satY = (la, z)=>{ const r = la * Math.PI / 180; return (1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * Math.pow(2, z); };
+  // desenha as imagens que cobrem a zona [la0..la1] × [lo0..lo1]; P(la, lo) → [x, y] no ecrã; pxDeg = píxeis por grau de longitude
+  function satDesenha(g, P, la0, la1, lo0, lo1, pxDeg, ref){
+    let z = Math.round(Math.log2(Math.max(1e-9, pxDeg) * 360 / 256)); z = Math.max(2, Math.min(18, z));
+    const x0 = Math.floor(satX(lo0, z)), x1 = Math.floor(satX(lo1, z)), y0 = Math.floor(satY(la1, z)), y1 = Math.floor(satY(la0, z));
+    if((x1 - x0 + 1) * (y1 - y0 + 1) > 140) return;
+    for(let x = x0; x <= x1; x++) for(let y = y0; y <= y1; y++){ const im = satImg(z, x, y, ref); if(!im) continue; const a = P(satLa(y, z), satLo(x, z)), b = P(satLa(y + 1, z), satLo(x + 1, z)); g.drawImage(im, a[0], a[1], b[0] - a[0] + .6, b[1] - a[1] + .6); }
+  }
+  const MONU_IC = { castelo:'🏰', igreja:'⛪', palacio:'🏛️', monumento:'🗿', ruinas:'🏺', ponte:'🌉', torre:'🗼', museu:'🏛️', miradouro:'🔭', patrimonio:'⭐', atracao:'📍' };
+  // monumentos e pontos históricos a menos de 400 m do percurso (guardados 30 dias neste aparelho)
+  function monuDe(R){
+    if(!R || !R.pts || !R.pts.length || R.pts[0].la == null) return []; if(R.monu) return R.monu;
+    const k = 'prMonu:' + R.titulo + ':' + (+R.km || 0).toFixed(2);
+    try{ const c = JSON.parse(localStorage.getItem(k) || 'null'); if(c && Date.now() - c.t < 30 * 864e5){ R.monu = c.p; return R.monu; } }catch(e){}
+    if(!R.monuPedido){ R.monuPedido = true; monuBusca(R).then(p=>{ R.monu = p; try{ localStorage.setItem(k, JSON.stringify({ t: Date.now(), p })); }catch(e){} if(typeof SR !== 'undefined') SR.mapa = null; }).catch(()=>{ R.monuPedido = false; setTimeout(()=>{ if(!R.monu) R.monu = null; }, 60000); }); }
+    return [];
+  }
+  async function monuBusca(R){
+    let a = 90, b = -90, c = 180, d = -180; R.pts.forEach(p=>{ a = Math.min(a, p.la); b = Math.max(b, p.la); c = Math.min(c, p.lo); d = Math.max(d, p.lo); });
+    const m = .006, bb = [a - m, c - m, b + m, d + m].map(v=> v.toFixed(5)).join(',');
+    const q = '[out:json][timeout:25];(nwr["historic"~"^(castle|fort|monument|ruins|archaeological_site|church|chapel|monastery|palace|manor|tower|city_gate|bridge|aqueduct|pillory|citywalls|memorial)$"]["name"](' + bb + ');nwr["tourism"~"^(museum|viewpoint|attraction)$"]["name"](' + bb + ');nwr["amenity"="place_of_worship"]["name"](' + bb + ');nwr["heritage"]["name"](' + bb + '););out center tags 500;';
+    const r = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: 'data=' + encodeURIComponent(q), headers: { 'Content-Type': 'application/x-www-form-urlencoded' } });
+    const J = await r.json(), kx = Math.cos(R.pts[0].la * Math.PI / 180) * 111320, ky = 111320, out = [];
+    (J.elements || []).forEach(e=>{ const la = e.lat != null ? e.lat : e.center && e.center.lat, lo = e.lon != null ? e.lon : e.center && e.center.lon; if(la == null) return; const t = e.tags || {}, n = t['name:pt'] || t.name; if(!n) return;
+      let best = 1e9, km = 0; for(let i = 0; i < R.pts.length; i++){ const p = R.pts[i], dd = Math.hypot((p.lo - lo) * kx, (p.la - la) * ky); if(dd < best){ best = dd; km = p.km; } }
+      if(best > 400) return; const h = t.historic, tu = t.tourism;
+      const tipo = /castle|fort|citywalls/.test(h || '') ? 'castelo' : (/monastery|church|chapel/.test(h || '') || t.amenity === 'place_of_worship') ? 'igreja' : /palace|manor/.test(h || '') ? 'palacio' : /monument|memorial|pillory/.test(h || '') ? 'monumento' : /ruins|archaeological_site/.test(h || '') ? 'ruinas' : /bridge|aqueduct/.test(h || '') ? 'ponte' : /tower|city_gate/.test(h || '') ? 'torre' : tu === 'museum' ? 'museu' : tu === 'viewpoint' ? 'miradouro' : t.heritage ? 'patrimonio' : 'atracao';
+      const peso = { castelo:9, palacio:8, ruinas:7, monumento:6, museu:6, ponte:6, torre:6, patrimonio:6, miradouro:5, igreja:4, atracao:3 }[tipo] + (t.heritage ? 2 : 0) + (t.wikipedia || t.wikidata ? 2 : 0) - best / 400;
+      out.push({ n: String(n).slice(0, 48), la: +la.toFixed(6), lo: +lo.toFixed(6), tipo, km: Math.round(km * 100) / 100, d: Math.round(best), peso: Math.round(peso * 10) / 10 }); });
+    const v = []; out.sort((x, y)=> y.peso - x.peso).forEach(p=>{ if(v.length < 40 && !v.some(q=> q.n === p.n && Math.abs(q.km - p.km) < .6)) v.push(p); });
+    return v.sort((x, y)=> x.km - y.km);
+  }
+  // ícones (e nomes dos mais importantes, sem se taparem) por cima de um mapa
+  function monuDesenha(g, M, P, fs, nomes){
+    g.textAlign = 'center'; g.textBaseline = 'middle'; const tomados = [];
+    M.forEach(p=>{ const q = P(p.la, p.lo); g.font = fs + 'px sans-serif'; g.fillStyle = 'rgba(0,0,0,.55)'; g.beginPath(); g.arc(q[0], q[1], fs * .72, 0, 7); g.fill(); g.fillStyle = '#fff'; g.fillText(MONU_IC[p.tipo] || '📍', q[0], q[1] + 1); });
+    if(nomes) M.slice().sort((x, y)=> y.peso - x.peso).slice(0, nomes).forEach(p=>{ const q = P(p.la, p.lo); g.font = '700 ' + Math.round(fs * .78) + 'px Inter,sans-serif'; const w = g.measureText(p.n).width + 10, x = q[0] - w / 2, y = q[1] - fs * 1.9;
+      if(tomados.some(r=> x < r[0] + r[2] && x + w > r[0] && y < r[1] + r[3] && y + fs * 1.1 > r[1])) return; tomados.push([x, y, w, fs * 1.1]);
+      g.fillStyle = 'rgba(8,11,16,.82)'; g.beginPath(); g.roundRect ? g.roundRect(x, y, w, fs * 1.1, 4) : g.rect(x, y, w, fs * 1.1); g.fill(); g.fillStyle = '#FFE082'; g.fillText(p.n, q[0], y + fs * .58); });
+    g.textBaseline = 'alphabetic';
+  }
   function srRotaMapa(ctx, W, H, camZ, R){
     const w = Math.round(Math.min(560, W * (W > 1400 ? .34 : .3))), h = Math.round(Math.min(250, H * (W > 1400 ? .3 : .26))), x0 = 18, y0 = H - h - 18, hp = Math.round(h * .26);
-    const key = R.titulo + w + 'x' + h;
+    const MN = monuDe(R), key = R.titulo + w + 'x' + h + ':' + MN.length;
     const k = Math.cos((R.gpx ? R.pts[0].la : 41.24) * Math.PI / 180), P = R.pts.concat(R.santKm != null && !(R.sant && R.sant.la == null) ? [R.sant || VALE_SANT] : []);
     let a = Infinity, b = -Infinity, c = Infinity, d = -Infinity;
     P.forEach(p=>{ a = Math.min(a, p.lo * k); b = Math.max(b, p.lo * k); c = Math.min(c, p.la); d = Math.max(d, p.la); });
@@ -5877,14 +5924,19 @@ body:has(#setupScreen.active) .legal{display:none}
     if(!SR.mapa || SR.mapa.key !== key){
       const cv = document.createElement('canvas'); cv.width = w; cv.height = h; const g = cv.getContext('2d');
       g.fillStyle = 'rgba(5,7,10,.72)'; g.beginPath(); g.roundRect ? g.roundRect(0, 0, w, h, 12) : g.rect(0, 0, w, h); g.fill();
-      g.strokeStyle = 'rgba(255,255,255,.85)'; g.lineWidth = 4; g.lineCap = 'round'; g.lineJoin = 'round'; g.beginPath(); R.pts.forEach((p, i)=>{ const q = XY(p.la, p.lo); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.stroke();
+      if(R.pts[0].la != null){ g.save(); g.beginPath(); g.roundRect ? g.roundRect(0, 0, w, h - hp, [12, 12, 0, 0]) : g.rect(0, 0, w, h - hp); g.clip();   // fundo: vista aérea
+        const laX = y=> d - (y - oy) / sc, loX = x=> ((x - ox) / sc + a) / k; satDesenha(g, (la, lo)=> XY(la, lo), laX(h - hp), laX(0), loX(0), loX(w), sc * k);
+        g.fillStyle = 'rgba(0,0,0,.22)'; g.fillRect(0, 0, w, h - hp); g.restore(); }
+      g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = 'rgba(0,0,0,.6)'; g.lineWidth = 7; g.beginPath(); R.pts.forEach((p, i)=>{ const q = XY(p.la, p.lo); i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1]); }); g.stroke();
+      g.strokeStyle = '#FFD60A'; g.lineWidth = 3.5; g.stroke();
+      if(MN.length) monuDesenha(g, MN, XY, 13, 5);
       g.font = '700 12px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.85)';
       g.fillStyle = 'rgba(255,214,10,.8)'; R.pois.forEach(p=>{ const k0 = R.pts.reduce((m, q, i)=> Math.abs(q.km - p.km) < Math.abs(R.pts[m].km - p.km) ? i : m, 0), q = XY(R.pts[k0].la, R.pts[k0].lo); g.beginPath(); g.arc(q[0], q[1], 2.2, 0, 7); g.fill(); });
       g.fillStyle = 'rgba(255,255,255,.85)';
       R.vilas.forEach((n, ix)=>{ const p = ix ? R.pts[R.pts.length - 1] : R.pts[0], q = XY(p.la, p.lo); g.textAlign = 'left'; g.fillText(n, q[0] + 10, q[1] + 4); g.fillStyle = '#FFD60A'; g.beginPath(); g.arc(q[0], q[1], 4, 0, 7); g.fill(); g.fillStyle = 'rgba(255,255,255,.85)'; });
       if(R.rotulos){ g.font = '700 11px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'center'; R.rotulos.forEach(o=>{ const q = XY(o.la, o.lo); g.fillText(o.n, q[0], q[1]); }); }
       if(R.santKm != null && (R.sant || VALE_SANT).la != null){ const q = XY((R.sant || VALE_SANT).la, (R.sant || VALE_SANT).lo); g.font = '15px sans-serif'; g.textAlign = 'center'; g.fillText('⛪', q[0], q[1] + 5); }
-      g.font = '700 11px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'left'; g.fillText(R.titulo + ' · ' + R.km.toFixed(1).replace('.', ',') + ' km reais', 10, 12);
+      g.font = '700 11px Barlow, sans-serif'; g.fillStyle = 'rgba(255,255,255,.75)'; g.textAlign = 'left'; g.fillText(R.titulo + ' · ' + R.km.toFixed(1).replace('.', ',') + ' km reais' + (MN.length ? ' · ' + MN.length + ' pontos históricos' : ''), 10, 12); g.font = '600 9px Inter,sans-serif'; g.fillStyle = 'rgba(255,255,255,.6)'; g.textAlign = 'right'; g.fillText('Imagens Esri · Monumentos © OpenStreetMap', w - 8, h - hp - 5); g.textAlign = 'left';
       // altimetria real
       g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(8, h - hp, w - 16, hp - 4);
       g.fillStyle = 'rgba(120,190,120,.55)'; g.beginPath(); g.moveTo(8, h - 6); e.forEach((v, i)=> g.lineTo(8 + i / (e.length - 1) * (w - 16), EY(v))); g.lineTo(w - 8, h - 6); g.closePath(); g.fill();
@@ -5897,6 +5949,10 @@ body:has(#setupScreen.active) .legal{display:none}
     const t = (alvo - Pt[i - 1].km) / ((Pt[i].km - Pt[i - 1].km) || 1), q = XY(Pt[i - 1].la + (Pt[i].la - Pt[i - 1].la) * t, Pt[i - 1].lo + (Pt[i].lo - Pt[i - 1].lo) * t);
     ctx.fillStyle = '#FFD60A'; ctx.strokeStyle = '#05070A'; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x0 + q[0], y0 + q[1], 7, 0, 7); ctx.fill(); ctx.stroke();
     const ex = x0 + 8 + f * (w - 16), ey = y0 + EY(srRotaAlt(R, f)); ctx.beginPath(); ctx.arc(ex, ey, 5, 0, 7); ctx.fill(); ctx.stroke();
+    const perto = MN.filter(p=> p.km - alvo > -.15 && p.km - alvo < .45).sort((p, q)=> q.peso - p.peso)[0];
+    if(perto){ const txt = (MONU_IC[perto.tipo] || '📍') + '  ' + (perto.km - alvo > .05 ? 'A chegar: ' : 'A passar: ') + perto.n; ctx.font = '800 ' + Math.max(15, Math.round(w / 26)) + 'px Inter,sans-serif'; const tw = ctx.measureText(txt).width + 26, th = Math.max(30, w / 15);
+      ctx.fillStyle = 'rgba(8,11,16,.88)'; ctx.strokeStyle = '#FFD60A'; ctx.lineWidth = 2; ctx.beginPath(); ctx.roundRect ? ctx.roundRect(x0, y0 - th - 8, tw, th, 10) : ctx.rect(x0, y0 - th - 8, tw, th); ctx.fill(); ctx.stroke();
+      ctx.fillStyle = '#FFE082'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(txt, x0 + 13, y0 - th / 2 - 7); ctx.textBaseline = 'alphabetic'; }
   }
   // ---- Serra 3D: hora do dia e meteorologia (manhã, tarde, pôr do sol, noite × sol, nublado, chuva, neve, nevoeiro) ----
   const MET_FASES = { manha:['🌅', 'Manhã'], tarde:['🏞️', 'Tarde'], por:['🌇', 'Pôr do sol'], noite:['🌙', 'Noite'] };
