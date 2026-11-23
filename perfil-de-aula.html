@@ -1886,9 +1886,9 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 .live-overlay.pv2 .pvq .ring-fg,.live-overlay.pv2 .pvq .ring-bg{fill:none;stroke-width:12!important}
 .live-overlay.pv2 .pvq .ring-fg{stroke:var(--zc);stroke-dasharray:565.49}
 .live-overlay.pv2 .ring-wrap .ring-in{position:absolute;inset:13%;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.live-overlay.pv2 .ring-wrap .live-timer{font-size:min(29cqw,40cqh)!important;line-height:.9;white-space:nowrap}
+.live-overlay.pv2 .ring-wrap .live-timer{font-size:min(34cqw,44cqh)!important;line-height:.9;white-space:nowrap}
 .live-overlay.pv2 .ring-wrap .ring-sub{font-size:max(11px,3.4cqw)}
-.live-overlay.pv2 .ring-wrap .live-timer[data-n="4"],.live-overlay.pv2 .ring-wrap .live-timer[data-n="3"]{font-size:min(35cqw,44cqh)!important}
+.live-overlay.pv2 .ring-wrap .live-timer[data-n="4"],.live-overlay.pv2 .ring-wrap .live-timer[data-n="3"]{font-size:min(42cqw,52cqh)!important}
 /* timer quadrado: sem o halo redondo à volta do tempo */
 .live-overlay.pv2 .ring-wrap::before,.live-overlay.pv2 .ring-wrap::after{display:none!important}
 .cr-cv{flex:1;width:100%;min-height:0;display:block}
@@ -10377,7 +10377,14 @@ const SR3 = (()=>{
     if(!H3.on) h3Limpa();
   }
   function h3Solta(){ const E = H3.E; if(!E) return; E.cena.traverse(o=>{ if(o.geometry) o.geometry.dispose(); if(o.material){ [].concat(o.material).forEach(m=>{ if(m.map) m.map.dispose(); m.dispose(); }); } }); H3.E = null; H3.rot = {}; }
-  function h3Limpa(){ h3Solta(); if(H3.ren){ try{ H3.ren.dispose(); H3.ren.forceContextLoss(); }catch(e){} } H3.ren = null; H3.cv = null; H3.key = ''; H3.v = null; }
+  function h3Limpa(){ h3Solta(); if(H3.ren){ try{ H3.ren.dispose(); H3.ren.forceContextLoss(); }catch(e){} h3NovoCv(); } H3.ren = null; H3.cv = null; H3.key = ''; H3.v = null; }
+  // depois de largar o 3D, a tela antiga fica sem contexto WebGL: troca-se por uma nova (senão o 3D não volta a ligar)
+  function h3NovoCv(){ const cv = $('srH3Cv'); if(!cv) return null; const n = cv.cloneNode(false); n.onclick = cv.onclick; n.ondblclick = cv.ondblclick; cv.replaceWith(n); return n; }
+  function h3Renderer(cv){
+    const tenta = (c, o)=>{ try{ const r = new THREE.WebGLRenderer(Object.assign({ canvas: c, powerPreference: 'default', failIfMajorPerformanceCaveat: false }, o)); return r.getContext() ? r : null; }catch(e){ H3.erro = e && e.message || String(e); return null; } };
+    let r = tenta(cv, { antialias: true }); if(r) return [r, cv];
+    let c2 = h3NovoCv(); r = c2 && tenta(c2, { antialias: false }); if(r) return [r, c2];
+    c2 = h3NovoCv(); r = c2 && tenta(c2, { antialias: false, precision: 'mediump' }); return r ? [r, c2] : null; }
   // altura (já com o exagero) num ponto local x, y (metros a partir do centro)
   function h3Alt(E, x, y){ const n = E.n, fx = Math.max(0, Math.min(n - .0001, (x + E.S / 2) / E.S * n)), fy = Math.max(0, Math.min(n - .0001, (y + E.S / 2) / E.S * n)), i = Math.floor(fx), j = Math.floor(fy), u = fx - i, w = fy - j, H = E.h, m = n + 1;
     const A = H[j * m + i], B = H[j * m + i + 1], C = H[(j + 1) * m + i], D = H[(j + 1) * m + i + 1];   // o mesmo triângulo da malha (a estrada fica sempre por cima do chão)
@@ -10501,7 +10508,9 @@ const SR3 = (()=>{
     const cv = $('srH3Cv'); if(!cv || cv.hidden) return;
     if(!window.THREE){ h3Three(); h3Txt('⛰️ A carregar a vista 3D…'); return; }
     const W = cv.clientWidth, H = cv.clientHeight; if(!W || !H) return; const T = THREE;
-    if(!H3.ren || H3.cv !== cv){ h3Limpa(); try{ H3.ren = new T.WebGLRenderer({ canvas: cv, antialias: true }); }catch(e){ toast('⚠ Este computador não consegue mostrar o 3D.'); h3Troca(false); return; } H3.cv = cv; H3.ren.setPixelRatio(Math.min(1.5, window.devicePixelRatio || 1)); }
+    if(!H3.ren || H3.cv !== cv){ h3Limpa(); const cvA = $('srH3Cv'), rr = cvA && h3Renderer(cvA);
+      if(!rr){ console.warn('3D helicóptero:', H3.erro); toast('⚠ Não consegui ligar o 3D (' + (H3.erro || 'WebGL indisponível') + '). No Chrome: Definições › Sistema › “Usar aceleração gráfica” ligado.'); h3Troca(false); return; }
+      H3.ren = rr[0]; H3.cv = rr[1]; H3.ren.setPixelRatio(Math.min(1.5, window.devicePixelRatio || 1)); return; }
     const ren = H3.ren, sz = ren.getSize(new T.Vector2()); if(sz.x !== W || sz.y !== H) ren.setSize(W, H, false);
     if(HELI.key !== SR.key || !HELI.geo){ HELI.key = SR.key; HELI.geo = heliGeo(); HELI.vis = null; }
     const G = HELI.geo; if(!G){ h3Txt('⛰️ Vista 3D · à espera do percurso'); return; }
