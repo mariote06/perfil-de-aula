@@ -422,6 +422,60 @@ body:has(#liveScreen.active) .coach-bal.vivo{opacity:1}
 body:not(:has(#liveScreen.active)) .nx-float,body:not(:has(#liveScreen.active)) .nx-burst{display:none !important;}
 /* ecrã Corrida: o "A seguir" já está fixo na base, sem o cartão a subir e a explodir */
 body:has(#liveScreen.ecra5) .nx-float,body:has(#liveScreen.ecra5) .nx-burst{display:none !important;}
+
+/* ===== Ecrã Consola: como o visor da bicicleta (FC, %FTP, watts, cadência, picos de 1/5/20 min, anterior/atual/total e calorias) ===== */
+.e6{display:none;width:100%;max-width:520px;margin:0 auto;padding:2px 2px 2px}
+#liveScreen.ecra6 .e6{display:block}
+#liveScreen.ecra6 #activeBlock,#liveScreen.ecra6 #myBatt,#liveScreen.ecra6 #myLamp,#liveScreen.ecra6 #className,#liveScreen.ecra6 #ocTag,#liveScreen.ecra6 #jgMe,#liveScreen.ecra6 #neonChao1{display:none!important}
+#liveScreen.ecra6 #bodyEl{background:#050608!important}
+body:has(#liveScreen.ecra6) .nx-float,body:has(#liveScreen.ecra6) .nx-burst{display:none !important;}
+.cs{--cz:#3DD45C;background:linear-gradient(180deg,#121519,#08090b);border:2px solid #23272e;border-radius:18px;padding:10px 12px 12px;color:#fff;font-family:'Barlow Condensed',sans-serif;box-shadow:inset 0 0 0 1px #000,0 6px 24px rgba(0,0,0,.5)}
+.cs b,.cs .n{font-style:italic;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+.cs-top{display:flex;flex-direction:column;align-items:flex-start;line-height:.88}
+.cs-l1,.cs-l2{display:flex;align-items:baseline;gap:8px}
+.cs-l1 .cs-ic{font-size:clamp(26px,min(9vw,4.6vh),46px);color:#fff;line-height:1}
+.cs-l1 b,.cs-l2 b{font-size:clamp(44px,min(16vw,8.2vh),86px)}
+.cs-l1 i,.cs-l2 i{font-style:italic;font-weight:800;font-size:clamp(28px,min(10vw,5.2vh),54px)}
+.cs-l2 b{color:var(--cz)}
+.cs-mid{display:grid;grid-template-columns:22% 1fr 24%;align-items:center;gap:4px;margin-top:2px}
+.cs-g{position:relative}
+.cs-g svg{width:100%;display:block}
+.cs-g .gl{text-align:center;margin-top:0;font-weight:800;font-style:italic;font-size:clamp(13px,4vw,18px);line-height:1}
+.cs-g .gl b{display:block;font-size:clamp(22px,7vw,30px);color:var(--cz)}
+.cs-c{display:flex;flex-direction:column;align-items:center;gap:6px}
+.cs-w{display:flex;align-items:center;gap:6px;border:2px solid #ff3b3b;border-radius:10px;padding:2px 12px 0;background:#1a0b0b;box-shadow:0 0 14px rgba(255,59,59,.35)}
+.cs-w span{color:#ff3b3b;font-size:clamp(20px,6vw,28px)}
+.cs-w b{font-size:clamp(34px,min(12vw,6vh),60px);color:#ff4d4d;line-height:1}
+.cs-w small{color:#ff8a8a;font-size:16px;font-weight:700}
+.cs-dial{position:relative;width:min(42vw,19vh,190px);aspect-ratio:1}
+.cs-dial svg{position:absolute;inset:0;width:100%;height:100%}
+.cs-dial div{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:.85}
+.cs-dial b{font-size:clamp(40px,min(14vw,7vh),70px)}
+.cs-dial i{font-style:normal;font-weight:700;font-size:14px;letter-spacing:2px;color:#aab3c0}
+.cs-dial.ok b{color:#3DD45C}.cs-dial.low b{color:#FFB15C}
+.cs-z{display:flex;align-items:center;gap:8px;margin-top:6px;padding:5px 8px;border-radius:12px;background:color-mix(in srgb,var(--bz,#3DD45C) 14%,#0b0d10);border:2px solid var(--bz,#3DD45C);font-weight:800;line-height:1;min-width:0}
+.cs-z .zc{background:var(--bz,#3DD45C);color:#05070a;border-radius:7px;padding:2px 8px;font-style:italic;font-size:clamp(22px,min(7vw,3.6vh),30px);flex:none}
+.cs-z .zn{font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--bz,#3DD45C);flex:none;max-width:24%;white-space:normal}
+.cs-z .tc{flex:1;min-width:0;font-family:Inter,sans-serif;font-weight:800;font-size:clamp(14px,4.2vw,18px);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cs-z .tm{flex:none;display:flex;align-items:baseline;gap:3px;font-size:16px}.cs-z .tm b{font-size:clamp(24px,min(7.5vw,3.8vh),32px)}.cs-z .tm small{font-size:13px;color:#aab3c0;font-weight:700}
+.cs-l1{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cs-tab .r span:first-child{font-size:18px!important;line-height:1}.cs-tab .r span:first-child small{display:block;font-size:10px;font-weight:700;color:#aab3c0;letter-spacing:.5px;margin-top:-2px}
+.cs-pk{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.cs-pk div{display:flex;flex-direction:column;align-items:flex-end;line-height:.9}
+.cs-pk i{font-style:normal;font-weight:700;font-size:13px;letter-spacing:1px;color:#aab3c0}
+.cs-pk b{font-size:clamp(26px,min(9.5vw,4.8vh),44px)}
+.cs-tab{margin-top:6px;border-top:2px solid #2a2f37;border-bottom:2px solid #2a2f37;padding:6px 0}
+.cs-tab .r{display:grid;grid-template-columns:34px 1fr 1fr 1.25fr;align-items:baseline;text-align:right;gap:4px}
+.cs-tab .h{font-weight:700;font-size:13px;letter-spacing:1px;color:#aab3c0;margin-bottom:2px}
+.cs-tab .h span:last-child{font-size:20px;color:#fff;font-weight:800}.cs-tab .h em{font-style:normal;font-size:12px;color:#ff8a8a;vertical-align:super;margin-left:3px}
+.cs-tab .r span:first-child{text-align:left;font-size:22px}
+.cs-tab .r b{font-size:clamp(22px,min(8vw,4vh),38px);line-height:1.05}
+.cs-tab .r b.tt{color:#ffd60a}
+.cs-bot{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.cs-cal{display:flex;align-items:baseline;gap:6px;color:#FF9F0A}
+.cs-cal span{font-size:28px}.cs-cal b{font-size:clamp(28px,min(10vw,5vh),48px);color:#FFB340}.cs-cal i{font-style:normal;font-weight:700;font-size:16px}
+.cs-bt{display:flex;gap:10px;font-size:22px;font-weight:800}
+.cs-bt span{opacity:.3}.cs-bt span.on{opacity:1}
 .nx{border-radius:16px;text-align:left;padding:8px 14px 10px;box-shadow:0 -6px 24px rgba(0,0,0,.45);border:2px solid color-mix(in srgb,var(--nc) 55%,transparent);border-left:10px solid var(--nc);
   background:linear-gradient(120deg,color-mix(in srgb,var(--nc) 32%,#12161D),#12161D 75%);position:relative;overflow:hidden;
   visibility:hidden;opacity:0;}
@@ -1648,7 +1702,7 @@ body:has(#setupScreen.active) .legal{display:none}
   <button id="enterBtn" class="btn-primary">Entrar na aula</button>
   <div id="setupError" class="err"></div>
   <button id="demoBtn" class="btn-link">Experimentar sem bike (modo teste)</button>
-  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 23/11 00:10</div>
+  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 23/11 01:05</div>
 </div>
 
 <!-- 3. AULA -->
@@ -1806,8 +1860,27 @@ body:has(#setupScreen.active) .legal{display:none}
     </div>
     <!-- ECRÃ 4: God Mode (só na conta a quem o professor deu acesso na app PlayRide Coach) -->
     <div class="e4" id="ecra4" aria-label="Ecrã 4: God Mode"><div class="god" id="godPanel"></div></div>
+    <div class="e6" id="ecra6" aria-label="Ecrã Consola: como o visor da bicicleta"><div class="cs" id="csBox">
+      <div class="cs-top"><div class="cs-l1" id="csFcT" role="button" title="Toca para trocar entre batimentos e %FC máx"><span class="cs-ic">♡</span><b id="csHr">—</b><i id="csHrL">FC</i></div><div class="cs-l2"><b id="csPct">—</b><i id="csPctL">%FTP</i></div></div>
+      <div class="cs-mid">
+        <div class="cs-g"><svg id="csG" viewBox="0 0 60 200" aria-hidden="true"></svg><div class="gl" hidden><b id="csGv">—</b><span id="csGl">%FTP</span></div></div>
+        <div class="cs-c">
+          <div class="cs-w"><span>⚡</span><b id="csW">—</b><small>W</small></div>
+          <div class="cs-dial" id="csDial"><svg id="csD" viewBox="0 0 100 100" aria-hidden="true"></svg><div><b id="csRpm">—</b><i>RPM</i></div></div>
+        </div>
+        <div class="cs-pk"><div><i>1 MIN</i><b id="csP1">—</b></div><div><i>5 MIN</i><b id="csP5">—</b></div><div><i>20 MIN</i><b id="csP20">—</b></div></div>
+      </div>
+      <div class="cs-z"><span class="zc" id="csZ">Z1</span><span class="zn" id="csZn"></span><span class="tc" id="csTec"></span><span class="tm">⏱ <b id="csT">0:00</b><small id="csTd"></small></span></div>
+      <div class="cs-tab">
+        <div class="r h"><span></span><span>ANTERIOR</span><span>ATUAL</span><span>TOTAL<em>MÉD</em></span></div>
+        <div class="r"><span title="Velocidade (km/h)">🚴<small>km/h</small></span><b id="csAv">—</b><b id="csCv">—</b><b id="csTv" class="tt">—</b></div>
+        <div class="r"><span title="Distância (km)">📍<small>km</small></span><b id="csAk">—</b><b id="csCk">—</b><b id="csTk" class="tt">—</b></div>
+        <div class="r"><span title="Declive do terreno (%) · no total, a subida acumulada">⛰️<small>%</small></span><b id="csAd">—</b><b id="csCd">—</b><b id="csTd2" class="tt">—</b></div>
+      </div>
+      <div class="cs-bot"><div class="cs-cal"><span>🔥</span><b id="csCal">0</b><i>kcal</i></div><div class="cs-bt"><span id="csBtB" title="Bicicleta ligada">🚲</span><span id="csBtH" title="Cinta cardíaca ligada">❤️</span></div></div>
+    </div></div>
     <div class="e5" id="ecra5" aria-label="Ecrã Corrida: quem vai à tua frente e atrás de ti"><div class="rv" id="rvBox"></div></div>
-    <div class="e2-dots" id="e2Dots" aria-label="Mudar de ecrã"><button data-e="1" class="on" aria-label="Ecrã 1"></button><button data-e="2" aria-label="Ecrã 2"></button><button data-e="5" aria-label="Ecrã Corrida"></button><button data-e="3" aria-label="Ecrã 3: jogos e percurso" class="d3"></button><button data-e="4" aria-label="Ecrã 4: God Mode" class="d4" hidden></button></div>
+    <div class="e2-dots" id="e2Dots" aria-label="Mudar de ecrã"><button data-e="1" class="on" aria-label="Ecrã 1"></button><button data-e="2" aria-label="Ecrã 2"></button><button data-e="5" aria-label="Ecrã Corrida"></button><button data-e="6" aria-label="Ecrã Consola"></button><button data-e="3" aria-label="Ecrã 3: jogos e percurso" class="d3"></button><button data-e="4" aria-label="Ecrã 4: God Mode" class="d4" hidden></button></div>
     <div class="finished" id="finishedEl">
       <div class="blockline"><span class="zone" id="finTitle">Aula concluída</span></div>
       <div class="big" id="totalTimeEl">0:00</div>
@@ -1955,7 +2028,7 @@ body:has(#setupScreen.active) .legal{display:none}
   }
   function nxFixo(next, remaining, playing){
     const el = $('nextEl'); if(!el) return;
-    if(!next || (ecraAtual !== 1 && ecraAtual !== 2) || solo === 'livre'){ { const ls = $('liveScreen'); if(ls) ls.style.setProperty('--nxfh', '0px'); } if(el.dataset.fx){ el.innerHTML = ''; delete el.dataset.fx; } return; }
+    if(!next || (ecraAtual !== 1 && ecraAtual !== 2 && ecraAtual !== 6) || solo === 'livre'){ { const ls = $('liveScreen'); if(ls) ls.style.setProperty('--nxfh', '0px'); } if(el.dataset.fx){ el.innerHTML = ''; delete el.dataset.fx; } return; }
     const z = blkZone(next), cor = zoneColor(z.css), nm = zNome(z, blocos, state.blockIndex + 1), sp = nm.indexOf(' ');
     const zt = next.teste ? 'FTP' : /^Z\d/.test(nm) ? nm.slice(0, sp > 0 ? sp : nm.length) : (next.tipo === 'cool' ? '↓' : '★');
     const zn = next.teste ? 'TESTE' : next.tipo === 'seg' ? 'Segmento' : next.tipo === 'cool' ? 'Retorno à calma' : (/^Z\d/.test(nm) && sp > 0 ? nm.slice(sp + 1) : nm);
@@ -1979,7 +2052,7 @@ body:has(#setupScreen.active) .legal{display:none}
       return;
     }
     renderNextJogo(null, 0, false);
-    if(ecraAtual === 1 || ecraAtual === 2){   // ecrãs 1 e 2: cartão "A seguir" fixo no fundo, igual ao da projeção (sem o cartão a subir)
+    if(ecraAtual === 1 || ecraAtual === 2 || ecraAtual === 6){   // ecrãs 1, 2 e consola: cartão "A seguir" fixo no fundo, igual ao da projeção (sem o cartão a subir)
       if(el.innerHTML){ el.innerHTML = ''; lastNextHtml = ''; } nxRoom(false);
       nxFixo(next, remaining, playing);
       if(next && playing && remaining > 0 && remaining <= NX_BOOM && nxBoomIdx !== state.blockIndex){ nxBoomIdx = state.blockIndex; nxExplode(zoneColor(blkZone(next).css)); }
@@ -3437,7 +3510,7 @@ body:has(#setupScreen.active) .legal{display:none}
 
     const powered = hasPowerSource();
     if(isPlaying() && (powered || myHr() > 0 || solo)){
-      me.ts += dt;
+      me.ts += dt; csTick(dt, powered ? dispPower : 0);
       addToSerie(powered ? dispPower : 0, powered ? S.cadence : 0, myHr());
       if(modo === 'fc' && me.fc && myHr() > 0){
         const pctFc = myHr() / me.fc * 100;
@@ -3936,11 +4009,12 @@ body:has(#setupScreen.active) .legal{display:none}
   setInterval(ec1Fit, 1500);
   function ecraVai(n){
     const ls = $('liveScreen'); if(!ls) return;
-    ecraAtual = n === 2 || n === 3 || n === 5 || (n === 4 && GM_EU) ? n : 1; try{ pedAviso(); }catch(e){}
+    ecraAtual = n === 2 || n === 3 || n === 5 || n === 6 || (n === 4 && GM_EU) ? n : 1; try{ pedAviso(); }catch(e){}
     const bd = $('bodyEl'); if(bd) bd.scrollLeft = 0;
     ls.classList.toggle('ecra2', ecraAtual === 2);
     ls.classList.toggle('ecra3', ecraAtual === 3);
     ls.classList.toggle('ecra5', ecraAtual === 5); rvLiga(ecraAtual === 5);
+    ls.classList.toggle('ecra6', ecraAtual === 6);
     ls.classList.toggle('ecra4', ecraAtual === 4); document.body.classList.toggle('ecra4-on', ecraAtual === 4); if(ecraAtual === 4) godRender();
     if(ecraAtual !== 3 && typeof SERRA3 !== 'undefined') SERRA3.para();
     ls.classList.toggle('e2escuro', E2_CFG.fundo === 'escuro');
@@ -3954,6 +4028,59 @@ body:has(#setupScreen.active) .legal{display:none}
     return '<div class="l">' + l + '</div><div class="v' + (cls ? ' ' + cls : '') + '" style="font-size:' + e2Big(it.h, it.w) + 'px;color:' + (it.c || '#fff') + '">' + v + (u ? '<span class="u">' + u + '</span>' : '') + '</div>' + (s && it.h > 1 ? '<div class="s">' + s + '</div>' : '');
   }
 
+
+  // ===== Ecrã Consola: igual ao visor da bicicleta =====
+  // picos de potência (melhor média de 1, 5 e 20 min nesta aula) e médias do bloco anterior, do bloco atual e da aula
+  const CS = { up: 0, fcPct: lsGet('aavCsFc') === '1', bi: -1, cur: null, prev: null, acc: 0, accT: 0, s: [], best: { 60: 0, 300: 0, 1200: 0 }, km0: null, ts: 0, gK: '', dK: '' };
+  function csTick(dt, w){
+    if(me.ts < CS.ts - 1){ CS.bi = -1; CS.cur = CS.prev = null; CS.s = []; CS.best = { 60: 0, 300: 0, 1200: 0 }; CS.km0 = null; CS.up = 0; }   // aula nova
+    CS.ts = me.ts;
+    const bi = state.blockIndex; if(CS.km0 == null) CS.km0 = me.km; const dk = Math.max(0, me.km - CS.km0); CS.km0 = me.km;
+    if(bi !== CS.bi){ if(CS.cur && CS.cur.t > 3) CS.prev = CS.cur; CS.cur = { w: 0, t: 0, km: 0, sl: 0 }; CS.bi = bi; }
+    const sl = simInclina() || 0; CS.cur.w += w * dt; CS.cur.t += dt; CS.cur.km += dk; CS.cur.sl += sl * dt; if(sl > 0) CS.up += dk * 1000 * sl;
+    CS.acc += w * dt; CS.accT += dt;
+    if(CS.accT >= 1){ CS.s.push(CS.acc / CS.accT); CS.acc = 0; CS.accT = 0; if(CS.s.length > 1200) CS.s.shift();
+      [60, 300, 1200].forEach(n=>{ if(CS.s.length >= n){ let sm = 0; for(let i = CS.s.length - n; i < CS.s.length; i++) sm += CS.s[i]; CS.best[n] = Math.max(CS.best[n], sm / n); } }); }
+  }
+  document.addEventListener('click', e=>{ if(e.target.closest && e.target.closest('#csFcT')){ CS.fcPct = !CS.fcPct; try{ localStorage.setItem('aavCsFc', CS.fcPct ? '1' : '0'); }catch(err){} try{ render(); }catch(err){} } });
+  function csHms(s){ s = Math.max(0, Math.round(s || 0)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = s % 60; return (h ? h + ':' + String(m).padStart(2, '0') : m) + ':' + String(x).padStart(2, '0'); }
+  function csRender(b, remaining, range){
+    const box = $('csBox'); if(!box) return;
+    const powered = hasPowerSource(), hr = Math.round(myHr() || 0), w = powered ? Math.round(dispPower) : 0, cad = powered ? Math.round(S.cadence || 0) : 0;
+    const fc = modo === 'fc' || (!powered && hr > 0);
+    const pct = fc ? (hr && me.fc ? hr / me.fc * 100 : null) : (powered && me.ftp ? dispPower / me.ftp * 100 : null);
+    const zc = pct != null ? zoneColor(getZone(pct).css) : zoneColor(blkZone(b).css); box.style.setProperty('--cz', zc);
+    const fcP = CS.fcPct && me.fc; $('csHr').textContent = hr ? (fcP ? Math.round(hr / me.fc * 100) : hr) : '—'; $('csHrL').textContent = fcP ? '%FCmáx' : 'FC';
+    $('csPct').textContent = pct != null ? Math.round(pct) : '—'; $('csPctL').textContent = fc ? '%FC' : '%FTP';
+    $('csGv').textContent = pct != null ? Math.round(pct) : '—'; $('csGl').textContent = fc ? '%FC' : '%FTP';
+    $('csW').textContent = powered ? w : '—';
+    $('csRpm').textContent = powered ? cad : '—'; $('csDial').className = 'cs-dial' + (powered && cad ? (rpmOk(cad, b) ? ' ok' : ' low') : '');
+    const zi = blkZone(b), znm = (zi.name || 'Z1'), zsp = znm.indexOf(' '); box.style.setProperty('--bz', zoneColor(zi.css));
+    $('csZ').textContent = b.teste ? 'FTP' : b.tipo === 'cool' ? '↓' : znm.slice(0, zsp > 0 ? zsp : znm.length); $('csZn').textContent = b.teste ? 'Teste' : b.tipo === 'cool' ? 'Retorno à calma' : (zsp > 0 ? znm.slice(zsp + 1) : '');
+    { const tx = b.tecnica || b.nome || ''; if($('csTec').textContent !== tx) $('csTec').textContent = tx; }
+    $('csT').textContent = fmtCountdown(remaining); $('csTd').textContent = '/ ' + fmtTime(blockDurationSec(b));
+    [['csP1', 60], ['csP5', 300], ['csP20', 1200]].forEach(([id, n])=> $(id).textContent = CS.best[n] ? Math.round(CS.best[n]) : '—');
+    // velocidade (média do bloco anterior · agora · média da aula), distância e declive (média do bloco anterior · agora · subida acumulada)
+    const v1 = x=> String(Math.round(x * 10) / 10).replace('.', ','), km = v=> v == null ? '—' : fmtKm(v), dc = x=> (x > 0.0005 ? '+' : '') + (Math.round(x * 1000) / 10).toFixed(1).replace('.', ',');
+    $('csAv').textContent = CS.prev && CS.prev.t > 0 ? v1(CS.prev.km / CS.prev.t * 3600) : '—'; $('csCv').textContent = me.spd > 0 || CS.cur ? v1(me.spd || 0) : '—'; $('csTv').textContent = me.ts > 0 ? v1((me.km || 0) / me.ts * 3600) : '—';
+    $('csAk').textContent = CS.prev ? km(CS.prev.km) : '—'; $('csCk').textContent = CS.cur ? km(CS.cur.km) : '—'; $('csTk').textContent = km(me.km || 0);
+    $('csAd').textContent = CS.prev && CS.prev.t > 0 ? dc(CS.prev.sl / CS.prev.t) : '—'; $('csCd').textContent = dc(simInclina() || 0); $('csTd2').textContent = '↑' + Math.round(CS.up) + ' m';
+    $('csCal').textContent = Math.round(me.kj || 0);
+    $('csBtB').classList.toggle('on', powered); $('csBtH').classList.toggle('on', hr > 0);
+    // mostrador em arco à esquerda: 24 traços com as cores das zonas, acesos até à percentagem atual (0–150%)
+    const N = 24, lit = pct == null ? 0 : Math.round(Math.max(0, Math.min(150, pct)) / 150 * N), gK = lit + '|' + (fc ? 'f' : 'w');
+    if(gK !== CS.gK){ CS.gK = gK; let h = '';
+      for(let i = 0; i < N; i++){ const a = (232 - i * 104 / (N - 1)) * Math.PI / 180, r1 = 66, r2 = 88, cx = 95, cy = 100, p = (i + .5) / N * 150, c = zoneColor(getZone(p).css);
+        const x1 = cx + Math.cos(a) * r1, y1 = cy - Math.sin(a) * r1, x2 = cx + Math.cos(a) * r2, y2 = cy - Math.sin(a) * r2;
+        h += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="' + c + '" stroke-width="5.5" stroke-linecap="round" opacity="' + (i < lit ? 1 : .14) + '"/>'; }
+      $('csG').innerHTML = h; }
+    // anel da cadência: 40 traços, acesos até às rpm (0–130), verdes dentro do alvo e laranja fora
+    const nD = 40, litD = Math.round(Math.max(0, Math.min(130, cad)) / 130 * nD), ok = powered && cad ? rpmOk(cad, b) : null, dK = litD + '|' + ok;
+    if(dK !== CS.dK){ CS.dK = dK; let h = '<circle cx="50" cy="50" r="46" fill="#0b0d10" stroke="#2a2f37" stroke-width="1.5"/>';
+      for(let i = 0; i < nD; i++){ const a = (-225 + i * 270 / (nD - 1)) * Math.PI / 180, x1 = 50 + Math.cos(a) * 36, y1 = 50 + Math.sin(a) * 36, x2 = 50 + Math.cos(a) * 43, y2 = 50 + Math.sin(a) * 43;
+        h += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="' + (i < litD ? (ok === false ? '#FFB15C' : '#3DD45C') : '#2f353e') + '" stroke-width="2.6" stroke-linecap="round"/>'; }
+      $('csD').innerHTML = h; }
+  }
   // ===== Ecrã Corrida: tu ao centro, os 2 que vão à tua frente e os 2 que vêm atrás (distância, velocidade e watts) =====
   const RV = { ref: null, L: {}, crit: 'dist', cref: null };
   function rvLiga(on){
@@ -7320,6 +7447,7 @@ body:has(#setupScreen.active) .legal{display:none}
     kartAtualiza(b);
     if(ecraAtual === 2) renderEcra2(b, next, remaining, range, totalSec, elapsedBefore + (blockDurationSec(b) - remaining));
     if(ecraAtual === 5) rvRender(b, next, remaining, range);
+    if(ecraAtual === 6) csRender(b, remaining, range);
     try{ coachTick(b, next, remaining, range); }catch(e){}
     if(ecraAtual === 3) renderEcra3(b, next, remaining, range, totalSec, elapsedBefore + (blockDurationSec(b) - remaining));
     const temJogo = !!(b.jogo && JOGOS_ALUNO[b.jogo]); document.querySelectorAll('#e2Dots .d3').forEach(d=> d.classList.toggle('tem', temJogo));   // o 3.º ponto acende quando há jogo
@@ -7564,10 +7692,10 @@ body:has(#setupScreen.active) .legal{display:none}
     body.addEventListener('touchstart', e=>{ if(e.touches.length !== 1 || !$('liveScreen').classList.contains('e2on')) { x0 = null; return; } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; t0 = Date.now(); }, {passive:true});
     body.addEventListener('touchend', e=>{
       if(x0 == null) return; const t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; x0 = null;
-      if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && Date.now() - t0 < 800) { const O = GM_EU ? [1, 2, 5, 3, 4] : [1, 2, 5, 3], i = Math.max(0, O.indexOf(ecraAtual)); ecraVai(O[Math.max(0, Math.min(O.length - 1, i + (dx < 0 ? 1 : -1)))]); }
+      if(Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5 && Date.now() - t0 < 800) { const O = GM_EU ? [1, 2, 5, 6, 3, 4] : [1, 2, 5, 6, 3], i = Math.max(0, O.indexOf(ecraAtual)); ecraVai(O[Math.max(0, Math.min(O.length - 1, i + (dx < 0 ? 1 : -1)))]); }
     }, {passive:true});
     $('e2Dots').addEventListener('click', e=>{ const b = e.target.closest('button'); if(b) ecraVai(+b.dataset.e); });
-    let ini = 1; try{ const v = +localStorage.getItem('prEcra'); ini = v === 2 || v === 3 || v === 5 ? v : 1; }catch(err){}
+    let ini = 1; try{ const v = +localStorage.getItem('prEcra'); ini = v === 2 || v === 3 || v === 5 || v === 6 ? v : 1; }catch(err){}
     ecraVai(ini);
   })();
   if(!hasBluetooth) $('showAllBtn').style.display = 'none';   // sem Bluetooth na web (iPhone fora do Bluefy) não serve
