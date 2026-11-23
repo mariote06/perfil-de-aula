@@ -12069,7 +12069,7 @@ const SR3 = (()=>{
     try{ return await estWkMede({ id: ++EST_WK.n, sr: ab.sampleRate, dur: ab.duration, a }); }catch(e){ if(EST_WK.falhou) return estWkLocal(ab); throw e; }
   }
   // corre fn(item, i) em vários itens ao mesmo tempo (tantos quantos os workers), pela ordem da lista
-  async function estParalelo(itens, fn){ let i = 0; const K = EST_WK.falhou ? 1 : estWkN() + 1; const um = async ()=>{ while(i < itens.length){ const k = i++; await fn(itens[k], k); } };
+  async function estParalelo(itens, fn){ let i = 0; const K = EST_WK.falhou ? 1 : estWkN() + 1; const um = async ()=>{ while(i < itens.length){ const k = i++; try{ await fn(itens[k], k); }catch(e){ console.warn('análise:', e); } } };   // um erro numa música não pára as outras
     await Promise.all(Array.from({ length: Math.min(K, itens.length) }, um)); }
   // liga (ou volta a ler) uma pasta: junta as músicas novas, reconhece as que já lá estavam e transforma as cópias antigas em atalhos
   async function estLigaPasta(dirId){
@@ -12350,6 +12350,7 @@ const SR3 = (()=>{
     $('estMover').innerHTML = '<option value="">escolher…</option>' + C.map(c=> '<option value="' + c.id + '">📂 ' + escapeHtml(c.nome) + '</option>').join('') + (C.length ? '<option value="_sem">Sem pasta</option>' : '') + '<option value="_nova">＋ Nova pasta…</option>';
   }
   function estPintaLib(){
+    if(!EST.ov || !$('estLibT')) return;   // Estúdio fechado: a análise continua por trás, sem desenhar
     const M = mixAtivo(), uso = {}; (M ? M.itens : []).forEach(it=> uso[it.id] = (uso[it.id] || 0) + 1);
     // ordenar: carregar no cabeçalho de uma coluna ordena por ela; carregar outra vez inverte (crescente ↔ decrescente)
     if(!EST.ord){ try{ EST.ord = JSON.parse(localStorage.getItem('prEstOrd') || 'null'); }catch(e){} if(!EST.ord || !EST.ord.k) EST.ord = { k: 'bpm', d: 1 }; }
