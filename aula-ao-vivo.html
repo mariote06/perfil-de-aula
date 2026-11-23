@@ -565,7 +565,8 @@ body:has(#liveScreen.ecra6) .nx-float,body:has(#liveScreen.ecra6) .nx-burst{disp
 .rel-ov{position:fixed;inset:0;z-index:9000;background:#0A0D12;overflow:auto;display:none;-webkit-overflow-scrolling:touch}.rel-ov.on{display:block}
 .rel-c{max-width:640px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 18px) 16px 40px;color:var(--text);text-align:left}
 .rel-c h2{font-family:'Barlow Condensed',sans-serif;font-size:30px;margin:0 0 4px}.rel-c h3{font-size:16px;margin:20px 0 8px}
-.rel-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.rel-kpi>div{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center}
+.rel-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.rel-kpi.rel-tot{grid-template-columns:repeat(2,1fr)}.rel-tot b{color:#3DD45C}
+.rel-dx{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:8px}.rel-dx>div{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:9px 10px}.rel-dx i{font-style:normal;font-size:20px;display:block}.rel-dx b{display:block;font-size:13px;margin:2px 0}.rel-dx p{margin:0;font-size:12px;color:var(--muted);line-height:1.4}.rel-kpi>div{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 8px;text-align:center}
 .rel-kpi b{display:block;font-family:'Barlow Condensed',sans-serif;font-size:28px;line-height:1.05}.rel-kpi b small{font-size:.5em}.rel-kpi span{font-size:11px;color:var(--muted)}
 .rel-bars{position:relative;display:flex;align-items:flex-end;gap:6px;height:130px;margin-top:22px;border-bottom:1px solid var(--border)}
 .rel-bars>div{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}.rel-bars i{display:block;width:100%;border-radius:6px 6px 0 0;min-height:2px}.rel-bars span{font-size:11px;color:var(--muted);margin-top:3px}
@@ -1702,7 +1703,7 @@ body:has(#setupScreen.active) .legal{display:none}
   <button id="enterBtn" class="btn-primary">Entrar na aula</button>
   <div id="setupError" class="err"></div>
   <button id="demoBtn" class="btn-link">Experimentar sem bike (modo teste)</button>
-  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 23/11 01:05</div>
+  <div class="app-ver" style="text-align:center;font-size:11px;color:#5d6676;margin-top:6px">versão 23/11 18:20</div>
 </div>
 
 <!-- 3. AULA -->
@@ -3561,7 +3562,7 @@ body:has(#setupScreen.active) .legal{display:none}
     try{
       const caiu = netOk === false ? Math.floor((netCaiu || horaSrv()) / 1000) - 20 : 0;
       localStorage.setItem(SNAP_KEY, JSON.stringify({ pin, t: Date.now(), off: serverOffset || 0, nome: treinoNome, modo, blocos, state,
-        me: { kj: me.kj, pts: me.pts, as: me.as, iz: me.iz, km: me.km, tw: me.tw, tt: me.tt, mw: me.mw, sumW: me.sumW, ts: me.ts },
+        me: { kj: me.kj, pts: me.pts, as: me.as, iz: me.iz, km: me.km, up: me.up || 0, tw: me.tw, tt: me.tt, mw: me.mw, sumW: me.sumW, ts: me.ts },
         caiu: netOk === false ? netCaiu : 0, amo: caiu ? AMO.filter(a=> a[0] >= caiu).slice(-1800) : [] }));
     }catch(e){}
   }
@@ -3721,7 +3722,7 @@ body:has(#setupScreen.active) .legal{display:none}
         me.kj = prev.kj || 0; me.pts = prev.pts || 0; me.as = prev.as || 0; me.iz = prev.iz || 0; me.km = prev.km || 0; me.tw = prev.tw || 0; me.tt = prev.tt || 0;
         me.mw = prev.mw || 0; me.sumW = (prev.aw || 0) * (prev.as || 0); me.ts = prev.as || 0;
       } else {
-        me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = me.ts = me.km = me.spd = me.tw = me.tt = 0; me.ftpIni = null; me.ftpTest = null; me.testDone = false;
+        me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = me.ts = me.km = me.spd = me.tw = me.tt = me.up = 0; me.ftpIni = null; me.ftpTest = null; me.testDone = false;
       }
     }catch(e){ const sn = OFF || snapLe(pin); if(sn && sn.me) Object.assign(me, sn.me); }
 
@@ -4037,7 +4038,7 @@ body:has(#setupScreen.active) .legal{display:none}
     CS.ts = me.ts;
     const bi = state.blockIndex; if(CS.km0 == null) CS.km0 = me.km; const dk = Math.max(0, me.km - CS.km0); CS.km0 = me.km;
     if(bi !== CS.bi){ if(CS.cur && CS.cur.t > 3) CS.prev = CS.cur; CS.cur = { w: 0, t: 0, km: 0, sl: 0 }; CS.bi = bi; }
-    const sl = simInclina() || 0; CS.cur.w += w * dt; CS.cur.t += dt; CS.cur.km += dk; CS.cur.sl += sl * dt; if(sl > 0) CS.up += dk * 1000 * sl;
+    const sl = simInclina() || 0; CS.cur.w += w * dt; CS.cur.t += dt; CS.cur.km += dk; CS.cur.sl += sl * dt; if(sl > 0){ CS.up += dk * 1000 * sl; me.up = (me.up || 0) + dk * 1000 * sl; }   // subida acumulada (fica no treino)
     CS.acc += w * dt; CS.accT += dt;
     if(CS.accT >= 1){ CS.s.push(CS.acc / CS.accT); CS.acc = 0; CS.accT = 0; if(CS.s.length > 1200) CS.s.shift();
       [60, 300, 1200].forEach(n=>{ if(CS.s.length >= n){ let sm = 0; for(let i = CS.s.length - n; i < CS.s.length; i++) sm += CS.s[i]; CS.best[n] = Math.max(CS.best[n], sm / n); } }); }
@@ -8182,7 +8183,7 @@ body:has(#setupScreen.active) .legal{display:none}
     const t = {
       date: Date.now(), aula: treinoNome || 'Aula de cycling', pin: pin || null, tipo: solo || 'aula',
       ftp: me.ftp || null, dur: Math.round(me.ts), as: Math.round(me.as),
-      kj: Math.round(me.kj*10)/10, pts: Math.round(me.pts), km: Math.round(me.km*100)/100,
+      kj: Math.round(me.kj*10)/10, pts: Math.round(me.pts), km: Math.round(me.km*100)/100, up: Math.round(me.up || 0),
       aw: me.as ? Math.round(me.sumW/me.as) : 0, mw: Math.round(me.mw),
       iz: Math.round(me.iz), rank: myRank ? myRank.p : null, turma: myRank ? myRank.n : null,
       hrAvg: hrVals.length ? Math.round(hrVals.reduce((a,b)=>a+b,0)/hrVals.length) : null,
@@ -8363,16 +8364,41 @@ body:has(#setupScreen.active) .legal{display:none}
       '<li>Confirma que tem <b>Bluetooth (BLE)</b>: os que são só ANT+ não ligam ao telemóvel. Os relógios de pulso costumam ser menos fiáveis nos sprints.</li></ul>' +
       '<p class="hint">Liga-a em <b>Os teus sensores → Cinta de FC</b>. A partir daí este relatório fica muito mais completo.</p></div>' : '';
     const kpi = (v, l)=> '<div><b>' + v + '</b><span>' + l + '</span></div>';
+    // ---- desde o início: km, subida, velocidade média e tempo a pedalar ----
+    const TT = treinosCache.filter(t=> (t.as || t.dur || 0) >= 60), kmT = TT.reduce((a, t)=> a + (+t.km || 0), 0), segT = TT.reduce((a, t)=> a + (t.as || t.dur || 0), 0);
+    const comUp = TT.filter(t=> t.up != null), upT = comUp.reduce((a, t)=> a + (+t.up || 0), 0), vMed = segT > 0 ? kmT / (segT / 3600) : 0;
+    const desdeUp = comUp.length && comUp.length < TT.length ? Math.min(...comUp.map(t=> t.date)) : null;
+    const nf = v=> Math.round(v).toLocaleString('pt-PT'), hT = s=> s >= 3600 ? Math.floor(s / 3600) + ' h ' + String(Math.round(s % 3600 / 60)).padStart(2, '0') : Math.round(s / 60) + ' min';
+    const tot = '<h3>🚴 Desde o início · ' + TT.length + ' treino' + (TT.length === 1 ? '' : 's') + '</h3><div class="rel-kpi rel-tot">' +
+      kpi(f1(Math.round(kmT * 10) / 10) + '<small> km</small>', 'distância total') + kpi((comUp.length ? nf(upT) : '—') + '<small> m</small>', 'subida acumulada' + (desdeUp ? ' (desde ' + new Date(desdeUp).toLocaleDateString('pt-PT') + ')' : '')) +
+      kpi(vMed ? f1(Math.round(vMed * 10) / 10) + '<small> km/h</small>' : '—', 'velocidade média') + kpi(hT(segT), 'tempo a pedalar') + '</div>';
+    // ---- dicas para melhorar a performance (a partir dos teus números) ----
+    const dic = [];
+    const cads = u28.map(x=> x.t.c ? x.t.c.filter(v=> v > 30) : []).flat(), cadM = cads.length > 20 ? cads.reduce((a, v)=> a + v, 0) / cads.length : null;
+    if(cadM != null){ if(cadM < 78) dic.push(['🦵', 'Pedala mais solto', 'A tua cadência média é <b>' + Math.round(cadM) + ' rpm</b>. No plano, 85–95 rpm poupa os músculos e as articulações e deixa-te manter os watts mais tempo. Baixa um pouco a resistência e acelera as pernas.']);
+      else if(cadM > 105) dic.push(['🏋️', 'Põe mais resistência', 'A tua cadência média é <b>' + Math.round(cadM) + ' rpm</b>: muito rápido para a força que fazes. Sobe a resistência até ficares nos 85–95 rpm no plano e 60–80 rpm nas subidas — é aí que se ganha força.']); }
+    const vel = A=>{ const k = A.reduce((a, x)=> a + (+x.t.km || 0), 0), s = A.reduce((a, x)=> a + (x.t.as || x.t.dur || 0), 0); return s > 600 ? k / (s / 3600) : null; }, v1 = vel(u28), v0 = vel(p28);
+    if(v1 && v0){ const d = (v1 - v0) / v0 * 100; if(d >= 2) pos.push('A tua velocidade média subiu ' + f1(d) + '% em relação às 4 semanas anteriores (' + f1(v0) + ' → ' + f1(v1) + ' km/h). 🚀');
+      else if(d <= -3) dic.push(['🐢', 'Velocidade média a descer', 'Nas últimas 4 semanas fizeste <b>' + f1(v1) + ' km/h</b> de média (antes: ' + f1(v0) + ' km/h). Nos blocos de trabalho, tenta segurar o alvo de %FTP até ao fim do bloco em vez de aliviar a meio.']); }
+    if(kmT > 20 && comUp.length >= 3){ const upKm = upT / Math.max(1, comUp.reduce((a, t)=> a + (+t.km || 0), 0)); if(upKm < 6) dic.push(['⛰️', 'Mais subidas', 'Sobes em média <b>' + f1(upKm) + ' m por km</b>. As aulas de montanha (60–80 rpm com mais resistência) dão força específica e melhoram a potência no limiar. Experimenta uma por semana.']); }
+    const longo = Math.max(0, ...u28.map(x=> x.min)); if(u28.length >= 3 && longo < 55) dic.push(['🕐', 'Uma sessão mais longa', 'O teu treino mais longo nas últimas 4 semanas teve <b>' + Math.round(longo) + ' min</b>. Uma sessão de 60–90 min por mês, a ritmo confortável (Z2), aumenta a resistência e a capacidade de queimar gordura.']);
+    const fixas = [['💧', 'Hidratação', 'Bebe 500 ml de água nas 2 h antes da aula e vai bebendo goles a cada 10–15 min. Perder 2% do peso em suor já reduz a potência.'],
+      ['🔥', 'Aquece bem', 'Os primeiros 8–10 min leves (Z1–Z2) preparam o coração e os músculos: rendes mais nos blocos fortes e evitas lesões.'],
+      ['🪑', 'Afina a bike', 'Selim à altura da anca e joelho quase esticado (25–35°) com o pedal em baixo. Uma bike bem afinada dá mais watts com o mesmo esforço.'],
+      ['🍌', 'Come para treinar', '1–3 h antes: hidratos fáceis (fruta, pão, aveia). Depois da aula: proteína + hidratos na primeira hora para recuperar.'],
+      ['🌬️', 'Respira e solta', 'Ombros descontraídos, mãos leves no guiador e respiração pela barriga. Tensão no tronco é energia que não vai para os pedais.']];
+    const dicas = '<h3>🚀 Dicas para melhorar a performance</h3>' + dic.map(x=> '<div class="rel-s"><i>' + x[0] + '</i><div><b>' + x[1] + '</b><p>' + x[2] + '</p></div></div>').join('') +
+      '<div class="rel-dx">' + fixas.map(x=> '<div><i>' + x[0] + '</i><b>' + x[1] + '</b><p>' + x[2] + '</p></div>').join('') + '</div>';
     return '<h2>📊 O meu relatório de desempenho</h2><p class="hint">Últimas 4 semanas · ' + u28.length + ' treino' + (u28.length === 1 ? '' : 's') + (p28.length ? ' (4 semanas antes: ' + p28.length + ')' : '') + '</p>' +
       '<div class="rel-kpi">' + kpi(f1(freq), 'treinos/semana') + kpi(Math.round(minSem), 'min/semana') + kpi(acwr != null ? f1(acwr) : '—', 'carga aguda/crónica') +
         kpi(comFc.length ? Math.round(comFc.reduce((a, x)=> a + x.t.hrAvg, 0) / comFc.length) + '<small> bpm</small>' : '—', 'FC média') +
         kpi(efs.length ? f1(efs[efs.length - 1].ef) : '—', 'eficiência W/bpm') + kpi(u28.some(x=> x.tss != null) ? Math.round(u28.reduce((a, x)=> a + (x.tss || 0), 0) / 4) : '—', 'TSS/semana') + '</div>' +
-      '<h3>Volume semanal</h3>' + barras +
+      tot + '<h3>Volume semanal</h3>' + barras +
       (zonas ? '<h3>Tempo em cada zona cardíaca (últimas 4 semanas)</h3>' + zonas : '') +
       (efSvg ? '<h3>Eficiência aeróbia (watts por batimento)</h3>' + efSvg + '<div class="rel-leg">A subir = melhor condição aeróbia</div>' : '') +
       (pos.length ? '<h3>✅ O que está a correr bem</h3><ul class="rel-pos">' + pos.map(x=> '<li>' + x + '</li>').join('') + '</ul>' : '') +
       (sug.length ? '<h3>💡 Sugestões para melhorar</h3>' + sug.map(x=> '<div class="rel-s"><i>' + x[0] + '</i><div><b>' + x[1] + '</b><p>' + x[2] + '</p></div></div>').join('') : '<h3>💡 Sugestões</h3><p>Está tudo equilibrado. Mantém a regularidade e vai variando as aulas. 👏</p>') +
-      disp +
+      dicas + disp +
       '<details class="rel-mt"><summary>Como é calculado</summary><p><b>Zonas cardíacas</b> em % da FC máxima (Z1 &lt;60, Z2 60–70, Z3 70–80, Z4 80–90, Z5 ≥90). <b>Carga</b>: TRIMP de Edwards (minutos em cada zona × 1 a 5) ou, sem FC, TSS da potência (duração × IF² × 100). <b>Carga aguda/crónica</b>: carga dos últimos 7 dias ÷ média semanal das últimas 4 semanas. <b>Eficiência</b>: watts médios ÷ FC média (sem os primeiros 5 min). <b>Desacoplamento</b>: perda de eficiência da 1.ª para a 2.ª metade do treino. Recomendações de volume da OMS e do ACSM; distribuição de intensidade segundo o modelo polarizado (Seiler).</p><p>Isto é uma orientação de treino e não substitui uma avaliação médica. Se tiveres dor no peito, tonturas ou falta de ar fora do normal, para e consulta um médico.</p></details>';
   }
   $('relBtn') && $('relBtn').addEventListener('click', relAbre);
@@ -9284,7 +9310,7 @@ body:has(#setupScreen.active) .legal{display:none}
     }
     if(solo === 'livre') modo = (!hasPowerSource() && hrConnected()) ? 'fc' : 'ftp';   // só cinta: o número grande é a FC
     resetSerie(); savedThisClass = false; treinoKey = null; lastBlockIdx = -1; nxBoomIdx = -1; hideNx(); rateDone = false; rateAuto = false; me.rx = null; me.fa = null; $('savedNote').innerHTML = ''; $('ftpResult').style.display = 'none'; $('finFtp').innerHTML = '';
-    me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = me.ts = me.km = me.spd = me.tw = me.tt = 0; me.ftpIni = null; me.ftpTest = null; me.testDone = false;
+    me.kj = me.pts = me.as = me.iz = me.mw = me.sumW = me.ts = me.km = me.spd = me.tw = me.tt = me.up = 0; me.ftpIni = null; me.ftpTest = null; me.testDone = false;
     serverOffset = 0; sessionEnded = false; myRank = null; riderRef = null;
     soloClock.acc = 0; soloClock.since = 0;
     if(solo === 'livre') state = { status:'paused', blockIndex:0 };
