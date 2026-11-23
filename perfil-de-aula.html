@@ -12169,7 +12169,8 @@ const SR3 = (()=>{
   function estAssin(){ return (current.blocos || []).map(b=> blockDurationSec(b) + ':' + estCad(b)).join(','); }
   function estCandidatos(cad, M, usados, ultimo, alvoEn){
     const L = estLib().filter(t=> t.bpm > 0 && t.dur > 20 && !t.noAuto), out = [], camU = ((ultimo && L.find(t=> t.id === ultimo)) || {}).cam;   // as marcadas "fora do automático" (sons ambiente…) nunca entram ao encher
-    L.forEach(t=>{ const mu = estMu(t.bpm), eff = t.bpm * mu; if(cad > 0 && (eff < 50 || eff > 200)) return;
+    L.forEach(t=>{ if(!EST.rep && (usados[t.id] || 0) > 0) return;   // sem repetições: a que já está na mistura não volta a entrar
+      const mu = estMu(t.bpm), eff = t.bpm * mu; if(cad > 0 && (eff < 50 || eff > 200)) return;
       const rate = cad > 0 ? cad / eff : 1, dev = Math.abs(rate - 1); if(dev > .12) return;
       const dc = EST.cam && camU ? estCamDist(camU, t.cam) : -1, pc = dc < 0 ? (EST.cam && camU ? .08 : 0) : [0, .02, .07, .3][dc];   // 🎹 harmonia: prefere chaves vizinhas na roda de Camelot
       const en = estEnergia(t), pe = EST.en && alvoEn != null && en != null ? Math.abs(en - alvoEn) * .035 : 0;   // ⚡ energia perto da intensidade do bloco
@@ -12243,7 +12244,7 @@ const SR3 = (()=>{
   }
   // ---- janela do Estúdio ----
   const EST_SNAP = [['manual', '✋ manual (livre)'], ['pontas', '📍 pontas dos blocos e músicas'], ['32', '♩ 8 compassos'], ['16', '♩ 4 compassos'], ['8', '♩ 2 compassos'], ['4', '♩ 1 compasso'], ['2', '♩ ½ nota (2 batidas)'], ['1', '♩ ¼ nota (1 batida)'], ['0.5', '♩ ⅛ nota'], ['0.25', '♩ 1/16 nota']];
-  var EST = { en: (()=>{ try{ return localStorage.getItem('prEstEn') !== '0'; }catch(e){ return true; } })(), cam: (()=>{ try{ return localStorage.getItem('prEstCam') !== '0'; }catch(e){ return true; } })(), snap: (()=>{ try{ const v = localStorage.getItem('prEstSnap'); return EST_SNAP.some(x=> x[0] === v) ? v : 'pontas'; }catch(e){ return 'pontas'; } })(), toda: (()=>{ try{ return localStorage.getItem('prEstToda') !== '0'; }catch(e){ return true; } })(), lin: (()=>{ try{ return JSON.parse(localStorage.getItem('prEstLin')) || { v: true }; }catch(e){ return { v: true }; } })(), ov: null, sel: -1, pps: 1, zoom: 1, x0: 0, play: false, pT: 0, iv: 0, estado: '', ouveLib: null, iman: true };
+  var EST = { rep: (()=>{ try{ return localStorage.getItem('prEstRep') !== '0'; }catch(e){ return true; } })(), en: (()=>{ try{ return localStorage.getItem('prEstEn') !== '0'; }catch(e){ return true; } })(), cam: (()=>{ try{ return localStorage.getItem('prEstCam') !== '0'; }catch(e){ return true; } })(), snap: (()=>{ try{ const v = localStorage.getItem('prEstSnap'); return EST_SNAP.some(x=> x[0] === v) ? v : 'pontas'; }catch(e){ return 'pontas'; } })(), toda: (()=>{ try{ return localStorage.getItem('prEstToda') !== '0'; }catch(e){ return true; } })(), lin: (()=>{ try{ return JSON.parse(localStorage.getItem('prEstLin')) || { v: true }; }catch(e){ return { v: true }; } })(), ov: null, sel: -1, pps: 1, zoom: 1, x0: 0, play: false, pT: 0, iv: 0, estado: '', ouveLib: null, iman: true };
   function estAbre(){
     audStop(); if(typeof audPrevStop === 'function') audPrevStop();
     const ov = EST.ov = document.createElement('div'); ov.id = 'estOv';
@@ -12251,7 +12252,7 @@ const SR3 = (()=>{
       '<span class="est-regra" title="Como o BPM da música vira cadência">cadência = BPM · acima de 120 BPM ÷ 2 · abaixo de 60 BPM × 2</span>' +
       '<label>transição <select id="estTr">' + Object.keys(EST_TRANS).map(k=> '<option value="' + k + '">' + EST_TRANS[k].n + '</option>').join('') + '</select></label><button type="button" id="estTrTodas" title="Aplica esta transição a todas as passagens da mistura">aplicar a todas</button>' +
       '<label title="Ao encher a aula, escolhe músicas com chaves vizinhas na roda de Camelot (mesma chave, ±1 ou A↔B) para as transições soarem harmónicas"><input type="checkbox" id="estCam"' + (EST.cam ? ' checked' : '') + '> 🎹 harmonizar (Camelot)</label>' +
-      '<label title="Ao encher a aula, escolhe músicas com energia parecida à intensidade de cada bloco (aquecimento calmo, intervalos fortes)"><input type="checkbox" id="estEn"' + (EST.en ? ' checked' : '') + '> ⚡ energia por bloco</label>' +
+      '<label title="Ao encher a aula, escolhe músicas com energia parecida à intensidade de cada bloco (aquecimento calmo, intervalos fortes)"><input type="checkbox" id="estEn"' + (EST.en ? ' checked' : '') + '> ⚡ energia por bloco</label><label title="Ao encher a aula, pode usar a mesma música mais do que uma vez (desligado: cada música entra no máximo uma vez; se faltarem músicas com a cadência certa, o espaço fica vazio)"><input type="checkbox" id="estRep"' + (EST.rep ? ' checked' : '') + '> 🔁 repetir músicas</label>' +
       '<label>pistas <select id="estPis">' + [2, 3, 4, 5, 6].map(n=> '<option>' + n + '</option>').join('') + '</select></label>' +
       '<label title="Volume geral da mistura">🔊 <input type="range" id="estVol" min="0" max="1" step="0.05"></label>' +
       '<div class="est-med" id="estMed" title="Medidor de dB ao ouvir: o vermelho (acima de −1 dB) e a luz CLIP avisam distorção"><div class="est-mb"><em>L</em><span><u></u><i></i><s></s></span></div><div class="est-mb"><em>R</em><span><u></u><i></i><s></s></span></div><b class="est-mdb">−∞ dB</b><b class="est-clip">CLIP</b></div>' +
@@ -12272,6 +12273,7 @@ const SR3 = (()=>{
     $('estPis').onchange = ()=>{ const M2 = garante(), n = +$('estPis').value; M2.pistas = n; if(M2.itens && M2.itens.length) estOrdem(M2, true).forEach((it, k)=> it.p = k % n); persist(); estPinta(); };   // pista 1 = música 1, pista 2 = música 2… e volta à pista 1
     $('estVol').oninput = ()=>{ garante().vol = +$('estVol').value; persist(); if(EST.niv){ EST.niv = null; estPintaNiv(); estDesenha(); } };
     $('estSnap').onchange = ()=> estSnapPoe($('estSnap').value);
+    $('estRep').onchange = ()=>{ EST.rep = $('estRep').checked; try{ localStorage.setItem('prEstRep', EST.rep ? '1' : '0'); }catch(e){} toast(EST.rep ? '🔁 Pode repetir músicas ao encher · ✨ para voltar a encher' : '🚫 Sem repetições: cada música entra no máximo uma vez · ✨ para voltar a encher'); };
     $('estEn').onchange = ()=>{ EST.en = $('estEn').checked; try{ localStorage.setItem('prEstEn', EST.en ? '1' : '0'); }catch(e){} toast(EST.en ? '⚡ Vou escolher a energia das músicas pela intensidade dos blocos · ✨ para voltar a encher' : 'Energia desligada'); };
     $('estCam').onchange = ()=>{ EST.cam = $('estCam').checked; try{ localStorage.setItem('prEstCam', EST.cam ? '1' : '0'); }catch(e){} toast(EST.cam ? '🎹 Vou escolher as músicas pela roda de Camelot · ✨ para voltar a encher' : 'Harmonia desligada: escolho só pelo BPM'); };
     $('estToda').onchange = ()=>{ EST.toda = $('estToda').checked; try{ localStorage.setItem('prEstToda', EST.toda ? '1' : '0'); }catch(e){} estDesenha(); };
