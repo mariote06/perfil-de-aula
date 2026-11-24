@@ -12374,11 +12374,26 @@ const SR3 = (()=>{
   const EST_MOODS = [['calma', '😌', 'Calma', '#5fa8e8'], ['alegre', '🙂', 'Alegre', '#f2c94a'], ['epica', '🏔️', 'Épica', '#b26ee6'], ['agressiva', '🔥', 'Agressiva', '#f0664a']];
   const EST_MO_MOM = { aq: { alegre: .7, calma: .3 }, plano: { alegre: .6, epica: .2, agressiva: .2 }, subida: { epica: .7, agressiva: .3 }, forte: { agressiva: .6, epica: .4 },
     sprint: { agressiva: .8, epica: .2 }, rec: { calma: .6, alegre: .4 }, calma: { calma: 1 } };
-  var EST_YM = { lib: 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-audio@1.2.3', modelo: 'yamnet.tflite', c: null, p: null };
+  var EST_YM = { lib: 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-audio@1.2.3', modelo: 'yamnet.tflite', v: 'mp1.2.3/ym1', c: null, p: null };
+  // 📦 os ficheiros do YAMNet ficam guardados na base de dados do PlayRide (IndexedDB, armazenamento persistente, como a biblioteca):
+  //    só a primeira vez precisa de internet; depois funciona sempre offline, sem depender da cache do navegador (que ele pode limpar)
+  const EST_YM_F = [['bundle', '/audio_bundle.mjs', 'text/javascript'], ['loader', '/wasm/audio_wasm_internal.js', 'text/javascript'], ['wasm', '/wasm/audio_wasm_internal.wasm', 'application/wasm'], ['modelo', '', 'application/octet-stream']];
+  async function estYmFich(f, aviso){
+    const k = 'ymf:' + f[0]; let r = null; try{ r = await audGet(k); }catch(e){}
+    if(r && r.blob && r.v === EST_YM.v) return r.blob;
+    if(aviso) aviso();
+    const res = await fetch(f[0] === 'modelo' ? EST_YM.modelo : EST_YM.lib + f[1]); if(!res.ok) throw new Error('YAMNet ' + f[0] + ': HTTP ' + res.status);
+    const blob = new Blob([await res.arrayBuffer()], { type: f[2] });
+    try{ await audPut(k, { blob, v: EST_YM.v, nome: 'YAMNet · ' + f[0] }); }catch(e){ console.warn('YAMNet: não consegui guardar', f[0], e); }
+    return blob; }
+  async function estYmGuardado(){ try{ for(const f of EST_YM_F){ const r = await audGet('ymf:' + f[0]); if(!(r && r.blob && r.v === EST_YM.v)) return false; } return true; }catch(e){ return false; } }
   function estYmCarrega(){
     if(EST_YM.p) return EST_YM.p;
-    EST_YM.p = (async ()=>{ const m = await import(EST_YM.lib + '/audio_bundle.mjs'), fs = await m.FilesetResolver.forAudioTasks(EST_YM.lib + '/wasm');
-      return (EST_YM.c = await m.AudioClassifier.createFromOptions(fs, { baseOptions: { modelAssetPath: EST_YM.modelo }, maxResults: -1 })); })();
+    EST_YM.p = (async ()=>{ audPersiste(); let desc = false; const aviso = ()=>{ if(!desc){ desc = true; estEstado('🎭 A descarregar o YAMNet (só desta vez: ~26 MB, fica guardado neste PC para usar sem internet)…'); } };
+      const [bun, ldr, wasm, mod] = await Promise.all(EST_YM_F.map(f=> estYmFich(f, aviso))), u = b=> URL.createObjectURL(b);
+      const m = await import(u(bun));
+      return (EST_YM.c = await m.AudioClassifier.createFromOptions({ wasmLoaderPath: u(ldr), wasmBinaryPath: u(wasm) },
+        { baseOptions: { modelAssetBuffer: new Uint8Array(await mod.arrayBuffer()) }, maxResults: -1 })); })();
     EST_YM.p.catch(()=>{ EST_YM.p = null; }); return EST_YM.p; }
   // ouve 6 trechos de 5 s (dos 10% aos 90% da música) e guarda a média das 521 probabilidades (raiz quadrada em bytes: mantém o detalhe dos valores pequenos)
   async function estYmOuve(f){
@@ -12461,8 +12476,9 @@ const SR3 = (()=>{
     const S = EST.libSel || new Set(), L = estLib(), alvo = L.filter(t=> (!S.size || S.has(t.id)) && !t.falta && !t.semF && !estYmTem(t));
     if(!alvo.length){ toast(S.size ? '🎭 As selecionadas já foram ouvidas' : '🎭 Todas as músicas já foram ouvidas'); return; }
     if(alvo.length > 300 && !confirm('🎭 Ouvir o estilo de ' + alvo.length + ' músicas?\n\nDemora cerca de 1 s por música. Podes usar o PC e parar quando quiseres (⏹); da próxima vez continua de onde ficou.')) return;
-    estEstado('🎭 A carregar o YAMNet (só na primeira vez: ~25 MB)…');
-    try{ await estYmCarrega(); }catch(e){ console.warn('YAMNet:', e); estEstado(''); toast('⚠ Não consegui carregar o YAMNet (na primeira vez precisa de internet).'); return; }
+    estEstado('🎭 A preparar o YAMNet…');
+    try{ await estYmCarrega(); }catch(e){ console.warn('YAMNet:', e); estEstado('');
+      toast((await estYmGuardado()) ? '⚠ Não consegui arrancar o YAMNet neste navegador.' : '⚠ Para a primeira vez é preciso internet: o YAMNet (~26 MB) é descarregado uma vez e fica guardado neste PC.'); return; }
     const LR = estLib(), porId = new Map(LR.map(x=> [x.id, x])), t0 = performance.now(); let nf = 0, ok = 0; EST_LIB.lento = alvo.length > 50;
     await estParalelo(alvo, async (t)=>{ nf++; const f = await estFicheiro(t.id); if(!f) return; const n = Math.max(1, f.size || 1); await estMemPede(n);
       try{ const ys = await estYmOuve(f), q = porId.get(t.id); if(q){ q.ys = ys; estGravaLib(LR, true); ok++; } } finally{ EST_WK.bytes -= n; }
@@ -13115,12 +13131,12 @@ const SR3 = (()=>{
       (a.mix && a.mix.itens || []).forEach(it=> poe('mlib:' + it.id, n)); });
     return U;
   }
-  function estTipoDe(k){ return k.startsWith('mlib:') ? '🎛️ Biblioteca do Estúdio' : k.startsWith('u:') ? '🔗 Link descarregado' : /^b/.test(k) ? '🎵 Música de bloco' : '📀 Faixa de áudio da aula'; }
+  function estTipoDe(k){ return k.startsWith('ymf:') ? '🎭 YAMNet (estilo das músicas)' : k.startsWith('mlib:') ? '🎛️ Biblioteca do Estúdio' : k.startsWith('u:') ? '🔗 Link descarregado' : /^b/.test(k) ? '🎵 Música de bloco' : '📀 Faixa de áudio da aula'; }
   async function estArmAbre(){
     const L = await estArmazem(), U = estUsos(), lib = estLib(); let tot = 0; L.forEach(x=> tot += x.mb);
     const d = document.createElement('div'); d.className = 'est-arm'; d.id = 'estArm';
     const linhas = L.sort((a, b)=> estTipoDe(a.k).localeCompare(estTipoDe(b.k)) || b.mb - a.mb).map(x=>{ const t = x.k.startsWith('mlib:') ? lib.find(q=> 'mlib:' + q.id === x.k) : null, us = U[x.k] ? [...U[x.k]] : [];
-      return '<tr data-sk="' + escapeHtml(x.k) + '"><td>' + estTipoDe(x.k) + '</td><td title="' + escapeHtml(x.nome) + '">' + escapeHtml(t ? t.nome : x.nome) + '</td><td>' + x.mb.toFixed(1).replace('.', ',') + ' MB</td><td>' + (us.length ? escapeHtml(us.slice(0, 3).join(', ')) + (us.length > 3 ? ' +' + (us.length - 3) : '') : (t ? '<span class="est-arm-n">na biblioteca, sem aula</span>' : '<span class="est-arm-n">não usada</span>')) + '</td><td><button type="button" data-ak="' + escapeHtml(x.k) + '" title="Apagar do navegador">🗑</button></td></tr>'; }).join('');
+      return '<tr data-sk="' + escapeHtml(x.k) + '"><td>' + estTipoDe(x.k) + '</td><td title="' + escapeHtml(x.nome) + '">' + escapeHtml(t ? t.nome : x.nome) + '</td><td>' + x.mb.toFixed(1).replace('.', ',') + ' MB</td><td>' + (us.length ? escapeHtml(us.slice(0, 3).join(', ')) + (us.length > 3 ? ' +' + (us.length - 3) : '') : (t ? '<span class="est-arm-n">na biblioteca, sem aula</span>' : x.k.startsWith('ymf:') ? '<span class="est-arm-n">🎭 Ouvir estilo sem internet (se apagares, volta a descarregar)</span>' : '<span class="est-arm-n">não usada</span>')) + '</td><td><button type="button" data-ak="' + escapeHtml(x.k) + '" title="Apagar do navegador">🗑</button></td></tr>'; }).join('');
     d.innerHTML = '<div class="est-arm-c"><div class="est-arm-h"><b>🗄️ Músicas guardadas neste navegador</b><span>' + L.length + ' ficheiros · ' + tot.toFixed(0) + ' MB</span><button type="button" id="estArmSel" disabled>🗑 Apagar selecionadas</button><button type="button" id="estArmNu">🗑 Apagar as não usadas</button><button type="button" id="estArmX">✕</button></div>' +
       '<p class="est-arm-p">Inclui tudo o que o PlayRide copiou para o Chrome: a biblioteca do Estúdio, as faixas de áudio das aulas ("📁 Ficheiro do dispositivo"), as músicas dos blocos e os links descarregados. Apagar daqui não mexe nos ficheiros do teu PC. Se apagares uma que uma aula usa, essa aula pede-te o ficheiro outra vez.<br><b>Selecionar:</b> clique numa linha · <b>Ctrl + clique</b> junta ou tira · <b>Shift + clique</b> seleciona do último clicado até essa · <b>Ctrl + A</b> todas · <b>Delete</b> apaga as selecionadas.</p>' +
       (L.length ? '<div class="est-tab"><table><tr><th>Tipo</th><th>Nome</th><th>Tamanho</th><th>Usada em</th><th></th></tr>' + linhas + '</table></div>' : '<p class="est-vz">Não há músicas guardadas no navegador.</p>') + '</div>';
@@ -13139,7 +13155,7 @@ const SR3 = (()=>{
     document.addEventListener('keydown', tecla, true);
     d.querySelectorAll('[data-ak]').forEach(b=> b.onclick = ()=>{ const k = b.dataset.ak, us = U[k] ? [...U[k]] : [];
       if(!confirm('Apagar esta música do navegador?' + (us.length ? '\n\nÉ usada em: ' + us.join(', ') + '.\nEssas aulas vão pedir-te o ficheiro outra vez.' : ''))) return; apaga([k]); });
-    d.querySelector('#estArmNu').onclick = ()=>{ const ks = L.filter(x=> !U[x.k] && !x.k.startsWith('mlib:')).map(x=> x.k); const mb = L.filter(x=> ks.includes(x.k)).reduce((s, x)=> s + x.mb, 0);
+    d.querySelector('#estArmNu').onclick = ()=>{ const ks = L.filter(x=> !U[x.k] && !x.k.startsWith('mlib:') && !x.k.startsWith('ymf:')).map(x=> x.k); const mb = L.filter(x=> ks.includes(x.k)).reduce((s, x)=> s + x.mb, 0);
       if(!ks.length){ toast('Não há músicas sem uso (as da biblioteca limpam-se com 🧹 Limpar cópias).'); return; }
       if(!confirm('Apagar ' + ks.length + ' músicas que nenhuma aula deste PC usa (' + mb.toFixed(0) + ' MB)?\n\nA biblioteca do Estúdio não é tocada.')) return; apaga(ks); };
   }
