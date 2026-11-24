@@ -8,7 +8,8 @@ import JavaScriptObfuscator from 'javascript-obfuscator';
 
 const PAGES = ['perfil-de-aula.html', 'aula-ao-vivo.html', 'index.html'];
 const COPY = ['sw.js', 'manifest.json', 'manifest-prof.json', 'icon-192.png', 'icon-512.png', 'icon-prof-192.png', 'icon-prof-512.png', 'icon-maskable-192.png', 'icon-maskable-512.png', 'instalar.js', 'logo-sala.png', 'logo-parceiro.png',
-  'ciclista_m.glb', 'ciclista_f.glb', 'bonecos-ajustes.json'];   // corpos dos ciclistas realistas e afinações feitas no editor-bonecos.html (o editor não vai para o site)
+  'ciclista_m.glb', 'ciclista_f.glb', 'bonecos-ajustes.json',
+  'yamnet.tflite', 'yamnet-LICENCA.txt'];   // corpos dos ciclistas realistas e afinações feitas no editor-bonecos.html (o editor não vai para o site) · 🎭 YAMNet (Google, Apache 2.0) para o estilo das músicas no Estúdio
 const OPTIONS = {
   compact: true,
   simplify: true,
