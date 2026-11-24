@@ -11894,7 +11894,8 @@ const SR3 = (()=>{
   async function estUrl(id){
     if(MIX.urls[id]) return MIX.urls[id];
     let f = null; try{ f = await estFicheiro(id); }catch(e){ if(e.message === 'perm' && !MIX.avisoPerm){ MIX.avisoPerm = true; toast('🔓 Dá acesso à pasta das músicas (abre o 🎛️ Estúdio e carrega em "Dar acesso").'); } return null; }
-    if(!f) return null; return (MIX.urls[id] = URL.createObjectURL(f));
+    if(!f){ MIX.falhas = MIX.falhas || {}; if(!MIX.falhas[id]){ MIX.falhas[id] = 1; toast('⚠ Sem som: não encontro o ficheiro de "' + (estNomeDe(id) || 'uma música') + '" (mudou de sítio ou de nome?). Liga outra vez a pasta (📁).'); } return null; }
+    return (MIX.urls[id] = URL.createObjectURL(f));
   }
   // ---- BPM da mistura (como no MixMeister): uma faixa no fundo das pistas com pontos [[segundo da aula, BPM]] ----
   // com pontos, todas as músicas tocam a esse BPM (ficam sempre acertadas nas transições); sem pontos, cada música toca ao seu BPM × velocidade
@@ -12685,7 +12686,16 @@ const SR3 = (()=>{
   }
   function estVis(){ const w = $('estTlw'); return (w ? w.clientWidth : 1000) / EST.pps; }
   function estFecha(){ EST.solos = new Set(); estPrevPara(); estMedidorDesliga(); EST.niv = null; if(EST.ouveLib){ EST.ouveLib.pause(); EST.ouveLib = null; } if(EST.ov) EST.ov.remove(); EST.ov = null; window.removeEventListener('resize', estDesenha); persist(); renderAudBar(); }
-  function estPrevComeca(){ estPrevPara(); mixRefaz(); if(MIX.ctx && MIX.ctx.state === 'suspended') MIX.ctx.resume(); EST.play = true; EST.p0 = EST.pT; EST.pAt = performance.now(); mixSync(EST.pT, true, true);
+  // 🔓 ao carregar em ▶ (um clique teu) pede logo autorização às pastas e atalhos das músicas da mistura: depois de reabrir o
+  //    navegador ele volta a perguntar, e sem isto o Estúdio tocava "em silêncio" (não conseguia abrir os ficheiros)
+  async function estPermMix(){ const M = mixAtivo(); if(!M || !M.itens.length) return true; const L = estLibMap(), dirs = new Set(), fhs = new Set(); let ok = true, mud = false;
+    M.itens.forEach(it=>{ const t = L[it.id]; if(!t) return; if(t.dir) dirs.add(t.dir); else if(t.fh) fhs.add(t.id); });
+    for(const d of dirs){ const h = await estHandle(d); if(!h) continue; if(!(await estPerm(h, false))){ const g = await estPerm(h, true); ESTD.perm[d] = g; if(g) mud = true; else ok = false; } }
+    for(const id of fhs){ const r = await audGet('mfh:' + id); if(r && r.h && !(await estPerm(r.h, false))){ if(await estPerm(r.h, true)) mud = true; else ok = false; } }
+    if(mud){ MIX.avisoPerm = false; MIX.falhas = {}; mixRefaz(); if(EST.play) mixSync(EST.pT, true, true); try{ estPintaDirs(); }catch(e){} }
+    if(!ok) toast('🔓 Sem autorização para ler a pasta das músicas: sem ela não há som. Carrega em ▶ outra vez e escolhe "Permitir" (no Chrome: "Permitir em todas as visitas").');
+    return ok; }
+  function estPrevComeca(){ estPermMix(); estPrevPara(); mixRefaz(); if(MIX.ctx && MIX.ctx.state === 'suspended') MIX.ctx.resume(); EST.play = true; EST.p0 = EST.pT; EST.pAt = performance.now(); mixSync(EST.pT, true, true);
     EST.iv = setInterval(()=>{ EST.pT = EST.p0 + (performance.now() - EST.pAt) / 1000; if(EST.pT >= audTot()){ estPrevPara(); return; } mixSync(EST.pT, true);
       const vis = estVis(); if(EST.pT > EST.x0 + vis * .92 || EST.pT < EST.x0){ EST.x0 = Math.max(0, EST.pT - vis * .1); } estDesenha(); }, 100); if($('estPlay')) $('estPlay').textContent = '⏹ Parar'; }
   function estPrevPara(){ if(EST.iv) clearInterval(EST.iv); EST.iv = 0; EST.play = false; mixPara(); if($('estPlay')) $('estPlay').textContent = '▶ Ouvir'; }
