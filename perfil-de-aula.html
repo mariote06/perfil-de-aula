@@ -11892,10 +11892,12 @@ const SR3 = (()=>{
     toast('A biblioteca de músicas ainda está a carregar… tenta outra vez daqui a um segundo.'); }
   setTimeout(estLibCarrega, 0);
   function mixAtivo(){ const m = current && current.mix; return m && m.itens && m.itens.length ? m : null; }
-  async function estUrl(id){
+  async function estUrl(id, clique){
     if(MIX.urls[id]) return MIX.urls[id];
-    let f = null; try{ f = await estFicheiro(id); }catch(e){ if(e.message === 'perm' && !MIX.avisoPerm){ MIX.avisoPerm = true; toast('🔓 Dá acesso à pasta das músicas (abre o 🎛️ Estúdio e carrega em "Dar acesso").'); } return null; }
-    if(!f){ MIX.falhas = MIX.falhas || {}; if(!MIX.falhas[id]){ MIX.falhas[id] = 1; toast('⚠ Sem som: não encontro o ficheiro de "' + (estNomeDe(id) || 'uma música') + '" (mudou de sítio ou de nome?). Liga outra vez a pasta (📁).'); } return null; }
+    let f = null; try{ f = await estFicheiro(id); }catch(e){ if(e.message === 'perm' && (clique || !MIX.avisoPerm)){ MIX.avisoPerm = true; toast('🔓 Sem som: o navegador não deixou ler a pasta das músicas. Carrega outra vez e escolhe "Permitir" (no Chrome: "Permitir em todas as visitas"), ou usa 🔓 Dar acesso às músicas.'); }
+      else if(e.message !== 'perm' && (clique || !(MIX.falhas || {})[id])){ (MIX.falhas = MIX.falhas || {})[id] = 1; toast('⚠ Sem som: não consegui abrir "' + (estNomeDe(id) || 'a música') + '" (' + (e.name === 'NotFoundError' ? 'o ficheiro mudou de sítio ou de nome: volta a ligar a pasta 📁' : e.message || e.name) + ').'); }
+      return null; }
+    if(!f){ MIX.falhas = MIX.falhas || {}; if(clique || !MIX.falhas[id]){ MIX.falhas[id] = 1; toast('⚠ Sem som: não encontro o ficheiro de "' + (estNomeDe(id) || 'uma música') + '" (mudou de sítio ou de nome?). Liga outra vez a pasta (📁).'); } return null; }
     return (MIX.urls[id] = URL.createObjectURL(f));
   }
   // ---- BPM da mistura (como no MixMeister): uma faixa no fundo das pistas com pontos [[segundo da aula, BPM]] ----
@@ -11999,6 +12001,7 @@ const SR3 = (()=>{
         el.preservesPitch = el.mozPreservesPitch = el.webkitPreservesPitch = true;
         if(MIX.bus){ try{ const X = MIX.ctx, src = X.createMediaElementSource(el), g = X.createGain(), f = [['lowshelf', 120], ['peaking', 1000], ['highshelf', 6000]].map(([t, fr])=>{ const n = X.createBiquadFilter(); n.type = t; n.frequency.value = fr; if(t === 'peaking') n.Q.value = .8; n.gain.value = 0; return n; });
           src.connect(f[0]); f[0].connect(f[1]); f[1].connect(f[2]); f[2].connect(g); g.connect(MIX.bus); E.g = g; E.f = f; }catch(e){} }   // volume, graves/médios/agudos e medidor de dB
+        el.onerror = ()=>{ MIX.falhas = MIX.falhas || {}; if(!MIX.falhas['e' + it.id]){ MIX.falhas['e' + it.id] = 1; toast('⚠ O navegador não consegue tocar "' + (estNomeDe(it.id) || 'uma música') + '" (formato não suportado ou ficheiro danificado).'); } };
         E.el = el; }); return; }
       const el = E.el; if(!el) return;
       const want = estPosMus(it, T), rt = estRateEm(it, T); let v = volM * estVolEm(it, T);
@@ -12010,7 +12013,7 @@ const SR3 = (()=>{
       const d = el.currentTime - want;
       if(force || E.force || Math.abs(d) > .35){ try{ el.currentTime = Math.max(0, want); }catch(e){} E.force = false; el.playbackRate = rt; }
       else el.playbackRate = rt * (1 - Math.max(-.04, Math.min(.04, d * .5)));   // acerta devagar, sem saltos
-      if(el.paused) el.play().catch(()=>{});
+      if(el.paused) el.play().catch(e=>{ if(e && e.name === 'AbortError') return; MIX.falhas = MIX.falhas || {}; if(!MIX.falhas['p' + it.id]){ MIX.falhas['p' + it.id] = 1; toast('⚠ Sem som em "' + (estNomeDe(it.id) || 'uma música') + '": ' + (e && e.name === 'NotAllowedError' ? 'o navegador bloqueou o som — carrega em ▶ Ouvir outra vez' : (e && (e.message || e.name)) || 'erro')); } });
     });
     Object.keys(MIX.els).forEach(k=>{ if(!vivos[k]){ const E = MIX.els[k]; if(E.el){ try{ E.el.pause(); E.el.removeAttribute('src'); E.el.load(); }catch(e){} } delete MIX.els[k]; } });
   }
@@ -12696,7 +12699,8 @@ const SR3 = (()=>{
     if(mud){ MIX.avisoPerm = false; MIX.falhas = {}; mixRefaz(); if(EST.play) mixSync(EST.pT, true, true); try{ estPintaDirs(); }catch(e){} }
     if(!ok) toast('🔓 Sem autorização para ler a pasta das músicas: sem ela não há som. Carrega em ▶ outra vez e escolhe "Permitir" (no Chrome: "Permitir em todas as visitas").');
     return ok; }
-  function estPrevComeca(){ estPermMix(); estPrevPara(); mixRefaz(); if(MIX.ctx && MIX.ctx.state === 'suspended') MIX.ctx.resume(); EST.play = true; EST.p0 = EST.pT; EST.pAt = performance.now(); mixSync(EST.pT, true, true);
+  function estPrevComeca(){ const M0 = mixAtivo(); if(!M0 || !M0.itens.length){ toast('🎧 A mistura está vazia: carrega em ✨ Encher a aula automaticamente ou arrasta músicas da biblioteca para a linha do tempo. Para ouvir uma música da biblioteca usa o ▶ da linha.'); return; }
+    MIX.falhas = {}; estPermMix(); estPrevPara(); mixRefaz(); if(MIX.ctx && MIX.ctx.state === 'suspended') MIX.ctx.resume(); EST.play = true; EST.p0 = EST.pT; EST.pAt = performance.now(); mixSync(EST.pT, true, true);
     EST.iv = setInterval(()=>{ EST.pT = EST.p0 + (performance.now() - EST.pAt) / 1000; if(EST.pT >= audTot()){ estPrevPara(); return; } mixSync(EST.pT, true);
       const vis = estVis(); if(EST.pT > EST.x0 + vis * .92 || EST.pT < EST.x0){ EST.x0 = Math.max(0, EST.pT - vis * .1); } estDesenha(); }, 100); if($('estPlay')) $('estPlay').textContent = '⏹ Parar'; }
   function estPrevPara(){ if(EST.iv) clearInterval(EST.iv); EST.iv = 0; EST.play = false; mixPara(); if($('estPlay')) $('estPlay').textContent = '▶ Ouvir'; }
@@ -12794,7 +12798,11 @@ const SR3 = (()=>{
       toast(t.noAuto ? '⛔ "' + t.nome + '" fica fora do enchimento automático (podes pô-la à mão)' : '✨ "' + t.nome + '" volta a poder ser escolhida ao encher'); });
     $('estLibT').querySelectorAll('tr[data-lib]').forEach(r=> r.ondragstart = e=>{ e.dataTransfer.setData('text/est-lib', r.dataset.lib); e.dataTransfer.effectAllowed = 'copy'; });
     $('estLibT').querySelectorAll('[data-ouv]').forEach(b=> b.onclick = async ()=>{ if(EST.ouveLib){ EST.ouveLib.pause(); const era = EST.ouveLib._id; EST.ouveLib = null; if(era === b.dataset.ouv) return; }
-      const u = await estUrl(b.dataset.ouv); if(!u) return; const el = new Audio(u); el._id = b.dataset.ouv; const t = estLib().find(x=> x.id === b.dataset.ouv); el.currentTime = Math.min(60, (t ? t.dur : 60) * .3); el.volume = .8; el.play().catch(()=>{}); EST.ouveLib = el; setTimeout(()=>{ if(EST.ouveLib === el){ el.pause(); EST.ouveLib = null; } }, 15000); });
+      b.textContent = '⏳'; const u = await estUrl(b.dataset.ouv, true); b.textContent = '▶'; if(!u) return; const el = new Audio(u); el._id = b.dataset.ouv; const t = (EST_LIB.L || []).find(x=> x.id === b.dataset.ouv), nm = t ? t.nome : 'a música';
+      el.onerror = ()=>{ const c = el.error ? el.error.code : 0; toast('⚠ O navegador não consegue tocar "' + nm + '"' + (c === 4 ? ' (formato não suportado ou ficheiro danificado)' : c === 3 ? ' (erro a descodificar o ficheiro)' : '') + '.'); };
+      el.addEventListener('loadedmetadata', ()=>{ try{ el.currentTime = Math.min(60, (el.duration || (t ? t.dur : 60)) * .3); }catch(e){} }, { once: true });
+      el.volume = .8; el.play().then(()=>{ b.textContent = '⏸'; }).catch(e=>{ toast('⚠ Sem som em "' + nm + '": ' + (e.name === 'NotAllowedError' ? 'o navegador bloqueou o som (clica outra vez no ▶)' : e.name === 'NotSupportedError' ? 'formato não suportado ou ficheiro danificado' : (e.message || e.name))); });
+      EST.ouveLib = el; el.onended = el.onpause = ()=>{ b.textContent = '▶'; }; setTimeout(()=>{ if(EST.ouveLib === el){ el.pause(); EST.ouveLib = null; } }, 15000); });
   }
   // põe uma música da biblioteca na mistura, no instante T (BPM acertado à cadência do bloco nesse ponto)
   function estPoe(id, T, pista){
