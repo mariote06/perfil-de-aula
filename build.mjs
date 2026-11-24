@@ -31,10 +31,11 @@ for (const page of PAGES) {
   if (!existsSync(page)) continue;
   let html = readFileSync(page, 'utf8');
   let n = 0;
-  html = html.replace(/<script>([\s\S]*?)<\/script>/g, (all, code) => {
+  // também a caixa da análise de músicas do Estúdio (<script type="text/js-worker">), que corre em workers à parte
+  html = html.replace(/<script( type="text\/js-worker"[^>]*)?>([\s\S]*?)<\/script>/g, (all, attrs, code) => {
     n++;
     const out = JavaScriptObfuscator.obfuscate(code, OPTIONS).getObfuscatedCode();
-    return '<script>' + out.replace(/<\/script/gi, '<\\/script') + '</script>';
+    return '<script' + (attrs || '') + '>' + out.replace(/<\/script/gi, '<\\/script') + '</script>';
   });
   built[page] = html;
   console.log(`${page}: ${n} script(s) ofuscado(s)`);
