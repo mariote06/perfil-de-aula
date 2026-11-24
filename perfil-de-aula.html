@@ -11521,12 +11521,17 @@ const SR3 = (()=>{
   // Fontes: ficheiro do dispositivo (fica só neste dispositivo, em IndexedDB), link de OneDrive / Dropbox /
   // Google Drive (ou outro link direto), SoundCloud e Spotify. Na aula guarda-se só a origem, a duração e os ajustes.
   var AUD_MODOS = { cortar:'Cortar no fim (com fade)', repetir:'Repetir até ao fim', esticar:'Ajustar à duração do treino' };
+  // uma só ligação à base de dados (antes abria uma nova a cada leitura: com milhares de músicas acumulavam-se ligações)
+  var AUD_DB = null;
   function audDb(){
-    return new Promise((res, rej)=>{
+    if(AUD_DB) return AUD_DB;
+    AUD_DB = new Promise((res, rej)=>{
       const r = indexedDB.open('playride-audio', 1);
       r.onupgradeneeded = ()=> r.result.createObjectStore('faixas');
-      r.onsuccess = ()=> res(r.result); r.onerror = ()=> rej(r.error);
+      r.onsuccess = ()=>{ const db = r.result; db.onclose = db.onversionchange = ()=>{ try{ db.close(); }catch(e){} AUD_DB = null; }; res(db); };
+      r.onerror = ()=>{ AUD_DB = null; rej(r.error); }; r.onblocked = ()=>{ toast('⚠ A base de dados do PlayRide está ocupada por outro separador: fecha os outros separadores do PlayRide.'); };
     });
+    return AUD_DB;
   }
   // pede ao browser para não apagar as músicas guardadas quando o disco fica cheio (sem isto o Chrome pode limpá-las)
   function audPersiste(){ try{ if(navigator.storage && navigator.storage.persist) navigator.storage.persisted().then(p=>{ if(!p) navigator.storage.persist().catch(()=>{}); }).catch(()=>{}); }catch(e){} }
@@ -11895,7 +11900,7 @@ const SR3 = (()=>{
   async function estUrl(id, clique){
     if(MIX.urls[id]) return MIX.urls[id];
     let f = null; try{ f = await estFicheiro(id); }catch(e){ if(e.message === 'perm' && (clique || !MIX.avisoPerm)){ MIX.avisoPerm = true; toast('🔓 Sem som: o navegador não deixou ler a pasta das músicas. Carrega outra vez e escolhe "Permitir" (no Chrome: "Permitir em todas as visitas"), ou usa 🔓 Dar acesso às músicas.'); }
-      else if(e.message !== 'perm' && (clique || !(MIX.falhas || {})[id])){ (MIX.falhas = MIX.falhas || {})[id] = 1; toast('⚠ Sem som: não consegui abrir "' + (estNomeDe(id) || 'a música') + '" (' + (e.name === 'NotFoundError' ? 'o ficheiro mudou de sítio ou de nome: volta a ligar a pasta 📁' : e.message || e.name) + ').'); }
+      else if(e.message !== 'perm' && (clique || !(MIX.falhas || {})[id])){ (MIX.falhas = MIX.falhas || {})[id] = 1; toast('⚠ Sem som: não consegui abrir "' + (estNomeDe(id) || 'a música') + '" (' + (e.name === 'NotFoundError' ? 'o ficheiro mudou de sítio ou de nome: volta a ligar a pasta 📁' : e.name === 'SemPasta' ? e.message : e.message || e.name) + ').'); }
       return null; }
     if(!f){ MIX.falhas = MIX.falhas || {}; if(clique || !MIX.falhas[id]){ MIX.falhas[id] = 1; toast('⚠ Sem som: não encontro o ficheiro de "' + (estNomeDe(id) || 'uma música') + '" (mudou de sítio ou de nome?). Liga outra vez a pasta (📁).'); } return null; }
     return (MIX.urls[id] = URL.createObjectURL(f));
@@ -12069,14 +12074,21 @@ const SR3 = (()=>{
     return ok;
   }
   // devolve o ficheiro (da pasta, do atalho ou da cópia antiga no navegador)
+  var EST_ETAPA = '';   // onde está a abrir o ficheiro (para explicar se ficar parado)
   async function estFicheiro(id){
     const t = (EST_LIB.ok ? EST_LIB.L : estLib()).find(x=> x.id === id); if(!t) return null;   // sem copiar a biblioteca inteira (com 20 000 músicas pesava em cada música)
-    if(t.dir){ const h = await estHandle(t.dir); if(!(await estPerm(h, true))) throw new Error('perm');
-      let d = h; const parts = String(t.path || t.fich).split('/'); for(let i = 0; i < parts.length - 1; i++) d = await d.getDirectoryHandle(parts[i]);
-      return await (await d.getFileHandle(parts[parts.length - 1])).getFile(); }
-    if(t.fh){ const r = await audGet('mfh:' + id); const h = r && r.h; if(!(await estPerm(h, true))) throw new Error('perm'); return await h.getFile(); }
-    const r = await audGet('mlib:' + id); return r && r.blob || null;
+    if(t.dir){ EST_ETAPA = 'db'; const h = await estHandle(t.dir); if(!h){ const e = new Error('A pasta desta música já não está ligada: volta a ligá-la (📁 Ligar pasta).'); e.name = 'SemPasta'; throw e; }
+      EST_ETAPA = 'perm'; if(!(await estPerm(h, true))) throw new Error('perm');
+      EST_ETAPA = 'pasta'; let d = h; const parts = String(t.path || t.fich).split('/'); for(let i = 0; i < parts.length - 1; i++) d = await d.getDirectoryHandle(parts[i]);
+      EST_ETAPA = 'fich'; const f = await (await d.getFileHandle(parts[parts.length - 1])).getFile(); EST_ETAPA = ''; return f; }
+    if(t.fh){ EST_ETAPA = 'db'; const r = await audGet('mfh:' + id); const h = r && r.h; EST_ETAPA = 'perm'; if(!(await estPerm(h, true))) throw new Error('perm'); EST_ETAPA = 'fich'; const f = await h.getFile(); EST_ETAPA = ''; return f; }
+    EST_ETAPA = 'db'; const r = await audGet('mlib:' + id); EST_ETAPA = ''; return r && r.blob || null;
   }
+  // se abrir o ficheiro demorar, explica em que passo está parado
+  function estEsperaAviso(){ return setTimeout(()=>{ const e = EST_ETAPA;
+    toast(e === 'perm' ? '🔓 O navegador está à espera da tua autorização: procura a janela "Permitir" junto à barra de endereço (ou ao título da janela da app) e escolhe "Permitir em todas as visitas". Se não a vires, fecha sobreposições de jogos/GPU (FPS, GPU, CPU) e tenta outra vez.'
+      : e === 'db' ? '⏳ A base de dados do PlayRide está ocupada (a gravar a biblioteca?). Espera uns segundos e tenta outra vez; se continuar, fecha os outros separadores do PlayRide.'
+      : e === 'pasta' || e === 'fich' ? '⏳ A pasta das músicas está lenta a responder (disco externo, rede ou OneDrive a descarregar?).' : '⏳ Ainda a abrir a música…'); }, 6000); }
   // Ⓜ BPM do MixMeister: o MixMeister guarda a análise de cada música num ficheiro .mxm ao lado do MP3 (mesmo nome). Se existir,
   //    o PlayRide usa esse BPM (fica igual ao do MixMeister) e só mede a batida.
   function estMxmLe(buf){ try{ const d = new DataView(buf); if(d.byteLength < 24 || d.getUint32(0, false) !== 0x52494646) return 0; let o = 12;
@@ -12694,7 +12706,7 @@ const SR3 = (()=>{
   //    navegador ele volta a perguntar, e sem isto o Estúdio tocava "em silêncio" (não conseguia abrir os ficheiros)
   async function estPermMix(){ const M = mixAtivo(); if(!M || !M.itens.length) return true; const L = estLibMap(), dirs = new Set(), fhs = new Set(); let ok = true, mud = false;
     M.itens.forEach(it=>{ const t = L[it.id]; if(!t) return; if(t.dir) dirs.add(t.dir); else if(t.fh) fhs.add(t.id); });
-    for(const d of dirs){ const h = await estHandle(d); if(!h) continue; if(!(await estPerm(h, false))){ const g = await estPerm(h, true); ESTD.perm[d] = g; if(g) mud = true; else ok = false; } }
+    for(const d of dirs){ const h = await estHandle(d); if(!h) continue; if(!(await estPerm(h, false))){ EST_ETAPA = 'perm'; const av = estEsperaAviso(); const g = await estPerm(h, true); clearTimeout(av); EST_ETAPA = ''; ESTD.perm[d] = g; if(g) mud = true; else ok = false; } }
     for(const id of fhs){ const r = await audGet('mfh:' + id); if(r && r.h && !(await estPerm(r.h, false))){ if(await estPerm(r.h, true)) mud = true; else ok = false; } }
     if(mud){ MIX.avisoPerm = false; MIX.falhas = {}; mixRefaz(); if(EST.play) mixSync(EST.pT, true, true); try{ estPintaDirs(); }catch(e){} }
     if(!ok) toast('🔓 Sem autorização para ler a pasta das músicas: sem ela não há som. Carrega em ▶ outra vez e escolhe "Permitir" (no Chrome: "Permitir em todas as visitas").');
@@ -12798,7 +12810,7 @@ const SR3 = (()=>{
       toast(t.noAuto ? '⛔ "' + t.nome + '" fica fora do enchimento automático (podes pô-la à mão)' : '✨ "' + t.nome + '" volta a poder ser escolhida ao encher'); });
     $('estLibT').querySelectorAll('tr[data-lib]').forEach(r=> r.ondragstart = e=>{ e.dataTransfer.setData('text/est-lib', r.dataset.lib); e.dataTransfer.effectAllowed = 'copy'; });
     $('estLibT').querySelectorAll('[data-ouv]').forEach(b=> b.onclick = async ()=>{ if(EST.ouveLib){ EST.ouveLib.pause(); const era = EST.ouveLib._id; EST.ouveLib = null; if(era === b.dataset.ouv) return; }
-      b.textContent = '⏳'; const u = await estUrl(b.dataset.ouv, true); b.textContent = '▶'; if(!u) return; const el = new Audio(u); el._id = b.dataset.ouv; const t = (EST_LIB.L || []).find(x=> x.id === b.dataset.ouv), nm = t ? t.nome : 'a música';
+      b.textContent = '⏳'; const av = estEsperaAviso(); const u = await estUrl(b.dataset.ouv, true); clearTimeout(av); b.textContent = '▶'; if(!u) return; const el = new Audio(u); el._id = b.dataset.ouv; const t = (EST_LIB.L || []).find(x=> x.id === b.dataset.ouv), nm = t ? t.nome : 'a música';
       el.onerror = ()=>{ const c = el.error ? el.error.code : 0; toast('⚠ O navegador não consegue tocar "' + nm + '"' + (c === 4 ? ' (formato não suportado ou ficheiro danificado)' : c === 3 ? ' (erro a descodificar o ficheiro)' : '') + '.'); };
       el.addEventListener('loadedmetadata', ()=>{ try{ el.currentTime = Math.min(60, (el.duration || (t ? t.dur : 60)) * .3); }catch(e){} }, { once: true });
       el.volume = .8; el.play().then(()=>{ b.textContent = '⏸'; }).catch(e=>{ toast('⚠ Sem som em "' + nm + '": ' + (e.name === 'NotAllowedError' ? 'o navegador bloqueou o som (clica outra vez no ▶)' : e.name === 'NotSupportedError' ? 'formato não suportado ou ficheiro danificado' : (e.message || e.name))); });
