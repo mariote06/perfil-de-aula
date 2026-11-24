@@ -11872,7 +11872,7 @@ const SR3 = (()=>{
   window.addEventListener('pagehide', ()=>{ if(EST_LIB.ok && EST_LIB.t){ clearTimeout(EST_LIB.t); EST_LIB.t = 0; audPut('mlibidx', { L: EST_LIB.L, upd: Date.now() }).catch(()=>{}); } });
   function estLibMap(){ if(!EST_LM.m){ EST_LM.m = {}; estLib().forEach(t=> EST_LM.m[t.id] = t); } return EST_LM.m; }
   var EST_LM = { m: null };
-  function estGravaLib(L, meu){ EST_LM.m = null; EST_LM.en = null; EST_LM.pool = null;
+  function estGravaLib(L, meu){ EST_LM.m = null; EST_LM.en = null; EST_LM.pool = null; if(typeof EST_AP !== 'undefined') EST_AP.cache = {};
     if(EST_LIB.ok){ EST_LIB.L = meu ? L : L.map(t=> Object.assign({}, t)); estLibGrava(); return; }   // meu: a lista já é uma cópia só desta tarefa (não volta a copiar 20 000 músicas)
     if(EST_LIB.falha){ try{ localStorage.setItem('prMusLib', JSON.stringify(L, (k, v)=> v instanceof Uint8Array ? Array.from(v) : v)); }catch(e){ toast('Sem espaço para guardar a biblioteca de músicas.'); } return; }
     toast('A biblioteca de músicas ainda está a carregar… tenta outra vez daqui a um segundo.'); }
@@ -12111,11 +12111,51 @@ const SR3 = (()=>{
     try{ await Promise.all(Array.from({ length: Math.min(K, itens.length) }, um)); }
     finally{ document.removeEventListener('visibilitychange', volta); try{ wl && wl.release(); }catch(e){} EST.anal--; }
     const parou = EST.para; if(!EST.anal) EST.para = false; estAnalBotao(); return !parou; }
+  // ===================== 💾 CÓPIA DE SEGURANÇA DA BIBLIOTECA =====================
+  // Um só ficheiro (comprimido) com tudo o que vive só neste PC: as análises de todas as músicas (BPM, batida, chave, energia,
+  // ondas, forma, estilo 🎭), as pastas da biblioteca, os caminhos do Windows, as escolhas aprendidas 🧠 e o modelo dos estilos 🎭.
+  // As músicas em si não vão (ficam nas tuas pastas). Repor junta: não apaga nada do que já tens.
+  function estB64(u){ let s = ''; for(let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); }
+  function estDeB64(b){ const s = atob(b), u = new Uint8Array(s.length); for(let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return u; }
+  const estCopiaRep = (k, v)=> v instanceof Uint8Array ? { $u8: estB64(v) } : v, estCopiaRev = (k, v)=> v && typeof v === 'object' && typeof v.$u8 === 'string' ? estDeB64(v.$u8) : v;
+  async function estCopiaGuarda(){
+    if(!EST_LIB.ok){ toast('A biblioteca ainda está a carregar…'); return; }
+    const L = EST_LIB.L, d = new Date(), dt = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    let win = null; try{ win = localStorage.getItem('prMusWin'); }catch(e){}
+    if(EST_AP && !EST_AP.ok) await estApCarrega();
+    const cab = { app: 'playride-biblioteca', versao: 1, criado: d.toISOString(), n: L.length, pastas: estPastas(), cols: estCols(), win, ap: (EST_AP && EST_AP.E) || [], mo: (typeof EST_MO !== 'undefined' && EST_MO.mod) || null };
+    estEstado('💾 A preparar a cópia de ' + L.length + ' músicas…');
+    const partes = [JSON.stringify(cab).slice(0, -1) + ',"lib":['];
+    for(let i = 0; i < L.length; i++){ partes.push((i ? ',' : '') + JSON.stringify(L[i], estCopiaRep)); if(i % 2000 === 1999) await new Promise(r=> setTimeout(r, 0)); }   // aos bocados: a página não encrava
+    partes.push(']}');
+    let blob = new Blob(partes, { type: 'application/json' }), nome = 'playride-biblioteca-' + dt + '.json';
+    if(typeof CompressionStream !== 'undefined'){ try{ blob = await new Response(blob.stream().pipeThrough(new CompressionStream('gzip'))).blob(); nome += '.gz'; }catch(e){} }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 2000);
+    estEstado(''); estPinta();
+    toast('💾 Cópia guardada: ' + L.length + ' músicas · ' + cab.ap.length + ' escolhas 🧠' + (cab.mo ? ' · modelo dos estilos 🎭' : '') + ' (' + (blob.size / 1048576).toFixed(1).replace('.', ',') + ' MB). Guarda o ficheiro fora deste PC (pen, Google Drive…).');
+  }
+  async function estCopiaRepoe(file){
+    let D; try{ let st = file.stream(); if(/\.gz$/i.test(file.name) && typeof DecompressionStream !== 'undefined') st = st.pipeThrough(new DecompressionStream('gzip'));
+      D = JSON.parse(await new Response(st).text(), estCopiaRev); }catch(e){ toast('⚠ Não consegui ler esta cópia: ' + e.message); return; }
+    if(!D || D.app !== 'playride-biblioteca' || !Array.isArray(D.lib)){ toast('⚠ Este ficheiro não é uma cópia da biblioteca do PlayRide.'); return; }
+    const L = estLib(), porId = new Set(L.map(t=> t.id)), porFT = new Set(L.map(t=> t.fich + '|' + t.tam)), novas = D.lib.filter(t=> t && t.id && !porId.has(t.id) && !porFT.has(t.fich + '|' + t.tam));
+    const quando = D.criado ? new Date(D.criado).toLocaleString('pt-PT') : '?';
+    if(!confirm('📥 Repor a cópia de ' + quando + '?\n\n• ' + D.lib.length + ' músicas na cópia: ' + novas.length + ' novas para esta biblioteca (as que já tens ficam como estão)\n• ' + (D.ap || []).length + ' escolhas aprendidas 🧠\n' + (D.mo ? '• modelo dos estilos 🎭 (treinado com ' + D.mo.n + ' músicas)\n' : '') + '\nNão apaga nada. Depois liga as pastas das músicas (📁): o PlayRide reconhece-as sem voltar a analisar.')) return;
+    L.push(...novas);
+    const P = estPastas(); (D.pastas || []).forEach(p=>{ if(p && p.id && !P.some(q=> q.id === p.id)) P.push(p); }); estGravaPastas(P);
+    const C = estCols(); (D.cols || []).forEach(c=>{ if(c && c.id && !C.some(q=> q.id === c.id)) C.push(c); }); estGravaCols(C);
+    try{ if(D.win && !localStorage.getItem('prMusWin')) localStorage.setItem('prMusWin', D.win); }catch(e){}
+    if(Array.isArray(D.ap) && D.ap.length){ await estApCarrega(); const vis = new Set(EST_AP.E.map(e=> JSON.stringify(e))); D.ap.forEach(e=>{ const k = JSON.stringify(e); if(Array.isArray(e) && !vis.has(k)){ EST_AP.E.push(e); vis.add(k); } }); EST_AP.E.sort((a, b)=> (a[5] || 0) - (b[5] || 0)); estApGrava(); }
+    let mo = false; if(D.mo && typeof EST_MO !== 'undefined' && (!EST_MO.mod || (D.mo.q || 0) > (EST_MO.mod.q || 0))){ EST_MO.mod = D.mo; try{ localStorage.setItem('prEstMoMod', JSON.stringify(D.mo)); }catch(e){} EST_MO.cache.clear(); mo = true; }
+    estGravaLib(L); estLibGravaJa(); estPinta();
+    toast('📥 Cópia reposta: +' + novas.length + ' músicas' + ((D.ap || []).length ? ' · 🧠 escolhas' : '') + (mo ? ' · 🎭 modelo' : '') + '. Liga as pastas (📁) para voltares a ouvir as músicas.');
+  }
   // liga (ou volta a ler) uma pasta: junta as músicas novas, reconhece as que já lá estavam e transforma as cópias antigas em atalhos
   async function estLigaPasta(dirId){
     let P = estPastas(), p = dirId ? P.find(x=> x.id === dirId) : null, h;
     if(!p){ try{ h = await window.showDirectoryPicker({ id: 'playride-musicas', mode: 'read' }); }catch(e){ return 0; }
       for(const q of P){ const hq = await estHandle(q.id); if(hq && hq.isSameEntry && await hq.isSameEntry(h)){ p = q; break; } }
+      if(!p){ for(const q of P){ if(q.nome === h.name && !(await estHandle(q.id))){ p = q; await audPut('mdir:' + p.id, { h }); break; } } }   // pasta vinda de uma cópia 💾: volta a ligar-se às músicas já analisadas
       if(!p){ p = { id: 'd' + uid().slice(1), nome: h.name }; P.push(p); estGravaPastas(P); await audPut('mdir:' + p.id, { h }); }
       ESTD.dirs[p.id] = h; }
     else h = await estHandle(p.id);
@@ -12268,11 +12308,11 @@ const SR3 = (()=>{
       let { gi, cur } = st; while(gi < G.length && cur >= G[gi].tE - 6){ gi++; if(gi < G.length) cur = G[gi].tS; }
       if(gi >= G.length) return [Object.assign({}, st, { fim: true })];
       const g = G[gi], L = porG[gi], ultT = st.ult ? cam(st.ult) : null, camU = ultT && ultT.cam, m = estMomEm(MOM, cur + 20), alvo = estAlvoEn(cur + 20), first = cur === g.tS, filhos = [];
-      const pre = [];
+      const pre = [], pw = usaF && m && estApMomento(m.r).nP >= 15 ? .5 : 1;   // com muitos exemplos teus para este momento, as regras gerais pesam menos
       for(const C of L){ const T = C.t, u = st.us[T.id] || 0; if(!EST.rep && u > 0) continue; if(T.id === st.ult) continue;
         const dc = EST.cam && camU ? estCamDist(camU, T.cam) : -1, pc = dc < 0 ? (EST.cam && camU ? .08 : 0) : [0, .02, .07, .3][dc];
         const pe = EST.en && alvo != null && C.en != null ? Math.abs(C.en - alvo) * .035 : 0;
-        pre.push([C, (g.cad > 0 ? C.dev : T.bpm / 1000) + u * .25 + (C.dev > .08 ? .3 : 0) + pc + pe + (usaF && m ? estPapelNota(T, m.r, m.fad) : 0) + (m ? estMoNota(T, m.r, m.fad) : 0)]); }
+        pre.push([C, (g.cad > 0 ? C.dev : T.bpm / 1000) + u * .25 + (C.dev > .08 ? .3 : 0) + pc + pe + (usaF && m ? estPapelNota(T, m.r, m.fad) * pw + estApNota(T, m.r) : 0) + (m ? estMoNota(T, m.r, m.fad) : 0)]); }
       pre.sort((a, b)=> a[1] - b[1]);
       for(const [C, sc0] of pre.slice(0, usaF ? 36 : K)){ const T = C.t, bl = 60 / T.bpm, F = usaF ? estForma(T) : null;
         let ini0 = T.beat0; while(ini0 < 0) ini0 += bl; if(st.n && T.dur - ini0 > 16 * bl + 40) ini0 += 16 * bl;
@@ -12299,6 +12339,42 @@ const SR3 = (()=>{
       for(const s of nv){ const ch = s.pl.map(x=> x.C.t.id).join('|'); if(vis.has(ch)) continue; vis.add(ch); feixe.push(s); if(feixe.length >= B) break; } }
     return feixe.sort((a, b)=> (a.custo + a.falta.length * 50) / Math.max(1, a.cob) - (b.custo + b.falta.length * 50) / Math.max(1, b.cob))[0];
   }
+  // ===================== 🧠 APRENDER COM AS TUAS ESCOLHAS (fase 2) =====================
+  // Cada vez que escolhes uma música para um momento da aula (arrastar da biblioteca, ↔ trocar, abrir uma mistura do MixMeister,
+  // exportar para o MixMeister) isso fica como exemplo "esta música serve para subida / sprint / retorno à calma…".
+  // Tirar ou trocar uma música que o ✨ escolheu conta como exemplo contrário. No ✨ Encher e no ↔ Trocar, as músicas parecidas
+  // com as que tu usas em cada momento sobem na lista (vizinhos mais próximos: energia, pancada, graves, brilho, forma, modo).
+  var EST_AP = { E: [], ok: false, cache: {}, t: 0 };
+  async function estApCarrega(){ if(EST_AP.ok) return; try{ const r = await audGet('mexp'); EST_AP.E = (r && Array.isArray(r.E)) ? r.E : []; }catch(e){ EST_AP.E = []; } EST_AP.ok = true; EST_AP.cache = {}; estApBtn(); }
+  function estApGrava(){ EST_AP.cache = {}; clearTimeout(EST_AP.t); EST_AP.t = setTimeout(()=>{ audPut('mexp', { E: EST_AP.E, upd: Date.now() }).catch(()=>{}); }, 600); estApBtn(); }
+  // junta um exemplo: id da música, instante da aula (s) onde ficou, peso (+ = gosto, − = não serve aqui), origem
+  function estApJunta(id, T, w, o){ if(!id || T == null || !isFinite(T) || !(current.blocos || []).length) return; const m = estMomEm(estMomentos(), T + 20); if(!m || m.en == null) return;
+    EST_AP.E.push([id, m.r, Math.round(w * 100) / 100, o || '', current.id || '', Date.now()]); if(EST_AP.E.length > 6000) EST_AP.E.splice(0, EST_AP.E.length - 6000); estApGrava(); }
+  function estApVetor(t){ if(!t || !(t.bpm > 0)) return null; const F = estForma(t), en = estEnergia(t);
+    return [en != null ? (en - 5.5) / 2.2 : 0, estZ('eO', t.eO), estZ('eR', t.eR), estZ('eH', t.eH), estZ('eG', t.eG), F && F.ok ? (F.drops.length ? .9 : -.4) : 0, F && F.ok && F.plana ? .8 : 0, F && F.ok && t.dur ? Math.min(1.5, F.qb / t.dur * 4) : 0, /A$/.test(t.cam || '') ? .35 : /B$/.test(t.cam || '') ? -.35 : 0].concat((()=>{ const p = typeof estMoProb === 'function' ? estMoProb(t) : null; return p ? Array.from(p, v=> (v - .25) * 1.6) : [0, 0, 0, 0]; })()); }   // + o estilo 🎭 (calma, alegre, épica, agressiva), quando conhecido
+  // resumo do que aprendeu para um momento: soma dos pesos por música (positivos e negativos)
+  function estApMomento(r){ const c = EST_AP.cache['m:' + r]; if(c) return c; const P = {}, N = {}; let nP = 0;
+    EST_AP.E.forEach(e=>{ if(e[1] !== r) return; if(e[2] > 0){ P[e[0]] = (P[e[0]] || 0) + e[2]; } else N[e[0]] = (N[e[0]] || 0) - e[2]; });
+    const L = estLibMap(), vP = [], vN = [];
+    Object.keys(P).forEach(id=>{ const w = P[id] - (N[id] || 0); if(w <= 0) return; const v = estApVetor(L[id]); if(v){ vP.push([v, Math.min(2, w), id]); nP++; } });
+    Object.keys(N).forEach(id=>{ const w = N[id] - (P[id] || 0); if(w <= 0) return; const v = estApVetor(L[id]); if(v) vN.push([v, Math.min(2, w), id]); });
+    return (EST_AP.cache['m:' + r] = { vP, vN, nP, P, N }); }
+  function estApSim(v, lista){ if(!lista.length) return 0; const k = []; for(const [u, w] of lista){ let d = 0; for(let i = 0; i < v.length; i++){ const x = v[i] - u[i]; d += x * x; } k.push(Math.exp(-d / 1.5) * Math.min(1, w)); }
+    k.sort((a, b)=> b - a); const n = Math.min(5, k.length); let s = 0; for(let i = 0; i < n; i++) s += k[i]; return s / Math.max(3, n); }
+  // nota aprendida (negativo = bom): só conta a partir de 4 músicas escolhidas para esse momento
+  function estApNota(t, r){ if(!EST_AP.ok || !EST_AP.E.length || !t || !r || EST.fo === false) return 0; const key = r + ':' + t.id, ca = EST_AP.cache[key]; if(ca != null) return ca;
+    const M = estApMomento(r); let s = 0;
+    if(M.nP >= 4 || M.vN.length){ const v = estApVetor(t); if(v){ const pos = M.P[t.id] > 0 && !(M.N[t.id] >= M.P[t.id]) ? 1 : estApSim(v, M.vP), neg = M.N[t.id] > (M.P[t.id] || 0) ? 1 : estApSim(v, M.vN);
+        s = (M.nP >= 4 ? -.14 * pos : 0) + .1 * neg; } }
+    return (EST_AP.cache[key] = Math.round(s * 1000) / 1000); }
+  function estApConta(){ const c = {}; EST_AP.E.forEach(e=>{ if(e[2] > 0) c[e[1]] = (c[e[1]] || 0) + 1; }); return c; }
+  function estApBtn(){ const b = document.getElementById('estAp'); if(!b) return; const n = EST_AP.E.filter(e=> e[2] > 0).length; b.textContent = '🧠 ' + n;
+    const c = estApConta(); b.title = 'O Estúdio aprende com as tuas escolhas (' + n + ' exemplos)' + (n ? ':\n' + Object.keys(EST_MOM_N).filter(k=> c[k]).map(k=> '• ' + EST_MOM_N[k] + ': ' + c[k]).join('\n') : '.\nArrasta músicas da biblioteca para a aula, usa ↔ Trocar ou abre as tuas misturas do MixMeister (.mmp) nas aulas certas.') + '\n\nClica para ver ou apagar.'; }
+  // exportar para o MixMeister = aprovar a mistura: cada música conta (substitui o que a mesma aula já tinha ensinado ao exportar)
+  function estApAprovaMistura(M){ if(!M || !M.itens || !M.itens.length) return; const aula = current.id || ''; EST_AP.E = EST_AP.E.filter(e=> !(e[3] === 'x' && e[4] === aula));
+    M.itens.forEach(it=>{ if(!it.ov) estApJunta(it.id, it.c != null ? it.c : it.t0, .5, 'x'); }); }
+  // tirar da mistura uma música que o ✨ escolheu = "esta não serve para aqui"
+  function estTiraItem(M, i){ const it = M && M.itens[i]; if(!it) return; if(it.au) estApJunta(it.id, it.c != null ? it.c : it.t0, -.5, 't'); M.itens.splice(i, 1); }
   function estCandidatos(cad, M, usados, ultimo, alvoEn, T){
     const L = estPool(), out = [], camU = ((ultimo && estLibMap()[ultimo]) || {}).cam, mo = T != null && EST.fo !== false ? estMomEm(estMomentos(), T + 20) : null;   // as marcadas "fora do automático" (sons ambiente…) nunca entram ao encher
     L.forEach(t=>{ if(!EST.rep && (usados[t.id] || 0) > 0) return;   // sem repetições: a que já está na mistura não volta a entrar
@@ -12306,7 +12382,7 @@ const SR3 = (()=>{
       const rate = cad > 0 ? cad / eff : 1, dev = Math.abs(rate - 1); if(dev > .12) return;
       const dc = EST.cam && camU ? estCamDist(camU, t.cam) : -1, pc = dc < 0 ? (EST.cam && camU ? .08 : 0) : [0, .02, .07, .3][dc];   // 🎹 harmonia: prefere chaves vizinhas na roda de Camelot
       const en = estEnergia(t), pe = EST.en && alvoEn != null && en != null ? Math.abs(en - alvoEn) * .035 : 0;   // ⚡ energia perto da intensidade do bloco
-      out.push({ t, mu, rate, dev, dc, en, sc: (cad > 0 ? dev : t.bpm / 1000) + (usados[t.id] || 0) * .25 + (t.id === ultimo ? 2 : 0) + (dev > .08 ? .3 : 0) + pc + pe + (mo ? estPapelNota(t, mo.r, mo.fad) + estMoNota(t, mo.r, mo.fad) : 0) }); });
+      out.push({ t, mu, rate, dev, dc, en, sc: (cad > 0 ? dev : t.bpm / 1000) + (usados[t.id] || 0) * .25 + (t.id === ultimo ? 2 : 0) + (dev > .08 ? .3 : 0) + pc + pe + (mo ? estPapelNota(t, mo.r, mo.fad) + estMoNota(t, mo.r, mo.fad) + estApNota(t, mo.r) : 0) }); });
     return out.sort((p, q)=> p.sc - q.sc);
   }
   function estPistas(M){ return Math.max(2, Math.min(6, (M && M.pistas) || 2)); }
@@ -12334,6 +12410,7 @@ const SR3 = (()=>{
     const P = estPlaneia(G, M), falta = P ? P.falta.map(gi=> G[gi]) : G.slice();
     (P ? P.pl : []).forEach(x=>{ const T = x.C.t, C = x.C, g = G[x.gi], cad = g.cad > 0 ? g.cad : T.bpm * C.mu;
       const B = { id: T.id, t0: x.c0, t1: Math.round(x.t1 * 100) / 100, ini: Math.round(x.ini * 1000) / 1000, rate: Math.round(C.rate * 10000) / 10000, fIn: 1.5, fOut: 4, cIn: 'eq', cOut: 'eq', g: 1, bpm: Math.round(cad), mu: C.mu, c: x.c0, p: M.itens.length % estPistas(M) };
+      B.au = 1;   // escolhida pelo ✨ (se a tirares ou trocares, o Estúdio aprende que não serve para este momento)
       if(x.dp) B.dp = x.dp;   // 🔥 o drop desta música cai no início de um sprint/intervalo
       const A = M.itens[M.itens.length - 1];
       if(A) estTransPar(A, B, x.first && x.gi > 0 && M.trans !== 'corte' && M.trans !== 'pausa' ? 'curta' : M.trans);   // mudança de ritmo: troca rápida
@@ -12354,7 +12431,7 @@ const SR3 = (()=>{
       const T = C.t, bl = 60 / T.bpm; let ini = T.beat0; while(ini < 0) ini += bl; if(T.dur - ini > 16 * bl + 40) ini += 16 * bl;
       const t1 = Math.min(ate, cur + (T.dur - ini - 1) / C.rate); if(t1 - cur < 4){ us[T.id] = (us[T.id] || 0) + 5; continue; }
       let p = ((ant.p || 0) + 1) % np; for(let q = 0; q < np && !livre(p, cur - 20, t1); q++) p = (p + 1) % np;
-      const B = { id: T.id, t0: cur, t1: Math.round(t1 * 100) / 100, ini, rate: Math.round(C.rate * 10000) / 10000, fIn: 1.5, fOut: 4, cIn: 'eq', cOut: 'eq', g: 1, bpm: cadB, mu: C.mu, c: cur, p };
+      const B = { id: T.id, t0: cur, t1: Math.round(t1 * 100) / 100, ini, rate: Math.round(C.rate * 10000) / 10000, fIn: 1.5, fOut: 4, cIn: 'eq', cOut: 'eq', g: 1, bpm: cadB, mu: C.mu, c: cur, p, au: 1 };
       estTransPar(ant, B, M.trans || 'eq'); M.itens.push(B); us[T.id] = (us[T.id] || 0) + 1; ant = B; cur = B.t1; n++;
     }
     if(seg && n) estTransPar(ant, seg, M.trans || 'eq');
@@ -12430,7 +12507,7 @@ const SR3 = (()=>{
   function estMoTreina(avisa){
     const L = estLib(), com = L.filter(estYmTem), C = EST_MOODS.map(m=> m[0]), et = com.filter(t=> t.mo && C.includes(t.mo));
     const cnt = {}; et.forEach(t=> cnt[t.mo] = (cnt[t.mo] || 0) + 1); const labs = C.filter(c=> (cnt[c] || 0) >= 3);
-    if(labs.length < 2){ EST_MO.mod = null; try{ localStorage.removeItem('prEstMoMod'); }catch(e){} EST_MO.cache.clear(); estMoPintaSt();
+    if(labs.length < 2){ EST_MO.mod = null; try{ localStorage.removeItem('prEstMoMod'); }catch(e){} EST_MO.cache.clear(); if(typeof EST_AP !== 'undefined') EST_AP.cache = {}; estMoPintaSt();
       if(avisa) toast('🎭 Para treinar: etiqueta pelo menos 3 músicas (já ouvidas 🎭) em 2 estilos ou mais.'); return null; }
     const D = 521, mu = new Float64Array(D), XA = com.map(estYmX);
     XA.forEach(x=>{ for(let j = 0; j < D; j++) mu[j] += x[j] / XA.length; });   // só centra (dividir pelo desvio dava o mesmo peso ao ruído e ao sinal)
@@ -12444,7 +12521,7 @@ const SR3 = (()=>{
     const F = estMoFit(X, y, K, ep, lam), acc = Math.round(ac / n * 100);
     EST_MO.mod = { labs, mu: Array.from(mu, v=> Math.round(v * 1e5) / 1e5), W: Array.from(F.W, v=> Math.round(v * 1e5) / 1e5), b: Array.from(F.b), n, acc, cnt, q: Date.now() };
     try{ localStorage.setItem('prEstMoMod', JSON.stringify(EST_MO.mod)); }catch(e){}
-    EST_MO.cache.clear(); estMoPintaSt();
+    EST_MO.cache.clear(); if(typeof EST_AP !== 'undefined') EST_AP.cache = {}; estMoPintaSt();
     if(avisa) toast('🎭 Modelo treinado com ' + n + ' músicas · acerto ' + acc + '% (em músicas que não viu) · ✨ para voltar a encher');
     return EST_MO.mod; }
   function estMoAgenda(){ clearTimeout(EST_MO.t); EST_MO.t = setTimeout(()=>{ estMoTreina(false); estPinta(); }, 1200); }
@@ -12497,13 +12574,13 @@ const SR3 = (()=>{
       '<span class="est-regra" title="Como o BPM da música vira cadência">cadência = BPM · acima de 120 BPM ÷ 2 · abaixo de 60 BPM × 2</span>' +
       '<label>transição <select id="estTr">' + Object.keys(EST_TRANS).map(k=> '<option value="' + k + '">' + EST_TRANS[k].n + '</option>').join('') + '</select></label><button type="button" id="estTrTodas" title="Aplica esta transição a todas as passagens da mistura">aplicar a todas</button>' +
       '<label title="Ao encher a aula, escolhe músicas com chaves vizinhas na roda de Camelot (mesma chave, ±1 ou A↔B) para as transições soarem harmónicas"><input type="checkbox" id="estCam"' + (EST.cam ? ' checked' : '') + '> 🎹 harmonizar (Camelot)</label>' +
-      '<label title="Ao encher a aula, escolhe músicas com energia parecida à intensidade de cada bloco (aquecimento calmo, intervalos fortes)"><input type="checkbox" id="estEn"' + (EST.en ? ' checked' : '') + '> ⚡ energia por bloco</label><label title="Ao encher a aula, escolhe o tipo de música de cada momento (aquecimento, subida pesada, intervalo com muita pancada, retorno à calma suave) e faz o drop da música cair no início dos sprints e intervalos fortes"><input type="checkbox" id="estFo"' + (EST.fo ? ' checked' : '') + '> 🎯 música por momento</label><label title="Ao encher a aula, pode usar a mesma música mais do que uma vez (desligado: cada música entra no máximo uma vez; se faltarem músicas com a cadência certa, o espaço fica vazio)"><input type="checkbox" id="estRep"' + (EST.rep ? ' checked' : '') + '> 🔁 repetir músicas</label>' +
+      '<label title="Ao encher a aula, escolhe músicas com energia parecida à intensidade de cada bloco (aquecimento calmo, intervalos fortes)"><input type="checkbox" id="estEn"' + (EST.en ? ' checked' : '') + '> ⚡ energia por bloco</label><label title="Ao encher a aula, escolhe o tipo de música de cada momento (aquecimento, subida pesada, intervalo com muita pancada, retorno à calma suave) e faz o drop da música cair no início dos sprints e intervalos fortes"><input type="checkbox" id="estFo"' + (EST.fo ? ' checked' : '') + '> 🎯 música por momento</label><button type="button" id="estAp" class="est-ur">🧠 0</button><label title="Ao encher a aula, pode usar a mesma música mais do que uma vez (desligado: cada música entra no máximo uma vez; se faltarem músicas com a cadência certa, o espaço fica vazio)"><input type="checkbox" id="estRep"' + (EST.rep ? ' checked' : '') + '> 🔁 repetir músicas</label>' +
       '<label title="Ao encher a aula, escolhe o estilo de música que cada momento pede: subida épica, sprint agressivo, retorno calmo (precisa de músicas ouvidas 🎭 e de algumas etiquetas)"><input type="checkbox" id="estMo"' + (EST.mo ? ' checked' : '') + '> 🎭 estilo por momento</label>' +
       '<label>pistas <select id="estPis">' + [2, 3, 4, 5, 6].map(n=> '<option>' + n + '</option>').join('') + '</select></label>' +
       '<label title="Volume geral da mistura">🔊 <input type="range" id="estVol" min="0" max="1" step="0.05"></label>' +
       '<div class="est-med" id="estMed" title="Medidor de dB ao ouvir: o vermelho (acima de −1 dB) e a luz CLIP avisam distorção"><div class="est-mb"><em>L</em><span><u></u><i></i><s></s></span></div><div class="est-mb"><em>R</em><span><u></u><i></i><s></s></span></div><b class="est-mdb">−∞ dB</b><b class="est-clip">CLIP</b></div>' +
       '<button type="button" id="estUnd" class="est-ur" title="Desfazer (Ctrl+Z)" disabled>↩</button><button type="button" id="estRed" class="est-ur" title="Refazer (Ctrl+Y)" disabled>↪</button><button type="button" class="est-pri" id="estEnche">✨ Encher a aula automaticamente</button><button type="button" id="estPlay">▶ Ouvir</button><button type="button" id="estLimpa">🗑 Limpar</button><button type="button" id="estExp" title="Guarda um ficheiro com a aula e a mistura (só os nomes das músicas): abre-se noutro PC com as mesmas músicas">💾 Exportar playlist</button><button type="button" id="estExpMm" title="Guarda a mistura num ficheiro .mmp que abre no MixMeister (músicas, BPM, entradas, saídas e volumes)">🎛️ Exportar MixMeister</button><button type="button" id="estAbr" title="Abre uma playlist exportada do PlayRide ou uma mistura do MixMeister (.mmp) e liga-a às músicas deste PC">📂 Abrir playlist / MixMeister</button><input type="file" id="estAbrIn" accept=".json,application/json,.mmp" hidden><button type="button" id="estMp3" title="Grava a aula toda num MP3 de 320 kbps">🎧 Exportar MP3</button><button type="button" id="estNiv" title="Verifica os níveis da aula toda (como vai sair) e mostra onde pode distorcer">📊 Verificar níveis</button><span class="est-nivr" id="estNivRes"></span><button type="button" class="est-ok" id="estFecha">✓ Fechar</button></div>' +
-      '<div class="est-mid"><div class="est-lib"><div class="est-h">Biblioteca ' + (EST_FS ? '<button type="button" id="estDir" title="Como no MixMeister: escolhe a pasta onde tens as músicas. O PlayRide lê-as de lá e não faz cópias">📁 Ligar pasta</button>' : '') + '<button type="button" id="estAdd" title="' + (EST_FS ? 'Junta músicas soltas (fica só o atalho, sem cópia)' : 'Junta músicas (ficam copiadas no navegador)') + '">＋ Músicas</button><input type="file" id="estFich" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac,.aac" multiple hidden><button type="button" id="estReA" title="Volta a medir o BPM, a batida e a chave Camelot (das selecionadas, ou de todas se nenhuma estiver selecionada) com a análise nova, mais precisa">' + (EST.anal ? '⏹ Parar análise' : '🔁 Reanalisar BPM') + '</button><button type="button" id="estYmB" title="O YAMNet (Google) ouve ~30 s de cada música (das selecionadas, ou de todas as que faltam) para conhecer o estilo: géneros, instrumentos, voz, música alegre, excitante… Depois etiqueta algumas na coluna Estilo e o modelo aprende a etiquetar as outras">🎭 Ouvir estilo</button><input type="search" id="estBusca" class="est-busca" placeholder="🔎 Procurar música" title="Procura pelo nome (título ou ficheiro)"><span class="est-est"></span></div><div class="est-dirs" id="estDirs"></div><div class="est-cols" id="estCols"></div><div id="estMoSt" style="padding:3px 12px 5px;font:600 11.5px Inter,sans-serif;color:#8a93a3;cursor:help"></div>' + '<div class="est-acao" id="estAcao" hidden><b id="estAcaoN"></b><button type="button" id="estLibNa" title="As músicas selecionadas deixam de ser escolhidas ao encher a aula automaticamente (ou voltam a poder ser)">⛔ Fora do automático</button><label class="est-mv">📂 Mover para <select id="estMover"></select></label><label class="est-mv" title="Dá o mesmo estilo a todas as selecionadas (o modelo aprende com elas)">🎭 Estilo <select id="estMoSet"><option value="">escolher…</option>' + EST_MOODS.map(m=> '<option value="' + m[0] + '">' + m[1] + ' ' + m[2] + '</option>').join('') + '<option value="_auto">auto (tirar etiqueta)</option></select></label><button type="button" id="estLibDel" class="perigo" title="Tira da biblioteca as músicas selecionadas">🗑 Eliminar</button><button type="button" id="estSelX" title="Limpar a seleção">✕</button></div><div class="est-tab" id="estLibT"></div></div>' +
+      '<div class="est-mid"><div class="est-lib"><div class="est-h">Biblioteca ' + (EST_FS ? '<button type="button" id="estDir" title="Como no MixMeister: escolhe a pasta onde tens as músicas. O PlayRide lê-as de lá e não faz cópias">📁 Ligar pasta</button>' : '') + '<button type="button" id="estAdd" title="' + (EST_FS ? 'Junta músicas soltas (fica só o atalho, sem cópia)' : 'Junta músicas (ficam copiadas no navegador)') + '">＋ Músicas</button><input type="file" id="estFich" accept="audio/*,.mp3,.m4a,.wav,.ogg,.flac,.aac" multiple hidden><button type="button" id="estReA" title="Volta a medir o BPM, a batida e a chave Camelot (das selecionadas, ou de todas se nenhuma estiver selecionada) com a análise nova, mais precisa">' + (EST.anal ? '⏹ Parar análise' : '🔁 Reanalisar BPM') + '</button><button type="button" id="estCopG" title="💾 Cópia de segurança: guarda num ficheiro as análises de todas as músicas, as pastas, as escolhas aprendidas 🧠 e o modelo dos estilos 🎭 (as músicas não vão, ficam nas tuas pastas)">💾 Cópia</button><button type="button" id="estCopR" title="📥 Repor uma cópia de segurança (junta à biblioteca, não apaga nada)">📥 Repor</button><input type="file" id="estCopF" accept=".gz,.json,application/json,application/gzip" hidden><button type="button" id="estYmB" title="O YAMNet (Google) ouve ~30 s de cada música (das selecionadas, ou de todas as que faltam) para conhecer o estilo: géneros, instrumentos, voz, música alegre, excitante… Depois etiqueta algumas na coluna Estilo e o modelo aprende a etiquetar as outras">🎭 Ouvir estilo</button><input type="search" id="estBusca" class="est-busca" placeholder="🔎 Procurar música" title="Procura pelo nome (título ou ficheiro)"><span class="est-est"></span></div><div class="est-dirs" id="estDirs"></div><div class="est-cols" id="estCols"></div><div id="estMoSt" style="padding:3px 12px 5px;font:600 11.5px Inter,sans-serif;color:#8a93a3;cursor:help"></div>' + '<div class="est-acao" id="estAcao" hidden><b id="estAcaoN"></b><button type="button" id="estLibNa" title="As músicas selecionadas deixam de ser escolhidas ao encher a aula automaticamente (ou voltam a poder ser)">⛔ Fora do automático</button><label class="est-mv">📂 Mover para <select id="estMover"></select></label><label class="est-mv" title="Dá o mesmo estilo a todas as selecionadas (o modelo aprende com elas)">🎭 Estilo <select id="estMoSet"><option value="">escolher…</option>' + EST_MOODS.map(m=> '<option value="' + m[0] + '">' + m[1] + ' ' + m[2] + '</option>').join('') + '<option value="_auto">auto (tirar etiqueta)</option></select></label><button type="button" id="estLibDel" class="perigo" title="Tira da biblioteca as músicas selecionadas">🗑 Eliminar</button><button type="button" id="estSelX" title="Limpar a seleção">✕</button></div><div class="est-tab" id="estLibT"></div></div>' +
       '<div class="est-spv" id="estSpV" title="Arrasta para mudar a largura"></div><div class="est-lis"><div class="est-h">Mistura da aula <span class="est-res"></span></div><div class="est-tab" id="estMixT"></div></div></div>' +
       '<div class="est-sph" id="estSpH" title="Arrasta para mudar a altura"></div><div class="est-falta" id="estFalta" hidden></div><div class="est-prog" id="estProg" hidden></div>' +
       '<div class="est-insp" id="estInsp"></div>' +
@@ -12520,6 +12597,9 @@ const SR3 = (()=>{
     $('estVol').oninput = ()=>{ garante().vol = +$('estVol').value; persist(); if(EST.niv){ EST.niv = null; estPintaNiv(); estDesenha(); } };
     $('estSnap').onchange = ()=> estSnapPoe($('estSnap').value);
     $('estRep').onchange = ()=>{ EST.rep = $('estRep').checked; try{ localStorage.setItem('prEstRep', EST.rep ? '1' : '0'); }catch(e){} toast(EST.rep ? '🔁 Pode repetir músicas ao encher · ✨ para voltar a encher' : '🚫 Sem repetições: cada música entra no máximo uma vez · ✨ para voltar a encher'); };
+    estApCarrega(); estApBtn(); $('estAp').onclick = ()=>{ const c = estApConta(), n = EST_AP.E.filter(e=> e[2] > 0).length, nn = EST_AP.E.length - n;
+      if(!EST_AP.E.length){ toast('🧠 Ainda não aprendeu nada: arrasta músicas da biblioteca para a aula, usa ↔ Trocar, ou abre as tuas misturas do MixMeister (.mmp) nas aulas certas.'); return; }
+      if(confirm('🧠 O Estúdio aprendeu com ' + n + ' escolhas tuas' + (nn ? ' e ' + nn + ' músicas que tiraste' : '') + ':\n\n' + Object.keys(EST_MOM_N).filter(k=> c[k]).map(k=> '• ' + EST_MOM_N[k] + ': ' + c[k]).join('\n') + '\n\nCada momento começa a contar a partir de 4 músicas.\n\nQueres APAGAR tudo o que aprendeu e começar do zero? (OK = apagar · Cancelar = manter)')){ EST_AP.E = []; estApGrava(); toast('🧠 Aprendizagem apagada'); } };
     $('estFo').onchange = ()=>{ EST.fo = $('estFo').checked; try{ localStorage.setItem('prEstFo', EST.fo ? '1' : '0'); }catch(e){} toast(EST.fo ? '🎯 Vou escolher a música pelo momento da aula e alinhar os drops com os sprints · ✨ para voltar a encher' : '🎯 Música por momento desligada'); };
     $('estEn').onchange = ()=>{ EST.en = $('estEn').checked; try{ localStorage.setItem('prEstEn', EST.en ? '1' : '0'); }catch(e){} toast(EST.en ? '⚡ Vou escolher a energia das músicas pela intensidade dos blocos · ✨ para voltar a encher' : 'Energia desligada'); };
     $('estCam').onchange = ()=>{ EST.cam = $('estCam').checked; try{ localStorage.setItem('prEstCam', EST.cam ? '1' : '0'); }catch(e){} toast(EST.cam ? '🎹 Vou escolher as músicas pela roda de Camelot · ✨ para voltar a encher' : 'Harmonia desligada: escolho só pelo BPM'); };
@@ -12543,6 +12623,8 @@ const SR3 = (()=>{
     $('estLibDel').onclick = async ()=>{ const S = EST.libSel || new Set(); if(!S.size) return; const L = estLib(), sel = L.filter(t=> S.has(t.id)), M = mixAtivo(), us = M ? sel.filter(t=> M.itens.some(it=> it.id === t.id)).length : 0;
       if(!confirm('Tirar ' + sel.length + ' música' + (sel.length === 1 ? '' : 's') + ' da biblioteca?' + (us ? '\n\n' + us + ' estão nesta mistura e deixam de tocar.' : '') + '\n\nOs ficheiros na tua pasta não são apagados (as cópias no navegador sim).')) return;
       for(const t of sel) await estApaga(t); estGravaLib(L.filter(t=> !S.has(t.id))); S.clear(); estPinta(); };
+    $('estCopG').onclick = ()=> estCopiaGuarda().catch(e=> toast('⚠ Não consegui fazer a cópia: ' + e.message));
+    $('estCopR').onclick = ()=> $('estCopF').click(); $('estCopF').onchange = e=>{ const f = e.target.files && e.target.files[0]; e.target.value = ''; if(f) estCopiaRepoe(f); };
     $('estReA').onclick = async ()=>{ if(EST.anal){ EST.para = true; estAnalBotao(); toast('⏹ A parar depois das músicas que estão a meio…'); return; }
       const S = EST.libSel || new Set(), L = estLib(); let alvo = L.filter(t=> !S.size || S.has(t.id)); if(!alvo.length) return;
       const sem = alvo.filter(t=> !t.ec && !t.falta);   // ainda sem a análise nova (curva de energia): permite continuar uma análise grande aos bocados
@@ -12559,6 +12641,7 @@ const SR3 = (()=>{
       if(its.length && its[0].getAsFileSystemHandle){ const ps = its.map(i=> i.getAsFileSystemHandle());   // atalhos (sem cópia); uma pasta arrastada é ligada como pasta
         Promise.all(ps).then(async hs=>{ const itens = []; for(let k = 0; k < hs.length; k++){ const h = hs[k]; if(!h) continue;
           if(h.kind === 'directory'){ let P = estPastas(), q = null; for(const x of P){ const hx = await estHandle(x.id); if(hx && await hx.isSameEntry(h)){ q = x; break; } }
+            if(!q){ for(const x of P){ if(x.nome === h.name && !(await estHandle(x.id))){ q = x; await audPut('mdir:' + q.id, { h }); break; } } }
             if(!q){ q = { id: 'd' + uid().slice(1), nome: h.name }; P.push(q); estGravaPastas(P); await audPut('mdir:' + q.id, { h }); } ESTD.dirs[q.id] = h; await estLigaPasta(q.id); }
           else itens.push({ file: await h.getFile(), h }); } if(itens.length) estJuntaItens(itens); }).catch(()=> estJunta(fs)); }
       else estJunta(fs); });
@@ -12699,6 +12782,7 @@ const SR3 = (()=>{
     const usadas = new Set(M.itens.filter(x=> x.t0 < t1 && x.t1 > t0).map(x=> x.p)); let p = pista;
     if(p == null){ p = 0; while(usadas.has(p) && p < estPistas(M) - 1) p++; }
     M.itens.push({ id, t0, t1, ini: t.beat0, rate: Math.round(rate * 10000) / 10000, fIn: 2, fOut: 4, cIn: 'eq', cOut: 'eq', g: 1, bpm: cad > 0 ? cad : Math.round(t.bpm * mu), mu, p, ov: true });
+    estApJunta(id, t0, 1, 'a');   // 🧠 escolheste esta música para este momento
     EST.sel = M.itens.length - 1; mixRefaz(); persist(); estPinta();
   }
   function estPintaDirs(){
@@ -12730,13 +12814,14 @@ const SR3 = (()=>{
     $('estMixT').innerHTML = '<table><tr><th>#</th><th>Título</th><th>BPM</th><th title="Chave (Camelot) e se combina com a música anterior">Chave</th><th title="Energia da música (▲▼ = muito acima/abaixo da intensidade do bloco)">Energia</th><th>Cadência</th><th>Quando</th><th>Entrada</th><th></th></tr>' + O.map((it, n)=>{ const i = M.itens.indexOf(it), t = lib.find(x=> x.id === it.id) || { bpm: 0 }, pc = Math.round((it.rate - 1) * 1000) / 10;
       return '<tr class="' + (i === EST.sel ? 'sel' : '') + '" data-i="' + i + '"><td>' + (n + 1) + '</td><td>' + escapeHtml(estNomeDe(it.id)) + '</td><td>' + (t.bpm || '—') + '</td><td>' + estCamTag(t.cam) + (n && !it.ov ? (()=>{ const ant = lib.find(x=> x.id === (O[n - 1] || {}).id) || {}, d = estCamDist(ant.cam, t.cam); return d < 0 ? '' : ' <small class="est-camok d' + d + '" title="' + ['mesma chave da anterior', 'vizinha na roda (combina)', 'subida de energia (+2 ou diagonal): combina com cuidado', 'chaves que chocam'][d] + '">' + ['=', '✓', '↗', '✗'][d] + '</small>'; })() : '') + '</td><td>' + estEnTag(estEnergia(t), estAlvoEn((it.c != null ? it.c : it.t0) + 20)) + '</td><td>' + Math.round(t.bpm * (it.mu || 1) * it.rate) + ' rpm <small style="color:#8a93a3">(' + Math.round(t.bpm * it.rate * 10) / 10 + ' BPM)</small> <small class="' + (Math.abs(pc) > 8 ? 'mau' : '') + '">(' + (pc >= 0 ? '+' : '') + String(pc).replace('.', ',') + '%)</small></td><td>' + fmtTime(Math.round(it.t0)) + '–' + fmtTime(Math.round(it.t1)) + '</td><td>' + (it.ov ? '◈ overlay' : n ? escapeHtml((EST_TRANS[it.trans] || {}).n || 'manual').replace(/ \(.*\)/, '') : '—') + '</td><td><button type="button" data-tr="' + i + '" title="Trocar por outra música com BPM parecido">↔</button><button type="button" data-tira="' + i + '" title="Tirar">🗑</button></td></tr>'; }).join('') + '</table>';
     $('estMixT').querySelectorAll('tr[data-i]').forEach(r=> r.onclick = e=>{ if(e.target.closest('button')) return; EST.sel = +r.dataset.i; const it = M.itens[EST.sel]; EST.pT = it.t0; if(it.t0 < EST.x0 || it.t0 > EST.x0 + estVis()) EST.x0 = Math.max(0, it.t0 - 10); estPinta(); });
-    $('estMixT').querySelectorAll('[data-tira]').forEach(b=> b.onclick = ()=>{ M.itens.splice(+b.dataset.tira, 1); EST.sel = -1; mixRefaz(); persist(); estPinta(); });
+    $('estMixT').querySelectorAll('[data-tira]').forEach(b=> b.onclick = ()=>{ estTiraItem(M, +b.dataset.tira); EST.sel = -1; mixRefaz(); persist(); estPinta(); });
     $('estMixT').querySelectorAll('[data-tr]').forEach(b=> b.onclick = ()=> estTrocaAbre(+b.dataset.tr));
   }
   // troca a música i da mistura pela música id da biblioteca, no mesmo lugar e com a cadência do bloco
   function estTrocaPor(i, id){
     const M = mixAtivo(), it = M && M.itens[i], t = estLib().find(x=> x.id === id); if(!it || !t || !t.bpm) return; if(it.id === id){ toast('Essa música já está nesse lugar.'); return; }
-    pushUndo(); const mu = estMu(t.bpm), cad = it.bpm || t.bpm * mu, rate = Math.max(.85, Math.min(1.15, cad / (t.bpm * mu))), ate = it.t1;
+    pushUndo(); const mu = estMu(t.bpm), cad = it.bpm || t.bpm * mu, rate = Math.max(.85, Math.min(1.15, cad / (t.bpm * mu))), ate = it.t1, Tm = it.c != null ? it.c : it.t0;
+    if(it.au) estApJunta(it.id, Tm, -.5, 't'); estApJunta(id, Tm, 1, 'a'); delete it.au; delete it.dp;   // 🧠 aprende: a tua escolha para este momento
     Object.assign(it, { id, rate: Math.round(rate * 10000) / 10000, mu, ini: t.beat0 || 0 }); it.t1 = Math.min(ate, it.t0 + ((t.dur || 0) - it.ini - 1) / rate);
     const n = ate - it.t1 > 4 ? estPreencheVazio(M, it, ate) : 0;
     estTempoSync(); mixRefaz(); persist(); EST.sel = i; estPinta();
@@ -12755,16 +12840,16 @@ const SR3 = (()=>{
     const alvo = estAlvoEn((it.c != null ? it.c : it.t0) + 20), C = estCandidatos(cad, M, us, ant && ant.id, alvo, it.c != null ? it.c : it.t0).filter(c=> c.t.id !== it.id).slice(0, 12);
     if(!C.length){ toast('Não há outra música com BPM parecido na biblioteca.'); return; }
     const camS = seg && L[seg.id] && L[seg.id].cam, f1 = v=> String(Math.round(v * 10) / 10).replace('.', ','), simb = d=> d < 0 ? '' : '<i class="est-camok d' + d + '">' + ['=', '✓', '↗', '✗'][d] + '</i>';
-    const tAt = L[it.id] || {}; let ov = $('estTroca'); if(ov) ov.remove(); ov = document.createElement('div'); ov.id = 'estTroca'; ov.className = 'est-troca';
+    const tAt = L[it.id] || {}, moT = estMomEm(estMomentos(), (it.c != null ? it.c : it.t0) + 20); let ov = $('estTroca'); if(ov) ov.remove(); ov = document.createElement('div'); ov.id = 'estTroca'; ov.className = 'est-troca';
     ov.innerHTML = '<div class="est-trb"><div class="est-trh"><b>↔ Trocar “' + escapeHtml(estNomeDe(it.id)) + '”</b><span>bloco ' + cad + ' rpm' + (alvo != null ? ' · intensidade ⚡' + f1(alvo) : '') + (ant && L[ant.id] && L[ant.id].cam ? ' · anterior ' + L[ant.id].cam : '') + (camS ? ' · seguinte ' + camS : '') + '</span><button type="button" data-x>✕</button></div>' +
       '<table><tr><th></th><th>Música</th><th>BPM</th><th>Ajuste</th><th>Chave</th><th title="Combina com a anterior / a seguinte">ant · seg</th><th>Energia</th><th></th></tr>' +
       '<tr class="atual"><td></td><td>' + escapeHtml(tAt.nome || '') + ' <small>(atual)</small></td><td>' + (tAt.bpm || '—') + '</td><td>' + f1((it.rate - 1) * 100) + '%</td><td>' + estCamTag(tAt.cam) + '</td><td>' + simb(ant ? estCamDist((L[ant.id] || {}).cam, tAt.cam) : -1) + ' ' + simb(camS ? estCamDist(tAt.cam, camS) : -1) + '</td><td>' + estEnTag(estEnergia(tAt), alvo) + '</td><td></td></tr>' +
-      C.map((c, n)=> '<tr><td><button type="button" data-ouv2="' + c.t.id + '" title="Ouvir 15 s">▶</button></td><td title="' + escapeHtml(c.t.nome) + '">' + (n === 0 ? '⭐ ' : '') + escapeHtml(c.t.nome) + (us[c.t.id] ? ' <small>(já usada ×' + us[c.t.id] + ')</small>' : '') + '</td><td>' + c.t.bpm + '</td><td class="' + (c.dev > .08 ? 'mau' : '') + '">' + (c.rate >= 1 ? '+' : '') + f1((c.rate - 1) * 100) + '%</td><td>' + estCamTag(c.t.cam) + '</td><td>' + simb(ant ? estCamDist((L[ant.id] || {}).cam, c.t.cam) : -1) + ' ' + simb(camS ? estCamDist(c.t.cam, camS) : -1) + '</td><td>' + estEnTag(c.en, alvo) + '</td><td><button type="button" class="est-pri" data-usa="' + n + '">usar</button></td></tr>').join('') + '</table>' +
-      '<p class="est-dica">⭐ = a que melhor combina (cadência, chave e energia). Ordenadas da melhor para a pior.</p></div>';
+      C.map((c, n)=> '<tr><td><button type="button" data-ouv2="' + c.t.id + '" title="Ouvir 15 s">▶</button></td><td title="' + escapeHtml(c.t.nome) + '">' + (n === 0 ? '⭐ ' : '') + (moT && estApNota(c.t, moT.r) <= -.07 ? '<i title="Parecida com as que costumas escolher para ' + EST_MOM_N[moT.r] + '">🧠</i> ' : '') + escapeHtml(c.t.nome) + (us[c.t.id] ? ' <small>(já usada ×' + us[c.t.id] + ')</small>' : '') + '</td><td>' + c.t.bpm + '</td><td class="' + (c.dev > .08 ? 'mau' : '') + '">' + (c.rate >= 1 ? '+' : '') + f1((c.rate - 1) * 100) + '%</td><td>' + estCamTag(c.t.cam) + '</td><td>' + simb(ant ? estCamDist((L[ant.id] || {}).cam, c.t.cam) : -1) + ' ' + simb(camS ? estCamDist(c.t.cam, camS) : -1) + '</td><td>' + estEnTag(c.en, alvo) + '</td><td><button type="button" class="est-pri" data-usa="' + n + '">usar</button></td></tr>').join('') + '</table>' +
+      '<p class="est-dica">⭐ = a que melhor combina (cadência, chave, energia e momento' + (moT ? ': ' + EST_MOM_N[moT.r] : '') + '). 🧠 = parecida com as que tu costumas escolher para este momento. Ordenadas da melhor para a pior.</p></div>';
     EST.ov.appendChild(ov); let ouve = null; const para = ()=>{ if(ouve){ ouve.pause(); ouve = null; } };
     ov.onclick = async e=>{ const b = e.target.closest('button'); if(e.target === ov || (b && b.hasAttribute('data-x'))){ para(); ov.remove(); return; } if(!b) return;
       if(b.dataset.ouv2){ const id = b.dataset.ouv2, era = ouve && ouve._id; para(); ov.querySelectorAll('[data-ouv2]').forEach(x=> x.textContent = '▶'); if(era === id) return; const u = await estUrl(id); if(!u) return; const t = L[id], el = new Audio(u); el._id = id; el.currentTime = Math.min(60, (t ? t.dur : 60) * .3); el.volume = .8; el.play().catch(()=>{}); ouve = el; b.textContent = '⏸'; setTimeout(()=>{ if(ouve === el){ para(); b.textContent = '▶'; } }, 15000); return; }
-      if(b.dataset.usa != null){ const c = C[+b.dataset.usa]; para(); const ate = it.t1; Object.assign(it, { id: c.t.id, rate: Math.round(c.rate * 10000) / 10000, mu: c.mu, ini: c.t.beat0 }); delete it.dp; it.t1 = Math.min(ate, it.t0 + (c.t.dur - it.ini - 1) / c.rate);
+      if(b.dataset.usa != null){ const c = C[+b.dataset.usa]; para(); const ate = it.t1, Tm = it.c != null ? it.c : it.t0; if(it.au) estApJunta(it.id, Tm, -.5, 't'); estApJunta(c.t.id, Tm, 1, 'a'); delete it.au; Object.assign(it, { id: c.t.id, rate: Math.round(c.rate * 10000) / 10000, mu: c.mu, ini: c.t.beat0 }); delete it.dp; it.t1 = Math.min(ate, it.t0 + (c.t.dur - it.ini - 1) / c.rate);
         const n = ate - it.t1 > 4 ? estPreencheVazio(M, it, ate) : 0;   // a música nova é mais curta: o espaço que fica é preenchido com outra(s) música(s)
         estTempoSync(); mixRefaz(); persist(); ov.remove(); estPinta(); toast('↔ ' + c.t.nome + (n ? ' · +' + n + (n === 1 ? ' música' : ' músicas') + ' para preencher o espaço' : '')); } };
   }
@@ -12802,7 +12887,7 @@ const SR3 = (()=>{
         it.t1 = Math.min(audTot() || 1e9, it.t0 + (T.dur - it.ini - .05) / it.rate); it.fIn = Math.min(it.fIn, 3); muda(); }
       else if(a === 'envx'){ if(confirm('Apagar os pontos das linhas (volume e equalização) desta música?')){ delete it.env; muda(); } }
       else if(a === 'dup'){ const c = Object.assign({}, it, { t0: it.t1, t1: it.t1 + (it.t1 - it.t0), c: undefined, trans: undefined }); c.t1 = Math.min(audTot(), c.t1); M.itens.push(c); EST.sel = M.itens.length - 1; muda(); }
-      else if(a === 'tira'){ M.itens.splice(EST.sel, 1); EST.sel = -1; muda(); } });
+      else if(a === 'tira'){ estTiraItem(M, EST.sel); EST.sel = -1; muda(); } });
     box.querySelectorAll('[data-k]').forEach(i=>{ const ev = i.type === 'range' ? 'input' : 'change'; i.addEventListener(ev, ()=>{ const k = i.dataset.k, v = i.value;
       if(k === 'bpm'){ if(estTempo()) estTempoDesloca(it, (+v || bpmA) - estBpmEm(it, it.t0)); else it.rate = Math.max(.7, Math.min(1.3, (+v || bpmA) / T.bpm)); }
       else if(k === 'g') it.g = +v; else if(k === 'fIn') it.fIn = Math.min(+v, it.t1 - it.t0); else if(k === 'fOut') it.fOut = Math.min(+v, it.t1 - it.t0);
@@ -12939,7 +13024,7 @@ const SR3 = (()=>{
     document.addEventListener('keydown', e=>{ if(!EST.ov || /INPUT|SELECT|TEXTAREA/.test((e.target.tagName || ''))) return; const M = mixAtivo();
       if((e.ctrlKey || e.metaKey) && !e.altKey && /^[zZyY]$/.test(e.key)){ e.preventDefault(); e.stopPropagation(); if(document.getElementById('estTroca')) return; estUndoVai(e.key === 'y' || e.key === 'Y' || e.shiftKey ? 1 : -1); return; }
       if((e.key === 'Delete' || e.key === 'Backspace') && estTempo() && EST.tSel >= 0 && estTempo()[EST.tSel]){ estTempoApaga(EST.tSel); e.preventDefault(); }
-      else if((e.key === 'Delete' || e.key === 'Backspace') && M && M.itens[EST.sel]){ M.itens.splice(EST.sel, 1); EST.sel = -1; mixRefaz(); persist(); estPinta(); e.preventDefault(); }
+      else if((e.key === 'Delete' || e.key === 'Backspace') && M && M.itens[EST.sel]){ estTiraItem(M, EST.sel); EST.sel = -1; mixRefaz(); persist(); estPinta(); e.preventDefault(); }
       else if(e.key === ' '){ e.preventDefault(); EST.play ? estPrevPara() : estPrevComeca(); }
       else if(e.key === 'Escape') estFecha();
       else if(e.altKey && (e.key === 'b' || e.key === 'B')){ e.preventDefault(); estSnapPoe(EST.snap === 'manual' ? (EST.snapUlt || '1') : 'manual'); toast('🧲 Encaixe: ' + (EST_SNAP.find(x=> x[0] === EST.snap) || [, ''])[1]); } });
@@ -13258,6 +13343,7 @@ const SR3 = (()=>{
     });
     const b = mmpEscreve(F), nome = nomeF + '.mmp';
     const blob = new Blob([b], { type: 'application/octet-stream' }), a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = nome; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    try{ estApAprovaMistura(mixAtivo()); }catch(e){}   // 🧠 exportar = aprovar: cada música ensina o seu momento
     toast('🎛️ Mistura exportada para o MixMeister (' + F.length + ' músicas): abre o ' + nome + ' no MixMeister.');
   }
   // ---- 🎛️ abrir misturas do MixMeister (.mmp) ----
@@ -13325,6 +13411,7 @@ const SR3 = (()=>{
     const P = []; R.forEach(x=>{ P.push([Math.round(x.tIn * 100) / 100, x.T], [Math.round(x.tOut * 100) / 100, x.T]); });
     P.sort((a, b)=> a[0] - b[0]); M.tempo = P.filter((p, i)=> !i || p[0] !== P[i - 1][0] || p[1] !== P[i - 1][1]);
     if(mudouLib) estGravaLib(L);
+    if(tot && Math.abs(fim - tot) < tot * .2){ M.itens.forEach(it=> estApJunta(it.id, it.c != null ? it.c : it.t0, 1, 'm')); }   // 🧠 a tua mistura do MixMeister para esta aula: cada música ensina o seu momento
     M.assin = estAssin(); EST.pend = pend; mixPara(); mixRefaz(); persist(); estLiga2(); estPinta(); try{ renderAudBar && renderAudBar(); }catch(e){}
     toast('🎛️ Mistura do MixMeister aberta: ' + M.itens.length + ' músicas' + (pend.length ? ' · faltam ' + pend.length + ' neste PC (liga a pasta das músicas)' : ''));
   }
@@ -13332,7 +13419,7 @@ const SR3 = (()=>{
   function estLiga2(){
     const L = estLib(), M = current.mix, falta = []; let mm = false;
     (EST.pend || []).forEach(m=>{ let t = L.find(x=> x.id === m.id) || L.find(x=> x.fich && x.fich === m.fich && (!m.tam || !x.tam || x.tam === m.tam)) || L.find(x=> x.nome === m.nome && Math.abs((x.dur || 0) - (m.dur || 0)) < 2);
-      if(t){ if(t.id !== m.id) M.itens.forEach(it=>{ if(it.id === m.id) it.id = t.id; }); if(m.mm && m.bpm && (t.bpm !== m.bpm || t.beat0 !== m.beat0 || (m.win && t.win !== m.win))){ t.bpm = m.bpm; t.beat0 = m.beat0; if(m.win) t.win = m.win; mm = true; } } else falta.push(m); });   // MixMeister: fica a grelha dele
+      if(t){ if(t.id !== m.id){ M.itens.forEach(it=>{ if(it.id === m.id) it.id = t.id; }); let ap = false; EST_AP.E.forEach(e=>{ if(e[0] === m.id){ e[0] = t.id; ap = true; } }); if(ap) estApGrava(); } if(m.mm && m.bpm && (t.bpm !== m.bpm || t.beat0 !== m.beat0 || (m.win && t.win !== m.win))){ t.bpm = m.bpm; t.beat0 = m.beat0; if(m.win) t.win = m.win; mm = true; } } else falta.push(m); });   // MixMeister: fica a grelha dele
     if(mm) estGravaLib(L); EST.pend = falta; persist(); estPintaFalta();
   }
   function estPintaFalta(){
