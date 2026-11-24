@@ -983,7 +983,8 @@ html.fs-on .live-head .fs-btn{display:none;}
 .main-nav button,.main-nav a{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;background:transparent;border:1px solid transparent;color:var(--muted);padding:8px 14px;border-radius:999px;font-size:14px;font-weight:600;text-decoration:none;font-family:'Inter',sans-serif;}
 .main-nav svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
 .main-nav button:hover,.main-nav a:hover{color:var(--text);border-color:var(--border);}
-.gest-menu{position:fixed;z-index:9000;display:flex;flex-direction:column;gap:4px;min-width:220px;padding:8px;background:var(--surface,#151a22);border:1px solid var(--border,#2a3240);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+.gest-tg{margin-right:6px}.gest-tg.on{background:#1f4d33;color:#bff3d2;border-color:#2f7a52}
+  .gest-menu{position:fixed;z-index:9000;display:flex;flex-direction:column;gap:4px;min-width:220px;padding:8px;background:var(--surface,#151a22);border:1px solid var(--border,#2a3240);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.5)}
 .gest-menu[hidden]{display:none}
 .gest-menu button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:0;color:var(--text,#fff);padding:10px 12px;border-radius:10px;font:600 14px Inter,system-ui,sans-serif;cursor:pointer}
 .gest-menu button:hover{background:var(--surface-2,#1e2530)}.gest-menu svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
@@ -14797,7 +14798,7 @@ const SR3 = (()=>{
   async function onUser(user){
     detachData();
     if(!user){
-      userUid = null; userNome = ''; isAdmin = false; gestPinta(null);
+      userUid = null; userNome = ''; isAdmin = false; gestOuve(null); gestPinta(null);
       treinos = []; historico = []; partilhadas = [];
       showAuth('login');
       return;
@@ -14822,7 +14823,7 @@ const SR3 = (()=>{
       console.error(e);
       $('pendingEmail').textContent = 'Erro a ler a conta: ' + (e.message || e);
     }
-    $('pendingEmail').textContent = 'Conta: ' + user.email; gestPinta(user);
+    $('pendingEmail').textContent = 'Conta: ' + user.email; gestPinta(user); gestOuve(user);
     approvedRef = fbDb.ref('approved/' + user.uid);
     approvedRef.on('value', s=>{
       if(s.val() === true){ enterApp(); }
@@ -14920,12 +14921,13 @@ const SR3 = (()=>{
 
   // ---------- painel de administrador ----------
   let adminRefs = [];
-  let adminProfiles = {}, adminApproved = {};
+  let adminProfiles = {}, adminApproved = {}, adminGest = {};
   function startAdmin(){
-    const pr = fbDb.ref('profiles'), ap = fbDb.ref('approved');
+    const pr = fbDb.ref('profiles'), ap = fbDb.ref('approved'), gs = fbDb.ref('gestores');
     pr.on('value', s=>{ adminProfiles = s.val() || {}; renderAdmin(); });
     ap.on('value', s=>{ adminApproved = s.val() || {}; renderAdmin(); });
-    adminRefs.push(pr, ap);
+    gs.on('value', s=>{ adminGest = s.val() || {}; renderAdmin(); }, ()=>{});
+    adminRefs.push(pr, ap, gs);
   }
   function usoDur(seg){ seg = Math.round(seg || 0); const h = Math.floor(seg / 3600), m = Math.round(seg % 3600 / 60); return h ? h + ' h ' + String(m).padStart(2, '0') + ' min' : m + ' min'; }
   function usoQuando(ts){
@@ -14975,6 +14977,16 @@ const SR3 = (()=>{
       st.className = 'state ' + (ok ? 'ok' : 'wait');
       st.textContent = ok ? 'Aprovado' : 'À espera';
       right.appendChild(st);
+      // 🛠️ Gestão: os gestores fixos são sempre; aos outros profs aprovados liga-se/desliga-se aqui
+      const fixo = GESTORES.includes(String(p.email || '').trim().toLowerCase()), gOn = fixo || adminGest[id] === true;
+      if(ok){ const gb = document.createElement(fixo || !eGestorFixo(auth && auth.currentUser) ? 'span' : 'button');
+        gb.className = (gb.tagName === 'BUTTON' ? 'small ' : 'state ') + 'gest-tg' + (gOn ? ' on' : '');
+        gb.textContent = fixo ? '🛠️ Gestor' : gOn ? '🛠️ Gestão: ligada' : '🛠️ Gestão: desligada';
+        gb.title = fixo ? 'Gestor fixo: tem sempre acesso à Gestão (Sala, Voz do coach, Bonecos)' : gOn ? 'Pode mexer na Gestão (Sala, Voz do coach, Bonecos). Clica para desligar.' : 'Não pode mexer na Gestão. Clica para dar acesso.';
+        if(gb.tagName === 'BUTTON') gb.addEventListener('click', ()=>{
+          if(gOn ? !confirm('Desligar o acesso de ' + (p.nome || p.email) + ' à Gestão?') : !confirm('Dar a ' + (p.nome || p.email) + ' acesso à Gestão (mapa da sala, voz do coach, bonecos)?')) return;
+          fbDb.ref('gestores/' + id).set(gOn ? null : true).then(()=> toast(gOn ? '🛠️ Gestão desligada para ' + (p.nome || p.email) : '🛠️ ' + (p.nome || p.email) + ' já pode mexer na Gestão'), e=> toast('Não consegui alterar (' + (e.code || e.message) + '): falta a regra "gestores" no Firebase.')); });
+        right.appendChild(gb); }
       if(id !== userUid){
         const btn = document.createElement('button');
         btn.className = ok ? 'small' : 'small primary';
@@ -15493,7 +15505,14 @@ const SR3 = (()=>{
   document.getElementById('navVoz').addEventListener('click', gestOk(vozAbre));
   // ——— Gestão (Sala, Voz do coach, Bonecos): só para os gestores. O Firebase também só os deixa gravar a eles (ver regras) ———
   var GESTORES = ['marioteixeira.gote@gmail.com', 'pedrobarbosasousa1994@gmail.com'];
-  function eGestor(user){ const e = String((user && user.email) || '').trim().toLowerCase(); return !!e && GESTORES.includes(e); }
+  function eGestorFixo(user){ const e = String((user && user.email) || '').trim().toLowerCase(); return !!e && GESTORES.includes(e); }
+  // 🛠️ outros profs com acesso à Gestão: os gestores fixos ligam/desligam no painel das contas (Firebase: gestores/<uid> = true)
+  var GEST_EXTRA = false, GEST_REF = null;
+  function eGestor(user){ return eGestorFixo(user) || (!!user && user.uid === userUid && GEST_EXTRA === true); }
+  function gestOuve(user){ if(GEST_REF){ try{ GEST_REF.off(); }catch(e){} GEST_REF = null; } GEST_EXTRA = false; if(!user || !fbDb || eGestorFixo(user)) return;
+    GEST_REF = fbDb.ref('gestores/' + user.uid);
+    GEST_REF.on('value', s=>{ const era = GEST_EXTRA; GEST_EXTRA = s.val() === true; gestPinta(user);
+      if(era && !GEST_EXTRA) toast('🛠️ O acesso à Gestão foi desativado.'); else if(!era && GEST_EXTRA) toast('🛠️ Tens acesso à Gestão (menu Gestão).'); }, ()=>{}); }
   function gestPinta(user){ const b = $('navGestao'), m = $('gestMenu'), ok = eGestor(user); if(b) b.hidden = !ok; if(m && !ok){ m.hidden = true; if(b) b.setAttribute('aria-expanded', 'false'); } }
   (function(){ const b = $('navGestao'), m = $('gestMenu'); if(!b || !m) return;
     const fecha = ()=>{ m.hidden = true; b.setAttribute('aria-expanded', 'false'); };
