@@ -11711,7 +11711,7 @@ const SR3 = (()=>{
     return { dur: ab.duration, peaks };
   }
   // links: descarrega a música para este dispositivo (IndexedDB) para tocar mesmo se a internet falhar
-  var audGuardada = false, audSemCache = false, audBlobPend = null;
+  var audGuardada = false, audSemCache = false, audBlobPend = null, audAtalho = false;
   async function audPeaksRemote(url, k){
     try{
       const r = await fetch(url); if(!r.ok) throw new Error('http');
@@ -11733,6 +11733,18 @@ const SR3 = (()=>{
     if(audP) try{ audP.destroy(); }catch(e){}
     audP = audElPlayer(audUrl);
   }
+  // 🔗 ficheiros do dispositivo: no Chrome/Edge do PC fica só o ATALHO para o ficheiro (continua na tua pasta, não é copiado para o navegador).
+  //    Nos telemóveis e nos navegadores sem atalhos (Safari, Firefox) não há outra forma: aí continua a ficar uma cópia.
+  const AUD_TIPOS = [{ description: 'Música', accept: { 'audio/*': ['.mp3', '.m4a', '.aac', '.wav', '.ogg', '.flac', '.opus'] } }];
+  async function audEscolheFich(){ if(!window.showOpenFilePicker) return null; try{ const [h] = await window.showOpenFilePicker({ id: 'playride-musicas', multiple: false, types: AUD_TIPOS }); return h ? { h, f: await h.getFile() } : false; }catch(e){ return e && e.name === 'AbortError' ? false : null; } }
+  // devolve o ficheiro guardado: a cópia antiga (blob) ou o atalho (pede autorização se pedir = true); 'perm' = falta autorizar
+  async function audFichDe(rec, pedir){ if(!rec) return null; if(rec.blob) return rec.blob; if(rec.h){ if(!(await estPerm(rec.h, pedir))) return 'perm'; try{ return await rec.h.getFile(); }catch(e){ return null; } } return null; }
+  // ao começar a aula (um clique teu), autoriza de uma vez os atalhos das músicas que a aula usa
+  async function audPermPede(){ try{ const ks = []; const a = audInfo(); if(a && audSrc(a) === 'file' && a.key) ks.push(a.key);
+      (current.blocos || []).forEach(b=>{ if(b.mus && (b.mus.src || 'file') === 'file' && b.mus.key) ks.push(b.mus.key); });
+      let mud = false; for(const k of [...new Set(ks)]){ const r = await audGet(k); if(r && r.h && !(await estPerm(r.h, false))){ if(await estPerm(r.h, true)) mud = true; } }
+      if(typeof mixAtivo === 'function' && mixAtivo()) await estPermTodas(true);
+      if(mud && audFalta === 'perm'){ audPKey = null; await audEnsure(); } }catch(e){} }
   async function audEnsure(){
     const a = audInfo(), k = a ? audSrc(a) + '|' + (a.key || a.uri || a.url) : null;
     if(k === audPKey) return;
@@ -11742,10 +11754,11 @@ const SR3 = (()=>{
     const src = audSrc(a);
     if(src === 'file'){
       audPersiste();
-      const rec = await audGet(a.key);
+      const rec = await audGet(a.key), f = await audFichDe(rec, false);
       if(audPKey !== k) return;
-      if(rec && rec.blob){ audUrl = URL.createObjectURL(rec.blob); audPeaks = rec.peaks || null; audP = audElPlayer(audUrl); }
-      else audFalta = true;
+      audAtalho = !!(rec && rec.h && !rec.blob);
+      if(f && f !== 'perm'){ audUrl = URL.createObjectURL(f); audPeaks = rec.peaks || null; audP = audElPlayer(audUrl); }
+      else { audFalta = f === 'perm' ? 'perm' : true; if(rec && rec.peaks) audPeaks = rec.peaks; }
     } else if(src === 'url'){
       const rec = await audGet('u:' + a.url);
       if(audPKey !== k) return;
@@ -11767,7 +11780,7 @@ const SR3 = (()=>{
     document.documentElement.classList.remove('aud-spotify');
     audEnsure(); renderEditor();
   }
-  async function audPick(file){
+  async function audPick(file, h){
     if(!file) return;
     toast('A preparar a faixa…');
     let peaks = null, dur = 0;
@@ -11781,7 +11794,7 @@ const SR3 = (()=>{
     // (a aula fica igual, não precisa de ser gravada outra vez, e as outras aulas com a mesma faixa voltam também)
     const a0 = audInfo(), religa = audFalta === true && a0 && audSrc(a0) === 'file' && a0.key;
     const key = religa ? a0.key : 'a' + uid();
-    try{ await audPut(key, { blob: file, peaks, dur, nome: file.name }); }
+    try{ await audPut(key, h ? { h, peaks, dur, nome: file.name } : { blob: file, peaks, dur, nome: file.name }); }   // com atalho: o ficheiro não é copiado
     catch(e){ toast('Não consegui guardar a música neste dispositivo.'); return; }
     if(religa){ audPKey = null; await audEnsure(); renderEditor(); toast('🎵 Música ligada outra vez a esta aula'); return; }
     const t = audTot(), ant = audInfo();
@@ -13429,14 +13442,16 @@ const SR3 = (()=>{
     box.innerHTML = '<b>📂 Faltam ' + F.length + ' músicas neste PC</b><span>' + F.slice(0, 6).map(m=> escapeHtml(m.fich)).join(' · ') + (F.length > 6 ? ' …' : '') + '</span>' +
       '<button type="button" id="estPasta">Escolher a pasta das músicas</button><button type="button" id="estFichs">Escolher os ficheiros</button>' +
       '<input type="file" id="estPastaIn" webkitdirectory multiple hidden><input type="file" id="estFichsIn" accept="audio/*" multiple hidden>';
-    $('estPasta').onclick = ()=> EST_FS ? estLigaPasta() : $('estPastaIn').click(); $('estFichs').onclick = ()=> $('estFichsIn').click();
+    $('estPasta').onclick = ()=> EST_FS ? estLigaPasta() : $('estPastaIn').click();
+    $('estFichs').onclick = async ()=>{ if(!EST_FS){ $('estFichsIn').click(); return; } let hs; try{ hs = await window.showOpenFilePicker({ id: 'playride-musicas', multiple: true, types: AUD_TIPOS }); }catch(e){ return; }
+      const fs = [], H = new Map(); for(const h of hs){ try{ const f = await h.getFile(); fs.push(f); H.set(f, h); }catch(e){} } estRecebe(fs, H); };
     $('estPastaIn').onchange = $('estFichsIn').onchange = e=> estRecebe(e.target.files);
   }
-  async function estRecebe(files){
+  async function estRecebe(files, H){
     const F = EST.pend || [], M = current.mix, L = estLib(); let n = 0; audPersiste();
     for(const f of [...files]){ const m = F.find(x=> x.fich === f.name && (!x.tam || x.tam === f.size)) || F.find(x=> x.fich === f.name); if(!m) continue;
-      const id = 'm' + uid().slice(1); await audPut('mlib:' + id, { blob: f, nome: f.name });
-      L.push({ id, nome: m.nome, fich: f.name, tam: f.size, bpm: m.bpm, beat0: m.beat0, dur: m.dur, pk: estPk(m.pk) });   // o BPM vem da playlist: não é preciso analisar outra vez
+      const id = 'm' + uid().slice(1), h = H && H.get(f); if(h) await audPut('mfh:' + id, { h }); else await audPut('mlib:' + id, { blob: f, nome: f.name });   // Chrome/Edge: só o atalho
+      L.push(Object.assign({ id, nome: m.nome, fich: f.name, tam: f.size, bpm: m.bpm, beat0: m.beat0, dur: m.dur, pk: estPk(m.pk) }, h ? { fh: true } : {}));   // o BPM vem da playlist: não é preciso analisar outra vez
       M.itens.forEach(it=>{ if(it.id === m.id) it.id = id; }); EST.pend = EST.pend.filter(x=> x !== m); n++; }
     estGravaLib(L); persist(); estPinta(); estPintaFalta();
     toast(n ? '✓ ' + n + ' músicas ligadas' + (EST.pend.length ? ' · ainda faltam ' + EST.pend.length : '') : 'Nenhum ficheiro com os nomes da playlist.');
@@ -13528,8 +13543,10 @@ const SR3 = (()=>{
   }
   async function bmCria(m){
     const src = m.src || 'file';
-    if(src === 'file'){ const rec = await audGet(m.key); if(!rec || !rec.blob) return { erro: 'A música "' + (m.nome || '') + '" não está neste PC: volta a escolher o ficheiro no bloco.' };
-      const url = URL.createObjectURL(rec.blob); return { P: audElPlayer(url), url }; }
+    if(src === 'file'){ const rec = await audGet(m.key), f = await audFichDe(rec, true);
+      if(f === 'perm') return { erro: '🔓 O navegador precisa de autorização para ler "' + (m.nome || 'a música') + '" na tua pasta: carrega outra vez em ▶ (ou começa a aula).' };
+      if(!f) return { erro: 'A música "' + (m.nome || '') + '" não está neste PC: volta a escolher o ficheiro no bloco.' };
+      const url = URL.createObjectURL(f); return { P: audElPlayer(url), url }; }
     if(src === 'url'){ const rec = await audGet('u:' + m.url); if(rec && rec.blob){ const url = URL.createObjectURL(rec.blob); return { P: audElPlayer(url), url }; } return { P: audElPlayer(m.url) }; }
     if(src === 'sptrack'){ if(!spLigado()) return { erro: '🟢 Liga o Spotify (faixa de áudio da aula) para tocar as músicas do Spotify dos blocos.' }; return { P: bmSpPlayer(m) }; }
     return { erro: 'Fonte de música desconhecida' };
@@ -13574,13 +13591,13 @@ const SR3 = (()=>{
       : '<div class="bm-off"><button type="button" class="bm-b" data-bm="fich">💾 ficheiro do PC</button><button type="button" class="bm-b" data-bm="link">🟢 Spotify / 🔗 link</button>' +
         '<span class="bm-dica">A música começa com o bloco e continua até outro bloco ter música.</span></div>';
   }
-  async function bmPoeFicheiro(b, file){
+  async function bmPoeFicheiro(b, file, h){
     if(!b || !file) return; toast('A preparar a música…');
     let dur = 0; try{ dur = (await audDecode(await file.arrayBuffer())).dur; }catch(e){}
     if(!dur) dur = await new Promise(res=>{ const el = new Audio(); el.preload = 'metadata'; el.onloadedmetadata = ()=> res(el.duration || 0); el.onerror = ()=> res(0); el.src = URL.createObjectURL(file); });
     if(!dur || !isFinite(dur)){ toast('Não consegui ler este ficheiro de áudio.'); return; }
     audPersiste(); const key = 'b' + uid();
-    try{ await audPut(key, { blob: file, dur, nome: file.name }); }catch(e){ toast('Não consegui guardar a música neste PC.'); return; }
+    try{ await audPut(key, h ? { h, dur, nome: file.name } : { blob: file, dur, nome: file.name }); }catch(e){ toast('Não consegui guardar a música neste PC.'); return; }   // com atalho: sem cópia
     pushUndo(); b.mus = { src: 'file', key, nome: file.name.replace(/\.[^.]+$/, '').slice(0, 60), dur: Math.round(dur * 10) / 10, ini: 0 };
     renderEditor(); toast('🎵 Música no bloco · guarda a aula para ficar com ela');
   }
@@ -13610,9 +13627,10 @@ const SR3 = (()=>{
     const fi = document.createElement('input'); fi.id = 'fMusFich'; fi.type = 'file'; fi.accept = 'audio/*,.mp3,.m4a,.aac,.wav,.ogg,.flac'; fi.hidden = true; document.body.appendChild(fi);
     fi.onchange = ()=>{ const f = fi.files[0]; fi.value = ''; bmPoeFicheiro(selected(), f); };
     box.addEventListener('click', e=>{ const t = e.target.closest('[data-bm]'); if(!t) return; const b = selected(); if(!b) return; const k = t.dataset.bm;
-      if(k === 'fich') fi.click();
+      const esc = ()=> audEscolheFich().then(r=>{ if(r) bmPoeFicheiro(selected(), r.f, r.h); else if(r === null) fi.click(); });
+      if(k === 'fich') esc();
       else if(k === 'link') bmPoeLink(b);
-      else if(k === 'troca'){ if(confirm('Trocar a música deste bloco?\n\nOK = ficheiro do PC · Cancelar = link do Spotify / ficheiro online')) fi.click(); else bmPoeLink(b); }
+      else if(k === 'troca'){ if(confirm('Trocar a música deste bloco?\n\nOK = ficheiro do PC · Cancelar = link do Spotify / ficheiro online')) esc(); else bmPoeLink(b); }
       else if(k === 'tira'){ pushUndo(); delete b.mus; renderEditor(); }
       else if(k === 'ouve') bmOuve(b);
       else if(k === '-' || k === '+'){ const m = bmMusDe(b); if(!m) return; m.ini = Math.max(0, Math.min(m.dur ? m.dur - 5 : 3600, (m.ini || 0) + (k === '+' ? 5 : -5))); persist(); bmPinta(b); if(BM.ouve){ clearTimeout(BM.ouve); BM.ouve = null; bmOuve(b); } } });
@@ -13706,6 +13724,7 @@ const SR3 = (()=>{
   function audNota(){
     const a = audInfo(); if(!a) return null;
     const src = audSrc(a), t = audTot();
+    if(audFalta === 'perm') return { txt:'🔗 A música está na tua pasta (só o atalho, sem cópia no navegador). Por segurança o navegador pede autorização: carrega em 🔓 Autorizar (ao começar a aula também pede). No Chrome podes escolher "Permitir em todas as visitas".', warn:false };
     if(audFalta === 'link') return { txt:'⚠ Não consegui abrir este link. Confirma que a partilha está como "qualquer pessoa com o link" e que é um ficheiro de áudio (mp3, m4a, wav).', warn:true };
     if(audFalta) return { txt:'⚠ A música não está guardada neste dispositivo. Escolhe o mesmo ficheiro para a voltar a ligar a esta aula (ou usa um link, que funciona em qualquer dispositivo).', warn:true };
     const extra = src === 'spotify' ? ' · No Spotify, para ouvires as músicas completas tens de ter sessão iniciada no Spotify neste browser (sem sessão só tocam 30 s de cada).' : '';
@@ -13738,7 +13757,9 @@ const SR3 = (()=>{
     const nota = audNota(), src = audSrc(a);
     const ic = { file:'🎵', url:'🔗', soundcloud:'☁️', spotify:'🟢', spapi:'🟢' }[src] || '🎵';
     let h = '<span>' + ic + ' <b title="' + escapeHtml(a.nome || '') + '">' + escapeHtml(a.nome || 'faixa') + '</b>' + (a.dur ? ' · ' + fmtTime(Math.round(a.dur)) : '') + '</span>';
-    if(audFalta === true){
+    if(audFalta === 'perm'){
+      h += '<button id="audPerm">🔓 Autorizar a música</button><button class="ghost" id="audTrocar">↺ Trocar</button><button class="ghost" id="audDel">✕</button>';
+    } else if(audFalta === true){
       h += '<button id="audAdd">Escolher o ficheiro</button><button class="ghost" id="audTrocar">↺ Trocar</button><button class="ghost" id="audDel">✕</button>';
     } else {
       h += '<button id="audPlay" title="O mesmo que o ▶ do gráfico">' + (audPrevOn ? '❚❚ Pausa' : '▶ Ouvir') + '</button>';
@@ -13754,7 +13775,8 @@ const SR3 = (()=>{
     if(mixAtivo()) h += '<span class="aud-note warn">🎛️ A mistura do Estúdio (' + current.mix.itens.length + ' músicas) toca em vez desta faixa</span>';
     if(nota) h += '<span class="aud-note' + (nota.warn ? ' warn' : '') + '">' + nota.txt + '</span>';
     if(!audFalta){
-      const net = src === 'file' || (src === 'url' && audGuardada) ? ['ok', '✓ Guardada neste dispositivo: toca mesmo se a internet falhar']
+      const net = src === 'file' && audAtalho ? ['ok', '✓ Toca do ficheiro na tua pasta (só o atalho, sem cópia no navegador) · não precisa de internet']
+        : src === 'file' || (src === 'url' && audGuardada) ? ['ok', '✓ Guardada neste dispositivo: toca mesmo se a internet falhar']
         : src === 'url' ? (audSemCache ? ['warn', '⚠ Este serviço não deixa guardar a música no dispositivo: se a internet falhar, pára quando acabar o que já carregou. Para ficar segura, usa o ficheiro (📁) ou o Dropbox.'] : ['', '⏳ A guardar a música neste dispositivo para tocar sem internet…'])
         : src === 'spapi' ? ['', '🟢 Toca no Spotify deste PC (deixa a app do Spotify ou open.spotify.com aberta) · precisa de internet e de conta Premium' + (spLigado() ? '' : ' · <b>Spotify não ligado neste PC:</b> <button class="ghost" id="audSpLig">Ligar</button>')]
         : ['warn', '⚠ ' + (src === 'spotify' ? 'O Spotify' : 'O SoundCloud') + ' precisa de internet: se falhar, a música pára (o treino continua). Para ficar segura, usa um ficheiro (📁).'];
@@ -13840,7 +13862,8 @@ const SR3 = (()=>{
   document.addEventListener('click', e=>{ if(e.target.closest && e.target.closest('#estBtn')) estAbre(); });
   $('audBar').addEventListener('click', e=>{
     const b = e.target.closest('button'); if(!b) return;
-    if(b.id === 'audAdd'){ $('audFile').click(); return; }
+    if(b.id === 'audAdd'){ audEscolheFich().then(r=>{ if(r) audPick(r.f, r.h); else if(r === null) $('audFile').click(); }); return; }
+    if(b.id === 'audPerm'){ (async ()=>{ const a = audInfo(), r = a && await audGet(a.key); if(r && r.h && await estPerm(r.h, true)){ audPKey = null; await audEnsure(); toast('🔓 Música autorizada'); } else toast('Sem autorização para ler a música.'); })(); return; }
     if(b.id === 'audSpBtn'){ spEscolherPlaylist(); return; }
     if(b.id === 'audSpLig'){ spLogin(); return; }
     if(b.id === 'audLinkBtn'){ audLinkAberto = !audLinkAberto; renderAudBar(); return; }
@@ -13949,7 +13972,7 @@ const SR3 = (()=>{
     return 'dada ' + quando + ' (' + new Date(u).toLocaleDateString('pt-PT', {day:'numeric', month:'short'}) + ')';
   }
   function openLive(opts){
-    const preview = !!(opts && opts.preview);
+    const preview = !!(opts && opts.preview); audPermPede();   // 🔓 atalhos das músicas: autoriza já, com o clique de começar
     execMarcada = false; livePreview = preview;
     if(current.blocos.length === 0){ toast('Adiciona blocos antes de projetar.'); return; }
     if(!firebaseReady){ $('setupBanner').classList.add('active'); return; }
