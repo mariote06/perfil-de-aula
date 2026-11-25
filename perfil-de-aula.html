@@ -11899,7 +11899,8 @@ const SR3 = (()=>{
   function mixAtivo(){ const m = current && current.mix; return m && m.itens && m.itens.length ? m : null; }
   async function estUrl(id, clique){
     if(MIX.urls[id]) return MIX.urls[id];
-    let f = null; try{ f = await estFicheiro(id); }catch(e){ if(e.message === 'perm' && (clique || !MIX.avisoPerm)){ MIX.avisoPerm = true; toast('🔓 Sem som: o navegador não deixou ler a pasta das músicas. Carrega outra vez e escolhe "Permitir" (no Chrome: "Permitir em todas as visitas"), ou usa 🔓 Dar acesso às músicas.'); }
+    let f = null; try{ f = await estFicheiro(id); }catch(e){ if(e.message === 'perm' && ESTD.preso && ESTD.preso.size && (clique || !MIX.avisoPerm)){ MIX.avisoPerm = true; toast('📁 Sem som: o Chrome deixou "pendurado" o atalho da pasta ' + Array.from(ESTD.preso).join(', ') + '. Abre 🩺 Som e carrega em 📁 Religar as pastas (escolhe a mesma pasta; não volta a analisar nada).'); }
+      else if(e.message === 'perm' && (clique || !MIX.avisoPerm)){ MIX.avisoPerm = true; toast('🔓 Sem som: o navegador não deixou ler a pasta das músicas. Carrega outra vez e escolhe "Permitir" (no Chrome: "Permitir em todas as visitas"), ou usa 🔓 Dar acesso às músicas.'); }
       else if(e.message !== 'perm' && (clique || !(MIX.falhas || {})[id])){ (MIX.falhas = MIX.falhas || {})[id] = 1; toast('⚠ Sem som: não consegui abrir "' + (estNomeDe(id) || 'a música') + '" (' + (e.name === 'NotFoundError' ? 'o ficheiro mudou de sítio ou de nome: volta a ligar a pasta 📁' : e.name === 'SemPasta' ? e.message : e.message || e.name) + ').'); }
       return null; }
     if(!f){ MIX.falhas = MIX.falhas || {}; if(clique || !MIX.falhas[id]){ MIX.falhas[id] = 1; toast('⚠ Sem som: não encontro o ficheiro de "' + (estNomeDe(id) || 'uma música') + '" (mudou de sítio ou de nome?). Liga outra vez a pasta (📁).'); } return null; }
@@ -12062,11 +12063,16 @@ const SR3 = (()=>{
   async function audDel(k){ try{ const db = await audDb(); await new Promise(res=>{ const tx = db.transaction('faixas', 'readwrite'); tx.objectStore('faixas').delete(k); tx.oncomplete = res; tx.onerror = res; }); }catch(e){} }
   function estPastas(){ try{ return JSON.parse(localStorage.getItem('prMusDirs') || '[]'); }catch(e){ return []; } }
   function estGravaPastas(P){ try{ localStorage.setItem('prMusDirs', JSON.stringify(P)); }catch(e){} }
-  async function estHandle(dirId){ if(ESTD.dirs[dirId]) return ESTD.dirs[dirId]; const r = await audGet('mdir:' + dirId); return (ESTD.dirs[dirId] = r && r.h || null); }
+  // ⏱ algumas vezes o Chrome deixa "pendurados" os atalhos antigos das pastas (as promessas nunca respondem): tudo o que mexe em atalhos tem um limite de tempo
+  function estLimite(pr, ms, val){ let tm; return Promise.race([Promise.resolve(pr).finally(()=> clearTimeout(tm)), new Promise(res=> tm = setTimeout(()=> res(val), ms))]); }
+  const EST_PRESO = { preso: true };
+  async function estHandle(dirId){ if(ESTD.dirs[dirId]) return ESTD.dirs[dirId]; const r = await estLimite(audGet('mdir:' + dirId), 8000, null); return (ESTD.dirs[dirId] = r && r.h || null); }
   // pede autorização para ler a pasta (o Chrome pergunta uma vez por sessão, ou nunca se escolheres "permitir sempre")
   async function estPerm(h, pedir){
     if(!h || !h.queryPermission) return false;
-    try{ let s = await h.queryPermission({ mode: 'read' }); if(s === 'granted') return true; if(!pedir) return false; s = await h.requestPermission({ mode: 'read' }); return s === 'granted'; }catch(e){ return false; }
+    try{ let s = await estLimite(h.queryPermission({ mode: 'read' }), 3000, 'preso'); if(s === 'granted') return true;
+      if(s === 'preso'){ ESTD.preso = ESTD.preso || new Set(); ESTD.preso.add(h.name); return false; }   // atalho pendurado: só religando a pasta (📁) se resolve
+      if(!pedir) return false; s = await estLimite(h.requestPermission({ mode: 'read' }), 60000, 'preso'); return s === 'granted'; }catch(e){ return false; }
   }
   async function estPermTodas(pedir){
     const P = estPastas(); let ok = true;
@@ -12079,14 +12085,16 @@ const SR3 = (()=>{
     const t = (EST_LIB.ok ? EST_LIB.L : estLib()).find(x=> x.id === id); if(!t) return null;   // sem copiar a biblioteca inteira (com 20 000 músicas pesava em cada música)
     if(t.dir){ EST_ETAPA = 'db'; const h = await estHandle(t.dir); if(!h){ const e = new Error('A pasta desta música já não está ligada: volta a ligá-la (📁 Ligar pasta).'); e.name = 'SemPasta'; throw e; }
       EST_ETAPA = 'perm'; if(!(await estPerm(h, true))) throw new Error('perm');
-      EST_ETAPA = 'pasta'; let d = h; const parts = String(t.path || t.fich).split('/'); for(let i = 0; i < parts.length - 1; i++) d = await d.getDirectoryHandle(parts[i]);
-      EST_ETAPA = 'fich'; const f = await (await d.getFileHandle(parts[parts.length - 1])).getFile(); EST_ETAPA = ''; return f; }
+      const lento = ()=>{ const e = new Error('a pasta não respondeu (disco externo, rede ou OneDrive?)'); e.name = 'Lento'; throw e; };
+      EST_ETAPA = 'pasta'; let d = h; const parts = String(t.path || t.fich).split('/'); for(let i = 0; i < parts.length - 1; i++){ d = await estLimite(d.getDirectoryHandle(parts[i]), 20000, EST_PRESO); if(d === EST_PRESO) lento(); }
+      EST_ETAPA = 'fich'; let fh = await estLimite(d.getFileHandle(parts[parts.length - 1]), 20000, EST_PRESO); if(fh === EST_PRESO) lento(); const f = await estLimite(fh.getFile(), 30000, EST_PRESO); if(f === EST_PRESO) lento(); EST_ETAPA = ''; return f; }
     if(t.fh){ EST_ETAPA = 'db'; const r = await audGet('mfh:' + id); const h = r && r.h; EST_ETAPA = 'perm'; if(!(await estPerm(h, true))) throw new Error('perm'); EST_ETAPA = 'fich'; const f = await h.getFile(); EST_ETAPA = ''; return f; }
     EST_ETAPA = 'db'; const r = await audGet('mlib:' + id); EST_ETAPA = ''; return r && r.blob || null;
   }
   // se abrir o ficheiro demorar, explica em que passo está parado
   function estEsperaAviso(){ return setTimeout(()=>{ const e = EST_ETAPA;
-    toast(e === 'perm' ? '🔓 O navegador está à espera da tua autorização: procura a janela "Permitir" junto à barra de endereço (ou ao título da janela da app) e escolhe "Permitir em todas as visitas". Se não a vires, fecha sobreposições de jogos/GPU (FPS, GPU, CPU) e tenta outra vez.'
+    toast(e === 'perm' && ESTD.preso && ESTD.preso.size ? '📁 O Chrome deixou "pendurado" o atalho da pasta ' + Array.from(ESTD.preso).join(', ') + ': abre 🩺 Som e carrega em 📁 Religar as pastas (escolhe a mesma pasta; não volta a analisar nada).'
+      : e === 'perm' ? '🔓 O navegador está à espera da tua autorização: procura a janela "Permitir" junto à barra de endereço (ou ao título da janela da app) e escolhe "Permitir em todas as visitas". Se não a vires, fecha sobreposições de jogos/GPU (FPS, GPU, CPU) e tenta outra vez.'
       : e === 'db' ? '⏳ A base de dados do PlayRide está ocupada (a gravar a biblioteca?). Espera uns segundos e tenta outra vez; se continuar, fecha os outros separadores do PlayRide.'
       : e === 'pasta' || e === 'fich' ? '⏳ A pasta das músicas está lenta a responder (disco externo, rede ou OneDrive a descarregar?).' : '⏳ Ainda a abrir a música…'); }, 6000); }
   // Ⓜ BPM do MixMeister: o MixMeister guarda a análise de cada música num ficheiro .mxm ao lado do MP3 (mesmo nome). Se existir,
@@ -12166,11 +12174,11 @@ const SR3 = (()=>{
   }
 
   // 🩺 diagnóstico do som: testa passo a passo (base de dados, pastas, autorização, ler a música, tocar) e mostra onde falha
-  const EST_VERSAO = '25/11 00:30';
+  const EST_VERSAO = '25/11 00:45';
   async function estDiag(){
     document.querySelector('.est-diag') && document.querySelector('.est-diag').remove();
     const ov = document.createElement('div'); ov.className = 'est-arm est-diag'; ov.innerHTML = '<div class="est-arm-c" style="max-width:720px;padding:16px 18px;overflow:auto"><h3 style="margin:0 0 6px">🩺 Diagnóstico do som · versão ' + EST_VERSAO + '</h3><ol class="est-dg" style="font:13px/1.55 Inter,sans-serif;padding-left:20px;margin:8px 0"></ol>'
-      + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button type="button" class="est-pri" data-dg="perm">🔓 Pedir autorização agora</button><button type="button" data-dg="toca">▶ Testar uma música</button><button type="button" data-dg="bip">🔊 Testar bip</button><button type="button" data-dg="cop">📋 Copiar resultado</button><button type="button" data-dg="x">Fechar</button></div></div>';
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button type="button" class="est-pri" data-dg="rel">📁 Religar as pastas</button><button type="button" data-dg="perm">🔓 Pedir autorização agora</button><button type="button" data-dg="toca">▶ Testar uma música</button><button type="button" data-dg="bip">🔊 Testar bip</button><button type="button" data-dg="cop">📋 Copiar resultado</button><button type="button" data-dg="x">Fechar</button></div></div>';
     document.body.appendChild(ov); const ol = ov.querySelector('.est-dg');
     const lin = (txt, cls)=>{ const li = document.createElement('li'); li.textContent = txt; if(cls) li.style.color = cls === 'ok' ? '#7ee2a8' : cls === 'mau' ? '#ff8a8a' : '#ffd479'; ol.appendChild(li); return li; };
     const passo = async (nome, fn, ms = 10000)=>{ const li = lin('⏳ ' + nome + '…', 'esp'), t0 = performance.now(); let tm;
@@ -12181,11 +12189,19 @@ const SR3 = (()=>{
     await passo('Base de dados (abrir)', async ()=>{ await audDb(); return 'aberta'; });
     await passo('Base de dados (ler a biblioteca)', async ()=>{ const r = await audGet('mlibidx'); return (r && r.L ? r.L.length : 0) + ' músicas'; }, 30000);
     const P = estPastas(); if(!P.length) lin('Nenhuma pasta ligada: carrega em 📁 Ligar pasta.', 'mau');
-    for(const p of P){ await passo('Pasta "' + p.nome + '"', async ()=>{ const h = await estHandle(p.id); if(!h) throw new Error('sem atalho guardado (liga outra vez a pasta 📁)'); const st = await h.queryPermission({ mode: 'read' }); ESTD.perm[p.id] = st === 'granted'; return 'autorização: ' + (st === 'granted' ? 'DADA' : st === 'prompt' ? 'por pedir (carrega em 🔓 Pedir autorização agora)' : 'RECUSADA'); }); }
+    for(const p of P){ let h = null;
+      await passo('Pasta "' + p.nome + '" · atalho guardado', async ()=>{ delete ESTD.dirs[p.id]; h = await audGet('mdir:' + p.id).then(r=> r && r.h); if(!h) throw new Error('não há atalho guardado (liga outra vez a pasta 📁)'); return 'ok (' + h.kind + ')'; }, 8000);
+      if(h) await passo('Pasta "' + p.nome + '" · autorização', async ()=>{ const st = await estLimite(h.queryPermission({ mode: 'read' }), 5000, 'preso'); if(st === 'preso') throw new Error('o Chrome não responde a este atalho (está "pendurado"): carrega em 📁 Religar as pastas'); ESTD.perm[p.id] = st === 'granted'; return st === 'granted' ? 'DADA' : st === 'prompt' ? 'por pedir (carrega em 🔓 Pedir autorização agora)' : 'RECUSADA'; }, 8000); }
     const aMus = ()=>{ const M = mixAtivo(), L = EST_LIB.L || []; let t = M && M.itens.length && L.find(x=> x.id === M.itens[0].id); if(!t) t = L.find(x=> x.dir && !x.falta) || L[0]; return t; };
     ov.querySelector('[data-dg="x"]').onclick = ()=> ov.remove();
+    // escolhe de novo cada pasta no Windows: o atalho novo substitui o antigo (as músicas ficam ligadas, sem voltar a analisar)
+    ov.querySelector('[data-dg="rel"]').onclick = async ()=>{ let h; try{ h = await window.showDirectoryPicker({ id: 'playride-musicas', mode: 'read' }); }catch(e){ return; }
+      const P = estPastas(), q = P.find(x=> x.nome === h.name);
+      if(!q){ lin('A pasta "' + h.name + '" não é nenhuma das ligadas (' + P.map(x=> x.nome).join(', ') + '). Para juntar uma pasta nova usa 📁 Ligar pasta.', 'mau'); return; }
+      await audPut('mdir:' + q.id, { h }); ESTD.dirs[q.id] = h; ESTD.perm[q.id] = true; if(ESTD.preso) ESTD.preso.delete(h.name); MIX.falhas = {}; MIX.urls = MIX.urls || {}; mixRefaz();
+      lin('✓ Pasta "' + h.name + '" religada: atalho novo guardado e autorizado. Se tiveres mais pastas, carrega outra vez em 📁 Religar as pastas.', 'ok'); try{ estPintaDirs(); }catch(e){} };
     ov.querySelector('[data-dg="cop"]').onclick = ()=>{ try{ navigator.clipboard.writeText(Array.from(ol.children).map(li=> li.textContent).join('\n')); toast('📋 Copiado: cola na conversa'); }catch(e){} };
-    ov.querySelector('[data-dg="perm"]').onclick = async ()=>{ for(const p of estPastas()){ await passo('Pedir autorização a "' + p.nome + '"', async ()=>{ const h = await estHandle(p.id); if(!h) throw new Error('sem atalho'); const st = await h.requestPermission({ mode: 'read' }); ESTD.perm[p.id] = st === 'granted'; if(st === 'granted'){ MIX.falhas = {}; mixRefaz(); } return st === 'granted' ? 'DADA' : 'resposta: ' + st; }, 60000); } try{ estPintaDirs(); }catch(e){} };
+    ov.querySelector('[data-dg="perm"]').onclick = async ()=>{ for(const p of estPastas()){ await passo('Pedir autorização a "' + p.nome + '"', async ()=>{ const h = await estHandle(p.id); if(!h) throw new Error('sem atalho'); const st = await estLimite(h.requestPermission({ mode: 'read' }), 55000, 'preso'); if(st === 'preso') throw new Error('o Chrome não responde a este atalho: carrega em 📁 Religar as pastas'); ESTD.perm[p.id] = st === 'granted'; if(st === 'granted'){ MIX.falhas = {}; mixRefaz(); } return st === 'granted' ? 'DADA' : 'resposta: ' + st; }, 60000); } try{ estPintaDirs(); }catch(e){} };
     ov.querySelector('[data-dg="bip"]').onclick = async ()=>{ await passo('Bip de teste (som do PC)', async ()=>{ const C = window.AudioContext || window.webkitAudioContext, x = new C(); await x.resume(); const o = x.createOscillator(), g = x.createGain(); g.gain.value = .2; o.frequency.value = 660; o.connect(g); g.connect(x.destination); o.start(); await new Promise(r=> setTimeout(r, 600)); o.stop(); const st = x.state; x.close(); return 'contexto ' + st + ' · ouviste o bip? se não, o som está cortado no Windows/separador'; }); };
     ov.querySelector('[data-dg="toca"]').onclick = async ()=>{ const t = aMus(); if(!t){ lin('Não há músicas na biblioteca.', 'mau'); return; } let f = null, u = null;
       await passo('Abrir o ficheiro de "' + t.nome + '"', async ()=>{ f = await estFicheiro(t.id); if(!f) throw new Error('não encontrado'); return Math.round(f.size / 1048576 * 10) / 10 + ' MB · etapa final ' + (EST_ETAPA || 'ok'); }, 20000);
@@ -12213,8 +12229,9 @@ const SR3 = (()=>{
   async function estLigaPasta(dirId){
     let P = estPastas(), p = dirId ? P.find(x=> x.id === dirId) : null, h;
     if(!p){ try{ h = await window.showDirectoryPicker({ id: 'playride-musicas', mode: 'read' }); }catch(e){ return 0; }
-      for(const q of P){ const hq = await estHandle(q.id); if(hq && hq.isSameEntry && await hq.isSameEntry(h)){ p = q; break; } }
-      if(!p){ for(const q of P){ if(q.nome === h.name && !(await estHandle(q.id))){ p = q; await audPut('mdir:' + p.id, { h }); break; } } }   // pasta vinda de uma cópia 💾: volta a ligar-se às músicas já analisadas
+      for(const q of P){ const hq = await estHandle(q.id); if(hq && hq.isSameEntry && await estLimite(hq.isSameEntry(h), 3000, false)){ p = q; break; } }
+      if(!p){ for(const q of P){ if(q.nome === h.name){ p = q; break; } } }   // mesma pasta pelo nome (vinda de uma cópia 💾, ou atalho antigo pendurado): fica com o atalho novo
+      if(p){ await audPut('mdir:' + p.id, { h }); if(ESTD.preso) ESTD.preso.delete(h.name); }
       if(!p){ p = { id: 'd' + uid().slice(1), nome: h.name }; P.push(p); estGravaPastas(P); await audPut('mdir:' + p.id, { h }); }
       ESTD.dirs[p.id] = h; }
     else h = await estHandle(p.id);
@@ -12700,7 +12717,7 @@ const SR3 = (()=>{
       const its = [...e.dataTransfer.items].filter(i=> i.kind === 'file'), fs = [...e.dataTransfer.files];
       if(its.length && its[0].getAsFileSystemHandle){ const ps = its.map(i=> i.getAsFileSystemHandle());   // atalhos (sem cópia); uma pasta arrastada é ligada como pasta
         Promise.all(ps).then(async hs=>{ const itens = []; for(let k = 0; k < hs.length; k++){ const h = hs[k]; if(!h) continue;
-          if(h.kind === 'directory'){ let P = estPastas(), q = null; for(const x of P){ const hx = await estHandle(x.id); if(hx && await hx.isSameEntry(h)){ q = x; break; } }
+          if(h.kind === 'directory'){ let P = estPastas(), q = null; for(const x of P){ const hx = await estHandle(x.id); if(hx && await estLimite(hx.isSameEntry(h), 3000, false)){ q = x; break; } }
             if(!q){ for(const x of P){ if(x.nome === h.name && !(await estHandle(x.id))){ q = x; await audPut('mdir:' + q.id, { h }); break; } } }
             if(!q){ q = { id: 'd' + uid().slice(1), nome: h.name }; P.push(q); estGravaPastas(P); await audPut('mdir:' + q.id, { h }); } ESTD.dirs[q.id] = h; await estLigaPasta(q.id); }
           else itens.push({ file: await h.getFile(), h }); } if(itens.length) estJuntaItens(itens); }).catch(()=> estJunta(fs)); }
