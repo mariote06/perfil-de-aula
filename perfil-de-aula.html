@@ -3658,8 +3658,14 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   }
   // terreno: marca blocos como subida até chegar à percentagem pedida (do tempo da parte principal), preferindo os que "pedem" subida
   function modTerreno(I, R){
-    const prin = I.filter(x=> x.k === 'trab'), tot = I.filter(x=> x.k !== 'aq' && x.k !== 'cool').reduce((s, x)=> s + x.s, 0), alvo = tot * Math.max(0, Math.min(100, R.pctS == null ? 30 : R.pctS)) / 100;
-    let ac = 0; prin.slice().sort((a, b)=> (b.sub + Math.random() * .35) - (a.sub + Math.random() * .35)).forEach(x=>{ if(Math.abs(ac + x.s - alvo) < Math.abs(ac - alvo)){ x.subida = true; ac += x.s; } });
+    const tot = I.filter(x=> x.k !== 'aq' && x.k !== 'cool').reduce((s, x)=> s + x.s, 0), alvo = tot * Math.max(0, Math.min(100, R.pctS == null ? 30 : R.pctS)) / 100;
+    // primeiro os blocos de trabalho; as recuperações/descidas só passam a subida se a % pedida ainda não estiver cumprida (ex.: 100% subida)
+    const ord = L=> L.slice().sort((a, b)=> (b.sub + Math.random() * .35) - (a.sub + Math.random() * .35));
+    // com metade ou mais de subida, as subidas e os ataques (Montanha) são sempre em subida
+    let ac = 0; if(alvo >= tot / 2) I.forEach(x=>{ if(x.k === 'trab' && x.sub >= .9){ x.subida = true; ac += x.s; } });
+    const trab = I.filter(x=> x.k === 'trab' && !x.subida);
+    ord(trab).concat(ord(I.filter(x=> x.k === 'rec'))).forEach(x=>{ if(x.k === 'rec' && trab.some(y=> !y.subida)) return;
+      if(Math.abs(ac + x.s - alvo) < Math.abs(ac - alvo) || (alvo >= tot && x.s)){ x.subida = true; ac += x.s; if(x.k === 'rec') x.n = String(x.n).replace(/^(Descida|Recupera|Solta)\b/, 'Recupera · subida leve'); } });
     return I;
   }
   function modBlocos(g, d, R){
