@@ -1023,7 +1023,7 @@ html.fs-on .live-head .fs-btn{display:none;}
   @media(max-width:640px){.rt-i{grid-template-columns:1fr}}
   .mod-h{display:flex;flex-direction:column;gap:4px}.mod-rt{align-self:flex-start;margin:4px 0 0 !important}.mod-sep{font:800 11.5px Inter,sans-serif;letter-spacing:.06em;color:#8a93a3;margin:6px 0 0;text-transform:uppercase}
   .qr-cf{margin-left:6px;cursor:pointer;opacity:.55;font-size:13px}.qr-cf:hover{opacity:1}.qr-bt .qr-rt{margin-right:auto;background:#163a37;border-color:#2EC4B6}
-  .tpl-box{width:min(980px,97vw)}.tpl-box>*{flex-shrink:0}.tpl-box select,.mc-box select.mc-sel{background:#0f1216;color:#e8ecf2;border:1px solid #3a414c;border-radius:6px;padding:4px 6px;font:600 12.5px Inter,sans-serif}
+  .mc-esf{width:100%;font:600 11.5px Inter,sans-serif !important;color:#8a93a3 !important;font-style:normal}.tpl-box{width:min(980px,97vw)}.tpl-box>*{flex-shrink:0}.tpl-box select,.mc-box select.mc-sel{background:#0f1216;color:#e8ecf2;border:1px solid #3a414c;border-radius:6px;padding:4px 6px;font:600 12.5px Inter,sans-serif}
   .tpl-box input.tp-n{width:100%;box-sizing:border-box}.tpl-box input.tp-d{width:100%;box-sizing:border-box}.tpl-box input.tp-t{width:54px;text-align:center;padding:4px 5px}.tpl-box input.tp-sn{width:150px;padding:4px 6px}
   .tp-tab{overflow:auto;max-height:42vh;border:1px solid #2a3039;border-radius:10px}.tp-tab table{border-collapse:collapse;width:100%;min-width:900px;font-size:12px}
   .tp-tab th{position:sticky;top:0;background:#1b1f26;color:#8a93a3;font-weight:700;text-align:left;padding:6px 5px;font-size:11px;white-space:nowrap;z-index:1}.tp-tab td{padding:4px 5px;border-top:1px solid #232831;white-space:nowrap}
@@ -3550,7 +3550,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   // regras de cada modelo (editáveis em ⚙️): duração, aquecimento, retorno à calma (min), cadências (plano / subida), zonas permitidas e rácios dos intervalados
   const MOD_REGRAS_BASE = {
     'ALTO ENDURANCE':        { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:30, z:[1,2,3] },
-    'MONTANHA':              { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:70, z:[1,2,3,4,5] },
+    'MONTANHA':              { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:70, z:[1,2,3,4] },   // Z5–Z7 só no Intervalado Intensivo e na Competição (a não ser que as ligues nas regras)
     'INTERVALADO EXTENSIVO': { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:30, z:[1,4], ext:{ a:180, b:480, rr:.5 } },   // Z4 de 3 a 8 min, recupera metade (2:1)
     'BAIXO ENDURANCE':       { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:20, z:[1,2] },
     'FARTLEK':               { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:40, z:[1,2,3,4], fart:{ n:6, r:90 } },   // sem sprints: Z1 a Z4
@@ -3571,7 +3571,15 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     if(g === 'FARTLEK') R.z = R.z.filter(z=> z <= 4).length ? R.z.filter(z=> z <= 4) : [1, 2, 3, 4];   // fartlek: só Z1 a Z4
     return R; }
   function modGuardaRegras(){ try{ localStorage.setItem('prModRegras', JSON.stringify(modRegrasMeus)); }catch(e){} if(fbDb && userUid) fbDb.ref('profiles/' + userUid + '/modRegras').set(Object.keys(modRegrasMeus).length ? modRegrasMeus : null).catch(()=>{}); }
-  const MOD_DO_PLANO = { A:'ALTO ENDURANCE', I:'INTERVALADO EXTENSIVO', F:'FARTLEK', D:'FARTLEK', M:'MONTANHA', V:'RECUPERAÇÃO', R:'RECUPERAÇÃO' };
+  const MOD_DO_PLANO = { A:'ALTO ENDURANCE', I:'INTERVALADO EXTENSIVO', F:'FARTLEK', D:'INTERVALADO INTENSIVO', M:'MONTANHA', V:'RECUPERAÇÃO', R:'RECUPERAÇÃO' };
+  // 🏁 dias de desafio (D): o professor escolhe Intervalado Intensivo ou Competição
+  const MOD_DESAFIO = ['INTERVALADO INTENSIVO', 'COMPETIÇÃO'];
+  function modSugL(pt){ return !pt ? [] : pt.k === 'D' ? MOD_DESAFIO.slice() : (MOD_DO_PLANO[pt.k] ? [MOD_DO_PLANO[pt.k]] : []); }
+  // escolha entre os modelos possíveis para o dia (desafio) → chama feito(g)
+  function modEscolheDesafio(titulo, feito){ $('modDesOv') && $('modDesOv').remove(); const ov = document.createElement('div'); ov.id = 'modDesOv'; ov.className = 'qr-ov'; ov.style.zIndex = 9760;
+    ov.innerHTML = '<div class="qr-box" style="width:min(560px,100%)"><div class="qr-h"><div><b>🏁 ' + escapeHtml(titulo || 'Dia de desafio') + '</b><small>Nos dias de desafio escolhes a aula: Intervalado Intensivo ou Competição</small></div><button type="button" class="qr-x" data-g="">✕</button></div><div class="qr-tipos">'
+      + MOD_DESAFIO.map(g=>{ const T = QR_TIPOS.find(x=> x.g === g) || {}, R = modRegras(g), C = Object.assign({}, T, R.card || {}); return '<button type="button" class="qr-t" data-g="' + g + '" style="--c:' + corGrupo(g) + '"><span class="qr-tn">' + escapeHtml(T.n || g) + '</span><span class="qr-tt">' + escapeHtml(C.t || '') + '</span><span class="qr-ts">' + escapeHtml(C.s || '') + '</span><span class="qr-tf">' + (C.fc ? 'FC ' + escapeHtml(C.fc) + '%' : '') + '<i>' + '★'.repeat(C.e || 3) + '<em>' + '★'.repeat(5 - (C.e || 3)) + '</em></i></span></button>'; }).join('') + '</div></div>';
+    document.body.appendChild(ov); ov.addEventListener('click', e=>{ const b = e.target.closest('[data-g]'); if(!b && e.target !== ov) return; ov.remove(); if(b && b.dataset.g) feito(b.dataset.g); }); }
   const MOD_ZV = [50, 66, 83, 98, 113, 135, 160];   // %FTP no meio de cada zona (Z1..Z7)
   // bloco do ano para a data: ajusta a intensidade dos blocos de trabalho (Z3 para cima)
   function modBlocoAno(d){ const ym = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); const i = PA_BLOCOS.findIndex(b=> ym >= b.de && ym <= b.ate); return i < 0 ? null : { i, b: PA_BLOCOS[i], f: [.97, 1.03, 1][i], t: ['base: −3% nos blocos fortes', 'intensificação: +3% nos blocos fortes', 'manutenção'][i] }; }
@@ -3668,18 +3676,26 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       if(Math.abs(ac + x.s - alvo) < Math.abs(ac - alvo) || (alvo >= tot && x.s)){ x.subida = true; ac += x.s; if(x.k === 'rec') x.n = String(x.n).replace(/^(Descida|Recupera|Solta)\b/, 'Recupera · subida leve'); } });
     return I;
   }
+  function modEsforco(g, R){ const c = R && R.card, v = c && +c.e; if(v >= 1 && v <= 5) return Math.round(v); if(eTpl(g)) return 3; const q = QR_TIPOS.find(x=> x.g === g); return q && q.e ? q.e : 3; }
   function modBlocos(g, d, R){
     R = R || modRegras(g); const A = modBlocoAno(d || new Date()), f = A ? A.f : 1, I = eTpl(g) ? tplTerreno(tplItens(tplDe(g) || { seg: [] }, R), R) : modTerreno(modGeraItens(g, R), R);
-    const uma = (a, b)=>{ a = Math.round(a / 5) * 5; b = Math.round(b / 5) * 5; return b <= a ? a : a + 5 * Math.floor(Math.random() * ((b - a) / 5 + 1)); };   // uma só cadência por bloco (de 5 em 5)
+    // ★ esforço (estrelas do cartão da ⚡ Aula rápida): 1★ = mais Z2 e cadências lentas · 3★ = como as regras · 5★ = mais Z4–Z5 e cadências rápidas
+    const E = modEsforco(g, R), vies = r=> E === 3 ? r : E < 3 ? Math.pow(r, 1 + (3 - E) * .9) : 1 - Math.pow(1 - r, 1 + (E - 3) * .9);
+    if(!eTpl(g) && E !== 3){ const Zp = (R.z || []).filter(z=> z >= 2), prob = E === 1 || E === 5 ? .8 : .5;
+      if(Zp.length) I.forEach(x=>{ if(x.k !== 'trab' || !(x.z >= 2) || Math.random() >= prob) return; const alvo = E < 3 ? 2 : (Math.random() < .5 ? 4 : 5);
+        if(E > 3 ? alvo <= x.z : alvo >= x.z) return;   // o esforço só puxa para cima (4–5★) ou para baixo (1–2★)
+        const n = Zp.reduce((b, z)=> Math.abs(z - alvo) < Math.abs(b - alvo) || (Math.abs(z - alvo) === Math.abs(b - alvo) && (E > 3 ? z > b : z < b)) ? z : b, Zp[0]);
+        if(E > 3 ? n > x.z : n < x.z){ x.n = String(x.n).replace('Z' + x.z, 'Z' + n); x.z = n; } }); }
+    const uma = (a, b, neutro)=>{ a = Math.round(a / 5) * 5; b = Math.round(b / 5) * 5; if(b <= a) return a; const n = (b - a) / 5; return a + 5 * Math.min(n, Math.floor((neutro ? Math.random() : vies(Math.random())) * (n + 1))); };   // uma só cadência por bloco (de 5 em 5), puxada pelo esforço
     return I.map(x=>{
       let p, tec = 'Plano Sentado', cad, nome = x.n;
       if(x.k === 'cool'){ p = 45; cad = Math.max(R.cadP[0], Math.min(R.cadP[1], 85)); }
       else if(x.k === 'aq'){ p = x.p; cad = Math.max(R.cadP[0], Math.min(R.cadP[1], x.p >= 55 ? 95 : 90)); }
-      else { const [a, b] = MOD_ZR[x.z - 1], ZB = [[0,55],[56,75],[76,90],[91,105],[106,120],[121,150],[151,250]][x.z - 1]; p = rndI(a, b); if(x.z >= 3) p = Math.max(ZB[0], Math.min(ZB[1], Math.round(p * f)));   // o ajuste do bloco do ano nunca muda a zona
+      else { const [a, b] = MOD_ZR[x.z - 1], ZB = [[0,55],[56,75],[76,90],[91,105],[106,120],[121,150],[151,250]][x.z - 1]; p = Math.round(a + vies(Math.random()) * (b - a)); if(x.z >= 3) p = Math.max(ZB[0], Math.min(ZB[1], Math.round(p * f)));   // o ajuste do bloco do ano nunca muda a zona
         if(x.subida){ cad = uma(R.cadS[0], R.cadS[1]); tec = x.z >= 5 ? pick(['Subida em Pé', 'Combinado na Subida']) : pick(['Subida Sentada', 'Subida Sentada', 'Combinado na Subida']); if(!/subida|descida/i.test(nome)) nome += ' · subida'; }
         else if(x.k === 'sprint'){ cad = uma(Math.max(R.cadP[0], R.cadP[1] - 10), R.cadP[1]); tec = 'Sprint'; }
-        else if(x.k === 'rec'){ cad = uma(Math.max(R.cadP[0], 85), Math.min(R.cadP[1], 95)); }
-        else { cad = x.z >= 4 ? uma(Math.max(R.cadP[0], 90), Math.min(R.cadP[1], 110)) : uma(Math.max(R.cadP[0], 85), Math.min(R.cadP[1], 105)); tec = x.z >= 4 ? pick(['Plano Sentado', 'Combinado no Plano', 'Plano em Pé']) : pick(['Plano Sentado', 'Plano Sentado', 'Combinado no Plano']); }
+        else if(x.k === 'rec'){ cad = uma(Math.max(R.cadP[0], 85), Math.min(R.cadP[1], 95), true); }
+        else { cad = E >= 4 ? uma(R.cadP[0], R.cadP[1]) : x.z >= 4 ? uma(Math.max(R.cadP[0], 90), Math.min(R.cadP[1], 110)) : uma(Math.max(R.cadP[0], 85), Math.min(R.cadP[1], 105)); tec = x.z >= 4 ? pick(['Plano Sentado', 'Combinado no Plano', 'Plano em Pé']) : pick(['Plano Sentado', 'Plano Sentado', 'Combinado no Plano']); }
         if(x.cad) cad = uma(x.cad[0], x.cad[1]); if(x.tec && TECNICAS.includes(x.tec)) tec = x.tec; }   // template: cadência e técnica escolhidas na parte
       return newBlock(Object.assign({ nome, min: Math.floor(x.s / 60), sec: x.s % 60, ftp: p, alvo: 0, rpm: cad, rpm2: cad, tecnica: tec }, x.k === 'cool' ? { tipo: 'cool' } : {}));
     });
@@ -3699,10 +3715,10 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     return '<span class="mod-bar">' + B.map(x=>{ const z = x.tipo === 'cool' ? COOL_Z : getZone(x.ftp, 'ftp'); return '<i title="' + escapeHtml(x.nome) + ' · ' + fmtTime(blockDurationSec(x)) + '" style="flex:' + blockDurationSec(x) + ';height:' + Math.max(18, Math.min(100, x.ftp / 1.6)) + '%;background:' + zoneColor(z.css) + '"></i>'; }).join('') + '</span><em>' + fmtTime(tot) + '</em>'; }
   function modMenu(btn){
     let m = $('modMenu'); if(m){ m.remove(); return; }
-    const hoje = new Date(), pt = (()=>{ try{ return paTipo(hoje); }catch(e){ return null; } })(), sug = pt && MOD_DO_PLANO[pt.k], A = modBlocoAno(hoje);
+    const hoje = new Date(), pt = (()=>{ try{ return paTipo(hoje); }catch(e){ return null; } })(), sugL = modSugL(pt), sug = sugL[0], A = modBlocoAno(hoje);
     m = document.createElement('div'); m.id = 'modMenu'; m.className = 'mod-menu'; const AM = {}; const amostra = (g, nova)=> (nova || !AM[g]) ? (AM[g] = modBlocos(g, hoje)) : AM[g];
     const pinta = (so)=>{ if(so) Object.keys(AM).forEach(k=> delete AM[k]); m.innerHTML = '<div class="mod-h"><b>📋 Modelos de aula</b><small>' + (A ? A.b.n + ' · ' + A.b.foco + ' (' + A.t + ')' : 'Plano anual') + (pt && pt.tipo ? ' · hoje no plano: <b>' + escapeHtml(pt.tipo.n) + '</b>' : '') + '</small><button type="button" class="mod-cfg mod-rt" data-rt="1" title="Editar as regras de todos os tipos de treino e criar templates">📐 Regras e templates</button></div>' +
-      Object.keys(MOD_AULAS).map(g=>{ const c = (GRUPOS_BASE.find(x=> x.n === g) || {}).c || '#B07CFF', R = modRegras(g); return '<div class="mod-it' + (g === sug ? ' sug' : '') + '" data-mod="' + g + '" style="--c:' + c + '"><span class="mod-n">' + (g === sug ? '⭐ ' : '') + g + (modRegrasMeus[g] ? ' <small>· regras tuas</small>' : '') + '<button type="button" class="mod-cfg" data-novo="' + g + '" title="Gerar outra versão aleatória">🎲 outra</button><button type="button" class="mod-cfg" data-cfg="' + g + '" title="Editar as regras deste modelo">⚙️ regras</button></span><span class="mod-d">' + MOD_AULAS[g].d + ' <i>' + R.dur + ' min · aquec. ' + R.aq + ' · calma ' + R.rc + ' · ' + (100 - (R.pctS || 0)) + '% plano / ' + (R.pctS || 0) + '% subida · Z' + R.z.join(' Z') + '</i></span><span class="mod-v">' + modBarra(g, R, amostra(g)) + '</span></div>'; }).join('') +
+      Object.keys(MOD_AULAS).map(g=>{ const c = (GRUPOS_BASE.find(x=> x.n === g) || {}).c || '#B07CFF', R = modRegras(g); return '<div class="mod-it' + (sugL.includes(g) ? ' sug' : '') + '" data-mod="' + g + '" style="--c:' + c + '"><span class="mod-n">' + (sugL.includes(g) ? '⭐ ' : '') + g + (modRegrasMeus[g] ? ' <small>· regras tuas</small>' : '') + '<button type="button" class="mod-cfg" data-novo="' + g + '" title="Gerar outra versão aleatória">🎲 outra</button><button type="button" class="mod-cfg" data-cfg="' + g + '" title="Editar as regras deste modelo">⚙️ regras</button></span><span class="mod-d">' + MOD_AULAS[g].d + ' <i>' + R.dur + ' min · aquec. ' + R.aq + ' · calma ' + R.rc + ' · ' + (100 - (R.pctS || 0)) + '% plano / ' + (R.pctS || 0) + '% subida · Z' + R.z.join(' Z') + '</i></span><span class="mod-v">' + modBarra(g, R, amostra(g)) + '</span></div>'; }).join('') +
       (tplLista().length ? '<div class="mod-sep">🧩 Os meus templates</div>' + tplLista().map(T=>{ const g = 'tpl:' + T.id; return '<div class="mod-it" data-mod="' + escA(g) + '" style="--c:' + corGrupo(T.grupo) + '"><span class="mod-n">🧩 ' + escapeHtml(T.nome) + '<button type="button" class="mod-cfg" data-novo="' + escA(g) + '" title="Gerar outra versão">🎲 outra</button><button type="button" class="mod-cfg" data-cfg="' + escA(g) + '" title="Editar este template">✏️ editar</button></span><span class="mod-d">' + escapeHtml(T.d || '') + ' <i>' + escapeHtml(tplResumo(T)) + '</i></span><span class="mod-v">' + modBarra(g, modRegras(g), amostra(g)) + '</span></div>'; }).join('') : '') +
       '<p class="mod-p">🎲 Cada aula é gerada ao acaso dentro das regras · carrega no modelo para usar a versão que vês · 🎲 outra para gerar outra · ⚙️ para mudar as regras. "Último bloco" na projeção = o último bloco de Z2 a Z7.</p>'; };
     pinta(); document.body.appendChild(m); const rc = btn.getBoundingClientRect(); m.style.left = Math.max(8, Math.min(innerWidth - m.offsetWidth - 8, rc.left + rc.width / 2 - m.offsetWidth / 2)) + 'px'; m.style.top = Math.max(8, Math.min(innerHeight - m.offsetHeight - 8, rc.bottom + 8)) + 'px';
@@ -3731,7 +3747,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     .concat(tplLista().map(T=>{ const C = T.card || {}; return { g: 'tpl:' + T.id, n: T.nome, s: C.s || T.d || 'Template', t: C.t || 'Template', fc: C.fc || '', e: Math.max(1, Math.min(5, +C.e || 3)), c: corGrupo(T.grupo), tpl: true, fixo: T.modo === 'fixo' ? 'tempos fixos: ' + tplMs(tplCiclo(T) + (T.aq + T.rc) * 60) : '' }; })); }
   async function qrAbre(){
     if($('qrOv')) return; let Q = {}; try{ Q = JSON.parse(localStorage.getItem('prQR') || '{}') || {}; }catch(e){}
-    const hoje = new Date(), pt = (()=>{ try{ return paTipo(hoje); }catch(e){ return null; } })(), sug = pt && MOD_DO_PLANO[pt.k];
+    const hoje = new Date(), pt = (()=>{ try{ return paTipo(hoje); }catch(e){ return null; } })(), sugL = modSugL(pt), sug = sugL[0];
     Q.dur = Q.dur || 50; Q.g = Q.g || sug || 'ALTO ENDURANCE'; Q.col = Q.col || 'all';
     try{ if(!EST_LIB.ok) await estLibCarrega(); }catch(e){}
     const L = (EST_LIB && EST_LIB.L) || [], C = estCols(), n = id=> id === 'all' ? L.filter(t=> t.bpm > 0 && !t.noAuto).length : L.filter(t=> t.col === id && t.bpm > 0).length;
@@ -3749,8 +3765,8 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
         + '<label class="qr-out">outra <input type="number" min="20" max="180" step="5" value="' + ([45, 50, 55, 60, 75, 90, 120].includes(Q.dur) ? '' : Q.dur) + '" data-dur-in> min</label></div>'
         + '<p class="qr-d">💡 Inclui o aquecimento e o retorno à calma (com as tuas regras ⚙️ de cada modelo); os intervalados acertam o aquecimento (8–12 min) e o retorno à calma (6–8 min) para cumprir os rácios.</p></section>'
         + '<div class="qr-tipos">' + TP.map(T=>{ const c = T.c;
-          return '<button type="button" class="qr-t' + (Q.g === T.g ? ' on' : '') + '" data-g="' + escA(T.g) + '" style="--c:' + c + '"><span class="qr-tn">' + (T.g === sug ? '⭐ ' : '') + (T.tpl ? '🧩 ' : '') + escapeHtml(T.n) + '</span><span class="qr-tt">' + escapeHtml(T.t || '') + '<span class="qr-cf" data-cfg="' + escA(T.g) + '" title="' + (T.tpl ? 'Editar este template' : 'Editar as regras deste tipo') + '">⚙️</span></span><span class="qr-ts">' + escapeHtml(T.s || '') + (T.fixo ? ' · ' + T.fixo : '') + '</span><span class="qr-tf">' + (T.fc ? 'FC ' + escapeHtml(T.fc) + '%' : '') + '<i>' + '★'.repeat(T.e) + '<em>' + '★'.repeat(5 - T.e) + '</em></i></span></button>'; }).join('') + '</div>'
-        + (sug ? '<p class="qr-d">⭐ = o que o plano anual tem para hoje (' + escapeHtml(pt.tipo.n) + ')</p>' : '')
+          return '<button type="button" class="qr-t' + (Q.g === T.g ? ' on' : '') + '" data-g="' + escA(T.g) + '" style="--c:' + c + '"><span class="qr-tn">' + (sugL.includes(T.g) ? '⭐ ' : '') + (T.tpl ? '🧩 ' : '') + escapeHtml(T.n) + '</span><span class="qr-tt">' + escapeHtml(T.t || '') + '<span class="qr-cf" data-cfg="' + escA(T.g) + '" title="' + (T.tpl ? 'Editar este template' : 'Editar as regras deste tipo') + '">⚙️</span></span><span class="qr-ts">' + escapeHtml(T.s || '') + (T.fixo ? ' · ' + T.fixo : '') + '</span><span class="qr-tf">' + (T.fc ? 'FC ' + escapeHtml(T.fc) + '%' : '') + '<i>' + '★'.repeat(T.e) + '<em>' + '★'.repeat(5 - T.e) + '</em></i></span></button>'; }).join('') + '</div>'
+        + (sug ? '<p class="qr-d">⭐ = o que o plano anual tem para hoje (' + escapeHtml(pt.tipo.n) + (sugL.length > 1 ? ': escolhe um dos dois' : '') + ')</p>' : '')
         + '<div class="qr-bt"><button type="button" data-q="rt" class="qr-rt" title="Editar as regras de cada tipo de treino e criar templates">📐 Regras e templates</button><button type="button" data-q="x">Cancelar</button><button type="button" class="qr-go" data-q="go">⚡ Gerar esta aula</button></div></div>';
       const bu = ov.querySelector('.qr-bu'); bu.oninput = ()=>{ busca = bu.value; const p = bu.selectionStart; pinta(); const b2 = ov.querySelector('.qr-bu'); b2.focus(); try{ b2.setSelectionRange(p, p); }catch(e){} };
       const di = ov.querySelector('[data-dur-in]'); di.onchange = ()=>{ const v = Math.round(+di.value); if(v >= 20 && v <= 180){ Q.dur = v; pinta(); } };
@@ -3796,12 +3812,13 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
         (R.spr ? '<div class="mc-r"><b>Sprints</b><label>Quantos<span>' + num('sNA', R.spr.nA, 0, 6) + ' a ' + num('sNB', R.spr.nB, 0, 6) + '</span></label><label>Duração<span>' + num('sA', R.spr.a, 5, 60) + ' a ' + num('sB', R.spr.b, 5, 60) + ' s</span></label><em>em Z7 · os únicos blocos com menos de 1 min</em></div>' : '') +
         (R.fart ? '<div class="mc-r"><b>Recuperações em Z1</b><label>Número de recuperações<span>' + num('fN', R.fart.n, 0, 30) + '</span></label><label>Duração de cada<span>' + num('fR', R.fart.r, 60, 600, 15) + ' s (' + ms(R.fart.r) + ')</span></label><em>' + R.fart.n + ' × ' + ms(R.fart.r) + ' = ' + ms(R.fart.n * R.fart.r) + ' em Z1</em></div>' : '') +
         (R.int ? '<div class="mc-r"><b>Intervalos Z5 · Z6 · Z7 : Z1</b><label>Trabalho de<span>' + num('intA', R.int.a / 60, 1, 10, .5) + ' a ' + num('intB', R.int.b / 60, 1, 10, .5) + ' min</span></label><label>Recuperação Z1<span>' + num('intRR', R.int.rr, 0, 4, .25) + ' × o trabalho</span></label><em>rácio ' + rac(1, R.int.rr) + '</em></div>' : '') +
-        '<div class="mc-r"><b>Cartão na ⚡ Aula rápida</b><label>Subtítulo<span><input data-c="s" maxlength="40" value="' + escA(cd().s || '') + '"></span></label><label>Tipo<span><input data-c="t" maxlength="20" value="' + escA(cd().t || '') + '"></span></label><label>FC<span><input data-c="fc" maxlength="9" style="width:70px" value="' + escA(cd().fc || '') + '"> %</span></label><label>Esforço<span><select data-c="e" class="mc-sel">' + [1, 2, 3, 4, 5].map(n=> '<option value="' + n + '"' + (+cd().e === n ? ' selected' : '') + '>' + '★'.repeat(n) + '</option>').join('') + '</select></span></label></div>' +
+        '<div class="mc-r"><b>Cartão na ⚡ Aula rápida</b><label>Subtítulo<span><input data-c="s" maxlength="40" value="' + escA(cd().s || '') + '"></span></label><label>Tipo<span><input data-c="t" maxlength="20" value="' + escA(cd().t || '') + '"></span></label><label>FC<span><input data-c="fc" maxlength="9" style="width:70px" value="' + escA(cd().fc || '') + '"> %</span></label><label>Esforço<span><select data-c="e" class="mc-sel">' + [1, 2, 3, 4, 5].map(n=> '<option value="' + n + '"' + (+cd().e === n ? ' selected' : '') + '>' + '★'.repeat(n) + '</option>').join('') + '</select></span></label><em class="mc-esf">★ esforço: 1★ = mais Z2 e cadências lentas · 3★ = as regras como estão · 5★ = mais Z4–Z5 e cadências rápidas (dentro das zonas e cadências escolhidas acima)</em></div>' +
         '<div class="mc-pv">' + modBarra(g, R) + '<button type="button" class="mod-cfg" data-a="pv" title="Ver outra versão aleatória">🎲</button></div><div class="mc-bt"><button type="button" data-a="repor">Repor predefinições</button><button type="button" data-a="cancel">Cancelar</button><button type="button" class="pri" data-a="ok">Guardar regras</button></div></div>';
     };
     pinta(); document.body.appendChild(ov);
     ov.addEventListener('change', e=>{ const c = e.target.dataset.c; if(!c) return; const C = cd(); C[c] = c === 'e' ? +e.target.value : e.target.value.trim();
-      R.card = ['s', 't', 'fc', 'e'].some(k=> String(C[k] == null ? '' : C[k]) !== String(QT[k] == null ? '' : QT[k])) ? C : undefined; if(!R.card) delete R.card; });
+      R.card = ['s', 't', 'fc', 'e'].some(k=> String(C[k] == null ? '' : C[k]) !== String(QT[k] == null ? '' : QT[k])) ? C : undefined; if(!R.card) delete R.card;
+      if(c === 'e'){ const pv = ov.querySelector('.mc-pv'); if(pv) pv.innerHTML = modBarra(g, R) + '<button type="button" class="mod-cfg" data-a="pv" title="Ver outra versão aleatória">🎲</button>'; } });
     ov.addEventListener('input', e=>{ const k = e.target.dataset.k; if(!k) return; const v = +e.target.value; if(!isFinite(v)) return;
       if(k === 'cadP0') R.cadP[0] = v; else if(k === 'cadP1') R.cadP[1] = v; else if(k === 'cadS0') R.cadS[0] = v; else if(k === 'cadS1') R.cadS[1] = v;
       else if(k === 'fN') R.fart.n = v; else if(k === 'fR') R.fart.r = v; else if(k === 'extA') R.ext.a = Math.round(v * 60); else if(k === 'extB') R.ext.b = Math.round(v * 60); else if(k === 'extRR') R.ext.rr = v; else if(k === 'intA') R.int.a = Math.round(v * 60); else if(k === 'intB') R.int.b = Math.round(v * 60); else if(k === 'intRR') R.int.rr = v;
@@ -3915,7 +3932,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
         + '<div class="tp-add"><span>Juntar:</span><button type="button" data-add="bloco">+ Bloco</button><button type="button" data-add="int">+ Intervalos (4×4 min Z4 / 2 min)</button><button type="button" data-add="sub">+ Subida</button><button type="button" data-add="spr">+ Sprints</button><button type="button" data-add="rec">+ Recuperação</button><button type="button" data-a="aula" title="Copia os blocos da aula aberta para a sequência">📥 Da aula aberta</button></div>'
         + '<p class="tp-d">💡 Tempos em minutos: <b>4</b>, <b>4:30</b>, <b>0:15</b> ou <b>15s</b>. Com “de – a” o tempo é escolhido ao acaso em cada aula. “× Repete” repete a parte (com a recuperação depois de cada vez). Terreno “Auto” usa a % de subida em baixo. A cadência é opcional (vazio = as cadências gerais).</p>'
         + '<div class="mc-g"><label>Cadência em plano<span>' + fn('cadP0', T.cadP[0], 40, 140) + ' – ' + fn('cadP1', T.cadP[1], 40, 140) + ' rpm</span></label><label>Cadência em subida<span>' + fn('cadS0', T.cadS[0], 40, 140) + ' – ' + fn('cadS1', T.cadS[1], 40, 140) + ' rpm</span></label><label>Subida nas partes “Auto”<span>' + fn('pctS', T.pctS, 0, 100, 5) + ' %</span></label></div>'
-        + '<div class="mc-r"><b>Cartão na ⚡ Aula rápida</b><label>Subtítulo<span><input data-c="s" maxlength="40" value="' + escA(C.s || '') + '" placeholder="Ex.: Pirâmide no limiar"></span></label><label>Tipo<span><input data-c="t" maxlength="20" value="' + escA(C.t || '') + '" placeholder="Aeróbio"></span></label><label>FC<span><input data-c="fc" maxlength="9" style="width:70px" value="' + escA(C.fc || '') + '" placeholder="75–85"> %</span></label><label>Esforço<span><select data-c="e">' + opt([1, 2, 3, 4, 5].map(n=> [n, '★'.repeat(n)]), C.e || 3) + '</select></span></label></div>'
+        + '<div class="mc-r"><b>Cartão na ⚡ Aula rápida</b><label>Subtítulo<span><input data-c="s" maxlength="40" value="' + escA(C.s || '') + '" placeholder="Ex.: Pirâmide no limiar"></span></label><label>Tipo<span><input data-c="t" maxlength="20" value="' + escA(C.t || '') + '" placeholder="Aeróbio"></span></label><label>FC<span><input data-c="fc" maxlength="9" style="width:70px" value="' + escA(C.fc || '') + '" placeholder="75–85"> %</span></label><label>Esforço<span><select data-c="e">' + opt([1, 2, 3, 4, 5].map(n=> [n, '★'.repeat(n)]), C.e || 3) + '</select></span></label><em class="mc-esf">★ esforço nos templates: puxa as cadências (1★ lentas · 5★ rápidas) e a intensidade dentro de cada zona; as zonas ficam as que escolheste</em></div>'
         + '<div class="mc-pv"></div><small id="tpCic" class="tp-d"></small>'
         + '<div class="mc-bt">' + (existe ? '<button type="button" data-a="del">🗑 Apagar template</button>' : '<span style="margin-right:auto"></span>') + '<button type="button" data-a="cancel">Cancelar</button><button type="button" data-a="ok">Guardar</button><button type="button" class="pri" data-a="usar">Guardar e usar na aula</button></div></div>';
       pv(); };
@@ -3923,7 +3940,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     const fecha = ()=>{ ov.remove(); TPL_ED = null; };
     ov.addEventListener('change', e=>{ const el = e.target, f = el.dataset.f, c = el.dataset.c, i = el.dataset.s;
       if(f){ if(f === 'nome' || f === 'd' || f === 'grupo' || f === 'obj') T[f] = el.value; else { const v = +el.value; if(!isFinite(v)) return; if(f === 'cadP0') T.cadP[0] = v; else if(f === 'cadP1') T.cadP[1] = v; else if(f === 'cadS0') T.cadS[0] = v; else if(f === 'cadS1') T.cadS[1] = v; else T[f] = v; } }
-      else if(c){ T.card = T.card || {}; T.card[c] = c === 'e' ? +el.value : el.value.trim(); return; }
+      else if(c){ T.card = T.card || {}; T.card[c] = c === 'e' ? +el.value : el.value.trim(); if(c !== 'e') return; }
       else if(i != null){ const s = T.seg[+i], k = el.dataset.k; if(!s) return;
         if(k === 'n') s.n = el.value.trim(); else if(k === 't') s.t = el.value; else if(k === 'a' || k === 'b' || k === 'r'){ const v = tplLeT(el.value); if(k === 'a'){ if(v < 10){ toast('Duração mínima: 10 s'); el.value = tplCampoT(s.a); return; } s.a = v; if(s.b < v) s.b = v; } else if(k === 'b') s.b = Math.max(s.a, v); else s.r = v; el.value = (k === 'b' ? (s.b > s.a ? tplCampoT(s.b) : '') : (k === 'r' ? (s.r ? tplCampoT(s.r) : '') : tplCampoT(s.a)));
           if(k === 'a'){ const bb = ov.querySelector('[data-s="' + i + '"][data-k="b"]'); if(bb) bb.value = s.b > s.a ? tplCampoT(s.b) : ''; } }
@@ -13011,7 +13028,7 @@ const SR3 = (()=>{
     toast('🎭 ' + ok + ' músicas ouvidas' + (ok < alvo.length ? ' · faltam ' + (alvo.length - ok) + ' (🎭 continua de onde ficou)' : '') + (EST_MO.mod ? ' · estilos atualizados' : ' · agora etiqueta algumas na coluna Estilo')); }
   // ---- janela do Estúdio ----
   const EST_SNAP = [['manual', '✋ manual (livre)'], ['pontas', '📍 pontas dos blocos e músicas'], ['32', '♩ 8 compassos'], ['16', '♩ 4 compassos'], ['8', '♩ 2 compassos'], ['4', '♩ 1 compasso'], ['2', '♩ ½ nota (2 batidas)'], ['1', '♩ ¼ nota (1 batida)'], ['0.5', '♩ ⅛ nota'], ['0.25', '♩ 1/16 nota']];
-  var EST = { dur: (()=>{ try{ return JSON.parse(localStorage.getItem('prEstDur') || 'null') || { on: false, a: 2, b: 3 }; }catch(e){ return { on: false, a: 2, b: 3 }; } })(), fo: (()=>{ try{ return localStorage.getItem('prEstFo') !== '0'; }catch(e){ return true; } })(), rep: (()=>{ try{ return localStorage.getItem('prEstRep') !== '0'; }catch(e){ return true; } })(), en: (()=>{ try{ return localStorage.getItem('prEstEn') !== '0'; }catch(e){ return true; } })(), cam: (()=>{ try{ return localStorage.getItem('prEstCam') !== '0'; }catch(e){ return true; } })(), snap: (()=>{ try{ const v = localStorage.getItem('prEstSnap'); return EST_SNAP.some(x=> x[0] === v) ? v : 'pontas'; }catch(e){ return 'pontas'; } })(), toda: (()=>{ try{ return localStorage.getItem('prEstToda') !== '0'; }catch(e){ return true; } })(), lin: (()=>{ try{ return JSON.parse(localStorage.getItem('prEstLin')) || { v: true }; }catch(e){ return { v: true }; } })(), ov: null, sel: -1, pps: 1, zoom: 1, x0: 0, play: false, pT: 0, iv: 0, estado: '', ouveLib: null, iman: true };
+  var EST = { segue: (()=>{ try{ return localStorage.getItem('prEstSegue') === '1'; }catch(e){ return false; } })(), grade: null, dur: (()=>{ try{ return JSON.parse(localStorage.getItem('prEstDur') || 'null') || { on: false, a: 2, b: 3 }; }catch(e){ return { on: false, a: 2, b: 3 }; } })(), fo: (()=>{ try{ return localStorage.getItem('prEstFo') !== '0'; }catch(e){ return true; } })(), rep: (()=>{ try{ return localStorage.getItem('prEstRep') !== '0'; }catch(e){ return true; } })(), en: (()=>{ try{ return localStorage.getItem('prEstEn') !== '0'; }catch(e){ return true; } })(), cam: (()=>{ try{ return localStorage.getItem('prEstCam') !== '0'; }catch(e){ return true; } })(), snap: (()=>{ try{ const v = localStorage.getItem('prEstSnap'); return EST_SNAP.some(x=> x[0] === v) ? v : 'pontas'; }catch(e){ return 'pontas'; } })(), toda: (()=>{ try{ return localStorage.getItem('prEstToda') !== '0'; }catch(e){ return true; } })(), lin: (()=>{ try{ return JSON.parse(localStorage.getItem('prEstLin')) || { v: true }; }catch(e){ return { v: true }; } })(), ov: null, sel: -1, pps: 1, zoom: 1, x0: 0, play: false, pT: 0, iv: 0, estado: '', ouveLib: null, iman: true };
   EST.mo = (()=>{ try{ return localStorage.getItem('prEstMo') !== '0'; }catch(e){ return true; } })();   // 🎭 estilo por momento
   function estAbre(){
     audStop(); if(typeof audPrevStop === 'function') audPrevStop();
@@ -13035,7 +13052,7 @@ const SR3 = (()=>{
       '<div class="est-sph" id="estSpH" title="Arrasta para mudar a altura"></div><div class="est-falta" id="estFalta" hidden></div><div class="est-prog" id="estProg" hidden></div>' +
       '<div class="est-insp" id="estInsp"></div>' +
       '<div class="est-vivo" id="estVivo"></div><div class="est-tlr"><div class="est-solo" id="estSolo"></div><div class="est-tlw" id="estTlw"><canvas id="estCv"></canvas></div></div>' +
-      '<div class="est-nav"><span class="est-ajuda" title="🟢 clique na linha do tempo = linha verde de alinhamento (encaixa na batida da música por baixo; as músicas que arrastas colam-se a ela) · ▶ duplo clique = tocar daqui (a tocar, a barra laranja salta para lá) · 🔍 roda do rato = zoom · Shift + roda = andar · arrasta a música para mover (e para outra pista) · puxa as âncoras ▼ das pontas para escolher a parte · puxa em baixo na música (ou Alt + arrastar) para andar dentro dela sem mexer na janela · clica numa linha para criar um ponto e puxa-o (duplo clique apaga) · quadrados azuis = fades">❓ Atalhos do rato</span><span></span><span class="est-lins">linhas:' + Object.keys(EST_LIN).map(k=> '<label style="color:' + EST_LIN[k].cor + '"><input type="checkbox" data-lin="' + k + '"' + (EST.lin[k] ? ' checked' : '') + '> ' + EST_LIN[k].n + '</label>').join('') + '</span><label title="Mostra a música inteira esbatida à volta da parte que toca"><input type="checkbox" id="estToda"' + (EST.toda ? ' checked' : '') + '> música toda</label><label title="Como encaixam as músicas ao arrastar e cortar (Alt + B liga/desliga)">🧲 encaixe <select id="estSnap">' + EST_SNAP.map(([v, n])=> '<option value="' + v + '"' + (v === EST.snap ? ' selected' : '') + '>' + n + '</option>').join('') + '</select></label><input type="range" id="estPan" min="0" max="1000" value="0"></div>' +
+      '<div class="est-nav"><span class="est-ajuda" title="🟢 clique na linha do tempo = linha verde de alinhamento (encaixa na batida da música por baixo; as músicas que arrastas colam-se a ela) · agarra a linha verde e arrasta-a (segue o encaixe) · ✂ tecla S = corta a música selecionada na linha verde · 🔒 grelha = fixa as batidas na janela · 📌 seguir a barra = a janela anda com a música · ▶ duplo clique = tocar daqui (a tocar, a barra laranja salta para lá) · 🔍 roda do rato = zoom · Shift + roda = andar · arrasta a música para mover (e para outra pista) · puxa as âncoras ▼ das pontas para escolher a parte · puxa em baixo na música (ou Alt + arrastar) para andar dentro dela sem mexer na janela · clica numa linha para criar um ponto e puxa-o (duplo clique apaga) · quadrados azuis = fades">❓ Atalhos do rato</span><span></span><span class="est-lins">linhas:' + Object.keys(EST_LIN).map(k=> '<label style="color:' + EST_LIN[k].cor + '"><input type="checkbox" data-lin="' + k + '"' + (EST.lin[k] ? ' checked' : '') + '> ' + EST_LIN[k].n + '</label>').join('') + '</span><label title="Mostra a música inteira esbatida à volta da parte que toca"><input type="checkbox" id="estToda"' + (EST.toda ? ' checked' : '') + '> música toda</label><label title="Como encaixam as músicas ao arrastar e cortar (Alt + B liga/desliga)">🧲 encaixe <select id="estSnap">' + EST_SNAP.map(([v, n])=> '<option value="' + v + '"' + (v === EST.snap ? ' selected' : '') + '>' + n + '</option>').join('') + '</select></label><label title="🔒 Grelha fixa: fixa na janela as batidas da música que está debaixo da linha verde, com o passo do encaixe. Ao arrastar as músicas a grelha não mexe: alinha-as por ela"><input type="checkbox" id="estGrade"' + (EST.grade ? ' checked' : '') + '> 🔒 grelha</label><label title="Ligado: a janela anda com a barra laranja enquanto toca. Desligado: a janela fica livre e podes andar para trás e para a frente enquanto ouves"><input type="checkbox" id="estSegue"' + (EST.segue ? ' checked' : '') + '> 📌 seguir a barra</label><input type="range" id="estPan" min="0" max="1000" value="0"></div>' +
       '<div class="est-av" id="estAv"></div>';
     document.body.appendChild(ov);
     const M = current.mix || {}; (M.itens || []).forEach((it, i)=>{ if(it.p == null) it.p = i % estPistas(M); if(!EST_TRANS[M.trans]) M.trans = 'eq'; });
@@ -13045,7 +13062,9 @@ const SR3 = (()=>{
     $('estTrTodas').onclick = ()=>{ if(!mixAtivo()) return; estTransTodas($('estTr').value); toast('Transição aplicada: ' + EST_TRANS[$('estTr').value].n); };
     $('estPis').onchange = ()=>{ const M2 = garante(), n = +$('estPis').value; M2.pistas = n; if(M2.itens && M2.itens.length) estOrdem(M2, true).forEach((it, k)=> it.p = k % n); persist(); estPinta(); };   // pista 1 = música 1, pista 2 = música 2… e volta à pista 1
     $('estVol').oninput = ()=>{ garante().vol = +$('estVol').value; persist(); if(EST.niv){ EST.niv = null; estPintaNiv(); estDesenha(); } };
-    $('estSnap').onchange = ()=> estSnapPoe($('estSnap').value);
+    $('estSnap').onchange = ()=>{ estSnapPoe($('estSnap').value); estDesenha(); };
+    $('estSegue').onchange = ()=>{ EST.segue = $('estSegue').checked; try{ localStorage.setItem('prEstSegue', EST.segue ? '1' : '0'); }catch(e){} };
+    $('estGrade').onchange = ()=>{ if(estGradeLiga($('estGrade').checked) === false) $('estGrade').checked = false; };
     $('estRep').onchange = ()=>{ EST.rep = $('estRep').checked; try{ localStorage.setItem('prEstRep', EST.rep ? '1' : '0'); }catch(e){} toast(EST.rep ? '🔁 Pode repetir músicas ao encher · ✨ para voltar a encher' : '🚫 Sem repetições: cada música entra no máximo uma vez · ✨ para voltar a encher'); };
     estApCarrega(); estApBtn(); $('estAp').onclick = ()=>{ const c = estApConta(), n = EST_AP.E.filter(e=> e[2] > 0).length, nn = EST_AP.E.length - n;
       if(!EST_AP.E.length){ toast('🧠 Ainda não aprendeu nada: arrasta músicas da biblioteca para a aula, usa ↔ Trocar, ou abre as tuas misturas do MixMeister (.mmp) nas aulas certas.'); return; }
@@ -13144,7 +13163,7 @@ const SR3 = (()=>{
   function estPrevComeca(){ const M0 = mixAtivo(); if(!M0 || !M0.itens.length){ toast('🎧 A mistura está vazia: carrega em ✨ Encher a aula automaticamente ou arrasta músicas da biblioteca para a linha do tempo. Para ouvir uma música da biblioteca usa o ▶ da linha.'); return; }
     MIX.falhas = {}; if(EST.cue == null) EST.cue = EST.pT; estPermMix(); estPrevPara(); mixRefaz(); if(MIX.ctx && MIX.ctx.state === 'suspended') MIX.ctx.resume(); EST.play = true; EST.p0 = EST.pT; EST.pAt = performance.now(); mixSync(EST.pT, true, true);
     EST.iv = setInterval(()=>{ EST.pT = EST.p0 + (performance.now() - EST.pAt) / 1000; if(EST.pT >= audTot()){ estPrevPara(); return; } mixSync(EST.pT, true);
-      const vis = estVis(); if(EST.pT > EST.x0 + vis * .92 || EST.pT < EST.x0){ EST.x0 = Math.max(0, EST.pT - vis * .1); } estDesenha(); }, 100); if($('estPlay')) $('estPlay').textContent = '⏹ Parar'; }
+      const vis = estVis(); if(EST.segue && (EST.pT > EST.x0 + vis * .92 || EST.pT < EST.x0)){ EST.x0 = Math.max(0, EST.pT - vis * .1); estAjustaZoom(); } estDesenha(); }, 100); if($('estPlay')) $('estPlay').textContent = '⏹ Parar'; }
   function estPrevPara(){ if(EST.iv) clearInterval(EST.iv); EST.iv = 0; EST.play = false; mixPara(); if($('estPlay')) $('estPlay').textContent = '▶ Ouvir'; }
   // ↩ desfazer / ↪ refazer no Estúdio (Ctrl+Z / Ctrl+Y): cada alteração à mistura (ou aos blocos) fica guardada como um passo; até 100 passos
   var EST_U = { p: [], f: [], cur: null, t: 0, a: false, aula: null };
@@ -13409,6 +13428,7 @@ const SR3 = (()=>{
   function estGradeMove(it, n){
     const u = estSnapU(), M = mixAtivo(), B = estBatida(it); if(!u || !B || !M) return n;
     const rt = it.rate || 1, uu = Math.min(u, 4), k = Math.ceil((it.ini - B.b0) / (B.bl * uu) - 1e-6), a = n + (B.b0 + k * B.bl * uu - it.ini) / rt, off = a - n;   // âncora: a 1.ª batida forte da parte que toca
+    if(EST.grade){ const st = estGradePasso(); return Math.max(0, EST.grade.t0 + Math.round((a - EST.grade.t0) / st) * st - off); }   // 🔒 grelha fixa
     const outros = M.itens.filter(x=> x !== it && estBatida(x));
     const ref = outros.filter(x=> x.t0 <= a + .01 && x.t1 > a).sort((p, q)=> q.t0 - p.t0)[0] || outros.filter(x=> x.t1 <= a + .01).sort((p, q)=> q.t1 - p.t1)[0] || outros.filter(x=> x.t0 > a).sort((p, q)=> p.t0 - q.t0)[0];
     if(!ref){ let s = 0, best = a, bd = 1e9; [0].concat((current.blocos || []).map(b=> (s += blockDurationSec(b)))).forEach(p=>{ const d = Math.abs(p - a); if(d < bd){ bd = d; best = p; } }); return Math.max(0, best - off); }
@@ -13416,7 +13436,37 @@ const SR3 = (()=>{
     return Math.max(0, base + Math.round((a - base) / passo) * passo - off);
   }
   // cortes (âncoras) caem nas batidas/compassos da própria música
-  function estGradeCorte(o, n){ const u = estSnapU(), B = estBatida(o); if(!u || !B) return n; const rt = o.rate || 1, sq = o.ini + (n - o.t0) * rt, st = B.bl * u, s2 = B.b0 + Math.round((sq - B.b0) / st) * st; return o.t0 + (s2 - o.ini) / rt; }
+  function estGradeCorte(o, n){ const u = estSnapU(), B = estBatida(o); if(u && EST.grade){ const st = estGradePasso(); return EST.grade.t0 + Math.round((n - EST.grade.t0) / st) * st; } if(!u || !B) return n; const rt = o.rate || 1, sq = o.ini + (n - o.t0) * rt, st = B.bl * u, s2 = B.b0 + Math.round((sq - B.b0) / st) * st; return o.t0 + (s2 - o.ini) / rt; }
+  // 🔒 grelha fixa: as batidas da música debaixo da linha verde ficam presas à linha do tempo (passo = encaixe); ao arrastar músicas a grelha não mexe
+  function estGradeLiga(on){
+    if(!on){ EST.grade = null; estDesenha(); toast('🔓 Grelha solta.'); return true; }
+    const M = mixAtivo(), L = estLibMap(), T = EST.cue != null ? EST.cue : EST.pT; if(!M){ toast('A mistura está vazia.'); return false; }
+    const cand = M.itens.filter(it=> T >= it.t0 && T <= it.t1 && L[it.id] && L[it.id].bpm > 0), sel = M.itens[EST.sel], it = cand.includes(sel) ? sel : cand[0];
+    if(!it){ toast('🔒 Põe a linha verde 🟢 em cima de uma música (de preferência na batida forte) para fixar a grelha dela.'); return false; }
+    const t = L[it.id], r = estRateEm(it, T) || 1, per = 60 / t.bpm / r, s0 = estPosMus(it, T), sb = (t.beat0 || 0) + Math.round((s0 - (t.beat0 || 0)) / (60 / t.bpm)) * (60 / t.bpm);
+    EST.grade = { t0: Math.max(0, T + (sb - s0) / r), per, bpm: t.bpm * r }; if(EST.cue == null) EST.cue = EST.grade.t0;
+    if(EST.snap === 'manual' || EST.snap === 'pontas') estSnapPoe('1');
+    estDesenha(); toast('🔒 Grelha fixa a ' + EST.grade.bpm.toFixed(2).replace('.', ',') + ' BPM (de "' + estNomeDe(it.id) + '"), com o passo do encaixe. Arrasta as músicas: a grelha fica parada.'); return true; }
+  function estGradePasso(){ const u = estSnapU(); return EST.grade ? EST.grade.per * (u || 1) : 0; }
+  // 🟢 ao arrastar a linha verde: segue o encaixe escolhido (grelha fixa, batidas/compassos da música por baixo, pontas ou livre)
+  function estCueSnap(T){ T = Math.max(0, T); if(EST.snap === 'manual') return T;
+    if(EST.snap === 'pontas'){ const c0 = EST.cue; EST.cue = null; const v = estEncaixa(T); EST.cue = c0; return v; }
+    const u = estSnapU(); if(EST.grade){ const st = estGradePasso(); return Math.max(0, EST.grade.t0 + Math.round((T - EST.grade.t0) / st) * st); }
+    const M = mixAtivo(), L = estLibMap(); if(!M) return T; const cand = M.itens.filter(it=> T >= it.t0 && T <= it.t1 && L[it.id] && L[it.id].bpm > 0), sel = M.itens[EST.sel], it = cand.includes(sel) ? sel : cand[cand.length - 1];
+    if(!it) return T; const t = L[it.id], st = 60 / t.bpm * u, b0 = t.beat0 || 0, s0 = estPosMus(it, T), r = (estPosMus(it, T + .05) - s0) / .05 || it.rate || 1, sb = b0 + Math.round((s0 - b0) / st) * st;
+    return Math.max(0, T + (sb - s0) / r); }
+  // ✂ tecla S: corta a música selecionada na linha verde (fica em duas partes, cada uma com os seus pontos de volume/EQ/BPM)
+  function estCorta(){ const M = mixAtivo(), it = M && M.itens[EST.sel];
+    if(!it){ toast('✂ Seleciona a música (clica nela), põe a linha verde 🟢 no sítio do corte e carrega em S.'); return false; }
+    const T = EST.cue; if(T == null || T <= it.t0 + .25 || T >= it.t1 - .25){ toast('✂ A linha verde 🟢 tem de estar em cima da música selecionada: clica no sítio do corte e carrega em S.'); return false; }
+    const B = JSON.parse(JSON.stringify(it)), r = T - it.t0, r2 = v=> Math.round(v * 100) / 100;
+    const iv = (P, x)=>{ if(x <= P[0][0]) return P[0][1]; for(let i = 1; i < P.length; i++) if(x <= P[i][0]){ const a = P[i - 1], b = P[i]; return a[1] + (b[1] - a[1]) * (x - a[0]) / Math.max(.001, b[0] - a[0]); } return P[P.length - 1][1]; };
+    B.t0 = T; B.ini = estPosMus(it, T); B.fIn = 0; B.fOut = Math.min(it.fOut || 0, B.t1 - B.t0); delete B.dp; delete B.c;
+    if(it.env){ B.env = {}; Object.keys(it.env).forEach(k=>{ const P = it.env[k]; if(!P || !P.length) return; const v = r2(iv(P, r));
+      B.env[k] = [[0, v]].concat(P.filter(p=> p[0] > r).map(p=> [r2(p[0] - r), p[1]])); it.env[k] = P.filter(p=> p[0] < r).concat([[r2(r), v]]); }); }
+    it.t1 = T; it.fOut = 0; it.fIn = Math.min(it.fIn || 0, it.t1 - it.t0);
+    M.itens.splice(EST.sel + 1, 0, B); EST.sel = EST.sel + 1; mixRefaz(); if(EST.play) mixSync(EST.pT, true, true); persist(); estPinta();
+    toast('✂ Música cortada aos ' + fmtTime(Math.floor(T)) + ': ficaram duas partes (a da direita está selecionada). Ctrl+Z desfaz.'); return true; }
   // 🟢 linha verde (marca de alinhamento): encaixa na batida mais próxima da música que está nesse ponto (a selecionada primeiro)
   function estCueEncaixa(T){ const M = current.mix; if(!M || !M.itens || !M.itens.length) return T; const L = estLibMap(), lim = 10 / EST.pps;
     const cand = M.itens.filter(it=> T >= it.t0 && T <= it.t1); const sel = M.itens[EST.sel]; if(sel && cand.includes(sel)){ cand.splice(cand.indexOf(sel), 1); cand.unshift(sel); }
@@ -13504,6 +13554,7 @@ const SR3 = (()=>{
         if(v === undefined || v === null){ if(novo){ estTempoMuda(); toast('Criei a faixa de BPM da mistura a partir das músicas (podes mudar os pontos).'); } else estDesenha(); return; }
         const t = Math.round(Math.max(0, th.T) * 100) / 100; P.push([t, v]); P.sort((a, b)=> a[0] - b[0]); EST.tSel = P.findIndex(p=> p[0] === t); estTempoMuda(); return; }
       const h = estHit(e);
+      if(e.button === 0 && EST.cue != null && Math.abs(e.clientX - cv.getBoundingClientRect().left - estX(EST.cue)) <= 5 && (!h.it || h.modo === 'move' || h.modo === 'slip')){ drag = { cue: true }; cv.setPointerCapture(e.pointerId); return; }   // 🟢 agarrar a linha verde
       if(h.it && h.modo === 'bnovo' && e.detail === 1){ const it = h.it, r = Math.max(0, Math.min(it.t1 - it.t0, h.T - it.t0)), cur = estBpmEm(it, h.T); it.env = it.env || {};
         if(!it.env.bpm || !it.env.bpm.length){ const b0 = estBpmEm(it, it.t0); it.env.bpm = [[0, Math.round(b0 * 10) / 10], [Math.round((it.t1 - it.t0) * 100) / 100, Math.round(b0 * 10) / 10]]; }   // o primeiro ponto cria também o início e o fim
         const v = pedeBpm(it, cur); if(v === undefined || v === null){ if(it.env.bpm.every(p=> p[1] === it.env.bpm[0][1])) delete it.env.bpm; estDesenha(); return; }
@@ -13514,9 +13565,12 @@ const SR3 = (()=>{
       if(h.it){ EST.sel = h.i; const it = h.it; drag = Object.assign({ x: e.clientX, y: e.clientY, o: JSON.parse(JSON.stringify(it)) }, h); cv.setPointerCapture(e.pointerId); estPintaInsp(); estPintaLista(); estDesenha(); }
       else { EST.cue = estCueEncaixa(Math.max(0, h.T)); if(!EST.play) EST.pT = EST.cue; estDesenha(); } });   // 🟢 clique: marca a linha verde (encaixa na batida da música que está por baixo); a tocar, só marca (duplo clique salta)
     cv.addEventListener('pointermove', e=>{
+      if(drag && drag.cue){ const r = cv.getBoundingClientRect(), w2 = r.width; let x = e.clientX - r.left;
+        if(x > w2 - 20){ EST.x0 += 6 / EST.pps; estAjustaZoom(); } else if(x < 20 && EST.x0 > 0){ EST.x0 = Math.max(0, EST.x0 - 6 / EST.pps); estAjustaZoom(); }   // perto das pontas a janela anda
+        EST.cue = estCueSnap(EST.x0 + x / EST.pps); if(!EST.play) EST.pT = EST.cue; EST.dica = { x, y: e.clientY - r.top, t: '🟢 ' + fmtTime(Math.floor(EST.cue)) + '.' + String(Math.floor((EST.cue % 1) * 100)).padStart(2, '0') }; estDesenha(); return; }
       if(drag && drag.tempo){ const P = estTempo(); if(!P) return; const q = drag.q, ant = q > 0 ? P[q - 1][0] + .05 : 0, dep = q < P.length - 1 ? P[q + 1][0] - .05 : 1e9; let n = drag.t + (e.clientX - drag.x) / EST.pps; n = estEncaixa(n);
         P[q][0] = Math.round(Math.max(ant, Math.min(dep, n)) * 100) / 100; const r = cv.getBoundingClientRect(); EST.dica = { x: e.clientX - r.left, y: e.clientY - r.top - 4, t: fmtTime(Math.floor(P[q][0])) + ' · ' + P[q][1].toFixed(2) + ' BPM' }; estTempoSync(); estDesenha(); return; }
-      if(!drag){ const th = estTempoHit(e); if(th){ cv.style.cursor = th.q >= 0 ? 'ew-resize' : 'copy'; return; } const h = estHit(e); cv.style.cursor = !h.it ? 'text' : { trimL: 'ew-resize', trimR: 'ew-resize', fIn: 'col-resize', fOut: 'col-resize', pt: 'move', bpt: 'ew-resize', bnovo: 'copy', novo: 'copy', move: 'grab', slip: 'move' }[h.modo]; return; }
+      if(!drag){ const th = estTempoHit(e); if(th){ cv.style.cursor = th.q >= 0 ? 'ew-resize' : 'copy'; return; } const h = estHit(e); if(EST.cue != null && Math.abs(e.clientX - cv.getBoundingClientRect().left - estX(EST.cue)) <= 5 && (!h.it || h.modo === 'move' || h.modo === 'slip')){ cv.style.cursor = 'ew-resize'; return; } cv.style.cursor = !h.it ? 'text' : { trimL: 'ew-resize', trimR: 'ew-resize', fIn: 'col-resize', fOut: 'col-resize', pt: 'move', bpt: 'ew-resize', bnovo: 'copy', novo: 'copy', move: 'grab', slip: 'move' }[h.modo]; return; }
       const it = drag.it, o = drag.o, dT = (e.clientX - drag.x) / EST.pps, T = estLib().find(x=> x.id === it.id) || { dur: 1e9 }, fimMax = o.t1 + Math.max(0, T.dur - estPosMus(o, o.t1)) / estRateEm(o, o.t1);
       if(drag.modo === 'move' && estSnapU()){ const n = estGradeMove(it, Math.max(0, o.t0 + dT)); it.t0 = n; it.t1 = n + (o.t1 - o.t0); if(it.c != null) it.c = o.c + (n - o.t0);
         const G = estGeo(), r = $('estCv').getBoundingClientRect(); it.p = Math.max(0, Math.min(G.np - 1, Math.floor((e.clientY - r.top - G.yL) / G.hL))); }
@@ -13537,7 +13591,7 @@ const SR3 = (()=>{
       else if(drag.modo === 'fOut') it.fOut = Math.max(0, Math.min(it.t1 - it.t0 - it.fIn, o.fOut - dT));
       else if(drag.modo === 'vol'){ const g0 = o.g != null ? o.g : 1; it.g = Math.round(Math.max(0, Math.min(1.5, g0 - (e.clientY - drag.y) / Math.max(20, drag.h - 10) * 1.5)) * 20) / 20; }
       estDesenha(); });
-    cv.addEventListener('pointerup', ()=>{ EST.dica = null; if(drag && drag.tempo){ drag = null; estTempoMuda(); return; } if(drag){ drag = null; estTempoSync(); mixRefaz(); persist(); estPintaLista(); estPintaInsp(); } });
+    cv.addEventListener('pointerup', ()=>{ EST.dica = null; if(drag && drag.cue){ drag = null; estDesenha(); return; } if(drag && drag.tempo){ drag = null; estTempoMuda(); return; } if(drag){ drag = null; estTempoSync(); mixRefaz(); persist(); estPintaLista(); estPintaInsp(); } });
     if(EST.kOk) return; EST.kOk = true;
     document.addEventListener('keydown', e=>{ if(!EST.ov || /INPUT|SELECT|TEXTAREA/.test((e.target.tagName || ''))) return; const M = mixAtivo();
       if((e.ctrlKey || e.metaKey) && !e.altKey && /^[zZyY]$/.test(e.key)){ e.preventDefault(); e.stopPropagation(); if(document.getElementById('estTroca')) return; estUndoVai(e.key === 'y' || e.key === 'Y' || e.shiftKey ? 1 : -1); return; }
@@ -13545,6 +13599,7 @@ const SR3 = (()=>{
       else if((e.key === 'Delete' || e.key === 'Backspace') && M && M.itens[EST.sel]){ estTiraItem(M, EST.sel); EST.sel = -1; mixRefaz(); persist(); estPinta(); e.preventDefault(); }
       else if(e.key === ' '){ e.preventDefault(); EST.play ? estPrevPara() : estPrevComeca(); }
       else if(e.key === 'Escape') estFecha();
+      else if((e.key === 's' || e.key === 'S') && !e.ctrlKey && !e.metaKey && !e.altKey){ e.preventDefault(); estCorta(); }
       else if(e.altKey && (e.key === 'b' || e.key === 'B')){ e.preventDefault(); estSnapPoe(EST.snap === 'manual' ? (EST.snapUlt || '1') : 'manual'); toast('🧲 Encaixe: ' + (EST_SNAP.find(x=> x[0] === EST.snap) || [, ''])[1]); } });
   }
   // 🎧 barra do solo, à esquerda das pistas: carrega em uma ou mais pistas para ouvir só essas (volta a carregar para tirar)
@@ -13646,6 +13701,11 @@ const SR3 = (()=>{
       c.fillStyle = '#FF8A1F'; [x0, x1].forEach(px=>{ c.beginPath(); c.moveTo(px - 6, y); c.lineTo(px + 6, y); c.lineTo(px, y + 8); c.closePath(); c.fill(); });
       if(x1 - x0 > 50){ c.fillStyle = '#111'; c.font = '700 11px Inter,sans-serif'; c.save(); c.beginPath(); c.rect(x0, y, x1 - x0, h); c.clip(); const tx = Math.max(x0, 0) + 8;
         c.fillText(estNomeDe(it.id) + (T && T.cam ? '  · ' + T.cam : ''), tx, y + 20); if(T){ c.font = '600 10px Inter,sans-serif'; c.fillStyle = '#333'; c.fillText(T.bpm + ' → ' + Math.round(T.bpm * it.rate * 10) / 10 + ' BPM · ' + Math.round(T.bpm * (it.mu || 1) * it.rate) + ' rpm' + (g !== 1 ? ' · vol ' + Math.round(g * 100) + '%' : ''), tx, y + 32); } c.restore(); } });
+    // 🔒 grelha fixa (não anda com as músicas): batida fina · compasso · frase (16 batidas) mais forte
+    if(EST.grade){ const Gd = EST.grade, u = estSnapU() || 1, st = estGradePasso(); if(st * EST.pps >= 4){ const k0 = Math.ceil((t0v - Gd.t0) / st), k1 = Math.floor((t1v - Gd.t0) / st);
+      if(k1 - k0 < 5000) for(let k = k0; k <= k1; k++){ const px = X(Gd.t0 + k * st), bt = Math.round(k * u), f = bt % 16 === 0 ? 2 : bt % 4 === 0 ? 1 : 0;
+        c.fillStyle = f === 2 ? 'rgba(0,229,255,.9)' : f ? 'rgba(0,229,255,.6)' : 'rgba(0,229,255,.3)'; c.fillRect(px - (f ? .75 : .5), G.yL, f ? 1.5 : 1, G.np * G.hL); } }
+      c.fillStyle = 'rgba(0,229,255,.95)'; c.font = '700 10px Inter,sans-serif'; c.fillText('🔒 grelha ' + Gd.bpm.toFixed(2).replace('.', ',') + ' BPM', 6, G.yL - 3); }
     estTempoPinta(c, G, W);
     // pistas silenciadas pelo solo ficam escurecidas
     if(EST.solos && EST.solos.size) for(let l = 0; l < G.np; l++) if(!EST.solos.has(l)){ c.fillStyle = 'rgba(10,12,15,.55)'; c.fillRect(0, G.yL + l * G.hL, W, G.hL - 2); }
@@ -15623,7 +15683,7 @@ const SR3 = (()=>{
     A:{n:'Alto Endurance', s:'Endur.', c:'#5B8DEF', rpm:'60–115 rpm', d:'Manutenção de ritmo estável, oxidação de gordura e capacidade aeróbia de base.', obj:'resist'},
     I:{n:'Intervalado Extensivo', s:'Interv.', c:'#3DD45C', rpm:'60–115 rpm', d:'Aumento do limiar anaeróbio com intervalos longos de esforço sustentado.', obj:'limiar'},
     F:{n:'Fartlek', s:'Fartlek', c:'#FFD60A', rpm:'60–115 rpm', d:'Jogo de velocidades e variação constante de terreno e resistência.', obj:'hiit'},
-    D:{n:'Fartlek / Desafio', s:'Desafio', c:'#FFAA2B', rpm:'60–115 rpm', d:'Fartlek com desafio: jogo de velocidades com um momento de superação para a turma.', obj:'hiit'},
+    D:{n:'Desafio', s:'Desafio', c:'#FFAA2B', rpm:'60–115 rpm', d:'Dia de desafio: Intervalado Intensivo ou Competição, à escolha do professor — um momento de superação para a turma.', obj:'hiit'},
     M:{n:'Montanha', s:'Mont.', c:'#FF7A45', rpm:'60–80 rpm', d:'Força muscular e tolerância ao lactato com simulação de subidas com carga elevada.', obj:'forca'},
     T:{n:'Teste FTP', s:'Teste', c:'#FF4D6D', rpm:'livre / controlada', d:'Aula de aferição da potência máxima sustentada / limiar anaeróbio (20 min).', obj:'limiar', teste:true},
     V:{n:'Ativação', s:'Ativ.', c:'#A9B1BE', rpm:'livre', d:'Aula leve de ativação antes do teste de FTP.', obj:'recup'},
@@ -15740,7 +15800,9 @@ const SR3 = (()=>{
     if(info.tipo.obj) current.objetivo = info.tipo.obj;
     current.descricao = info.tipo.d + ' Cadência alvo: ' + info.tipo.rpm + '.';
     setView('plan'); render();
-    const mg = MOD_DO_PLANO[info.k]; if(mg){ setTimeout(()=>{ modAplica(mg, d, true); current.nome = info.tipo.n + ' — ' + String(dd).padStart(2,'0') + '/' + String(m).padStart(2,'0'); render(); }, 0); }
+    const nm = ()=> info.tipo.n + ' — ' + String(dd).padStart(2,'0') + '/' + String(m).padStart(2,'0'), usa = g=>{ modAplica(g, d, true); current.nome = nm() + (info.k === 'D' ? ' · ' + ((QR_TIPOS.find(x=> x.g === g) || {}).n || g) : ''); render(); };
+    if(info.k === 'D') setTimeout(()=> modEscolheDesafio('Desafio — ' + String(dd).padStart(2,'0') + '/' + String(m).padStart(2,'0'), usa), 0);
+    else { const mg = MOD_DO_PLANO[info.k]; if(mg) setTimeout(()=> usa(mg), 0); }
     if(info.tipo.teste) toast('Dica: usa o botão "Teste FTP" para montar o protocolo de 20 min');
   }
   $('paSala').addEventListener('click', e=>{ const b = e.target.closest('button[data-s]'); if(!b) return; paSala = b.dataset.s; try{ localStorage.setItem('prPaSala', paSala); }catch(err){} renderPlanoAnual(); renderPlanoHoje(); });
