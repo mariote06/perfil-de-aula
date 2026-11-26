@@ -507,6 +507,61 @@ html.live-on,html.live-on body{overflow:hidden !important;}
 
 .live-profile{height:76px;flex-shrink:0;background:#0A0D12;border-bottom:1px solid #1B212B;position:relative;}
 .live-profile svg{width:100%;height:100%;display:block;}
+/* ✋ faixa das técnicas: fita que anda com a aula; cada bloco com o ícone, a técnica e o tempo; linha branca = agora */
+.live-overlay{--lth:clamp(46px,8vh,88px);--lto:0px;}
+.live-overlay.com-onda{--lth:clamp(112px,17vh,190px);--lto:0px;}
+.live-tec{height:calc(var(--lth) + var(--lto));flex-shrink:0;background:#07090D;border-bottom:1px solid #1B212B;position:relative;overflow:hidden;}
+.live-tec.off{display:none;}
+.lt-track{position:absolute;top:0;left:0;height:100%;transition:transform .2s linear;will-change:transform;}
+.lt-b{position:absolute;top:4px;height:calc(var(--lth) - 11px);display:flex;align-items:center;gap:calc(var(--lth)*.12);padding:0 calc(var(--lth)*.14);box-sizing:border-box;overflow:hidden;white-space:nowrap;background:color-mix(in srgb,var(--tc) 16%,#0C1016);border-left:4px solid var(--tc);border-right:1px solid #05070A;transition:opacity .4s;}
+.lt-b::after{content:"";position:absolute;left:0;right:0;bottom:-7px;height:5px;background:var(--zc);}
+.lt-b svg{flex:0 0 auto;width:calc(var(--lth)*.42);height:calc(var(--lth)*.42);color:var(--tc);}
+.lt-tx{display:flex;flex-direction:column;justify-content:center;min-width:0;line-height:1.05;}
+.lt-n{font-weight:800;font-size:calc(var(--lth)*.27);color:#fff;overflow:hidden;text-overflow:ellipsis;letter-spacing:.2px;}
+.lt-t{font-weight:700;font-size:calc(var(--lth)*.24);color:rgba(255,255,255,.72);font-variant-numeric:tabular-nums;}
+.lt-b.sm .lt-n{display:none;}
+.lt-b.xs .lt-tx{display:none;}
+.lt-b.xs{justify-content:center;padding:0;gap:0;}
+.lt-b.passou{opacity:.28;}
+.lt-b.agora{background:color-mix(in srgb,var(--tc) 34%,#0C1016);box-shadow:inset 0 0 0 2px var(--tc);}
+.lt-b.agora .lt-t{color:#fff;}
+/* 🎵 gráfico da música (mistura do Estúdio) com 🚩 bandeiras nas mudanças de técnica */
+.lt-cv{position:absolute;left:0;top:var(--lth);height:var(--lto);display:block;}
+.lt-pass{position:absolute;left:0;top:var(--lth);height:var(--lto);width:0;background:rgba(7,9,13,.62);transition:width .2s linear;pointer-events:none;}
+.lt-f{position:absolute;top:var(--lth);height:var(--lto);width:0;z-index:1;transition:opacity .4s;}
+.lt-f::before{content:"";position:absolute;left:-1px;top:0;bottom:0;width:3px;background:var(--tc);box-shadow:0 0 6px rgba(0,0,0,.7);}
+.lt-fb{position:absolute;left:2px;top:3px;height:calc(var(--lto)*.44);display:flex;align-items:center;gap:4px;padding:0 calc(var(--lto)*.3) 0 5px;background:var(--tc);color:#0A0D12;font-weight:900;font-size:calc(var(--lto)*.27);white-space:nowrap;clip-path:polygon(0 0,100% 0,calc(100% - calc(var(--lto)*.16)) 50%,100% 100%,0 100%);}
+.lt-fb svg{width:calc(var(--lto)*.27);height:calc(var(--lto)*.27);flex:none;color:#0A0D12;}
+.lt-f.passou{opacity:.32;}
+.lt-f.perto .lt-fb{animation:ltBand .5s ease-in-out infinite alternate;transform-origin:left center;}
+/* com a onda: a onda (cor da zona) fica por trás dos blocos, o tempo de cada bloco em grande por cima, bandeiras grandes com a técnica */
+.com-onda .lt-cv,.com-onda .lt-pass,.com-onda .lt-f{top:0;height:100%;}
+.com-onda .lt-b{top:0;height:100%;background:transparent;border-left:2px solid rgba(255,255,255,.22);border-right:0;align-items:flex-end;justify-content:flex-end;padding:0 10px calc(var(--lth)*.07);}
+.com-onda .lt-b>svg,.com-onda .lt-n{display:none;}
+.com-onda .lt-t{font-size:calc(var(--lth)*.21);font-weight:900;color:#fff;text-shadow:0 2px 8px #000,0 0 3px #000,0 0 1px #000;}
+.com-onda .lt-b.sm .lt-tx{display:flex;}.com-onda .lt-b.sm .lt-t{font-size:calc(var(--lth)*.15);}
+.com-onda .lt-b.xs{justify-content:flex-end;padding:0 3px calc(var(--lth)*.07);}
+.com-onda .lt-b::after{bottom:0;height:7px;}
+.com-onda .lt-b.passou{opacity:1;}.com-onda .lt-b.passou .lt-t{opacity:.35;}
+.com-onda .lt-b.agora{background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 3px var(--zc);}
+.com-onda .lt-fb{top:8px;left:2px;height:calc(var(--lth)*.3);gap:8px;padding:0 calc(var(--lth)*.2) 0 9px;font-size:calc(var(--lth)*.17);clip-path:polygon(0 0,100% 0,calc(100% - calc(var(--lth)*.1)) 50%,100% 100%,0 100%);box-shadow:0 3px 10px rgba(0,0,0,.6);}
+.com-onda .lt-fb svg{width:calc(var(--lth)*.18);height:calc(var(--lth)*.18);}
+.com-onda .lt-f::before{width:4px;left:-2px;}
+/* 🎵 faixa em ecrã total (tecla 7): só o cabeçalho, o perfil e a faixa, em grande e centrada na vertical */
+.live-overlay.tec-full{--lth:clamp(220px,44vh,540px)!important;--lto:0px!important;}
+.live-overlay.tec-full .live-main{display:none!important;}
+.live-overlay.tec-full .live-tec{display:block!important;margin:auto 0;border-top:1px solid #1B212B;}
+.tec-full .lt-fb{top:12px;height:calc(var(--lth)*.19);gap:12px;padding:0 calc(var(--lth)*.12) 0 14px;font-size:calc(var(--lth)*.11);clip-path:polygon(0 0,100% 0,calc(100% - calc(var(--lth)*.06)) 50%,100% 100%,0 100%);}
+.tec-full .lt-fb svg{width:calc(var(--lth)*.12);height:calc(var(--lth)*.12);}
+.tec-full .lt-f::before{width:6px;left:-3px;}
+.tec-full .lt-t{font-size:calc(var(--lth)*.13);}
+.tec-full .lt-b.sm .lt-t{font-size:calc(var(--lth)*.075);}
+.tec-full .lt-n{font-size:calc(var(--lth)*.13);}
+.tec-full .lt-b>svg{width:calc(var(--lth)*.2);height:calc(var(--lth)*.2);}
+.tec-full .lt-now{width:5px;margin-left:-2.5px;}
+@keyframes ltBand{from{transform:scale(1);filter:brightness(1);}to{transform:scale(1.18);filter:brightness(1.35);}}
+.lt-now{position:absolute;top:0;bottom:0;width:3px;margin-left:-1.5px;background:#fff;box-shadow:0 0 10px rgba(255,255,255,.8);transition:left .2s linear;z-index:2;}
+.lt-now::before{content:"";position:absolute;top:0;left:-6px;border:7px solid transparent;border-top-color:#fff;border-bottom:0;}
 
 .live-main{flex:1;display:flex;min-height:0;}
 /* lâmpada: acende com a eletricidade gerada (kJ ÷ 3,6 × 80% de um gerador) */
@@ -902,6 +957,8 @@ html.fs-on .live-head .fs-btn{display:none;}
   .live-head .exit-btn{padding:7px 10px;}
   .qr-panel{top:118px !important;left:12px;}
   .live-profile{height:42px;}
+  .live-overlay{--lth:40px;}
+  .live-overlay.com-onda{--lth:84px;--lto:0px;}
   .live-main{flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch;}
   .live-body{flex:0 0 auto;padding:14px 12px 12px;justify-content:flex-start;min-height:auto;}
   .live-overlay:not(.split) .live-body{flex:1 0 auto;justify-content:center;}
@@ -962,6 +1019,8 @@ html.fs-on .live-head .fs-btn{display:none;}
   .live-head .exit-btn{padding:5px 9px;font-size:12px;}
   .qr-panel{top:60px !important;}
   .live-profile{height:30px;}
+  .live-tec{display:none;}
+  .live-overlay,.live-overlay.com-onda{--lth:0px;--lto:0px;}
   .live-body{padding:6px 10px;justify-content:center;}
   .live-name,.live-technique,.live-feel,.live-metrics{display:none;}
   .lz-pill{font-size:17px;padding:1px 12px;margin-bottom:4px;letter-spacing:1px;}
@@ -1978,6 +2037,10 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 .live-overlay.pv2:not(.split) .ring-wrap{width:min(clamp(220px,37vh,440px),100%)!important}
 /* com a turma ao lado: o quadrado do tempo ajusta-se à altura que sobra, para os cartões nunca se sobreporem ao "A seguir" */
 .live-overlay.pv2.split .ring-wrap{width:min(clamp(150px,calc(100vh - 690px),380px),100%)!important}
+/* ✋ com a faixa das técnicas ligada, o quadrado do tempo encolhe o que a faixa ocupa (os cartões não se sobrepõem ao "A seguir") */
+.live-overlay.pv2.com-tec .ring-wrap{width:min(clamp(170px,calc(36vh - var(--lth) - var(--lto)),420px),100%)!important}
+.live-overlay.pv2.com-tec:not(.split) .ring-wrap{width:min(clamp(170px,calc(37vh - var(--lth) - var(--lto)),440px),100%)!important}
+.live-overlay.pv2.com-tec.split .ring-wrap{width:min(clamp(130px,calc(100vh - 690px - var(--lth) - var(--lto)),380px),100%)!important}
 /* logótipos dos alvos (watts, FC e RPM) parados */
 #liveActive .live-metric .pv-ic svg{animation:none!important}
 .live-overlay.pv2 svg.ring.pvq{transform:none!important;width:100%;height:100%;overflow:visible}
@@ -2264,6 +2327,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     </div>
   </div>
   <div class="live-profile"><svg id="liveProfileSvg" viewBox="0 0 1000 76" preserveAspectRatio="none"></svg></div>
+  <div class="live-tec" id="liveTec" title="Técnicas da aula: cada bloco com a técnica e o tempo; a linha branca é o momento atual (tecla K mostra ou esconde)"><div class="lt-track" id="liveTecTrack"></div><div class="lt-now" id="liveTecNow"></div></div>
   <div class="qr-panel" id="qrPanel">
     <div id="qrcode"></div>
     <div class="qr-caption">Abre a câmara do telemóvel e faz scan, ou abre a app "PlayRide" e insere o PIN.</div>
@@ -2340,6 +2404,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       <button data-mode="corrida" title="Tecla 3">Corrida</button>
       <button data-mode="sala" title="Cada aluno na sua bike, na planta da sala (tecla 5)">Sala</button>
       <button data-mode="teste" id="pvTeste" hidden title="Vista do teste FTP: a bolha é o alvo; quem está dentro do alvo fica dentro da bolha">⚡ Teste</button>
+      <button type="button" id="ltFullBtn" title="A faixa da música e das técnicas em ecrã total (tecla 7)">🎵 Faixa</button>
       <button type="button" id="pvPerc" hidden title="Volta ao jogo ou percurso deste bloco e a projeção passa outra vez a seguir os blocos sozinha (tecla 6)">🏞️ Percurso</button>
       <button class="god-btn" id="godBtn" title="God Mode na tua app PlayRide: ligar, desligar e escolher a conta (tecla 4)">⚡ God</button>
     </div>
@@ -2348,6 +2413,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     <button class="ctrl" id="liveSkip" title="Bloco seguinte">⏭</button>
     <div class="ctrl-group right">
       <button id="metricBtn" title="Métrica do ranking (tecla M)">Ranking: Pontos</button>
+      <button id="liveTecBtn" type="button" title="Faixa das técnicas: todos os blocos com a técnica e o tempo (tecla K)">✋ Técnicas</button>
       <button id="soundBtn" title="Bip nos últimos 3 segundos de cada bloco">🔔</button>
     </div>
   </div>
@@ -13041,7 +13107,7 @@ const SR3 = (()=>{
     toast('🎭 ' + ok + ' músicas ouvidas' + (ok < alvo.length ? ' · faltam ' + (alvo.length - ok) + ' (🎭 continua de onde ficou)' : '') + (EST_MO.mod ? ' · estilos atualizados' : ' · agora etiqueta algumas na coluna Estilo')); }
   // ---- janela do Estúdio ----
   const EST_SNAP = [['manual', '✋ manual (livre)'], ['pontas', '📍 pontas dos blocos e músicas'], ['32', '♩ 8 compassos'], ['16', '♩ 4 compassos'], ['8', '♩ 2 compassos'], ['4', '♩ 1 compasso'], ['2', '♩ ½ nota (2 batidas)'], ['1', '♩ ¼ nota (1 batida)'], ['0.5', '♩ ⅛ nota'], ['0.25', '♩ 1/16 nota']];
-  var EST = { segue: (()=>{ try{ return localStorage.getItem('prEstSegue') === '1'; }catch(e){ return false; } })(), grade: null, dur: (()=>{ try{ return JSON.parse(localStorage.getItem('prEstDur') || 'null') || { on: false, a: 2, b: 3 }; }catch(e){ return { on: false, a: 2, b: 3 }; } })(), fo: (()=>{ try{ return localStorage.getItem('prEstFo') !== '0'; }catch(e){ return true; } })(), rep: (()=>{ try{ return localStorage.getItem('prEstRep') !== '0'; }catch(e){ return true; } })(), en: (()=>{ try{ return localStorage.getItem('prEstEn') !== '0'; }catch(e){ return true; } })(), cam: (()=>{ try{ return localStorage.getItem('prEstCam') !== '0'; }catch(e){ return true; } })(), snap: (()=>{ try{ const v = localStorage.getItem('prEstSnap'); return EST_SNAP.some(x=> x[0] === v) ? v : 'pontas'; }catch(e){ return 'pontas'; } })(), toda: (()=>{ try{ return localStorage.getItem('prEstToda') !== '0'; }catch(e){ return true; } })(), lin: (()=>{ try{ return JSON.parse(localStorage.getItem('prEstLin')) || { v: true }; }catch(e){ return { v: true }; } })(), ov: null, sel: -1, pps: 1, zoom: 1, x0: 0, play: false, pT: 0, iv: 0, estado: '', ouveLib: null, iman: true };
+  var EST = { segue: (()=>{ try{ return localStorage.getItem('prEstSegue') === '1'; }catch(e){ return false; } })(), tec: (()=>{ try{ return localStorage.getItem('prEstTec') !== '0'; }catch(e){ return true; } })(), grade: null, dur: (()=>{ try{ return JSON.parse(localStorage.getItem('prEstDur') || 'null') || { on: false, a: 2, b: 3 }; }catch(e){ return { on: false, a: 2, b: 3 }; } })(), fo: (()=>{ try{ return localStorage.getItem('prEstFo') !== '0'; }catch(e){ return true; } })(), rep: (()=>{ try{ return localStorage.getItem('prEstRep') !== '0'; }catch(e){ return true; } })(), en: (()=>{ try{ return localStorage.getItem('prEstEn') !== '0'; }catch(e){ return true; } })(), cam: (()=>{ try{ return localStorage.getItem('prEstCam') !== '0'; }catch(e){ return true; } })(), snap: (()=>{ try{ const v = localStorage.getItem('prEstSnap'); return EST_SNAP.some(x=> x[0] === v) ? v : 'pontas'; }catch(e){ return 'pontas'; } })(), toda: (()=>{ try{ return localStorage.getItem('prEstToda') !== '0'; }catch(e){ return true; } })(), lin: (()=>{ try{ return JSON.parse(localStorage.getItem('prEstLin')) || { v: true }; }catch(e){ return { v: true }; } })(), ov: null, sel: -1, pps: 1, zoom: 1, x0: 0, play: false, pT: 0, iv: 0, estado: '', ouveLib: null, iman: true };
   EST.mo = (()=>{ try{ return localStorage.getItem('prEstMo') !== '0'; }catch(e){ return true; } })();   // 🎭 estilo por momento
   function estAbre(){
     audStop(); if(typeof audPrevStop === 'function') audPrevStop();
@@ -13065,7 +13131,7 @@ const SR3 = (()=>{
       '<div class="est-sph" id="estSpH" title="Arrasta para mudar a altura"></div><div class="est-falta" id="estFalta" hidden></div><div class="est-prog" id="estProg" hidden></div>' +
       '<div class="est-insp" id="estInsp"></div>' +
       '<div class="est-vivo" id="estVivo"></div><div class="est-tlr"><div class="est-solo" id="estSolo"></div><div class="est-tlw" id="estTlw"><canvas id="estCv"></canvas></div></div>' +
-      '<div class="est-nav"><span class="est-ajuda" title="🟢 clique na linha do tempo = linha verde de alinhamento (encaixa na batida da música por baixo; as músicas que arrastas colam-se a ela) · agarra a linha verde e arrasta-a (segue o encaixe) · ✂ tecla S = corta a música selecionada na linha verde · 🔒 grelha = fixa as batidas na janela · 📌 seguir a barra = a janela anda com a música · ▶ duplo clique = tocar daqui (a tocar, a barra laranja salta para lá) · 🔍 roda do rato = zoom · Shift + roda = andar · arrasta a música para mover (e para outra pista) · puxa as âncoras ▼ das pontas para escolher a parte · puxa em baixo na música (ou Alt + arrastar) para andar dentro dela sem mexer na janela · clica numa linha para criar um ponto e puxa-o (duplo clique apaga) · quadrados azuis = fades">❓ Atalhos do rato</span><span></span><span class="est-lins">linhas:' + Object.keys(EST_LIN).map(k=> '<label style="color:' + EST_LIN[k].cor + '"><input type="checkbox" data-lin="' + k + '"' + (EST.lin[k] ? ' checked' : '') + '> ' + EST_LIN[k].n + '</label>').join('') + '</span><label title="Mostra a música inteira esbatida à volta da parte que toca"><input type="checkbox" id="estToda"' + (EST.toda ? ' checked' : '') + '> música toda</label><label title="Como encaixam as músicas ao arrastar e cortar (Alt + B liga/desliga)">🧲 encaixe <select id="estSnap">' + EST_SNAP.map(([v, n])=> '<option value="' + v + '"' + (v === EST.snap ? ' selected' : '') + '>' + n + '</option>').join('') + '</select></label><label title="🔒 Grelha fixa: fixa na janela as batidas da música que está debaixo da linha verde, com o passo do encaixe. Ao arrastar as músicas a grelha não mexe: alinha-as por ela"><input type="checkbox" id="estGrade"' + (EST.grade ? ' checked' : '') + '> 🔒 grelha</label><label title="Ligado: a janela anda com a barra laranja enquanto toca. Desligado: a janela fica livre e podes andar para trás e para a frente enquanto ouves"><input type="checkbox" id="estSegue"' + (EST.segue ? ' checked' : '') + '> 📌 seguir a barra</label><input type="range" id="estPan" min="0" max="1000" value="0"></div>' +
+      '<div class="est-nav"><span class="est-ajuda" title="🟢 clique na linha do tempo = linha verde de alinhamento (encaixa na batida da música por baixo; as músicas que arrastas colam-se a ela) · agarra a linha verde e arrasta-a (segue o encaixe) · ✂ tecla S = corta a música selecionada na linha verde · 🔒 grelha = fixa as batidas na janela · 📌 seguir a barra = a janela anda com a música · ▶ duplo clique = tocar daqui (a tocar, a barra laranja salta para lá) · 🔍 roda do rato = zoom · Shift + roda = andar · arrasta a música para mover (e para outra pista) · puxa as âncoras ▼ das pontas para escolher a parte · puxa em baixo na música (ou Alt + arrastar) para andar dentro dela sem mexer na janela · clica numa linha para criar um ponto e puxa-o (duplo clique apaga) · quadrados azuis = fades">❓ Atalhos do rato</span><span></span><span class="est-lins">linhas:' + Object.keys(EST_LIN).map(k=> '<label style="color:' + EST_LIN[k].cor + '"><input type="checkbox" data-lin="' + k + '"' + (EST.lin[k] ? ' checked' : '') + '> ' + EST_LIN[k].n + '</label>').join('') + '</span><label title="Mostra a música inteira esbatida à volta da parte que toca"><input type="checkbox" id="estToda"' + (EST.toda ? ' checked' : '') + '> música toda</label><label title="Como encaixam as músicas ao arrastar e cortar (Alt + B liga/desliga)">🧲 encaixe <select id="estSnap">' + EST_SNAP.map(([v, n])=> '<option value="' + v + '"' + (v === EST.snap ? ' selected' : '') + '>' + n + '</option>').join('') + '</select></label><label title="🔒 Grelha fixa: fixa na janela as batidas da música que está debaixo da linha verde, com o passo do encaixe. Ao arrastar as músicas a grelha não mexe: alinha-as por ela"><input type="checkbox" id="estGrade"' + (EST.grade ? ' checked' : '') + '> 🔒 grelha</label><label title="Ligado: a janela anda com a barra laranja enquanto toca. Desligado: a janela fica livre e podes andar para trás e para a frente enquanto ouves"><input type="checkbox" id="estSegue"' + (EST.segue ? ' checked' : '') + '> 📌 seguir a barra</label><label title="Mostra a técnica de cada bloco (plano/subida, sentado/em pé, sprint) desenhada na onda da música, no ponto onde a técnica muda. O ✓ verde diz que a mudança cai no início de uma frase da música (16 batidas); senão, mostra quantas batidas falta ou passa."><input type="checkbox" id="estTec"' + (EST.tec ? ' checked' : '') + '> ✋ técnica</label><input type="range" id="estPan" min="0" max="1000" value="0"></div>' +
       '<div class="est-av" id="estAv"></div>';
     document.body.appendChild(ov);
     const M = current.mix || {}; (M.itens || []).forEach((it, i)=>{ if(it.p == null) it.p = i % estPistas(M); if(!EST_TRANS[M.trans]) M.trans = 'eq'; });
@@ -13076,6 +13142,7 @@ const SR3 = (()=>{
     $('estPis').onchange = ()=>{ const M2 = garante(), n = +$('estPis').value; M2.pistas = n; if(M2.itens && M2.itens.length) estOrdem(M2, true).forEach((it, k)=> it.p = k % n); persist(); estPinta(); };   // pista 1 = música 1, pista 2 = música 2… e volta à pista 1
     $('estVol').oninput = ()=>{ garante().vol = +$('estVol').value; persist(); if(EST.niv){ EST.niv = null; estPintaNiv(); estDesenha(); } };
     $('estSnap').onchange = ()=>{ estSnapPoe($('estSnap').value); estDesenha(); };
+    $('estTec').onchange = ()=>{ EST.tec = $('estTec').checked; try{ localStorage.setItem('prEstTec', EST.tec ? '1' : '0'); }catch(e){} estDesenha(); };
     $('estSegue').onchange = ()=>{ EST.segue = $('estSegue').checked; try{ localStorage.setItem('prEstSegue', EST.segue ? '1' : '0'); }catch(e){} };
     $('estGrade').onchange = ()=>{ if(estGradeLiga($('estGrade').checked) === false) $('estGrade').checked = false; };
     $('estRep').onchange = ()=>{ EST.rep = $('estRep').checked; try{ localStorage.setItem('prEstRep', EST.rep ? '1' : '0'); }catch(e){} toast(EST.rep ? '🔁 Pode repetir músicas ao encher · ✨ para voltar a encher' : '🚫 Sem repetições: cada música entra no máximo uma vez · ✨ para voltar a encher'); };
@@ -13583,7 +13650,8 @@ const SR3 = (()=>{
         EST.cue = estCueSnap(EST.x0 + x / EST.pps); if(!EST.play) EST.pT = EST.cue; EST.dica = { x, y: e.clientY - r.top, t: '🟢 ' + fmtTime(Math.floor(EST.cue)) + '.' + String(Math.floor((EST.cue % 1) * 100)).padStart(2, '0') }; estDesenha(); return; }
       if(drag && drag.tempo){ const P = estTempo(); if(!P) return; const q = drag.q, ant = q > 0 ? P[q - 1][0] + .05 : 0, dep = q < P.length - 1 ? P[q + 1][0] - .05 : 1e9; let n = drag.t + (e.clientX - drag.x) / EST.pps; n = estEncaixa(n);
         P[q][0] = Math.round(Math.max(ant, Math.min(dep, n)) * 100) / 100; const r = cv.getBoundingClientRect(); EST.dica = { x: e.clientX - r.left, y: e.clientY - r.top - 4, t: fmtTime(Math.floor(P[q][0])) + ' · ' + P[q][1].toFixed(2) + ' BPM' }; estTempoSync(); estDesenha(); return; }
-      if(!drag){ const th = estTempoHit(e); if(th){ cv.style.cursor = th.q >= 0 ? 'ew-resize' : 'copy'; return; } const h = estHit(e); if(EST.cue != null && Math.abs(e.clientX - cv.getBoundingClientRect().left - estX(EST.cue)) <= 5 && (!h.it || h.modo === 'move' || h.modo === 'slip')){ cv.style.cursor = 'ew-resize'; return; } cv.style.cursor = !h.it ? 'text' : { trimL: 'ew-resize', trimR: 'ew-resize', fIn: 'col-resize', fOut: 'col-resize', pt: 'move', bpt: 'ew-resize', bnovo: 'copy', novo: 'copy', move: 'grab', slip: 'move' }[h.modo]; return; }
+      if(!drag){ const tq = estTecHit(e); if(tq){ EST.dica = { x: tq.x, y: tq.y, t: estTecDica(tq.q), tec: 1 }; estDesenha(); } else if(EST.dica && EST.dica.tec){ EST.dica = null; estDesenha(); }
+        const th = estTempoHit(e); if(th){ cv.style.cursor = th.q >= 0 ? 'ew-resize' : 'copy'; return; } const h = estHit(e); if(EST.cue != null && Math.abs(e.clientX - cv.getBoundingClientRect().left - estX(EST.cue)) <= 5 && (!h.it || h.modo === 'move' || h.modo === 'slip')){ cv.style.cursor = 'ew-resize'; return; } cv.style.cursor = !h.it ? 'text' : { trimL: 'ew-resize', trimR: 'ew-resize', fIn: 'col-resize', fOut: 'col-resize', pt: 'move', bpt: 'ew-resize', bnovo: 'copy', novo: 'copy', move: 'grab', slip: 'move' }[h.modo]; return; }
       const it = drag.it, o = drag.o, dT = (e.clientX - drag.x) / EST.pps, T = estLib().find(x=> x.id === it.id) || { dur: 1e9 }, fimMax = o.t1 + Math.max(0, T.dur - estPosMus(o, o.t1)) / estRateEm(o, o.t1);
       if(drag.modo === 'move' && estSnapU()){ const n = estGradeMove(it, Math.max(0, o.t0 + dT)); it.t0 = n; it.t1 = n + (o.t1 - o.t0); if(it.c != null) it.c = o.c + (n - o.t0);
         const G = estGeo(), r = $('estCv').getBoundingClientRect(); it.p = Math.max(0, Math.min(G.np - 1, Math.floor((e.clientY - r.top - G.yL) / G.hL))); }
@@ -13646,15 +13714,54 @@ const SR3 = (()=>{
   // 🎚️ ao vivo: BPM, cadência, chave e volume de cada música que está a tocar no cursor (para ver as transições)
   function estVivoPinta(){
     const bx = $('estVivo'); if(!bx) return; const M = mixAtivo(), T = EST.pT || 0, L = estLibMap(), f2 = v=> v.toFixed(2).replace('.', ',');
-    let s = 0, cad = -1; for(const b of (current.blocos || [])){ const d = blockDurationSec(b); if(T < s + d){ cad = estCad(b); break; } s += d; }
+    let s = 0, cad = -1, tecA = null; for(const b of (current.blocos || [])){ const d = blockDurationSec(b); if(T < s + d){ cad = estCad(b); tecA = b.tipo === 'seg' ? null : estTecSimb(b.tecnica); break; } s += d; }
     const vivos = M ? M.itens.filter(it=> T >= it.t0 && T < it.t1 && L[it.id]).sort((a, b)=> a.t0 - b.t0) : [];
-    let h = '<span class="est-vt">' + (EST.play ? '▶' : '⏸') + ' ' + fmtTime(Math.floor(T)) + '</span><span class="est-vb" title="Cadência pedida pelo bloco neste momento">bloco <b>' + (cad > 0 ? cad + ' rpm' : '—') + '</b></span>';
+    let h = '<span class="est-vt">' + (EST.play ? '▶' : '⏸') + ' ' + fmtTime(Math.floor(T)) + '</span><span class="est-vb" title="Cadência pedida pelo bloco neste momento">bloco <b>' + (cad > 0 ? cad + ' rpm' : '—') + '</b>' + (tecA ? ' <b style="color:' + tecA.cor + '">· ' + escapeHtml(tecA.n) + '</b>' : '') + '</span>';
     if(!vivos.length) h += '<span class="est-vz2">' + (M ? 'nenhuma música a tocar neste ponto' : 'sem mistura') + '</span>';
     vivos.forEach((it, i)=>{ const t = L[it.id], bpm = estBpmEm(it, T), mu = it.mu || estMu(t.bpm), rpm = bpm * mu, vol = Math.round(Math.min(1.5, estVolEm(it, T)) * 100), cala = EST.solos && EST.solos.size && !EST.solos.has(Math.min(estPistas(M) - 1, it.p || 0));
       if(i){ const a = vivos[i - 1], ba = estBpmEm(a, T), d = bpm - ba, dc = estCamDist(L[a.id].cam, t.cam); h += '<span class="est-vx' + (Math.abs(d) < .05 ? ' ok' : Math.abs(d) < 1 ? ' quase' : ' mau') + '" title="Diferença de BPM entre as duas músicas (0,00 = batidas certas)">Δ ' + (d >= 0 ? '+' : '') + f2(d) + (dc >= 0 ? ' <i class="est-camok d' + dc + '">' + ['=', '✓', '↗', '✗'][dc] + '</i>' : '') + '</span>'; }
       h += '<span class="est-vm' + (cala ? ' cala' : '') + '"><em>P' + ((it.p || 0) + 1) + '</em><span class="est-vn">' + (it.dp ? '<i title="O drop desta música cai no início do sprint/intervalo">🔥</i> ' : '') + escapeHtml(estNomeDe(it.id)) + '</span>' + (t.cam ? estCamTag(t.cam) : '') + estEnTag(estEnergia(t)) + '<b class="est-vbpm">' + f2(bpm) + '</b><small>BPM</small><b>' + Math.round(rpm) + '</b><small>rpm' + (cad > 0 && Math.abs(rpm - cad) > 1.5 ? ' <i class="mau">(' + (rpm > cad ? '+' : '') + Math.round(rpm - cad) + ')</i>' : '') + '</small><span class="est-vvol" title="Volume desta música agora"><u style="width:' + Math.min(100, vol / 1.5) + '%"></u></span><small>' + vol + '%</small></span>'; });
     bx.innerHTML = h;
   }
+  // ---- ✋ técnica na onda: símbolo de cada técnica no ponto onde muda (plano ▬ / subida ◢ / sprint ⚡ · S sentado, P em pé, S/P combinado) ----
+  function estTecSimb(nome){ const n = String(nome || '').trim(); if(!n) return null; const l = n.toLowerCase();
+    const ter = /sprint/.test(l) ? 'sprint' : /subida|escalad|monta/.test(l) ? 'subida' : /plano|planic/.test(l) ? 'plano' : 'outra';
+    const pos = /combinad|altern/.test(l) ? 'S/P' : /em p[eé]|\bp[eé]\b|levantad/.test(l) ? 'P' : /sentad/.test(l) ? 'S' : '';
+    const cor = { plano: '#4FC3F7', subida: '#FF7043', sprint: '#FFD60A', outra: '#B39DDB' }[ter];
+    return { n, ter, pos, cor, txt: ter === 'outra' ? n.slice(0, 10) : pos }; }
+  function estTecPontos(){ const P = []; let t = 0, ant = null;
+    (current.blocos || []).forEach((b, i)=>{ const d = blockDurationSec(b);
+      if(b.tipo === 'seg'){ ant = null; t += d; return; }
+      const s = estTecSimb(b.tecnica); if(s && d > 0 && s.n !== ant) P.push({ T: t, b, i, s }); ant = s ? s.n : null; t += d; });
+    return P; }
+  // onde cai a mudança dentro da frase da música (16 batidas), em batidas inteiras: 0 = no início da frase; + depois; − antes
+  function estTecFrase(it, T){ const Tr = estLib().find(x=> x.id === it.id); if(!Tr || !(Tr.bpm > 0)) return null;
+    const bl = 60 / Tr.bpm, bi = (estPosMus(it, T) - (Tr.beat0 || 0)) / bl, off = bi - Math.round(bi / 16) * 16; return Math.round(off) || 0; }
+  function estTecIcone(c, s, x, y){   // ícone desenhado (não depende de fontes com emoji)
+    c.strokeStyle = s.cor; c.fillStyle = s.cor; c.lineWidth = 2; c.lineCap = 'round'; c.beginPath();
+    if(s.ter === 'plano'){ c.moveTo(x, y + 7); c.lineTo(x + 12, y + 7); c.stroke(); }
+    else if(s.ter === 'subida'){ c.moveTo(x, y + 10); c.lineTo(x + 12, y + 10); c.lineTo(x + 12, y + 1); c.closePath(); c.fill(); }
+    else if(s.ter === 'sprint'){ c.moveTo(x + 7, y); c.lineTo(x + 1, y + 6); c.lineTo(x + 6, y + 6); c.lineTo(x + 4, y + 11); c.lineTo(x + 11, y + 4); c.lineTo(x + 6, y + 4); c.closePath(); c.fill(); }
+    else { c.arc(x + 6, y + 6, 4, 0, 7); c.fill(); }
+    c.lineCap = 'butt'; }
+  function estTecSelo(c, s, x, y, fr){ c.font = '800 10px Inter,sans-serif'; const tw = s.txt ? c.measureText(s.txt).width + 4 : 0, fw = fr == null ? 0 : fr === 0 ? 13 : c.measureText((fr > 0 ? '+' : '') + String(fr).replace('.', ',')).width + 8, w = 20 + tw + fw, h = 17;
+    c.fillStyle = 'rgba(12,15,20,.9)'; c.beginPath(); if(c.roundRect) c.roundRect(x, y, w, h, 4); else c.rect(x, y, w, h); c.fill(); c.strokeStyle = s.cor; c.lineWidth = 1.5; c.stroke();
+    estTecIcone(c, s, x + 4, y + 3); if(s.txt){ c.fillStyle = '#fff'; c.fillText(s.txt, x + 19, y + 12.5); }
+    if(fr != null){ const fx = x + 20 + tw; if(fr === 0){ c.fillStyle = '#3DD45C'; c.fillText('✓', fx + 1, y + 12.5); } else { c.fillStyle = Math.abs(fr) <= 2 ? '#FFD60A' : '#FF8A80'; c.fillText((fr > 0 ? '+' : '') + String(fr).replace('.', ','), fx + 3, y + 12.5); } }
+    return { x, y, w, h }; }
+  function estTecPinta(c, G, W, M){ EST.tecR = []; if(!EST.tec) return; const X = estX, t0v = EST.x0, t1v = EST.x0 + W / EST.pps, P = estTecPontos();
+    // na barra dos blocos: o símbolo de cada bloco à direita (se couber)
+    let t = 0; (current.blocos || []).forEach(b=>{ const d = blockDurationSec(b), s = b.tipo === 'seg' ? null : estTecSimb(b.tecnica); if(s && d * EST.pps > 90 && t + d >= t0v && t <= t1v){ const xr = Math.min(W, X(t + d)) - 18; if(xr > Math.max(X(t), 0) + 52){ c.fillStyle = 'rgba(12,15,20,.55)'; c.fillRect(xr - 3, G.yB + 6, 17, 16); estTecIcone(c, s, xr, G.yB + 8); } } t += d; });
+    P.forEach(pt=>{ const px = X(pt.T); if(px < -120 || px > W + 2) return; const s = pt.s;
+      c.save(); c.strokeStyle = s.cor; c.globalAlpha = .6; c.lineWidth = 1.5; c.setLineDash([4, 4]); c.beginPath(); c.moveTo(px + .5, G.yB + G.hB); c.lineTo(px + .5, G.yT); c.stroke(); c.restore();
+      const vivos = M ? M.itens.filter(it=> pt.T >= it.t0 - 1 && pt.T < it.t1) : [], hS = G.hL >= 34;
+      if(vivos.length && hS) vivos.forEach(it=>{ const l = Math.min(G.np - 1, it.p || 0), hI = G.hL - 6, y = G.yL + l * G.hL + 2 + (hI >= 62 ? 37 : 15), fr = estTecFrase(it, pt.T), r = estTecSelo(c, s, px + 3, y, fr); EST.tecR.push(Object.assign(r, { pt, fr, nome: estNomeDe(it.id) })); });
+      else { const r = estTecSelo(c, s, px + 3, G.yL + 2, null); EST.tecR.push(Object.assign(r, { pt, fr: null, nome: '' })); } }); }
+  function estTecHit(e){ if(!EST.tec || !EST.tecR) return null; const r = $('estCv').getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    for(let i = EST.tecR.length - 1; i >= 0; i--){ const q = EST.tecR[i]; if(x >= q.x && x <= q.x + q.w && y >= q.y && y <= q.y + q.h) return { q, x, y }; } return null; }
+  function estTecDica(q){ const b = q.pt.b; let t = '✋ ' + q.pt.s.n + ' · ' + fmtTime(Math.floor(q.pt.T)) + (b.nome ? ' · ' + b.nome : '');
+    if(q.fr != null) t += ' · ' + (q.fr === 0 ? 'cai no início da frase ✓' : Math.abs(q.fr) + (Math.abs(q.fr) === 1 ? ' batida ' : ' batidas ') + (q.fr > 0 ? 'depois' : 'antes') + ' do início da frase') + (q.nome ? ' (' + q.nome + ')' : '');
+    return t; }
   function estDesenha(){
     const cv = $('estCv'), w = $('estTlw'); if(!cv || !w) return;
     estAjustaZoom(); const tot = audTot() || 1, W = Math.max(w.clientWidth - 2, 300), G = estGeo(), H = G.H, dpr = Math.min(2, devicePixelRatio || 1);
@@ -13719,10 +13826,11 @@ const SR3 = (()=>{
       if(k1 - k0 < 5000) for(let k = k0; k <= k1; k++){ const px = X(Gd.t0 + k * st), bt = Math.round(k * u), f = bt % 16 === 0 ? 2 : bt % 4 === 0 ? 1 : 0;
         c.fillStyle = f === 2 ? 'rgba(0,229,255,.9)' : f ? 'rgba(0,229,255,.6)' : 'rgba(0,229,255,.3)'; c.fillRect(px - (f ? .75 : .5), G.yL, f ? 1.5 : 1, G.np * G.hL); } }
       c.fillStyle = 'rgba(0,229,255,.95)'; c.font = '700 10px Inter,sans-serif'; c.fillText('🔒 grelha ' + Gd.bpm.toFixed(2).replace('.', ',') + ' BPM', 6, G.yL - 3); }
+    estTecPinta(c, G, W, M);
     estTempoPinta(c, G, W);
     // pistas silenciadas pelo solo ficam escurecidas
     if(EST.solos && EST.solos.size) for(let l = 0; l < G.np; l++) if(!EST.solos.has(l)){ c.fillStyle = 'rgba(10,12,15,.55)'; c.fillRect(0, G.yL + l * G.hL, W, G.hL - 2); }
-    if(EST.dica){ c.font = '700 11px Inter,sans-serif'; const w2 = c.measureText(EST.dica.t).width + 10; c.fillStyle = 'rgba(0,0,0,.85)'; c.fillRect(EST.dica.x + 10, EST.dica.y - 22, w2, 18); c.fillStyle = '#fff'; c.fillText(EST.dica.t, EST.dica.x + 15, EST.dica.y - 9); }
+    if(EST.dica){ c.font = '700 11px Inter,sans-serif'; const w2 = c.measureText(EST.dica.t).width + 10, dx = Math.max(2, Math.min(EST.dica.x + 10, W - w2 - 2)), dy = Math.max(20, EST.dica.y); c.fillStyle = 'rgba(0,0,0,.85)'; c.fillRect(dx, dy - 22, w2, 18); c.fillStyle = '#fff'; c.fillText(EST.dica.t, dx + 5, dy - 9); }
     // 🟢 linha verde fluorescente: marca de alinhamento das batidas (clique) · fica parada enquanto toca
     if(EST.cue != null){ const xc = X(EST.cue); if(xc >= -2 && xc <= W + 2){ c.save(); c.shadowColor = '#39FF14'; c.shadowBlur = 8; c.strokeStyle = '#39FF14'; c.lineWidth = 2; c.beginPath(); c.moveTo(xc, 0); c.lineTo(xc, H); c.stroke(); c.restore();
       c.fillStyle = '#39FF14'; c.beginPath(); c.moveTo(xc - 6, 0); c.lineTo(xc + 6, 0); c.lineTo(xc, 8); c.closePath(); c.fill(); } }
@@ -14666,7 +14774,7 @@ const SR3 = (()=>{
   document.addEventListener('click', e=>{ const b = e.target.closest('#lsSala button'); if(b) liveMudaSala(b.dataset.s); });
   function closeLive(){
     if(sessionPin && ridingRiders().length) saveSummary();
-    $('liveOverlay').classList.remove('active', 'starting'); liveStarting = false;
+    $('liveOverlay').classList.remove('active', 'starting', 'tec-full'); liveStarting = false; LT.full = false; { const fb = $('ltFullBtn'); if(fb) fb.classList.remove('on'); }
     if($('godQr')) $('godQr').remove(); podioFecha();
     document.documentElement.classList.remove('live-on');
     clearInterval(liveTimerHandle); liveTimerHandle = null; livePlaying = false;
@@ -14731,6 +14839,7 @@ const SR3 = (()=>{
     });
     liveShade = el('rect', { y: 0, height: H, fill: 'rgba(5,7,10,0.5)' }); svg.appendChild(liveShade);
     liveMarkerLine = el('rect', { y: 0, height: H, width: 3, fill: '#ffffff' }); svg.appendChild(liveMarkerLine);
+    try{ liveTecBuild(); }catch(e){}
     updateLiveProgressMarker();
   }
 
@@ -14745,7 +14854,84 @@ const SR3 = (()=>{
     const x = Math.min(1000, (elapsedNow()/totalSec)*1000);
     if(liveShade){ liveShade.setAttribute('x', x.toFixed(1)); liveShade.setAttribute('width', Math.max(0, 1000-x).toFixed(1)); }
     if(liveMarkerLine){ liveMarkerLine.setAttribute('x', Math.max(0, x-1.5).toFixed(1)); }
+    try{ liveTecTick(); }catch(e){}
   }
+
+  // ---- ✋ faixa das técnicas na projeção: fita contínua com todos os blocos (técnica + tempo), anda com a aula ----
+  var LT = { on: (()=>{ try{ return localStorage.getItem('prLiveTec') !== '0'; }catch(e){ return true; } })(), pps: 1, tot: 0, idx: -1, ini: [], win: 360, winO: 240, fl: [], carrega: false, full: false };
+  const LT_ICO = { plano: '<svg viewBox="0 0 24 24"><path d="M2 15h20" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" fill="none"/><circle cx="7" cy="15" r="2.2" fill="currentColor"/><circle cx="17" cy="15" r="2.2" fill="currentColor"/></svg>',
+    subida: '<svg viewBox="0 0 24 24"><path d="M2 21 22 21 22 4Z" fill="currentColor"/></svg>',
+    sprint: '<svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="currentColor"/></svg>',
+    outra: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5" fill="currentColor"/></svg>',
+    seg: '<svg viewBox="0 0 24 24"><rect x="6" y="5" width="4" height="14" rx="1" fill="currentColor"/><rect x="14" y="5" width="4" height="14" rx="1" fill="currentColor"/></svg>' };
+  function liveTecFmt(s){ s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); }
+  function liveTecBuild(){
+    const box = $('liveTec'), tr = $('liveTecTrack'); if(!box || !tr) return; box.classList.toggle('off', !LT.on); const ov = $('liveOverlay'); if(ov) ov.classList.toggle('com-tec', LT.on); LT.idx = -1; tr.innerHTML = ''; LT.ini = []; LT.fl = [];
+    // 🎵 a onda vem da mistura do Estúdio: se a biblioteca ainda não está carregada, carrega e volta a construir
+    const MX = LT.on ? mixAtivo() : null; if(MX && !EST_LIB.ok && !EST_LIB.falha && !LT.carrega){ LT.carrega = true; estLibCarrega().catch(()=>{}).then(()=>{ LT.carrega = false; if(ov && ov.classList.contains('active')) liveTecBuild(); }); }
+    const LIBM = MX ? new Map(estLib().map(t=> [t.id, t])) : null, onda = !!(MX && MX.itens.some(it=> { const t = LIBM.get(it.id); return t && t.pk && t.pk.length && t.dur > 0; }));
+    if(ov) ov.classList.toggle('com-onda', onda);
+    const BL = current.blocos || [], tot = totalDuration(BL) || 0; LT.tot = tot; if(!LT.on || !tot) return;
+    const cw = box.clientWidth || window.innerWidth; LT.pps = cw / Math.min(tot, onda ? LT.winO : LT.win);   // com a onda: 4 min no ecrã (onda mais esticada) tr.style.width = Math.ceil(tot * LT.pps) + 'px';
+    let t = 0; const H = []; const lhB = box.getBoundingClientRect().height || 76, wXs = Math.max(58, lhB * .25), wSm = Math.max(130, lhB * (onda ? .95 : 1.6));
+    BL.forEach((b, i)=>{ const d = blockDurationSec(b); LT.ini.push(t);
+      const seg = b.tipo === 'seg', sb = seg ? null : (typeof estTecSimb === 'function' ? estTecSimb(b.tecnica) : null);
+      const nome = seg ? (b.nome || 'Segmento') : (sb ? sb.n : (b.nome || '—')), cor = seg ? '#B39DDB' : (sb ? sb.cor : '#8a93a3'), ico = LT_ICO[seg ? 'seg' : (sb ? sb.ter : 'outra')], w = d * LT.pps;
+      H.push('<div class="lt-b' + (w < wXs ? ' xs' : w < wSm ? ' sm' : '') + '" data-i="' + i + '" style="left:' + (t * LT.pps).toFixed(1) + 'px;width:' + Math.max(1, w).toFixed(1) + 'px;--tc:' + cor + ';--zc:' + (zoneColor(blkZone(b).css) || '#555') + '" title="' + escapeHtml(nome) + ' · ' + liveTecFmt(d) + '">' + ico + '<div class="lt-tx"><span class="lt-n">' + escapeHtml(nome) + '</span><span class="lt-t">' + liveTecFmt(d) + '</span></div></div>');
+      t += d; });
+    if(onda){
+      // bandeiras: uma em cada mudança de técnica (a mesma regra da linha do tempo do Estúdio)
+      // bandeiras: o nome da técnica por extenso; se não couber até à bandeira seguinte, fica só S / P / S/P
+      const lh = box.getBoundingClientRect().height || 140, fs = lh * (LT.full ? .11 : .17), PT = estTecPontos();
+      PT.forEach((pt, k)=>{ const sb = pt.s, gap = ((k + 1 < PT.length ? PT[k + 1].T : tot) - pt.T) * LT.pps, cabe = sb.n.length * fs * .6 + lh * (LT.full ? .3 : .5) + 18 < gap, tx = cabe ? sb.n : (sb.pos || (sb.ter === 'outra' ? sb.n.slice(0, 6) : ''));
+        LT.fl.push(pt.T); H.push('<div class="lt-f" data-t="' + pt.T + '" data-n="' + (k + 1 < PT.length ? PT[k + 1].T : tot) + '" style="left:' + (pt.T * LT.pps).toFixed(1) + 'px;--tc:' + sb.cor + '" title="' + escapeHtml(sb.n) + ' · ' + liveTecFmt(pt.T) + '"><div class="lt-fb">' + LT_ICO[sb.ter] + (tx ? '<span>' + escapeHtml(tx) + '</span>' : '') + '</div></div>'); });
+      H.unshift('<canvas class="lt-cv" id="liveTecCv"></canvas><div class="lt-pass" id="liveTecPass"></div>');
+    }
+    tr.innerHTML = H.join('');
+    if(onda) try{ liveTecOnda(MX, LIBM, BL); }catch(e){}
+    liveTecTick(true);
+  }
+  // desenha a onda de toda a aula uma vez, na cor da zona de treino de cada bloco (o nome de cada música no canto de baixo)
+  function liveTecOnda(MX, LIBM, BL){
+    const cv = $('liveTecCv'); if(!cv) return; const full = LT.tot * LT.pps, sc = Math.min(1, 16000 / Math.max(1, full)), W = Math.max(1, Math.round(full * sc)), H = Math.max(10, Math.round(cv.clientHeight || 120));
+    cv.width = W; cv.height = H; cv.style.width = full.toFixed(1) + 'px'; const c = cv.getContext('2d'), mid = H * .62, amp = H * .36, k = LT.pps * sc;
+    // blocos: início, fim e cor da zona (o segmento fica cinzento)
+    const Z = []; { let t = 0; BL.forEach(b=>{ const d = blockDurationSec(b); Z.push({ a: t, b: t + d, c: b.tipo === 'seg' ? '#6b7280' : (zoneColor(blkZone(b).css) || '#8a93a3') }); t += d; }); }
+    const zAt = T=>{ for(let q = 0; q < Z.length; q++) if(T < Z[q].b) return Z[q].c; return Z.length ? Z[Z.length - 1].c : '#8a93a3'; };
+    c.fillStyle = '#090C11'; c.fillRect(0, 0, W, H);
+    Z.forEach(z=>{ c.fillStyle = z.c; c.globalAlpha = .13; c.fillRect(z.a * k, 0, (z.b - z.a) * k, H); }); c.globalAlpha = 1;
+    c.fillStyle = 'rgba(255,255,255,.1)'; c.fillRect(0, mid, W, 1);
+    MX.itens.forEach(it=>{ const t = LIBM.get(it.id); if(!t || !t.pk || !(t.dur > 0)) return; const pk = t.pk, pp = pk.length / t.dur, vol = it.g == null ? 1 : Math.max(.25, Math.min(1, it.g));
+      const x0 = Math.max(0, Math.floor(it.t0 * k)), x1 = Math.min(W, Math.ceil(it.t1 * k)); let cAnt = '';
+      for(let x = x0; x < x1; x++){ const T = (x + .5) / k; if(T < it.t0 || T >= it.t1) continue; const sq = estPosMus(it, T), j = Math.floor(sq * pp); let v = 0; for(let q = j; q < j + Math.max(1, Math.ceil(pp / k)); q++) v = Math.max(v, pk[q] || 0);
+        let f = 1; if(it.fIn > 0 && T - it.t0 < it.fIn) f = (T - it.t0) / it.fIn; if(it.fOut > 0 && it.t1 - T < it.fOut) f = Math.min(f, (it.t1 - T) / it.fOut);
+        const cz = zAt(T); if(cz !== cAnt){ c.fillStyle = cz; cAnt = cz; }
+        const a = Math.max(1, v / 99 * amp * vol * (.25 + .75 * f)); c.fillRect(x, mid - a, 1.15, a * 2); }
+      c.fillStyle = 'rgba(255,255,255,.4)'; c.fillRect(x0, 0, 1, H);
+      if(x1 - x0 > 110){ c.font = '700 ' + Math.max(10, Math.round(H * .1)) + 'px Inter,sans-serif'; c.fillStyle = 'rgba(255,255,255,.6)'; c.save(); c.beginPath(); c.rect(x0, 0, x1 - x0 - 4, H); c.clip(); c.fillText('♪ ' + (t.nome || ''), x0 + 6, H - 12); c.restore(); } });
+  }
+  function liveTecTick(salta){
+    if(!LT.on || !LT.tot) return; const box = $('liveTec'), tr = $('liveTecTrack'), now = $('liveTecNow'); if(!box || !tr || !now) return;
+    const cw = box.clientWidth || window.innerWidth, el = Math.max(0, Math.min(LT.tot, elapsedNow())), full = LT.tot * LT.pps;
+    // o "agora" fica a 22% da largura; nas pontas da aula a fita para e é a linha que anda
+    const off = full <= cw ? 0 : Math.max(cw - full, Math.min(0, cw * .22 - el * LT.pps));
+    if(salta){ tr.style.transition = 'none'; now.style.transition = 'none'; }
+    tr.style.transform = 'translateX(' + off.toFixed(1) + 'px)'; now.style.left = (el * LT.pps + off).toFixed(1) + 'px';
+    if(salta){ void tr.offsetWidth; tr.style.transition = ''; now.style.transition = ''; }
+    if(LT.idx !== liveIdx){ LT.idx = liveIdx; tr.querySelectorAll('.lt-b').forEach(e=>{ const i = +e.dataset.i; e.classList.toggle('passou', i < liveIdx); e.classList.toggle('agora', i === liveIdx);
+      if(i !== liveIdx){ const t = e.querySelector('.lt-t'), b = current.blocos[i]; if(t && b) t.textContent = liveTecFmt(blockDurationSec(b)); } }); }
+    const ps = $('liveTecPass'); if(ps) ps.style.width = (el * LT.pps).toFixed(1) + 'px';
+    if(LT.fl.length) tr.querySelectorAll('.lt-f').forEach(f=>{ const T = +f.dataset.t, d = T - el; f.classList.toggle('passou', +f.dataset.n <= el); f.classList.toggle('perto', d > 0 && d <= 10); });   // a bandeira fica acesa enquanto a técnica dura; a próxima pisca nos 10 s antes da mudança
+    const ag = tr.querySelector('.lt-b.agora .lt-t'); if(ag){ const v = liveTecFmt(Math.ceil(liveRemaining)); if(ag.textContent !== v) ag.textContent = v; }   // bloco atual: o tempo que falta
+  }
+  function liveTecFull(liga){
+    LT.full = liga == null ? !LT.full : !!liga; const ov = $('liveOverlay'); if(ov) ov.classList.toggle('tec-full', LT.full);
+    if(LT.full && !LT.on){ LT.on = true; try{ localStorage.setItem('prLiveTec', '1'); }catch(e){} const bt = $('liveTecBtn'); if(bt) bt.classList.add('on'); }
+    const fb = $('ltFullBtn'); if(fb) fb.classList.toggle('on', LT.full);
+    requestAnimationFrame(()=>{ try{ liveTecBuild(); }catch(e){} });   // a altura mudou: volta a desenhar a onda
+  }
+  function liveTecTroca(){ if(LT.full){ liveTecFull(false); return; } LT.on = !LT.on; try{ localStorage.setItem('prLiveTec', LT.on ? '1' : '0'); }catch(e){} const bt = $('liveTecBtn'); if(bt) bt.classList.toggle('on', LT.on); liveTecBuild(); }
+  window.addEventListener('resize', ()=>{ if($('liveOverlay') && $('liveOverlay').classList.contains('active')) liveTecBuild(); });
 
 
   // ===================== PROJEÇÃO v2 =====================
@@ -15262,7 +15448,7 @@ const SR3 = (()=>{
   $('crCrit').onclick = ()=>{ const K = Object.keys(CR_CRIT); crCritPoe(K[(K.indexOf(CR.crit) + 1) % K.length]); };
   $('godBtn').onclick = godConfig;   // God Mode na app PlayRide do professor: ligar/desligar e escolher a conta (tecla 4)
   document.querySelectorAll('.ctrl-group [data-mode]').forEach(btn=>{
-    btn.addEventListener('click', ()=>{ viewMode = btn.dataset.mode; modoFixo = true; renderRiders(); applyMode(); });
+    btn.addEventListener('click', ()=>{ if(LT.full) liveTecFull(false); viewMode = btn.dataset.mode; modoFixo = true; renderRiders(); applyMode(); });
   });
   function toggleMetric(){
     raceMetric = raceMetric === 'pts' ? 'kj' : 'pts';
@@ -15271,6 +15457,8 @@ const SR3 = (()=>{
     renderRiders(); applyMode(); pushRanking();
   }
   $('metricBtn').addEventListener('click', toggleMetric);
+  $('ltFullBtn').addEventListener('click', ()=> liveTecFull());
+  $('liveTecBtn').addEventListener('click', liveTecTroca); $('liveTecBtn').classList.toggle('on', LT.on);
   $('soundBtn').addEventListener('click', ()=>{
     soundOn = !soundOn;
     localStorage.setItem('ptCyclingSound', soundOn ? '1' : '0');
@@ -15303,6 +15491,8 @@ const SR3 = (()=>{
     if(e.code === 'Space'){ e.preventDefault(); if(livePlaying) stopTicking(); else startTicking(); }
     if(e.code === 'ArrowRight'){ goToBlock(liveIdx+1); }
     if(e.code === 'ArrowLeft'){ $('liveBack').click(); }
+    if(e.key === '7'){ liveTecFull(); }
+    if(LT.full && (e.key === '1' || e.key === '2' || e.key === '3' || e.key === '5' || e.key === '6')) liveTecFull(false);
     if(e.key === '1'){ viewMode = 'aula'; modoFixo = true; applyMode(); }
     if(e.key === '2'){ viewMode = 'turma'; modoFixo = true; renderRiders(); }
     if(e.key === '3'){ viewMode = 'corrida'; modoFixo = true; renderRiders(); }
@@ -15316,6 +15506,7 @@ const SR3 = (()=>{
     if((e.key === 'r' || e.key === 'R') && SR.on && SR.heli && $('srH3b')) h3Troca();
     if(e.key === 'm' || e.key === 'M'){ toggleMetric(); }
     if(e.key === 'q' || e.key === 'Q'){ $('qrPanel').classList.toggle('active'); }
+    if(e.key === 'k' || e.key === 'K'){ liveTecTroca(); }
   });
   window.addEventListener('beforeunload', ()=>{ if(sessionPin) endSession(); });
 
