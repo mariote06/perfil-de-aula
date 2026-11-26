@@ -559,6 +559,15 @@ html.live-on,html.live-on body{overflow:hidden !important;}
 .tec-full .lt-n{font-size:calc(var(--lth)*.13);}
 .tec-full .lt-b>svg{width:calc(var(--lth)*.2);height:calc(var(--lth)*.2);}
 .tec-full .lt-now{width:5px;margin-left:-2.5px;}
+/* 💡 técnicas sugeridas ao longo do bloco, pela energia de cada frase da música (▲ em pé · ▼ sentado · ⇅ combinado) */
+.lt-s{position:absolute;top:calc(var(--lth)*.42);bottom:7px;width:0;z-index:1;pointer-events:none;transition:opacity .4s;}
+.lt-s::before{content:"";position:absolute;left:-1px;top:0;bottom:0;border-left:2px dashed rgba(255,255,255,.6);}
+.lt-s>span{position:absolute;left:5px;top:0;white-space:nowrap;background:rgba(9,12,17,.88);border:2px solid var(--tc);color:#fff;font-weight:900;font-size:calc(var(--lth)*.105);line-height:1.15;padding:1px calc(var(--lth)*.05);border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,.6);}
+.lt-s.inicio::before{display:none;}
+.tec-full .lt-s{top:calc(var(--lth)*.3);}
+.tec-full .lt-s>span{font-size:calc(var(--lth)*.07);}
+.lt-s.passou{opacity:.3;}
+.lt-s.perto>span{animation:ltBand .5s ease-in-out infinite alternate;transform-origin:left center;}
 @keyframes ltBand{from{transform:scale(1);filter:brightness(1);}to{transform:scale(1.18);filter:brightness(1.35);}}
 .lt-now{position:absolute;top:0;bottom:0;width:3px;margin-left:-1.5px;background:#fff;box-shadow:0 0 10px rgba(255,255,255,.8);transition:left .2s linear;z-index:2;}
 .lt-now::before{content:"";position:absolute;top:0;left:-6px;border:7px solid transparent;border-top-color:#fff;border-bottom:0;}
@@ -580,6 +589,7 @@ html.live-on,html.live-on body{overflow:hidden !important;}
 .mc-ps{display:flex;align-items:center;gap:10px;background:#1b1f26;border:1px solid #2a3039;border-radius:9px;padding:8px 10px}.mc-ps>span{color:#aab3c0;font-weight:600;font-size:12px}.mc-ps b{font:800 13px Inter,sans-serif;white-space:nowrap}.mc-ps b#mcPl{color:#4FC3FF}.mc-ps b#mcSu{color:#FF9F43}.mc-ps input{flex:1;accent-color:#FF9F43}
 .mc-z{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.mc-z>span{color:#aab3c0;font-weight:600;font-size:12px;margin-right:4px}.mc-z button{min-width:42px;padding:6px 8px;border-radius:8px;border:2px solid var(--zc);background:transparent;color:#8a93a3;font:800 13px Inter,sans-serif;cursor:pointer;opacity:.55}.mc-z button.on{background:var(--zc);color:#0a0d12;opacity:1}
 .mc-r{display:flex;flex-wrap:wrap;align-items:center;gap:8px;background:#171b21;border:1px solid #2a3039;border-radius:10px;padding:9px}.mc-r>b{width:100%;font-size:12.5px;color:#fff}.mc-r em{font:800 13px Inter,sans-serif;font-style:normal;color:#FFD60A}
+.mc-box label.mc-ck{flex-direction:row;}.mc-ck{display:flex;align-items:center;gap:6px;font:700 12.5px Inter,sans-serif;color:#fff;cursor:pointer}.mc-ck input{width:16px;height:16px;accent-color:#FFD60A}
 .mc-ri{display:flex;align-items:center;gap:8px;width:100%}.mc-ri.off{opacity:.4}.mc-ri>i{font:800 12px Inter,sans-serif;font-style:normal;color:#0a0d12;border-radius:6px;padding:4px 7px}
 .mc-pv{display:flex;align-items:flex-end;gap:8px;background:#0f1216;border-radius:9px;padding:8px}.mc-pv .mod-bar{height:34px}
 .mc-bt{display:flex;gap:8px;justify-content:flex-end}.mc-bt button{font:700 13px Inter,sans-serif;border-radius:9px;padding:8px 14px;border:1px solid #3a414c;background:#22272f;color:#e8ecf2;cursor:pointer}.mc-bt button.pri{background:#FFD60A;border-color:#FFD60A;color:#111}.mc-bt button:first-child{margin-right:auto}
@@ -3616,7 +3626,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   // regras de cada modelo (editáveis em ⚙️): duração, aquecimento, retorno à calma (min), cadências (plano / subida), zonas permitidas e rácios dos intervalados
   const MOD_REGRAS_BASE = {
     'ALTO ENDURANCE':        { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:30, z:[1,2,3] },
-    'MONTANHA':              { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:70, z:[1,2,3,4] },   // Z5–Z7 só no Intervalado Intensivo e na Competição (a não ser que as ligues nas regras)
+    'MONTANHA':              { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:70, z:[1,2,3,4], atq:{ on:true, a:60, b:120 } },   // atq: ataque no fim de cada subida (ligado/desligado, de a a b segundos)   // Z5–Z7 só no Intervalado Intensivo e na Competição (a não ser que as ligues nas regras)
     'INTERVALADO EXTENSIVO': { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:30, z:[1,4], ext:{ a:180, b:480, rr:.5 } },   // Z4 de 3 a 8 min, recupera metade (2:1)
     'BAIXO ENDURANCE':       { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:20, z:[1,2] },
     'FARTLEK':               { dur:50, aq:8, rc:8, cadP:[80,115], cadS:[60,80], pctS:40, z:[1,2,3,4], fart:{ n:6, r:90 } },   // sem sprints: Z1 a Z4
@@ -3628,7 +3638,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   let modTpls = {}; try{ modTpls = JSON.parse(localStorage.getItem('prModTpl') || '{}') || {}; }catch(e){}   // 🧩 templates teus (profiles/<uid>/modTpls)
   const eTpl = g=> typeof g === 'string' && g.slice(0, 4) === 'tpl:', tplDe = g=> !eTpl(g) ? null : g === 'tpl:__ed' ? TPL_ED : (modTpls[g.slice(4)] || null);
   function modRegras(g){ if(eTpl(g)){ const T = tplDe(g) || {}; return { dur: T.dur || 50, aq: T.aq != null ? +T.aq : 8, rc: T.rc != null ? +T.rc : 8, cadP: (T.cadP || [80, 115]).slice(), cadS: (T.cadS || [60, 80]).slice(), pctS: T.pctS != null ? +T.pctS : 30, z: [1, 2, 3, 4, 5, 6, 7], card: T.card ? Object.assign({}, T.card) : undefined }; }
-    const R = JSON.parse(JSON.stringify(Object.assign({}, MOD_REGRAS_BASE[g], modRegrasMeus[g] || {}))); if(g === 'FARTLEK' && !R.fart) R.fart = { n:6, r:90 };
+    const R = JSON.parse(JSON.stringify(Object.assign({}, MOD_REGRAS_BASE[g], modRegrasMeus[g] || {}))); if(g === 'FARTLEK' && !R.fart) R.fart = { n:6, r:90 }; if(g === 'MONTANHA'){ const A = R.atq || {}; R.atq = { on: A.on !== false, a: Math.max(60, +A.a || 60), b: Math.max(60, +A.b || 120) }; if(R.atq.b < R.atq.a) R.atq.b = R.atq.a; }
     // nenhum bloco com menos de 1 minuto: os tempos das regras (mesmo os guardados antes) sobem para 60 s
     const B = MOD_REGRAS_BASE[g] || {}, m60 = v=> v > 0 ? Math.max(60, v) : v; if(R.fart) R.fart.r = m60(R.fart.r);
     // regras antigas (trabalho/pausa fixos) passam às novas (intervalo de tempos + rácio)
@@ -3691,8 +3701,10 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     if(g === 'ALTO ENDURANCE'){ const tz = fortes(3).filter(z=> z <= 4); add('Z' + zona(2) + ' · base aeróbia', rB(300, 540), zona(2), 'trab', .1);
       for(let k = 0; k < 40; k++){ const z = tz.length ? pick(tz) : zona(3), s = rB(240, 480), r = rnd30(120, 240); if(!cabe(s + r)) break; add('Z' + z + ' · tempo', s, z, 'trab', .6); add('Z' + zona(2) + ' · rolar', r, zona(2), 'trab', .1); } }
     else if(g === 'BAIXO ENDURANCE'){ for(let k = 0; k < 40; k++){ const s = rB(360, 600), r = rnd30(60, 180); if(!cabe(s + r)) break; add(pick(['Z' + zona(2) + ' · constante', 'Z' + zona(2) + ' · cadência alta', 'Z' + zona(2) + ' · base']), s, zona(2), 'trab', .3); add('Z' + desc + ' · solta', r, desc, 'rec'); } }
-    else if(g === 'MONTANHA'){ fimForte = true; let n = 1; for(let k = 0; k < 40; k++){ const z1 = pick(fortes(3).filter(z=> z <= 4).concat([zona(3)])), z2 = pick(fortes(4).filter(z=> z <= 5).concat([zona(4)])), s1 = rB(180, 420), s2 = pick([60, 60, 90, 120]), r = rnd30(60, 180);
-      if(!cabe(s1 + s2 + r)) break; add('Subida ' + n, s1, z1, 'trab', .95); add('Subida ' + n + ' · ataque', s2, z2, 'trab', .9); add(Math.random() < .5 ? 'Descida' : 'Recupera', r, desc, 'rec'); n++; } }
+    else if(g === 'MONTANHA'){ fimForte = true; let n = 1; const AT = R.atq || { on: true, a: 60, b: 120 }, aA = Math.max(60, Math.min(AT.a, AT.b)), aB = Math.max(aA, AT.b);
+      // ⚔️ ataque no fim de cada subida (uma zona acima), se estiver ligado nas regras, com a duração escolhida (de 15 em 15 s)
+      for(let k = 0; k < 40; k++){ const z1 = pick(fortes(3).filter(z=> z <= 4).concat([zona(3)])), z2 = pick(fortes(4).filter(z=> z <= 5).concat([zona(4)])), s1 = rB(180, 420), s2 = AT.on ? aA + 15 * Math.floor(Math.random() * (Math.floor((aB - aA) / 15) + 1)) : 0, r = rnd30(60, 180);
+      if(!cabe(s1 + s2 + r)) break; add('Subida ' + n, s1, z1, 'trab', .95); if(s2) add('Subida ' + n + ' · ataque', s2, z2, 'trab', .9); add(Math.random() < .5 ? 'Descida' : 'Recupera', r, desc, 'rec'); n++; } }
     else if(g === 'INTERVALADO EXTENSIVO'){ fimForte = true; const e = R.ext || { a:180, b:480, rr:.5 }, zT = zona(4), rr = e.rr > 0 ? e.rr : 0, rec = t=> rr ? Math.max(60, Math.round(t * rr / 30) * 30) : 0;
       // intervalos Z4 de 3 a 8 min (ao acaso) e recuperação Z1 com metade do tempo (2:1); o último encolhe para caber
       for(let k = 0; k < 60; k++){ let t = rnd30(e.a, e.b); while(t > e.a && !cabe(t + rec(t))) t -= 30; if(t < e.a || !cabe(t + rec(t))) break; add('Intervalo ' + (k + 1) + ' · Z' + zT, t, zT, 'trab', .5); if(rr) add('Recupera Z' + desc, rec(t), desc, 'rec'); } }
@@ -3768,7 +3780,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       if(x.k === 'cool'){ p = 45; cad = Math.max(R.cadP[0], Math.min(R.cadP[1], 85)); }
       else if(x.k === 'aq'){ p = x.p; cad = Math.max(R.cadP[0], Math.min(R.cadP[1], x.p >= 55 ? 95 : 90)); }
       else { const [a, b] = MOD_ZR[x.z - 1], ZB = [[0,55],[56,75],[76,90],[91,105],[106,120],[121,150],[151,250]][x.z - 1]; p = Math.round(a + vies(Math.random()) * (b - a)); if(x.z >= 3) p = Math.max(ZB[0], Math.min(ZB[1], Math.round(p * f)));   // o ajuste do bloco do ano nunca muda a zona
-        if(x.subida){ cad = uma(R.cadS[0], R.cadS[1]); tec = x.z >= 5 ? pick(['Subida em Pé', 'Combinado na Subida']) : pick(['Subida Sentada', 'Subida Sentada', 'Combinado na Subida']); if(!/subida|descida/i.test(nome)) nome += ' · subida'; }
+        if(x.subida){ cad = uma(R.cadS[0], R.cadS[1]); tec = x.z >= 5 ? pick(['Subida em Pé', 'Combinado na Subida']) : x.z >= 2 ? pick(['Subida Sentada', 'Combinado na Subida', 'Subida em Pé']) : 'Subida Sentada'; if(!/subida|descida/i.test(nome)) nome += ' · subida'; }
         else if(x.k === 'sprint'){ cad = uma(Math.max(R.cadP[0], R.cadP[1] - 10), R.cadP[1]); tec = 'Sprint'; }
         else if(x.k === 'rec'){ cad = uma(Math.max(R.cadP[0], 85), Math.min(R.cadP[1], 95), true); }
         else { cad = E >= 4 ? uma(R.cadP[0], R.cadP[1]) : x.z >= 4 ? uma(Math.max(R.cadP[0], 90), Math.min(R.cadP[1], 110)) : uma(Math.max(R.cadP[0], 85), Math.min(R.cadP[1], 105)); tec = x.z >= 4 ? pick(['Plano Sentado', 'Combinado no Plano', 'Plano em Pé']) : pick(['Plano Sentado', 'Plano Sentado', 'Combinado no Plano']); }
@@ -3888,12 +3900,13 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
         (R.ext ? '<div class="mc-r"><b>Intervalos Z4 : Z1</b><label>Trabalho Z4 de<span>' + num('extA', R.ext.a / 60, 1, 30, .5) + ' a ' + num('extB', R.ext.b / 60, 1, 30, .5) + ' min</span></label><label>Recuperação Z1<span>' + num('extRR', R.ext.rr, 0, 4, .25) + ' × o trabalho</span></label><em>rácio ' + rac(1, R.ext.rr) + '</em></div>' : '') +
         (R.spr ? '<div class="mc-r"><b>Sprints</b><label>Quantos<span>' + num('sNA', R.spr.nA, 0, 6) + ' a ' + num('sNB', R.spr.nB, 0, 6) + '</span></label><label>Duração<span>' + num('sA', R.spr.a, 5, 60) + ' a ' + num('sB', R.spr.b, 5, 60) + ' s</span></label><em>em Z7 · os únicos blocos com menos de 1 min</em></div>' : '') +
         (R.fart ? '<div class="mc-r"><b>Recuperações em Z1</b><label>Número de recuperações<span>' + num('fN', R.fart.n, 0, 30) + '</span></label><label>Duração de cada<span>' + num('fR', R.fart.r, 60, 600, 15) + ' s (' + ms(R.fart.r) + ')</span></label><em>' + R.fart.n + ' × ' + ms(R.fart.r) + ' = ' + ms(R.fart.n * R.fart.r) + ' em Z1</em></div>' : '') +
+        (R.atq ? '<div class="mc-r mc-atq"><b>⚔️ Ataque no fim de cada subida</b><label class="mc-ck"><input type="checkbox" data-atq="on"' + (R.atq.on ? ' checked' : '') + '> com ataque</label><label' + (R.atq.on ? '' : ' style="opacity:.4"') + '>Duração<span>' + num('atA', R.atq.a, 60, 600, 15) + ' a ' + num('atB', R.atq.b, 60, 600, 15) + ' s</span></label><em class="mc-atqT">' + (R.atq.on ? ms(R.atq.a) + ' a ' + ms(R.atq.b) + ' min, uma zona acima da subida (em subida com ≥50 % de subida)' : 'sem ataque: cada subida passa logo à descida / recuperação') + '</em></div>' : '') +
         (R.int ? '<div class="mc-r"><b>Intervalos Z5 · Z6 · Z7 : Z1</b><label>Trabalho de<span>' + num('intA', R.int.a / 60, 1, 10, .5) + ' a ' + num('intB', R.int.b / 60, 1, 10, .5) + ' min</span></label><label>Recuperação Z1<span>' + num('intRR', R.int.rr, 0, 4, .25) + ' × o trabalho</span></label><em>rácio ' + rac(1, R.int.rr) + '</em></div>' : '') +
         '<div class="mc-r"><b>Cartão na ⚡ Aula rápida</b><label>Subtítulo<span><input data-c="s" maxlength="40" value="' + escA(cd().s || '') + '"></span></label><label>Tipo<span><input data-c="t" maxlength="20" value="' + escA(cd().t || '') + '"></span></label><label>FC<span><input data-c="fc" maxlength="9" style="width:70px" value="' + escA(cd().fc || '') + '"> %</span></label><label>Esforço<span><select data-c="e" class="mc-sel">' + [1, 2, 3, 4, 5].map(n=> '<option value="' + n + '"' + (+cd().e === n ? ' selected' : '') + '>' + '★'.repeat(n) + '</option>').join('') + '</select></span></label><em class="mc-esf">★ esforço: 1★ = mais Z2 e cadências lentas · 3★ = as regras como estão · 5★ = mais Z4–Z5 e cadências rápidas (dentro das zonas e cadências escolhidas acima)</em></div>' +
         '<div class="mc-pv">' + modBarra(g, R) + '<button type="button" class="mod-cfg" data-a="pv" title="Ver outra versão aleatória">🎲</button></div><div class="mc-bt"><button type="button" data-a="repor">Repor predefinições</button><button type="button" data-a="cancel">Cancelar</button><button type="button" class="pri" data-a="ok">Guardar regras</button></div></div>';
     };
     pinta(); document.body.appendChild(ov);
-    ov.addEventListener('change', e=>{ const c = e.target.dataset.c; if(!c) return; const C = cd(); C[c] = c === 'e' ? +e.target.value : e.target.value.trim();
+    ov.addEventListener('change', e=>{ if(e.target.dataset.atq === 'on' && R.atq){ R.atq.on = e.target.checked; pinta(); return; } const c = e.target.dataset.c; if(!c) return; const C = cd(); C[c] = c === 'e' ? +e.target.value : e.target.value.trim();
       R.card = ['s', 't', 'fc', 'e'].some(k=> String(C[k] == null ? '' : C[k]) !== String(QT[k] == null ? '' : QT[k])) ? C : undefined; if(!R.card) delete R.card;
       if(c === 'e'){ const pv = ov.querySelector('.mc-pv'); if(pv) pv.innerHTML = modBarra(g, R) + '<button type="button" class="mod-cfg" data-a="pv" title="Ver outra versão aleatória">🎲</button>'; } });
     ov.addEventListener('input', e=>{ const k = e.target.dataset.k; if(!k) return; const v = +e.target.value; if(!isFinite(v)) return;
@@ -3901,7 +3914,8 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       else if(k === 'fN') R.fart.n = v; else if(k === 'fR') R.fart.r = v; else if(k === 'extA') R.ext.a = Math.round(v * 60); else if(k === 'extB') R.ext.b = Math.round(v * 60); else if(k === 'extRR') R.ext.rr = v; else if(k === 'intA') R.int.a = Math.round(v * 60); else if(k === 'intB') R.int.b = Math.round(v * 60); else if(k === 'intRR') R.int.rr = v;
       else if(k === 'blA' || k === 'blB'){ const ea = ov.querySelector('[data-k="blA"]'), eb = ov.querySelector('[data-k="blB"]'), va = +ea.value, vb = +eb.value;
         if(va > 0 || vb > 0){ const x = Math.round(Math.max(1, va || vb) * 60), y = Math.round(Math.max(1, vb || va) * 60); R.bl = { a: Math.min(x, y), b: Math.max(x, y) }; } else delete R.bl; }
-      else if(k === 'sNA') R.spr.nA = v; else if(k === 'sNB') R.spr.nB = v; else if(k === 'sA') R.spr.a = v; else if(k === 'sB') R.spr.b = v; else R[k] = v;
+      else if(k === 'atA') R.atq.a = Math.max(60, v); else if(k === 'atB') R.atq.b = Math.max(60, v); else if(k === 'sNA') R.spr.nA = v; else if(k === 'sNB') R.spr.nB = v; else if(k === 'sA') R.spr.a = v; else if(k === 'sB') R.spr.b = v; else R[k] = v;
+      if((k === 'atA' || k === 'atB') && R.atq){ const t = ov.querySelector('.mc-atqT'); if(t) t.textContent = ms(Math.min(R.atq.a, R.atq.b)) + ' a ' + ms(Math.max(R.atq.a, R.atq.b)) + ' min, uma zona acima da subida (em subida com ≥50 % de subida)'; }
       if(k === 'pctS'){ ov.querySelector('#mcPl').textContent = (100 - v) + '% plano'; ov.querySelector('#mcSu').textContent = v + '% subida'; }
       const pv = ov.querySelector('.mc-pv'); if(pv) pv.innerHTML = modBarra(g, R) + '<button type="button" class="mod-cfg" data-a="pv" title="Ver outra versão aleatória">🎲</button>'; ov.querySelectorAll('.mc-r em').forEach((el, i)=>{ if(R.fart && i === 0){ const m2 = s2=> Math.floor(s2 / 60) + ':' + String(s2 % 60).padStart(2, '0'); el.textContent = R.fart.n + ' × ' + m2(R.fart.r) + ' = ' + m2(R.fart.n * R.fart.r) + ' em Z1'; } else if(R.ext && i === 0) el.textContent = 'rácio ' + rac(1, R.ext.rr); else if(R.int && i === 0) el.textContent = 'rácio ' + rac(1, R.int.rr); }); });
     ov.addEventListener('click', e=>{ const zb = e.target.closest('[data-z]'); if(zb){ const z = +zb.dataset.z; R.z = R.z.includes(z) ? R.z.filter(x=> x !== z) : R.z.concat(z).sort((a, b)=> a - b); if(!R.z.length) R.z = [z]; pinta(); return; }
@@ -3976,7 +3990,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function modResumo(g, R){ R = R || modRegras(g); const m = s=> String(Math.round(s / 6) / 10).replace('.', ','), f = v=> String(v).replace('.', ',');
     const x = [R.dur + ' min', 'aquec. ' + f(R.aq), 'calma ' + f(R.rc), (100 - (R.pctS || 0)) + '% plano / ' + (R.pctS || 0) + '% subida', 'Z' + R.z.join(' Z'), 'plano ' + R.cadP.join('–') + ' · subida ' + R.cadS.join('–') + ' rpm'];
     if(R.ext) x.push('Z4 de ' + m(R.ext.a) + ' a ' + m(R.ext.b) + ' min, recupera ×' + f(R.ext.rr)); if(R.int) x.push('Z5–Z7 de ' + m(R.int.a) + ' a ' + m(R.int.b) + ' min, recupera ×' + f(R.int.rr));
-    if(R.bl) x.push('blocos de ' + m(R.bl.a) + ' a ' + m(R.bl.b) + ' min'); if(R.fart) x.push(R.fart.n + ' recuperações de ' + tplMs(R.fart.r)); if(R.spr) x.push(R.spr.nA + '–' + R.spr.nB + ' sprints de ' + R.spr.a + '–' + R.spr.b + ' s');
+    if(R.bl) x.push('blocos de ' + m(R.bl.a) + ' a ' + m(R.bl.b) + ' min'); if(R.fart) x.push(R.fart.n + ' recuperações de ' + tplMs(R.fart.r)); if(R.spr) x.push(R.spr.nA + '–' + R.spr.nB + ' sprints de ' + R.spr.a + '–' + R.spr.b + ' s'); if(R.atq) x.push(R.atq.on ? 'ataque de ' + (R.atq.a === R.atq.b ? tplMs(R.atq.a) : tplMs(R.atq.a).replace(/ (s|min)$/, '') + '–' + tplMs(R.atq.b)) : 'sem ataque');
     return x.join(' · '); }
   function tplResumo(T){ const md = (TPL_MODOS.find(m=> m[0] === T.modo) || TPL_MODOS[0])[1], C = tplCiclo(T);
     return md + ' · ' + T.seg.length + (T.seg.length === 1 ? ' parte' : ' partes') + ' (volta ' + tplMs(C) + ') · ' + (T.modo === 'fixo' ? 'aula de ' + tplMs(C + (T.aq + T.rc) * 60) : T.dur + ' min') + ' · aquec. ' + String(T.aq).replace('.', ',') + ' · calma ' + String(T.rc).replace('.', ','); }
@@ -14885,13 +14899,47 @@ const SR3 = (()=>{
       const lh = box.getBoundingClientRect().height || 140, fs = lh * (LT.full ? .11 : .17), PT = estTecPontos();
       PT.forEach((pt, k)=>{ const sb = pt.s, gap = ((k + 1 < PT.length ? PT[k + 1].T : tot) - pt.T) * LT.pps, cabe = sb.n.length * fs * .6 + lh * (LT.full ? .3 : .5) + 18 < gap, tx = cabe ? sb.n : (sb.pos || (sb.ter === 'outra' ? sb.n.slice(0, 6) : ''));
         LT.fl.push(pt.T); H.push('<div class="lt-f" data-t="' + pt.T + '" data-n="' + (k + 1 < PT.length ? PT[k + 1].T : tot) + '" style="left:' + (pt.T * LT.pps).toFixed(1) + 'px;--tc:' + sb.cor + '" title="' + escapeHtml(sb.n) + ' · ' + liveTecFmt(pt.T) + '"><div class="lt-fb">' + LT_ICO[sb.ter] + (tx ? '<span>' + escapeHtml(tx) + '</span>' : '') + '</div></div>'); });
+      // 💡 sugestões de técnica ao longo de cada bloco (frases da música)
+      const fs2 = lh * (LT.full ? .07 : .105), SG = (()=>{ try{ return liveTecSug(MX, LIBM, BL); }catch(e){ return []; } })(), LAB = { S: '▼ sentado', P: '▲ em pé', SP: '⇅ combinado' };
+      SG.forEach((g, k)=>{ const gap = ((k + 1 < SG.length && SG[k + 1].bi === g.bi ? SG[k + 1].T : g.fim) - g.T) * LT.pps, lab = LAB[g.p], tx = lab.length * fs2 * .62 + 24 < gap ? lab : lab.slice(0, 1);
+        H.push('<div class="lt-s' + (g.ini ? ' inicio' : '') + '" data-t="' + g.T + '" data-n="' + g.fim2 + '" style="left:' + (g.T * LT.pps).toFixed(1) + 'px;--tc:' + g.cor + '"><span>' + tx + '</span></div>'); });
       H.unshift('<canvas class="lt-cv" id="liveTecCv"></canvas><div class="lt-pass" id="liveTecPass"></div>');
     }
     tr.innerHTML = H.join('');
     if(onda) try{ liveTecOnda(MX, LIBM, BL); }catch(e){}
     liveTecTick(true);
   }
-  // desenha a onda de toda a aula uma vez, na cor da zona de treino de cada bloco (o nome de cada música no canto de baixo)
+  // 💡 técnicas que se podem usar ao longo de cada bloco: a música é cortada em frases (16 batidas; sem BPM, 15 s) e cada frase tem a sua energia;
+  // frases mais fortes → em pé, mais calmas → sentado (Z5+: em pé ou combinado). Z1, sprints, segmentos e técnicas "outra" não têm sugestões.
+  // Cada sugestão dura pelo menos 15 s. Só aparece quando o bloco muda de técnica pelo caminho ou quando a sugestão é diferente da técnica do bloco.
+  function liveTecSug(MX, LIBM, BL){
+    const quem = T=>{ let mel = null, gm = -1; MX.itens.forEach(it=>{ if(T < it.t0 || T >= it.t1) return; const t = LIBM.get(it.id); if(!t || !t.pk || !(t.dur > 0)) return;
+      let f = 1; if(it.fIn > 0 && T - it.t0 < it.fIn) f = (T - it.t0) / it.fIn; if(it.fOut > 0 && it.t1 - T < it.fOut) f = Math.min(f, (it.t1 - T) / it.fOut); const g = (it.g == null ? 1 : it.g) * f; if(g > gm){ gm = g; mel = { it, t }; } }); return mel; };
+    // 1) frases da aula toda (amostra de segundo a segundo)
+    const FR = []; let cur = null;
+    for(let T = 0; T < LT.tot; T++){ const q = quem(T + .5); if(!q){ cur = null; continue; } const { it, t } = q, pos = estPosMus(it, T + .5), pp = t.pk.length / t.dur;
+      let v = 0, n = 0; for(let j = Math.floor(pos * pp); j < Math.floor((pos + 1) * pp); j++){ v += t.pk[j] || 0; n++; } v = n ? v / n : 0;
+      const key = it.id + ':' + (t.bpm > 0 ? Math.floor((pos - (t.beat0 || 0)) / (60 / t.bpm) / 16) : Math.floor(pos / 15));
+      if(!cur || cur.key !== key){ cur = { key, a: T, b: T + 1, s: v, n: 1 }; FR.push(cur); } else { cur.b = T + 1; cur.s += v; cur.n++; } }
+    FR.forEach(f=> f.e = f.s / f.n); if(!FR.length) return [];
+    const ord = FR.map(f=> f.e).sort((a, b)=> a - b), pct = q=> ord[Math.min(ord.length - 1, Math.floor(q * ord.length))], g40 = pct(.4), g80 = pct(.8);
+    const out = []; let t0 = 0;
+    BL.forEach((b, bi)=>{ const d = blockDurationSec(b), a = t0, fim = t0 + d; t0 += d; if(b.tipo === 'seg' || b.tipo === 'cool' || d < 30) return;
+      const sb = estTecSimb(b.tecnica); if(!sb || (sb.ter !== 'plano' && sb.ter !== 'subida')) return;
+      const z = zoneIdx(b.ftp) + 1; if(!(z >= 2)) return;
+      // frases dentro do bloco (cortadas nos limites do bloco)
+      const P = FR.filter(f=> f.b > a && f.a < fim).map(f=> ({ a: Math.max(a, f.a), b: Math.min(fim, f.b), e: f.e })); if(!P.length) return;
+      const em = P.reduce((s, f)=> s + f.e * (f.b - f.a), 0) / P.reduce((s, f)=> s + (f.b - f.a), 0);
+      let S = P.map(f=> ({ a: f.a, b: f.b, p: ((f.e >= em * 1.06 && f.e >= g40) || f.e >= g80) ? 'P' : (z >= 5 ? 'SP' : 'S') }));
+      const junta = L=> L.reduce((r, x)=>{ const l = r[r.length - 1]; if(l && l.p === x.p) l.b = x.b; else r.push(Object.assign({}, x)); return r; }, []);
+      S = junta(S); for(let k = 0; k < S.length; k++){ if(S[k].b - S[k].a < 15 && S.length > 1){ const v = k > 0 ? S[k - 1] : S[k + 1]; S[k].p = v.p; } } S = junta(S);
+      if(S.length && S[0].a - a < 15) S[0].a = a;   // o primeiro começa no início do bloco
+      const base = sb.pos === 'P' ? 'P' : sb.pos === 'S/P' ? 'SP' : 'S';
+      if(S.length === 1 && S[0].p === base) return;   // a música não pede nada diferente do que está no bloco
+      S.forEach((x, k)=> out.push({ T: x.a, fim: k + 1 < S.length ? S[k + 1].a : fim, fim2: x.b, p: x.p, cor: sb.cor, bi, ini: x.a === a })); });
+    return out;
+  }
+  // desenha a onda de toda a aula uma vez, na cor da zona de treino de cada bloco
   function liveTecOnda(MX, LIBM, BL){
     const cv = $('liveTecCv'); if(!cv) return; const full = LT.tot * LT.pps, sc = Math.min(1, 16000 / Math.max(1, full)), W = Math.max(1, Math.round(full * sc)), H = Math.max(10, Math.round(cv.clientHeight || 120));
     cv.width = W; cv.height = H; cv.style.width = full.toFixed(1) + 'px'; const c = cv.getContext('2d'), mid = H * .62, amp = H * .36, k = LT.pps * sc;
@@ -14907,8 +14955,7 @@ const SR3 = (()=>{
         let f = 1; if(it.fIn > 0 && T - it.t0 < it.fIn) f = (T - it.t0) / it.fIn; if(it.fOut > 0 && it.t1 - T < it.fOut) f = Math.min(f, (it.t1 - T) / it.fOut);
         const cz = zAt(T); if(cz !== cAnt){ c.fillStyle = cz; cAnt = cz; }
         const a = Math.max(1, v / 99 * amp * vol * (.25 + .75 * f)); c.fillRect(x, mid - a, 1.15, a * 2); }
-      c.fillStyle = 'rgba(255,255,255,.4)'; c.fillRect(x0, 0, 1, H);
-      if(x1 - x0 > 110){ c.font = '700 ' + Math.max(10, Math.round(H * .1)) + 'px Inter,sans-serif'; c.fillStyle = 'rgba(255,255,255,.6)'; c.save(); c.beginPath(); c.rect(x0, 0, x1 - x0 - 4, H); c.clip(); c.fillText('♪ ' + (t.nome || ''), x0 + 6, H - 12); c.restore(); } });
+      c.fillStyle = 'rgba(255,255,255,.25)'; c.fillRect(x0, 0, 1, H); });
   }
   function liveTecTick(salta){
     if(!LT.on || !LT.tot) return; const box = $('liveTec'), tr = $('liveTecTrack'), now = $('liveTecNow'); if(!box || !tr || !now) return;
@@ -14922,6 +14969,7 @@ const SR3 = (()=>{
       if(i !== liveIdx){ const t = e.querySelector('.lt-t'), b = current.blocos[i]; if(t && b) t.textContent = liveTecFmt(blockDurationSec(b)); } }); }
     const ps = $('liveTecPass'); if(ps) ps.style.width = (el * LT.pps).toFixed(1) + 'px';
     if(LT.fl.length) tr.querySelectorAll('.lt-f').forEach(f=>{ const T = +f.dataset.t, d = T - el; f.classList.toggle('passou', +f.dataset.n <= el); f.classList.toggle('perto', d > 0 && d <= 10); });   // a bandeira fica acesa enquanto a técnica dura; a próxima pisca nos 10 s antes da mudança
+    tr.querySelectorAll('.lt-s').forEach(f=>{ const d = +f.dataset.t - el; f.classList.toggle('passou', +f.dataset.n <= el); f.classList.toggle('perto', d > 0 && d <= 5); });
     const ag = tr.querySelector('.lt-b.agora .lt-t'); if(ag){ const v = liveTecFmt(Math.ceil(liveRemaining)); if(ag.textContent !== v) ag.textContent = v; }   // bloco atual: o tempo que falta
   }
   function liveTecFull(liga){
