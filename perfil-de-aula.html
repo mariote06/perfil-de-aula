@@ -983,7 +983,24 @@ html.fs-on .live-head .fs-btn{display:none;}
 .main-nav button,.main-nav a{display:inline-flex;align-items:center;gap:7px;white-space:nowrap;background:transparent;border:1px solid transparent;color:var(--muted);padding:8px 14px;border-radius:999px;font-size:14px;font-weight:600;text-decoration:none;font-family:'Inter',sans-serif;}
 .main-nav svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
 .main-nav button:hover,.main-nav a:hover{color:var(--text);border-color:var(--border);}
-.gest-tg{margin-right:6px}.gest-tg.on{background:#1f4d33;color:#bff3d2;border-color:#2f7a52}
+.qr-ov{position:fixed;inset:0;z-index:9700;background:rgba(5,8,14,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+  .qr-box{width:min(760px,100%);max-height:94vh;overflow:auto;background:#141826;border:1px solid #2c3550;border-radius:16px;padding:18px 20px;color:#e8ecf4;font-family:Inter,sans-serif;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+  .qr-h{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:12px}.qr-h b{font-size:19px;display:block}.qr-h small{color:#9aa6bf;font-size:12.5px}
+  .qr-x{background:none;border:0;color:#9aa6bf;font-size:20px;cursor:pointer}
+  .qr-box section{background:#1a2032;border:1px solid #29324a;border-radius:12px;padding:12px 14px;margin-bottom:12px}
+  .qr-st{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-bottom:8px}.qr-st span{font-size:12px;font-weight:800;letter-spacing:.06em;color:#b9c3d8}
+  .qr-bu{background:#11151f;border:1px solid #33405a;border-radius:20px;color:#e8ecf4;padding:6px 12px;font-size:12.5px;width:min(260px,55%)}
+  .qr-chips{display:flex;flex-wrap:wrap;gap:6px;max-height:110px;overflow:auto}
+  .qr-ch{background:#222a3f;border:1px solid #34405e;color:#dfe6f3;border-radius:18px;padding:5px 11px;font-size:12.5px;cursor:pointer}.qr-ch small{opacity:.65}.qr-ch.on{background:#3b2f7a;border-color:#8d7bff;color:#fff}
+  .qr-d{font-size:11.5px;color:#9aa6bf;font-style:italic;margin:8px 0 0}
+  .qr-dur{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.qr-dur button{flex:1 1 80px;background:#1f2638;border:1px solid #34405e;color:#e8ecf4;border-radius:10px;padding:10px 6px;font-weight:700;cursor:pointer}
+  .qr-dur button.on{background:#1d3566;border-color:#3c7bff;box-shadow:0 0 0 2px #3c7bff55}.qr-out{font-size:12px;color:#9aa6bf}.qr-out input{width:60px;background:#11151f;border:1px solid #33405a;border-radius:8px;color:#fff;padding:5px}
+  .qr-tipos{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;margin-bottom:12px}
+  .qr-t{text-align:left;background:#1a2032;border:1px solid #2c3550;border-radius:12px;padding:12px;cursor:pointer;color:#e8ecf4;display:grid;grid-template-columns:1fr auto;gap:4px 8px}
+  .qr-t.on{border-color:var(--c);box-shadow:0 0 0 2px var(--c) inset;background:#1e2538}.qr-tn{font-weight:800;color:var(--c);font-size:15px}.qr-tt{font-size:11px;color:#9aa6bf;text-align:right}
+  .qr-ts{grid-column:1/-1;font-size:12.5px;color:#cfd6e4}.qr-tf{grid-column:1/-1;display:flex;justify-content:space-between;font-size:11.5px;color:#9aa6bf}.qr-tf i{font-style:normal;color:#ffc83d;letter-spacing:1px}.qr-tf em{font-style:normal;color:#4a5370}
+  .qr-bt{display:flex;justify-content:flex-end;gap:10px}.qr-bt button{background:#1f2638;border:1px solid #34405e;color:#e8ecf4;border-radius:10px;padding:10px 18px;font-weight:700;cursor:pointer}.qr-bt .qr-go{background:#2563eb;border-color:#2563eb}
+  .gest-tg{margin-right:6px}.gest-tg.on{background:#1f4d33;color:#bff3d2;border-color:#2f7a52}
   .gest-menu{position:fixed;z-index:9000;display:flex;flex-direction:column;gap:4px;min-width:220px;padding:8px;background:var(--surface,#151a22);border:1px solid var(--border,#2a3240);border-radius:14px;box-shadow:0 16px 40px rgba(0,0,0,.5)}
 .gest-menu[hidden]{display:none}
 .gest-menu button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:transparent;border:0;color:var(--text,#fff);padding:10px 12px;border-radius:10px;font:600 14px Inter,system-ui,sans-serif;cursor:pointer}
@@ -3410,6 +3427,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     h += '<span class="gap"></span>';
     h += '<button class="zb" id="zbFtpTest" title="Teste FTP de 20 minutos (Allen-Coggan): acrescenta o bloco de teste à aula (ou monta a aula inteira de teste). No fim a app calcula o FTP de cada aluno" style="--c:#FFD60A;--p:100%"><span class="zb-ring"><span class="zb-core">' + ICON_TEST + '</span></span><span class="zl">Teste FTP</span></button>';
     h += '<button class="zb" id="zbModelos" title="Modelos de aula de 50 min (Alto/Baixo Endurance, Montanha, Intervalados, Fartlek, Competição, Recuperação) ajustados ao plano anual" style="--c:#7FB2FF;--p:100%"><span class="zb-ring"><span class="zb-core zb-emo">📋</span></span><span class="zl">Modelos</span></button>';
+    h += '<button class="zb" id="zbQuick" title="⚡ Aula rápida: escolhe as músicas (biblioteca ou pasta), a duração e o tipo de aula; gera os blocos e enche a mistura com músicas escolhidas para cada momento" style="--c:#FF8A1F;--p:100%"><span class="zb-ring"><span class="zb-core zb-emo">⚡</span></span><span class="zl">Aula rápida</span></button>';
     h += '<button class="zb" id="zbJogos" title="Jogos e percursos virtuais: escolhe um jogo para cada bloco da aula" style="--c:#FF4FA3;--p:100%"><span class="zb-ring"><span class="zb-core zb-emo">🎮</span></span><span class="zl">Jogos e percursos</span></button>';
     h += '<button class="zb tool2" id="zbImport" title="Importar aulas de um ficheiro .json"><span class="zb-ring"><span class="zb-core">' + ICON_PLUS + '</span></span><span class="zl">Importar</span></button>';
     h += '<button class="zb tool2 total" id="zbTotal" title="Duração total da aula" tabindex="-1"><span class="zb-ring"><span class="zb-core">T</span></span><span class="zl" id="zbTotalTxt">0:00</span></button>';
@@ -3642,6 +3660,69 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     m.onclick = e=>{ const c = e.target.closest('[data-cfg]'); if(c){ e.stopPropagation(); modCfgAbre(c.dataset.cfg, ()=>{ delete AM[c.dataset.cfg]; pinta(); }); return; }
       const nv = e.target.closest('[data-novo]'); if(nv){ e.stopPropagation(); const g = nv.dataset.novo, it = m.querySelector('[data-mod="' + g + '"] .mod-v'); if(it) it.innerHTML = modBarra(g, modRegras(g), amostra(g, true)); return; }
       const b = e.target.closest('[data-mod]'); if(!b) return; m.remove(); document.removeEventListener('pointerdown', fecha, true); const g = b.dataset.mod; modAplica(g, null, false, AM[g] ? AM[g].map(x=> Object.assign({}, x, { id: uid() })) : null); };
+  }
+  // =====================================================================
+  // ⚡ AULA RÁPIDA: escolhes as músicas (biblioteca ou uma pasta), a duração e o tipo de aula → o PlayRide gera os blocos
+  // com as tuas regras (⚙️ dos modelos) e enche a mistura no Estúdio com músicas escolhidas pelo momento de cada bloco
+  // =====================================================================
+  const QR_TIPOS = [
+    { g:'RECUPERAÇÃO', n:'Recuperação', s:'Recuperação ativa', t:'Aeróbio leve', fc:'50–65', e:1 },
+    { g:'BAIXO ENDURANCE', n:'Baixo Endurance', s:'Resistência de base', t:'Aeróbio', fc:'65–75', e:2 },
+    { g:'ALTO ENDURANCE', n:'Alto Endurance', s:'Resistência elevada', t:'Aeróbio alto', fc:'75–85', e:3 },
+    { g:'MONTANHA', n:'Montanha', s:'Subidas', t:'Aeróbio', fc:'75–85', e:4 },
+    { g:'FARTLEK', n:'Fartlek', s:'Surpresa — variável', t:'Aeróbio', fc:'65–85', e:3 },
+    { g:'INTERVALADO EXTENSIVO', n:'Intervalado Extensivo', s:'Intervalos longos Z4 · 2:1', t:'Aeróbio', fc:'65–85', e:3 },
+    { g:'INTERVALADO INTENSIVO', n:'Intervalado Intensivo', s:'Intervalos Z5–Z7 · 1:2', t:'Anaeróbio', fc:'65–90', e:5 },
+    { g:'COMPETIÇÃO', n:'Competição', s:'Prova — sprints', t:'Anaeróbio', fc:'85–100', e:5 }
+  ];
+  async function qrAbre(){
+    if($('qrOv')) return; let Q = {}; try{ Q = JSON.parse(localStorage.getItem('prQR') || '{}') || {}; }catch(e){}
+    const hoje = new Date(), pt = (()=>{ try{ return paTipo(hoje); }catch(e){ return null; } })(), sug = pt && MOD_DO_PLANO[pt.k];
+    Q.dur = Q.dur || 50; Q.g = Q.g || sug || 'ALTO ENDURANCE'; Q.col = Q.col || 'all';
+    try{ if(!EST_LIB.ok) await estLibCarrega(); }catch(e){}
+    const L = (EST_LIB && EST_LIB.L) || [], C = estCols(), n = id=> id === 'all' ? L.filter(t=> t.bpm > 0 && !t.noAuto).length : L.filter(t=> t.col === id && t.bpm > 0).length;
+    if(Q.col !== 'all' && !C.some(c=> c.id === Q.col)) Q.col = 'all';
+    const ov = document.createElement('div'); ov.id = 'qrOv'; ov.className = 'qr-ov'; let busca = '';
+    const pinta = ()=>{
+      const cols = C.filter(c=> !busca || c.nome.toLowerCase().includes(busca.toLowerCase()));
+      ov.innerHTML = '<div class="qr-box"><div class="qr-h"><div><b>⚡ Aula rápida — tipo de aula</b><small>Escolhe as músicas, a duração e o tipo: os blocos e a mistura ficam prontos</small></div><button type="button" class="qr-x" data-q="x">✕</button></div>'
+        + '<section><div class="qr-st"><span>📁 MÚSICAS</span><input type="search" class="qr-bu" placeholder="🔎 Procurar uma pasta…" value="' + escapeHtml(busca) + '"></div><div class="qr-chips">'
+        + '<button type="button" class="qr-ch' + (Q.col === 'all' ? ' on' : '') + '" data-col="all">🎵 Toda a biblioteca <small>' + n('all') + '</small></button>'
+        + cols.map(c=> '<button type="button" class="qr-ch' + (Q.col === c.id ? ' on' : '') + '" data-col="' + c.id + '">📁 ' + escapeHtml(c.nome) + ' <small>' + n(c.id) + '</small></button>').join('')
+        + '</div><p class="qr-d">💡 Com uma pasta escolhida, as músicas dela vêm primeiro; se não chegarem para a aula toda (ou não tiverem a cadência certa), completa com o resto da biblioteca.' + (L.length ? '' : ' <b>A biblioteca está vazia: a aula é criada só com os blocos.</b>') + '</p></section>'
+        + '<section><div class="qr-st"><span>⏱ DURAÇÃO DA AULA</span></div><div class="qr-dur">' + [45, 50, 55, 60, 75, 90, 120].map(m=> '<button type="button" class="' + (Q.dur === m ? 'on' : '') + '" data-dur="' + m + '">' + m + ' min</button>').join('')
+        + '<label class="qr-out">outra <input type="number" min="20" max="180" step="5" value="' + ([45, 50, 55, 60, 75, 90, 120].includes(Q.dur) ? '' : Q.dur) + '" data-dur-in> min</label></div>'
+        + '<p class="qr-d">💡 Inclui o aquecimento e o retorno à calma (com as tuas regras ⚙️ de cada modelo); os intervalados acertam o aquecimento (8–12 min) e o retorno à calma (6–8 min) para cumprir os rácios.</p></section>'
+        + '<div class="qr-tipos">' + QR_TIPOS.map(T=>{ const c = (GRUPOS_BASE.find(x=> x.n === T.g) || {}).c || '#B07CFF';
+          return '<button type="button" class="qr-t' + (Q.g === T.g ? ' on' : '') + '" data-g="' + T.g + '" style="--c:' + c + '"><span class="qr-tn">' + (T.g === sug ? '⭐ ' : '') + T.n + '</span><span class="qr-tt">' + T.t + '</span><span class="qr-ts">' + T.s + '</span><span class="qr-tf">FC ' + T.fc + '%<i>' + '★'.repeat(T.e) + '<em>' + '★'.repeat(5 - T.e) + '</em></i></span></button>'; }).join('') + '</div>'
+        + (sug ? '<p class="qr-d">⭐ = o que o plano anual tem para hoje (' + escapeHtml(pt.tipo.n) + ')</p>' : '')
+        + '<div class="qr-bt"><button type="button" data-q="x">Cancelar</button><button type="button" class="qr-go" data-q="go">⚡ Gerar esta aula</button></div></div>';
+      const bu = ov.querySelector('.qr-bu'); bu.oninput = ()=>{ busca = bu.value; const p = bu.selectionStart; pinta(); const b2 = ov.querySelector('.qr-bu'); b2.focus(); try{ b2.setSelectionRange(p, p); }catch(e){} };
+      const di = ov.querySelector('[data-dur-in]'); di.onchange = ()=>{ const v = Math.round(+di.value); if(v >= 20 && v <= 180){ Q.dur = v; pinta(); } };
+    };
+    pinta(); document.body.appendChild(ov);
+    ov.addEventListener('click', async e=>{
+      if(e.target === ov){ ov.remove(); return; }
+      const c = e.target.closest('[data-col]'); if(c){ Q.col = c.dataset.col; pinta(); return; }
+      const d = e.target.closest('[data-dur]'); if(d){ Q.dur = +d.dataset.dur; pinta(); return; }
+      const t = e.target.closest('[data-g]'); if(t){ Q.g = t.dataset.g; pinta(); return; }
+      const q = e.target.closest('[data-q]'); if(!q) return; if(q.dataset.q === 'x'){ ov.remove(); return; }
+      try{ localStorage.setItem('prQR', JSON.stringify(Q)); }catch(err){} ov.remove(); await qrGera(Q);
+    });
+  }
+  async function qrGera(Q){
+    const R = modRegras(Q.g); R.dur = Q.dur;
+    if(R.aq + R.rc >= R.dur - 5){ const f = (R.dur - 10) / Math.max(1, R.aq + R.rc); R.aq = Math.max(3, Math.round(R.aq * f)); R.rc = Math.max(3, Math.round(R.rc * f)); }
+    const B = modBlocos(Q.g, new Date(), R); modAplica(Q.g, null, false, B); if(current.blocos !== B) return;   // cancelou a substituição
+    const T = QR_TIPOS.find(x=> x.g === Q.g) || {}; current.nome = Q.g + ' ' + new Date().toLocaleDateString('pt-PT').replace(/\//g, '-');
+    current.descricao = (current.descricao || '') + ' ⚡ Aula rápida: ' + Q.dur + ' min · FC ' + (T.fc || '') + '%.'; render();
+    const L = (EST_LIB && EST_LIB.L) || []; if(!L.some(t=> t.bpm > 0)){ toast('⚡ ' + (T.n || Q.g) + ' (' + Q.dur + ' min) criada. A biblioteca de música está vazia: liga uma pasta no 🎛️ Estúdio para a encher.'); return; }
+    EST.qrCol = Q.col !== 'all' ? Q.col : null;
+    try{ estEnche(); }catch(e){ console.warn('aula rápida:', e); }
+    const M = current.mix, nCol = EST.qrCol && M ? M.itens.filter(it=>{ const x = estLibMap()[it.id]; return x && x.col === EST.qrCol; }).length : 0, colNome = EST.qrCol ? ((estCols().find(c=> c.id === EST.qrCol) || {}).nome || '') : '';
+    EST.qrCol = null; persist(); render();
+    try{ estAbre(); }catch(e){}
+    toast('⚡ ' + (T.n || Q.g) + ' · ' + Q.dur + ' min: ' + current.blocos.length + ' blocos e ' + (M ? M.itens.length : 0) + ' músicas' + (colNome ? ' (' + nCol + ' da pasta "' + colNome + '")' : '') + (M && M.dps ? ' · 🔥 ' + M.dps + ' drops nos sprints/intervalos' : '') + '. Ajusta à vontade e ▶ Ouvir.');
   }
   // ⚙️ editor das regras de um modelo
   function modCfgAbre(g, depois){
@@ -3969,6 +4050,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     else if(btn.id === 'zbImport') openImgImport();
     else if(btn.id === 'zbFtpTest') doFtpTest();
     else if(btn.id === 'zbModelos') modMenu(btn);
+    else if(btn.id === 'zbQuick') qrAbre();
     else if(btn.id === 'zbJogos') jpAbrir();
   });
   $('cmdSaveBtn').addEventListener('click', ()=> saveCurrent(false));
@@ -11899,7 +11981,7 @@ const SR3 = (()=>{
   function mixAtivo(){ const m = current && current.mix; return m && m.itens && m.itens.length ? m : null; }
   async function estUrl(id, clique){
     if(MIX.urls[id]) return MIX.urls[id];
-    let f = null; try{ f = await estFicheiro(id); }catch(e){ if(e.message === 'perm' && ESTD.preso && ESTD.preso.size && (clique || !MIX.avisoPerm)){ MIX.avisoPerm = true; toast('📁 Sem som: o Chrome deixou "pendurado" o atalho da pasta ' + Array.from(ESTD.preso).join(', ') + '. Abre 🩺 Som e carrega em 📁 Religar as pastas (escolhe a mesma pasta; não volta a analisar nada).'); }
+    let f = null; try{ f = await estFicheiro(id); }catch(e){ if(e.message === 'perm' && ESTD.preso && ESTD.preso.size && (clique || !MIX.avisoPerm)){ MIX.avisoPerm = true; toast('📁 Sem som: o Chrome deixou "pendurado" ' + estPresoTxt() + '. Não volta a analisar nada.'); }
       else if(e.message === 'perm' && (clique || !MIX.avisoPerm)){ MIX.avisoPerm = true; toast('🔓 Sem som: o navegador não deixou ler a pasta das músicas. Carrega outra vez e escolhe "Permitir" (no Chrome: "Permitir em todas as visitas"), ou usa 🔓 Dar acesso às músicas.'); }
       else if(e.message !== 'perm' && (clique || !(MIX.falhas || {})[id])){ (MIX.falhas = MIX.falhas || {})[id] = 1; toast('⚠ Sem som: não consegui abrir "' + (estNomeDe(id) || 'a música') + '" (' + (e.name === 'NotFoundError' ? 'o ficheiro mudou de sítio ou de nome: volta a ligar a pasta 📁' : e.name === 'SemPasta' ? e.message : e.message || e.name) + ').'); }
       return null; }
@@ -12068,12 +12150,18 @@ const SR3 = (()=>{
   const EST_PRESO = { preso: true };
   async function estHandle(dirId){ if(ESTD.dirs[dirId]) return ESTD.dirs[dirId]; const r = await estLimite(audGet('mdir:' + dirId), 8000, null); return (ESTD.dirs[dirId] = r && r.h || null); }
   // pede autorização para ler a pasta (o Chrome pergunta uma vez por sessão, ou nunca se escolheres "permitir sempre")
+  // autorização: em vez de perguntar ao Chrome (queryPermission, que às vezes nunca responde), experimenta LER: se der, está autorizado
+  async function estProva(h){ try{ if(h.kind === 'file'){ await h.getFile(); return 'ok'; } for await (const _ of h.keys()) break; return 'ok'; }catch(e){ return e && (e.name === 'NotAllowedError' || e.name === 'SecurityError') ? 'pedir' : e && e.name === 'NotFoundError' ? 'sumiu' : 'pedir'; } }
+  function estPresoMarca(h){ ESTD.preso = ESTD.preso || new Map(); ESTD.preso.set(h.name, h.kind); }
   async function estPerm(h, pedir){
-    if(!h || !h.queryPermission) return false;
-    try{ let s = await estLimite(h.queryPermission({ mode: 'read' }), 3000, 'preso'); if(s === 'granted') return true;
-      if(s === 'preso'){ ESTD.preso = ESTD.preso || new Set(); ESTD.preso.add(h.name); return false; }   // atalho pendurado: só religando a pasta (📁) se resolve
-      if(!pedir) return false; s = await estLimite(h.requestPermission({ mode: 'read' }), 60000, 'preso'); return s === 'granted'; }catch(e){ return false; }
+    if(!h) return false;
+    try{ let s = await estLimite(estProva(h), 4000, 'preso'); if(s === 'ok'){ if(ESTD.preso) ESTD.preso.delete(h.name); return true; }
+      if(s === 'preso'){ estPresoMarca(h); return false; }   // atalho pendurado: só se resolve escolhendo de novo a pasta/ficheiro
+      if(s === 'sumiu' || !pedir || !h.requestPermission) return false;
+      s = await estLimite(h.requestPermission({ mode: 'read' }), 60000, 'preso'); if(s === 'preso'){ estPresoMarca(h); return false; } return s === 'granted'; }catch(e){ return false; }
   }
+  function estPresoTxt(){ const P = ESTD.preso ? Array.from(ESTD.preso) : [], d = P.filter(x=> x[1] !== 'file').map(x=> x[0]), f = P.filter(x=> x[1] === 'file').map(x=> x[0]);
+    return (d.length ? 'o atalho da pasta ' + d.join(', ') + ' (🩺 Som → 📁 Religar as pastas)' : '') + (d.length && f.length ? ' e ' : '') + (f.length ? 'o atalho do ficheiro ' + f.slice(0, 3).join(', ') + (f.length > 3 ? '…' : '') + ' (carrega no ▶ da música e escolhe-a outra vez, ou 🩺 Som → 🔗 Religar ficheiros soltos)' : ''); }
   async function estPermTodas(pedir){
     const P = estPastas(); let ok = true;
     for(const p of P){ const h = await estHandle(p.id); const g = await estPerm(h, pedir); ESTD.perm[p.id] = g; if(!g) ok = false; }
@@ -12093,7 +12181,7 @@ const SR3 = (()=>{
   }
   // se abrir o ficheiro demorar, explica em que passo está parado
   function estEsperaAviso(){ return setTimeout(()=>{ const e = EST_ETAPA;
-    toast(e === 'perm' && ESTD.preso && ESTD.preso.size ? '📁 O Chrome deixou "pendurado" o atalho da pasta ' + Array.from(ESTD.preso).join(', ') + ': abre 🩺 Som e carrega em 📁 Religar as pastas (escolhe a mesma pasta; não volta a analisar nada).'
+    toast(e === 'perm' && ESTD.preso && ESTD.preso.size ? '📁 O Chrome deixou "pendurado" ' + estPresoTxt() + '. Não volta a analisar nada.'
       : e === 'perm' ? '🔓 O navegador está à espera da tua autorização: procura a janela "Permitir" junto à barra de endereço (ou ao título da janela da app) e escolhe "Permitir em todas as visitas". Se não a vires, fecha sobreposições de jogos/GPU (FPS, GPU, CPU) e tenta outra vez.'
       : e === 'db' ? '⏳ A base de dados do PlayRide está ocupada (a gravar a biblioteca?). Espera uns segundos e tenta outra vez; se continuar, fecha os outros separadores do PlayRide.'
       : e === 'pasta' || e === 'fich' ? '⏳ A pasta das músicas está lenta a responder (disco externo, rede ou OneDrive a descarregar?).' : '⏳ Ainda a abrir a música…'); }, 6000); }
@@ -12107,7 +12195,7 @@ const SR3 = (()=>{
   async function* estVarre(dir, pre, nivel){
     for await (const [nome, h] of dir.entries()){
       if(h.kind === 'file' && EST_EXT.test(nome)) yield { path: pre + nome, h, d: dir };
-      else if(h.kind === 'directory' && nivel < 4 && !nome.startsWith('.')) yield* estVarre(h, pre + nome + '/', nivel + 1);
+      else if(h.kind === 'directory' && nivel < 8 && !nome.startsWith('.')) yield* estVarre(h, pre + nome + '/', nivel + 1);   // até 8 níveis de subpastas
     }
   }
   // ⚙️ análise em paralelo: o navegador descodifica o MP3 e os "workers" (um por núcleo, até 6) medem BPM, batida, chave e energia ao mesmo tempo
@@ -12174,11 +12262,11 @@ const SR3 = (()=>{
   }
 
   // 🩺 diagnóstico do som: testa passo a passo (base de dados, pastas, autorização, ler a música, tocar) e mostra onde falha
-  const EST_VERSAO = '25/11 00:45';
+  const EST_VERSAO = '25/11 12:40';
   async function estDiag(){
     document.querySelector('.est-diag') && document.querySelector('.est-diag').remove();
     const ov = document.createElement('div'); ov.className = 'est-arm est-diag'; ov.innerHTML = '<div class="est-arm-c" style="max-width:720px;padding:16px 18px;overflow:auto"><h3 style="margin:0 0 6px">🩺 Diagnóstico do som · versão ' + EST_VERSAO + '</h3><ol class="est-dg" style="font:13px/1.55 Inter,sans-serif;padding-left:20px;margin:8px 0"></ol>'
-      + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button type="button" class="est-pri" data-dg="rel">📁 Religar as pastas</button><button type="button" data-dg="perm">🔓 Pedir autorização agora</button><button type="button" data-dg="toca">▶ Testar uma música</button><button type="button" data-dg="bip">🔊 Testar bip</button><button type="button" data-dg="cop">📋 Copiar resultado</button><button type="button" data-dg="x">Fechar</button></div></div>';
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px"><button type="button" class="est-pri" data-dg="rel">📁 Religar as pastas</button><button type="button" data-dg="relf">🔗 Religar ficheiros soltos</button><button type="button" data-dg="perm">🔓 Pedir autorização agora</button><button type="button" data-dg="toca">▶ Testar uma música</button><button type="button" data-dg="bip">🔊 Testar bip</button><button type="button" data-dg="cop">📋 Copiar resultado</button><button type="button" data-dg="x">Fechar</button></div></div>';
     document.body.appendChild(ov); const ol = ov.querySelector('.est-dg');
     const lin = (txt, cls)=>{ const li = document.createElement('li'); li.textContent = txt; if(cls) li.style.color = cls === 'ok' ? '#7ee2a8' : cls === 'mau' ? '#ff8a8a' : '#ffd479'; ol.appendChild(li); return li; };
     const passo = async (nome, fn, ms = 10000)=>{ const li = lin('⏳ ' + nome + '…', 'esp'), t0 = performance.now(); let tm;
@@ -12191,9 +12279,10 @@ const SR3 = (()=>{
     const P = estPastas(); if(!P.length) lin('Nenhuma pasta ligada: carrega em 📁 Ligar pasta.', 'mau');
     for(const p of P){ let h = null;
       await passo('Pasta "' + p.nome + '" · atalho guardado', async ()=>{ delete ESTD.dirs[p.id]; h = await audGet('mdir:' + p.id).then(r=> r && r.h); if(!h) throw new Error('não há atalho guardado (liga outra vez a pasta 📁)'); return 'ok (' + h.kind + ')'; }, 8000);
-      if(h) await passo('Pasta "' + p.nome + '" · autorização', async ()=>{ const st = await estLimite(h.queryPermission({ mode: 'read' }), 5000, 'preso'); if(st === 'preso') throw new Error('o Chrome não responde a este atalho (está "pendurado"): carrega em 📁 Religar as pastas'); ESTD.perm[p.id] = st === 'granted'; return st === 'granted' ? 'DADA' : st === 'prompt' ? 'por pedir (carrega em 🔓 Pedir autorização agora)' : 'RECUSADA'; }, 8000); }
+      if(h) await passo('Pasta "' + p.nome + '" · autorização', async ()=>{ const st = await estLimite(estProva(h), 5000, 'preso'); if(st === 'preso') throw new Error('o Chrome não responde a este atalho (está "pendurado"): carrega em 📁 Religar as pastas'); ESTD.perm[p.id] = st === 'ok'; return st === 'ok' ? 'DADA (consegue ler)' : st === 'sumiu' ? 'a pasta já não existe nesse sítio' : 'por pedir (carrega em 🔓 Pedir autorização agora)'; }, 8000); }
     const aMus = ()=>{ const M = mixAtivo(), L = EST_LIB.L || []; let t = M && M.itens.length && L.find(x=> x.id === M.itens[0].id); if(!t) t = L.find(x=> x.dir && !x.falta) || L[0]; return t; };
     ov.querySelector('[data-dg="x"]').onclick = ()=> ov.remove();
+    ov.querySelector('[data-dg="relf"]').onclick = async ()=>{ const n = (EST_LIB.L || []).filter(t=> t.fh).length; if(!n){ lin('Não há músicas soltas (adicionadas com ＋ Músicas) na biblioteca.', 'esp'); return; } lin('Escolhe os ficheiros das ' + n + ' músicas soltas (podes escolher vários de uma vez com Ctrl/Shift).', 'esp'); const k = await estReligaFich(null); lin((k ? '✓ ' : '✗ ') + k + ' de ' + n + ' ficheiros soltos religados.', k ? 'ok' : 'mau'); };
     // escolhe de novo cada pasta no Windows: o atalho novo substitui o antigo (as músicas ficam ligadas, sem voltar a analisar)
     ov.querySelector('[data-dg="rel"]').onclick = async ()=>{ let h; try{ h = await window.showDirectoryPicker({ id: 'playride-musicas', mode: 'read' }); }catch(e){ return; }
       const P = estPastas(), q = P.find(x=> x.nome === h.name);
@@ -12228,14 +12317,18 @@ const SR3 = (()=>{
   // liga (ou volta a ler) uma pasta: junta as músicas novas, reconhece as que já lá estavam e transforma as cópias antigas em atalhos
   async function estLigaPasta(dirId){
     let P = estPastas(), p = dirId ? P.find(x=> x.id === dirId) : null, h;
-    if(!p){ try{ h = await window.showDirectoryPicker({ id: 'playride-musicas', mode: 'read' }); }catch(e){ return 0; }
+    if(!p){ try{ h = await window.showDirectoryPicker({ id: 'playride-musicas', mode: 'read' }); }catch(e){ if(e && e.name !== 'AbortError') toast('⚠ Não consegui abrir a pasta: ' + (e.message || e.name)); return 0; }
+      EST.estado = 'A ler a pasta "' + h.name + '"…'; estPinta();
+      // pasta que já está DENTRO de uma pasta ligada (ex.: "FARTLEK 02.08.2026" dentro de "Músicas"): as músicas já estão na biblioteca;
+      // cria a pasta da biblioteca com elas (e junta as que faltarem), em vez de duplicar
+      for(const q of P){ const hq = await estHandle(q.id); if(!hq || !hq.resolve) continue; const rel = await estLimite(hq.resolve(h), 4000, null); if(Array.isArray(rel) && rel.length) return await estSubPasta(q, h, rel); }
       for(const q of P){ const hq = await estHandle(q.id); if(hq && hq.isSameEntry && await estLimite(hq.isSameEntry(h), 3000, false)){ p = q; break; } }
       if(!p){ for(const q of P){ if(q.nome === h.name){ p = q; break; } } }   // mesma pasta pelo nome (vinda de uma cópia 💾, ou atalho antigo pendurado): fica com o atalho novo
       if(p){ await audPut('mdir:' + p.id, { h }); if(ESTD.preso) ESTD.preso.delete(h.name); }
       if(!p){ p = { id: 'd' + uid().slice(1), nome: h.name }; P.push(p); estGravaPastas(P); await audPut('mdir:' + p.id, { h }); }
       ESTD.dirs[p.id] = h; }
     else h = await estHandle(p.id);
-    if(!(await estPerm(h, true))){ toast('Sem autorização para ler a pasta "' + p.nome + '".'); return 0; }
+    if(!(await estPerm(h, true))){ EST.estado = ''; estPinta(); toast('🔓 Sem autorização para ler a pasta "' + p.nome + '": volta a carregar em 📁 Ligar pasta e escolhe "Ver ficheiros" / "Permitir".'); return 0; }
     ESTD.perm[p.id] = true; audPersiste();
     let L = estLib(), novos = 0, ligados = 0, libertos = 0, vistos = new Set(), lista = [];
     EST.estado = 'A ler a pasta "' + p.nome + '"…'; estPinta();
@@ -12266,6 +12359,26 @@ const SR3 = (()=>{
     if(EST.pend && EST.pend.length) estLiga2();
     return novos + ligados;
   }
+  // 📂 subpasta de uma pasta já ligada: as músicas dela (já na biblioteca ou novas) ficam numa pasta da biblioteca com o mesmo nome
+  // 🔗 religar ficheiros soltos (adicionados com ＋ Músicas): escolhes os ficheiros outra vez e o atalho novo substitui o antigo
+  async function estReligaFich(ids){ let hs; try{ hs = await window.showOpenFilePicker({ id: 'playride-musicas', multiple: true, types: AUD_TIPOS }); }catch(e){ return 0; }
+    const L = EST_LIB.L || [], alvo = L.filter(t=> t.fh && (!ids || ids.includes(t.id))); let k = 0;
+    for(const h of hs){ let f; try{ f = await h.getFile(); }catch(e){ continue; } const t = alvo.find(x=> x.fich === f.name && (!x.tam || x.tam === f.size)) || alvo.find(x=> x.fich === f.name);
+      if(!t) continue; await audPut('mfh:' + t.id, { h }); t.tam = f.size; t.falta = false; delete t.semF; if(ESTD.preso) ESTD.preso.delete(h.name); delete (MIX.falhas || {})[t.id]; if(MIX.urls[t.id]){ URL.revokeObjectURL(MIX.urls[t.id]); delete MIX.urls[t.id]; } k++; }
+    if(k){ estGravaLib(L, true); mixRefaz(); } toast(k ? '🔗 ' + k + (k === 1 ? ' ficheiro religado' : ' ficheiros religados') : '🔗 Nenhum dos ficheiros escolhidos corresponde às músicas soltas da biblioteca (o nome tem de ser igual).'); return k; }
+  async function estSubPasta(q, h, rel){
+    const pre = rel.join('/') + '/', L = estLib(), porPath = new Map(), porFT = new Map(); L.forEach(t=>{ if(t.dir === q.id) porPath.set(t.path, t); porFT.set(t.fich + '|' + t.tam, t); });
+    const lista = []; EST.estado = 'A ler "' + h.name + '" (dentro de "' + q.nome + '")…'; estPinta(); for await (const x of estVarre(h, pre, rel.length)) lista.push(x);
+    const ids = new Set(); let novos = 0, feitos = 0; EST_LIB.lento = lista.length > 50;
+    await estParalelo(lista, async x=>{ let t = porPath.get(x.path), f = null;
+      if(!t){ try{ f = await x.h.getFile(); }catch(e){ return; } t = porFT.get(f.name + '|' + f.size); }
+      if(!t && f){ try{ const A = await estAnalisaFich(f, await estMxmDe(x.d, f.name)); t = Object.assign({ id: 'm' + uid().slice(1), nome: f.name.replace(/\.[^.]+$/, '').slice(0, 80), fich: f.name, tam: f.size, dir: q.id, path: x.path }, A); L.push(t); porPath.set(x.path, t); porFT.set(f.name + '|' + f.size, t); novos++; estGravaLib(L, true); }catch(e){ return; } }
+      if(t){ t.falta = false; ids.add(t.id); } feitos++; estEstado('📂 ' + h.name + ': ' + feitos + '/' + lista.length + (novos ? ' · ' + novos + ' novas analisadas' : '') + '…'); estPintaLibLento(); });
+    const c = estColNova(h.name); L.forEach(t=>{ if(ids.has(t.id)) t.col = c; });
+    q.n = L.filter(t=> t.dir === q.id && !t.falta).length; const P = estPastas(), qq = P.find(x=> x.id === q.id); if(qq){ qq.n = q.n; estGravaPastas(P); }
+    EST_LIB.lento = false; estGravaLib(L, true); estLibGravaJa(); clearTimeout(EST.libT); EST.libT = 0; EST.estado = ''; estColVai(c); estPinta();
+    toast('📂 "' + h.name + '" está dentro de "' + q.nome + '": criei a pasta da biblioteca "' + h.name + '" com as ' + ids.size + ' músicas dela' + (novos ? ' (' + novos + ' novas, já analisadas)' : '') + '.');
+    return ids.size; }
   // junta ficheiros soltos: com o Chrome guarda só o atalho do ficheiro (não copia); sem ele, copia como antes
   async function estJuntaItens(itens){
     itens = itens.filter(x=> x.file && (/^audio\//.test(x.file.type) || EST_EXT.test(x.file.name))); if(!itens.length) return;
@@ -12388,7 +12501,7 @@ const SR3 = (()=>{
       for(const C of L){ const T = C.t, u = st.us[T.id] || 0; if(!EST.rep && u > 0) continue; if(T.id === st.ult) continue;
         const dc = EST.cam && camU ? estCamDist(camU, T.cam) : -1, pc = dc < 0 ? (EST.cam && camU ? .08 : 0) : [0, .02, .07, .3][dc];
         const pe = EST.en && alvo != null && C.en != null ? Math.abs(C.en - alvo) * .035 : 0;
-        pre.push([C, (g.cad > 0 ? C.dev : T.bpm / 1000) + u * .25 + (C.dev > .08 ? .3 : 0) + pc + pe + (usaF && m ? estPapelNota(T, m.r, m.fad) * pw + estApNota(T, m.r) : 0) + (m ? estMoNota(T, m.r, m.fad) : 0)]); }
+        pre.push([C, (g.cad > 0 ? C.dev : T.bpm / 1000) + u * .25 + (C.dev > .08 ? .3 : 0) + pc + pe + (usaF && m ? estPapelNota(T, m.r, m.fad) * pw + estApNota(T, m.r) : 0) + (m ? estMoNota(T, m.r, m.fad) : 0) + (EST.qrCol ? (T.col === EST.qrCol ? -.3 : .06) : 0)]); }
       pre.sort((a, b)=> a[1] - b[1]);
       for(const [C, sc0] of pre.slice(0, usaF ? 36 : K)){ const T = C.t, bl = 60 / T.bpm, F = usaF ? estForma(T) : null;
         let ini0 = T.beat0; while(ini0 < 0) ini0 += bl; if(st.n && T.dur - ini0 > 16 * bl + 40) ini0 += 16 * bl;
@@ -12458,7 +12571,7 @@ const SR3 = (()=>{
       const rate = cad > 0 ? cad / eff : 1, dev = Math.abs(rate - 1); if(dev > .12) return;
       const dc = EST.cam && camU ? estCamDist(camU, t.cam) : -1, pc = dc < 0 ? (EST.cam && camU ? .08 : 0) : [0, .02, .07, .3][dc];   // 🎹 harmonia: prefere chaves vizinhas na roda de Camelot
       const en = estEnergia(t), pe = EST.en && alvoEn != null && en != null ? Math.abs(en - alvoEn) * .035 : 0;   // ⚡ energia perto da intensidade do bloco
-      out.push({ t, mu, rate, dev, dc, en, sc: (cad > 0 ? dev : t.bpm / 1000) + (usados[t.id] || 0) * .25 + (t.id === ultimo ? 2 : 0) + (dev > .08 ? .3 : 0) + pc + pe + (mo ? estPapelNota(t, mo.r, mo.fad) + estMoNota(t, mo.r, mo.fad) + estApNota(t, mo.r) : 0) }); });
+      out.push({ t, mu, rate, dev, dc, en, sc: (cad > 0 ? dev : t.bpm / 1000) + (usados[t.id] || 0) * .25 + (t.id === ultimo ? 2 : 0) + (dev > .08 ? .3 : 0) + pc + pe + (mo ? estPapelNota(t, mo.r, mo.fad) + estMoNota(t, mo.r, mo.fad) + estApNota(t, mo.r) : 0) + (EST.qrCol ? (t.col === EST.qrCol ? -.3 : .06) : 0) }); });
     return out.sort((p, q)=> p.sc - q.sc);
   }
   function estPistas(M){ return Math.max(2, Math.min(6, (M && M.pistas) || 2)); }
@@ -12889,7 +13002,10 @@ const SR3 = (()=>{
       toast(t.noAuto ? '⛔ "' + t.nome + '" fica fora do enchimento automático (podes pô-la à mão)' : '✨ "' + t.nome + '" volta a poder ser escolhida ao encher'); });
     $('estLibT').querySelectorAll('tr[data-lib]').forEach(r=> r.ondragstart = e=>{ e.dataTransfer.setData('text/est-lib', r.dataset.lib); e.dataTransfer.effectAllowed = 'copy'; });
     $('estLibT').querySelectorAll('[data-ouv]').forEach(b=> b.onclick = async ()=>{ if(EST.ouveLib){ EST.ouveLib.pause(); const era = EST.ouveLib._id; EST.ouveLib = null; if(era === b.dataset.ouv) return; }
-      b.textContent = '⏳'; const av = estEsperaAviso(); const u = await estUrl(b.dataset.ouv, true); clearTimeout(av); b.textContent = '▶'; if(!u) return; const el = new Audio(u); el._id = b.dataset.ouv; const t = (EST_LIB.L || []).find(x=> x.id === b.dataset.ouv), nm = t ? t.nome : 'a música';
+      b.textContent = '⏳'; const av = estEsperaAviso(); let u = await estUrl(b.dataset.ouv, true); clearTimeout(av); b.textContent = '▶';
+      if(!u){ const t0 = (EST_LIB.L || []).find(x=> x.id === b.dataset.ouv); if(t0 && t0.fh && window.showOpenFilePicker && confirm('🔗 Não consigo abrir "' + t0.nome + '" pelo atalho guardado.\n\nQueres escolher o ficheiro outra vez? (fica com um atalho novo; não volta a analisar)')){
+          if(await estReligaFich([t0.id])) u = await estUrl(b.dataset.ouv, true); } }
+      if(!u) return; const el = new Audio(u); el._id = b.dataset.ouv; const t = (EST_LIB.L || []).find(x=> x.id === b.dataset.ouv), nm = t ? t.nome : 'a música';
       el.onerror = ()=>{ const c = el.error ? el.error.code : 0; toast('⚠ O navegador não consegue tocar "' + nm + '"' + (c === 4 ? ' (formato não suportado ou ficheiro danificado)' : c === 3 ? ' (erro a descodificar o ficheiro)' : '') + '.'); };
       el.addEventListener('loadedmetadata', ()=>{ try{ el.currentTime = Math.min(60, (el.duration || (t ? t.dur : 60)) * .3); }catch(e){} }, { once: true });
       el.volume = .8; el.play().then(()=>{ b.textContent = '⏸'; }).catch(e=>{ toast('⚠ Sem som em "' + nm + '": ' + (e.name === 'NotAllowedError' ? 'o navegador bloqueou o som (clica outra vez no ▶)' : e.name === 'NotSupportedError' ? 'formato não suportado ou ficheiro danificado' : (e.message || e.name))); });
