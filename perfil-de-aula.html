@@ -3618,12 +3618,14 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       return aqL.concat(X.L, [{ n: 'Retorno à calma', s: X.rc, z: 0, k: 'cool' }]); } }
     const zona = z=>{ if(tem(z)) return z; let best = Z[0]; Z.forEach(x=>{ if(Math.abs(x - z) < Math.abs(best - z) || (Math.abs(x - z) === Math.abs(best - z) && x < best)) best = x; }); return best; };
     const desc = zona(1), fortes = lo=> Z.filter(x=> x >= lo), aq = Math.round(R.aq * 60), rc = Math.round(R.rc * 60), M = Math.max(60, Math.round(R.dur * 60) - aq - rc);
+    // ⏱ duração dos blocos de trabalho escolhida nas regras (vazio = a do próprio modelo)
+    const BL = R.bl && R.bl.a >= 60 && R.bl.b >= R.bl.a ? R.bl : null, rB = (lo, hi)=> BL ? rnd30(BL.a, BL.b) : rnd30(lo, hi);
     const L = []; let fimForte = false; const T = ()=> L.reduce((s, x)=> s + x.s, 0), cabe = d=> T() + d <= M;
     const add = (n, s, z, k, sub)=> L.push({ n, s, z, k: k || 'trab', sub: sub || 0 });
-    if(g === 'ALTO ENDURANCE'){ const tz = fortes(3).filter(z=> z <= 4); add('Z' + zona(2) + ' · base aeróbia', rnd30(300, 540), zona(2), 'trab', .1);
-      for(let k = 0; k < 40; k++){ const z = tz.length ? pick(tz) : zona(3), s = rnd30(240, 480), r = rnd30(120, 240); if(!cabe(s + r)) break; add('Z' + z + ' · tempo', s, z, 'trab', .6); add('Z' + zona(2) + ' · rolar', r, zona(2), 'trab', .1); } }
-    else if(g === 'BAIXO ENDURANCE'){ for(let k = 0; k < 40; k++){ const s = rnd30(360, 600), r = rnd30(60, 180); if(!cabe(s + r)) break; add(pick(['Z' + zona(2) + ' · constante', 'Z' + zona(2) + ' · cadência alta', 'Z' + zona(2) + ' · base']), s, zona(2), 'trab', .3); add('Z' + desc + ' · solta', r, desc, 'rec'); } }
-    else if(g === 'MONTANHA'){ fimForte = true; let n = 1; for(let k = 0; k < 40; k++){ const z1 = pick(fortes(3).filter(z=> z <= 4).concat([zona(3)])), z2 = pick(fortes(4).filter(z=> z <= 5).concat([zona(4)])), s1 = rnd30(180, 420), s2 = pick([60, 60, 90, 120]), r = rnd30(60, 180);
+    if(g === 'ALTO ENDURANCE'){ const tz = fortes(3).filter(z=> z <= 4); add('Z' + zona(2) + ' · base aeróbia', rB(300, 540), zona(2), 'trab', .1);
+      for(let k = 0; k < 40; k++){ const z = tz.length ? pick(tz) : zona(3), s = rB(240, 480), r = rnd30(120, 240); if(!cabe(s + r)) break; add('Z' + z + ' · tempo', s, z, 'trab', .6); add('Z' + zona(2) + ' · rolar', r, zona(2), 'trab', .1); } }
+    else if(g === 'BAIXO ENDURANCE'){ for(let k = 0; k < 40; k++){ const s = rB(360, 600), r = rnd30(60, 180); if(!cabe(s + r)) break; add(pick(['Z' + zona(2) + ' · constante', 'Z' + zona(2) + ' · cadência alta', 'Z' + zona(2) + ' · base']), s, zona(2), 'trab', .3); add('Z' + desc + ' · solta', r, desc, 'rec'); } }
+    else if(g === 'MONTANHA'){ fimForte = true; let n = 1; for(let k = 0; k < 40; k++){ const z1 = pick(fortes(3).filter(z=> z <= 4).concat([zona(3)])), z2 = pick(fortes(4).filter(z=> z <= 5).concat([zona(4)])), s1 = rB(180, 420), s2 = pick([60, 60, 90, 120]), r = rnd30(60, 180);
       if(!cabe(s1 + s2 + r)) break; add('Subida ' + n, s1, z1, 'trab', .95); add('Subida ' + n + ' · ataque', s2, z2, 'trab', .9); add(Math.random() < .5 ? 'Descida' : 'Recupera', r, desc, 'rec'); n++; } }
     else if(g === 'INTERVALADO EXTENSIVO'){ fimForte = true; const e = R.ext || { a:180, b:480, rr:.5 }, zT = zona(4), rr = e.rr > 0 ? e.rr : 0, rec = t=> rr ? Math.max(60, Math.round(t * rr / 30) * 30) : 0;
       // intervalos Z4 de 3 a 8 min (ao acaso) e recuperação Z1 com metade do tempo (2:1); o último encolhe para caber
@@ -3631,11 +3633,16 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     else if(g === 'FARTLEK'){ fimForte = true; const F = R.fart || { n:6, r:90 }, nR = Math.max(0, Math.round(F.n)), rS = F.r > 0 ? Math.max(60, Math.round(F.r)) : 0, W = M - nR * rS, seg = Math.max(60, W / (nR + 1));
       // entre as recuperações Z1 (número e duração escolhidos nas regras), esforços ao acaso: rolar, ataque e sprint
       // sem sprints: só Z2 a Z4 entre as recuperações Z1
-      const ef = [()=>{ const z = pick(Z.filter(z=> z >= 2 && z <= 3).concat([zona(2)])); return ['Rolar', rnd30(60, 180), z, 'trab', .3]; }, ()=>{ const z = zona(3); return ['Mudança de ritmo', pick([60, 90, 120]), z, 'trab', .4]; }, ()=>{ const z = zona(4); return ['Ataque', pick([60, 90, 120]), z, 'trab', .5]; }];
-      let feito = 0; for(let k = 0; k <= nR; k++){ const fim = Math.round(seg * (k + 1) / 5) * 5; let ult = -1, n0 = L.length;
-        for(let q = 0; q < 30 && feito < fim; q++){ let i; do i = Math.floor(Math.random() * ef.length); while(i === ult && ef.length > 1); let [n, s2, z, kk, sub] = ef[i](); if(feito + s2 > fim){ s2 = fim - feito; if(s2 < 60){ if(L.length > n0){ L[L.length - 1].s += s2; feito += s2; } break; } } add(n, s2, z, kk, sub); feito += s2; ult = i; }
+      const ef = [()=>{ const z = pick(Z.filter(z=> z >= 2 && z <= 3).concat([zona(2)])); return ['Rolar', rB(60, 180), z, 'trab', .3]; }, ()=>{ const z = zona(3); return ['Mudança de ritmo', BL ? rB() : pick([60, 90, 120]), z, 'trab', .4]; }, ()=>{ const z = zona(4); return ['Ataque', BL ? rB() : pick([60, 90, 120]), z, 'trab', .5]; }];
+      if(BL){   // com duração dos blocos escolhida: esforços de a a b min, com as recuperações espalhadas entre eles
+        const efs = []; let tot = 0; while(tot < W - BL.a / 2 && efs.length < 60){ const d = rB(); efs.push(d); tot += d; }
+        let dif = W - tot; for(let q = 0; q < efs.length * 12 && Math.abs(dif) >= 30; q++){ const i = q % efs.length, st = dif > 0 ? 30 : -30; if(efs[i] + st >= BL.a && efs[i] + st <= BL.b){ efs[i] += st; dif -= st; } }
+        const nE = efs.length, gaps = rS ? Math.min(nR, nE - 1) : 0, pos = new Set(); for(let k = 1; k <= gaps; k++) pos.add(Math.round(k * nE / (gaps + 1)));
+        let rk = 0, ult = -1; efs.forEach((d, i)=>{ if(pos.has(i)) add('Recupera Z' + desc + ' ' + (++rk) + '/' + gaps, rS, desc, 'rec'); let j; do j = Math.floor(Math.random() * ef.length); while(j === ult && ef.length > 1); ult = j; const [n, , z, kk, sub] = ef[j](); add(n, d, z, kk, sub); }); }
+      else { let feito = 0; for(let k = 0; k <= nR; k++){ const fim = Math.round(seg * (k + 1) / 5) * 5; let ult = -1, n0 = L.length;
+        for(let q = 0; q < 30 && feito < fim; q++){ let i; do i = Math.floor(Math.random() * ef.length); while(i === ult && ef.length > 1); let [n, s2, z, kk, sub] = ef[i](); if(feito + s2 > fim){ s2 = fim - feito; if(s2 < (BL ? BL.a : 60)){ if(L.length > n0){ L[L.length - 1].s += s2; feito += s2; } break; } } add(n, s2, z, kk, sub); feito += s2; ult = i; }
         if(L.length === n0){ add('Rolar', Math.max(60, fim - feito), zona(2), 'trab', .3); feito = Math.max(fim, feito + 60); }
-        if(k < nR && rS) add('Recupera Z' + desc + ' ' + (k + 1) + '/' + nR, rS, desc, 'rec'); } }
+        if(k < nR && rS) add('Recupera Z' + desc + ' ' + (k + 1) + '/' + nR, rS, desc, 'rec'); } } }
     else if(g === 'INTERVALADO INTENSIVO'){ fimForte = true; const I = R.int || { a:60, b:180, rr:2 }, zs = [5, 6, 7].filter(tem), zz = zs.length ? zs : [zona(5)], rr = I.rr > 0 ? I.rr : 0, rec = t=> rr ? Math.max(60, Math.round(t * rr / 30) * 30) : 0;
       // intervalos em Z5, Z6 ou Z7 de 1 a 3 min (ao acaso) e recuperação Z1 com o dobro do tempo (1:2); a zona vai rodando
       const ord = zz.slice().sort(()=> Math.random() - .5);
@@ -3645,13 +3652,13 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       // depois do aquecimento: prova entre Z3 e Z4 (pelotão, ritmo, subida, contra-relógio) e 2 a 3 sprints de 10 a 15 s
       const SPR = Array.from({ length: nS }, ()=> rndI(Math.min(sp.a, sp.b), Math.max(sp.a, sp.b))), Ms = M - SPR.reduce((a, b)=> a + b, 0);
       const tip = [['Pelotão', z3, .3], ['Ritmo de prova', z4, .3], ['Pelotão', z3, .3], ['Subida da prova', z4, 1], ['Contra-relógio', z4, .2], ['Fuga', z4, .4]];
-      let k = 0; while(T() < Ms - 60 && k < 40){ const [n, z, sub] = tip[k % tip.length]; let s2 = rnd30(120, 360); if(T() + s2 > Ms) s2 = Ms - T(); if(s2 < 60) break; add(n, s2, z, 'trab', sub); k++; }
+      let k = 0; while(T() < Ms - 60 && k < 40){ const [n, z, sub] = tip[k % tip.length]; let s2 = rB(120, 360); if(T() + s2 > Ms) s2 = Ms - T(); if(s2 < 60) break; add(n, s2, z, 'trab', sub); k++; }
       if(T() < Ms && L.length) L[L.length - 1].s += Ms - T();
       // sprints: o último no fim (sprint final); os outros a meio, a seguir a um bloco
       SPR.forEach((d, i)=>{ const it = { n: i === SPR.length - 1 ? 'Sprint final' : 'Sprint ' + (i + 1), s: d, z: zS, k: 'sprint', sub: 0, curto: true };
         if(i === SPR.length - 1) L.push(it); else { const pos = Math.max(1, Math.min(L.length - 1, Math.round(L.length * (i + 1) / SPR.length))); L.splice(pos, 0, it); } }); }
     else { add('Z' + desc + ' · rolar', rnd30(300, 540), desc, 'rec'); for(let k = 0; k < 4; k++){ add('Técnica · cadência alta ' + (k + 1) + '/4', 60, desc, 'rec'); add('Solta', 60, desc, 'rec'); }
-      for(let k = 0; k < 40; k++){ const z = k % 2 ? desc : zona(2), s = rnd30(240, 540); if(!cabe(s)) break; add(z === desc ? 'Z' + desc + ' · rolar' : 'Z' + z + ' · suave', s, z, z === desc ? 'rec' : 'trab', .2); } }
+      for(let k = 0; k < 40; k++){ const z = k % 2 ? desc : zona(2), s = rB(240, 540); if(!cabe(s)) break; add(z === desc ? 'Z' + desc + ' · rolar' : 'Z' + z + ' · suave', s, z, z === desc ? 'rec' : 'trab', .2); } }
     if(fimForte) while(L.length && L[L.length - 1].k === 'rec') L.pop();   // acaba num bloco forte
     // segurança: nenhum bloco com menos de 1 minuto (junta-o ao bloco ao lado com a mesma zona, ou ao anterior)
     for(let i = 0; i < L.length; i++){ if(L[i].s >= 60 || L[i].curto) continue; const v = (L[i - 1] && L[i - 1].z === L[i].z) ? i - 1 : (L[i + 1] && L[i + 1].z === L[i].z) ? i + 1 : (i > 0 ? i - 1 : i + 1);
@@ -3660,6 +3667,9 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     while(sobra < 0){ const lg = L.filter(x=> !x.curto).sort((a, b)=> b.s - a.s)[0]; if(!lg || lg.s <= 60) break; const tira = Math.min(-sobra, lg.s - 60); lg.s -= tira; sobra += tira; }
     if(sobra > 0 && sobra < 60 && L.length){ L.filter(x=> !x.curto).sort((a, b)=> b.s - a.s)[0].s += sobra; sobra = 0; }
     if(sobra >= 60){ const z = tem(2) ? 2 : desc; L.unshift({ n: 'Z' + z + ' · preparação', s: sobra, z, k: z === 1 ? 'rec' : 'trab', sub: .2 }); }
+    // blocos maiores do que o máximo escolhido dividem-se em partes iguais (mesma zona)
+    if(BL) for(let i = 0; i < L.length; i++){ const x = L[i]; if(x.curto || x.k === 'rec' || x.s <= BL.b + 29) continue; const n = Math.ceil(x.s / BL.b), bs = Math.floor(x.s / n / 30) * 30, P = []; let rest = x.s;
+      for(let q = 0; q < n; q++){ const d = q === n - 1 ? rest : bs; rest -= d; P.push(Object.assign({}, x, { s: d, n: x.n + ' ' + (q + 1) + '/' + n })); } L.splice(i, 1, ...P); i += n - 1; }
     // aquecimento: sempre Z1 (em duas partes, a 2.ª um pouco mais forte)
     const aqL = aq >= 240 ? [{ n: 'Aquecimento', s: Math.round(aq / 2 / 30) * 30, z: 1, k: 'aq', p: 48 }, { n: 'Aquecimento · ativação', s: aq - Math.round(aq / 2 / 30) * 30, z: 1, k: 'aq', p: 55 }] : (aq > 0 ? [{ n: 'Aquecimento', s: aq, z: 1, k: 'aq', p: 52 }] : []);
     return aqL.concat(L, rc > 0 ? [{ n: g === 'RECUPERAÇÃO' ? 'Retorno à calma + alongar' : 'Retorno à calma', s: rc, z: 0, k: 'cool' }] : []);
@@ -3806,6 +3816,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       ov.innerHTML = '<div class="mc-box"><div class="mc-h"><b>⚙️ Regras · ' + g + '</b><button type="button" data-a="x">✕</button></div>' +
         '<div class="mc-g"><label>Duração da aula<span>' + num('dur', R.dur, 20, 120) + ' min</span></label><label>Aquecimento (sempre Z1)<span>' + num('aq', R.aq, 0, 30, .5) + ' min</span></label><label>Retorno à calma<span>' + num('rc', R.rc, 0, 20, .5) + ' min</span></label></div>' +
         '<div class="mc-g"><label>Cadência em plano<span>' + num('cadP0', R.cadP[0], 40, 140) + ' – ' + num('cadP1', R.cadP[1], 40, 140) + ' rpm</span></label><label>Cadência em subida<span>' + num('cadS0', R.cadS[0], 40, 140) + ' – ' + num('cadS1', R.cadS[1], 40, 140) + ' rpm</span></label></div>' +
+        (R.ext || R.int ? '' : '<div class="mc-g"><label>Duração dos blocos de trabalho (vazio = automático)<span>' + num('blA', R.bl ? R.bl.a / 60 : '', 1, 30, .5) + ' a ' + num('blB', R.bl ? R.bl.b / 60 : '', 1, 30, .5) + ' min</span></label></div>') +
         '<div class="mc-ps"><span>Terreno</span><b id="mcPl">' + (100 - (R.pctS || 0)) + '% plano</b><input type="range" data-k="pctS" min="0" max="100" step="5" value="' + (R.pctS || 0) + '"><b id="mcSu">' + (R.pctS || 0) + '% subida</b></div>' +
         '<div class="mc-z"><span>Zonas que pode usar</span>' + [1,2,3,4,5,6,7].map(z=> '<button type="button" data-z="' + z + '" class="' + (R.z.includes(z) ? 'on' : '') + '" style="--zc:' + zoneColor(ZONES[z - 1].css) + '">Z' + z + '</button>').join('') + '</div>' +
         (R.ext ? '<div class="mc-r"><b>Intervalos Z4 : Z1</b><label>Trabalho Z4 de<span>' + num('extA', R.ext.a / 60, 1, 30, .5) + ' a ' + num('extB', R.ext.b / 60, 1, 30, .5) + ' min</span></label><label>Recuperação Z1<span>' + num('extRR', R.ext.rr, 0, 4, .25) + ' × o trabalho</span></label><em>rácio ' + rac(1, R.ext.rr) + '</em></div>' : '') +
@@ -3822,6 +3833,8 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     ov.addEventListener('input', e=>{ const k = e.target.dataset.k; if(!k) return; const v = +e.target.value; if(!isFinite(v)) return;
       if(k === 'cadP0') R.cadP[0] = v; else if(k === 'cadP1') R.cadP[1] = v; else if(k === 'cadS0') R.cadS[0] = v; else if(k === 'cadS1') R.cadS[1] = v;
       else if(k === 'fN') R.fart.n = v; else if(k === 'fR') R.fart.r = v; else if(k === 'extA') R.ext.a = Math.round(v * 60); else if(k === 'extB') R.ext.b = Math.round(v * 60); else if(k === 'extRR') R.ext.rr = v; else if(k === 'intA') R.int.a = Math.round(v * 60); else if(k === 'intB') R.int.b = Math.round(v * 60); else if(k === 'intRR') R.int.rr = v;
+      else if(k === 'blA' || k === 'blB'){ const ea = ov.querySelector('[data-k="blA"]'), eb = ov.querySelector('[data-k="blB"]'), va = +ea.value, vb = +eb.value;
+        if(va > 0 || vb > 0){ const x = Math.round(Math.max(1, va || vb) * 60), y = Math.round(Math.max(1, vb || va) * 60); R.bl = { a: Math.min(x, y), b: Math.max(x, y) }; } else delete R.bl; }
       else if(k === 'sNA') R.spr.nA = v; else if(k === 'sNB') R.spr.nB = v; else if(k === 'sA') R.spr.a = v; else if(k === 'sB') R.spr.b = v; else R[k] = v;
       if(k === 'pctS'){ ov.querySelector('#mcPl').textContent = (100 - v) + '% plano'; ov.querySelector('#mcSu').textContent = v + '% subida'; }
       const pv = ov.querySelector('.mc-pv'); if(pv) pv.innerHTML = modBarra(g, R) + '<button type="button" class="mod-cfg" data-a="pv" title="Ver outra versão aleatória">🎲</button>'; ov.querySelectorAll('.mc-r em').forEach((el, i)=>{ if(R.fart && i === 0){ const m2 = s2=> Math.floor(s2 / 60) + ':' + String(s2 % 60).padStart(2, '0'); el.textContent = R.fart.n + ' × ' + m2(R.fart.r) + ' = ' + m2(R.fart.n * R.fart.r) + ' em Z1'; } else if(R.ext && i === 0) el.textContent = 'rácio ' + rac(1, R.ext.rr); else if(R.int && i === 0) el.textContent = 'rácio ' + rac(1, R.int.rr); }); });
@@ -3897,7 +3910,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function modResumo(g, R){ R = R || modRegras(g); const m = s=> String(Math.round(s / 6) / 10).replace('.', ','), f = v=> String(v).replace('.', ',');
     const x = [R.dur + ' min', 'aquec. ' + f(R.aq), 'calma ' + f(R.rc), (100 - (R.pctS || 0)) + '% plano / ' + (R.pctS || 0) + '% subida', 'Z' + R.z.join(' Z'), 'plano ' + R.cadP.join('–') + ' · subida ' + R.cadS.join('–') + ' rpm'];
     if(R.ext) x.push('Z4 de ' + m(R.ext.a) + ' a ' + m(R.ext.b) + ' min, recupera ×' + f(R.ext.rr)); if(R.int) x.push('Z5–Z7 de ' + m(R.int.a) + ' a ' + m(R.int.b) + ' min, recupera ×' + f(R.int.rr));
-    if(R.fart) x.push(R.fart.n + ' recuperações de ' + tplMs(R.fart.r)); if(R.spr) x.push(R.spr.nA + '–' + R.spr.nB + ' sprints de ' + R.spr.a + '–' + R.spr.b + ' s');
+    if(R.bl) x.push('blocos de ' + m(R.bl.a) + ' a ' + m(R.bl.b) + ' min'); if(R.fart) x.push(R.fart.n + ' recuperações de ' + tplMs(R.fart.r)); if(R.spr) x.push(R.spr.nA + '–' + R.spr.nB + ' sprints de ' + R.spr.a + '–' + R.spr.b + ' s');
     return x.join(' · '); }
   function tplResumo(T){ const md = (TPL_MODOS.find(m=> m[0] === T.modo) || TPL_MODOS[0])[1], C = tplCiclo(T);
     return md + ' · ' + T.seg.length + (T.seg.length === 1 ? ' parte' : ' partes') + ' (volta ' + tplMs(C) + ') · ' + (T.modo === 'fixo' ? 'aula de ' + tplMs(C + (T.aq + T.rc) * 60) : T.dur + ' min') + ' · aquec. ' + String(T.aq).replace('.', ',') + ' · calma ' + String(T.rc).replace('.', ','); }
