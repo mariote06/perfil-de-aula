@@ -13154,7 +13154,7 @@ const SR3 = (()=>{
       '<div class="est-sph" id="estSpH" title="Arrasta para mudar a altura"></div><div class="est-falta" id="estFalta" hidden></div><div class="est-prog" id="estProg" hidden></div>' +
       '<div class="est-insp" id="estInsp"></div>' +
       '<div class="est-vivo" id="estVivo"></div><div class="est-tlr"><div class="est-solo" id="estSolo"></div><div class="est-tlw" id="estTlw"><canvas id="estCv"></canvas></div></div>' +
-      '<div class="est-nav"><span class="est-ajuda" title="🟢 clique na linha do tempo = linha verde de alinhamento (encaixa na batida da música por baixo; as músicas que arrastas colam-se a ela) · agarra a linha verde e arrasta-a (segue o encaixe) · ✂ tecla S = corta a música selecionada na linha verde · 🔒 grelha = fixa as batidas na janela · 📌 seguir a barra = a janela anda com a música · ▶ duplo clique = tocar daqui (a tocar, a barra laranja salta para lá) · 🔍 roda do rato = zoom · Shift + roda = andar · arrasta a música para mover (e para outra pista) · puxa as âncoras ▼ das pontas para escolher a parte · puxa em baixo na música (ou Alt + arrastar) para andar dentro dela sem mexer na janela · clica numa linha para criar um ponto e puxa-o (duplo clique apaga) · quadrados azuis = fades">❓ Atalhos do rato</span><span></span><span class="est-lins">linhas:' + Object.keys(EST_LIN).map(k=> '<label style="color:' + EST_LIN[k].cor + '"><input type="checkbox" data-lin="' + k + '"' + (EST.lin[k] ? ' checked' : '') + '> ' + EST_LIN[k].n + '</label>').join('') + '</span><label title="Mostra a música inteira esbatida à volta da parte que toca"><input type="checkbox" id="estToda"' + (EST.toda ? ' checked' : '') + '> música toda</label><label title="Como encaixam as músicas ao arrastar e cortar (Alt + B liga/desliga)">🧲 encaixe <select id="estSnap">' + EST_SNAP.map(([v, n])=> '<option value="' + v + '"' + (v === EST.snap ? ' selected' : '') + '>' + n + '</option>').join('') + '</select></label><label title="🔒 Grelha fixa: fixa na janela as batidas da música que está debaixo da linha verde, com o passo do encaixe. Ao arrastar as músicas a grelha não mexe: alinha-as por ela"><input type="checkbox" id="estGrade"' + (EST.grade ? ' checked' : '') + '> 🔒 grelha</label><label title="Ligado: a janela anda com a barra laranja enquanto toca. Desligado: a janela fica livre e podes andar para trás e para a frente enquanto ouves"><input type="checkbox" id="estSegue"' + (EST.segue ? ' checked' : '') + '> 📌 seguir a barra</label><label title="Mostra a técnica de cada bloco (plano/subida, sentado/em pé, sprint) desenhada na onda da música, no ponto onde a técnica muda. O ✓ verde diz que a mudança cai no início de uma frase da música (16 batidas); senão, mostra quantas batidas falta ou passa."><input type="checkbox" id="estTec"' + (EST.tec ? ' checked' : '') + '> ✋ técnica</label><input type="range" id="estPan" min="0" max="1000" value="0"></div>' +
+      '<div class="est-nav"><span class="est-ajuda" title="🟢 clique na linha do tempo = linha verde de alinhamento (encaixa na batida da música por baixo; as músicas que arrastas colam-se a ela) · agarra a linha verde e arrasta-a (segue o encaixe) · ✂ tecla S = corta a música selecionada na linha verde · 🎵 clica num bloco da barra das zonas = sugere música à medida (outra vez = outras) · 🏷 tecla L = põe uma label na música, no ponto do rato (L em cima de uma label muda o texto; vazio apaga) · 🔒 grelha = fixa as batidas na janela · 📌 seguir a barra = a janela anda com a música · ▶ duplo clique = tocar daqui (a tocar, a barra laranja salta para lá) · 🔍 roda do rato = zoom · Shift + roda = andar · arrasta a música para mover (e para outra pista) · puxa as âncoras ▼ das pontas para escolher a parte · puxa em baixo na música (ou Alt + arrastar) para andar dentro dela sem mexer na janela · clica numa linha para criar um ponto e puxa-o (duplo clique apaga) · quadrados azuis = fades">❓ Atalhos do rato</span><span></span><span class="est-lins">linhas:' + Object.keys(EST_LIN).map(k=> '<label style="color:' + EST_LIN[k].cor + '"><input type="checkbox" data-lin="' + k + '"' + (EST.lin[k] ? ' checked' : '') + '> ' + EST_LIN[k].n + '</label>').join('') + '</span><label title="Mostra a música inteira esbatida à volta da parte que toca"><input type="checkbox" id="estToda"' + (EST.toda ? ' checked' : '') + '> música toda</label><label title="Como encaixam as músicas ao arrastar e cortar (Alt + B liga/desliga)">🧲 encaixe <select id="estSnap">' + EST_SNAP.map(([v, n])=> '<option value="' + v + '"' + (v === EST.snap ? ' selected' : '') + '>' + n + '</option>').join('') + '</select></label><label title="🔒 Grelha fixa: fixa na janela as batidas da música que está debaixo da linha verde, com o passo do encaixe. Ao arrastar as músicas a grelha não mexe: alinha-as por ela"><input type="checkbox" id="estGrade"' + (EST.grade ? ' checked' : '') + '> 🔒 grelha</label><label title="Ligado: a janela anda com a barra laranja enquanto toca. Desligado: a janela fica livre e podes andar para trás e para a frente enquanto ouves"><input type="checkbox" id="estSegue"' + (EST.segue ? ' checked' : '') + '> 📌 seguir a barra</label><label title="Mostra a técnica de cada bloco (plano/subida, sentado/em pé, sprint) desenhada na onda da música, no ponto onde a técnica muda. O ✓ verde diz que a mudança cai no início de uma frase da música (16 batidas); senão, mostra quantas batidas falta ou passa."><input type="checkbox" id="estTec"' + (EST.tec ? ' checked' : '') + '> ✋ técnica</label><input type="range" id="estPan" min="0" max="1000" value="0"></div>' +
       '<div class="est-av" id="estAv"></div>';
     document.body.appendChild(ov);
     const M = current.mix || {}; (M.itens || []).forEach((it, i)=>{ if(it.p == null) it.p = i % estPistas(M); if(!EST_TRANS[M.trans]) M.trans = 'eq'; });
@@ -13656,6 +13656,7 @@ const SR3 = (()=>{
         if(e.detail > 1 || !mixAtivo()) return; const novo = !estTempo(); const P = estTempoCria(); if(!P) return; const v = estTempoPede(estTempoEm(P, th.T), 'BPM da mistura neste ponto:');
         if(v === undefined || v === null){ if(novo){ estTempoMuda(); toast('Criei a faixa de BPM da mistura a partir das músicas (podes mudar os pontos).'); } else estDesenha(); return; }
         const t = Math.round(Math.max(0, th.T) * 100) / 100; P.push([t, v]); P.sort((a, b)=> a[0] - b[0]); EST.tSel = P.findIndex(p=> p[0] === t); estTempoMuda(); return; }
+      { const r0 = cv.getBoundingClientRect(), yb = e.clientY - r0.top, G0 = estGeo(); if(e.button === 0 && yb >= G0.yB && yb <= G0.yB + G0.hB){ const B0 = estBlocoEm(EST.x0 + (e.clientX - r0.left) / EST.pps); if(B0){ estSugereBloco(B0.i); return; } } }   // 🎵 clique num bloco da barra das zonas: sugere música
       const h = estHit(e);
       if(e.button === 0 && EST.cue != null && Math.abs(e.clientX - cv.getBoundingClientRect().left - estX(EST.cue)) <= 5 && (!h.it || h.modo === 'move' || h.modo === 'slip')){ drag = { cue: true }; cv.setPointerCapture(e.pointerId); return; }   // 🟢 agarrar a linha verde
       if(h.it && h.modo === 'bnovo' && e.detail === 1){ const it = h.it, r = Math.max(0, Math.min(it.t1 - it.t0, h.T - it.t0)), cur = estBpmEm(it, h.T); it.env = it.env || {};
@@ -13667,13 +13668,15 @@ const SR3 = (()=>{
         P.push([Math.round(r * 100) / 100, Math.round(db * 2) / 2]); P.sort((a, b)=> a[0] - b[0]); h.q = P.findIndex(p=> p[0] === Math.round(r * 100) / 100); h.modo = 'pt'; }
       if(h.it){ EST.sel = h.i; const it = h.it; drag = Object.assign({ x: e.clientX, y: e.clientY, o: JSON.parse(JSON.stringify(it)) }, h); cv.setPointerCapture(e.pointerId); estPintaInsp(); estPintaLista(); estDesenha(); }
       else { EST.cue = estCueEncaixa(Math.max(0, h.T)); if(!EST.play) EST.pT = EST.cue; estDesenha(); } });   // 🟢 clique: marca a linha verde (encaixa na batida da música que está por baixo); a tocar, só marca (duplo clique salta)
-    cv.addEventListener('pointermove', e=>{
+    cv.addEventListener('pointerleave', ()=>{ EST.rato = null; });
+    cv.addEventListener('pointermove', e=>{ EST.rato = { clientX: e.clientX, clientY: e.clientY };
       if(drag && drag.cue){ const r = cv.getBoundingClientRect(), w2 = r.width; let x = e.clientX - r.left;
         if(x > w2 - 20){ EST.x0 += 6 / EST.pps; estAjustaZoom(); } else if(x < 20 && EST.x0 > 0){ EST.x0 = Math.max(0, EST.x0 - 6 / EST.pps); estAjustaZoom(); }   // perto das pontas a janela anda
         EST.cue = estCueSnap(EST.x0 + x / EST.pps); if(!EST.play) EST.pT = EST.cue; EST.dica = { x, y: e.clientY - r.top, t: '🟢 ' + fmtTime(Math.floor(EST.cue)) + '.' + String(Math.floor((EST.cue % 1) * 100)).padStart(2, '0') }; estDesenha(); return; }
       if(drag && drag.tempo){ const P = estTempo(); if(!P) return; const q = drag.q, ant = q > 0 ? P[q - 1][0] + .05 : 0, dep = q < P.length - 1 ? P[q + 1][0] - .05 : 1e9; let n = drag.t + (e.clientX - drag.x) / EST.pps; n = estEncaixa(n);
         P[q][0] = Math.round(Math.max(ant, Math.min(dep, n)) * 100) / 100; const r = cv.getBoundingClientRect(); EST.dica = { x: e.clientX - r.left, y: e.clientY - r.top - 4, t: fmtTime(Math.floor(P[q][0])) + ' · ' + P[q][1].toFixed(2) + ' BPM' }; estTempoSync(); estDesenha(); return; }
-      if(!drag){ const tq = estTecHit(e); if(tq){ EST.dica = { x: tq.x, y: tq.y, t: estTecDica(tq.q), tec: 1 }; estDesenha(); } else if(EST.dica && EST.dica.tec){ EST.dica = null; estDesenha(); }
+      if(!drag){ { const r0 = cv.getBoundingClientRect(), yb = e.clientY - r0.top, G0 = estGeo(); if(yb >= G0.yB && yb <= G0.yB + G0.hB){ const B0 = estBlocoEm(EST.x0 + (e.clientX - r0.left) / EST.pps); cv.style.cursor = B0 && B0.b.tipo !== 'seg' ? 'pointer' : 'default'; if(B0 && B0.b.tipo !== 'seg'){ const cd = estCad(B0.b); EST.dica = { x: e.clientX - r0.left, y: yb + G0.hB + 24, t: '🎵 Bloco ' + (B0.i + 1) + (cd > 0 ? ' · ' + cd + ' rpm' : '') + ' · ' + fmtTime(Math.round(B0.fim - B0.a)) + ': clica para sugerir música (outra vez = outras)', tec: 1 }; estDesenha(); } return; } }
+        const lq = estLabHit(e), tq = lq ? null : estTecHit(e); if(lq){ EST.dica = { x: lq.x, y: lq.y, t: '🏷 ' + lq.q.t + ' · ' + fmtTime(Math.floor(lq.q.T)) + ' · ' + lq.q.nome + ' (L muda o texto)', tec: 1 }; estDesenha(); } else if(tq){ EST.dica = { x: tq.x, y: tq.y, t: estTecDica(tq.q), tec: 1 }; estDesenha(); } else if(EST.dica && EST.dica.tec){ EST.dica = null; estDesenha(); }
         const th = estTempoHit(e); if(th){ cv.style.cursor = th.q >= 0 ? 'ew-resize' : 'copy'; return; } const h = estHit(e); if(EST.cue != null && Math.abs(e.clientX - cv.getBoundingClientRect().left - estX(EST.cue)) <= 5 && (!h.it || h.modo === 'move' || h.modo === 'slip')){ cv.style.cursor = 'ew-resize'; return; } cv.style.cursor = !h.it ? 'text' : { trimL: 'ew-resize', trimR: 'ew-resize', fIn: 'col-resize', fOut: 'col-resize', pt: 'move', bpt: 'ew-resize', bnovo: 'copy', novo: 'copy', move: 'grab', slip: 'move' }[h.modo]; return; }
       const it = drag.it, o = drag.o, dT = (e.clientX - drag.x) / EST.pps, T = estLib().find(x=> x.id === it.id) || { dur: 1e9 }, fimMax = o.t1 + Math.max(0, T.dur - estPosMus(o, o.t1)) / estRateEm(o, o.t1);
       if(drag.modo === 'move' && estSnapU()){ const n = estGradeMove(it, Math.max(0, o.t0 + dT)); it.t0 = n; it.t1 = n + (o.t1 - o.t0); if(it.c != null) it.c = o.c + (n - o.t0);
@@ -13704,6 +13707,7 @@ const SR3 = (()=>{
       else if(e.key === ' '){ e.preventDefault(); EST.play ? estPrevPara() : estPrevComeca(); }
       else if(e.key === 'Escape') estFecha();
       else if((e.key === 's' || e.key === 'S') && !e.ctrlKey && !e.metaKey && !e.altKey){ e.preventDefault(); estCorta(); }
+      else if((e.key === 'l' || e.key === 'L') && !e.ctrlKey && !e.metaKey && !e.altKey){ e.preventDefault(); estLabelL(); }
       else if(e.altKey && (e.key === 'b' || e.key === 'B')){ e.preventDefault(); estSnapPoe(EST.snap === 'manual' ? (EST.snapUlt || '1') : 'manual'); toast('🧲 Encaixe: ' + (EST_SNAP.find(x=> x[0] === EST.snap) || [, ''])[1]); } });
   }
   // 🎧 barra do solo, à esquerda das pistas: carrega em uma ou mais pistas para ouvir só essas (volta a carregar para tirar)
@@ -13746,6 +13750,64 @@ const SR3 = (()=>{
       h += '<span class="est-vm' + (cala ? ' cala' : '') + '"><em>P' + ((it.p || 0) + 1) + '</em><span class="est-vn">' + (it.dp ? '<i title="O drop desta música cai no início do sprint/intervalo">🔥</i> ' : '') + escapeHtml(estNomeDe(it.id)) + '</span>' + (t.cam ? estCamTag(t.cam) : '') + estEnTag(estEnergia(t)) + '<b class="est-vbpm">' + f2(bpm) + '</b><small>BPM</small><b>' + Math.round(rpm) + '</b><small>rpm' + (cad > 0 && Math.abs(rpm - cad) > 1.5 ? ' <i class="mau">(' + (rpm > cad ? '+' : '') + Math.round(rpm - cad) + ')</i>' : '') + '</small><span class="est-vvol" title="Volume desta música agora"><u style="width:' + Math.min(100, vol / 1.5) + '%"></u></span><small>' + vol + '%</small></span>'; });
     bx.innerHTML = h;
   }
+  // ---- 🎵 clicar num bloco da barra das zonas: sugere música à medida do bloco (cadência, energia, chave e o que o Estúdio aprendeu);
+  //      se nenhuma das melhores chega para o bloco todo, usa duas (ou mais); cada clique no mesmo bloco traz músicas novas ----
+  function estBlocoEm(T){ let t = 0; const BL = current.blocos || []; for(let i = 0; i < BL.length; i++){ const d = blockDurationSec(BL[i]); if(T < t + d) return { i, b: BL[i], a: t, fim: t + d }; t += d; } return null; }
+  function estSugereBloco(bi){
+    const BL = current.blocos || [], b = BL[bi]; if(!b) return; if(b.tipo === 'seg'){ toast('🎵 Este bloco é um segmento (pausa): não leva música.'); return; }
+    if(!estPool().length){ toast('🎵 Ainda não há músicas analisadas na biblioteca: liga a pasta 📁 primeiro.'); return; }
+    let a = 0; for(let i = 0; i < bi; i++) a += blockDurationSec(BL[i]); const fim = a + blockDurationSec(b), d = fim - a, cad = estCad(b);
+    const M = current.mix = Object.assign({ trans: 'eq', vol: .85, pistas: 2 }, current.mix || {}); M.itens = M.itens || []; if(!EST_TRANS[M.trans]) M.trans = 'eq';
+    // tira o que já estava neste bloco (começava dentro dele); o que vem de trás fica, e faz a transição para a nova
+    M.itens = M.itens.filter(it=> !((it.c != null ? it.c : it.t0) >= a - 1 && (it.c != null ? it.c : it.t0) < fim - 4));
+    EST.sbV = EST.sbV || {}; const chave = (current.id || '') + ':' + bi + ':' + Math.round(a) + ':' + cad; let vistos = EST.sbV[chave] = EST.sbV[chave] || [];
+    const us = {}; M.itens.forEach(x=> us[x.id] = (us[x.id] || 0) + 1);
+    const antes = M.itens.filter(x=> x.t0 < a && x.t1 > a - 8).sort((p, q)=> q.t1 - p.t1)[0] || null, depois = M.itens.filter(x=> x.t0 >= fim - 4).sort((p, q)=> p.t0 - q.t0)[0] || null;
+    const cands = ()=> estCandidatos(cad, M, us, antes ? antes.id : null, estAlvoEn(a + 20), a).filter(c=> !vistos.includes(c.t.id) && !(us[c.t.id] > 0));
+    let C = cands(); if(!C.length && vistos.length){ vistos.length = 0; C = cands(); }   // já viu todas: recomeça a roda
+    if(!C.length){ toast('🎵 Não encontrei músicas para ' + (cad > 0 ? cad + ' rpm' : 'este bloco') + ' (até ±12 % de velocidade). Junta mais músicas à biblioteca ou muda a cadência.'); return; }
+    const ini0 = T=>{ const bl = 60 / T.bpm; let ini = T.beat0 || 0; while(ini < 0) ini += bl; if(T.dur - ini > 16 * bl + 60) ini += 16 * bl; return ini; };
+    const cabe = c=> (c.t.dur - ini0(c.t) - 1) / c.rate;
+    // 1 música se uma das 6 melhores chega para o bloco; senão vai juntando (até 4), e a última é uma que chegue ao fim do bloco
+    const np = estPistas(M), livre = (p, x0, x1)=> !M.itens.some(x=> Math.min(np - 1, x.p || 0) === p && x.t0 < x1 && x.t1 > x0);
+    let cur = a, ant = antes; const novos = [], aqui = new Set();
+    for(let k = 0; k < 4 && fim - cur > 4; k++){ const resto = fim - cur, livres = C.filter(c=> !aqui.has(c.t.id)); if(!livres.length) break;
+      const chega = livres.slice(0, 6).find(c=> cabe(c) >= resto + 2), c = chega || livres[0], T = c.t, ini = ini0(T);
+      let t1 = chega ? fim : cur + cabe(c); if(!chega && (fim - t1 < 20 || k === 3)) t1 = fim;   // não deixa um bocadinho para outra música
+      let pista = ant ? ((ant.p || 0) + 1) % np : 0; for(let q = 0; q < np && !livre(pista, cur - 10, t1); q++) pista = (pista + 1) % np;
+      const B = { id: T.id, t0: cur, t1: Math.round(t1 * 100) / 100, ini: Math.round(ini * 1000) / 1000, rate: Math.round(c.rate * 10000) / 10000, fIn: ant ? 1.5 : 2, fOut: 4, cIn: 'eq', cOut: 'eq', g: 1, bpm: cad > 0 ? cad : Math.round(T.bpm * c.mu), mu: c.mu, c: cur, p: pista, au: 1, sb: 1 };
+      if(ant) estTransPar(ant, B, M.trans || 'eq');
+      M.itens.push(B); novos.push(B); aqui.add(T.id); us[T.id] = (us[T.id] || 0) + 1; vistos.push(T.id); ant = B; cur = B.t1; }
+    if(depois && ant) estTransPar(ant, depois, M.trans || 'eq'); else if(ant) ant.fOut = Math.min(4, Math.max(1, ant.t1 - ant.t0 - 1));
+    M.assin = estAssin(); EST.sel = M.itens.indexOf(novos[0]); mixRefaz(); if(EST.play) mixSync(EST.pT, true, true); persist(); estPinta();
+    toast('🎵 Bloco ' + (bi + 1) + (cad > 0 ? ' · ' + cad + ' rpm' : '') + ': ' + novos.map(x=> '"' + estNomeDe(x.id) + '"').join(' + ') + '. Clica outra vez no bloco para outras músicas (Ctrl+Z desfaz).');
+  }
+  // ---- 🏷 labels na música (tecla L): ficam presas ao som (segundo da música), por isso andam com ela quando a mexes ou cortas ----
+  function estTdeSom(it, s){ let a = it.t0, b = it.t1; for(let k = 0; k < 40; k++){ const m = (a + b) / 2; if(estPosMus(it, m) < s) a = m; else b = m; } return (a + b) / 2; }
+  function estLabs(it){ return (it.lab || []).map((l, q)=> ({ l, q, T: estTdeSom(it, l.s) })).filter(o=> o.T >= it.t0 - .01 && o.T <= it.t1 + .01 && Math.abs(estPosMus(it, o.T) - o.l.s) < .25); }
+  function estLabelL(){
+    const M = mixAtivo(); if(!M || !M.itens.length){ toast('🏷 Primeiro põe músicas na linha do tempo.'); return; }
+    let it = null, i = -1, T = null;
+    if(EST.rato){ const h = estHit(EST.rato); if(h && h.it && h.T >= h.it.t0 && h.T <= h.it.t1){ it = h.it; i = h.i; T = h.T; } }
+    if(!it){ const x = M.itens[EST.sel]; if(x && EST.cue != null && EST.cue >= x.t0 && EST.cue <= x.t1){ it = x; i = EST.sel; T = EST.cue; } }
+    if(!it){ toast('🏷 Põe o rato em cima da música, no ponto certo, e carrega em L (ou seleciona a música e põe a linha verde 🟢).'); return; }
+    const perto = estLabs(it).filter(o=> Math.abs(estX(o.T) - estX(T)) <= 8).sort((a, b)=> Math.abs(a.T - T) - Math.abs(b.T - T))[0];
+    if(perto){ const v = prompt('🏷 Label (deixa vazio para apagar):', perto.l.t); if(v === null) return; if(!v.trim()) it.lab.splice(perto.q, 1); else perto.l.t = v.trim().slice(0, 40); }
+    else { let Tq = estCueEncaixa(T); if(!(Tq >= it.t0 && Tq <= it.t1)) Tq = T;
+      const v = prompt('🏷 Label neste ponto da música (' + fmtTime(Math.floor(Tq)) + '):', ''); if(v === null || !v.trim()) return;
+      it.lab = it.lab || []; it.lab.push({ s: Math.round(estPosMus(it, Tq) * 100) / 100, t: v.trim().slice(0, 40) }); it.lab.sort((a, b)=> a.s - b.s); }
+    if(it.lab && !it.lab.length) delete it.lab; EST.sel = i; persist(); estPinta();
+  }
+  function estLabPinta(c, G, W, M){ EST.labR = []; if(!M) return; const cor = '#FF4FD8';
+    M.itens.forEach((it, i)=>{ if(!it.lab || !it.lab.length) return; const l = Math.min(G.np - 1, it.p || 0), yT = G.yL + l * G.hL + 2, h = G.hL - 6;
+      estLabs(it).forEach(o=>{ const px = estX(o.T); if(px < -200 || px > W + 2) return;
+        c.save(); c.strokeStyle = cor; c.lineWidth = 2; c.beginPath(); c.moveTo(px + .5, yT + 2); c.lineTo(px + .5, yT + h); c.stroke(); c.restore();
+        c.font = '800 11px Inter,sans-serif'; const tx = '🏷 ' + o.l.t, w = Math.min(220, c.measureText(tx).width + 10), hh = 17, y = yT + h - hh - 3;
+        c.fillStyle = cor; c.beginPath(); if(c.roundRect) c.roundRect(px + 2, y, w, hh, 4); else c.rect(px + 2, y, w, hh); c.fill();
+        c.save(); c.beginPath(); c.rect(px + 2, y, w, hh); c.clip(); c.fillStyle = '#12060F'; c.fillText(tx, px + 7, y + 12.5); c.restore();
+        EST.labR.push({ x: px - 3, y, w: w + 5, h: hh, t: o.l.t, T: o.T, nome: estNomeDe(it.id) }); }); }); }
+  function estLabHit(e){ if(!EST.labR) return null; const r = $('estCv').getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
+    for(let i = EST.labR.length - 1; i >= 0; i--){ const q = EST.labR[i]; if(x >= q.x && x <= q.x + q.w && y >= q.y && y <= q.y + q.h) return { q, x, y }; } return null; }
   // ---- ✋ técnica na onda: símbolo de cada técnica no ponto onde muda (plano ▬ / subida ◢ / sprint ⚡ · S sentado, P em pé, S/P combinado) ----
   function estTecSimb(nome){ const n = String(nome || '').trim(); if(!n) return null; const l = n.toLowerCase();
     const ter = /sprint/.test(l) ? 'sprint' : /subida|escalad|monta/.test(l) ? 'subida' : /plano|planic/.test(l) ? 'plano' : 'outra';
@@ -13849,6 +13911,7 @@ const SR3 = (()=>{
       if(k1 - k0 < 5000) for(let k = k0; k <= k1; k++){ const px = X(Gd.t0 + k * st), bt = Math.round(k * u), f = bt % 16 === 0 ? 2 : bt % 4 === 0 ? 1 : 0;
         c.fillStyle = f === 2 ? 'rgba(0,229,255,.9)' : f ? 'rgba(0,229,255,.6)' : 'rgba(0,229,255,.3)'; c.fillRect(px - (f ? .75 : .5), G.yL, f ? 1.5 : 1, G.np * G.hL); } }
       c.fillStyle = 'rgba(0,229,255,.95)'; c.font = '700 10px Inter,sans-serif'; c.fillText('🔒 grelha ' + Gd.bpm.toFixed(2).replace('.', ',') + ' BPM', 6, G.yL - 3); }
+    estLabPinta(c, G, W, M);
     estTecPinta(c, G, W, M);
     estTempoPinta(c, G, W);
     // pistas silenciadas pelo solo ficam escurecidas
