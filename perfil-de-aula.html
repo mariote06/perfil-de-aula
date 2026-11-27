@@ -646,6 +646,8 @@ html.live-on,html.live-on body{overflow:hidden !important;}
 
 
 /* ---------- projeção: cabeçalho, anel e cartões ---------- */
+.live-net{position:absolute;left:50%;top:74px;transform:translateX(-50%);z-index:60;background:#B45309;color:#fff;font:800 clamp(13px,1.6vh,18px) Inter,sans-serif;padding:8px 18px;border-radius:999px;box-shadow:0 6px 24px rgba(0,0,0,.55);white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis;}
+.live-net[hidden]{display:none;}
 .live-head{display:flex;align-items:center;gap:18px;padding:10px 20px;background:linear-gradient(180deg,#0E1219,#0A0D12);border-bottom:1px solid #1B212B;flex-shrink:0;min-height:64px;}
 .lh-logo{height:40px;max-width:170px;object-fit:contain;flex-shrink:0;}
 .lh-title{min-width:0;}
@@ -2183,30 +2185,6 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       <div class="ed-dadas" id="edDadas"></div>
     </div>
 
-    <div class="ed-cmd">
-      <div class="ed-clock" title="Início do intervalo selecionado">
-        <div><b id="clkH">00</b><small>hora</small></div><i>:</i>
-        <div><b id="clkM">00</b><small>min</small></div><i>:</i>
-        <div><b id="clkS">00</b><small>seg</small></div>
-      </div>
-      <div class="ed-transport">
-        <button id="trPrev" title="Intervalo anterior" aria-label="Intervalo anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="3" height="16" rx="1"/><path d="M20 4v16L8 12z"/></svg></button>
-        <button id="trPlay" class="play" title="Play do gráfico (Espaço)" aria-label="Play do gráfico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4z" fill="currentColor"/></svg></button>
-        <button id="trNext" title="Intervalo seguinte" aria-label="Intervalo seguinte"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="17" y="4" width="3" height="16" rx="1"/><path d="M4 4v16l12-8z"/></svg></button>
-      </div>
-      <div class="ed-links">
-        <button class="tool" id="undoBtn" title="Desfazer (Ctrl+Z)">desfazer</button>
-        <button class="tool" id="redoBtn" title="Refazer (Ctrl+Y)">refazer</button>
-        <button class="tool" id="zoomInBtn" title="Aproximar">aproximar</button>
-        <button class="tool" id="zoomOutBtn" title="Afastar">afastar</button>
-        <button class="tool" id="previewBtn" title="Abrir a projeção">pré-visualizar</button>
-      </div>
-      <div class="ed-links right">
-        <button class="tool" id="cmdSaveBtn" title="Guardar a aula">guardar aula</button>
-        <button class="tool" id="clearBtn" title="Apagar todos os intervalos">limpar tudo</button>
-      </div>
-    </div>
-
     <div class="zbtns" id="zoneDots"></div>
 
     <div class="ed-actions">
@@ -2234,6 +2212,30 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 
     <div class="zfeel" id="fFeel"></div>
     <div class="ed-multi" id="edMulti"></div>
+
+    <div class="ed-cmd">
+      <div class="ed-clock" title="Início do intervalo selecionado">
+        <div><b id="clkH">00</b><small>hora</small></div><i>:</i>
+        <div><b id="clkM">00</b><small>min</small></div><i>:</i>
+        <div><b id="clkS">00</b><small>seg</small></div>
+      </div>
+      <div class="ed-transport">
+        <button id="trPrev" title="Intervalo anterior" aria-label="Intervalo anterior"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="3" height="16" rx="1"/><path d="M20 4v16L8 12z"/></svg></button>
+        <button id="trPlay" class="play" title="Play do gráfico (Espaço)" aria-label="Play do gráfico"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4z" fill="currentColor"/></svg></button>
+        <button id="trNext" title="Intervalo seguinte" aria-label="Intervalo seguinte"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="17" y="4" width="3" height="16" rx="1"/><path d="M4 4v16l12-8z"/></svg></button>
+      </div>
+      <div class="ed-links">
+        <button class="tool" id="undoBtn" title="Desfazer (Ctrl+Z)">desfazer</button>
+        <button class="tool" id="redoBtn" title="Refazer (Ctrl+Y)">refazer</button>
+        <button class="tool" id="zoomInBtn" title="Aproximar">aproximar</button>
+        <button class="tool" id="zoomOutBtn" title="Afastar">afastar</button>
+        <button class="tool" id="previewBtn" title="Abrir a projeção">pré-visualizar</button>
+      </div>
+      <div class="ed-links right">
+        <button class="tool" id="cmdSaveBtn" title="Guardar a aula">guardar aula</button>
+        <button class="tool" id="clearBtn" title="Apagar todos os intervalos">limpar tudo</button>
+      </div>
+    </div>
 
     <div class="ed-tl">
       <button class="ed-nav" id="prevSel" title="Intervalo anterior (←)">‹</button>
@@ -2304,7 +2306,8 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
 
 <!-- LIVE / PROJECTION MODE -->
 <div class="live-overlay" id="liveOverlay">
-  <div class="live-head">
+  <div class="live-net" id="liveNet" hidden>📡 Sem internet neste PC: a aula continua e os telemóveis seguem pelo relógio. Acertam sozinhos quando a ligação voltar.</div>
+<div class="live-head">
     <img class="lh-logo" id="logoSala" src="logo-sala.png" alt="" onerror="this.style.display='none'">
     <div class="lh-title"><div class="lh-class" id="lhClass">Aula</div><div class="lh-sub" id="lhSub"></div></div>
     <div class="lh-center"><div class="lh-block" id="lhBlock">bloco 1 de 1</div><div class="lh-net">📡 Sem internet · o treino e a música continuam</div></div>
@@ -4871,7 +4874,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
       descricao: null,   // a descrição é privada do professor: não vai para a aula ao vivo
       modo: modoAtual(),
       blocos: current.blocos.map(x=>({nome:x.nome, min:x.min, sec:x.sec, ftp:x.ftp, alvo:alvoOf(x), teste:x.teste ? true : null, rpm:x.rpm, rpm2:x.rpm2||null, tipo:x.tipo||null, tecnica:x.tecnica||'', jogo:x.jogo||null})),
-      state: { blockIndex: 0, status: 'paused', remainingAtStart: blockDurationSec(b), startedAt: TS() },
+      state: { blockIndex: 0, status: 'paused', remainingAtStart: blockDurationSec(b), startedAt: tsAgora() },
       raceMetric: raceMetric,
       gpx: current.blocos.some(x=> x.jogo === 'p_gpx') ? GPX.atual() : null,   // percurso GPX: vai para os telemóveis dos alunos
       sala: salaLive(),
@@ -4889,7 +4892,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
         blockIndex: liveIdx,
         status: livePlaying ? 'playing' : 'paused',
         remainingAtStart: Math.max(0, liveRemaining),
-        startedAt: TS()
+        startedAt: tsAgora()   // a hora em que isto aconteceu (não a hora em que chega ao servidor)
       },
       updatedAt: TS()
     });
@@ -4898,7 +4901,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   function pushFinished(){
     if(!fbDb || !sessionPin) return;
     sessionRef(sessionPin).child('state').set({
-      blockIndex: current.blocos.length, status: 'finished', remainingAtStart: 0, startedAt: TS()
+      blockIndex: current.blocos.length, status: 'finished', remainingAtStart: 0, startedAt: tsAgora()
     });
   }
 
@@ -4925,6 +4928,14 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
   let riders = {};
   let ridersRef = null, offsetRef = null;
   let serverOffset = 0;
+  // 📡 ligação deste PC ao Firebase. Sem internet as escritas ficam em fila e só chegam quando a ligação volta:
+  // se levassem ServerValue.TIMESTAMP, o servidor carimbava a hora da reconexão (e os telemóveis ficavam atrasados o tempo da falha).
+  // Por isso a hora do início de cada bloco vai calculada aqui (relógio do PC + diferença para o servidor, medida com internet).
+  const NET = { on: true, ok: false, desde: 0, volta: 0 };
+  if(fbDb){ try{ fbDb.ref('.info/serverTimeOffset').on('value', sn=>{ serverOffset = sn.val() || 0; });
+    fbDb.ref('.info/connected').on('value', sn=>{ const on = !!sn.val(); if(on){ if(NET.ok && !NET.on) NET.volta = Date.now() + serverOffset; NET.ok = true; NET.on = true; } else if(NET.ok && NET.on){ NET.on = false; NET.desde = Date.now() + serverOffset; } try{ netPinta(); }catch(e){} }); }catch(e){} }
+  function tsAgora(){ return NET.ok ? Math.round(Date.now() + serverOffset) : TS(); }   // nunca ligou: fica a hora do servidor, como antes
+  function netPinta(){ const el = document.getElementById('liveNet'); if(el) el.hidden = NET.on || !sessionPin; }
   let viewMode = 'auto';            // 'auto' | 'aula' | 'turma' | 'corrida'
   let modoFixo = false;   // o professor escolheu um modo (Aula, Turma, Corrida, Sala): ao mudar de bloco a projeção não salta para o jogo/percurso
   let raceMetric = localStorage.getItem('ptCyclingRaceMetric') || 'pts'; // 'pts' | 'kj'
@@ -4940,7 +4951,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     ridersRef.on('value', s=>{ riders = s.val() || {}; try{ godProcessa(); }catch(e){} });   // + pedidos do God Mode na app PlayRide do professor
     offsetRef = fbDb.ref('.info/serverTimeOffset');
     offsetRef.on('value', s=>{ serverOffset = s.val() || 0; });
-    ridersUiHandle = setInterval(()=>{ renderRiders(); updateLiveHead(); }, 1000);
+    ridersUiHandle = setInterval(()=>{ renderRiders(); updateLiveHead(); try{ netPinta(); }catch(e){} }, 1000);
     rankHandle = setInterval(pushRanking, 4000);
     renderRiders();
   }
@@ -4957,7 +4968,7 @@ body.god-tel-on{overflow:auto;background:#0A0C14;}
     const now = serverNow();
     const L = Object.keys(riders).map(id=>{
       const r = riders[id] || {};
-      const online = !r.left && (now - (r.t||0)) < 15000;
+      const congela = NET.desde && (!NET.on || now - NET.volta < 8000), online = !r.left && ((now - (r.t||0)) < 15000 || (congela && NET.desde - (r.t||0) < 15000));   // 📡 sem internet neste PC não há dados novos: não os põe "fora da app"
       return Object.assign({id:id, online:online}, r);
     });
     return nomesUnicos(L);
@@ -12478,6 +12489,11 @@ const SR3 = (()=>{
   // nota de energia 1–10 (ou a que escreveste à mão)
   function estEnergia(t){ if(!t) return null; if(t.enM && t.en) return t.en; if(t.eR == null) return null; const S = estEnStats(), z = (k, v)=> v == null ? 0 : Math.max(-2.5, Math.min(2.5, (v - S[k][0]) / S[k][1]));
     const sc = .4 * z('eR', t.eR) + .3 * z('eO', t.eO) + .2 * z('eH', t.eH) + .1 * z('bpmE', t.bpm * estMu(t.bpm)); return Math.max(1, Math.min(10, Math.round(5.5 + sc * 2.2))); }
+  // ⚡ energia sem arredondar (para dizer se uma música é mais forte do que outra)
+  function estEnergiaV(t){ if(!t) return null; if(t.enM && t.en) return +t.en; if(t.eR == null) return null; const S = estEnStats(), z = (k, v)=> v == null ? 0 : Math.max(-2.5, Math.min(2.5, (v - S[k][0]) / S[k][1]));
+    return 5.5 + (.4 * z('eR', t.eR) + .3 * z('eO', t.eO) + .2 * z('eH', t.eH) + .1 * z('bpmE', t.bpm * estMu(t.bpm))) * 2.2; }
+  // zona do bloco para a música: Z1, Z2, Z3 e "forte" (Z4–Z7 contam como uma só, 4); 0 = segmento ou sem intensidade
+  function estZonaMus(b){ if(!b || b.tipo === 'seg') return 0; const f = +b.ftp || 0; if(!f) return 0; return Math.min(4, zoneIdx(f, 'ftp') + 1); }
   // 😓 fadiga acumulada no instante T (0 = início, 1 = fim): carga dos blocos já feitos (duração × intensidade²) a dividir pela carga da aula toda
   function estFadiga(T){ const BL = current.blocos || []; let s = 0, feito = 0, tot = 0;
     for(const b of BL){ const d = blockDurationSec(b), f = b.tipo === 'seg' ? 0 : (+b.ftp || 0) / 100, c = d * f * f; tot += c;
@@ -12486,7 +12502,7 @@ const SR3 = (()=>{
   // intensidade pedida pelo bloco (da % FTP): aquecimento ~2–3 · Z2 ~4 · limiar ~7 · VO2/sprint 9–10
   // ⚡ nos blocos duros (≥ 91% FTP) o alvo sobe com a fadiga: o mesmo Z4 pede ~6 no início e ~8 no fim (é a música que tem de "puxar")
   function estAlvoEn(T){ let s = 0; for(const b of (current.blocos || [])){ const d = blockDurationSec(b); if(T < s + d){ if(b.tipo === 'seg') return null; const f = +b.ftp || 0; if(!f) return null;
-      let a = (f - 30) / 9.5; if(f >= 91) a += -0.8 + 2.4 * estFadiga(s + d / 2);
+      let a = estZonaMus(b) >= 4 ? 8 + 1.6 * estFadiga(s + d / 2) : (f - 30) / 9.5;   // 💪 Z4–Z7: sem distinção entre zonas, música forte (8 no início → 9,6 no fim da aula)
       return Math.max(1, Math.min(10, Math.round(a * 10) / 10)); } s += d; } return null; }
   const EST_ENC = ['', '#3b6fd9', '#3f8fe0', '#3fb4d9', '#3fd0a6', '#5fd068', '#a8d04a', '#e0c44a', '#f0954a', '#f0664a', '#e8384f'];
   function estEnTag(e, alvo){ if(e == null) return '<small style="color:#5c6470">—</small>'; const d = alvo != null ? e - alvo : 0; return '<b class="est-en" style="background:' + EST_ENC[e] + '" title="Energia ' + e + '/10' + (alvo != null ? ' · o bloco pede ' + String(alvo).replace('.', ',') : '') + '">⚡' + e + '</b>' + (alvo != null && Math.abs(d) >= 2 ? '<small class="mau"> ' + (d > 0 ? '▲' : '▼') + '</small>' : ''); }
@@ -12819,9 +12835,9 @@ const SR3 = (()=>{
       const en = seg || !f ? null : Math.max(1, Math.min(10, (f - 30) / 9.5)); let r = 'plano';
       if(b.tipo === 'cool' || /retorno|calma|along/i.test(nome)) r = 'calma';
       else if(/aquec/i.test(nome) || (!trab && f && f < 66)) r = 'aq';
-      else if(/sprint/i.test(tec) || f >= 118) r = 'sprint';
+      else if(estZonaMus(b) >= 4) r = 'forte';   // 💪 Z4, Z5, Z6 e Z7 são todos "forte" (sem distinção entre zonas)
+      else if(/sprint/i.test(tec)) r = 'sprint';
       else if(f && f < 60) r = 'rec';
-      else if(f >= 100) r = 'forte';
       else if(/subida/i.test(tec)) r = 'subida';
       if(r !== 'aq' && r !== 'calma' && f >= 66) trab = true;
       const ant = R[R.length - 1], pico = (r === 'sprint' || r === 'forte' || (en != null && en >= 7)) && (!ant || ant.en == null || en - ant.en >= 1.5 || ant.r === 'rec');
@@ -12865,7 +12881,8 @@ const SR3 = (()=>{
       for(const C of L){ const T = C.t, u = st.us[T.id] || 0; if(!EST.rep && u > 0) continue; if(T.id === st.ult) continue;
         const dc = EST.cam && camU ? estCamDist(camU, T.cam) : -1, pc = dc < 0 ? (EST.cam && camU ? .08 : 0) : [0, .02, .07, .3][dc];
         const pe = EST.en && alvo != null && C.en != null ? Math.abs(C.en - alvo) * .035 : 0;
-        pre.push([C, (g.cad > 0 ? C.dev : T.bpm / 1000) + u * .25 + (C.dev > .08 ? .3 : 0) + pc + pe + (usaF && m ? estPapelNota(T, m.r, m.fad) * pw + estApNota(T, m.r) : 0) + (m ? estMoNota(T, m.r, m.fad) : 0) + (EST.qrCol ? (T.col === EST.qrCol ? -.3 : .06) : 0)]); }
+        let sob = 0; if(g.sobe && first && ultT){ const e0 = estEnergiaV(ultT), e1 = estEnergiaV(T); sob = e0 == null || e1 == null ? .5 : e1 > e0 + .05 ? 0 : 2 + (e0 - e1) * .2; }   // 💪 bloco igual ao anterior: tem de ser mais forte do que a música de trás
+        pre.push([C, sob + (g.cad > 0 ? C.dev : T.bpm / 1000) + u * .25 + (C.dev > .08 ? .3 : 0) + pc + pe + (usaF && m ? estPapelNota(T, m.r, m.fad) * pw + estApNota(T, m.r) : 0) + (m ? estMoNota(T, m.r, m.fad) : 0) + (EST.qrCol ? (T.col === EST.qrCol ? -.3 : .06) : 0)]); }
       pre.sort((a, b)=> a[1] - b[1]);
       for(const [C, sc0] of pre.slice(0, usaF ? 36 : K)){ const T = C.t, bl = 60 / T.bpm, F = usaF ? estForma(T) : null;
         let ini0 = T.beat0; while(ini0 < 0) ini0 += bl; if(st.n && T.dur - ini0 > 16 * bl + 40) ini0 += 16 * bl;
@@ -12961,8 +12978,8 @@ const SR3 = (()=>{
     const M = current.mix = Object.assign({ trans: 'eq', vol: .85, pistas: 2 }, current.mix || {}, { itens: [] }); delete M.tempo;   // encher de novo recomeça o BPM de cada música
     if(!EST_TRANS[M.trans]) M.trans = 'eq';
     const BL = current.blocos || []; let t = 0; const G = [];
-    BL.forEach(b=>{ const d = blockDurationSec(b), c = estCad(b), u = G[G.length - 1];
-      if(u && ((c > 0 && u.cad > 0 && Math.abs(c - u.cad) <= 2) || (c <= 0 && u.cad <= 0))) u.tE = t + d; else G.push({ tS: t, tE: t + d, cad: c }); t += d; });
+    BL.forEach((b, i)=>{ const d = blockDurationSec(b), c = estCad(b), u = G[G.length - 1], z = estZonaMus(b), igual = i > 0 && z > 0 && estZonaMus(BL[i - 1]) === z;   // 2 blocos iguais seguidos (a mesma zona; Z4–Z7 contam como uma)
+      if(u && !igual && ((c > 0 && u.cad > 0 && Math.abs(c - u.cad) <= 2) || (c <= 0 && u.cad <= 0))) u.tE = t + d; else G.push({ tS: t, tE: t + d, cad: c, sobe: igual }); t += d; });   // o 2.º bloco igual leva música nova e mais forte, seja qual for a cadência
     const P = estPlaneia(G, M), falta = P ? P.falta.map(gi=> G[gi]) : G.slice();
     (P ? P.pl : []).forEach(x=>{ const T = x.C.t, C = x.C, g = G[x.gi], cad = g.cad > 0 ? g.cad : T.bpm * C.mu;
       const B = { id: T.id, t0: x.c0, t1: Math.round(x.t1 * 100) / 100, ini: Math.round(x.ini * 1000) / 1000, rate: Math.round(C.rate * 10000) / 10000, fIn: 1.5, fOut: 4, cIn: 'eq', cOut: 'eq', g: 1, bpm: Math.round(cad), mu: C.mu, c: x.c0, p: M.itens.length % estPistas(M) };
@@ -13383,7 +13400,16 @@ const SR3 = (()=>{
     sincro();
     $('estLibT').querySelectorAll('[data-na]').forEach(b=> b.onclick = e=>{ e.stopPropagation(); const L2 = estLib(), t = L2.find(x=> x.id === b.dataset.na); if(!t) return; if(t.noAuto) delete t.noAuto; else t.noAuto = true; estGravaLib(L2); estPinta();
       toast(t.noAuto ? '⛔ "' + t.nome + '" fica fora do enchimento automático (podes pô-la à mão)' : '✨ "' + t.nome + '" volta a poder ser escolhida ao encher'); });
-    $('estLibT').querySelectorAll('tr[data-lib]').forEach(r=> r.ondragstart = e=>{ e.dataTransfer.setData('text/est-lib', r.dataset.lib); e.dataTransfer.effectAllowed = 'copy'; });
+    $('estLibT').querySelectorAll('tr[data-lib]').forEach(r=>{ r.ondragstart = e=>{ e.dataTransfer.setData('text/est-lib', r.dataset.lib); e.dataTransfer.effectAllowed = 'copy'; };
+    });
+    // ⇢ duplo clique numa música: entra a seguir à selecionada na mistura (ou no fim). Guarda a música do 1.º clique (o 1.º clique seleciona a linha e a tabela pode mexer-se) e desfaz a seleção que os dois cliques fizeram
+    { const LT = $('estLibT'); if(LT && !LT._dbl){ LT._dbl = 1;
+      // dois cliques no mesmo sítio do ecrã em menos de 450 ms (não usa o dblclick do navegador: a tabela é redesenhada entre os cliques)
+      LT.addEventListener('pointerdown', e=>{ if(e.button !== 0) return; const now = performance.now(), d = EST.dblLib;
+        if(d && now - d.t < 450 && Math.abs(e.clientX - d.x) < 12 && Math.abs(e.clientY - d.y) < 12){ EST.dblLib = null; EST.dblLibOk = now; e.preventDefault(); e.stopPropagation(); EST.libSel = d.sel; estJuntaDepois(d.id); return; }
+        const r = e.target.closest('tr[data-lib]'); EST.dblLib = r && !e.target.closest('button, input, select, a, label') ? { id: r.dataset.lib, t: now, x: e.clientX, y: e.clientY, sel: new Set(EST.libSel || []) } : null; }, true);
+      LT.addEventListener('click', e=>{ if(EST.dblLibOk && performance.now() - EST.dblLibOk < 600){ e.stopPropagation(); e.preventDefault(); } }, true);   // o 2.º clique não mexe na seleção
+      LT.addEventListener('dblclick', e=>{ if(e.target.closest('tr[data-lib]')){ e.preventDefault(); const sl = window.getSelection && window.getSelection(); if(sl) sl.removeAllRanges(); } }); } }
     $('estLibT').querySelectorAll('[data-ouv]').forEach(b=> b.onclick = async ()=>{ if(EST.ouveLib){ EST.ouveLib.pause(); const era = EST.ouveLib._id; EST.ouveLib = null; if(era === b.dataset.ouv) return; }
       b.textContent = '⏳'; const av = estEsperaAviso(); let u = await estUrl(b.dataset.ouv, true); clearTimeout(av); b.textContent = '▶';
       if(!u){ const t0 = (EST_LIB.L || []).find(x=> x.id === b.dataset.ouv); if(t0 && t0.fh && window.showOpenFilePicker && confirm('🔗 Não consigo abrir "' + t0.nome + '" pelo atalho guardado.\n\nQueres escolher o ficheiro outra vez? (fica com um atalho novo; não volta a analisar)')){
@@ -13448,6 +13474,25 @@ const SR3 = (()=>{
     const n = ate - it.t1 > 4 ? estPreencheVazio(M, it, ate) : 0;
     estTempoSync(); mixRefaz(); persist(); EST.sel = i; estPinta();
     toast('↔ ' + t.nome + (Math.abs(rate - 1) > .08 ? ' · ⚠ ritmo ' + (rate > 1 ? '+' : '') + Math.round((rate - 1) * 100) + '% para a cadência do bloco' : '') + (n ? ' · +' + n + (n === 1 ? ' música' : ' músicas') + ' para preencher o espaço' : ''));
+  }
+  // ⇢ duplo clique numa música da biblioteca: entra a seguir à música selecionada na mistura (as seguintes andam para a frente, como numa playlist);
+  //   sem nenhuma selecionada, vai para o fim da mistura. A nova fica selecionada, por isso vários duplos cliques põem as músicas por ordem.
+  function estJuntaDepois(id){
+    const M = mixAtivo(), A = M && M.itens[EST.sel], t = estLib().find(x=> x.id === id); if(!t) return;
+    if(!A){ estJuntaFim(id); const M2 = mixAtivo(); if(M2){ const O = estOrdem(M2, true); const u = O[O.length - 1]; if(u && u.id === id) EST.sel = M2.itens.indexOf(u); } estPinta(); return; }
+    pushUndo(); const O = estOrdem(M, true), k = O.indexOf(A), segs = O.slice(k + 1), C = segs[0] || null, np = estPistas(M);
+    const T = A.t1; let b = null, s0 = 0; for(const x of (current.blocos || [])){ const d = blockDurationSec(x); if(T < s0 + d){ b = x; break; } s0 += d; }
+    const cad = estCad(b), mu = estMu(t.bpm), rate = cad > 0 ? Math.max(.85, Math.min(1.15, cad / (t.bpm * mu))) : 1, len = (t.dur - (t.beat0 || 0) - 1) / rate;
+    const B = { id, t0: T, t1: Math.round((T + len) * 100) / 100, ini: t.beat0 || 0, rate: Math.round(rate * 10000) / 10000, fIn: 2, fOut: 4, cIn: 'eq', cOut: 'eq', g: 1, bpm: cad > 0 ? cad : Math.round(t.bpm * mu), mu, c: T, p: ((A.p || 0) + 1) % np };
+    const A1 = A.t1; estTransPar(A, B, M.trans || 'eq');
+    // as seguintes andam para a frente o tempo da nova (a troca para a seguinte passa a ser no fim da nova)
+    const desl = C ? B.t1 - (C.c != null ? C.c : C.t0) : 0;
+    if(desl > 0) segs.forEach(x=>{ x.t0 = Math.round((x.t0 + desl) * 100) / 100; x.t1 = Math.round((x.t1 + desl) * 100) / 100; if(x.c != null) x.c = Math.round((x.c + desl) * 100) / 100; });
+    M.itens.push(B); let ant = B; segs.forEach(x=>{ if(x.ov) return; x.p = ((ant.p || 0) + 1) % np; ant = x; });   // pistas alternadas a partir da nova
+    if(C && !C.ov) estTransPar(B, C, C.trans || M.trans || 'eq');
+    estApJunta(id, T, 1, 'a'); EST.sel = M.itens.indexOf(B); mixRefaz(); persist(); estPinta();
+    const tot = audTot(), fora = desl > 0 && segs.some(x=> x.t1 > tot + 1);
+    toast('＋ ' + t.nome + ' a seguir a ' + estNomeDe(A.id) + ', aos ' + fmtTime(Math.round(B.t0)) + (desl > 0 ? ' · as ' + segs.length + ' seguintes andaram ' + fmtTime(Math.round(desl)) + ' para a frente' + (fora ? ' (algumas passam do fim da aula)' : '') : '') + (cad > 0 && Math.abs(rate - 1) > .005 ? ' · ' + (rate > 1 ? '+' : '') + Math.round((rate - 1) * 100) + '% para ' + cad + ' rpm' : ''));
   }
   // junta a música no fim da mistura (a seguir à última, com 4 s de transição); se a mistura já chega ao fim da aula, fica no cursor
   function estJuntaFim(id){
@@ -13765,6 +13810,12 @@ const SR3 = (()=>{
     const antes = M.itens.filter(x=> x.t0 < a && x.t1 > a - 8).sort((p, q)=> q.t1 - p.t1)[0] || null, depois = M.itens.filter(x=> x.t0 >= fim - 4).sort((p, q)=> p.t0 - q.t0)[0] || null;
     const cands = ()=> estCandidatos(cad, M, us, antes ? antes.id : null, estAlvoEn(a + 20), a).filter(c=> !vistos.includes(c.t.id) && !(us[c.t.id] > 0));
     let C = cands(); if(!C.length && vistos.length){ vistos.length = 0; C = cands(); }   // já viu todas: recomeça a roda
+    // 💪 blocos iguais seguidos (a mesma zona; Z4–Z7 contam como uma): o 2.º tem de ter música mais forte do que o 1.º
+    const zB = estZonaMus(b), igAnt = bi > 0 && zB > 0 && estZonaMus(BL[bi - 1]) === zB, igDep = zB > 0 && estZonaMus(BL[bi + 1]) === zB, LM = estLibMap();
+    const eMin = igAnt && antes ? estEnergiaV(LM[antes.id]) : null, eMax = igDep && depois ? estEnergiaV(LM[depois.id]) : null; let avisoE = '';
+    if(eMin != null || eMax != null){ const filtra = L=> L.filter(c=>{ const e = estEnergiaV(c.t); return e != null && (eMin == null || e > eMin + .05) && (eMax == null || e < eMax - .05); });
+      let ok = filtra(C); if(!ok.length && vistos.length){ vistos.length = 0; ok = filtra(cands()); }   // já mostrou todas as mais fortes: recomeça a roda só com elas
+      if(ok.length) C = ok; else avisoE = ' ⚠️ Não encontrei música ' + (eMin != null ? 'mais forte do que a do bloco anterior' : 'mais fraca do que a do bloco seguinte') + ' a esta cadência: pus a melhor que há.'; }
     if(!C.length){ toast('🎵 Não encontrei músicas para ' + (cad > 0 ? cad + ' rpm' : 'este bloco') + ' (até ±12 % de velocidade). Junta mais músicas à biblioteca ou muda a cadência.'); return; }
     const ini0 = T=>{ const bl = 60 / T.bpm; let ini = T.beat0 || 0; while(ini < 0) ini += bl; if(T.dur - ini > 16 * bl + 60) ini += 16 * bl; return ini; };
     const cabe = c=> (c.t.dur - ini0(c.t) - 1) / c.rate;
@@ -13780,7 +13831,7 @@ const SR3 = (()=>{
       M.itens.push(B); novos.push(B); aqui.add(T.id); us[T.id] = (us[T.id] || 0) + 1; vistos.push(T.id); ant = B; cur = B.t1; }
     if(depois && ant) estTransPar(ant, depois, M.trans || 'eq'); else if(ant) ant.fOut = Math.min(4, Math.max(1, ant.t1 - ant.t0 - 1));
     M.assin = estAssin(); EST.sel = M.itens.indexOf(novos[0]); mixRefaz(); if(EST.play) mixSync(EST.pT, true, true); persist(); estPinta();
-    toast('🎵 Bloco ' + (bi + 1) + (cad > 0 ? ' · ' + cad + ' rpm' : '') + ': ' + novos.map(x=> '"' + estNomeDe(x.id) + '"').join(' + ') + '. Clica outra vez no bloco para outras músicas (Ctrl+Z desfaz).');
+    toast('🎵 Bloco ' + (bi + 1) + (cad > 0 ? ' · ' + cad + ' rpm' : '') + ': ' + novos.map(x=> '"' + estNomeDe(x.id) + '"').join(' + ') + '. Clica outra vez no bloco para outras músicas (Ctrl+Z desfaz).' + avisoE);
   }
   // ---- 🏷 labels na música (tecla L): ficam presas ao som (segundo da música), por isso andam com ela quando a mexes ou cortas ----
   function estTdeSom(it, s){ let a = it.t0, b = it.t1; for(let k = 0; k < 40; k++){ const m = (a + b) / 2; if(estPosMus(it, m) < s) a = m; else b = m; } return (a + b) / 2; }
