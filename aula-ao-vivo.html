@@ -111,6 +111,8 @@ body:has(#liveScreen.active) .legal{display:none;}
 .sensor .s-name{font-weight:600;font-size:14px;}
 .sensor .s-status{font-size:12px;color:var(--muted);margin-top:2px;}
 .sensor .s-status.on{color:var(--ok);}
+.sensor .s-bt{font-size:12px;color:var(--muted);margin-top:3px;font-variant-numeric:tabular-nums;}
+.sensor .s-bt b{color:var(--text,#e8ecf3);font-weight:800;letter-spacing:.3px;}
 .sensor button{
   background:var(--surface-2);border:1px solid var(--border);color:#fff;border-radius:8px;
   padding:9px 12px;font-size:13px;font-weight:600;white-space:nowrap;
@@ -1682,7 +1684,7 @@ body:has(#setupScreen.active) .legal{display:none}
 
     <div class="favs" id="favBox" hidden><div class="favs-h">⭐ Os teus favoritos <small>toca para ligar</small></div><div class="favs-l" id="favList"></div><div class="favs-dica" id="favDica" hidden>Este browser ainda pede para confirmar na lista. Para ligar logo: no Chrome, abre <b>chrome://flags</b>, procura <b>Web Bluetooth new permissions backend</b> e põe <b>Enabled</b>.</div></div>
     <div class="sensor">
-      <div><div class="s-name">🚲 Bike <span class="bk-num" id="bkNum" hidden></span><button type="button" class="fav-st" id="favBike" hidden title="Guardar nos favoritos">☆</button></div><div class="s-status" id="bikeStatus">desligada</div></div>
+      <div><div class="s-name">🚲 Bike <span class="bk-num" id="bkNum" hidden></span><button type="button" class="fav-st" id="favBike" hidden title="Guardar nos favoritos">☆</button></div><div class="s-status" id="bikeStatus">desligada</div><div class="s-bt" id="bikeBt" hidden></div></div>
       <button id="bikeBtn">Ligar</button>
     </div>
     <div class="sensor">
@@ -3220,7 +3222,10 @@ body:has(#setupScreen.active) .legal{display:none}
 
   function setBikeStatus(txt, on){
     if(S.bikeName && txt.indexOf(S.bikeName) >= 0) txt = txt.split(S.bikeName).join(bkNome(S.bikeName));   // o nome do sensor aparece como "Bike 7" quando a bike está no mapa da sala
-    $('bikeStatus').textContent = txt; $('bikeStatus').classList.toggle('on', !!on);
+    // ligada e sem número de sala: o nome já aparece na linha 📶 Bluetooth, por isso o estado diz só "ligada"
+    $('bikeStatus').textContent = on && S.bikeName && txt === S.bikeName + ' ligada' ? 'ligada' : txt; $('bikeStatus').classList.toggle('on', !!on);
+    // 📶 nome Bluetooth da bike ligada (o número que aparece na consola), mesmo quando o estado diz "Bike 7"
+    const bt = $('bikeBt'); if(bt){ const nb = on && !/^modo teste/.test(txt) && S.bikeName ? String(S.bikeName) : ''; bt.hidden = !nb; bt.innerHTML = nb ? '📶 Bluetooth: <b>' + escapeHtml(nb) + '</b>' : ''; }
     $('bikeBtn').textContent = on ? 'Ligada ✓' : 'Ligar'; $('bikeBtn').classList.toggle('on', !!on);
     if(typeof favsRender === 'function') try{ favsRender(); }catch(e){}
     $('chipBike').classList.toggle('on', !!on || demo);
